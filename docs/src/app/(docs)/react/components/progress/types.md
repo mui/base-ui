@@ -190,124 +190,79 @@ type ProgressLabelState = {
 type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 ```
 
-### ProgressIndicatorDataAttributes.complete
+### ProgressIndicatorDataAttributes
 
-Present when the progress has completed.
+Data attributes of [Indicator](#indicator).
 
 ```typescript
-type ProgressIndicatorDataAttributescomplete = 'data-complete';
+declare namespace ProgressIndicatorDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
 ```
 
-### ProgressIndicatorDataAttributes.indeterminate
+### ProgressLabelDataAttributes
 
-Present when the progress is in indeterminate state.
+Data attributes of [Label](#label).
 
 ```typescript
-type ProgressIndicatorDataAttributesindeterminate = 'data-indeterminate';
+declare namespace ProgressLabelDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
 ```
 
-### ProgressIndicatorDataAttributes.progressing
+### ProgressRootDataAttributes
 
-Present while the progress is progressing.
+Data attributes of [Root](#root).
 
 ```typescript
-type ProgressIndicatorDataAttributesprogressing = 'data-progressing';
+declare namespace ProgressRootDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
 ```
 
-### ProgressLabelDataAttributes.complete
+### ProgressTrackDataAttributes
 
-Present when the progress has completed.
+Data attributes of [Track](#track).
 
 ```typescript
-type ProgressLabelDataAttributescomplete = 'data-complete';
+declare namespace ProgressTrackDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
 ```
 
-### ProgressLabelDataAttributes.indeterminate
+### ProgressValueDataAttributes
 
-Present when the progress is in indeterminate state.
-
-```typescript
-type ProgressLabelDataAttributesindeterminate = 'data-indeterminate';
-```
-
-### ProgressLabelDataAttributes.progressing
-
-Present while the progress is progressing.
+Data attributes of [Value](#value).
 
 ```typescript
-type ProgressLabelDataAttributesprogressing = 'data-progressing';
-```
-
-### ProgressRootDataAttributes.complete
-
-Present when the progress has completed.
-
-```typescript
-type ProgressRootDataAttributescomplete = 'data-complete';
-```
-
-### ProgressRootDataAttributes.indeterminate
-
-Present when the progress is in indeterminate state.
-
-```typescript
-type ProgressRootDataAttributesindeterminate = 'data-indeterminate';
-```
-
-### ProgressRootDataAttributes.progressing
-
-Present while the progress is progressing.
-
-```typescript
-type ProgressRootDataAttributesprogressing = 'data-progressing';
-```
-
-### ProgressTrackDataAttributes.complete
-
-Present when the progress has completed.
-
-```typescript
-type ProgressTrackDataAttributescomplete = 'data-complete';
-```
-
-### ProgressTrackDataAttributes.indeterminate
-
-Present when the progress is in indeterminate state.
-
-```typescript
-type ProgressTrackDataAttributesindeterminate = 'data-indeterminate';
-```
-
-### ProgressTrackDataAttributes.progressing
-
-Present while the progress is progressing.
-
-```typescript
-type ProgressTrackDataAttributesprogressing = 'data-progressing';
-```
-
-### ProgressValueDataAttributes.complete
-
-Present when the progress has completed.
-
-```typescript
-type ProgressValueDataAttributescomplete = 'data-complete';
-```
-
-### ProgressValueDataAttributes.indeterminate
-
-Present when the progress is in indeterminate state.
-
-```typescript
-type ProgressValueDataAttributesindeterminate = 'data-indeterminate';
-```
-
-### ProgressValueDataAttributes.progressing
-
-Present while the progress is progressing.
-
-```typescript
-type ProgressValueDataAttributesprogressing = 'data-progressing';
+declare namespace ProgressValueDataAttributes {
+  /** Present when the progress has completed. */
+  const complete: 'data-complete';
+  /** Present when the progress is in indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present while the progress is progressing. */
+  const progressing: 'data-progressing';
+}
 ```
 
 ## Export Groups
@@ -317,7 +272,7 @@ type ProgressValueDataAttributesprogressing = 'data-progressing';
 - `Progress.Indicator`: `Progress.Indicator`, `Progress.Indicator.State`, `Progress.Indicator.Props`
 - `Progress.Value`: `Progress.Value`, `Progress.Value.State`, `Progress.Value.Props`
 - `Progress.Label`: `Progress.Label`, `Progress.Label.State`, `Progress.Label.Props`
-- `Default`: `Progress.Status`, `ProgressRootDataAttributes.complete`, `ProgressRootDataAttributes.indeterminate`, `ProgressRootDataAttributes.progressing`, `ProgressTrackDataAttributes.complete`, `ProgressTrackDataAttributes.indeterminate`, `ProgressTrackDataAttributes.progressing`, `ProgressIndicatorDataAttributes.complete`, `ProgressIndicatorDataAttributes.indeterminate`, `ProgressIndicatorDataAttributes.progressing`, `ProgressValueDataAttributes.complete`, `ProgressValueDataAttributes.indeterminate`, `ProgressValueDataAttributes.progressing`, `ProgressLabelDataAttributes.complete`, `ProgressLabelDataAttributes.indeterminate`, `ProgressLabelDataAttributes.progressing`, `ProgressStatus`, `ProgressRootState`, `ProgressRootProps`, `ProgressIndicatorState`, `ProgressIndicatorProps`, `ProgressLabelState`, `ProgressLabelProps`, `ProgressTrackState`, `ProgressTrackProps`, `ProgressValueState`, `ProgressValueProps`
+- `Default`: `Progress.Status`, `ProgressRootDataAttributes`, `ProgressTrackDataAttributes`, `ProgressIndicatorDataAttributes`, `ProgressValueDataAttributes`, `ProgressLabelDataAttributes`, `ProgressStatus`, `ProgressRootState`, `ProgressRootProps`, `ProgressIndicatorState`, `ProgressIndicatorProps`, `ProgressLabelState`, `ProgressLabelProps`, `ProgressTrackState`, `ProgressTrackProps`, `ProgressValueState`, `ProgressValueProps`
 
 ## Canonical Types
 

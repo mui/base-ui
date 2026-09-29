@@ -243,172 +243,76 @@ type OTPFieldSeparatorState = {
 
 ## Additional Types
 
-### OTPFieldInputDataAttributes.complete
+### OTPFieldInputDataAttributes
 
-Present when all slots are filled.
+Data attributes of [Input](#input).
 
 ```typescript
-type OTPFieldInputDataAttributescomplete = 'data-complete';
+declare namespace OTPFieldInputDataAttributes {
+  /** Present when all slots are filled. */
+  const complete: 'data-complete';
+  /** Present when the input contains a character. */
+  const filled: 'data-filled';
+  /** Present when the OTP field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the OTP field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the OTP field is required. */
+  const required: 'data-required';
+  /** Present when the OTP field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the OTP field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the OTP field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the OTP field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when any OTP field input is focused. */
+  const focused: 'data-focused';
+}
 ```
 
-### OTPFieldInputDataAttributes.dirty
+### OTPFieldRootDataAttributes
 
-Present when the OTP field's value has changed (when wrapped in Field.Root).
+Data attributes of [Root](#root).
 
 ```typescript
-type OTPFieldInputDataAttributesdirty = 'data-dirty';
+declare namespace OTPFieldRootDataAttributes {
+  /** Present when all slots are filled. */
+  const complete: 'data-complete';
+  /** Present when the OTP field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the OTP field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the OTP field is required. */
+  const required: 'data-required';
+  /** Present when the OTP field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the OTP field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the OTP field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the OTP field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the OTP field contains at least one character. */
+  const filled: 'data-filled';
+  /** Present when one of the OTP field inputs is focused. */
+  const focused: 'data-focused';
+}
 ```
 
-### OTPFieldInputDataAttributes.disabled
+### OTPFieldSeparatorDataAttributes
 
-Present when the OTP field is disabled.
-
-```typescript
-type OTPFieldInputDataAttributesdisabled = 'data-disabled';
-```
-
-### OTPFieldInputDataAttributes.filled
-
-Present when the input contains a character.
+Data attributes of [Separator](#separator).
 
 ```typescript
-type OTPFieldInputDataAttributesfilled = 'data-filled';
-```
-
-### OTPFieldInputDataAttributes.focused
-
-Present when any OTP field input is focused.
-
-```typescript
-type OTPFieldInputDataAttributesfocused = 'data-focused';
-```
-
-### OTPFieldInputDataAttributes.invalid
-
-Present when the OTP field is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type OTPFieldInputDataAttributesinvalid = 'data-invalid';
-```
-
-### OTPFieldInputDataAttributes.readonly
-
-Present when the OTP field is readonly.
-
-```typescript
-type OTPFieldInputDataAttributesreadonly = 'data-readonly';
-```
-
-### OTPFieldInputDataAttributes.required
-
-Present when the OTP field is required.
-
-```typescript
-type OTPFieldInputDataAttributesrequired = 'data-required';
-```
-
-### OTPFieldInputDataAttributes.touched
-
-Present when the OTP field has been touched (when wrapped in Field.Root).
-
-```typescript
-type OTPFieldInputDataAttributestouched = 'data-touched';
-```
-
-### OTPFieldInputDataAttributes.valid
-
-Present when the OTP field is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type OTPFieldInputDataAttributesvalid = 'data-valid';
-```
-
-### OTPFieldRootDataAttributes.complete
-
-Present when all slots are filled.
-
-```typescript
-type OTPFieldRootDataAttributescomplete = 'data-complete';
-```
-
-### OTPFieldRootDataAttributes.dirty
-
-Present when the OTP field's value has changed (when wrapped in Field.Root).
-
-```typescript
-type OTPFieldRootDataAttributesdirty = 'data-dirty';
-```
-
-### OTPFieldRootDataAttributes.disabled
-
-Present when the OTP field is disabled.
-
-```typescript
-type OTPFieldRootDataAttributesdisabled = 'data-disabled';
-```
-
-### OTPFieldRootDataAttributes.filled
-
-Present when the OTP field contains at least one character.
-
-```typescript
-type OTPFieldRootDataAttributesfilled = 'data-filled';
-```
-
-### OTPFieldRootDataAttributes.focused
-
-Present when one of the OTP field inputs is focused.
-
-```typescript
-type OTPFieldRootDataAttributesfocused = 'data-focused';
-```
-
-### OTPFieldRootDataAttributes.invalid
-
-Present when the OTP field is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type OTPFieldRootDataAttributesinvalid = 'data-invalid';
-```
-
-### OTPFieldRootDataAttributes.readonly
-
-Present when the OTP field is readonly.
-
-```typescript
-type OTPFieldRootDataAttributesreadonly = 'data-readonly';
-```
-
-### OTPFieldRootDataAttributes.required
-
-Present when the OTP field is required.
-
-```typescript
-type OTPFieldRootDataAttributesrequired = 'data-required';
-```
-
-### OTPFieldRootDataAttributes.touched
-
-Present when the OTP field has been touched (when wrapped in Field.Root).
-
-```typescript
-type OTPFieldRootDataAttributestouched = 'data-touched';
-```
-
-### OTPFieldRootDataAttributes.valid
-
-Present when the OTP field is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type OTPFieldRootDataAttributesvalid = 'data-valid';
-```
-
-### OTPFieldSeparatorDataAttributes.orientation
-
-Indicates the orientation of the separator.
-
-```typescript
-type OTPFieldSeparatorDataAttributesorientation = 'data-orientation';
+declare namespace OTPFieldSeparatorDataAttributes {
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
 ```
 
 ## External Types
@@ -430,7 +334,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `OTPField.Root`: `OTPField.Root`, `OTPField.Root.State`, `OTPField.Root.Props`, `OTPField.Root.ValidationType`, `OTPField.Root.ChangeEventReason`, `OTPField.Root.ChangeEventDetails`, `OTPField.Root.InvalidEventReason`, `OTPField.Root.InvalidEventDetails`, `OTPField.Root.CompleteEventReason`, `OTPField.Root.CompleteEventDetails`
 - `OTPField.Input`: `OTPField.Input`, `OTPField.Input.State`, `OTPField.Input.Props`
 - `OTPField.Separator`: `OTPField.Separator`, `OTPField.Separator.Props`, `OTPField.Separator.State`
-- `Default`: `OTPFieldRootDataAttributes.complete`, `OTPFieldRootDataAttributes.disabled`, `OTPFieldRootDataAttributes.readonly`, `OTPFieldRootDataAttributes.required`, `OTPFieldRootDataAttributes.valid`, `OTPFieldRootDataAttributes.invalid`, `OTPFieldRootDataAttributes.touched`, `OTPFieldRootDataAttributes.dirty`, `OTPFieldRootDataAttributes.filled`, `OTPFieldRootDataAttributes.focused`, `OTPFieldInputDataAttributes.complete`, `OTPFieldInputDataAttributes.filled`, `OTPFieldInputDataAttributes.disabled`, `OTPFieldInputDataAttributes.readonly`, `OTPFieldInputDataAttributes.required`, `OTPFieldInputDataAttributes.valid`, `OTPFieldInputDataAttributes.invalid`, `OTPFieldInputDataAttributes.touched`, `OTPFieldInputDataAttributes.dirty`, `OTPFieldInputDataAttributes.focused`, `OTPFieldSeparatorDataAttributes.orientation`, `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldInputState`, `OTPFieldInputProps`
+- `Default`: `OTPFieldRootDataAttributes`, `OTPFieldInputDataAttributes`, `OTPFieldSeparatorDataAttributes`, `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldInputState`, `OTPFieldInputProps`
 
 ## Canonical Types
 

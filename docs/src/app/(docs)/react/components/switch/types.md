@@ -162,187 +162,73 @@ type SwitchThumbState = {
 
 ## Additional Types
 
-### SwitchRootDataAttributes.checked
+### SwitchRootDataAttributes
 
-Present when the switch is checked.
+Data attributes of [Root](#root).
 
 ```typescript
-type SwitchRootDataAttributeschecked = 'data-checked';
+declare namespace SwitchRootDataAttributes {
+  /** Present when the switch is checked. */
+  const checked: 'data-checked';
+  /** Present when the switch is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the switch is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the switch is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the switch is required. */
+  const required: 'data-required';
+  /** Present when the switch is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the switch is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the switch has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the switch's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the switch is active (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the switch is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
-### SwitchRootDataAttributes.dirty
+### SwitchThumbDataAttributes
 
-Present when the switch's value has changed (when wrapped in Field.Root).
-
-```typescript
-type SwitchRootDataAttributesdirty = 'data-dirty';
-```
-
-### SwitchRootDataAttributes.disabled
-
-Present when the switch is disabled.
+Data attributes of [Thumb](#thumb).
 
 ```typescript
-type SwitchRootDataAttributesdisabled = 'data-disabled';
-```
-
-### SwitchRootDataAttributes.filled
-
-Present when the switch is active (when wrapped in Field.Root).
-
-```typescript
-type SwitchRootDataAttributesfilled = 'data-filled';
-```
-
-### SwitchRootDataAttributes.focused
-
-Present when the switch is focused (when wrapped in Field.Root).
-
-```typescript
-type SwitchRootDataAttributesfocused = 'data-focused';
-```
-
-### SwitchRootDataAttributes.invalid
-
-Present when the switch is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type SwitchRootDataAttributesinvalid = 'data-invalid';
-```
-
-### SwitchRootDataAttributes.readonly
-
-Present when the switch is readonly.
-
-```typescript
-type SwitchRootDataAttributesreadonly = 'data-readonly';
-```
-
-### SwitchRootDataAttributes.required
-
-Present when the switch is required.
-
-```typescript
-type SwitchRootDataAttributesrequired = 'data-required';
-```
-
-### SwitchRootDataAttributes.touched
-
-Present when the switch has been touched (when wrapped in Field.Root).
-
-```typescript
-type SwitchRootDataAttributestouched = 'data-touched';
-```
-
-### SwitchRootDataAttributes.unchecked
-
-Present when the switch is not checked.
-
-```typescript
-type SwitchRootDataAttributesunchecked = 'data-unchecked';
-```
-
-### SwitchRootDataAttributes.valid
-
-Present when the switch is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type SwitchRootDataAttributesvalid = 'data-valid';
-```
-
-### SwitchThumbDataAttributes.checked
-
-Present when the switch is checked.
-
-```typescript
-type SwitchThumbDataAttributeschecked = 'data-checked';
-```
-
-### SwitchThumbDataAttributes.dirty
-
-Present when the switch's value has changed (when wrapped in Field.Root).
-
-```typescript
-type SwitchThumbDataAttributesdirty = 'data-dirty';
-```
-
-### SwitchThumbDataAttributes.disabled
-
-Present when the switch is disabled.
-
-```typescript
-type SwitchThumbDataAttributesdisabled = 'data-disabled';
-```
-
-### SwitchThumbDataAttributes.filled
-
-Present when the switch is active (when wrapped in Field.Root).
-
-```typescript
-type SwitchThumbDataAttributesfilled = 'data-filled';
-```
-
-### SwitchThumbDataAttributes.focused
-
-Present when the switch is focused (when wrapped in Field.Root).
-
-```typescript
-type SwitchThumbDataAttributesfocused = 'data-focused';
-```
-
-### SwitchThumbDataAttributes.invalid
-
-Present when the switch is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type SwitchThumbDataAttributesinvalid = 'data-invalid';
-```
-
-### SwitchThumbDataAttributes.readonly
-
-Present when the switch is readonly.
-
-```typescript
-type SwitchThumbDataAttributesreadonly = 'data-readonly';
-```
-
-### SwitchThumbDataAttributes.required
-
-Present when the switch is required.
-
-```typescript
-type SwitchThumbDataAttributesrequired = 'data-required';
-```
-
-### SwitchThumbDataAttributes.touched
-
-Present when the switch has been touched (when wrapped in Field.Root).
-
-```typescript
-type SwitchThumbDataAttributestouched = 'data-touched';
-```
-
-### SwitchThumbDataAttributes.unchecked
-
-Present when the switch is not checked.
-
-```typescript
-type SwitchThumbDataAttributesunchecked = 'data-unchecked';
-```
-
-### SwitchThumbDataAttributes.valid
-
-Present when the switch is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type SwitchThumbDataAttributesvalid = 'data-valid';
+declare namespace SwitchThumbDataAttributes {
+  /** Present when the switch is checked. */
+  const checked: 'data-checked';
+  /** Present when the switch is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the switch is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the switch is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the switch is required. */
+  const required: 'data-required';
+  /** Present when the switch is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the switch is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the switch has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the switch's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the switch is active (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the switch is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
 ## Export Groups
 
 - `Switch.Root`: `Switch.Root`, `Switch.Root.State`, `Switch.Root.Props`, `Switch.Root.ChangeEventReason`, `Switch.Root.ChangeEventDetails`
 - `Switch.Thumb`: `Switch.Thumb`, `Switch.Thumb.Props`, `Switch.Thumb.State`
-- `Default`: `SwitchRootDataAttributes.checked`, `SwitchRootDataAttributes.unchecked`, `SwitchRootDataAttributes.disabled`, `SwitchRootDataAttributes.readonly`, `SwitchRootDataAttributes.required`, `SwitchRootDataAttributes.valid`, `SwitchRootDataAttributes.invalid`, `SwitchRootDataAttributes.touched`, `SwitchRootDataAttributes.dirty`, `SwitchRootDataAttributes.filled`, `SwitchRootDataAttributes.focused`, `SwitchThumbDataAttributes.checked`, `SwitchThumbDataAttributes.unchecked`, `SwitchThumbDataAttributes.disabled`, `SwitchThumbDataAttributes.readonly`, `SwitchThumbDataAttributes.required`, `SwitchThumbDataAttributes.valid`, `SwitchThumbDataAttributes.invalid`, `SwitchThumbDataAttributes.touched`, `SwitchThumbDataAttributes.dirty`, `SwitchThumbDataAttributes.filled`, `SwitchThumbDataAttributes.focused`, `SwitchRootState`, `SwitchRootProps`, `SwitchRootChangeEventReason`, `SwitchRootChangeEventDetails`, `SwitchThumbProps`, `SwitchThumbState`
+- `Default`: `SwitchRootDataAttributes`, `SwitchThumbDataAttributes`, `SwitchRootState`, `SwitchRootProps`, `SwitchRootChangeEventReason`, `SwitchRootChangeEventDetails`, `SwitchThumbProps`, `SwitchThumbState`
 
 ## Canonical Types
 

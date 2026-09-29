@@ -175,219 +175,81 @@ type CheckboxIndicatorState = {
 
 ## Additional Types
 
-### CheckboxIndicatorDataAttributes.checked
+### CheckboxIndicatorDataAttributes
 
-Present when the checkbox is checked.
+Data attributes of [Indicator](#indicator).
 
 ```typescript
-type CheckboxIndicatorDataAttributeschecked = 'data-checked';
+declare namespace CheckboxIndicatorDataAttributes {
+  /** Present when the checkbox is checked. */
+  const checked: 'data-checked';
+  /** Present when the checkbox is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the checkbox is in an indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present when the checkbox is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the checkbox is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the checkbox is required. */
+  const required: 'data-required';
+  /** Present when the checkbox indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the checkbox indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the checkbox is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the checkbox is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the checkbox has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the checkbox's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the checkbox is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the checkbox is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
-### CheckboxIndicatorDataAttributes.dirty
+### CheckboxRootDataAttributes
 
-Present when the checkbox's value has changed (when wrapped in Field.Root).
-
-```typescript
-type CheckboxIndicatorDataAttributesdirty = 'data-dirty';
-```
-
-### CheckboxIndicatorDataAttributes.disabled
-
-Present when the checkbox is disabled.
+Data attributes of [Root](#root).
 
 ```typescript
-type CheckboxIndicatorDataAttributesdisabled = 'data-disabled';
-```
-
-### CheckboxIndicatorDataAttributes.endingStyle
-
-Present when the checkbox indicator is animating out.
-
-```typescript
-type CheckboxIndicatorDataAttributesendingStyle = 'data-ending-style';
-```
-
-### CheckboxIndicatorDataAttributes.filled
-
-Present when the checkbox is checked (when wrapped in Field.Root).
-
-```typescript
-type CheckboxIndicatorDataAttributesfilled = 'data-filled';
-```
-
-### CheckboxIndicatorDataAttributes.focused
-
-Present when the checkbox is focused (when wrapped in Field.Root).
-
-```typescript
-type CheckboxIndicatorDataAttributesfocused = 'data-focused';
-```
-
-### CheckboxIndicatorDataAttributes.indeterminate
-
-Present when the checkbox is in an indeterminate state.
-
-```typescript
-type CheckboxIndicatorDataAttributesindeterminate = 'data-indeterminate';
-```
-
-### CheckboxIndicatorDataAttributes.invalid
-
-Present when the checkbox is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type CheckboxIndicatorDataAttributesinvalid = 'data-invalid';
-```
-
-### CheckboxIndicatorDataAttributes.readonly
-
-Present when the checkbox is readonly.
-
-```typescript
-type CheckboxIndicatorDataAttributesreadonly = 'data-readonly';
-```
-
-### CheckboxIndicatorDataAttributes.required
-
-Present when the checkbox is required.
-
-```typescript
-type CheckboxIndicatorDataAttributesrequired = 'data-required';
-```
-
-### CheckboxIndicatorDataAttributes.startingStyle
-
-Present when the checkbox indicator begins animating in.
-
-```typescript
-type CheckboxIndicatorDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### CheckboxIndicatorDataAttributes.touched
-
-Present when the checkbox has been touched (when wrapped in Field.Root).
-
-```typescript
-type CheckboxIndicatorDataAttributestouched = 'data-touched';
-```
-
-### CheckboxIndicatorDataAttributes.unchecked
-
-Present when the checkbox is not checked.
-
-```typescript
-type CheckboxIndicatorDataAttributesunchecked = 'data-unchecked';
-```
-
-### CheckboxIndicatorDataAttributes.valid
-
-Present when the checkbox is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type CheckboxIndicatorDataAttributesvalid = 'data-valid';
-```
-
-### CheckboxRootDataAttributes.checked
-
-Present when the checkbox is checked.
-
-```typescript
-type CheckboxRootDataAttributeschecked = 'data-checked';
-```
-
-### CheckboxRootDataAttributes.dirty
-
-Present when the checkbox's value has changed (when wrapped in Field.Root).
-
-```typescript
-type CheckboxRootDataAttributesdirty = 'data-dirty';
-```
-
-### CheckboxRootDataAttributes.disabled
-
-Present when the checkbox is disabled.
-
-```typescript
-type CheckboxRootDataAttributesdisabled = 'data-disabled';
-```
-
-### CheckboxRootDataAttributes.filled
-
-Present when the checkbox is checked (when wrapped in Field.Root).
-
-```typescript
-type CheckboxRootDataAttributesfilled = 'data-filled';
-```
-
-### CheckboxRootDataAttributes.focused
-
-Present when the checkbox is focused (when wrapped in Field.Root).
-
-```typescript
-type CheckboxRootDataAttributesfocused = 'data-focused';
-```
-
-### CheckboxRootDataAttributes.indeterminate
-
-Present when the checkbox is in an indeterminate state.
-
-```typescript
-type CheckboxRootDataAttributesindeterminate = 'data-indeterminate';
-```
-
-### CheckboxRootDataAttributes.invalid
-
-Present when the checkbox is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type CheckboxRootDataAttributesinvalid = 'data-invalid';
-```
-
-### CheckboxRootDataAttributes.readonly
-
-Present when the checkbox is readonly.
-
-```typescript
-type CheckboxRootDataAttributesreadonly = 'data-readonly';
-```
-
-### CheckboxRootDataAttributes.required
-
-Present when the checkbox is required.
-
-```typescript
-type CheckboxRootDataAttributesrequired = 'data-required';
-```
-
-### CheckboxRootDataAttributes.touched
-
-Present when the checkbox has been touched (when wrapped in Field.Root).
-
-```typescript
-type CheckboxRootDataAttributestouched = 'data-touched';
-```
-
-### CheckboxRootDataAttributes.unchecked
-
-Present when the checkbox is not checked.
-
-```typescript
-type CheckboxRootDataAttributesunchecked = 'data-unchecked';
-```
-
-### CheckboxRootDataAttributes.valid
-
-Present when the checkbox is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type CheckboxRootDataAttributesvalid = 'data-valid';
+declare namespace CheckboxRootDataAttributes {
+  /** Present when the checkbox is checked. */
+  const checked: 'data-checked';
+  /** Present when the checkbox is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the checkbox is in an indeterminate state. */
+  const indeterminate: 'data-indeterminate';
+  /** Present when the checkbox is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the checkbox is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the checkbox is required. */
+  const required: 'data-required';
+  /** Present when the checkbox is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the checkbox is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the checkbox has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the checkbox's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the checkbox is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the checkbox is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
 ## Export Groups
 
 - `Checkbox.Root`: `Checkbox.Root`, `Checkbox.Root.State`, `Checkbox.Root.Props`, `Checkbox.Root.ChangeEventReason`, `Checkbox.Root.ChangeEventDetails`
 - `Checkbox.Indicator`: `Checkbox.Indicator`, `Checkbox.Indicator.State`, `Checkbox.Indicator.Props`
-- `Default`: `CheckboxRootDataAttributes.checked`, `CheckboxRootDataAttributes.unchecked`, `CheckboxRootDataAttributes.indeterminate`, `CheckboxRootDataAttributes.disabled`, `CheckboxRootDataAttributes.readonly`, `CheckboxRootDataAttributes.required`, `CheckboxRootDataAttributes.valid`, `CheckboxRootDataAttributes.invalid`, `CheckboxRootDataAttributes.touched`, `CheckboxRootDataAttributes.dirty`, `CheckboxRootDataAttributes.filled`, `CheckboxRootDataAttributes.focused`, `CheckboxIndicatorDataAttributes.checked`, `CheckboxIndicatorDataAttributes.unchecked`, `CheckboxIndicatorDataAttributes.indeterminate`, `CheckboxIndicatorDataAttributes.disabled`, `CheckboxIndicatorDataAttributes.readonly`, `CheckboxIndicatorDataAttributes.required`, `CheckboxIndicatorDataAttributes.startingStyle`, `CheckboxIndicatorDataAttributes.endingStyle`, `CheckboxIndicatorDataAttributes.valid`, `CheckboxIndicatorDataAttributes.invalid`, `CheckboxIndicatorDataAttributes.touched`, `CheckboxIndicatorDataAttributes.dirty`, `CheckboxIndicatorDataAttributes.filled`, `CheckboxIndicatorDataAttributes.focused`, `CheckboxRootState`, `CheckboxRootProps`, `CheckboxRootChangeEventReason`, `CheckboxRootChangeEventDetails`, `CheckboxIndicatorState`, `CheckboxIndicatorProps`
+- `Default`: `CheckboxRootDataAttributes`, `CheckboxIndicatorDataAttributes`, `CheckboxRootState`, `CheckboxRootProps`, `CheckboxRootChangeEventReason`, `CheckboxRootChangeEventDetails`, `CheckboxIndicatorState`, `CheckboxIndicatorProps`
 
 ## Canonical Types
 

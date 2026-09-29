@@ -552,332 +552,225 @@ This method should only be called in an event handler or an effect (not during r
 
 ## Additional Types
 
-### PopoverArrowDataAttributes.align
+### PopoverArrowDataAttributes
 
-Indicates how the popup is aligned relative to specified side.
+Data attributes of [Arrow](#arrow).
 
 ```typescript
-type PopoverArrowDataAttributesalign = 'data-align';
+declare namespace PopoverArrowDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the popover arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
 ```
 
-### PopoverArrowDataAttributes.closed
+### PopoverBackdropDataAttributes
 
-Present when the popup is closed.
+Data attributes of [Backdrop](#backdrop).
 
 ```typescript
-type PopoverArrowDataAttributesclosed = 'data-closed';
+declare namespace PopoverBackdropDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
-### PopoverArrowDataAttributes.open
+### PopoverPopupCssVariables
 
-Present when the popup is open.
+CSS variables of [Popup](#popup).
 
 ```typescript
-type PopoverArrowDataAttributesopen = 'data-open';
+declare namespace PopoverPopupCssVariables {
+  /** The width of the popup. */
+  const popupWidth: '--popup-width';
+  /** The height of the popup. */
+  const popupHeight: '--popup-height';
+}
 ```
 
-### PopoverArrowDataAttributes.side
+### PopoverPopupDataAttributes
 
-Indicates which side the popup is positioned relative to the trigger.
+Data attributes of [Popup](#popup).
 
 ```typescript
-type PopoverArrowDataAttributesside = 'data-side';
+declare namespace PopoverPopupDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss' | 'focus' | 'trigger-change'
+   */
+  const instant: 'data-instant';
+}
 ```
 
-### PopoverArrowDataAttributes.uncentered
+### PopoverPositionerCssVariables
 
-Present when the popover arrow is uncentered.
+CSS variables of [Positioner](#positioner).
 
 ```typescript
-type PopoverArrowDataAttributesuncentered = 'data-uncentered';
+declare namespace PopoverPositionerCssVariables {
+  /**
+   * The available width between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableWidth: '--available-width';
+  /**
+   * The available height between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableHeight: '--available-height';
+  /**
+   * The anchor's width.
+   * @type number
+   */
+  const anchorWidth: '--anchor-width';
+  /**
+   * The anchor's height.
+   * @type number
+   */
+  const anchorHeight: '--anchor-height';
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
+  const transformOrigin: '--transform-origin';
+  /**
+   * The width of the popover's positioner.
+   * It is important to set `width` to this value when using CSS to animate size changes.
+   * @type number
+   */
+  const positionerWidth: '--positioner-width';
+  /**
+   * The height of the popover's positioner.
+   * It is important to set `height` to this value when using CSS to animate size changes.
+   * @type number
+   */
+  const positionerHeight: '--positioner-height';
+}
 ```
 
-### PopoverBackdropDataAttributes.closed
+### PopoverPositionerDataAttributes
 
-Present when the popup is closed.
+Data attributes of [Positioner](#positioner).
 
 ```typescript
-type PopoverBackdropDataAttributesclosed = 'data-closed';
+declare namespace PopoverPositionerDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+}
 ```
 
-### PopoverBackdropDataAttributes.endingStyle
+### PopoverTriggerDataAttributes
 
-Present when the popup is animating out.
+Data attributes of [Trigger](#trigger).
 
 ```typescript
-type PopoverBackdropDataAttributesendingStyle = 'data-ending-style';
+declare namespace PopoverTriggerDataAttributes {
+  /** Present when the corresponding popover is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the trigger is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the trigger is disabled. */
+  const disabled: 'data-disabled';
+}
 ```
 
-### PopoverBackdropDataAttributes.open
+### PopoverViewportCssVariables
 
-Present when the popup is open.
+CSS variables of [Viewport](#viewport).
 
 ```typescript
-type PopoverBackdropDataAttributesopen = 'data-open';
+declare namespace PopoverViewportCssVariables {
+  /**
+   * The width of the parent popup.
+   * This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
+   * It can be used to freeze the dimensions of the popup when animating between different content.
+   */
+  const popupWidth: '--popup-width';
+  /**
+   * The height of the parent popup.
+   * This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
+   * It can be used to freeze the dimensions of the popup when animating between different content.
+   */
+  const popupHeight: '--popup-height';
+}
 ```
 
-### PopoverBackdropDataAttributes.startingStyle
+### PopoverViewportDataAttributes
 
-Present when the popup begins animating in.
-
-```typescript
-type PopoverBackdropDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### PopoverPopupCssVariables.popupHeight
-
-The height of the popup.
+Data attributes of [Viewport](#viewport).
 
 ```typescript
-type PopoverPopupCssVariablespopupHeight = '--popup-height';
-```
-
-### PopoverPopupCssVariables.popupWidth
-
-The width of the popup.
-
-```typescript
-type PopoverPopupCssVariablespopupWidth = '--popup-width';
-```
-
-### PopoverPopupDataAttributes.align
-
-Indicates how the popup is aligned relative to specified side.
-
-```typescript
-type PopoverPopupDataAttributesalign = 'data-align';
-```
-
-### PopoverPopupDataAttributes.closed
-
-Present when the popup is closed.
-
-```typescript
-type PopoverPopupDataAttributesclosed = 'data-closed';
-```
-
-### PopoverPopupDataAttributes.endingStyle
-
-Present when the popup is animating out.
-
-```typescript
-type PopoverPopupDataAttributesendingStyle = 'data-ending-style';
-```
-
-### PopoverPopupDataAttributes.instant
-
-Present if animations should be instant.
-
-```typescript
-type PopoverPopupDataAttributesinstant = 'data-instant';
-```
-
-### PopoverPopupDataAttributes.open
-
-Present when the popup is open.
-
-```typescript
-type PopoverPopupDataAttributesopen = 'data-open';
-```
-
-### PopoverPopupDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type PopoverPopupDataAttributesside = 'data-side';
-```
-
-### PopoverPopupDataAttributes.startingStyle
-
-Present when the popup begins animating in.
-
-```typescript
-type PopoverPopupDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### PopoverPositionerCssVariables.anchorHeight
-
-The anchor's height.
-
-```typescript
-type PopoverPositionerCssVariablesanchorHeight = '--anchor-height';
-```
-
-### PopoverPositionerCssVariables.anchorWidth
-
-The anchor's width.
-
-```typescript
-type PopoverPositionerCssVariablesanchorWidth = '--anchor-width';
-```
-
-### PopoverPositionerCssVariables.availableHeight
-
-The available height between the trigger and the edge of the viewport.
-
-```typescript
-type PopoverPositionerCssVariablesavailableHeight = '--available-height';
-```
-
-### PopoverPositionerCssVariables.availableWidth
-
-The available width between the trigger and the edge of the viewport.
-
-```typescript
-type PopoverPositionerCssVariablesavailableWidth = '--available-width';
-```
-
-### PopoverPositionerCssVariables.positionerHeight
-
-The height of the popover's positioner.
-It is important to set `height` to this value when using CSS to animate size changes.
-
-```typescript
-type PopoverPositionerCssVariablespositionerHeight = '--positioner-height';
-```
-
-### PopoverPositionerCssVariables.positionerWidth
-
-The width of the popover's positioner.
-It is important to set `width` to this value when using CSS to animate size changes.
-
-```typescript
-type PopoverPositionerCssVariablespositionerWidth = '--positioner-width';
-```
-
-### PopoverPositionerCssVariables.transformOrigin
-
-The coordinates that this element is anchored to. Used for animations and transitions.
-
-```typescript
-type PopoverPositionerCssVariablestransformOrigin = '--transform-origin';
-```
-
-### PopoverPositionerDataAttributes.align
-
-Indicates how the popup is aligned relative to specified side.
-
-```typescript
-type PopoverPositionerDataAttributesalign = 'data-align';
-```
-
-### PopoverPositionerDataAttributes.anchorHidden
-
-Present when the anchor is hidden.
-
-```typescript
-type PopoverPositionerDataAttributesanchorHidden = 'data-anchor-hidden';
-```
-
-### PopoverPositionerDataAttributes.closed
-
-Present when the popup is closed.
-
-```typescript
-type PopoverPositionerDataAttributesclosed = 'data-closed';
-```
-
-### PopoverPositionerDataAttributes.open
-
-Present when the popup is open.
-
-```typescript
-type PopoverPositionerDataAttributesopen = 'data-open';
-```
-
-### PopoverPositionerDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type PopoverPositionerDataAttributesside = 'data-side';
-```
-
-### PopoverTriggerDataAttributes.disabled
-
-Present when the trigger is disabled.
-
-```typescript
-type PopoverTriggerDataAttributesdisabled = 'data-disabled';
-```
-
-### PopoverTriggerDataAttributes.popupOpen
-
-Present when the corresponding popover is open.
-
-```typescript
-type PopoverTriggerDataAttributespopupOpen = 'data-popup-open';
-```
-
-### PopoverTriggerDataAttributes.pressed
-
-Present when the trigger is pressed.
-
-```typescript
-type PopoverTriggerDataAttributespressed = 'data-pressed';
-```
-
-### PopoverViewportCssVariables.popupHeight
-
-The height of the parent popup.
-This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
-It can be used to freeze the dimensions of the popup when animating between different content.
-
-```typescript
-type PopoverViewportCssVariablespopupHeight = '--popup-height';
-```
-
-### PopoverViewportCssVariables.popupWidth
-
-The width of the parent popup.
-This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
-It can be used to freeze the dimensions of the popup when animating between different content.
-
-```typescript
-type PopoverViewportCssVariablespopupWidth = '--popup-width';
-```
-
-### PopoverViewportDataAttributes.activationDirection
-
-Indicates the direction from which the popup was activated.
-This can be used to create directional animations based on how the popup was triggered.
-Contains space-separated values for both horizontal and vertical axes.
-
-```typescript
-type PopoverViewportDataAttributesactivationDirection = 'data-activation-direction';
-```
-
-### PopoverViewportDataAttributes.current
-
-Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.
-
-```typescript
-type PopoverViewportDataAttributescurrent = 'data-current';
-```
-
-### PopoverViewportDataAttributes.instant
-
-Present if animations should be instant.
-
-```typescript
-type PopoverViewportDataAttributesinstant = 'data-instant';
-```
-
-### PopoverViewportDataAttributes.previous
-
-Applied to the direct child of the viewport that contains the exiting content when transitions are present.
-
-```typescript
-type PopoverViewportDataAttributesprevious = 'data-previous';
-```
-
-### PopoverViewportDataAttributes.transitioning
-
-Indicates that the viewport is currently transitioning between old and new content.
-
-```typescript
-type PopoverViewportDataAttributestransitioning = 'data-transitioning';
+declare namespace PopoverViewportDataAttributes {
+  /** Applied to the direct child of the viewport when no transitions are present or the new content when it's entering. */
+  const current: 'data-current';
+  /** Applied to the direct child of the viewport that contains the exiting content when transitions are present. */
+  const previous: 'data-previous';
+  /**
+   * Indicates the direction from which the popup was activated.
+   * This can be used to create directional animations based on how the popup was triggered.
+   * Contains space-separated values for both horizontal and vertical axes.
+   * @type `${'left' | 'right' | ''} ${'down' | 'up' | ''}`
+   */
+  const activationDirection: 'data-activation-direction';
+  /** Indicates that the viewport is currently transitioning between old and new content. */
+  const transitioning: 'data-transitioning';
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss' | 'focus' | 'trigger-change'
+   */
+  const instant: 'data-instant';
+}
 ```
 
 ## External Types
@@ -932,7 +825,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 - `Popover.Viewport`: `Popover.Viewport`, `Popover.Viewport.Props`, `Popover.Viewport.State`
 - `Popover.createHandle`
 - `Popover.Handle`
-- `Default`: `PopoverTriggerDataAttributes.popupOpen`, `PopoverTriggerDataAttributes.pressed`, `PopoverTriggerDataAttributes.disabled`, `PopoverPositionerCssVariables.availableWidth`, `PopoverPositionerCssVariables.availableHeight`, `PopoverPositionerCssVariables.anchorWidth`, `PopoverPositionerCssVariables.anchorHeight`, `PopoverPositionerCssVariables.transformOrigin`, `PopoverPositionerCssVariables.positionerWidth`, `PopoverPositionerCssVariables.positionerHeight`, `PopoverPositionerDataAttributes.open`, `PopoverPositionerDataAttributes.closed`, `PopoverPositionerDataAttributes.anchorHidden`, `PopoverPositionerDataAttributes.side`, `PopoverPositionerDataAttributes.align`, `PopoverPopupCssVariables.popupWidth`, `PopoverPopupCssVariables.popupHeight`, `PopoverPopupDataAttributes.open`, `PopoverPopupDataAttributes.closed`, `PopoverPopupDataAttributes.startingStyle`, `PopoverPopupDataAttributes.endingStyle`, `PopoverPopupDataAttributes.side`, `PopoverPopupDataAttributes.align`, `PopoverPopupDataAttributes.instant`, `PopoverArrowDataAttributes.open`, `PopoverArrowDataAttributes.closed`, `PopoverArrowDataAttributes.side`, `PopoverArrowDataAttributes.align`, `PopoverArrowDataAttributes.uncentered`, `PopoverBackdropDataAttributes.open`, `PopoverBackdropDataAttributes.closed`, `PopoverBackdropDataAttributes.startingStyle`, `PopoverBackdropDataAttributes.endingStyle`, `PopoverViewportCssVariables.popupWidth`, `PopoverViewportCssVariables.popupHeight`, `PopoverViewportDataAttributes.current`, `PopoverViewportDataAttributes.previous`, `PopoverViewportDataAttributes.activationDirection`, `PopoverViewportDataAttributes.transitioning`, `PopoverViewportDataAttributes.instant`, `PopoverRootState`, `PopoverRootProps`, `PopoverRootActions`, `PopoverRootChangeEventReason`, `PopoverRootChangeEventDetails`, `PopoverTriggerState`, `PopoverTriggerProps`, `PopoverPortalState`, `PopoverPortalProps`, `PopoverPositionerState`, `PopoverPositionerProps`, `PopoverPopupState`, `PopoverPopupProps`, `PopoverArrowState`, `PopoverArrowProps`, `PopoverBackdropState`, `PopoverBackdropProps`, `PopoverTitleState`, `PopoverTitleProps`, `PopoverDescriptionState`, `PopoverDescriptionProps`, `PopoverCloseState`, `PopoverCloseProps`, `PopoverViewportState`, `PopoverViewportProps`
+- `Default`: `PopoverTriggerDataAttributes`, `PopoverPositionerCssVariables`, `PopoverPositionerDataAttributes`, `PopoverPopupCssVariables`, `PopoverPopupDataAttributes`, `PopoverArrowDataAttributes`, `PopoverBackdropDataAttributes`, `PopoverViewportCssVariables`, `PopoverViewportDataAttributes`, `PopoverRootState`, `PopoverRootProps`, `PopoverRootActions`, `PopoverRootChangeEventReason`, `PopoverRootChangeEventDetails`, `PopoverTriggerState`, `PopoverTriggerProps`, `PopoverPortalState`, `PopoverPortalProps`, `PopoverPositionerState`, `PopoverPositionerProps`, `PopoverPopupState`, `PopoverPopupProps`, `PopoverArrowState`, `PopoverArrowProps`, `PopoverBackdropState`, `PopoverBackdropProps`, `PopoverTitleState`, `PopoverTitleProps`, `PopoverDescriptionState`, `PopoverDescriptionProps`, `PopoverCloseState`, `PopoverCloseProps`, `PopoverViewportState`, `PopoverViewportProps`
 
 ## Canonical Types
 

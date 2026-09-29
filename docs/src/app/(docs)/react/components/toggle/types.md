@@ -74,20 +74,17 @@ type ToggleChangeEventDetails = {
 
 ## Additional Types
 
-### ToggleDataAttributes.disabled
+### ToggleDataAttributes
 
-Present when the toggle button is disabled.
-
-```typescript
-type ToggleDataAttributesdisabled = 'data-disabled';
-```
-
-### ToggleDataAttributes.pressed
-
-Present when the toggle button is pressed.
+Data attributes of [Toggle](#toggle).
 
 ```typescript
-type ToggleDataAttributespressed = 'data-pressed';
+declare namespace ToggleDataAttributes {
+  /** Present when the toggle button is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the toggle button is disabled. */
+  const disabled: 'data-disabled';
+}
 ```
 
 ## Canonical Types

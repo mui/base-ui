@@ -1104,172 +1104,106 @@ type MenuLinkItemState = {
 
 ## Additional Types
 
-### MenuArrowDataAttributes.align
+### MenuArrowDataAttributes
 
-Indicates how the popup is aligned relative to specified side.
+Data attributes of [Arrow](#arrow).
 
 ```typescript
-type MenuArrowDataAttributesalign = 'data-align';
+declare namespace MenuArrowDataAttributes {
+  /** Present when the menu popup is open. */
+  const open: 'data-open';
+  /** Present when the menu popup is closed. */
+  const closed: 'data-closed';
+  /**
+   * Indicates which side the popup is positioned relative to the anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the menu arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
 ```
 
-### MenuArrowDataAttributes.closed
+### MenuBackdropDataAttributes
 
-Present when the menu popup is closed.
+Data attributes of [Backdrop](#backdrop).
 
 ```typescript
-type MenuArrowDataAttributesclosed = 'data-closed';
+declare namespace MenuBackdropDataAttributes {
+  /** Present when the menu is open. */
+  const open: 'data-open';
+  /** Present when the menu is closed. */
+  const closed: 'data-closed';
+  /** Present when the menu begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the menu is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
-### MenuArrowDataAttributes.open
+### MenuCheckboxItemDataAttributes
 
-Present when the menu popup is open.
+Data attributes of [CheckboxItem](#checkboxitem).
 
 ```typescript
-type MenuArrowDataAttributesopen = 'data-open';
+declare namespace MenuCheckboxItemDataAttributes {
+  /** Present when the menu checkbox item is checked. */
+  const checked: 'data-checked';
+  /** Present when the menu checkbox item is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the menu checkbox item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the menu checkbox item is highlighted. */
+  const highlighted: 'data-highlighted';
+}
 ```
 
-### MenuArrowDataAttributes.side
+### MenuCheckboxItemIndicatorDataAttributes
 
-Indicates which side the popup is positioned relative to the anchor.
+Data attributes of [CheckboxItemIndicator](#checkboxitemindicator).
 
 ```typescript
-type MenuArrowDataAttributesside = 'data-side';
+declare namespace MenuCheckboxItemIndicatorDataAttributes {
+  /** Present when the menu checkbox item is checked. */
+  const checked: 'data-checked';
+  /** Present when the menu checkbox item is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the menu checkbox item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
-### MenuArrowDataAttributes.uncentered
+### MenuItemDataAttributes
 
-Present when the menu arrow is uncentered.
+Data attributes of [Item](#item).
 
 ```typescript
-type MenuArrowDataAttributesuncentered = 'data-uncentered';
+declare namespace MenuItemDataAttributes {
+  /** Present when the menu item is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the menu item is disabled. */
+  const disabled: 'data-disabled';
+}
 ```
 
-### MenuBackdropDataAttributes.closed
+### MenuLinkItemDataAttributes
 
-Present when the menu is closed.
-
-```typescript
-type MenuBackdropDataAttributesclosed = 'data-closed';
-```
-
-### MenuBackdropDataAttributes.endingStyle
-
-Present when the menu is animating out.
+Data attributes of [LinkItem](#linkitem).
 
 ```typescript
-type MenuBackdropDataAttributesendingStyle = 'data-ending-style';
-```
-
-### MenuBackdropDataAttributes.open
-
-Present when the menu is open.
-
-```typescript
-type MenuBackdropDataAttributesopen = 'data-open';
-```
-
-### MenuBackdropDataAttributes.startingStyle
-
-Present when the menu begins animating in.
-
-```typescript
-type MenuBackdropDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### MenuCheckboxItemDataAttributes.checked
-
-Present when the menu checkbox item is checked.
-
-```typescript
-type MenuCheckboxItemDataAttributeschecked = 'data-checked';
-```
-
-### MenuCheckboxItemDataAttributes.disabled
-
-Present when the menu checkbox item is disabled.
-
-```typescript
-type MenuCheckboxItemDataAttributesdisabled = 'data-disabled';
-```
-
-### MenuCheckboxItemDataAttributes.highlighted
-
-Present when the menu checkbox item is highlighted.
-
-```typescript
-type MenuCheckboxItemDataAttributeshighlighted = 'data-highlighted';
-```
-
-### MenuCheckboxItemDataAttributes.unchecked
-
-Present when the menu checkbox item is not checked.
-
-```typescript
-type MenuCheckboxItemDataAttributesunchecked = 'data-unchecked';
-```
-
-### MenuCheckboxItemIndicatorDataAttributes.checked
-
-Present when the menu checkbox item is checked.
-
-```typescript
-type MenuCheckboxItemIndicatorDataAttributeschecked = 'data-checked';
-```
-
-### MenuCheckboxItemIndicatorDataAttributes.disabled
-
-Present when the menu checkbox item is disabled.
-
-```typescript
-type MenuCheckboxItemIndicatorDataAttributesdisabled = 'data-disabled';
-```
-
-### MenuCheckboxItemIndicatorDataAttributes.endingStyle
-
-Present when the indicator is animating out.
-
-```typescript
-type MenuCheckboxItemIndicatorDataAttributesendingStyle = 'data-ending-style';
-```
-
-### MenuCheckboxItemIndicatorDataAttributes.startingStyle
-
-Present when the indicator begins animating in.
-
-```typescript
-type MenuCheckboxItemIndicatorDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### MenuCheckboxItemIndicatorDataAttributes.unchecked
-
-Present when the menu checkbox item is not checked.
-
-```typescript
-type MenuCheckboxItemIndicatorDataAttributesunchecked = 'data-unchecked';
-```
-
-### MenuItemDataAttributes.disabled
-
-Present when the menu item is disabled.
-
-```typescript
-type MenuItemDataAttributesdisabled = 'data-disabled';
-```
-
-### MenuItemDataAttributes.highlighted
-
-Present when the menu item is highlighted.
-
-```typescript
-type MenuItemDataAttributeshighlighted = 'data-highlighted';
-```
-
-### MenuLinkItemDataAttributes.highlighted
-
-Present when the link is highlighted.
-
-```typescript
-type MenuLinkItemDataAttributeshighlighted = 'data-highlighted';
+declare namespace MenuLinkItemDataAttributes {
+  /** Present when the link is highlighted. */
+  const highlighted: 'data-highlighted';
+}
 ```
 
 ### MenuParent
@@ -1283,348 +1217,235 @@ type MenuParent =
   | { type: undefined };
 ```
 
-### MenuPopupDataAttributes.align
+### MenuPopupDataAttributes
 
-Indicates how the popup is aligned relative to specified side.
+Data attributes of [Popup](#popup).
 
 ```typescript
-type MenuPopupDataAttributesalign = 'data-align';
+declare namespace MenuPopupDataAttributes {
+  /** Present when the menu is open. */
+  const open: 'data-open';
+  /** Present when the menu is closed. */
+  const closed: 'data-closed';
+  /** Present when the menu begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the menu is animating out. */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Indicates which side the popup is positioned relative to the anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss' | 'group' | 'trigger-change'
+   */
+  const instant: 'data-instant';
+}
 ```
 
-### MenuPopupDataAttributes.closed
+### MenuPositionerCssVariables
 
-Present when the menu is closed.
+CSS variables of [Positioner](#positioner).
 
 ```typescript
-type MenuPopupDataAttributesclosed = 'data-closed';
+declare namespace MenuPositionerCssVariables {
+  /**
+   * The available width between the anchor and the edge of the viewport.
+   * @type number
+   */
+  const availableWidth: '--available-width';
+  /**
+   * The available height between the anchor and the edge of the viewport.
+   * @type number
+   */
+  const availableHeight: '--available-height';
+  /**
+   * The anchor's width.
+   * @type number
+   */
+  const anchorWidth: '--anchor-width';
+  /**
+   * The anchor's height.
+   * @type number
+   */
+  const anchorHeight: '--anchor-height';
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
+  const transformOrigin: '--transform-origin';
+  /**
+   * The width of the menu's positioner.
+   * It is important to set `width` to this value when using CSS to animate size changes.
+   * @type number
+   */
+  const positionerWidth: '--positioner-width';
+  /**
+   * The height of the menu's positioner.
+   * It is important to set `height` to this value when using CSS to animate size changes.
+   * @type number
+   */
+  const positionerHeight: '--positioner-height';
+}
 ```
 
-### MenuPopupDataAttributes.endingStyle
+### MenuPositionerDataAttributes
 
-Present when the menu is animating out.
+Data attributes of [Positioner](#positioner).
 
 ```typescript
-type MenuPopupDataAttributesendingStyle = 'data-ending-style';
+declare namespace MenuPositionerDataAttributes {
+  /** Present when the menu popup is open. */
+  const open: 'data-open';
+  /** Present when the menu popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /**
+   * Indicates which side the popup is positioned relative to the anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to the specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+}
 ```
 
-### MenuPopupDataAttributes.instant
+### MenuRadioItemDataAttributes
 
-Present if animations should be instant.
+Data attributes of [RadioItem](#radioitem).
 
 ```typescript
-type MenuPopupDataAttributesinstant = 'data-instant';
+declare namespace MenuRadioItemDataAttributes {
+  /** Present when the menu radio item is selected. */
+  const checked: 'data-checked';
+  /** Present when the menu radio item is not selected. */
+  const unchecked: 'data-unchecked';
+  /** Present when the menu radio item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the menu radio item is highlighted. */
+  const highlighted: 'data-highlighted';
+}
 ```
 
-### MenuPopupDataAttributes.open
+### MenuRadioItemIndicatorDataAttributes
 
-Present when the menu is open.
+Data attributes of [RadioItemIndicator](#radioitemindicator).
 
 ```typescript
-type MenuPopupDataAttributesopen = 'data-open';
+declare namespace MenuRadioItemIndicatorDataAttributes {
+  /** Present when the menu radio item is selected. */
+  const checked: 'data-checked';
+  /** Present when the menu radio item is not selected. */
+  const unchecked: 'data-unchecked';
+  /** Present when the menu radio item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the radio indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the radio indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
-### MenuPopupDataAttributes.side
+### MenuSeparatorDataAttributes
 
-Indicates which side the popup is positioned relative to the anchor.
+Data attributes of [Separator](#separator).
 
 ```typescript
-type MenuPopupDataAttributesside = 'data-side';
+declare namespace MenuSeparatorDataAttributes {
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
 ```
 
-### MenuPopupDataAttributes.startingStyle
+### MenuSubmenuTriggerDataAttributes
 
-Present when the menu begins animating in.
+Data attributes of [SubmenuTrigger](#submenutrigger).
 
 ```typescript
-type MenuPopupDataAttributesstartingStyle = 'data-starting-style';
+declare namespace MenuSubmenuTriggerDataAttributes {
+  /** Present when the corresponding submenu is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the submenu trigger is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the submenu trigger is disabled. */
+  const disabled: 'data-disabled';
+}
 ```
 
-### MenuPositionerCssVariables.anchorHeight
+### MenuTriggerDataAttributes
 
-The anchor's height.
+Data attributes of [Trigger](#trigger).
 
 ```typescript
-type MenuPositionerCssVariablesanchorHeight = '--anchor-height';
+declare namespace MenuTriggerDataAttributes {
+  /** Present when the corresponding menu is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the trigger is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the trigger is disabled. */
+  const disabled: 'data-disabled';
+}
 ```
 
-### MenuPositionerCssVariables.anchorWidth
+### MenuViewportCssVariables
 
-The anchor's width.
+CSS variables of [Viewport](#viewport).
 
 ```typescript
-type MenuPositionerCssVariablesanchorWidth = '--anchor-width';
+declare namespace MenuViewportCssVariables {
+  /**
+   * The width of the parent popup.
+   * This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
+   * It can be used to freeze the dimensions of the popup when animating between different content.
+   */
+  const popupWidth: '--popup-width';
+  /**
+   * The height of the parent popup.
+   * This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
+   * It can be used to freeze the dimensions of the popup when animating between different content.
+   */
+  const popupHeight: '--popup-height';
+}
 ```
 
-### MenuPositionerCssVariables.availableHeight
+### MenuViewportDataAttributes
 
-The available height between the anchor and the edge of the viewport.
-
-```typescript
-type MenuPositionerCssVariablesavailableHeight = '--available-height';
-```
-
-### MenuPositionerCssVariables.availableWidth
-
-The available width between the anchor and the edge of the viewport.
+Data attributes of [Viewport](#viewport).
 
 ```typescript
-type MenuPositionerCssVariablesavailableWidth = '--available-width';
-```
-
-### MenuPositionerCssVariables.positionerHeight
-
-The height of the menu's positioner.
-It is important to set `height` to this value when using CSS to animate size changes.
-
-```typescript
-type MenuPositionerCssVariablespositionerHeight = '--positioner-height';
-```
-
-### MenuPositionerCssVariables.positionerWidth
-
-The width of the menu's positioner.
-It is important to set `width` to this value when using CSS to animate size changes.
-
-```typescript
-type MenuPositionerCssVariablespositionerWidth = '--positioner-width';
-```
-
-### MenuPositionerCssVariables.transformOrigin
-
-The coordinates that this element is anchored to. Used for animations and transitions.
-
-```typescript
-type MenuPositionerCssVariablestransformOrigin = '--transform-origin';
-```
-
-### MenuPositionerDataAttributes.align
-
-Indicates how the popup is aligned relative to the specified side.
-
-```typescript
-type MenuPositionerDataAttributesalign = 'data-align';
-```
-
-### MenuPositionerDataAttributes.anchorHidden
-
-Present when the anchor is hidden.
-
-```typescript
-type MenuPositionerDataAttributesanchorHidden = 'data-anchor-hidden';
-```
-
-### MenuPositionerDataAttributes.closed
-
-Present when the menu popup is closed.
-
-```typescript
-type MenuPositionerDataAttributesclosed = 'data-closed';
-```
-
-### MenuPositionerDataAttributes.open
-
-Present when the menu popup is open.
-
-```typescript
-type MenuPositionerDataAttributesopen = 'data-open';
-```
-
-### MenuPositionerDataAttributes.side
-
-Indicates which side the popup is positioned relative to the anchor.
-
-```typescript
-type MenuPositionerDataAttributesside = 'data-side';
-```
-
-### MenuRadioItemDataAttributes.checked
-
-Present when the menu radio item is selected.
-
-```typescript
-type MenuRadioItemDataAttributeschecked = 'data-checked';
-```
-
-### MenuRadioItemDataAttributes.disabled
-
-Present when the menu radio item is disabled.
-
-```typescript
-type MenuRadioItemDataAttributesdisabled = 'data-disabled';
-```
-
-### MenuRadioItemDataAttributes.highlighted
-
-Present when the menu radio item is highlighted.
-
-```typescript
-type MenuRadioItemDataAttributeshighlighted = 'data-highlighted';
-```
-
-### MenuRadioItemDataAttributes.unchecked
-
-Present when the menu radio item is not selected.
-
-```typescript
-type MenuRadioItemDataAttributesunchecked = 'data-unchecked';
-```
-
-### MenuRadioItemIndicatorDataAttributes.checked
-
-Present when the menu radio item is selected.
-
-```typescript
-type MenuRadioItemIndicatorDataAttributeschecked = 'data-checked';
-```
-
-### MenuRadioItemIndicatorDataAttributes.disabled
-
-Present when the menu radio item is disabled.
-
-```typescript
-type MenuRadioItemIndicatorDataAttributesdisabled = 'data-disabled';
-```
-
-### MenuRadioItemIndicatorDataAttributes.endingStyle
-
-Present when the radio indicator is animating out.
-
-```typescript
-type MenuRadioItemIndicatorDataAttributesendingStyle = 'data-ending-style';
-```
-
-### MenuRadioItemIndicatorDataAttributes.startingStyle
-
-Present when the radio indicator begins animating in.
-
-```typescript
-type MenuRadioItemIndicatorDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### MenuRadioItemIndicatorDataAttributes.unchecked
-
-Present when the menu radio item is not selected.
-
-```typescript
-type MenuRadioItemIndicatorDataAttributesunchecked = 'data-unchecked';
-```
-
-### MenuSeparatorDataAttributes.orientation
-
-Indicates the orientation of the separator.
-
-```typescript
-type MenuSeparatorDataAttributesorientation = 'data-orientation';
-```
-
-### MenuSubmenuTriggerDataAttributes.disabled
-
-Present when the submenu trigger is disabled.
-
-```typescript
-type MenuSubmenuTriggerDataAttributesdisabled = 'data-disabled';
-```
-
-### MenuSubmenuTriggerDataAttributes.highlighted
-
-Present when the submenu trigger is highlighted.
-
-```typescript
-type MenuSubmenuTriggerDataAttributeshighlighted = 'data-highlighted';
-```
-
-### MenuSubmenuTriggerDataAttributes.popupOpen
-
-Present when the corresponding submenu is open.
-
-```typescript
-type MenuSubmenuTriggerDataAttributespopupOpen = 'data-popup-open';
-```
-
-### MenuTriggerDataAttributes.disabled
-
-Present when the trigger is disabled.
-
-```typescript
-type MenuTriggerDataAttributesdisabled = 'data-disabled';
-```
-
-### MenuTriggerDataAttributes.popupOpen
-
-Present when the corresponding menu is open.
-
-```typescript
-type MenuTriggerDataAttributespopupOpen = 'data-popup-open';
-```
-
-### MenuTriggerDataAttributes.pressed
-
-Present when the trigger is pressed.
-
-```typescript
-type MenuTriggerDataAttributespressed = 'data-pressed';
-```
-
-### MenuViewportCssVariables.popupHeight
-
-The height of the parent popup.
-This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
-It can be used to freeze the dimensions of the popup when animating between different content.
-
-```typescript
-type MenuViewportCssVariablespopupHeight = '--popup-height';
-```
-
-### MenuViewportCssVariables.popupWidth
-
-The width of the parent popup.
-This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
-It can be used to freeze the dimensions of the popup when animating between different content.
-
-```typescript
-type MenuViewportCssVariablespopupWidth = '--popup-width';
-```
-
-### MenuViewportDataAttributes.activationDirection
-
-Indicates the direction from which the popup was activated.
-This can be used to create directional animations based on how the popup was triggered.
-Contains space-separated values for both horizontal and vertical axes.
-
-```typescript
-type MenuViewportDataAttributesactivationDirection = 'data-activation-direction';
-```
-
-### MenuViewportDataAttributes.current
-
-Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.
-
-```typescript
-type MenuViewportDataAttributescurrent = 'data-current';
-```
-
-### MenuViewportDataAttributes.instant
-
-Present if animations should be instant.
-
-```typescript
-type MenuViewportDataAttributesinstant = 'data-instant';
-```
-
-### MenuViewportDataAttributes.previous
-
-Applied to the direct child of the viewport that contains the exiting content when transitions are present.
-
-```typescript
-type MenuViewportDataAttributesprevious = 'data-previous';
-```
-
-### MenuViewportDataAttributes.transitioning
-
-Indicates that the viewport is currently transitioning between old and new content.
-
-```typescript
-type MenuViewportDataAttributestransitioning = 'data-transitioning';
+declare namespace MenuViewportDataAttributes {
+  /** Applied to the direct child of the viewport when no transitions are present or the new content when it's entering. */
+  const current: 'data-current';
+  /** Applied to the direct child of the viewport that contains the exiting content when transitions are present. */
+  const previous: 'data-previous';
+  /**
+   * Indicates the direction from which the popup was activated.
+   * This can be used to create directional animations based on how the popup was triggered.
+   * Contains space-separated values for both horizontal and vertical axes.
+   * @type `${'left' | 'right' | ''} ${'down' | 'up' | ''}`
+   */
+  const activationDirection: 'data-activation-direction';
+  /** Indicates that the viewport is currently transitioning between old and new content. */
+  const transitioning: 'data-transitioning';
+  /**
+   * Present if animations should be instant.
+   * @type 'click' | 'dismiss' | 'group' | 'trigger-change'
+   */
+  const instant: 'data-instant';
+}
 ```
 
 ## External Types
@@ -1688,7 +1509,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
 - `Menu.createHandle`
-- `Default`: `MenuArrowDataAttributes.open`, `MenuArrowDataAttributes.closed`, `MenuArrowDataAttributes.side`, `MenuArrowDataAttributes.align`, `MenuArrowDataAttributes.uncentered`, `MenuBackdropDataAttributes.open`, `MenuBackdropDataAttributes.closed`, `MenuBackdropDataAttributes.startingStyle`, `MenuBackdropDataAttributes.endingStyle`, `MenuCheckboxItemDataAttributes.checked`, `MenuCheckboxItemDataAttributes.unchecked`, `MenuCheckboxItemDataAttributes.disabled`, `MenuCheckboxItemDataAttributes.highlighted`, `MenuCheckboxItemIndicatorDataAttributes.checked`, `MenuCheckboxItemIndicatorDataAttributes.unchecked`, `MenuCheckboxItemIndicatorDataAttributes.disabled`, `MenuCheckboxItemIndicatorDataAttributes.startingStyle`, `MenuCheckboxItemIndicatorDataAttributes.endingStyle`, `MenuItemDataAttributes.highlighted`, `MenuItemDataAttributes.disabled`, `MenuLinkItemDataAttributes.highlighted`, `MenuPopupDataAttributes.open`, `MenuPopupDataAttributes.closed`, `MenuPopupDataAttributes.startingStyle`, `MenuPopupDataAttributes.endingStyle`, `MenuPopupDataAttributes.side`, `MenuPopupDataAttributes.align`, `MenuPopupDataAttributes.instant`, `MenuPositionerCssVariables.availableWidth`, `MenuPositionerCssVariables.availableHeight`, `MenuPositionerCssVariables.anchorWidth`, `MenuPositionerCssVariables.anchorHeight`, `MenuPositionerCssVariables.transformOrigin`, `MenuPositionerCssVariables.positionerWidth`, `MenuPositionerCssVariables.positionerHeight`, `MenuPositionerDataAttributes.open`, `MenuPositionerDataAttributes.closed`, `MenuPositionerDataAttributes.anchorHidden`, `MenuPositionerDataAttributes.side`, `MenuPositionerDataAttributes.align`, `MenuRadioItemDataAttributes.checked`, `MenuRadioItemDataAttributes.unchecked`, `MenuRadioItemDataAttributes.disabled`, `MenuRadioItemDataAttributes.highlighted`, `MenuRadioItemIndicatorDataAttributes.checked`, `MenuRadioItemIndicatorDataAttributes.unchecked`, `MenuRadioItemIndicatorDataAttributes.disabled`, `MenuRadioItemIndicatorDataAttributes.startingStyle`, `MenuRadioItemIndicatorDataAttributes.endingStyle`, `MenuTriggerDataAttributes.popupOpen`, `MenuTriggerDataAttributes.pressed`, `MenuTriggerDataAttributes.disabled`, `MenuViewportCssVariables.popupWidth`, `MenuViewportCssVariables.popupHeight`, `MenuViewportDataAttributes.current`, `MenuViewportDataAttributes.previous`, `MenuViewportDataAttributes.activationDirection`, `MenuViewportDataAttributes.transitioning`, `MenuViewportDataAttributes.instant`, `MenuSeparatorDataAttributes.orientation`, `MenuSubmenuTriggerDataAttributes.popupOpen`, `MenuSubmenuTriggerDataAttributes.highlighted`, `MenuSubmenuTriggerDataAttributes.disabled`, `MenuRootState`, `MenuRootProps`, `MenuRootHighlightItemTarget`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
+- `Default`: `MenuArrowDataAttributes`, `MenuBackdropDataAttributes`, `MenuCheckboxItemDataAttributes`, `MenuCheckboxItemIndicatorDataAttributes`, `MenuItemDataAttributes`, `MenuLinkItemDataAttributes`, `MenuPopupDataAttributes`, `MenuPositionerCssVariables`, `MenuPositionerDataAttributes`, `MenuRadioItemDataAttributes`, `MenuRadioItemIndicatorDataAttributes`, `MenuTriggerDataAttributes`, `MenuViewportCssVariables`, `MenuViewportDataAttributes`, `MenuSeparatorDataAttributes`, `MenuSubmenuTriggerDataAttributes`, `MenuRootState`, `MenuRootProps`, `MenuRootHighlightItemTarget`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
 
 ## Canonical Types
 

@@ -732,23 +732,6 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Autocomplete.Group.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Group Data Attributes:**
-
-| Attribute       | Type                                                                               | Description                                                                        |
-| :-------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed    | -                                                                                  | Present when the input group is pressed.                                           |
-| data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
-| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
-| data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused    | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
-
 ### Group.Props
 
 Re-export of [Group](#group) props.
@@ -1009,116 +992,65 @@ type ReturnValue = T[];
 
 ## Additional Types
 
-### AutocompleteArrowDataAttributes.align
+### AutocompleteArrowDataAttributes
 
-Indicates how the popup is aligned relative to specified side.
+Data attributes of [Arrow](#arrow).
 
 ```typescript
-type AutocompleteArrowDataAttributesalign = 'data-align';
+declare namespace AutocompleteArrowDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
 ```
 
-### AutocompleteArrowDataAttributes.closed
+### AutocompleteBackdropDataAttributes
 
-Present when the popup is closed.
+Data attributes of [Backdrop](#backdrop).
 
 ```typescript
-type AutocompleteArrowDataAttributesclosed = 'data-closed';
+declare namespace AutocompleteBackdropDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
-### AutocompleteArrowDataAttributes.open
+### AutocompleteClearDataAttributes
 
-Present when the popup is open.
-
-```typescript
-type AutocompleteArrowDataAttributesopen = 'data-open';
-```
-
-### AutocompleteArrowDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
+Data attributes of [Clear](#clear).
 
 ```typescript
-type AutocompleteArrowDataAttributesside = 'data-side';
-```
-
-### AutocompleteArrowDataAttributes.uncentered
-
-Present when the arrow is uncentered.
-
-```typescript
-type AutocompleteArrowDataAttributesuncentered = 'data-uncentered';
-```
-
-### AutocompleteBackdropDataAttributes.closed
-
-Present when the popup is closed.
-
-```typescript
-type AutocompleteBackdropDataAttributesclosed = 'data-closed';
-```
-
-### AutocompleteBackdropDataAttributes.endingStyle
-
-Present when the popup is animating out.
-
-```typescript
-type AutocompleteBackdropDataAttributesendingStyle = 'data-ending-style';
-```
-
-### AutocompleteBackdropDataAttributes.open
-
-Present when the popup is open.
-
-```typescript
-type AutocompleteBackdropDataAttributesopen = 'data-open';
-```
-
-### AutocompleteBackdropDataAttributes.startingStyle
-
-Present when the popup begins animating in.
-
-```typescript
-type AutocompleteBackdropDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### AutocompleteClearDataAttributes.disabled
-
-Present when the button is disabled.
-
-```typescript
-type AutocompleteClearDataAttributesdisabled = 'data-disabled';
-```
-
-### AutocompleteClearDataAttributes.endingStyle
-
-Present when the button is animating out.
-
-```typescript
-type AutocompleteClearDataAttributesendingStyle = 'data-ending-style';
-```
-
-### AutocompleteClearDataAttributes.popupOpen
-
-Present when the corresponding popup is open.
-
-```typescript
-type AutocompleteClearDataAttributespopupOpen = 'data-popup-open';
-```
-
-### AutocompleteClearDataAttributes.startingStyle
-
-Present when the button begins animating in.
-
-```typescript
-type AutocompleteClearDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### AutocompleteClearDataAttributes.visible
-
-Present when the clear button is visible.
-
-```typescript
-type AutocompleteClearDataAttributesvisible = 'data-visible';
+declare namespace AutocompleteClearDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the clear button is visible. */
+  const visible: 'data-visible';
+  /** Present when the button begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the button is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
 ### AutocompleteFilter
@@ -1146,484 +1078,235 @@ type AutocompleteFilterOptions = {
 };
 ```
 
-### AutocompleteInputDataAttributes.dirty
+### AutocompleteInputDataAttributes
 
-Present when the component's value has changed (when wrapped in Field.Root).
+Data attributes of [Input](#input).
 
 ```typescript
-type AutocompleteInputDataAttributesdirty = 'data-dirty';
+declare namespace AutocompleteInputDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the input is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the component is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the component is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the component is required. */
+  const required: 'data-required';
+  /** Present when the component is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the component is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the component has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the component's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the component has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the input is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the corresponding items list is empty. */
+  const listEmpty: 'data-list-empty';
+}
 ```
 
-### AutocompleteInputDataAttributes.disabled
+### AutocompleteInputGroupDataAttributes
 
-Present when the component is disabled.
+Data attributes of [InputGroup](#inputgroup).
 
 ```typescript
-type AutocompleteInputDataAttributesdisabled = 'data-disabled';
+declare namespace AutocompleteInputGroupDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the input group is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the component is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the component is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the component is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the component is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the component has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the component's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the component has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the component is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the corresponding items list is empty. */
+  const listEmpty: 'data-list-empty';
+}
 ```
 
-### AutocompleteInputDataAttributes.filled
+### AutocompleteItemDataAttributes
 
-Present when the component has a value (when wrapped in Field.Root).
+Data attributes of [Item](#item).
 
 ```typescript
-type AutocompleteInputDataAttributesfilled = 'data-filled';
+declare namespace AutocompleteItemDataAttributes {
+  /** Present when the item is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the item is disabled. */
+  const disabled: 'data-disabled';
+}
 ```
 
-### AutocompleteInputDataAttributes.focused
+### AutocompletePopupDataAttributes
 
-Present when the input is focused (when wrapped in Field.Root).
+Data attributes of [Popup](#popup).
 
 ```typescript
-type AutocompleteInputDataAttributesfocused = 'data-focused';
+declare namespace AutocompletePopupDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /** Present when the items list is empty. */
+  const empty: 'data-empty';
+}
 ```
 
-### AutocompleteInputDataAttributes.invalid
+### AutocompletePositionerCssVariables
 
-Present when the component is in an invalid state (when wrapped in Field.Root).
+CSS variables of [Positioner](#positioner).
 
 ```typescript
-type AutocompleteInputDataAttributesinvalid = 'data-invalid';
+declare namespace AutocompletePositionerCssVariables {
+  /**
+   * The available width between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableWidth: '--available-width';
+  /**
+   * The available height between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableHeight: '--available-height';
+  /**
+   * The anchor's width.
+   * @type number
+   */
+  const anchorWidth: '--anchor-width';
+  /**
+   * The anchor's height.
+   * @type number
+   */
+  const anchorHeight: '--anchor-height';
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
+  const transformOrigin: '--transform-origin';
+}
 ```
 
-### AutocompleteInputDataAttributes.listEmpty
+### AutocompletePositionerDataAttributes
 
-Present when the corresponding items list is empty.
+Data attributes of [Positioner](#positioner).
 
 ```typescript
-type AutocompleteInputDataAttributeslistEmpty = 'data-list-empty';
+declare namespace AutocompletePositionerDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the items list is empty. */
+  const empty: 'data-empty';
+}
 ```
 
-### AutocompleteInputDataAttributes.popupOpen
+### AutocompleteSeparatorDataAttributes
 
-Present when the corresponding popup is open.
+Data attributes of [Separator](#separator).
 
 ```typescript
-type AutocompleteInputDataAttributespopupOpen = 'data-popup-open';
+declare namespace AutocompleteSeparatorDataAttributes {
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
 ```
 
-### AutocompleteInputDataAttributes.popupSide
+### AutocompleteTriggerDataAttributes
 
-Indicates which side the corresponding popup is positioned relative to its anchor.
-
-```typescript
-type AutocompleteInputDataAttributespopupSide = 'data-popup-side';
-```
-
-### AutocompleteInputDataAttributes.pressed
-
-Present when the input is pressed.
+Data attributes of [Trigger](#trigger).
 
 ```typescript
-type AutocompleteInputDataAttributespressed = 'data-pressed';
-```
-
-### AutocompleteInputDataAttributes.readonly
-
-Present when the component is readonly.
-
-```typescript
-type AutocompleteInputDataAttributesreadonly = 'data-readonly';
-```
-
-### AutocompleteInputDataAttributes.required
-
-Present when the component is required.
-
-```typescript
-type AutocompleteInputDataAttributesrequired = 'data-required';
-```
-
-### AutocompleteInputDataAttributes.touched
-
-Present when the component has been touched (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteInputDataAttributestouched = 'data-touched';
-```
-
-### AutocompleteInputDataAttributes.valid
-
-Present when the component is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteInputDataAttributesvalid = 'data-valid';
-```
-
-### AutocompleteInputGroupDataAttributes.dirty
-
-Present when the component's value has changed (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteInputGroupDataAttributesdirty = 'data-dirty';
-```
-
-### AutocompleteInputGroupDataAttributes.disabled
-
-Present when the component is disabled.
-
-```typescript
-type AutocompleteInputGroupDataAttributesdisabled = 'data-disabled';
-```
-
-### AutocompleteInputGroupDataAttributes.filled
-
-Present when the component has a value (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteInputGroupDataAttributesfilled = 'data-filled';
-```
-
-### AutocompleteInputGroupDataAttributes.focused
-
-Present when the component is focused (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteInputGroupDataAttributesfocused = 'data-focused';
-```
-
-### AutocompleteInputGroupDataAttributes.invalid
-
-Present when the component is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteInputGroupDataAttributesinvalid = 'data-invalid';
-```
-
-### AutocompleteInputGroupDataAttributes.listEmpty
-
-Present when the corresponding items list is empty.
-
-```typescript
-type AutocompleteInputGroupDataAttributeslistEmpty = 'data-list-empty';
-```
-
-### AutocompleteInputGroupDataAttributes.popupOpen
-
-Present when the corresponding popup is open.
-
-```typescript
-type AutocompleteInputGroupDataAttributespopupOpen = 'data-popup-open';
-```
-
-### AutocompleteInputGroupDataAttributes.popupSide
-
-Indicates which side the corresponding popup is positioned relative to its anchor.
-
-```typescript
-type AutocompleteInputGroupDataAttributespopupSide = 'data-popup-side';
-```
-
-### AutocompleteInputGroupDataAttributes.pressed
-
-Present when the input group is pressed.
-
-```typescript
-type AutocompleteInputGroupDataAttributespressed = 'data-pressed';
-```
-
-### AutocompleteInputGroupDataAttributes.readonly
-
-Present when the component is readonly.
-
-```typescript
-type AutocompleteInputGroupDataAttributesreadonly = 'data-readonly';
-```
-
-### AutocompleteInputGroupDataAttributes.touched
-
-Present when the component has been touched (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteInputGroupDataAttributestouched = 'data-touched';
-```
-
-### AutocompleteInputGroupDataAttributes.valid
-
-Present when the component is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteInputGroupDataAttributesvalid = 'data-valid';
-```
-
-### AutocompleteItemDataAttributes.disabled
-
-Present when the item is disabled.
-
-```typescript
-type AutocompleteItemDataAttributesdisabled = 'data-disabled';
-```
-
-### AutocompleteItemDataAttributes.highlighted
-
-Present when the item is highlighted.
-
-```typescript
-type AutocompleteItemDataAttributeshighlighted = 'data-highlighted';
-```
-
-### AutocompletePopupDataAttributes.align
-
-Indicates how the popup is aligned relative to specified side.
-
-```typescript
-type AutocompletePopupDataAttributesalign = 'data-align';
-```
-
-### AutocompletePopupDataAttributes.anchorHidden
-
-Present when the anchor is hidden.
-
-```typescript
-type AutocompletePopupDataAttributesanchorHidden = 'data-anchor-hidden';
-```
-
-### AutocompletePopupDataAttributes.closed
-
-Present when the popup is closed.
-
-```typescript
-type AutocompletePopupDataAttributesclosed = 'data-closed';
-```
-
-### AutocompletePopupDataAttributes.empty
-
-Present when the items list is empty.
-
-```typescript
-type AutocompletePopupDataAttributesempty = 'data-empty';
-```
-
-### AutocompletePopupDataAttributes.endingStyle
-
-Present when the popup is animating out.
-
-```typescript
-type AutocompletePopupDataAttributesendingStyle = 'data-ending-style';
-```
-
-### AutocompletePopupDataAttributes.open
-
-Present when the popup is open.
-
-```typescript
-type AutocompletePopupDataAttributesopen = 'data-open';
-```
-
-### AutocompletePopupDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type AutocompletePopupDataAttributesside = 'data-side';
-```
-
-### AutocompletePopupDataAttributes.startingStyle
-
-Present when the popup begins animating in.
-
-```typescript
-type AutocompletePopupDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### AutocompletePositionerCssVariables.anchorHeight
-
-The anchor's height.
-
-```typescript
-type AutocompletePositionerCssVariablesanchorHeight = '--anchor-height';
-```
-
-### AutocompletePositionerCssVariables.anchorWidth
-
-The anchor's width.
-
-```typescript
-type AutocompletePositionerCssVariablesanchorWidth = '--anchor-width';
-```
-
-### AutocompletePositionerCssVariables.availableHeight
-
-The available height between the trigger and the edge of the viewport.
-
-```typescript
-type AutocompletePositionerCssVariablesavailableHeight = '--available-height';
-```
-
-### AutocompletePositionerCssVariables.availableWidth
-
-The available width between the trigger and the edge of the viewport.
-
-```typescript
-type AutocompletePositionerCssVariablesavailableWidth = '--available-width';
-```
-
-### AutocompletePositionerCssVariables.transformOrigin
-
-The coordinates that this element is anchored to. Used for animations and transitions.
-
-```typescript
-type AutocompletePositionerCssVariablestransformOrigin = '--transform-origin';
-```
-
-### AutocompletePositionerDataAttributes.align
-
-Indicates how the popup is aligned relative to specified side.
-
-```typescript
-type AutocompletePositionerDataAttributesalign = 'data-align';
-```
-
-### AutocompletePositionerDataAttributes.anchorHidden
-
-Present when the anchor is hidden.
-
-```typescript
-type AutocompletePositionerDataAttributesanchorHidden = 'data-anchor-hidden';
-```
-
-### AutocompletePositionerDataAttributes.closed
-
-Present when the popup is closed.
-
-```typescript
-type AutocompletePositionerDataAttributesclosed = 'data-closed';
-```
-
-### AutocompletePositionerDataAttributes.empty
-
-Present when the items list is empty.
-
-```typescript
-type AutocompletePositionerDataAttributesempty = 'data-empty';
-```
-
-### AutocompletePositionerDataAttributes.open
-
-Present when the popup is open.
-
-```typescript
-type AutocompletePositionerDataAttributesopen = 'data-open';
-```
-
-### AutocompletePositionerDataAttributes.side
-
-Indicates which side the popup is positioned relative to the trigger.
-
-```typescript
-type AutocompletePositionerDataAttributesside = 'data-side';
-```
-
-### AutocompleteSeparatorDataAttributes.orientation
-
-Indicates the orientation of the separator.
-
-```typescript
-type AutocompleteSeparatorDataAttributesorientation = 'data-orientation';
-```
-
-### AutocompleteTriggerDataAttributes.dirty
-
-Present when the component's value has changed (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteTriggerDataAttributesdirty = 'data-dirty';
-```
-
-### AutocompleteTriggerDataAttributes.disabled
-
-Present when the component is disabled.
-
-```typescript
-type AutocompleteTriggerDataAttributesdisabled = 'data-disabled';
-```
-
-### AutocompleteTriggerDataAttributes.filled
-
-Present when the component has a value (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteTriggerDataAttributesfilled = 'data-filled';
-```
-
-### AutocompleteTriggerDataAttributes.focused
-
-Present when the trigger is focused (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteTriggerDataAttributesfocused = 'data-focused';
-```
-
-### AutocompleteTriggerDataAttributes.invalid
-
-Present when the component is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteTriggerDataAttributesinvalid = 'data-invalid';
-```
-
-### AutocompleteTriggerDataAttributes.listEmpty
-
-Present when the corresponding items list is empty.
-
-```typescript
-type AutocompleteTriggerDataAttributeslistEmpty = 'data-list-empty';
-```
-
-### AutocompleteTriggerDataAttributes.popupOpen
-
-Present when the corresponding popup is open.
-
-```typescript
-type AutocompleteTriggerDataAttributespopupOpen = 'data-popup-open';
-```
-
-### AutocompleteTriggerDataAttributes.popupSide
-
-Indicates which side the corresponding popup is positioned relative to its anchor.
-
-```typescript
-type AutocompleteTriggerDataAttributespopupSide = 'data-popup-side';
-```
-
-### AutocompleteTriggerDataAttributes.pressed
-
-Present when the trigger is pressed.
-
-```typescript
-type AutocompleteTriggerDataAttributespressed = 'data-pressed';
-```
-
-### AutocompleteTriggerDataAttributes.readonly
-
-Present when the component is readonly.
-
-```typescript
-type AutocompleteTriggerDataAttributesreadonly = 'data-readonly';
-```
-
-### AutocompleteTriggerDataAttributes.required
-
-Present when the component is required.
-
-```typescript
-type AutocompleteTriggerDataAttributesrequired = 'data-required';
-```
-
-### AutocompleteTriggerDataAttributes.touched
-
-Present when the component has been touched (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteTriggerDataAttributestouched = 'data-touched';
-```
-
-### AutocompleteTriggerDataAttributes.valid
-
-Present when the component is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type AutocompleteTriggerDataAttributesvalid = 'data-valid';
+declare namespace AutocompleteTriggerDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the trigger is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the component is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the component is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the component is required. */
+  const required: 'data-required';
+  /** Present when the component is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the component is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the component has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the component's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the component has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the trigger is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the corresponding items list is empty. */
+  const listEmpty: 'data-list-empty';
+}
 ```
 
 ## External Types
@@ -1688,7 +1371,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteTriggerDataAttributes.popupOpen`, `AutocompleteTriggerDataAttributes.pressed`, `AutocompleteTriggerDataAttributes.disabled`, `AutocompleteTriggerDataAttributes.readonly`, `AutocompleteTriggerDataAttributes.popupSide`, `AutocompleteTriggerDataAttributes.required`, `AutocompleteTriggerDataAttributes.valid`, `AutocompleteTriggerDataAttributes.invalid`, `AutocompleteTriggerDataAttributes.touched`, `AutocompleteTriggerDataAttributes.dirty`, `AutocompleteTriggerDataAttributes.filled`, `AutocompleteTriggerDataAttributes.focused`, `AutocompleteTriggerDataAttributes.listEmpty`, `AutocompleteInputDataAttributes.popupOpen`, `AutocompleteInputDataAttributes.pressed`, `AutocompleteInputDataAttributes.disabled`, `AutocompleteInputDataAttributes.readonly`, `AutocompleteInputDataAttributes.popupSide`, `AutocompleteInputDataAttributes.required`, `AutocompleteInputDataAttributes.valid`, `AutocompleteInputDataAttributes.invalid`, `AutocompleteInputDataAttributes.touched`, `AutocompleteInputDataAttributes.dirty`, `AutocompleteInputDataAttributes.filled`, `AutocompleteInputDataAttributes.focused`, `AutocompleteInputDataAttributes.listEmpty`, `AutocompleteInputGroupDataAttributes.popupOpen`, `AutocompleteInputGroupDataAttributes.pressed`, `AutocompleteInputGroupDataAttributes.disabled`, `AutocompleteInputGroupDataAttributes.readonly`, `AutocompleteInputGroupDataAttributes.popupSide`, `AutocompleteInputGroupDataAttributes.valid`, `AutocompleteInputGroupDataAttributes.invalid`, `AutocompleteInputGroupDataAttributes.touched`, `AutocompleteInputGroupDataAttributes.dirty`, `AutocompleteInputGroupDataAttributes.filled`, `AutocompleteInputGroupDataAttributes.focused`, `AutocompleteInputGroupDataAttributes.listEmpty`, `AutocompleteClearDataAttributes.popupOpen`, `AutocompleteClearDataAttributes.disabled`, `AutocompleteClearDataAttributes.visible`, `AutocompleteClearDataAttributes.startingStyle`, `AutocompleteClearDataAttributes.endingStyle`, `AutocompleteBackdropDataAttributes.open`, `AutocompleteBackdropDataAttributes.closed`, `AutocompleteBackdropDataAttributes.startingStyle`, `AutocompleteBackdropDataAttributes.endingStyle`, `AutocompletePositionerCssVariables.availableWidth`, `AutocompletePositionerCssVariables.availableHeight`, `AutocompletePositionerCssVariables.anchorWidth`, `AutocompletePositionerCssVariables.anchorHeight`, `AutocompletePositionerCssVariables.transformOrigin`, `AutocompletePositionerDataAttributes.open`, `AutocompletePositionerDataAttributes.closed`, `AutocompletePositionerDataAttributes.anchorHidden`, `AutocompletePositionerDataAttributes.side`, `AutocompletePositionerDataAttributes.align`, `AutocompletePositionerDataAttributes.empty`, `AutocompletePopupDataAttributes.open`, `AutocompletePopupDataAttributes.closed`, `AutocompletePopupDataAttributes.startingStyle`, `AutocompletePopupDataAttributes.endingStyle`, `AutocompletePopupDataAttributes.side`, `AutocompletePopupDataAttributes.align`, `AutocompletePopupDataAttributes.anchorHidden`, `AutocompletePopupDataAttributes.empty`, `AutocompleteArrowDataAttributes.open`, `AutocompleteArrowDataAttributes.closed`, `AutocompleteArrowDataAttributes.side`, `AutocompleteArrowDataAttributes.align`, `AutocompleteArrowDataAttributes.uncentered`, `AutocompleteItemDataAttributes.highlighted`, `AutocompleteItemDataAttributes.disabled`, `AutocompleteSeparatorDataAttributes.orientation`, `AutocompleteRootState`, `AutocompleteRootHighlightItemTarget`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootOpenChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteTriggerDataAttributes`, `AutocompleteInputDataAttributes`, `AutocompleteInputGroupDataAttributes`, `AutocompleteClearDataAttributes`, `AutocompleteBackdropDataAttributes`, `AutocompletePositionerCssVariables`, `AutocompletePositionerDataAttributes`, `AutocompletePopupDataAttributes`, `AutocompleteArrowDataAttributes`, `AutocompleteItemDataAttributes`, `AutocompleteSeparatorDataAttributes`, `AutocompleteRootState`, `AutocompleteRootHighlightItemTarget`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootOpenChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 

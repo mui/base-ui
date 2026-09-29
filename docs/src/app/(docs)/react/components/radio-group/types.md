@@ -215,116 +215,50 @@ type RadioGroupChangeEventDetails = {
 
 ## Additional Types
 
-### RadioGroupDataAttributes.disabled
+### RadioGroupDataAttributes
 
-Present when the radio group is disabled.
+Data attributes of [RadioGroup](#radiogroup).
 
 ```typescript
-type RadioGroupDataAttributesdisabled = 'data-disabled';
+declare namespace RadioGroupDataAttributes {
+  /** Present when the radio group is disabled. */
+  const disabled: 'data-disabled';
+}
 ```
 
-### RadioIndicatorDataAttributes.checked
+### RadioIndicatorDataAttributes
 
-Present when the radio is checked.
-
-```typescript
-type RadioIndicatorDataAttributeschecked = 'data-checked';
-```
-
-### RadioIndicatorDataAttributes.dirty
-
-Present when the radio's value has changed (when wrapped in Field.Root).
+Data attributes of [Indicator](#indicator).
 
 ```typescript
-type RadioIndicatorDataAttributesdirty = 'data-dirty';
-```
-
-### RadioIndicatorDataAttributes.disabled
-
-Present when the radio is disabled.
-
-```typescript
-type RadioIndicatorDataAttributesdisabled = 'data-disabled';
-```
-
-### RadioIndicatorDataAttributes.endingStyle
-
-Present when the radio indicator is animating out.
-
-```typescript
-type RadioIndicatorDataAttributesendingStyle = 'data-ending-style';
-```
-
-### RadioIndicatorDataAttributes.filled
-
-Present when the radio is checked (when wrapped in Field.Root).
-
-```typescript
-type RadioIndicatorDataAttributesfilled = 'data-filled';
-```
-
-### RadioIndicatorDataAttributes.focused
-
-Present when the radio is focused (when wrapped in Field.Root).
-
-```typescript
-type RadioIndicatorDataAttributesfocused = 'data-focused';
-```
-
-### RadioIndicatorDataAttributes.invalid
-
-Present when the radio is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type RadioIndicatorDataAttributesinvalid = 'data-invalid';
-```
-
-### RadioIndicatorDataAttributes.readonly
-
-Present when the radio is readonly.
-
-```typescript
-type RadioIndicatorDataAttributesreadonly = 'data-readonly';
-```
-
-### RadioIndicatorDataAttributes.required
-
-Present when the radio is required.
-
-```typescript
-type RadioIndicatorDataAttributesrequired = 'data-required';
-```
-
-### RadioIndicatorDataAttributes.startingStyle
-
-Present when the radio indicator begins animating in.
-
-```typescript
-type RadioIndicatorDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### RadioIndicatorDataAttributes.touched
-
-Present when the radio has been touched (when wrapped in Field.Root).
-
-```typescript
-type RadioIndicatorDataAttributestouched = 'data-touched';
-```
-
-### RadioIndicatorDataAttributes.unchecked
-
-Present when the radio is not checked.
-
-```typescript
-type RadioIndicatorDataAttributesunchecked = 'data-unchecked';
-```
-
-### RadioIndicatorDataAttributes.valid
-
-Present when the radio is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type RadioIndicatorDataAttributesvalid = 'data-valid';
+declare namespace RadioIndicatorDataAttributes {
+  /** Present when the radio is checked. */
+  const checked: 'data-checked';
+  /** Present when the radio is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the radio is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the radio is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the radio is required. */
+  const required: 'data-required';
+  /** Present when the radio indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the radio indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the radio is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the radio is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the radio has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the radio's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the radio is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the radio is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
 ### RadioIndicatorProps
@@ -383,92 +317,35 @@ type RadioIndicatorState = {
 };
 ```
 
-### RadioRootDataAttributes.checked
+### RadioRootDataAttributes
 
-Present when the radio is checked.
-
-```typescript
-type RadioRootDataAttributeschecked = 'data-checked';
-```
-
-### RadioRootDataAttributes.dirty
-
-Present when the radio's value has changed (when wrapped in Field.Root).
+Data attributes of [Root](#root).
 
 ```typescript
-type RadioRootDataAttributesdirty = 'data-dirty';
-```
-
-### RadioRootDataAttributes.disabled
-
-Present when the radio is disabled.
-
-```typescript
-type RadioRootDataAttributesdisabled = 'data-disabled';
-```
-
-### RadioRootDataAttributes.filled
-
-Present when the radio is checked (when wrapped in Field.Root).
-
-```typescript
-type RadioRootDataAttributesfilled = 'data-filled';
-```
-
-### RadioRootDataAttributes.focused
-
-Present when the radio is focused (when wrapped in Field.Root).
-
-```typescript
-type RadioRootDataAttributesfocused = 'data-focused';
-```
-
-### RadioRootDataAttributes.invalid
-
-Present when the radio is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type RadioRootDataAttributesinvalid = 'data-invalid';
-```
-
-### RadioRootDataAttributes.readonly
-
-Present when the radio is readonly.
-
-```typescript
-type RadioRootDataAttributesreadonly = 'data-readonly';
-```
-
-### RadioRootDataAttributes.required
-
-Present when the radio is required.
-
-```typescript
-type RadioRootDataAttributesrequired = 'data-required';
-```
-
-### RadioRootDataAttributes.touched
-
-Present when the radio has been touched (when wrapped in Field.Root).
-
-```typescript
-type RadioRootDataAttributestouched = 'data-touched';
-```
-
-### RadioRootDataAttributes.unchecked
-
-Present when the radio is not checked.
-
-```typescript
-type RadioRootDataAttributesunchecked = 'data-unchecked';
-```
-
-### RadioRootDataAttributes.valid
-
-Present when the radio is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type RadioRootDataAttributesvalid = 'data-valid';
+declare namespace RadioRootDataAttributes {
+  /** Present when the radio is checked. */
+  const checked: 'data-checked';
+  /** Present when the radio is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the radio is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the radio is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the radio is required. */
+  const required: 'data-required';
+  /** Present when the radio is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the radio is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the radio has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the radio's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the radio is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the radio is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
 ### RadioRootProps
@@ -539,8 +416,8 @@ type RadioRootState = {
 
 ## Export Groups
 
-- `RadioGroup`: `RadioGroup`, `RadioGroup.State`, `RadioGroup.Props`, `RadioGroup.ChangeEventReason`, `RadioGroup.ChangeEventDetails`, `RadioGroupDataAttributes.disabled`, `RadioGroupState`, `RadioGroupProps`, `RadioGroupChangeEventReason`, `RadioGroupChangeEventDetails`
-- `Radio`: `Radio.Root`, `Radio.Root.State`, `Radio.Root.Props`, `Radio.Indicator`, `Radio.Indicator.Props`, `Radio.Indicator.State`, `RadioRootDataAttributes.checked`, `RadioRootDataAttributes.unchecked`, `RadioRootDataAttributes.disabled`, `RadioRootDataAttributes.readonly`, `RadioRootDataAttributes.required`, `RadioRootDataAttributes.valid`, `RadioRootDataAttributes.invalid`, `RadioRootDataAttributes.touched`, `RadioRootDataAttributes.dirty`, `RadioRootDataAttributes.filled`, `RadioRootDataAttributes.focused`, `RadioIndicatorDataAttributes.checked`, `RadioIndicatorDataAttributes.unchecked`, `RadioIndicatorDataAttributes.disabled`, `RadioIndicatorDataAttributes.readonly`, `RadioIndicatorDataAttributes.required`, `RadioIndicatorDataAttributes.startingStyle`, `RadioIndicatorDataAttributes.endingStyle`, `RadioIndicatorDataAttributes.valid`, `RadioIndicatorDataAttributes.invalid`, `RadioIndicatorDataAttributes.touched`, `RadioIndicatorDataAttributes.dirty`, `RadioIndicatorDataAttributes.filled`, `RadioIndicatorDataAttributes.focused`, `RadioRootState`, `RadioRootProps`, `RadioIndicatorProps`, `RadioIndicatorState`
+- `RadioGroup`: `RadioGroup`, `RadioGroup.State`, `RadioGroup.Props`, `RadioGroup.ChangeEventReason`, `RadioGroup.ChangeEventDetails`, `RadioGroupDataAttributes`, `RadioGroupState`, `RadioGroupProps`, `RadioGroupChangeEventReason`, `RadioGroupChangeEventDetails`
+- `Radio`: `Radio.Root`, `Radio.Root.State`, `Radio.Root.Props`, `Radio.Indicator`, `Radio.Indicator.Props`, `Radio.Indicator.State`, `RadioRootDataAttributes`, `RadioIndicatorDataAttributes`, `RadioRootState`, `RadioRootProps`, `RadioIndicatorProps`, `RadioIndicatorState`
 
 ## Canonical Types
 

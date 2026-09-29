@@ -40,12 +40,15 @@ type ButtonState = {
 
 ## Additional Types
 
-### ButtonDataAttributes.disabled
+### ButtonDataAttributes
 
-Present when the button is disabled.
+Data attributes of [Button](#button).
 
 ```typescript
-type ButtonDataAttributesdisabled = 'data-disabled';
+declare namespace ButtonDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+}
 ```
 
 ## Canonical Types

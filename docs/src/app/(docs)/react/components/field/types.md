@@ -415,356 +415,146 @@ type FieldValidityData = {
 };
 ```
 
-### FieldControlDataAttributes.dirty
+### FieldControlDataAttributes
 
-Present when the field's value has changed.
+Data attributes of [Control](#control).
 
 ```typescript
-type FieldControlDataAttributesdirty = 'data-dirty';
+declare namespace FieldControlDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
 ```
 
-### FieldControlDataAttributes.disabled
+### FieldDescriptionDataAttributes
 
-Present when the field is disabled.
+Data attributes of [Description](#description).
 
 ```typescript
-type FieldControlDataAttributesdisabled = 'data-disabled';
+declare namespace FieldDescriptionDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
 ```
 
-### FieldControlDataAttributes.filled
+### FieldErrorDataAttributes
 
-Present when the field is filled.
+Data attributes of [Error](#error).
 
 ```typescript
-type FieldControlDataAttributesfilled = 'data-filled';
+declare namespace FieldErrorDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+  /** Present when the error message begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the error message is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
-### FieldControlDataAttributes.focused
+### FieldItemDataAttributes
 
-Present when the field control is focused.
+Data attributes of [Item](#item).
 
 ```typescript
-type FieldControlDataAttributesfocused = 'data-focused';
+declare namespace FieldItemDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
 ```
 
-### FieldControlDataAttributes.invalid
+### FieldLabelDataAttributes
 
-Present when the field is in an invalid state.
+Data attributes of [Label](#label).
 
 ```typescript
-type FieldControlDataAttributesinvalid = 'data-invalid';
+declare namespace FieldLabelDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field is in a valid state. */
+  const valid: 'data-valid';
+  /** Present when the field is in an invalid state. */
+  const invalid: 'data-invalid';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
 ```
 
-### FieldControlDataAttributes.touched
+### FieldRootDataAttributes
 
-Present when the field has been touched.
-
-```typescript
-type FieldControlDataAttributestouched = 'data-touched';
-```
-
-### FieldControlDataAttributes.valid
-
-Present when the field is in a valid state.
+Data attributes of [Root](#root).
 
 ```typescript
-type FieldControlDataAttributesvalid = 'data-valid';
-```
-
-### FieldDescriptionDataAttributes.dirty
-
-Present when the field's value has changed.
-
-```typescript
-type FieldDescriptionDataAttributesdirty = 'data-dirty';
-```
-
-### FieldDescriptionDataAttributes.disabled
-
-Present when the field is disabled.
-
-```typescript
-type FieldDescriptionDataAttributesdisabled = 'data-disabled';
-```
-
-### FieldDescriptionDataAttributes.filled
-
-Present when the field is filled.
-
-```typescript
-type FieldDescriptionDataAttributesfilled = 'data-filled';
-```
-
-### FieldDescriptionDataAttributes.focused
-
-Present when the field control is focused.
-
-```typescript
-type FieldDescriptionDataAttributesfocused = 'data-focused';
-```
-
-### FieldDescriptionDataAttributes.invalid
-
-Present when the field is in an invalid state.
-
-```typescript
-type FieldDescriptionDataAttributesinvalid = 'data-invalid';
-```
-
-### FieldDescriptionDataAttributes.touched
-
-Present when the field has been touched.
-
-```typescript
-type FieldDescriptionDataAttributestouched = 'data-touched';
-```
-
-### FieldDescriptionDataAttributes.valid
-
-Present when the field is in a valid state.
-
-```typescript
-type FieldDescriptionDataAttributesvalid = 'data-valid';
-```
-
-### FieldErrorDataAttributes.dirty
-
-Present when the field's value has changed.
-
-```typescript
-type FieldErrorDataAttributesdirty = 'data-dirty';
-```
-
-### FieldErrorDataAttributes.disabled
-
-Present when the field is disabled.
-
-```typescript
-type FieldErrorDataAttributesdisabled = 'data-disabled';
-```
-
-### FieldErrorDataAttributes.endingStyle
-
-Present when the error message is animating out.
-
-```typescript
-type FieldErrorDataAttributesendingStyle = 'data-ending-style';
-```
-
-### FieldErrorDataAttributes.filled
-
-Present when the field is filled.
-
-```typescript
-type FieldErrorDataAttributesfilled = 'data-filled';
-```
-
-### FieldErrorDataAttributes.focused
-
-Present when the field control is focused.
-
-```typescript
-type FieldErrorDataAttributesfocused = 'data-focused';
-```
-
-### FieldErrorDataAttributes.invalid
-
-Present when the field is in an invalid state.
-
-```typescript
-type FieldErrorDataAttributesinvalid = 'data-invalid';
-```
-
-### FieldErrorDataAttributes.startingStyle
-
-Present when the error message begins animating in.
-
-```typescript
-type FieldErrorDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### FieldErrorDataAttributes.touched
-
-Present when the field has been touched.
-
-```typescript
-type FieldErrorDataAttributestouched = 'data-touched';
-```
-
-### FieldErrorDataAttributes.valid
-
-Present when the field is in a valid state.
-
-```typescript
-type FieldErrorDataAttributesvalid = 'data-valid';
-```
-
-### FieldItemDataAttributes.dirty
-
-Present when the field's value has changed.
-
-```typescript
-type FieldItemDataAttributesdirty = 'data-dirty';
-```
-
-### FieldItemDataAttributes.disabled
-
-Present when the field is disabled.
-
-```typescript
-type FieldItemDataAttributesdisabled = 'data-disabled';
-```
-
-### FieldItemDataAttributes.filled
-
-Present when the field is filled.
-
-```typescript
-type FieldItemDataAttributesfilled = 'data-filled';
-```
-
-### FieldItemDataAttributes.focused
-
-Present when the field control is focused.
-
-```typescript
-type FieldItemDataAttributesfocused = 'data-focused';
-```
-
-### FieldItemDataAttributes.invalid
-
-Present when the field is in an invalid state.
-
-```typescript
-type FieldItemDataAttributesinvalid = 'data-invalid';
-```
-
-### FieldItemDataAttributes.touched
-
-Present when the field has been touched.
-
-```typescript
-type FieldItemDataAttributestouched = 'data-touched';
-```
-
-### FieldItemDataAttributes.valid
-
-Present when the field is in a valid state.
-
-```typescript
-type FieldItemDataAttributesvalid = 'data-valid';
-```
-
-### FieldLabelDataAttributes.dirty
-
-Present when the field's value has changed.
-
-```typescript
-type FieldLabelDataAttributesdirty = 'data-dirty';
-```
-
-### FieldLabelDataAttributes.disabled
-
-Present when the field is disabled.
-
-```typescript
-type FieldLabelDataAttributesdisabled = 'data-disabled';
-```
-
-### FieldLabelDataAttributes.filled
-
-Present when the field is filled.
-
-```typescript
-type FieldLabelDataAttributesfilled = 'data-filled';
-```
-
-### FieldLabelDataAttributes.focused
-
-Present when the field control is focused.
-
-```typescript
-type FieldLabelDataAttributesfocused = 'data-focused';
-```
-
-### FieldLabelDataAttributes.invalid
-
-Present when the field is in an invalid state.
-
-```typescript
-type FieldLabelDataAttributesinvalid = 'data-invalid';
-```
-
-### FieldLabelDataAttributes.touched
-
-Present when the field has been touched.
-
-```typescript
-type FieldLabelDataAttributestouched = 'data-touched';
-```
-
-### FieldLabelDataAttributes.valid
-
-Present when the field is in a valid state.
-
-```typescript
-type FieldLabelDataAttributesvalid = 'data-valid';
-```
-
-### FieldRootDataAttributes.dirty
-
-Present when the field's value has changed.
-
-```typescript
-type FieldRootDataAttributesdirty = 'data-dirty';
-```
-
-### FieldRootDataAttributes.disabled
-
-Present when the field is disabled.
-
-```typescript
-type FieldRootDataAttributesdisabled = 'data-disabled';
-```
-
-### FieldRootDataAttributes.filled
-
-Present when the field is filled.
-
-```typescript
-type FieldRootDataAttributesfilled = 'data-filled';
-```
-
-### FieldRootDataAttributes.focused
-
-Present when the field control is focused.
-
-```typescript
-type FieldRootDataAttributesfocused = 'data-focused';
-```
-
-### FieldRootDataAttributes.invalid
-
-Present when the field is invalid.
-
-```typescript
-type FieldRootDataAttributesinvalid = 'data-invalid';
-```
-
-### FieldRootDataAttributes.touched
-
-Present when the field has been touched.
-
-```typescript
-type FieldRootDataAttributestouched = 'data-touched';
-```
-
-### FieldRootDataAttributes.valid
-
-Present when the field is valid.
-
-```typescript
-type FieldRootDataAttributesvalid = 'data-valid';
+declare namespace FieldRootDataAttributes {
+  /** Present when the field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the field has been touched. */
+  const touched: 'data-touched';
+  /** Present when the field's value has changed. */
+  const dirty: 'data-dirty';
+  /** Present when the field is valid. */
+  const valid: 'data-valid';
+  /** Present when the field is invalid. */
+  const invalid: 'data-invalid';
+  /** Present when the field is filled. */
+  const filled: 'data-filled';
+  /** Present when the field control is focused. */
+  const focused: 'data-focused';
+}
 ```
 
 ## External Types
@@ -784,7 +574,7 @@ type ValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
 - `Field.Control`: `Field.Control`, `Field.Control.State`, `Field.Control.Props`, `Field.Control.ChangeEventReason`, `Field.Control.ChangeEventDetails`
 - `Field.Validity`: `Field.Validity`, `Field.Validity.State`, `Field.Validity.Props`
 - `Field.Item`: `Field.Item`, `Field.Item.State`, `Field.Item.Props`
-- `Default`: `Field.ValidityData`, `FieldRootDataAttributes.disabled`, `FieldRootDataAttributes.touched`, `FieldRootDataAttributes.dirty`, `FieldRootDataAttributes.valid`, `FieldRootDataAttributes.invalid`, `FieldRootDataAttributes.filled`, `FieldRootDataAttributes.focused`, `FieldLabelDataAttributes.disabled`, `FieldLabelDataAttributes.valid`, `FieldLabelDataAttributes.invalid`, `FieldLabelDataAttributes.touched`, `FieldLabelDataAttributes.dirty`, `FieldLabelDataAttributes.filled`, `FieldLabelDataAttributes.focused`, `FieldErrorDataAttributes.disabled`, `FieldErrorDataAttributes.valid`, `FieldErrorDataAttributes.invalid`, `FieldErrorDataAttributes.touched`, `FieldErrorDataAttributes.dirty`, `FieldErrorDataAttributes.filled`, `FieldErrorDataAttributes.focused`, `FieldErrorDataAttributes.startingStyle`, `FieldErrorDataAttributes.endingStyle`, `FieldDescriptionDataAttributes.disabled`, `FieldDescriptionDataAttributes.valid`, `FieldDescriptionDataAttributes.invalid`, `FieldDescriptionDataAttributes.touched`, `FieldDescriptionDataAttributes.dirty`, `FieldDescriptionDataAttributes.filled`, `FieldDescriptionDataAttributes.focused`, `FieldControlDataAttributes.disabled`, `FieldControlDataAttributes.valid`, `FieldControlDataAttributes.invalid`, `FieldControlDataAttributes.touched`, `FieldControlDataAttributes.dirty`, `FieldControlDataAttributes.filled`, `FieldControlDataAttributes.focused`, `FieldItemDataAttributes.disabled`, `FieldItemDataAttributes.valid`, `FieldItemDataAttributes.invalid`, `FieldItemDataAttributes.touched`, `FieldItemDataAttributes.dirty`, `FieldItemDataAttributes.filled`, `FieldItemDataAttributes.focused`, `FieldValidityData`, `FieldRootActions`, `FieldRootState`, `FieldRootProps`, `FieldLabelState`, `FieldLabelProps`, `FieldDescriptionState`, `FieldDescriptionProps`, `FieldErrorState`, `FieldErrorProps`, `FieldControlState`, `FieldControlProps`, `FieldControlChangeEventReason`, `FieldControlChangeEventDetails`, `FieldValidityState`, `FieldValidityProps`, `FieldItemState`, `FieldItemProps`
+- `Default`: `Field.ValidityData`, `FieldRootDataAttributes`, `FieldLabelDataAttributes`, `FieldErrorDataAttributes`, `FieldDescriptionDataAttributes`, `FieldControlDataAttributes`, `FieldItemDataAttributes`, `FieldValidityData`, `FieldRootActions`, `FieldRootState`, `FieldRootProps`, `FieldLabelState`, `FieldLabelProps`, `FieldDescriptionState`, `FieldDescriptionProps`, `FieldErrorState`, `FieldErrorProps`, `FieldControlState`, `FieldControlProps`, `FieldControlChangeEventReason`, `FieldControlChangeEventDetails`, `FieldValidityState`, `FieldValidityProps`, `FieldItemState`, `FieldItemProps`
 
 ## Canonical Types
 

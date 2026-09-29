@@ -82,28 +82,22 @@ type ToggleGroupChangeEventDetails = {
 
 ## Additional Types
 
-### ToggleGroupDataAttributes.disabled
+### ToggleGroupDataAttributes
 
-Present when the toggle group is disabled.
-
-```typescript
-type ToggleGroupDataAttributesdisabled = 'data-disabled';
-```
-
-### ToggleGroupDataAttributes.multiple
-
-Present when the toggle group allows multiple buttons to be in the pressed state at the same time.
+Data attributes of [ToggleGroup](#togglegroup).
 
 ```typescript
-type ToggleGroupDataAttributesmultiple = 'data-multiple';
-```
-
-### ToggleGroupDataAttributes.orientation
-
-Indicates the orientation of the toggle group.
-
-```typescript
-type ToggleGroupDataAttributesorientation = 'data-orientation';
+declare namespace ToggleGroupDataAttributes {
+  /** Present when the toggle group is disabled. */
+  const disabled: 'data-disabled';
+  /**
+   * Indicates the orientation of the toggle group.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the toggle group allows multiple buttons to be in the pressed state at the same time. */
+  const multiple: 'data-multiple';
+}
 ```
 
 ## External Types

@@ -536,564 +536,207 @@ type NumberFieldIncrementState = {
 
 ## Additional Types
 
-### NumberFieldDecrementDataAttributes.dirty
-
-Present when the number field's value has changed (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldDecrementDataAttributesdirty = 'data-dirty';
-```
-
-### NumberFieldDecrementDataAttributes.disabled
-
-Present when the number field is disabled.
-
-```typescript
-type NumberFieldDecrementDataAttributesdisabled = 'data-disabled';
-```
-
-### NumberFieldDecrementDataAttributes.filled
-
-Present when the number field is filled (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldDecrementDataAttributesfilled = 'data-filled';
-```
-
-### NumberFieldDecrementDataAttributes.focused
-
-Present when the number field is focused (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldDecrementDataAttributesfocused = 'data-focused';
-```
-
-### NumberFieldDecrementDataAttributes.invalid
-
-Present when the number field is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldDecrementDataAttributesinvalid = 'data-invalid';
-```
-
-### NumberFieldDecrementDataAttributes.readonly
-
-Present when the number field is readonly.
-
-```typescript
-type NumberFieldDecrementDataAttributesreadonly = 'data-readonly';
-```
-
-### NumberFieldDecrementDataAttributes.required
-
-Present when the number field is required.
-
-```typescript
-type NumberFieldDecrementDataAttributesrequired = 'data-required';
-```
-
-### NumberFieldDecrementDataAttributes.scrubbing
-
-Present while scrubbing.
-
-```typescript
-type NumberFieldDecrementDataAttributesscrubbing = 'data-scrubbing';
-```
-
-### NumberFieldDecrementDataAttributes.touched
-
-Present when the number field has been touched (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldDecrementDataAttributestouched = 'data-touched';
-```
-
-### NumberFieldDecrementDataAttributes.valid
-
-Present when the number field is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldDecrementDataAttributesvalid = 'data-valid';
-```
-
-### NumberFieldGroupDataAttributes.dirty
-
-Present when the number field's value has changed (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldGroupDataAttributesdirty = 'data-dirty';
-```
-
-### NumberFieldGroupDataAttributes.disabled
-
-Present when the number field is disabled.
-
-```typescript
-type NumberFieldGroupDataAttributesdisabled = 'data-disabled';
-```
-
-### NumberFieldGroupDataAttributes.filled
-
-Present when the number field is filled (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldGroupDataAttributesfilled = 'data-filled';
-```
-
-### NumberFieldGroupDataAttributes.focused
-
-Present when the number field is focused (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldGroupDataAttributesfocused = 'data-focused';
-```
-
-### NumberFieldGroupDataAttributes.invalid
-
-Present when the number field is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldGroupDataAttributesinvalid = 'data-invalid';
-```
-
-### NumberFieldGroupDataAttributes.readonly
-
-Present when the number field is readonly.
-
-```typescript
-type NumberFieldGroupDataAttributesreadonly = 'data-readonly';
-```
-
-### NumberFieldGroupDataAttributes.required
-
-Present when the number field is required.
-
-```typescript
-type NumberFieldGroupDataAttributesrequired = 'data-required';
-```
-
-### NumberFieldGroupDataAttributes.scrubbing
-
-Present while scrubbing.
-
-```typescript
-type NumberFieldGroupDataAttributesscrubbing = 'data-scrubbing';
-```
-
-### NumberFieldGroupDataAttributes.touched
-
-Present when the number field has been touched (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldGroupDataAttributestouched = 'data-touched';
-```
-
-### NumberFieldGroupDataAttributes.valid
-
-Present when the number field is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldGroupDataAttributesvalid = 'data-valid';
-```
-
-### NumberFieldIncrementDataAttributes.dirty
-
-Present when the number field's value has changed (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldIncrementDataAttributesdirty = 'data-dirty';
-```
-
-### NumberFieldIncrementDataAttributes.disabled
-
-Present when the number field is disabled.
-
-```typescript
-type NumberFieldIncrementDataAttributesdisabled = 'data-disabled';
-```
-
-### NumberFieldIncrementDataAttributes.filled
-
-Present when the number field is filled (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldIncrementDataAttributesfilled = 'data-filled';
-```
-
-### NumberFieldIncrementDataAttributes.focused
-
-Present when the number field is focused (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldIncrementDataAttributesfocused = 'data-focused';
-```
-
-### NumberFieldIncrementDataAttributes.invalid
-
-Present when the number field is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldIncrementDataAttributesinvalid = 'data-invalid';
-```
-
-### NumberFieldIncrementDataAttributes.readonly
-
-Present when the number field is readonly.
-
-```typescript
-type NumberFieldIncrementDataAttributesreadonly = 'data-readonly';
-```
-
-### NumberFieldIncrementDataAttributes.required
-
-Present when the number field is required.
-
-```typescript
-type NumberFieldIncrementDataAttributesrequired = 'data-required';
-```
-
-### NumberFieldIncrementDataAttributes.scrubbing
-
-Present while scrubbing.
-
-```typescript
-type NumberFieldIncrementDataAttributesscrubbing = 'data-scrubbing';
-```
-
-### NumberFieldIncrementDataAttributes.touched
-
-Present when the number field has been touched (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldIncrementDataAttributestouched = 'data-touched';
-```
-
-### NumberFieldIncrementDataAttributes.valid
-
-Present when the number field is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldIncrementDataAttributesvalid = 'data-valid';
-```
-
-### NumberFieldInputDataAttributes.dirty
-
-Present when the number field's value has changed (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldInputDataAttributesdirty = 'data-dirty';
-```
-
-### NumberFieldInputDataAttributes.disabled
-
-Present when the number field is disabled.
-
-```typescript
-type NumberFieldInputDataAttributesdisabled = 'data-disabled';
-```
-
-### NumberFieldInputDataAttributes.filled
-
-Present when the number field is filled (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldInputDataAttributesfilled = 'data-filled';
-```
-
-### NumberFieldInputDataAttributes.focused
-
-Present when the number field is focused (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldInputDataAttributesfocused = 'data-focused';
-```
-
-### NumberFieldInputDataAttributes.invalid
-
-Present when the number field is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldInputDataAttributesinvalid = 'data-invalid';
-```
-
-### NumberFieldInputDataAttributes.readonly
-
-Present when the number field is readonly.
-
-```typescript
-type NumberFieldInputDataAttributesreadonly = 'data-readonly';
-```
-
-### NumberFieldInputDataAttributes.required
-
-Present when the number field is required.
-
-```typescript
-type NumberFieldInputDataAttributesrequired = 'data-required';
-```
-
-### NumberFieldInputDataAttributes.scrubbing
-
-Present while scrubbing.
-
-```typescript
-type NumberFieldInputDataAttributesscrubbing = 'data-scrubbing';
-```
-
-### NumberFieldInputDataAttributes.touched
-
-Present when the number field has been touched (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldInputDataAttributestouched = 'data-touched';
-```
-
-### NumberFieldInputDataAttributes.valid
-
-Present when the number field is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldInputDataAttributesvalid = 'data-valid';
-```
-
-### NumberFieldRootDataAttributes.dirty
-
-Present when the number field's value has changed (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldRootDataAttributesdirty = 'data-dirty';
-```
-
-### NumberFieldRootDataAttributes.disabled
-
-Present when the number field is disabled.
-
-```typescript
-type NumberFieldRootDataAttributesdisabled = 'data-disabled';
-```
-
-### NumberFieldRootDataAttributes.filled
-
-Present when the number field is filled (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldRootDataAttributesfilled = 'data-filled';
-```
-
-### NumberFieldRootDataAttributes.focused
-
-Present when the number field is focused (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldRootDataAttributesfocused = 'data-focused';
-```
-
-### NumberFieldRootDataAttributes.invalid
-
-Present when the number field is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldRootDataAttributesinvalid = 'data-invalid';
-```
-
-### NumberFieldRootDataAttributes.readonly
-
-Present when the number field is readonly.
-
-```typescript
-type NumberFieldRootDataAttributesreadonly = 'data-readonly';
-```
-
-### NumberFieldRootDataAttributes.required
-
-Present when the number field is required.
-
-```typescript
-type NumberFieldRootDataAttributesrequired = 'data-required';
-```
-
-### NumberFieldRootDataAttributes.scrubbing
-
-Present while scrubbing.
-
-```typescript
-type NumberFieldRootDataAttributesscrubbing = 'data-scrubbing';
-```
-
-### NumberFieldRootDataAttributes.touched
-
-Present when the number field has been touched (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldRootDataAttributestouched = 'data-touched';
-```
-
-### NumberFieldRootDataAttributes.valid
-
-Present when the number field is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldRootDataAttributesvalid = 'data-valid';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.dirty
-
-Present when the number field's value has changed (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributesdirty = 'data-dirty';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.disabled
-
-Present when the number field is disabled.
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributesdisabled = 'data-disabled';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.filled
-
-Present when the number field is filled (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributesfilled = 'data-filled';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.focused
-
-Present when the number field is focused (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributesfocused = 'data-focused';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.invalid
-
-Present when the number field is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributesinvalid = 'data-invalid';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.readonly
-
-Present when the number field is readonly.
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributesreadonly = 'data-readonly';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.required
-
-Present when the number field is required.
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributesrequired = 'data-required';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.scrubbing
-
-Present while scrubbing.
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributesscrubbing = 'data-scrubbing';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.touched
-
-Present when the number field has been touched (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributestouched = 'data-touched';
-```
-
-### NumberFieldScrubAreaCursorDataAttributes.valid
-
-Present when the number field is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaCursorDataAttributesvalid = 'data-valid';
-```
-
-### NumberFieldScrubAreaDataAttributes.dirty
-
-Present when the number field's value has changed (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaDataAttributesdirty = 'data-dirty';
-```
-
-### NumberFieldScrubAreaDataAttributes.disabled
-
-Present when the number field is disabled.
-
-```typescript
-type NumberFieldScrubAreaDataAttributesdisabled = 'data-disabled';
-```
-
-### NumberFieldScrubAreaDataAttributes.filled
-
-Present when the number field is filled (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaDataAttributesfilled = 'data-filled';
-```
-
-### NumberFieldScrubAreaDataAttributes.focused
-
-Present when the number field is focused (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaDataAttributesfocused = 'data-focused';
-```
-
-### NumberFieldScrubAreaDataAttributes.invalid
-
-Present when the number field is in an invalid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaDataAttributesinvalid = 'data-invalid';
-```
-
-### NumberFieldScrubAreaDataAttributes.readonly
-
-Present when the number field is readonly.
-
-```typescript
-type NumberFieldScrubAreaDataAttributesreadonly = 'data-readonly';
-```
-
-### NumberFieldScrubAreaDataAttributes.required
-
-Present when the number field is required.
-
-```typescript
-type NumberFieldScrubAreaDataAttributesrequired = 'data-required';
-```
-
-### NumberFieldScrubAreaDataAttributes.scrubbing
-
-Present while scrubbing.
-
-```typescript
-type NumberFieldScrubAreaDataAttributesscrubbing = 'data-scrubbing';
-```
-
-### NumberFieldScrubAreaDataAttributes.touched
-
-Present when the number field has been touched (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaDataAttributestouched = 'data-touched';
-```
-
-### NumberFieldScrubAreaDataAttributes.valid
-
-Present when the number field is in a valid state (when wrapped in Field.Root).
-
-```typescript
-type NumberFieldScrubAreaDataAttributesvalid = 'data-valid';
+### NumberFieldDecrementDataAttributes
+
+Data attributes of [Decrement](#decrement).
+
+```typescript
+declare namespace NumberFieldDecrementDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldGroupDataAttributes
+
+Data attributes of [Group](#group).
+
+```typescript
+declare namespace NumberFieldGroupDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldIncrementDataAttributes
+
+Data attributes of [Increment](#increment).
+
+```typescript
+declare namespace NumberFieldIncrementDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldInputDataAttributes
+
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace NumberFieldInputDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace NumberFieldRootDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldScrubAreaCursorDataAttributes
+
+Data attributes of [ScrubAreaCursor](#scrubareacursor).
+
+```typescript
+declare namespace NumberFieldScrubAreaCursorDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### NumberFieldScrubAreaDataAttributes
+
+Data attributes of [ScrubArea](#scrubarea).
+
+```typescript
+declare namespace NumberFieldScrubAreaDataAttributes {
+  /** Present while scrubbing. */
+  const scrubbing: 'data-scrubbing';
+  /** Present when the number field is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the number field is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the number field is required. */
+  const required: 'data-required';
+  /** Present when the number field is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the number field is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the number field has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the number field's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the number field is filled (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the number field is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
 ## External Types
@@ -1113,7 +756,7 @@ type Direction = -1 | 1;
 - `NumberField.Input`: `NumberField.Input`, `NumberField.Input.State`, `NumberField.Input.Props`
 - `NumberField.ScrubArea`: `NumberField.ScrubArea`, `NumberField.ScrubArea.State`, `NumberField.ScrubArea.Props`
 - `NumberField.ScrubAreaCursor`: `NumberField.ScrubAreaCursor`, `NumberField.ScrubAreaCursor.State`, `NumberField.ScrubAreaCursor.Props`
-- `Default`: `NumberFieldRootDataAttributes.scrubbing`, `NumberFieldRootDataAttributes.disabled`, `NumberFieldRootDataAttributes.readonly`, `NumberFieldRootDataAttributes.required`, `NumberFieldRootDataAttributes.valid`, `NumberFieldRootDataAttributes.invalid`, `NumberFieldRootDataAttributes.touched`, `NumberFieldRootDataAttributes.dirty`, `NumberFieldRootDataAttributes.filled`, `NumberFieldRootDataAttributes.focused`, `NumberFieldGroupDataAttributes.scrubbing`, `NumberFieldGroupDataAttributes.disabled`, `NumberFieldGroupDataAttributes.readonly`, `NumberFieldGroupDataAttributes.required`, `NumberFieldGroupDataAttributes.valid`, `NumberFieldGroupDataAttributes.invalid`, `NumberFieldGroupDataAttributes.touched`, `NumberFieldGroupDataAttributes.dirty`, `NumberFieldGroupDataAttributes.filled`, `NumberFieldGroupDataAttributes.focused`, `NumberFieldIncrementDataAttributes.scrubbing`, `NumberFieldIncrementDataAttributes.disabled`, `NumberFieldIncrementDataAttributes.readonly`, `NumberFieldIncrementDataAttributes.required`, `NumberFieldIncrementDataAttributes.valid`, `NumberFieldIncrementDataAttributes.invalid`, `NumberFieldIncrementDataAttributes.touched`, `NumberFieldIncrementDataAttributes.dirty`, `NumberFieldIncrementDataAttributes.filled`, `NumberFieldIncrementDataAttributes.focused`, `NumberFieldDecrementDataAttributes.scrubbing`, `NumberFieldDecrementDataAttributes.disabled`, `NumberFieldDecrementDataAttributes.readonly`, `NumberFieldDecrementDataAttributes.required`, `NumberFieldDecrementDataAttributes.valid`, `NumberFieldDecrementDataAttributes.invalid`, `NumberFieldDecrementDataAttributes.touched`, `NumberFieldDecrementDataAttributes.dirty`, `NumberFieldDecrementDataAttributes.filled`, `NumberFieldDecrementDataAttributes.focused`, `NumberFieldInputDataAttributes.scrubbing`, `NumberFieldInputDataAttributes.disabled`, `NumberFieldInputDataAttributes.readonly`, `NumberFieldInputDataAttributes.required`, `NumberFieldInputDataAttributes.valid`, `NumberFieldInputDataAttributes.invalid`, `NumberFieldInputDataAttributes.touched`, `NumberFieldInputDataAttributes.dirty`, `NumberFieldInputDataAttributes.filled`, `NumberFieldInputDataAttributes.focused`, `NumberFieldScrubAreaDataAttributes.scrubbing`, `NumberFieldScrubAreaDataAttributes.disabled`, `NumberFieldScrubAreaDataAttributes.readonly`, `NumberFieldScrubAreaDataAttributes.required`, `NumberFieldScrubAreaDataAttributes.valid`, `NumberFieldScrubAreaDataAttributes.invalid`, `NumberFieldScrubAreaDataAttributes.touched`, `NumberFieldScrubAreaDataAttributes.dirty`, `NumberFieldScrubAreaDataAttributes.filled`, `NumberFieldScrubAreaDataAttributes.focused`, `NumberFieldScrubAreaCursorDataAttributes.scrubbing`, `NumberFieldScrubAreaCursorDataAttributes.disabled`, `NumberFieldScrubAreaCursorDataAttributes.readonly`, `NumberFieldScrubAreaCursorDataAttributes.required`, `NumberFieldScrubAreaCursorDataAttributes.valid`, `NumberFieldScrubAreaCursorDataAttributes.invalid`, `NumberFieldScrubAreaCursorDataAttributes.touched`, `NumberFieldScrubAreaCursorDataAttributes.dirty`, `NumberFieldScrubAreaCursorDataAttributes.filled`, `NumberFieldScrubAreaCursorDataAttributes.focused`, `NumberFieldRootProps`, `NumberFieldRootState`, `NumberFieldRootChangeEventReason`, `NumberFieldRootChangeEventDetails`, `NumberFieldRootCommitEventReason`, `NumberFieldRootCommitEventDetails`, `NumberFieldGroupState`, `NumberFieldGroupProps`, `NumberFieldIncrementState`, `NumberFieldIncrementProps`, `NumberFieldDecrementState`, `NumberFieldDecrementProps`, `NumberFieldInputState`, `NumberFieldInputProps`, `NumberFieldScrubAreaState`, `NumberFieldScrubAreaProps`, `NumberFieldScrubAreaCursorState`, `NumberFieldScrubAreaCursorProps`
+- `Default`: `NumberFieldRootDataAttributes`, `NumberFieldGroupDataAttributes`, `NumberFieldIncrementDataAttributes`, `NumberFieldDecrementDataAttributes`, `NumberFieldInputDataAttributes`, `NumberFieldScrubAreaDataAttributes`, `NumberFieldScrubAreaCursorDataAttributes`, `NumberFieldRootProps`, `NumberFieldRootState`, `NumberFieldRootChangeEventReason`, `NumberFieldRootChangeEventDetails`, `NumberFieldRootCommitEventReason`, `NumberFieldRootCommitEventDetails`, `NumberFieldGroupState`, `NumberFieldGroupProps`, `NumberFieldIncrementState`, `NumberFieldIncrementProps`, `NumberFieldDecrementState`, `NumberFieldDecrementProps`, `NumberFieldInputState`, `NumberFieldInputProps`, `NumberFieldScrubAreaState`, `NumberFieldScrubAreaProps`, `NumberFieldScrubAreaCursorState`, `NumberFieldScrubAreaCursorProps`
 
 ## Canonical Types
 

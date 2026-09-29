@@ -408,164 +408,101 @@ This method should only be called in an event handler or an effect (not during r
 
 ## Additional Types
 
-### AlertDialogBackdropDataAttributes.closed
+### AlertDialogBackdropDataAttributes
 
-Present when the dialog is closed.
+Data attributes of [Backdrop](#backdrop).
 
 ```typescript
-type AlertDialogBackdropDataAttributesclosed = 'data-closed';
+declare namespace AlertDialogBackdropDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
-### AlertDialogBackdropDataAttributes.endingStyle
+### AlertDialogCloseDataAttributes
 
-Present when the dialog is animating out.
+Data attributes of [Close](#close).
 
 ```typescript
-type AlertDialogBackdropDataAttributesendingStyle = 'data-ending-style';
+declare namespace AlertDialogCloseDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+}
 ```
 
-### AlertDialogBackdropDataAttributes.open
+### AlertDialogPopupCssVariables
 
-Present when the dialog is open.
+CSS variables of [Popup](#popup).
 
 ```typescript
-type AlertDialogBackdropDataAttributesopen = 'data-open';
+declare namespace AlertDialogPopupCssVariables {
+  /**
+   * Indicates how many dialogs are nested within.
+   * @type number
+   */
+  const nestedDialogs: '--nested-dialogs';
+}
 ```
 
-### AlertDialogBackdropDataAttributes.startingStyle
+### AlertDialogPopupDataAttributes
 
-Present when the dialog begins animating in.
+Data attributes of [Popup](#popup).
 
 ```typescript
-type AlertDialogBackdropDataAttributesstartingStyle = 'data-starting-style';
+declare namespace AlertDialogPopupDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the dialog is nested within another dialog. */
+  const nested: 'data-nested';
+  /** Present when the dialog has other open dialogs nested within it. */
+  const nestedDialogOpen: 'data-nested-dialog-open';
+}
 ```
 
-### AlertDialogCloseDataAttributes.disabled
+### AlertDialogTriggerDataAttributes
 
-Present when the button is disabled.
+Data attributes of [Trigger](#trigger).
 
 ```typescript
-type AlertDialogCloseDataAttributesdisabled = 'data-disabled';
+declare namespace AlertDialogTriggerDataAttributes {
+  /** Present when the trigger is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the corresponding alert dialog is open. */
+  const popupOpen: 'data-popup-open';
+}
 ```
 
-### AlertDialogPopupCssVariables.nestedDialogs
+### AlertDialogViewportDataAttributes
 
-Indicates how many dialogs are nested within.
-
-```typescript
-type AlertDialogPopupCssVariablesnestedDialogs = '--nested-dialogs';
-```
-
-### AlertDialogPopupDataAttributes.closed
-
-Present when the dialog is closed.
+Data attributes of [Viewport](#viewport).
 
 ```typescript
-type AlertDialogPopupDataAttributesclosed = 'data-closed';
-```
-
-### AlertDialogPopupDataAttributes.endingStyle
-
-Present when the dialog is animating out.
-
-```typescript
-type AlertDialogPopupDataAttributesendingStyle = 'data-ending-style';
-```
-
-### AlertDialogPopupDataAttributes.nested
-
-Present when the dialog is nested within another dialog.
-
-```typescript
-type AlertDialogPopupDataAttributesnested = 'data-nested';
-```
-
-### AlertDialogPopupDataAttributes.nestedDialogOpen
-
-Present when the dialog has other open dialogs nested within it.
-
-```typescript
-type AlertDialogPopupDataAttributesnestedDialogOpen = 'data-nested-dialog-open';
-```
-
-### AlertDialogPopupDataAttributes.open
-
-Present when the dialog is open.
-
-```typescript
-type AlertDialogPopupDataAttributesopen = 'data-open';
-```
-
-### AlertDialogPopupDataAttributes.startingStyle
-
-Present when the dialog begins animating in.
-
-```typescript
-type AlertDialogPopupDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### AlertDialogTriggerDataAttributes.disabled
-
-Present when the trigger is disabled.
-
-```typescript
-type AlertDialogTriggerDataAttributesdisabled = 'data-disabled';
-```
-
-### AlertDialogTriggerDataAttributes.popupOpen
-
-Present when the corresponding alert dialog is open.
-
-```typescript
-type AlertDialogTriggerDataAttributespopupOpen = 'data-popup-open';
-```
-
-### AlertDialogViewportDataAttributes.closed
-
-Present when the dialog is closed.
-
-```typescript
-type AlertDialogViewportDataAttributesclosed = 'data-closed';
-```
-
-### AlertDialogViewportDataAttributes.endingStyle
-
-Present when the dialog is animating out.
-
-```typescript
-type AlertDialogViewportDataAttributesendingStyle = 'data-ending-style';
-```
-
-### AlertDialogViewportDataAttributes.nested
-
-Present when the dialog is nested within another dialog.
-
-```typescript
-type AlertDialogViewportDataAttributesnested = 'data-nested';
-```
-
-### AlertDialogViewportDataAttributes.nestedDialogOpen
-
-Present when the dialog has other open dialogs nested within it.
-
-```typescript
-type AlertDialogViewportDataAttributesnestedDialogOpen = 'data-nested-dialog-open';
-```
-
-### AlertDialogViewportDataAttributes.open
-
-Present when the dialog is open.
-
-```typescript
-type AlertDialogViewportDataAttributesopen = 'data-open';
-```
-
-### AlertDialogViewportDataAttributes.startingStyle
-
-Present when the dialog begins animating in.
-
-```typescript
-type AlertDialogViewportDataAttributesstartingStyle = 'data-starting-style';
+declare namespace AlertDialogViewportDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the dialog is nested within another dialog. */
+  const nested: 'data-nested';
+  /** Present when the dialog has other open dialogs nested within it. */
+  const nestedDialogOpen: 'data-nested-dialog-open';
+}
 ```
 
 ## External Types
@@ -595,7 +532,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 - `AlertDialog.Viewport`: `AlertDialog.Viewport`, `AlertDialog.Viewport.State`, `AlertDialog.Viewport.Props`
 - `AlertDialog.Handle`
 - `AlertDialog.createHandle`
-- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogBackdropDataAttributes.open`, `AlertDialogBackdropDataAttributes.closed`, `AlertDialogBackdropDataAttributes.startingStyle`, `AlertDialogBackdropDataAttributes.endingStyle`, `AlertDialogCloseDataAttributes.disabled`, `AlertDialogPopupCssVariables.nestedDialogs`, `AlertDialogPopupDataAttributes.open`, `AlertDialogPopupDataAttributes.closed`, `AlertDialogPopupDataAttributes.startingStyle`, `AlertDialogPopupDataAttributes.endingStyle`, `AlertDialogPopupDataAttributes.nested`, `AlertDialogPopupDataAttributes.nestedDialogOpen`, `AlertDialogTriggerDataAttributes.disabled`, `AlertDialogTriggerDataAttributes.popupOpen`, `AlertDialogViewportDataAttributes.open`, `AlertDialogViewportDataAttributes.closed`, `AlertDialogViewportDataAttributes.startingStyle`, `AlertDialogViewportDataAttributes.endingStyle`, `AlertDialogViewportDataAttributes.nested`, `AlertDialogViewportDataAttributes.nestedDialogOpen`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
+- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogBackdropDataAttributes`, `AlertDialogCloseDataAttributes`, `AlertDialogPopupCssVariables`, `AlertDialogPopupDataAttributes`, `AlertDialogTriggerDataAttributes`, `AlertDialogViewportDataAttributes`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
 
 ## Canonical Types
 

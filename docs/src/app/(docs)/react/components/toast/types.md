@@ -577,68 +577,86 @@ type ToastObject<Data extends {}> = {
 };
 ```
 
-### ToastActionDataAttributes.type
+### ToastActionDataAttributes
 
-The type of the toast.
+Data attributes of [Action](#action).
 
 ```typescript
-type ToastActionDataAttributestype = 'data-type';
+declare namespace ToastActionDataAttributes {
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+}
 ```
 
-### ToastArrowDataAttributes.align
+### ToastArrowDataAttributes
 
-Indicates how the toast is aligned relative to specified side.
+Data attributes of [Arrow](#arrow).
 
 ```typescript
-type ToastArrowDataAttributesalign = 'data-align';
+declare namespace ToastArrowDataAttributes {
+  /**
+   * Indicates which side the toast is positioned relative to the anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the toast is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the toast arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
 ```
 
-### ToastArrowDataAttributes.side
+### ToastCloseDataAttributes
 
-Indicates which side the toast is positioned relative to the anchor.
+Data attributes of [Close](#close).
 
 ```typescript
-type ToastArrowDataAttributesside = 'data-side';
+declare namespace ToastCloseDataAttributes {
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+}
 ```
 
-### ToastArrowDataAttributes.uncentered
+### ToastContentDataAttributes
 
-Present when the toast arrow is uncentered.
+Data attributes of [Content](#content).
 
 ```typescript
-type ToastArrowDataAttributesuncentered = 'data-uncentered';
+declare namespace ToastContentDataAttributes {
+  /**
+   * Present when the toast viewport is expanded.
+   * @type boolean
+   */
+  const expanded: 'data-expanded';
+  /**
+   * Present when the toast is behind the frontmost toast in the stack.
+   * @type boolean
+   */
+  const behind: 'data-behind';
+}
 ```
 
-### ToastCloseDataAttributes.type
+### ToastDescriptionDataAttributes
 
-The type of the toast.
-
-```typescript
-type ToastCloseDataAttributestype = 'data-type';
-```
-
-### ToastContentDataAttributes.behind
-
-Present when the toast is behind the frontmost toast in the stack.
+Data attributes of [Description](#description).
 
 ```typescript
-type ToastContentDataAttributesbehind = 'data-behind';
-```
-
-### ToastContentDataAttributes.expanded
-
-Present when the toast viewport is expanded.
-
-```typescript
-type ToastContentDataAttributesexpanded = 'data-expanded';
-```
-
-### ToastDescriptionDataAttributes.type
-
-The type of the toast.
-
-```typescript
-type ToastDescriptionDataAttributestype = 'data-type';
+declare namespace ToastDescriptionDataAttributes {
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+}
 ```
 
 ### ToastManager
@@ -928,188 +946,173 @@ type ToastManagerUpdateOptions<Data extends {}> = {
 };
 ```
 
-### ToastPositionerCssVariables.anchorHeight
+### ToastPositionerCssVariables
 
-The anchor's height.
+CSS variables of [Positioner](#positioner).
 
 ```typescript
-type ToastPositionerCssVariablesanchorHeight = '--anchor-height';
+declare namespace ToastPositionerCssVariables {
+  /**
+   * The available width between the anchor and the edge of the viewport.
+   * @type number
+   */
+  const availableWidth: '--available-width';
+  /**
+   * The available height between the anchor and the edge of the viewport.
+   * @type number
+   */
+  const availableHeight: '--available-height';
+  /**
+   * The anchor's width.
+   * @type number
+   */
+  const anchorWidth: '--anchor-width';
+  /**
+   * The anchor's height.
+   * @type number
+   */
+  const anchorHeight: '--anchor-height';
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
+  const transformOrigin: '--transform-origin';
+}
 ```
 
-### ToastPositionerCssVariables.anchorWidth
+### ToastPositionerDataAttributes
 
-The anchor's width.
+Data attributes of [Positioner](#positioner).
 
 ```typescript
-type ToastPositionerCssVariablesanchorWidth = '--anchor-width';
+declare namespace ToastPositionerDataAttributes {
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /**
+   * Indicates which side the toast is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the toast is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+}
 ```
 
-### ToastPositionerCssVariables.availableHeight
+### ToastRootCssVariables
 
-The available height between the anchor and the edge of the viewport.
+CSS variables of [Root](#root).
 
 ```typescript
-type ToastPositionerCssVariablesavailableHeight = '--available-height';
+declare namespace ToastRootCssVariables {
+  /**
+   * Indicates the index of the toast in the list.
+   * @type number
+   */
+  const index: '--toast-index';
+  /**
+   * Indicates the vertical pixels offset of the toast in the list when expanded.
+   * @type number
+   */
+  const offsetY: '--toast-offset-y';
+  /**
+   * Indicates the measured natural height of the toast in pixels.
+   * @type number
+   */
+  const height: '--toast-height';
+  /**
+   * Indicates the horizontal swipe movement of the toast.
+   * @type number
+   */
+  const swipeMovementX: '--toast-swipe-movement-x';
+  /**
+   * Indicates the vertical swipe movement of the toast.
+   * @type number
+   */
+  const swipeMovementY: '--toast-swipe-movement-y';
+}
 ```
 
-### ToastPositionerCssVariables.availableWidth
+### ToastRootDataAttributes
 
-The available width between the anchor and the edge of the viewport.
+Data attributes of [Root](#root).
 
 ```typescript
-type ToastPositionerCssVariablesavailableWidth = '--available-width';
+declare namespace ToastRootDataAttributes {
+  /**
+   * Present when the toast is expanded in the viewport.
+   * @type boolean
+   */
+  const expanded: 'data-expanded';
+  /**
+   * Present when the toast was limited because the toast limit was exceeded.
+   * @type boolean
+   */
+  const limited: 'data-limited';
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+  /**
+   * Present when the toast is being swiped.
+   * @type boolean
+   */
+  const swiping: 'data-swiping';
+  /**
+   * The direction the toast was swiped.
+   * @type 'up' | 'down' | 'left' | 'right'
+   */
+  const swipeDirection: 'data-swipe-direction';
+  /** Present when the toast begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the toast is animating out. */
+  const endingStyle: 'data-ending-style';
+}
 ```
 
-### ToastPositionerCssVariables.transformOrigin
+### ToastTitleDataAttributes
 
-The coordinates that this element is anchored to. Used for animations and transitions.
+Data attributes of [Title](#title).
 
 ```typescript
-type ToastPositionerCssVariablestransformOrigin = '--transform-origin';
+declare namespace ToastTitleDataAttributes {
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+}
 ```
 
-### ToastPositionerDataAttributes.align
+### ToastViewportCssVariables
 
-Indicates how the toast is aligned relative to specified side.
+CSS variables of [Viewport](#viewport).
 
 ```typescript
-type ToastPositionerDataAttributesalign = 'data-align';
+declare namespace ToastViewportCssVariables {
+  /**
+   * Indicates the height of the frontmost toast.
+   * @type number
+   */
+  const frontmostHeight: '--toast-frontmost-height';
+}
 ```
 
-### ToastPositionerDataAttributes.anchorHidden
+### ToastViewportDataAttributes
 
-Present when the anchor is hidden.
-
-```typescript
-type ToastPositionerDataAttributesanchorHidden = 'data-anchor-hidden';
-```
-
-### ToastPositionerDataAttributes.side
-
-Indicates which side the toast is positioned relative to the trigger.
+Data attributes of [Viewport](#viewport).
 
 ```typescript
-type ToastPositionerDataAttributesside = 'data-side';
-```
-
-### ToastRootCssVariables.height
-
-Indicates the measured natural height of the toast in pixels.
-
-```typescript
-type ToastRootCssVariablesheight = '--toast-height';
-```
-
-### ToastRootCssVariables.index
-
-Indicates the index of the toast in the list.
-
-```typescript
-type ToastRootCssVariablesindex = '--toast-index';
-```
-
-### ToastRootCssVariables.offsetY
-
-Indicates the vertical pixels offset of the toast in the list when expanded.
-
-```typescript
-type ToastRootCssVariablesoffsetY = '--toast-offset-y';
-```
-
-### ToastRootCssVariables.swipeMovementX
-
-Indicates the horizontal swipe movement of the toast.
-
-```typescript
-type ToastRootCssVariablesswipeMovementX = '--toast-swipe-movement-x';
-```
-
-### ToastRootCssVariables.swipeMovementY
-
-Indicates the vertical swipe movement of the toast.
-
-```typescript
-type ToastRootCssVariablesswipeMovementY = '--toast-swipe-movement-y';
-```
-
-### ToastRootDataAttributes.endingStyle
-
-Present when the toast is animating out.
-
-```typescript
-type ToastRootDataAttributesendingStyle = 'data-ending-style';
-```
-
-### ToastRootDataAttributes.expanded
-
-Present when the toast is expanded in the viewport.
-
-```typescript
-type ToastRootDataAttributesexpanded = 'data-expanded';
-```
-
-### ToastRootDataAttributes.limited
-
-Present when the toast was limited because the toast limit was exceeded.
-
-```typescript
-type ToastRootDataAttributeslimited = 'data-limited';
-```
-
-### ToastRootDataAttributes.startingStyle
-
-Present when the toast begins animating in.
-
-```typescript
-type ToastRootDataAttributesstartingStyle = 'data-starting-style';
-```
-
-### ToastRootDataAttributes.swipeDirection
-
-The direction the toast was swiped.
-
-```typescript
-type ToastRootDataAttributesswipeDirection = 'data-swipe-direction';
-```
-
-### ToastRootDataAttributes.swiping
-
-Present when the toast is being swiped.
-
-```typescript
-type ToastRootDataAttributesswiping = 'data-swiping';
-```
-
-### ToastRootDataAttributes.type
-
-The type of the toast.
-
-```typescript
-type ToastRootDataAttributestype = 'data-type';
-```
-
-### ToastTitleDataAttributes.type
-
-The type of the toast.
-
-```typescript
-type ToastTitleDataAttributestype = 'data-type';
-```
-
-### ToastViewportCssVariables.frontmostHeight
-
-Indicates the height of the frontmost toast.
-
-```typescript
-type ToastViewportCssVariablesfrontmostHeight = '--toast-frontmost-height';
-```
-
-### ToastViewportDataAttributes.expanded
-
-Indicates toasts are expanded in the viewport.
-
-```typescript
-type ToastViewportDataAttributesexpanded = 'data-expanded';
+declare namespace ToastViewportDataAttributes {
+  /**
+   * Indicates toasts are expanded in the viewport.
+   * @type boolean
+   */
+  const expanded: 'data-expanded';
+}
 ```
 
 ### UseToastManagerReturnValue
@@ -1171,7 +1174,7 @@ type OffsetFunction = (data: {
 - `Toast.Arrow`: `Toast.Arrow`, `Toast.Arrow.State`, `Toast.Arrow.Props`
 - `Toast.useToastManager`
 - `Toast.createToastManager`
-- `Default`: `ToastViewportCssVariables.frontmostHeight`, `ToastViewportDataAttributes.expanded`, `ToastRootCssVariables.index`, `ToastRootCssVariables.offsetY`, `ToastRootCssVariables.height`, `ToastRootCssVariables.swipeMovementX`, `ToastRootCssVariables.swipeMovementY`, `ToastRootDataAttributes.expanded`, `ToastRootDataAttributes.limited`, `ToastRootDataAttributes.type`, `ToastRootDataAttributes.swiping`, `ToastRootDataAttributes.swipeDirection`, `ToastRootDataAttributes.startingStyle`, `ToastRootDataAttributes.endingStyle`, `ToastContentDataAttributes.expanded`, `ToastContentDataAttributes.behind`, `ToastDescriptionDataAttributes.type`, `ToastTitleDataAttributes.type`, `ToastCloseDataAttributes.type`, `ToastActionDataAttributes.type`, `ToastPositionerCssVariables.availableWidth`, `ToastPositionerCssVariables.availableHeight`, `ToastPositionerCssVariables.anchorWidth`, `ToastPositionerCssVariables.anchorHeight`, `ToastPositionerCssVariables.transformOrigin`, `ToastPositionerDataAttributes.anchorHidden`, `ToastPositionerDataAttributes.side`, `ToastPositionerDataAttributes.align`, `ToastArrowDataAttributes.side`, `ToastArrowDataAttributes.align`, `ToastArrowDataAttributes.uncentered`, `ToastRootToastObject`, `ToastRootState`, `ToastRootProps`, `ToastProviderState`, `ToastProviderProps`, `ToastViewportState`, `ToastViewportProps`, `ToastContentState`, `ToastContentProps`, `ToastDescriptionState`, `ToastDescriptionProps`, `ToastTitleState`, `ToastTitleProps`, `ToastCloseState`, `ToastCloseProps`, `ToastActionState`, `ToastActionProps`, `ToastPortalState`, `ToastPortalProps`, `ToastPositionerState`, `ToastPositionerProps`, `ToastArrowState`, `ToastArrowProps`, `ToastObject`, `ToastManagerPositionerProps`, `UseToastManagerReturnValue`, `ToastManagerAddOptions`, `ToastManagerUpdateOptions`, `ToastManagerPromiseOptions`, `ToastManager`, `ToastManagerEvent`
+- `Default`: `ToastViewportCssVariables`, `ToastViewportDataAttributes`, `ToastRootCssVariables`, `ToastRootDataAttributes`, `ToastContentDataAttributes`, `ToastDescriptionDataAttributes`, `ToastTitleDataAttributes`, `ToastCloseDataAttributes`, `ToastActionDataAttributes`, `ToastPositionerCssVariables`, `ToastPositionerDataAttributes`, `ToastArrowDataAttributes`, `ToastRootToastObject`, `ToastRootState`, `ToastRootProps`, `ToastProviderState`, `ToastProviderProps`, `ToastViewportState`, `ToastViewportProps`, `ToastContentState`, `ToastContentProps`, `ToastDescriptionState`, `ToastDescriptionProps`, `ToastTitleState`, `ToastTitleProps`, `ToastCloseState`, `ToastCloseProps`, `ToastActionState`, `ToastActionProps`, `ToastPortalState`, `ToastPortalProps`, `ToastPositionerState`, `ToastPositionerProps`, `ToastArrowState`, `ToastArrowProps`, `ToastObject`, `ToastManagerPositionerProps`, `UseToastManagerReturnValue`, `ToastManagerAddOptions`, `ToastManagerUpdateOptions`, `ToastManagerPromiseOptions`, `ToastManager`, `ToastManagerEvent`
 
 ## Canonical Types
 
