@@ -5,7 +5,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
-import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
 import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
@@ -34,13 +33,11 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   const linkRef = React.useRef<HTMLAnchorElement | null>(null);
 
   const listItem = useCompositeListItem({ guess: true, label });
-  const menuPositionerContext = useMenuPositionerContext(true);
-  const nodeId = menuPositionerContext?.context.nodeId;
-
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
+  const nodeId = store.useState('floatingNodeId');
   const itemProps = store.useState('itemProps');
   const typingRef = store.context.typingRef;
 
