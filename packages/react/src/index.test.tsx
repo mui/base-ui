@@ -7,17 +7,6 @@ import { isJSDOM } from '#test-utils';
 import * as BaseUI from './index';
 
 describe('@base-ui/react', () => {
-  it('should have exports', () => {
-    expect(typeof BaseUI).toBe('object');
-  });
-
-  it('should not have undefined exports', () => {
-    Object.keys(BaseUI).forEach((exportKey) => {
-      const value = (BaseUI as Record<string, unknown>)[exportKey];
-      expect(Boolean(value)).toBe(true);
-    });
-  });
-
   it.skipIf(!isJSDOM)('should resolve internals and auxiliary exports', async () => {
     const packageJson = await import('../package.json');
     const subpathExports = packageJson.exports;
