@@ -16,7 +16,6 @@ export type { UseFloatingPortalNodeProps } from './components/FloatingPortal';
 export type { UseClientPointProps } from './hooks/useClientPoint';
 export type { UseDismissProps } from './hooks/useDismiss';
 export type { UseFocusProps } from './hooks/useFocus';
-export type { UseHoverProps } from './hooks/useHover';
 export type { HandleCloseContext, HandleClose } from './hooks/useHoverShared';
 export type { UseHoverFloatingInteractionProps } from './hooks/useHoverFloatingInteraction';
 export type { UseHoverReferenceInteractionProps } from './hooks/useHoverReferenceInteraction';

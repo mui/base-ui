@@ -22,8 +22,8 @@ import {
   isIndexOutOfListBounds,
   isNativeInput,
   scrollIntoViewIfNeeded,
-  type ModifierKey,
 } from '../composite';
+import type { ModifierKey } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import type { CompositeMetadata } from '../list/CompositeList';
 import type { HTMLProps } from '../../types';

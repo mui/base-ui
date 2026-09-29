@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ReactStore } from '@base-ui/utils/store';
+import type { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
@@ -10,18 +10,14 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
-import {
-  useSyncedFloatingRootContext,
-  type SyncedFloatingRootContextStore,
-} from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
+import type { SyncedFloatingRootContextStore } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import type { HTMLProps } from '../../internals/types';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import {
+import type {
   PopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
@@ -597,6 +593,13 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       onUnmount?.();
       store.context.onOpenChangeComplete?.(false);
     },
+  });
+
+  // Seed the Root-owned store before parts subscribe, matching the hook's initial mounted state.
+  // Otherwise, an initially open Root looks like a reopen until the layout effect syncs the store.
+  useRefWithInit(() => {
+    store.set('mounted', mounted);
+    return null;
   });
 
   store.useSyncedValues({ mounted, transitionStatus });

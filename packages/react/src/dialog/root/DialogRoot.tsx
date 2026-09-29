@@ -1,10 +1,10 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
-import { DialogHandle } from '../store/DialogHandle';
-import { type PayloadChildRenderFunction } from '../../utils/popups';
+import type { REASONS } from '../../internals/reasons';
+import type { DialogHandle } from '../store/DialogHandle';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 import { useRenderDialogRoot } from './useRenderDialogRoot';
 
 /**
@@ -60,9 +60,9 @@ export interface DialogRootProps<Payload = unknown> {
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the dialog.
-   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
-   * then call this action after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the dialog after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the dialog completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<DialogRoot.Actions | null> | undefined;

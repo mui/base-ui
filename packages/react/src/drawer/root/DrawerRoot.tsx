@@ -7,17 +7,14 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
-import {
-  DrawerRootContext,
-  type DrawerNestedSwipeProgressStore,
-  type DrawerSwipeDirection,
-  useDrawerRootContext,
-  type DrawerSnapPoint,
+import { DrawerRootContext, useDrawerRootContext } from './DrawerRootContext';
+import type {
+  DrawerNestedSwipeProgressStore,
+  DrawerSwipeDirection,
+  DrawerSnapPoint,
 } from './DrawerRootContext';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';
@@ -288,9 +285,9 @@ export interface DrawerRootProps<Payload = unknown> {
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the drawer.
-   * Call `preventUnmountOnClose()` in `onOpenChange` to manually control unmounting,
-   * then call this action after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the drawer after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the drawer completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the drawer imperatively when called.
    */
   actionsRef?: React.RefObject<DrawerRoot.Actions | null> | undefined;

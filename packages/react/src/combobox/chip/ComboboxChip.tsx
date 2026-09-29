@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';

@@ -4,18 +4,16 @@ import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { NOOP } from '@base-ui/utils/empty';
-import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { type PopoverRoot } from '../root/PopoverRoot';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
+import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
   attachPreventUnmountOnClose,
   createInitialPopupStoreState,
-  PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
   PopupTriggerMap,
-  type PopupTriggerStoreKeys,
   createPopupOpenState,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
