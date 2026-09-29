@@ -1,14 +1,14 @@
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { findNonDisabledListIndex } from '../../floating-ui-react/utils/composite';
+import { getNextListIndex } from '../../floating-ui-react/utils/composite';
+import { isMainOrientationToEndKey } from '../../floating-ui-react/hooks/useListNavigation';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 import type { MenuStore } from '../store/MenuStore';
 
 /**
- * Moves a menu's highlight from `item` to its neighbor in the direction of a main-orientation
- * arrow key, as the menu's own list navigation would, and returns the newly highlighted item.
- * A menu whose navigation escapes to its input at either end doesn't wrap here: the highlight
- * stays where it is.
+ * Moves a menu's highlight from `item` one step in the direction of a main-orientation arrow key,
+ * with the same step as the menu's own list navigation, and returns the newly highlighted item.
+ * A step that would leave a menu whose navigation escapes to its input keeps the highlight.
  */
 export function moveHighlightFrom(
   store: MenuStore<unknown>,
@@ -18,29 +18,17 @@ export function moveHighlightFrom(
 ): HTMLElement | undefined {
   const { orientation, rtl, loopFocus, allowEscape } = options;
   const items = store.context.itemDomElements.current;
-  const decrement =
-    orientation === 'vertical' ? key === 'ArrowUp' : key === (rtl ? 'ArrowRight' : 'ArrowLeft');
-  // Match `useListNavigation`: `aria-disabled` items stay reachable.
-  let nextIndex = findNonDisabledListIndex(items, {
-    startingIndex: items.indexOf(item),
-    decrement,
+  const { index } = getNextListIndex(items, items.indexOf(item), {
+    decrement: !isMainOrientationToEndKey(key, orientation, rtl),
+    loopFocus,
+    allowEscape,
+    // Match the menu's list navigation: `aria-disabled` items stay reachable.
     disabledIndices: EMPTY_ARRAY,
   });
 
-  if (loopFocus && (nextIndex < 0 || nextIndex >= items.length)) {
-    if (allowEscape) {
-      return undefined;
-    }
-    nextIndex = findNonDisabledListIndex(items, {
-      startingIndex: decrement ? items.length : -1,
-      decrement,
-      disabledIndices: EMPTY_ARRAY,
-    });
-  }
-
-  const next = items[nextIndex];
+  const next = items[index];
   if (next) {
-    store.setActiveIndex(nextIndex, REASONS.keyboard);
+    store.setActiveIndex(index, REASONS.keyboard);
     next.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }
   return next ?? undefined;

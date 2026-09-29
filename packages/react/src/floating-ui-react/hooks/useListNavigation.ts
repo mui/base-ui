@@ -16,6 +16,7 @@ import {
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
+  getNextListIndex,
   isIndexOutOfListBounds,
 } from '../utils/composite';
 import type { gridNavigation } from './gridNavigation';
@@ -687,61 +688,17 @@ export function useListNavigation(
         return;
       }
 
-      if (isMainOrientationToEndKey(event.key, orientation, rtl)) {
-        if (loopFocus) {
-          if (currentIndex >= maxIndex) {
-            if (allowEscape && currentIndex !== listRef.current.length) {
-              indexRef.current = -1;
-            } else {
-              // Give time for virtualizers to update the listRef.
-              forceSyncFocusRef.current = false;
-              indexRef.current = minIndex;
-            }
-          } else {
-            indexRef.current = findNonDisabledListIndex(listRef.current, {
-              startingIndex: currentIndex,
-              disabledIndices,
-            });
-          }
-        } else {
-          indexRef.current = Math.min(
-            maxIndex,
-            findNonDisabledListIndex(listRef.current, {
-              startingIndex: currentIndex,
-              disabledIndices,
-            }),
-          );
-        }
-      } else if (loopFocus) {
-        if (currentIndex <= minIndex) {
-          if (allowEscape && currentIndex !== -1) {
-            indexRef.current = listRef.current.length;
-          } else {
-            // Give time for virtualizers to update the listRef.
-            forceSyncFocusRef.current = false;
-            indexRef.current = maxIndex;
-          }
-        } else {
-          indexRef.current = findNonDisabledListIndex(listRef.current, {
-            startingIndex: currentIndex,
-            decrement: true,
-            disabledIndices,
-          });
-        }
-      } else {
-        indexRef.current = Math.max(
-          minIndex,
-          findNonDisabledListIndex(listRef.current, {
-            startingIndex: currentIndex,
-            decrement: true,
-            disabledIndices,
-          }),
-        );
+      const { index, wrapped } = getNextListIndex(listRef.current, currentIndex, {
+        decrement: !isMainOrientationToEndKey(event.key, orientation, rtl),
+        loopFocus,
+        allowEscape,
+        disabledIndices,
+      });
+      if (wrapped) {
+        // Give time for virtualizers to update the listRef.
+        forceSyncFocusRef.current = false;
       }
-
-      if (isIndexOutOfListBounds(listRef.current, indexRef.current)) {
-        indexRef.current = -1;
-      }
+      indexRef.current = index;
 
       onNavigate(event);
     }
