@@ -34,6 +34,45 @@ import { NumberField } from '@base-ui/react/number-field';
 </NumberField.Root>;
 ```
 
+## Examples
+
+### Setting the input text imperatively
+
+`value` holds the parsed number, so it can't represent text that isn't a number yet.
+Typing `-1.5` passes through `-` and `-1.`, neither of which parses, and both leave `value` untouched.
+
+To drive those states, reach for `actionsRef`:
+
+```tsx title="Setting the input text imperatively"
+const actionsRef = React.useRef<NumberField.Root.Actions | null>(null);
+
+<NumberField.Root min={-100} actionsRef={actionsRef}>
+  {/* ... */}
+</NumberField.Root>;
+
+// Puts the field into a valid intermediate state that `value` cannot express.
+actionsRef.current?.setInputValue('-');
+```
+
+The action can only reach states typing can reach.
+The string runs through the same character validation as a typed one, so anything the input would reject — stray letters, symbols the current `locale` and `format` don't use — is ignored and the field is left unchanged.
+Partial entries are allowed, which is the point: `'-'` and `'1.'` pass validation even though neither parses.
+
+The text itself is displayed as given, never formatted, and never clamped.
+`value` follows the text when it parses and is left alone when it doesn't, which is what lets `'-'` sit over an existing number without clearing it.
+An empty string clears `value`.
+
+Unlike the text, `value` is still validated: it is clamped to `min` and `max` unless `allowOutOfRange` is set.
+Setting `'999'` on a field with `max={10}` therefore shows `999` while `value` becomes `10`.
+
+Two things do set the action apart from typing, because the caller is the component's owner rather than a user:
+
+- It works while the field is `disabled` or `readOnly`, which gate user interaction.
+- Its changes are final rather than pending: `onValueChange` and `onValueCommitted` both run right away, with `reason: 'imperative-action'`. Waiting for blur would drop the change entirely when the input is never focused.
+
+The _text_ still behaves as an unsaved edit, exactly as if it had been typed: it survives re-renders and external `value` changes.
+Blurring the input ends the edit and re-arms formatting, so the display returns to the formatted `value` on the next render — whether or not that blur changed anything.
+
 ## API reference
 
 import { TypesNumberField } from './types';

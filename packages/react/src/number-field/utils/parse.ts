@@ -63,6 +63,25 @@ export const ANY_PLUS_RE = /[+＋﹢]/gu;
 export const ANY_MINUS_DETECT_RE = /[-−－‒–—﹣]/;
 export const ANY_PLUS_DETECT_RE = /[+＋﹢]/;
 
+/**
+ * Whether every character of `text` is one the field accepts: a digit in any numeral system the
+ * field understands, a sign, a symbol the current locale/format renders, or a bidi/format control
+ * character that `parseNumber` strips. Validating per character rather than requiring the whole
+ * string to parse is what lets partial entries such as `'-'` or `'1.'` through while rejecting
+ * stray text.
+ *
+ * Shared by the typed path and the `actionsRef` action so both accept exactly the same strings.
+ */
+export function isValidInputString(text: string, allowedNonNumericKeys: ReadonlySet<string>) {
+  return Array.from(text).every(
+    (char) =>
+      isNumeralChar(char) ||
+      ANY_MINUS_DETECT_RE.test(char) ||
+      allowedNonNumericKeys.has(char) ||
+      FORMAT_CONTROL_DETECT_RE.test(char),
+  );
+}
+
 // A representative value with a grouping separator and a fractional part, so that the formatter
 // emits every locale-specific part (group, decimal, currency, unit, literal, exponent, …). Shared
 // so the locale-detail and allowed-character derivations enumerate the same parts.
