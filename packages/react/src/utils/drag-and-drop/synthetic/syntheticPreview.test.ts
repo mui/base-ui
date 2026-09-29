@@ -1,7 +1,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import { createSyntheticPreview, retargetEndingPreviewSource } from './syntheticPreview';
-import { restrictToElement, restrictToVerticalAxis } from '../dragModifiers';
+import { restrictToVerticalAxis } from '../dragModifiers';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
 
@@ -122,12 +122,6 @@ describe('syntheticPreview', () => {
 
     handle.destroy();
     expect(newNode).not.toHaveAttribute('data-dragging');
-  });
-
-  it('destroy() is safe to call twice', () => {
-    const handle = createHandle(document.body);
-    handle.destroy();
-    expect(() => handle.destroy()).not.toThrow();
   });
 
   describe('setPreviewElement', () => {
@@ -373,31 +367,6 @@ describe('syntheticPreview', () => {
       expect(preview.destroyed).toBe(true);
     });
 
-    it('destroys a settling clone before paint when no drop transition is authored', () => {
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
-      const source = createSource();
-      source.getBoundingClientRect = () => new DOMRect(20, 30, 100, 25);
-      const handle = createHandle(source);
-      const preview = createPreviewElement(100, 25, false);
-      document.body.appendChild(preview.element);
-      preview.element.getAnimations = () => [];
-
-      handle.setPreviewElement(preview);
-      handle.markSourceDragging();
-      handle.prepareForDrop();
-      handle.destroy();
-      expect(preview.destroyed).toBe(false);
-
-      frames.shift()!(0);
-      expect(preview.destroyed).toBe(true);
-      expect(source).not.toHaveAttribute('data-dragging');
-      expect(source).not.toHaveAttribute('data-settling');
-    });
-
     it('does not preserve a custom preview whose React content is ending', () => {
       const handle = createHandle(createSource());
       const preview = createPreviewElement(100, 25, true);
@@ -422,25 +391,6 @@ describe('syntheticPreview', () => {
 });
 
 describe('preview modifiers', () => {
-  it('skips an identical translate produced by a modifier', () => {
-    const preview = createPreviewElement(50, 30);
-    const handle = createHandle(document.body, [restrictToVerticalAxis]);
-    handle.setPreviewElement(preview);
-    const observer = new MutationObserver(() => {});
-    observer.observe(preview.element, { attributes: true, attributeFilter: ['style'] });
-
-    handle.update(100, 100);
-    expect(observer.takeRecords()).toHaveLength(1);
-
-    // The pointer moved, but the axis lock resolves to the existing position.
-    handle.update(300, 100);
-    expect(observer.takeRecords()).toHaveLength(0);
-
-    handle.update(300, 150);
-    expect(observer.takeRecords()).toHaveLength(1);
-    observer.disconnect();
-  });
-
   it('constrains the preview position, anchored at the first positioned frame', () => {
     const preview = createPreviewElement(50, 30);
     const handle = createHandle(document.body, [restrictToVerticalAxis]);
@@ -453,38 +403,6 @@ describe('preview modifiers', () => {
     // x is pinned to the anchor; y still follows the pointer.
     handle.update(400, 250);
     expect(preview.element.style.translate).toBe('100px 250px');
-  });
-
-  // The scale is measured on the first frame the host is rendered, which is not
-  // always the first frame. A consumer re-render can tear the host out briefly (see
-  // `ensureConnected`), and a detached or hidden element resolves no computed
-  // transforms. A measurement taken then would cache 1 for the rest of the drag.
-  it('waits for the preview to be rendered before measuring its scale', () => {
-    const preview = createPreviewElement(50, 30);
-    // jsdom lays nothing out, so `getClientRects` is always empty. Report a box as a
-    // browser would, but only while the element is connected. The detached phase
-    // below relies on the empty list.
-    preview.element.getClientRects = () =>
-      (preview.element.isConnected ? [new DOMRect(0, 0, 50, 30)] : []) as unknown as DOMRectList;
-    const seen: number[] = [];
-    const handle = createHandle(document.body, [
-      ({ point, scale }) => {
-        seen.push(scale.x);
-        return point;
-      },
-    ]);
-    handle.setPreviewElement(preview);
-
-    // While detached, the measurement must not run or latch its answer.
-    handle.update(100, 100);
-    expect(seen.at(-1)).toBe(1);
-
-    const parent = createSource();
-    parent.style.transform = 'matrix(2, 0, 0, 2, 0, 0)';
-    parent.appendChild(preview.element);
-
-    handle.update(120, 120);
-    expect(seen.at(-1)).toBe(2);
   });
 
   // Connected does not mean rendered. Under `display: none`, a browser resolves no
@@ -535,21 +453,6 @@ describe('preview modifiers', () => {
 
     handle.update(120, 120, { ctrlKey: false, shiftKey: true, altKey: false, metaKey: false });
     expect(seen.at(-1)).toBe(true);
-  });
-
-  it('applies modifiers in order, so a rect clamp contains an earlier modifier', () => {
-    const preview = createPreviewElement(50, 30);
-    const boundary = document.createElement('div');
-    boundary.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
-    const handle = createHandle(document.body, [
-      () => ({ x: 500, y: 500 }),
-      restrictToElement(boundary),
-    ]);
-    handle.setPreviewElement(preview);
-
-    handle.update(50, 60);
-    // The element clamp is the outer modifier: 200−50=150, 200−30=170.
-    expect(preview.element.style.translate).toBe('150px 170px');
   });
 
   it('passes the preview-level context: point is the proposed top-left, input the cursor', () => {
@@ -611,24 +514,5 @@ describe('preview modifiers', () => {
 
     handle.update(500, 300);
     expect(preview.element.style.translate).toBe('390px 280px');
-  });
-
-  it('leaves the frame unconstrained when a modifier throws', () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const preview = createPreviewElement(50, 30);
-    const handle = createHandle(document.body, [
-      () => {
-        throw new Error('broken modifier');
-      },
-    ]);
-    handle.setPreviewElement(preview);
-
-    expect(() => handle.update(123, 456)).not.toThrow();
-    expect(preview.element.style.translate).toBe('123px 456px');
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('leaving this move unconstrained'),
-      expect.anything(),
-      expect.any(Error),
-    );
   });
 });

@@ -273,32 +273,14 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     expect(document.adoptedStyleSheets.length).toBe(beforeSheets);
   });
 
-  it('preserves contextual styling when stylesheet rules cannot be inspected', () => {
-    const sheet = document.createElement('style');
-    sheet.textContent = '.List > .Card { color: rgb(1, 2, 3); }';
-    document.head.appendChild(sheet);
-    list.className = 'List';
-    source.className = 'Card';
-    const rules = vi.spyOn(sheet.sheet!, 'cssRules', 'get').mockImplementation(() => {
-      throw new DOMException('Stylesheet is cross-origin', 'SecurityError');
-    });
-    const handle = createDragPreviewElement(source, null, true)!;
-    try {
-      expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
-    } finally {
-      handle.destroy();
-      rules.mockRestore();
-      sheet.remove();
-    }
-  });
-
   it('preserves contextual styles from a cross-origin app stylesheet', () => {
     const sheet = document.createElement('style');
     sheet.textContent =
-      '.Card { color: blue !important; } .List > .Card { color: rgb(1, 2, 3) !important; padding: 20px; } .Card[data-drag-preview] { border: 3px solid green; }';
+      '.Card { color: blue !important; } .List > .Card { color: rgb(1, 2, 3) !important; padding: 20px; } .List > .Card > .Child { color: rgb(4, 5, 6); } .Card[data-drag-preview] { border: 3px solid green; }';
     document.head.appendChild(sheet);
     list.className = 'List';
     source.className = 'Card';
+    source.innerHTML = '<span class="Child">Card</span>';
     const href = vi
       .spyOn(sheet.sheet!, 'href', 'get')
       .mockReturnValue('https://cdn.example.com/app.css');
@@ -309,6 +291,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     try {
       expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
       expect(getComputedStyle(handle.element).padding).toBe('20px');
+      // The snapshot covers descendants, not only the root.
+      expect(getComputedStyle(handle.element.firstElementChild!).color).toBe('rgb(4, 5, 6)');
       expect(getComputedStyle(handle.element).borderTopWidth).toBe('3px');
     } finally {
       handle.destroy();

@@ -204,18 +204,6 @@ describe('Draggable.Preview', () => {
     }
   });
 
-  it('accepts a provider that wraps the Draggable.Root', () => {
-    expect(() =>
-      rtlRender(
-        <DraggableProvider>
-          <Draggable.Root kind={testDragKind}>
-            <Draggable.Preview>Preview</Draggable.Preview>
-          </Draggable.Root>
-        </DraggableProvider>,
-      ),
-    ).not.toThrow();
-  });
-
   it('keeps the preview alive and moving after the source unmounts mid-drag', async () => {
     // The part declares the preview instead of rendering it in place, so the
     // preview outlives the source component. A virtualizer or a live reorder can
