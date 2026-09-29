@@ -2,7 +2,8 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { error } from '@base-ui/utils/error';
 import { flattenLeafItems, stringifyAsLabel } from '../../internals/resolveValueLabel';
 import type { ItemEqualityComparer } from '../../internals/itemEquality';
-import { findCollectionItem, type ComboboxItemCollection } from './itemCollection';
+import { findCollectionItem } from './itemCollection';
+import type { ComboboxItemCollection } from './itemCollection';
 
 export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 

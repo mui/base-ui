@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { type BaseUIComponentProps } from '../internals/types';
+import type { BaseUIComponentProps } from '../internals/types';
 import { useFloatingPortalNode } from '../floating-ui-react/components/FloatingPortal';
 
 type PortalContainer =

@@ -4,7 +4,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import type { VirtualizerItemRowModel, VirtualizerRow } from '../internals/virtualization/types';
 import { useRowModels } from '../internals/virtualization/useRowModels';
-import { useAdaptiveEstimate, type AdaptiveEstimate } from './useAdaptiveEstimate';
+import { useAdaptiveEstimate } from './useAdaptiveEstimate';
+import type { AdaptiveEstimate } from './useAdaptiveEstimate';
 
 describe('useAdaptiveEstimate', () => {
   const { render } = createRenderer();

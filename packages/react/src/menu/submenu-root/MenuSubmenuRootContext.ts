@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { MenuStore } from '../store/MenuStore';
+import type { MenuStore } from '../store/MenuStore';
 
 export const MenuSubmenuRootContext = React.createContext<MenuSubmenuRootContext | undefined>(
   undefined,

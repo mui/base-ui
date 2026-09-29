@@ -15,12 +15,8 @@ import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { shouldScrollActiveIntoView } from '../../internals/list/scrollActivation';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { clickHighlightedItem } from '../utils/parts';
-import {
-  VirtualizerHostContext,
-  VirtualizerHostStateContext,
-  type VirtualizerHost,
-  type VirtualizerHostState,
-} from '../../virtualizer/host';
+import { VirtualizerHostContext, VirtualizerHostStateContext } from '../../virtualizer/host';
+import type { VirtualizerHost, VirtualizerHostState } from '../../virtualizer/host';
 import { ComboboxVirtualItemContext } from '../item/ComboboxVirtualItemContext';
 import { ComboboxVirtualGroupContext } from '../group/ComboboxVirtualGroupContext';
 import { isGroupedItems } from '../../internals/resolveValueLabel';

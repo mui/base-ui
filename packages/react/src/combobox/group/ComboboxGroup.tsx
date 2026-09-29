@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { warn } from '@base-ui/utils/warn';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
 import { useComboboxVirtualGroupContext } from './ComboboxVirtualGroupContext';

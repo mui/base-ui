@@ -3,7 +3,8 @@ import { expect, describe, it, vi } from 'vitest';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import type { Group } from '../resolveValueLabel';
-import { useGroupedRowModels, useRowModels, type GroupedRows } from './useRowModels';
+import { useGroupedRowModels, useRowModels } from './useRowModels';
+import type { GroupedRows } from './useRowModels';
 
 interface Item {
   id: string;

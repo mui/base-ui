@@ -3,7 +3,8 @@ import { expect, describe, it, vi } from 'vitest';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import { useRowModels } from '../internals/virtualization/useRowModels';
-import { useItemHeightEstimate, type ItemHeightEstimate } from './useItemHeightEstimate';
+import { useItemHeightEstimate } from './useItemHeightEstimate';
+import type { ItemHeightEstimate } from './useItemHeightEstimate';
 
 interface Item {
   id: string;

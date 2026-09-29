@@ -1004,6 +1004,7 @@ describe('<Menu.Root />', () => {
         });
 
         expect(submenuTrigger).toHaveFocus();
+        expect(screen.getByTestId('menu')).not.toBe(null);
       });
 
       it('closes the entire tree when clicking outside the deepest submenu', async () => {
@@ -2720,7 +2721,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('closes the menu on click, drag outside, release', async () => {
-        const { userEvent: user } = await import('vitest/browser');
+        const { userEvent: user, page } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         const openChangeSpy = vi.fn();
@@ -2748,9 +2749,10 @@ describe('<Menu.Root />', () => {
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
-        const outsideElement = screen.getByTestId('outside');
+        // eslint-disable-next-line testing-library/prefer-screen-queries -- The browser locator must resolve after pointer-down.
+        const backdrop = page.getByRole('presentation').first();
 
-        await user.dragAndDrop(trigger, outsideElement);
+        await user.dragAndDrop(trigger, backdrop);
 
         await waitFor(() => {
           expect(screen.queryByTestId('menu')).toBe(null);

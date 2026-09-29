@@ -4,12 +4,10 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import { advanceReactClock } from '../../test/advanceReactClock';
 import { useRowModels } from '../internals/virtualization/useRowModels';
-import {
-  useAdaptiveEstimate,
-  useAdaptiveEstimateRefresh,
-  type AdaptiveEstimate,
-} from './useAdaptiveEstimate';
-import { SCROLL_IDLE_MS, type ScrollGesture } from './useScrollGesture';
+import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
+import type { AdaptiveEstimate } from './useAdaptiveEstimate';
+import { SCROLL_IDLE_MS } from './useScrollGesture';
+import type { ScrollGesture } from './useScrollGesture';
 
 const idleGesture = {
   isScrolling: () => false,

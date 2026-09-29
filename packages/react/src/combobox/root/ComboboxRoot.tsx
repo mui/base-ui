@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
+import { AriaCombobox } from './AriaCombobox';
+import type { AriaComboboxState } from './AriaCombobox';
 
 /**
  * Groups all parts of the combobox.

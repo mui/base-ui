@@ -9,9 +9,9 @@ import {
   TestListItem,
   TestVirtualizedList,
   createVirtualizerItems as createItems,
-  type VirtualizerTestItem as TestItem,
 } from '#test-utils';
-import { Virtualizer } from './Virtualizer';
+import type { VirtualizerTestItem as TestItem } from '#test-utils';
+import type { Virtualizer } from './Virtualizer';
 
 describe('<Virtualizer /> activation', () => {
   const { render } = createRenderer();

@@ -1,11 +1,9 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { createRenderer } from '#test-utils';
-import { useFloating } from '../floating-ui-react';
-import {
-  useAnchorPositioningWithHook,
-  type UseAnchorPositioningParameters,
-} from './useAnchorPositioning';
+import { useFloating } from '../../test/floating-ui-tests/useFloating';
+import { useAnchorPositioningWithHook } from './useAnchorPositioning';
+import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
 
 const shiftSpy = vi.hoisted(() => vi.fn());
 

@@ -12,11 +12,13 @@ import {
   LayoutListSticky,
   Virtualization,
   useVirtualizer,
-  type HeightEntry,
-  type Row as MuiVirtualizerRow,
-  type RowEntry,
-  type RenderContext,
-  type Virtualizer as MuiVirtualizer,
+} from '@mui/x-virtualizer';
+import type {
+  HeightEntry,
+  Row as MuiVirtualizerRow,
+  RowEntry,
+  RenderContext,
+  Virtualizer as MuiVirtualizer,
 } from '@mui/x-virtualizer';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
@@ -27,14 +29,14 @@ import {
   isObjectValue,
   useGroupedRowModels,
   useRowModels,
-  type GroupedRows,
 } from '../internals/virtualization/useRowModels';
-import {
-  isGroupHeaderRow,
-  type VirtualizerItemRowModel,
-  type VirtualizerRenderRowParameters,
-  type VirtualizerRow,
-  type VirtualizerRowModel,
+import type { GroupedRows } from '../internals/virtualization/useRowModels';
+import { isGroupHeaderRow } from '../internals/virtualization/types';
+import type {
+  VirtualizerItemRowModel,
+  VirtualizerRenderRowParameters,
+  VirtualizerRow,
+  VirtualizerRowModel,
 } from '../internals/virtualization/types';
 import type {
   VirtualizerHandle,
@@ -68,12 +70,13 @@ import {
   createScrollOffsetReader,
   findScrollContainer,
   getScrollportPadding,
-  type RowsInset,
 } from './scrollport';
+import type { RowsInset } from './scrollport';
 import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
 import { useEngineMode } from './useEngineMode';
 import { useItemHeightEstimate } from './useItemHeightEstimate';
-import { usePendingScroll, usePendingScrollRetry, type PendingScroll } from './usePendingScroll';
+import { usePendingScroll, usePendingScrollRetry } from './usePendingScroll';
+import type { PendingScroll } from './usePendingScroll';
 import { useScrollAnchor } from './useScrollAnchor';
 import { useScrollGesture } from './useScrollGesture';
 import { useViewportRestore } from './useViewportRestore';

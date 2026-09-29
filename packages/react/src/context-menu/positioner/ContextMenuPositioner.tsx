@@ -1,9 +1,9 @@
 'use client';
 import type * as React from 'react';
-import {
-  MenuPositioner,
-  type MenuPositionerProps,
-  type MenuPositionerState,
+import { MenuPositioner } from '../../menu/positioner/MenuPositioner';
+import type {
+  MenuPositionerProps,
+  MenuPositionerState,
 } from '../../menu/positioner/MenuPositioner';
 import type { BaseUIComponentProps } from '../../internals/types';
 

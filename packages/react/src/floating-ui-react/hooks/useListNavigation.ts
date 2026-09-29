@@ -10,8 +10,8 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { ElementProps, FloatingRootContext } from '../types';
 import {
   findNonDisabledListIndex,
   getMaxListIndex,
@@ -272,7 +272,7 @@ export interface UseListNavigationProps {
  * @see https://floating-ui.com/docs/useListNavigation
  */
 export function useListNavigation(
-  context: FloatingRootContext | FloatingContext,
+  store: FloatingRootContext,
   props: UseListNavigationProps,
 ): UseListNavigationReturn {
   const {
@@ -319,8 +319,6 @@ export function useListNavigation(
     }
   }
 
-  const store = 'rootStore' in context ? context.rootStore : context;
-
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');
@@ -360,6 +358,9 @@ export function useListNavigation(
   const waitForListPopulatedFrame = useAnimationFrame();
 
   const focusItem = useStableCallback(() => {
+    // Synchronous navigation must also supersede any deferred focus from an earlier update.
+    focusFrame.cancel();
+
     function runFocus(item: HTMLElement) {
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
