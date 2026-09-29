@@ -44,6 +44,7 @@ import {
 } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
+import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
 
 export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>(
   props: MenuRootInternalProps<Payload>,
@@ -392,12 +393,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
         allowTouchToCloseTimeout.clear();
       }
 
-      // Keyboard and assistive-technology activations produce `detail === 0` clicks;
-      // mouse-gesture clicks (including the synthesized drag-release click from
-      // `useMenuItemCommonProps`) carry `detail >= 1`.
-      const isKeyboardClick =
-        (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
-        (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
       openEventRef.current = eventDetails.event;
@@ -414,8 +409,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       };
 
       popupOpenState.openChangeReason = reason;
-      popupOpenState.keyboardOpen =
-        nextOpen && (reason === REASONS.listNavigation || isKeyboardClick);
+      popupOpenState.keyboardOpen = nextOpen && isKeyboardOpen(reason, nativeEvent);
 
       if (
         parent.type === 'menubar' &&
@@ -426,8 +420,10 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
           reason === REASONS.siblingOpen)
       ) {
         popupOpenState.instantType = 'group';
-      } else if (isKeyboardClick || isDismissClose) {
-        popupOpenState.instantType = isKeyboardClick ? 'click' : 'dismiss';
+      } else if (isKeyboardClick(reason, nativeEvent)) {
+        popupOpenState.instantType = 'click';
+      } else if (isDismissClose) {
+        popupOpenState.instantType = 'dismiss';
       } else {
         popupOpenState.instantType = undefined;
       }
