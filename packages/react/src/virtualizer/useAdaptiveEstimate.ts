@@ -289,13 +289,16 @@ export interface UseAdaptiveEstimateRefreshParameters<RowModel> {
  * Waiting for idle also lets the first measurements settle, which keeps the list from chasing
  * an average that is still wrong.
  *
- * Re-estimating rows above the viewport shifts their positions, so the refresh commits through
- * scroll anchoring, which keeps the content in place and the window around it mounted — so this
- * must run after the viewport's commit.
+ * Returns the pass itself, for the owner to run in its commit: re-estimating rows above the
+ * viewport shifts their positions, so the refresh commits through scroll anchoring, which keeps
+ * the content in place and the window around it mounted — so it runs after the viewport's commit,
+ * and before a pending scroll request retries, which may be waiting for the refreshed estimate.
+ * The pass does its work only on a commit that changed what it reads, as an effect with those
+ * dependencies would.
  */
 export function useAdaptiveEstimateRefresh<RowModel>(
   parameters: UseAdaptiveEstimateRefreshParameters<RowModel>,
-): void {
+): () => void {
   const {
     adaptive,
     demoteRowHeight,
@@ -321,7 +324,46 @@ export function useAdaptiveEstimateRefresh<RowModel>(
   const { enabled, noteMeasurements } = adaptive;
   const { firstRowIndex, lastRowIndex } = renderContext;
 
-  useIsoLayoutEffect(() => {
+  const inputs = [
+    cachedHeightsMayBeStaleRef,
+    demoteRowHeight,
+    defaultEstimatedItemHeight,
+    enabled,
+    estimateRef,
+    firstRowIndex,
+    gesture,
+    hydratedRowsMetaRef,
+    hydrationTimeout,
+    lastRowIndex,
+    measuredRows,
+    measurementRevision,
+    measurements,
+    noteMeasurements,
+    refinementExhaustedRef,
+    rows,
+    rowsMeta,
+    readMeasuredHeight,
+    readMeasuredHeights,
+    settleGeometry,
+  ];
+  const lastInputsRef = React.useRef<unknown[] | null>(null);
+  // Effects torn down and set up again — Strict Mode does it on mount, and a revealed Activity
+  // does too — dispose of the hydration timeout, so the next pass has to run whatever it reads,
+  // as an effect would.
+  useIsoLayoutEffect(
+    () => () => {
+      lastInputsRef.current = null;
+    },
+    [],
+  );
+
+  return useStableCallback(() => {
+    const lastInputs = lastInputsRef.current;
+    if (lastInputs != null && inputs.every((input, index) => Object.is(input, lastInputs[index]))) {
+      return;
+    }
+    lastInputsRef.current = inputs;
+
     if (!enabled) {
       return;
     }
@@ -414,26 +456,5 @@ export function useAdaptiveEstimateRefresh<RowModel>(
 
     estimateRef.current = average;
     settleGeometry();
-  }, [
-    cachedHeightsMayBeStaleRef,
-    demoteRowHeight,
-    defaultEstimatedItemHeight,
-    enabled,
-    estimateRef,
-    firstRowIndex,
-    gesture,
-    hydratedRowsMetaRef,
-    hydrationTimeout,
-    lastRowIndex,
-    measuredRows,
-    measurementRevision,
-    measurements,
-    noteMeasurements,
-    refinementExhaustedRef,
-    rows,
-    rowsMeta,
-    readMeasuredHeight,
-    readMeasuredHeights,
-    settleGeometry,
-  ]);
+  });
 }

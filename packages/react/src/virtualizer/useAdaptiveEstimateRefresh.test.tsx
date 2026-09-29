@@ -31,7 +31,7 @@ describe('useAdaptiveEstimateRefresh', () => {
     const resolved = useAdaptiveEstimate({ rows, staticEstimatedItemHeight: 32 });
     const { measuredHeight } = props;
 
-    useAdaptiveEstimateRefresh({
+    const refresh = useAdaptiveEstimateRefresh({
       adaptive: resolved,
       defaultEstimatedItemHeight: 32,
       demoteRowHeight: () => {},
@@ -49,6 +49,7 @@ describe('useAdaptiveEstimateRefresh', () => {
     });
 
     useIsoLayoutEffect(() => {
+      refresh();
       adaptive = resolved;
     });
 

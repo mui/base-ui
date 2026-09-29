@@ -1457,8 +1457,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // stuck right. A list needs none of this: its window is given the height explicitly, and the
   // rows overflow it. This is the one layout read the table layout makes on every commit.
   //
-  // Declared before the scroll-to-row and anchoring concerns, whose effects read where the
-  // window stands: it has to be placed and stuck for this commit's rows by then.
+  // Declared before the viewport's commit, which reads where the window stands: it has to be
+  // placed and stuck for this commit's rows by then.
   useIsoLayoutEffect(() => {
     const section = rootElementRef.current;
     const startSpacerRow = startSpacerRowRef.current;
@@ -1617,13 +1617,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     [getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
   );
 
-  // Declared after the effects that publish the virtualization mode, so a request made as a list
-  // opens is applied against the enabled window, and after the table's placement, which the
-  // viewport reads.
-  useIsoLayoutEffect(() => {
-    viewport.commit();
-  });
-
   const handleEndReached = useStableCallback(() => onEndReached?.());
   /**
    * Whether reaching the end again would be a new arrival. Held down while the window stays at
@@ -1725,9 +1718,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
             collection.length,
         };
 
-  // Declared after the viewport's commit: refreshing the estimate re-positions rows above the
-  // viewport, and the refresh commits through anchoring so the content stays where it is.
-  useAdaptiveEstimateRefresh<VirtualizerItemRowModel<Value>>({
+  const refreshAdaptiveEstimate = useAdaptiveEstimateRefresh<VirtualizerItemRowModel<Value>>({
     adaptive,
     defaultEstimatedItemHeight,
     demoteRowHeight,
@@ -1740,9 +1731,15 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     settleGeometry: settleGeometryAnchored,
   });
 
-  // Declared last: a request waiting on a settled estimate sees the refresh above in the same
-  // commit.
+  // The viewport's commit, in the order its steps depend on. Declared after the effects that
+  // publish the virtualization mode, so a request made as a list opens is applied against the
+  // enabled window, and after the table's placement, which the viewport reads. The estimate
+  // refresh re-positions rows above the viewport and commits through anchoring, so it follows the
+  // anchoring the commit made; a request waiting on a settled estimate retries after it, and sees
+  // it in the same commit.
   useIsoLayoutEffect(() => {
+    viewport.commit();
+    refreshAdaptiveEstimate();
     viewport.retry();
   });
 
