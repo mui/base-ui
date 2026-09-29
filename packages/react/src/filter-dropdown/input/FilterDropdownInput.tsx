@@ -9,7 +9,7 @@ import {
   useFilterDropdownRootContext,
   useFilterDropdownValueContext,
 } from '../root/FilterDropdownRootContext';
-import { focusByPointer, isPointerFocusInProgress } from '../utils/focusByPointer';
+import { refocusOwner, isRefocusingOwner } from '../utils/refocusOwner';
 
 /**
  * @internal
@@ -67,7 +67,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           context.setKeyboardModality(false);
           // Take focus so typing filters immediately.
           if (context.open) {
-            focusByPointer(event.currentTarget);
+            refocusOwner(event.currentTarget);
           }
         },
         onFocus(event) {
@@ -77,11 +77,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           // focus returning from an item means the user moved back to the input on purpose and
           // the highlight no longer reflects where they are. The list's own key replay and
           // pointer refocus also pass through here and keep it.
-          if (
-            context.autoHighlight === 'always' ||
-            context.keyReplayRef.current ||
-            isPointerFocusInProgress()
-          ) {
+          if (context.autoHighlight === 'always' || isRefocusingOwner()) {
             return;
           }
           const from = event.relatedTarget as HTMLElement | null;

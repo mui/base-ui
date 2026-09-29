@@ -9,10 +9,7 @@ import {
   isTypeableElement,
 } from '../../floating-ui-react/utils';
 import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
-import {
-  focusByPointer,
-  isPointerFocusInProgress,
-} from '../../filter-dropdown/utils/focusByPointer';
+import { refocusOwner, isRefocusingOwner } from '../../filter-dropdown/utils/refocusOwner';
 import type { MenuRoot } from '../root/MenuRoot';
 import { isCrossOrientationCloseKey } from '../../floating-ui-react/hooks/useListNavigation';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
@@ -82,7 +79,7 @@ export function useMenuFilterPopup(
     ) {
       return;
     }
-    focusByPointer(focusOwner);
+    refocusOwner(focusOwner);
   }
 
   return {
@@ -115,11 +112,13 @@ export function useMenuFilterPopup(
       } else if (
         isHTMLElement(target) &&
         !contains(event.currentTarget, target) &&
-        !isPointerFocusInProgress()
+        !isRefocusingOwner()
       ) {
         nestedFocusRef.current = target;
       }
 
+      // Focus that lands on the popup itself, the focus manager's fallback target, moves on to
+      // the input, which owns focus while the menu filters.
       if (context.open && target === event.currentTarget) {
         focusOwnerRef.current?.focus({ preventScroll: true });
       }

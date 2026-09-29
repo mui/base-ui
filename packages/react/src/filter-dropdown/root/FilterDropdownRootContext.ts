@@ -26,8 +26,6 @@ export interface FilterDropdownRootContext {
   setRenderedListId: React.Dispatch<React.SetStateAction<string | undefined>>;
   /** The input, which owns real focus while the host uses virtual list navigation. */
   focusOwnerRef: React.RefObject<HTMLElement | null>;
-  /** Set while the list hands a key back to the input, which refocuses it mid-navigation. */
-  keyReplayRef: React.RefObject<boolean>;
   /** Moves the host's highlight. */
   setActiveIndex: (index: number | null) => void;
   /** Called with the previous items when the host's list changes after it first registered. */

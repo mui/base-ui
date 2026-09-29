@@ -68,7 +68,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const store = useRefWithInit(() => new FilterDropdownStore()).current;
 
   const fallbackFocusOwnerRef = React.useRef<HTMLElement | null>(null);
-  const keyReplayRef = React.useRef(false);
   const lastFilterQueryRef = React.useRef<string | null>(null);
 
   const defaultMatchItem = React.useMemo(() => getFilter({ locale }).contains, [locale]);
@@ -193,7 +192,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       listId,
       setRenderedListId,
       focusOwnerRef,
-      keyReplayRef,
       setActiveIndex,
       onItemsChange: handleItemsChange,
       onValueChange: handleValueChange,

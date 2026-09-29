@@ -21,6 +21,7 @@ import {
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { moveHighlightFrom } from './moveHighlightFrom';
+import { refocusOwner } from '../../filter-dropdown/utils/refocusOwner';
 
 /**
  * The list of a filterable menu: it takes the `menu` role while the popup is a dialog holding
@@ -30,10 +31,9 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { store, syncHighlightedItem, orientation, loopFocus } = useMenuRootContext();
+  const { store, orientation, loopFocus } = useMenuRootContext();
   const direction = useDirection();
-  const { onItemsChange, focusOwnerRef, keyReplayRef, triggerId, autoHighlight } =
-    useFilterDropdownRootContext();
+  const { onItemsChange, focusOwnerRef, triggerId, autoHighlight } = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
 
@@ -82,12 +82,7 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
     // press focuses the list itself, and a screen reader following `aria-activedescendant`
     // focuses the highlighted item. Hand focus back and route the key as the input would; a
     // typing key's default action follows the moved focus into the input.
-    keyReplayRef.current = true;
-    try {
-      owner.focus({ preventScroll: true });
-    } finally {
-      keyReplayRef.current = false;
-    }
+    refocusOwner(owner);
     handleInputKeyDown(event);
   });
 
@@ -106,6 +101,8 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   // `null` distinguishes the initial registration from a list emptied by filtering.
   const previousItemsRef = React.useRef<readonly (HTMLElement | null)[] | null>(null);
 
+  // CompositeList notifies subscribers before its `onMapChange`, so the positioner reports the
+  // highlight against the settled registry only after the items change has been resolved here.
   const handleItemMapChange = useStableCallback(() => {
     const items = [...listRef.current];
     const previousItems = previousItemsRef.current;
@@ -114,13 +111,10 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
       previousItems.length !== items.length ||
       items.some((item, index) => item !== previousItems[index]);
 
-    // Resolved before the highlight is reported, so a positional highlight never reports the
-    // item that took its index.
     if (changed && previousItems !== null) {
       onItemsChange(previousItems);
     }
     previousItemsRef.current = items;
-    syncHighlightedItem();
   });
 
   useIsoLayoutEffect(() => {
