@@ -657,6 +657,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       // A canceled selection clear must not suppress close-completion cleanup.
       hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
 
+      if (pendingQueryHighlightRef.current?.hasQuery) {
+        pendingQueryHighlightRef.current = null;
+      }
+
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
       if (eventDetails.reason === REASONS.inputChange) {
@@ -774,6 +778,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
       if (eventDetails.isCanceled) {
         return;
+      }
+
+      if (!nextOpen && pendingQueryHighlightRef.current?.hasQuery) {
+        pendingQueryHighlightRef.current = null;
       }
 
       if (nextOpen && closeQuery !== null) {
@@ -1054,16 +1062,28 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [items, flatFilteredValues]);
 
   useIsoLayoutEffect(() => {
+    // Controlled closes can bypass `setOpen`, and their exit animation may be interrupted.
+    if (!open && pendingQueryHighlightRef.current?.hasQuery) {
+      pendingQueryHighlightRef.current = null;
+    }
+  }, [open]);
+
+  useIsoLayoutEffect(() => {
+    const candidateItems =
+      hasItems || hasFilteredItemsProp ? flatFilteredValues : valuesRef.current;
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       // A directly rendered list remains visible when the popup state is closed, while a
       // kept-mounted Positioner is hidden and should stay inert.
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
-        if (autoHighlightMode && listIsNavigable) {
+        // Keep the request while results or a controlled popup opening are pending.
+        if (!autoHighlightMode || String(inputValue).trim() === '') {
+          pendingQueryHighlightRef.current = null;
+        } else if (candidateItems[0] !== undefined && listIsNavigable) {
           store.set('activeIndex', 0);
+          pendingQueryHighlightRef.current = null;
         }
-        pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
         // Only handle the clear once it has committed (a controlled input may reject it),
         // so a restore cannot fire while a query is still active.
@@ -1139,8 +1159,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return;
     }
 
-    const shouldUseFlatFilteredValues = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredValues ? flatFilteredValues : valuesRef.current;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
