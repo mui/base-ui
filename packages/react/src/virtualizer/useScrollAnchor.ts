@@ -248,14 +248,19 @@ export function useScrollAnchor<RowModel>(
     // heights and move everything below them, before their ResizeObserver reports anything.
     // Measuring them now makes that a geometry change like any other, corrected below from the
     // geometry, which keeps the scroll position consistent with where the engine places rows.
+    // Only a window that grew upward needs it, since rows mounted below move nothing on screen.
+    // It holds when a rewrite is on its way too: a correction this hook wrote moves the window,
+    // and can mount another unmeasured row above the one it just placed, in the same commit as
+    // the rewrite it corrected for.
     const firstLaidOutRowIndex = getFirstLaidOutRowIndex(rowsParent);
     const snapshotBeforeMeasuring = snapshotRef.current;
     if (
       snapshotBeforeMeasuring !== null &&
       !isRequestPending &&
       !gesture.isScrollbarDrag() &&
-      snapshotBeforeMeasuring.rowsMeta === readRowsGeometry() &&
-      snapshotBeforeMeasuring.firstLaidOutRowIndex !== firstLaidOutRowIndex &&
+      firstLaidOutRowIndex !== null &&
+      snapshotBeforeMeasuring.firstLaidOutRowIndex !== null &&
+      firstLaidOutRowIndex < snapshotBeforeMeasuring.firstLaidOutRowIndex &&
       Math.abs(scrollElement.scrollTop - snapshotBeforeMeasuring.scrollTop) < 1
     ) {
       measureNewRows();
