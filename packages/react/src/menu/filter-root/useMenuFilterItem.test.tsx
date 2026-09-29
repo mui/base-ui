@@ -167,6 +167,35 @@ describe('filtered Menu items', () => {
 
       expect(screen.getByRole('menuitem', { name: 'Duplicate' })).toBeVisible();
     });
+
+    it('matches the updated text of an item rendered through its render element', async () => {
+      function Test(props: { value: string; name: string }) {
+        return (
+          <Menu.FilterProvider value={props.value}>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item render={<div>{props.name}</div>} />
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      const { setProps } = await render(<Test value="" name="One" />);
+
+      await setProps({ value: '', name: 'Two' });
+      await setProps({ value: 'two', name: 'Two' });
+
+      expect(screen.getByRole('menuitem', { name: 'Two' })).toBeVisible();
+    });
   });
 
   describe('disabled items', () => {

@@ -11,6 +11,7 @@ import type { MenuFilterList } from './MenuFilterList';
 export interface MenuFilterItemParams {
   label?: string | undefined;
   children?: React.ReactNode;
+  render?: unknown;
 }
 
 export interface MenuFilterItemResult {
@@ -99,7 +100,7 @@ export function useMenuFilterItem(
 
   const useItem =
     (scope === 'submenu-trigger' ? impl?.useSubmenuTrigger : impl?.useItem) ?? useUnfilteredItem;
-  const filter = useItem({ label: props.label, children: props.children });
+  const filter = useItem({ label: props.label, children: props.children, render: props.render });
   const ref = useMergedRefs(forwardedRef, filter.ref);
 
   return { visible: filter.visible, ref, props: filter.props };

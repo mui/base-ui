@@ -37,6 +37,10 @@ export interface UseFilterDropdownItemParameters {
    */
   children?: React.ReactNode;
   /**
+   * The item's `render` prop, watched like `children` since its element can carry the text.
+   */
+  render?: unknown;
+  /**
    * The dropdown that owns this item, when it isn't the nearest one. A filterable submenu's
    * trigger sits inside its own submenu's root but belongs to the enclosing list.
    */
@@ -66,7 +70,7 @@ export interface UseFilterDropdownItemReturnValue {
 export function useFilterDropdownItem(
   params: UseFilterDropdownItemParameters,
 ): UseFilterDropdownItemReturnValue {
-  const { label, retainGroup = false, children, context } = params;
+  const { label, retainGroup = false, children, render, context } = params;
 
   const nearestContext = useFilterDropdownItemContext(context !== undefined);
   const groupContext = useFilterDropdownGroupContext();
@@ -142,7 +146,7 @@ export function useFilterDropdownItem(
       previousTextRef.current = text;
       void register(text);
     }
-  }, [register, resolveText, children, label]);
+  }, [register, resolveText, children, render, label]);
 
   return { visible: !registered || matched, ref };
 }
