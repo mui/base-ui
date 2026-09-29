@@ -2,7 +2,13 @@ import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Menu } from '@base-ui/react/menu';
-import { createRenderer, firePointer, resetBrowserPointer, waitSingleFrame } from '#test-utils';
+import {
+  createRenderer,
+  firePointer,
+  isJSDOM,
+  resetBrowserPointer,
+  waitSingleFrame,
+} from '#test-utils';
 
 function Test(props: { openOnHover?: boolean; onInputFocus?: () => void }) {
   return (
@@ -105,6 +111,64 @@ describe('filterable menu initial highlight', () => {
     expect(onInputFocus.mock.calls.length > 0).toBe(shouldFocus);
     expect(input).not.toHaveAttribute('aria-activedescendant');
   });
+
+  // iOS VoiceOver presses with a touch whose contact is under a pixel and carries no pressure.
+  function pressLikeIOSVoiceOver(element: HTMLElement) {
+    const init = { pointerType: 'touch', width: 0.333, height: 0.333, pressure: 0 };
+    firePointer.down(element, { ...init, timeStamp: 10 });
+    fireEvent.mouseDown(element, { detail: 1 });
+    firePointer.up(element, { ...init, timeStamp: 20 });
+    fireEvent.mouseUp(element, { detail: 1 });
+    fireEvent.click(element, { detail: 1 });
+  }
+
+  it.skipIf(isJSDOM)('focuses the input when a screen reader press opens the menu', async () => {
+    await render(<Test />);
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+    await act(async () => trigger.focus());
+
+    pressLikeIOSVoiceOver(trigger);
+
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+  });
+
+  it.skipIf(isJSDOM)(
+    'focuses a submenu input when a screen reader press opens the submenu',
+    async () => {
+      await render(
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterProvider>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger openOnHover={false}>Move to</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Input aria-label="Filter destinations" />
+                          <Menu.List>
+                            <Menu.Item>Documents</Menu.Item>
+                          </Menu.List>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.FilterProvider>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      pressLikeIOSVoiceOver(screen.getByRole('menuitem', { name: 'Move to' }));
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter destinations' });
+      await waitFor(() => expect(input).toHaveFocus());
+    },
+  );
 
   it('does not focus the input when opened on hover', async () => {
     const onInputFocus = vi.fn();

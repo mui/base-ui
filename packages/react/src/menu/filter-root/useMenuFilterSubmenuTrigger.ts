@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import { useFilterContextForList } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import type { MenuFilterItemParams, MenuFilterItemResult } from './MenuFilterContext';
@@ -60,6 +61,10 @@ export function useMenuFilterSubmenuTrigger(params: MenuFilterItemParams): MenuF
     // trigger.
     ...(virtualFocus ? { 'aria-haspopup': 'dialog' as const } : undefined),
     ...clickProps,
+    onPointerDown(event: React.PointerEvent<HTMLElement>) {
+      clickProps.onPointerDown(event);
+      store.context.virtualPress = isVirtualPointerEvent(event.nativeEvent);
+    },
     onFocus(event: BaseUIEvent<React.FocusEvent<HTMLElement>>) {
       // A plain parent menu moves DOM focus to whichever item the pointer crosses. While this
       // trigger's submenu is open and its input held focus, hand focus straight back so crossing

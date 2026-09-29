@@ -65,6 +65,8 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   /** The element that holds real focus while virtual list navigation is active. */
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
+  /** Whether a filterable menu's trigger was last pressed by a screen reader. */
+  virtualPress?: boolean | undefined;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;

@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMenubarContext } from '../../menubar/MenubarContext';
+import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
@@ -86,6 +87,9 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   const filterTriggerProps = React.useMemo<HTMLProps>(
     () => ({
       'aria-haspopup': 'dialog',
+      onPointerDown(event: React.PointerEvent<HTMLElement>) {
+        store.context.virtualPress = isVirtualPointerEvent(event.nativeEvent);
+      },
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) {
         const focusOwner = store.context.virtualFocusRef?.current;
         if (!store.select('open') || !focusOwner || isInMenubar) {

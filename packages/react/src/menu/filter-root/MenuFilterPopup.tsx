@@ -38,7 +38,11 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = false;
   if (shouldFocusPopup) {
     initialFocus = () => {
-      if (openedByHover || openMethod === 'touch' || openMethod === 'pen') {
+      // A tap would raise the on-screen keyboard, but a screen reader press (such as an iOS
+      // VoiceOver double-tap) still reports a touch and needs the input focused.
+      const touchOpen =
+        (openMethod === 'touch' || openMethod === 'pen') && !store.context.virtualPress;
+      if (openedByHover || touchOpen) {
         return false;
       }
       return store.context.virtualFocusRef?.current ?? false;
