@@ -115,6 +115,66 @@ describe('syntheticDrag double-click activation', () => {
     expect(onDrop).toHaveBeenCalledTimes(1);
   });
 
+  it('does not pick the item up again when the drop is a double-click', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const onMoveStart = vi.fn();
+    const onMoveEnd = vi.fn();
+    const onDoubleClick = vi.fn();
+    engine.registerSource(source, { activation: { type: 'double-click' }, onMoveStart, onMoveEnd });
+
+    fireEvent.doubleClick(source, { detail: 2, button: 0 });
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    document.addEventListener('dblclick', onDoubleClick);
+    registerCleanup(() => document.removeEventListener('dblclick', onDoubleClick));
+
+    // Double-clicking the destination, here where the dropped item now lies. The
+    // first click drops, and the rest of the double-click belongs to it.
+    fireEvent.click(source, { detail: 1, button: 0 });
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    expect(fireEvent.click(source, { detail: 2, button: 0 })).toBe(false);
+    fireEvent.doubleClick(source, { detail: 2, button: 0 });
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    expect(onDoubleClick).not.toHaveBeenCalled();
+
+    // A new double-click picks it up again.
+    fireEvent.click(source, { detail: 1, button: 0 });
+    fireEvent.click(source, { detail: 2, button: 0 });
+    fireEvent.doubleClick(source, { detail: 2, button: 0 });
+    expect(onMoveStart).toHaveBeenCalledTimes(2);
+    expect(onDoubleClick).toHaveBeenCalledTimes(1);
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+  });
+
+  it('fires the first onMove for the first pointer move, not for the double-click', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const onMoveStart = vi.fn();
+    const onMove = vi.fn();
+    engine.registerSource(source, { activation: { type: 'double-click' }, onMoveStart, onMove });
+
+    fireEvent.doubleClick(source, { detail: 2, button: 0, clientX: 20, clientY: 20 });
+    await flushRaf();
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    // `'pointer'` moves report a `PointerEvent`, which the `dblclick` isn't in
+    // every browser.
+    expect(onMove).not.toHaveBeenCalled();
+
+    firePointer.move(source, {
+      pointerType: 'mouse',
+      pointerId: 1,
+      buttons: 0,
+      clientX: 40,
+      clientY: 50,
+      timeStamp: 20,
+    });
+    await flushRaf();
+    expect(onMove).toHaveBeenCalledTimes(1);
+    expect(onMove.mock.calls[0][0].reason).toBe('pointer');
+    expect(onMove.mock.calls[0][0].event.type).toBe('pointermove');
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+  });
+
   it('cancels the press that drops so the destination is neither focused nor pressed', async () => {
     const { engine } = await renderDnd();
     const source = createElement();

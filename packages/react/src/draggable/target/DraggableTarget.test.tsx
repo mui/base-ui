@@ -71,6 +71,26 @@ describe('Draggable.Target', () => {
     expect(second).not.toHaveAttribute('data-drag-over');
   });
 
+  it('warns when a target has a kind but no accept', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await renderDnd(<Draggable.Target kind={columnKind} />);
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('has a `kind` but no `accept`'));
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('does not warn when a target declares both kind and accept', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await renderDnd(<Draggable.Target kind={columnKind} accept={cardKind} />);
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('marks the element as a drop target once attached', async () => {
     await renderDnd(<Draggable.Target accept={Draggable.anyKind} data-testid="target" />);
     const el = screen.getByTestId('target');
@@ -83,6 +103,27 @@ describe('Draggable.Target', () => {
     );
     const el = screen.getByTestId('target');
     unmount();
+    expect(el).not.toHaveAttribute('data-base-ui-drop-target');
+  });
+
+  it('unregisters when its render component removes the element on its own', async () => {
+    let hide = () => {};
+    const Host = React.forwardRef(function Host(
+      props: React.ComponentProps<'div'>,
+      ref: React.ForwardedRef<HTMLDivElement>,
+    ) {
+      const [visible, setVisible] = React.useState(true);
+      hide = () => setVisible(false);
+      return visible ? <div ref={ref} {...props} /> : null;
+    });
+    await renderDnd(
+      <Draggable.Target accept={Draggable.anyKind} data-testid="target" render={<Host />} />,
+    );
+    const el = screen.getByTestId('target');
+    expect(el).toHaveAttribute('data-base-ui-drop-target', '');
+
+    // Only `Host` re-renders, so the target's own layout effects don't run.
+    await act(async () => hide());
     expect(el).not.toHaveAttribute('data-base-ui-drop-target');
   });
 
@@ -138,14 +179,14 @@ describe('Draggable.Target', () => {
         onDraggableMove={record('onMove')}
         onDraggableEnter={record('onDraggableEnter')}
         onDraggableLeave={record('onDraggableLeave')}
-        onDraggableDrop={({ target }) => {
+        onDraggableDrop={({ currentTarget }) => {
           calls.push('onDrop');
           observed = {
-            kind: target.kind,
-            data: target.payload.id,
+            kind: currentTarget.kind,
+            data: currentTarget.payload.id,
             // 35 / 100 of the stub rect, quantized to 4 steps. The raw fraction
             // (0.35) here would mean `snap` never reached the registration.
-            snapped: target.getSnappedLocalPoint().y,
+            snapped: currentTarget.getSnappedLocalPoint().y,
           };
         }}
       />,
@@ -221,7 +262,7 @@ describe('Draggable.Target', () => {
     expect(nestedStart).toHaveBeenCalledTimes(1);
     const eventDetails = nestedStart.mock.calls[0][0];
     expect(eventDetails.source.element).toBe(nestedSource);
-    expect(eventDetails.target.element).toBe(wrapper);
+    expect(eventDetails.currentTarget.element).toBe(wrapper);
     // The unrelated target was never in the stack, so it saw nothing.
     expect(outsideStart).not.toHaveBeenCalled();
 
@@ -337,11 +378,11 @@ describe('Draggable.Target', () => {
           data-testid="target"
           payload={{ id: swapped ? 'after' : 'before' }}
           onDraggableEnter={(eventDetails) => {
-            log.push(`enter:${(eventDetails.target.payload as any).id}`);
+            log.push(`enter:${(eventDetails.currentTarget.payload as any).id}`);
             (swapped ? enterAfter : enterBefore)(eventDetails);
           }}
           onDraggableLeave={(eventDetails) =>
-            log.push(`leave:${(eventDetails.target.payload as any).id}`)
+            log.push(`leave:${(eventDetails.currentTarget.payload as any).id}`)
           }
         />
       );
@@ -382,8 +423,8 @@ describe('Draggable.Target', () => {
     // The next event reads the new render's params, not the previous ones.
     expect(enterAfter).toHaveBeenCalledTimes(1);
     const eventDetails = enterAfter.mock.calls[0][0];
-    expect(eventDetails.target.element).toBe(second);
-    expect(eventDetails.target.payload).toEqual({ id: 'after' });
+    expect(eventDetails.currentTarget.element).toBe(second);
+    expect(eventDetails.currentTarget.payload).toEqual({ id: 'after' });
     // The old node is unmounted. React never updates a detached node's attributes,
     // so the test can only assert that it is disconnected.
     expect(first.isConnected).toBe(false);
@@ -550,6 +591,58 @@ describe('Draggable.Target', () => {
 
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
 
+    cancel();
+  });
+
+  it('keeps a hovered target registered when an inline ref changes identity', async () => {
+    // A new ref callback on every render makes React detach and re-attach the
+    // same node. Re-registering it would make the target leave and re-enter, and
+    // handlers that set state would re-render with another new ref, forever.
+    const onDraggableEnter = vi.fn();
+    const onDraggableLeave = vi.fn();
+    function Slot() {
+      const [over, setOver] = React.useState(false);
+      return (
+        <Draggable.Target
+          accept={Draggable.anyKind}
+          data-testid="target"
+          data-over={over}
+          ref={() => {}}
+          onDraggableEnter={() => {
+            onDraggableEnter();
+            // Bounded, so a regression fails the assertions below instead of hanging.
+            if (onDraggableEnter.mock.calls.length < 20) {
+              setOver(true);
+            }
+          }}
+          onDraggableLeave={() => {
+            onDraggableLeave();
+            if (onDraggableLeave.mock.calls.length < 20) {
+              setOver(false);
+            }
+          }}
+        />
+      );
+    }
+    const { engine } = await renderDnd(<Slot />);
+    const source = createElement();
+    engine.registerSource(source, {});
+    const target = screen.getByTestId('target');
+    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+    await lift(source);
+    await dragEnter(target);
+    await flushRaf();
+    expect(onDraggableEnter).toHaveBeenCalledTimes(1);
+    expect(onDraggableLeave).not.toHaveBeenCalled();
+    expect(target).toHaveAttribute('data-over', 'true');
+    expect(target).toHaveAttribute('data-drag-over');
+
+    fireDrag.dragLeave();
+    await flushRaf();
+    expect(onDraggableLeave).toHaveBeenCalledTimes(1);
+    expect(target).toHaveAttribute('data-over', 'false');
+    expect(target).not.toHaveAttribute('data-drag-over');
     cancel();
   });
 
@@ -835,6 +928,122 @@ describe('Draggable.Target', () => {
     expect(inner).not.toHaveAttribute('data-drag-over-innermost');
 
     fireDrag.drop(outer);
+  });
+
+  describe('target and currentTarget', () => {
+    async function renderNestedTargets() {
+      const handlers = {
+        outerEnter: vi.fn(),
+        outerMove: vi.fn(),
+        outerLeave: vi.fn(),
+        innerEnter: vi.fn(),
+        innerMove: vi.fn(),
+        innerLeave: vi.fn(),
+        innerDrop: vi.fn(),
+      };
+      const { engine } = await renderDnd(
+        <Draggable.Target
+          accept={Draggable.anyKind}
+          data-testid="outer"
+          payload="outer"
+          onDraggableEnter={handlers.outerEnter}
+          onDraggableMove={handlers.outerMove}
+          onDraggableLeave={handlers.outerLeave}
+        >
+          <Draggable.Target
+            accept={Draggable.anyKind}
+            data-testid="inner"
+            payload="inner"
+            onDraggableEnter={handlers.innerEnter}
+            onDraggableMove={handlers.innerMove}
+            onDraggableLeave={handlers.innerLeave}
+            onDraggableDrop={handlers.innerDrop}
+          />
+        </Draggable.Target>,
+      );
+      const source = createElement();
+      engine.registerSource(source, {});
+      return {
+        handlers,
+        source,
+        outer: screen.getByTestId('outer'),
+        inner: screen.getByTestId('inner'),
+      };
+    }
+
+    it('reports the innermost target as `target` and the handling target as `currentTarget`', async () => {
+      const { handlers, source, outer, inner } = await renderNestedTargets();
+
+      await lift(source);
+      await dragEnter(inner);
+
+      const outerEnter = handlers.outerEnter.mock.calls[0][0];
+      expect(outerEnter.target.element).toBe(inner);
+      expect(outerEnter.target.payload).toBe('inner');
+      expect(outerEnter.currentTarget.element).toBe(outer);
+      expect(outerEnter.currentTarget.payload).toBe('outer');
+      const outerMove = handlers.outerMove.mock.lastCall![0];
+      expect(outerMove.target.element).toBe(inner);
+      expect(outerMove.currentTarget.element).toBe(outer);
+      // The same record the source and the monitors receive as `target`.
+      expect(outerMove.target).toBe(outerMove.location.current.targets[0]);
+
+      const innerEnter = handlers.innerEnter.mock.calls[0][0];
+      expect(innerEnter.target.element).toBe(inner);
+      expect(innerEnter.currentTarget.element).toBe(inner);
+      const innerMove = handlers.innerMove.mock.lastCall![0];
+      expect(innerMove.target.element).toBe(inner);
+      expect(innerMove.currentTarget.element).toBe(inner);
+
+      cancel();
+    });
+
+    it('reports the target that received the drop as both `target` and `currentTarget`', async () => {
+      const { handlers, source, inner } = await renderNestedTargets();
+
+      await lift(source);
+      await dragEnter(inner);
+      fireDrag.drop(inner);
+
+      expect(handlers.innerDrop).toHaveBeenCalledTimes(1);
+      const details = handlers.innerDrop.mock.calls[0][0];
+      expect(details.currentTarget.element).toBe(inner);
+      expect(details.target).toBe(details.currentTarget);
+    });
+
+    it('reports the target still under the pointer as `target` on a leave', async () => {
+      const { handlers, source, outer, inner } = await renderNestedTargets();
+
+      await lift(source);
+      await dragEnter(inner);
+      await dragEnter(outer);
+
+      expect(handlers.innerLeave).toHaveBeenCalledTimes(1);
+      const details = handlers.innerLeave.mock.calls[0][0];
+      expect(details.target.element).toBe(outer);
+      expect(details.currentTarget.element).toBe(inner);
+
+      cancel();
+    });
+
+    it('reports a `null` target on the leave that ends a canceled drag', async () => {
+      const { handlers, source, outer, inner } = await renderNestedTargets();
+
+      await lift(source);
+      await dragEnter(inner);
+      // Cancel while both targets are hovered, so each gets its terminal leave.
+      fireDrag.dragEnd();
+
+      expect(handlers.outerLeave).toHaveBeenCalledTimes(1);
+      const outerLeave = handlers.outerLeave.mock.calls[0][0];
+      expect(outerLeave.reason).toBe('escape-key');
+      expect(outerLeave.target).toBeNull();
+      expect(outerLeave.currentTarget.element).toBe(outer);
+      expect(handlers.innerLeave).toHaveBeenCalledTimes(1);
+      const innerLeave = handlers.innerLeave.mock.calls[0][0];
+      expect(innerLeave.target).toBeNull();
+      expect(innerLeave.currentTarget.element).toBe(inner);
+    });
   });
 
   it('flips drag-over state off and fires onDraggableLeave when the pointer leaves for empty space, then re-enters', async () => {
@@ -1245,8 +1454,8 @@ describe('Draggable.Target', () => {
         accept={Draggable.anyKind}
         data-testid="target"
         payload={{ id: 'slot-1' }}
-        onDraggableDrop={({ target }) => {
-          observed = target.payload.id;
+        onDraggableDrop={({ currentTarget }) => {
+          observed = currentTarget.payload.id;
         }}
       />,
     );
@@ -1279,8 +1488,8 @@ describe('Draggable.Target', () => {
       accept: Draggable.anyKind,
       kind: otherKind,
       payload: 'other',
-      onDraggableEnter: ({ target }) => {
-        current = target;
+      onDraggableEnter: ({ currentTarget }) => {
+        current = currentTarget;
       },
     });
 

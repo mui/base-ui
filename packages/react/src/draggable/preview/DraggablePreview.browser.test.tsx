@@ -61,8 +61,49 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     // top-layer wrapper, so the part's element still sits under `.dark` and
     // `.dark .Badge` applies.
     const badge = screen.getByTestId('preview').closest('.Badge') as HTMLElement;
-    const host = badge.closest('[data-drag-preview]') as HTMLElement;
-    expect(host.parentElement!.parentElement).toBe(source.parentElement);
+    const container = badge.closest('[data-drag-preview-container]') as HTMLElement;
+    expect(container.parentElement).toBe(source.parentElement);
     expect(getComputedStyle(badge).color).toBe('rgb(0, 128, 0)');
+  });
+
+  it('leaves the transforms and motion of a custom preview element alone', () => {
+    // The engine neutralizes the source's motion on the element it moves each
+    // frame. The consumer's own preview element inherits nothing from the source,
+    // so its styles must survive. At (0,1,0), `.Badge` ties with the engine's
+    // sheet and would lose to it if the sheet reached this element.
+    style.textContent = `
+      div { transition: translate 1s; }
+      .Badge {
+        transform: scale(2);
+        transition: box-shadow 300ms ease;
+        animation: badge-pulse 1s infinite;
+      }
+      @keyframes badge-pulse { to { opacity: 0.5; } }
+    `;
+    rtlRender(
+      <DraggableProvider>
+        <Draggable.Root
+          kind={testDragKind}
+          data-testid="drag"
+          style={{ width: '120px', height: '30px' }}
+        >
+          <Draggable.Preview className="Badge">
+            <span data-testid="preview">Preview</span>
+          </Draggable.Preview>
+        </Draggable.Root>
+      </DraggableProvider>,
+    );
+
+    fireDrag.dragStart(screen.getByTestId('drag'));
+
+    const badge = screen.getByTestId('preview').parentElement!;
+    const computed = getComputedStyle(badge);
+    expect(computed.transform).toBe('matrix(2, 0, 0, 2, 0, 0)');
+    expect(computed.transitionDuration).toBe('0.3s');
+    expect(computed.animationName).toBe('badge-pulse');
+    // The source size reaches the consumer's element from the host it sits in.
+    expect(computed.getPropertyValue('--drag-source-width')).toBe('120px');
+    // The host the engine moves still drops motion that would ease its `translate`.
+    expect(getComputedStyle(badge.parentElement!).transitionDuration).toBe('0s');
   });
 });

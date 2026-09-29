@@ -56,6 +56,21 @@ describe('WindowTimeout', () => {
     expect(clearTimeout).toHaveBeenCalledTimes(2);
   });
 
+  it('reports whether a timeout is armed, like `Timeout.isStarted()`', () => {
+    const { ownerWindow, scheduled } = createFakeWindow();
+    const timeout = new WindowTimeout(ownerWindow);
+
+    expect(timeout.isStarted()).toBe(false);
+    timeout.start(100, () => {});
+    expect(timeout.isStarted()).toBe(true);
+    scheduled.get(1)!();
+    expect(timeout.isStarted()).toBe(false);
+
+    timeout.start(100, () => {});
+    timeout.clear();
+    expect(timeout.isStarted()).toBe(false);
+  });
+
   it('releases the handle when clearing throws for a dead window', () => {
     const setTimeout = vi.fn(() => 1);
     const clearTimeout = vi.fn(() => {

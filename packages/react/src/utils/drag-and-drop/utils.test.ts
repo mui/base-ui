@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { isJSDOM } from '#test-utils';
-import { deepElementFromPoint, elementFromPointIgnoring, getElementScale } from './utils';
+import {
+  deepElementFromPoint,
+  elementFromPointIgnoring,
+  getComposedParentElement,
+  getElementScale,
+} from './utils';
 
 const NO_SHADOW_ROOTS: ReadonlyMap<Element, ShadowRoot> = new Map();
 
@@ -140,6 +145,19 @@ describe('deepElementFromPoint', () => {
     expect(deepElementFromPoint(document, 10, 20, NO_SHADOW_ROOTS)).toBe(host);
   });
 
+  it.each([
+    ['NaN', NaN, 20],
+    ['infinite', 10, Infinity],
+  ])('reports nothing for a %s coordinate instead of hit-testing it', (_, x, y) => {
+    // Browsers reject a non-finite coordinate with a `TypeError`. A modifier
+    // producing one would otherwise throw on every frame and strand the drag.
+    const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(makeEl());
+
+    expect(deepElementFromPoint(document, x, y, NO_SHADOW_ROOTS)).toBeNull();
+    expect(elementFromPointIgnoring(document, x, y, null, NO_SHADOW_ROOTS)).toBeNull();
+    expect(spy).not.toHaveBeenCalled();
+  });
+
   it('returns null in a document that cannot hit-test at all', () => {
     // jsdom defines `elementFromPoint` on neither Document nor ShadowRoot. This
     // runs from the activation commit, outside every containment boundary and
@@ -152,8 +170,51 @@ describe('deepElementFromPoint', () => {
   });
 });
 
+describe('getComposedParentElement', () => {
+  afterEach(() => {
+    document.body.replaceChildren();
+  });
+
+  function makeSlotted(mode: ShadowRootMode) {
+    const host = makeEl();
+    const root = host.attachShadow({ mode });
+    const wrapper = document.createElement('div');
+    const slot = document.createElement('slot');
+    wrapper.appendChild(slot);
+    root.appendChild(wrapper);
+    const child = document.createElement('span');
+    host.appendChild(child);
+    return { host, root, slot, child };
+  }
+
+  it('enters the assigned slot of an open shadow root', () => {
+    const { slot, child } = makeSlotted('open');
+
+    expect(getComposedParentElement(child)).toBe(slot);
+  });
+
+  it('enters the slot of a known closed shadow root, which assignedSlot hides', () => {
+    const { host, root, slot, child } = makeSlotted('closed');
+
+    expect(child.assignedSlot).toBeNull();
+    expect(getComposedParentElement(child)).toBe(host);
+    expect(getComposedParentElement(child, new Map([[host, root]]))).toBe(slot);
+  });
+
+  it('climbs to the host when no slot in the known closed root takes the element', () => {
+    const { host, root } = makeSlotted('closed');
+    const unslotted = document.createElement('span');
+    unslotted.slot = 'missing';
+    host.appendChild(unslotted);
+
+    expect(getComposedParentElement(unslotted, new Map([[host, root]]))).toBe(host);
+  });
+});
+
 describe('getElementScale', () => {
   afterEach(() => {
+    vi.restoreAllMocks();
+    vi.resetModules();
     document.body.replaceChildren();
   });
 
@@ -243,6 +304,37 @@ describe('getElementScale', () => {
     expect(leaf.assignedSlot).toBe(slot);
     expect(getElementScale(leaf)).toEqual({ x: 6, y: 6 });
   });
+
+  // jsdom only. It needs `vi.resetModules()` to hand out a fresh module, which
+  // browser mode doesn't, and a browser hides a closed popover, whose transform
+  // then no longer applies.
+  it.skipIf(!isJSDOM)(
+    'treats a popover as closed where `:popover-open` does not parse',
+    async () => {
+      // Browsers from before the popover API throw a `SyntaxError` on the selector.
+      // The `popover` attribute does nothing there, so the ancestor scale still applies.
+      const matches = Element.prototype.matches;
+      const spy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function mock(
+        this: Element,
+        selector: string,
+      ) {
+        if (selector === ':popover-open') {
+          throw new DOMException(`'${selector}' is not a valid selector`, 'SyntaxError');
+        }
+        return matches.call(this, selector);
+      });
+      const child = makeNested('transform: matrix(2, 0, 0, 2, 0, 0)');
+      child.parentElement!.setAttribute('popover', 'manual');
+      // A fresh module, so the unsupported selector doesn't stay cached for later tests.
+      vi.resetModules();
+      const utils = await import('./utils');
+
+      expect(utils.getElementScale(child)).toEqual({ x: 2, y: 2 });
+      expect(utils.getElementScale(child)).toEqual({ x: 2, y: 2 });
+      // Cached after the first failure.
+      expect(spy.mock.calls.filter(([selector]) => selector === ':popover-open')).toHaveLength(1);
+    },
+  );
 
   it.skipIf(isJSDOM)('folds in a zoom, which is not a transform', () => {
     expect(getElementScale(makeNested('zoom: 2'))).toEqual({ x: 2, y: 2 });

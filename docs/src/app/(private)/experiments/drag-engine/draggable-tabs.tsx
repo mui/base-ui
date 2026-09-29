@@ -2,13 +2,13 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { getHorizontalCollisionAfter } from 'docs/src/utils/getHorizontalCollisionAfter';
 import clsx from 'clsx';
 import { Tabs } from '@base-ui/react/tabs';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { activeElement } from '@base-ui/utils/shadowDom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { getHorizontalCollisionAfter } from './getHorizontalCollisionAfter';
 import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
 import theme from './theme.module.css';

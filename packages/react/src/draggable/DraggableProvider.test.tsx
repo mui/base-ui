@@ -12,6 +12,8 @@ function Manager() {
   return null;
 }
 
+const collisionKind = Draggable.createKind('collision');
+
 describe('Draggable.Provider', () => {
   const { renderDnd } = createDndRenderer();
 
@@ -19,6 +21,7 @@ describe('Draggable.Provider', () => {
     ['Root', <Draggable.Root />],
     ['Target', <Draggable.Target />],
     ['Viewport', <Draggable.Viewport />],
+    ['CollisionProvider', <Draggable.CollisionProvider kind={collisionKind} />],
     ['manager', <Manager />],
   ])('requires a provider for %s', (_name, element) => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});

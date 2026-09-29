@@ -9,6 +9,7 @@ import { useDraggableContext } from '../../../draggable/DraggableContext';
 import type { DraggableContextValue } from '../../../draggable/DraggableContext';
 import { getActivePreviewHandle } from '../activePreview';
 import { resolveDragPreviewOffset } from '../synthetic/pickupPreview';
+import { containConsumerError } from '../utils';
 
 // Module-level, so its identity is stable for `useStore`'s selector fast path. The
 // provider context is passed as an argument and matches only previews published
@@ -43,12 +44,21 @@ export function PreviewOverlayRenderer(): React.ReactNode {
     if (!preview || typeof preview.offset !== 'function') {
       return;
     }
+    const parameters = {
+      container: preview.host,
+      sourceRect: preview.sourceRect,
+      input: preview.input,
+    };
+    // Consumer code in a layout effect. Uncontained, a throw would unmount the
+    // whole provider subtree mid-drag.
+    const offset = containConsumerError(
+      'Base UI: a drag preview "offset" function threw, so the preview uses the "source" offset.',
+      preview.host,
+      () => resolveDragPreviewOffset(preview.offset, parameters),
+      null,
+    );
     getActivePreviewHandle()?.setPreviewOffset(
-      resolveDragPreviewOffset(preview.offset, {
-        container: preview.host,
-        sourceRect: preview.sourceRect,
-        input: preview.input,
-      }),
+      offset ?? resolveDragPreviewOffset('source', parameters),
     );
   }, [preview]);
 

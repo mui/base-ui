@@ -127,12 +127,12 @@ export class DragEngineBase {
 
     // Static DOM setup, read at registration. The pointer sensor bound below
     // refreshes it from the live registration on each press.
-    const restoreStatic = applyDraggableStaticSetup({
+    const staticSetup = applyDraggableStaticSetup({
       element,
       handle: initial.handle,
       disabled: initial.disabled,
     });
-    const unregister = addDraggableRegistration(element, getNormalized);
+    const unregister = addDraggableRegistration(element, getNormalized, staticSetup.refresh);
     retargetEndingPreviewSource(element, {
       kind: initial.kind.id,
       previewKey: initial.previewKey,
@@ -141,7 +141,7 @@ export class DragEngineBase {
     const unbindSensors = bindDraggableSensors(element);
 
     return onceCleanup(() => {
-      restoreStatic();
+      staticSetup.release();
       unregister();
       unbindSensors();
     });

@@ -38,7 +38,9 @@ const detailedSlot = Draggable.createKind<{ index: number; label: string }>('det
   kind={detailedSlot}
   payload={{ index: 0, label: 'Inbox' }}
   onDraggableDrop={(eventDetails) => {
-    expectType<string, typeof eventDetails.target.payload.label>(eventDetails.target.payload.label);
+    expectType<string, typeof eventDetails.currentTarget.payload.label>(
+      eventDetails.currentTarget.payload.label,
+    );
   }}
 />;
 
@@ -68,7 +70,9 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
   accept={Draggable.anyKind}
   payload={{ index: 0 }}
   onDraggableDrop={(eventDetails) => {
-    expectType<{ index: number }, typeof eventDetails.target.payload>(eventDetails.target.payload);
+    expectType<{ index: number }, typeof eventDetails.currentTarget.payload>(
+      eventDetails.currentTarget.payload,
+    );
   }}
 />;
 
@@ -77,7 +81,9 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
   accept={Draggable.anyKind}
   payload="inbox"
   onDraggableDrop={(eventDetails) => {
-    expectType<string, typeof eventDetails.target.payload>(eventDetails.target.payload);
+    expectType<string, typeof eventDetails.currentTarget.payload>(
+      eventDetails.currentTarget.payload,
+    );
   }}
 />;
 
@@ -86,8 +92,8 @@ const targetCommand = () => 'run';
   accept={Draggable.anyKind}
   payload={targetCommand}
   onDraggableDrop={(eventDetails) => {
-    expectType<typeof targetCommand, typeof eventDetails.target.payload>(
-      eventDetails.target.payload,
+    expectType<typeof targetCommand, typeof eventDetails.currentTarget.payload>(
+      eventDetails.currentTarget.payload,
     );
   }}
 />;
@@ -107,7 +113,9 @@ const targetCommand = () => 'run';
   payload={{ index: 0 }}
   onDraggableDrop={(eventDetails) => {
     expectType<CardPayload, typeof eventDetails.source.payload>(eventDetails.source.payload);
-    expectType<{ index: number }, typeof eventDetails.target.payload>(eventDetails.target.payload);
+    expectType<{ index: number }, typeof eventDetails.currentTarget.payload>(
+      eventDetails.currentTarget.payload,
+    );
   }}
 />;
 
@@ -166,6 +174,40 @@ const targetCommand = () => 'run';
 // `slot.matches(target)` would narrow to a payload the engine delivers as `undefined`.
 <Draggable.Target accept={Draggable.anyKind} kind={slot} />;
 
+// `anyKind` only fits `accept`. A target declares the one kind it is.
+// @ts-expect-error `anyKind` can't be a target's own `kind`.
+<Draggable.Target accept={card} kind={Draggable.anyKind} />;
+
+// `currentTarget` is the target running the handler. `target` is the innermost target
+// under the pointer, this one or one nested inside it, so its payload is `unknown`
+// until a kind narrows it.
+<Draggable.Target
+  accept={card}
+  kind={slot}
+  payload={{ index: 0 }}
+  onDraggableMove={(eventDetails) => {
+    expectType<DraggableTargetRecord<SlotPayload>, typeof eventDetails.currentTarget>(
+      eventDetails.currentTarget,
+    );
+    expectType<DraggableTargetRecord, typeof eventDetails.target>(eventDetails.target);
+    if (detailedSlot.matches(eventDetails.target)) {
+      expectType<{ index: number; label: string }, typeof eventDetails.target.payload>(
+        eventDetails.target.payload,
+      );
+    }
+  }}
+  onDraggableDrop={(eventDetails) => {
+    expectType<DraggableTargetRecord, typeof eventDetails.target>(eventDetails.target);
+  }}
+  onDraggableLeave={(eventDetails) => {
+    expectType<DraggableTargetRecord<SlotPayload>, typeof eventDetails.currentTarget>(
+      eventDetails.currentTarget,
+    );
+    // No target may remain under the pointer once the drag has left this one.
+    expectType<DraggableTargetRecord | null, typeof eventDetails.target>(eventDetails.target);
+  }}
+/>;
+
 // A kind narrows the records a handler walks, so a target can tell which of several
 // kinds of target the drag landed on.
 declare const untypedRecord: DraggableTargetRecord<unknown>;
@@ -180,7 +222,9 @@ if (slot.matches(untypedRecord)) {
   payload={{ index: 0 }}
   onDraggableDrop={(eventDetails) => {
     expectType<CardPayload, typeof eventDetails.source.payload>(eventDetails.source.payload);
-    expectType<SlotPayload, typeof eventDetails.target.payload>(eventDetails.target.payload);
+    expectType<SlotPayload, typeof eventDetails.currentTarget.payload>(
+      eventDetails.currentTarget.payload,
+    );
   }}
 />;
 
@@ -253,10 +297,14 @@ const wideDrop = (eventDetails: Draggable.Target.DropEventDetails<unknown, unkno
   payload="inbox"
   onDraggableDrop={(eventDetails) => {
     wideDrop(eventDetails);
-    expectType<string, typeof eventDetails.target.payload>(eventDetails.target.payload);
+    expectType<string, typeof eventDetails.currentTarget.payload>(
+      eventDetails.currentTarget.payload,
+    );
   }}
   onDraggableMove={(eventDetails) => {
-    expectType<string, typeof eventDetails.target.payload>(eventDetails.target.payload);
+    expectType<string, typeof eventDetails.currentTarget.payload>(
+      eventDetails.currentTarget.payload,
+    );
   }}
 />;
 
@@ -281,7 +329,7 @@ function Slot(props: SlotProps) {
   accept={card}
   payload={{ index: 0 }}
   onDraggableDrop={(eventDetails) =>
-    `${eventDetails.source.payload.id}:${eventDetails.target.payload.index}`
+    `${eventDetails.source.payload.id}:${eventDetails.currentTarget.payload.index}`
   }
 />;
 
@@ -298,15 +346,15 @@ const dragSlot = Draggable.createKind<SlotPayload, { entered: boolean }>('drag-s
     expectType<{ offset: number } | undefined, typeof eventDetails.source.dragData>(
       eventDetails.source.dragData,
     );
-    expectType<{ entered: boolean } | undefined, typeof eventDetails.target.dragData>(
-      eventDetails.target.dragData,
+    expectType<{ entered: boolean } | undefined, typeof eventDetails.currentTarget.dragData>(
+      eventDetails.currentTarget.dragData,
     );
-    eventDetails.target.updatePayload({ index: 1 });
-    eventDetails.target.updateDragData({ entered: true });
+    eventDetails.currentTarget.updatePayload({ index: 1 });
+    eventDetails.currentTarget.updateDragData({ entered: true });
     // @ts-expect-error the target has its own drag data type.
-    eventDetails.target.updateDragData({ offset: 1 });
+    eventDetails.currentTarget.updateDragData({ offset: 1 });
     // @ts-expect-error the target keeps its payload type.
-    eventDetails.target.updatePayload({ id: 'a' });
+    eventDetails.currentTarget.updatePayload({ id: 'a' });
   }}
 />;
 
@@ -314,8 +362,8 @@ const dataOnlyTarget = Draggable.createKind<undefined, number>('data-only-target
 <Draggable.Target
   kind={dataOnlyTarget}
   onDraggableEnter={(eventDetails) => {
-    expectType<number | undefined, typeof eventDetails.target.dragData>(
-      eventDetails.target.dragData,
+    expectType<number | undefined, typeof eventDetails.currentTarget.dragData>(
+      eventDetails.currentTarget.dragData,
     );
   }}
 />;
@@ -333,8 +381,8 @@ const dragFile = Draggable.createKind<AttachmentPayload, { size: number }>('drag
     // @ts-expect-error accepted source drag data excludes unrelated values.
     source.updateDragData({ entered: true });
     void data;
-    expectType<{ entered: boolean } | undefined, typeof eventDetails.target.dragData>(
-      eventDetails.target.dragData,
+    expectType<{ entered: boolean } | undefined, typeof eventDetails.currentTarget.dragData>(
+      eventDetails.currentTarget.dragData,
     );
     if (dragFile.matches(source)) {
       expectType<{ size: number } | undefined, typeof source.dragData>(source.dragData);
@@ -377,7 +425,7 @@ function GenericSlot<Source, Payload>({
   accept={wrapperTask}
   payload={{ name: 'a' }}
   onDraggableDrop={(eventDetails) =>
-    eventDetails.source.payload.id + eventDetails.target.payload.name
+    eventDetails.source.payload.id + eventDetails.currentTarget.payload.name
   }
 />;
 

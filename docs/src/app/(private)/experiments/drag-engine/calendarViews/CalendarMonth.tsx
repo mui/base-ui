@@ -174,7 +174,7 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
           accept={CAL_DRAG_KINDS}
           payload={cellPayload}
           onDraggableMove={(eventDetails) => {
-            const next = resolveDropPreview(eventDetails.source, eventDetails.target);
+            const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
             if (!next) {
               return;
             }

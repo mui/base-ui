@@ -17,8 +17,8 @@ import FileExplorerExperiment from '../app/(private)/experiments/drag-engine/fil
 
 import SortableOnDropCss from '../app/(docs)/react/utils/draggable/demos/sortable-on-drop/css-modules';
 import SortableOnDropTailwind from '../app/(docs)/react/utils/draggable/demos/sortable-on-drop/tailwind';
-import ScrollingCss from '../app/(docs)/react/utils/draggable/demos/scrolling/hero/css-modules';
-import ScrollingTailwind from '../app/(docs)/react/utils/draggable/demos/scrolling/hero/tailwind';
+import ScrollingCss from '../app/(docs)/react/utils/draggable/demos/scrolling-hero/css-modules';
+import ScrollingTailwind from '../app/(docs)/react/utils/draggable/demos/scrolling-hero/tailwind';
 
 import SortableLiveCss from '../app/(docs)/react/utils/draggable/demos/sortable-live/css-modules';
 import SortableLiveTailwind from '../app/(docs)/react/utils/draggable/demos/sortable-live/tailwind';
@@ -30,13 +30,15 @@ import { ControlledAddCloseExample } from '../app/(private)/experiments/drag-eng
 
 import HandleCss from '../app/(docs)/react/utils/draggable/demos/handle/css-modules';
 import HandleTailwind from '../app/(docs)/react/utils/draggable/demos/handle/tailwind';
-import NestingCss from '../app/(docs)/react/utils/draggable/demos/targets/nesting/css-modules';
-import NestingTailwind from '../app/(docs)/react/utils/draggable/demos/targets/nesting/tailwind';
+import NestingCss from '../app/(docs)/react/utils/draggable/demos/nesting/css-modules';
+import NestingTailwind from '../app/(docs)/react/utils/draggable/demos/nesting/tailwind';
 
 import HeroCss from '../app/(docs)/react/utils/draggable/demos/hero/css-modules';
 import HeroTailwind from '../app/(docs)/react/utils/draggable/demos/hero/tailwind';
-import CanvasCss from '../app/(docs)/react/utils/draggable/demos/scrolling/canvas/css-modules';
-import CanvasTailwind from '../app/(docs)/react/utils/draggable/demos/scrolling/canvas/tailwind';
+import CanvasCss from '../app/(docs)/react/utils/draggable/demos/scrolling-canvas/css-modules';
+import CanvasTailwind from '../app/(docs)/react/utils/draggable/demos/scrolling-canvas/tailwind';
+import AxisCss from '../app/(docs)/react/utils/draggable/demos/scrolling-axis/css-modules';
+import AxisTailwind from '../app/(docs)/react/utils/draggable/demos/scrolling-axis/tailwind';
 
 setupDragEngineTests();
 afterEach(() => vi.unstubAllGlobals());
@@ -108,6 +110,51 @@ describe('draggable demos', () => {
       expect(archive).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Show archive' })).toHaveFocus();
       expect(screen.getByRole('status')).toHaveTextContent('Archived kickoff.');
+    });
+  });
+
+  describe.each([ScrollingCss, ScrollingTailwind])('scrolling board controls', (Demo) => {
+    it('adds the tray card to the chosen list and position without dragging', async () => {
+      const scrollIntoView = vi.fn();
+      Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+        configurable: true,
+        value: scrollIntoView,
+      });
+      try {
+        const { user } = await renderDnd(<Demo />);
+        await user.selectOptions(screen.getByRole('combobox', { name: 'List' }), 'slow');
+        await user.selectOptions(screen.getByRole('combobox', { name: 'Position' }), '2');
+        const add = screen.getByRole('button', { name: 'Add' });
+        await user.click(add);
+        const list = screen.getByText('maxSpeed={150}', { selector: 'span' }).nextElementSibling!;
+        expect(
+          Array.from(list.querySelectorAll('[data-card]'), (card) => card.textContent).slice(0, 3),
+        ).toEqual(['Pay the rent', 'Renew passport', 'Update resume']);
+        expect(add).toHaveFocus();
+        expect(scrollIntoView).toHaveBeenCalledTimes(1);
+        expect(screen.getByRole('status')).toHaveTextContent(
+          'Renew passport added to maxSpeed={150} at position 2.',
+        );
+        expect(screen.getByRole('group', { name: 'Add “Cancel the trial”' })).toBeVisible();
+      } finally {
+        Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+      }
+    });
+  });
+
+  describe.each([AxisCss, AxisTailwind])('axis lane keyboard shortcut', (Demo) => {
+    it('moves the focused stop, announces it, and keeps it focused', async () => {
+      const { user } = await renderDnd(<Demo />);
+      const coffee = screen.getByRole('button', { name: 'Coffee' });
+      coffee.focus();
+      await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
+      const labels = screen.getAllByRole('button').map((button) => button.textContent);
+      expect(labels.slice(0, 3)).toEqual(['Wake up', 'Standup', 'Coffee']);
+      expect(coffee).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent('Coffee moved to position 3 of 12.');
+      await user.keyboard('{Alt>}{ArrowLeft}{/Alt}{Alt>}{ArrowLeft}{/Alt}{Alt>}{ArrowLeft}{/Alt}');
+      expect(screen.getAllByRole('button')[0]).toBe(coffee);
+      expect(screen.getByRole('status')).toHaveTextContent('Coffee moved to position 1 of 12.');
     });
   });
 
@@ -276,7 +323,7 @@ describe('draggable demos', () => {
       ['Move 5px or double-click', 'pen'],
     ])('keeps the dragging status for %s on a %s double-tap', async (mode, pointerType) => {
       await renderDnd(<Demo />);
-      fireEvent.click(screen.getByRole('button', { name: mode }));
+      fireEvent.click(screen.getByRole('radio', { name: mode }));
       const source = screen.getByLabelText('Puck');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 100, 100);
       const pointer = { pointerType, pointerId: 1, button: 0, clientX: 20, clientY: 20 };
@@ -414,7 +461,7 @@ describe('draggable demos', () => {
       try {
         await renderDnd(<Demo />);
         const source = screen.getByText('Renew passport');
-        const target = screen.getByText('Default').parentElement!;
+        const target = screen.getByText('Default', { selector: 'span' }).parentElement!;
         source.getBoundingClientRect = () => new DOMRect(0, 0, 120, 30);
         target.getBoundingClientRect = () => new DOMRect(0, 100, 300, 200);
         fireDrag.dragStart(source, { clientX: 20, clientY: 10 });

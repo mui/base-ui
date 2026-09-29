@@ -110,7 +110,7 @@ export default function SortableOnDrop() {
           ))}
         </div>
       </Draggable.CollisionProvider>
-      <span role="status" aria-live="polite" aria-atomic="true" style={visuallyHidden}>
+      <span role="status" style={visuallyHidden}>
         {announcement}
       </span>
     </Draggable.Provider>

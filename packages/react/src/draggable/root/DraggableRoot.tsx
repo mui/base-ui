@@ -99,19 +99,20 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
   while (collisionContext && collisionContext.kind.id !== params.kind.id) {
     collisionContext = collisionContext.parent;
   }
-  React.useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-      return;
-    }
-    if (enclosingCollisionContext && kind === undefined && collision !== false) {
-      warn(
-        'A Draggable.Root inside a Draggable.CollisionProvider has no explicit kind, ' +
-          'so it is not a destination for other items. ' +
-          'Pass the same kind as the provider to the root, or set collision={false} to opt out. ' +
-          'See https://base-ui.com/react/utils/draggable#collisionprovider.',
-      );
-    }
-  }, [enclosingCollisionContext, kind, collision]);
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (enclosingCollisionContext && kind === undefined && collision !== false) {
+        warn(
+          'A Draggable.Root inside a Draggable.CollisionProvider has no explicit kind, ' +
+            'so it is not a destination for other items. ' +
+            'Pass the same kind as the provider to the root, or set collision={false} to opt out. ' +
+            'See https://base-ui.com/react/utils/draggable#collisionprovider.',
+        );
+      }
+    }, [enclosingCollisionContext, kind, collision]);
+  }
   const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<
     TPayload,
     TDragData
@@ -282,8 +283,8 @@ export interface DraggableRootModifierContext {
   sourceRect: DOMRect;
   /**
    * The scale applied to the element by CSS `transform` or `zoom`, including its
-   * ancestors. `1` when nothing is scaled. Multiply a distance in the element's own
-   * units by this value to convert it to client pixels.
+   * ancestors. `{ x: 1, y: 1 }` when nothing is scaled. Multiply a distance in the
+   * element's own units by this value to convert it to client pixels.
    */
   scale: DraggablePosition;
   /** The preview element's current bounding rectangle, or `null` when there is no preview. */

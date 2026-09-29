@@ -15,7 +15,7 @@ import { clearActivePreviewHandle, setActivePreviewHandle } from '../activePrevi
 import { attachDragPreview, resolveDragPreview } from '../synthetic/pickupPreview';
 import { compileDragModifiers } from '../dragModifiers';
 import * as dragRootLock from '../synthetic/dragRootLock';
-import { createSyntheticPreview } from '../synthetic/syntheticPreview';
+import { createSyntheticPreview, finishEndingPreview } from '../synthetic/syntheticPreview';
 import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
@@ -109,6 +109,10 @@ export function createPreviewAndStartSession(
   };
 
   try {
+    // A source grabbed again while its previous clone is still settling carries
+    // `data-dragging` and `data-settling`. Finish that clone first, so the source
+    // is measured and cloned without the styles keyed on them.
+    finishEndingPreview(element);
     // Measured before the preview is built and before `markSourceDragging()`
     // below. A `[data-dragging]` rule that resizes or hides the source would
     // otherwise corrupt the grab offset that anchors

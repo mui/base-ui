@@ -2,8 +2,7 @@ import { createDemoWithVariants } from 'docs/src/utils/createDemo';
 import CssModules from './css-modules';
 import Tailwind from './tailwind';
 
-export const DemoDragAutoScrollHero = createDemoWithVariants(
-  import.meta.url,
-  { CssModules, Tailwind },
-  { slug: 'scrolling-hero' },
-);
+export const DemoDragAutoScrollHero = createDemoWithVariants(import.meta.url, {
+  CssModules,
+  Tailwind,
+});

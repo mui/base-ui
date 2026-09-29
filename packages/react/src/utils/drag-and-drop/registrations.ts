@@ -66,22 +66,25 @@ export function registerTarget<
     } catch {
       parameters = null;
     }
-    if (parameters !== null && parameters.accept === undefined) {
-      // The types require `accept`, so this only runs for plain JS or a cast,
+    // A getter written in plain JS can return `undefined`, and `accept: null`
+    // takes every drag like an omitted one.
+    if (parameters != null && parameters.accept == null) {
+      // The types require `accept`, and `Draggable.Target` always passes one, so
+      // this only runs for a `registerTarget()` call from plain JS or a cast,
       // where nothing else would flag the mistake.
       if (parameters.kind) {
         warn(
-          'A Draggable.Target declares `kind` but no `accept`, so it takes every drag on the page. ' +
+          'registerTarget() was called with `kind` but no `accept`, so the target takes every drag on the page. ' +
             '`kind` is what this target is; `accept` is which sources it takes. ' +
             'Add `accept` with the kinds this target should receive, or drop `kind` if the target needs no identity of its own. ' +
             'See https://base-ui.com/react/utils/draggable.',
         );
       } else {
         warn(
-          'A Draggable.Target declares no `accept`, so it takes every drag on the page ' +
+          'registerTarget() was called without `accept`, so the target takes every drag on the page ' +
             'and hands foreign payloads to its handlers. ' +
             'Add `accept` with the kinds this target should receive, or ' +
-            '`accept={Draggable.anyKind}` to accept every drag on purpose. ' +
+            '`accept: Draggable.anyKind` to accept every drag on purpose. ' +
             'See https://base-ui.com/react/utils/draggable.',
         );
       }
@@ -144,7 +147,9 @@ export function registerTarget<
 }
 
 // The type argument is the `accept` value, like in every other API that takes `accept`.
-export function registerViewport<TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
+export function registerViewport<
+  TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>,
+>(
   element: HTMLElement,
   getParameters: () => DragParametersWithInferredAccept<
     RegisterViewportParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
@@ -155,7 +160,9 @@ export function registerViewport<TAccept extends DraggableAccept<unknown> = Drag
 }
 
 // The type argument is the `accept` value, like in every other API that takes `accept`.
-export function registerMonitor<TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
+export function registerMonitor<
+  TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>,
+>(
   getMonitor: () => DragParametersWithInferredAccept<
     RegisterMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
     TAccept

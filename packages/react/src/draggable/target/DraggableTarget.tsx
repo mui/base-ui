@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { warn } from '@base-ui/utils/warn';
 import { useDraggableContext } from '../DraggableContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -17,6 +18,7 @@ import type {
   DragStartReason,
   DropTargetChangeReason,
   DropTargetEventDetails,
+  DropTargetLeaveEventDetails,
 } from '../../utils/drag-and-drop/types';
 import type { DraggableAccept, DraggableKind, DraggableInput } from '../DraggableProvider';
 import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes';
@@ -81,6 +83,23 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   } = componentProps;
 
   const context = useDraggableContext();
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
+  if (process.env.NODE_ENV !== 'production') {
+    // `kind` is what this target is, and `accept` is what it takes. Mistaking one for
+    // the other compiles, and the omitted `accept` falls back to the provider's
+    // default kind, so the target silently ignores the sources it was meant for.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (kind !== undefined && accept === undefined) {
+        warn(
+          'A Draggable.Target has a `kind` but no `accept`, so it only takes drags of its ' +
+            "provider's default kind. `kind` is what this target is; `accept` is which sources it takes. " +
+            'Add `accept` with the kinds this target should receive. ' +
+            'See https://base-ui.com/react/utils/draggable#accepting-drops.',
+        );
+      }
+    }, [kind, accept]);
+  }
   // A new object per render is fine, because `useDraggableTargetElement` reads it
   // through a ref and never compares it.
   const params = {
@@ -116,7 +135,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
     stateAttributesMapping,
   });
   // Overloaded, unlike `Draggable.Root`, so a declared `TTargetPayload` can't omit `payload`
-  // and leave `target.payload` typed while the engine delivers `undefined`.
+  // and leave `currentTarget.payload` typed while the engine delivers `undefined`.
   // The fallback's target payload is `undefined`, not `unknown`, because `kind` is typed
   // from it. A payload-carrying `kind={column}` with no `payload` is then rejected here.
   // Otherwise it would compile, and `column.matches(target)` would narrow to a payload
@@ -238,6 +257,8 @@ type DraggableTargetPropsBase<
     trackDragOver?: boolean | undefined;
   };
 
+// `payload` and `accept` repeat their JSDoc in each branch. The API reference reads
+// the description of the first overload's members, which come from these branches.
 export type DraggableTargetProps<
   TSourcePayload = undefined,
   TTargetPayload = undefined,
@@ -248,11 +269,40 @@ export type DraggableTargetProps<
   'accept'
 > &
   ([TTargetPayload] extends [undefined]
-    ? { payload?: undefined }
-    : { payload: NoInfer<TTargetPayload> }) &
+    ? {
+        /**
+         * The data attached to this target, available as `eventDetails.currentTarget.payload`
+         * in its handlers and on its record in `location.current.targets`.
+         */
+        payload?: undefined;
+      }
+    : {
+        /**
+         * The data attached to this target, available as `eventDetails.currentTarget.payload`
+         * in its handlers and on its record in `location.current.targets`.
+         */
+        payload: NoInfer<TTargetPayload>;
+      }) &
   ([TSourcePayload, TTargetPayload] extends [undefined, undefined]
-    ? { accept?: DraggableAccept<TSourcePayload, TSourceDragData> | undefined }
-    : { accept: DraggableAccept<TSourcePayload, TSourceDragData> });
+    ? {
+        /**
+         * One or more kinds of draggable this target accepts. Defaults to the kind of the
+         * nearest `<Draggable.Provider>`. Pass `Draggable.anyKind` to accept every drag,
+         * with `source.payload` typed as `unknown`.
+         *
+         * Drags of other kinds ignore this target, but an ancestor target can still accept them.
+         */
+        accept?: DraggableAccept<TSourcePayload, TSourceDragData> | undefined;
+      }
+    : {
+        /**
+         * One or more kinds of draggable this target accepts. Pass `Draggable.anyKind` to
+         * accept every drag, with `source.payload` typed as `unknown`.
+         *
+         * Drags of other kinds ignore this target, but an ancestor target can still accept them.
+         */
+        accept: DraggableAccept<TSourcePayload, TSourceDragData>;
+      });
 
 /**
  * Where the pointer is within a drop target, as a fraction of its size.
@@ -311,7 +361,7 @@ export interface DraggableTargetRecord<TTargetPayload = unknown, TDragData = unk
    * <Draggable.Target
    *   accept={eventKind}
    *   onDraggableDrop={(eventDetails) => {
-   *     schedule(eventDetails.target.getLocalPoint().y * MINUTES_PER_DAY);
+   *     schedule(eventDetails.currentTarget.getLocalPoint().y * MINUTES_PER_DAY);
    *   }}
    * />
    * ```
@@ -329,7 +379,7 @@ export interface DraggableTargetRecord<TTargetPayload = unknown, TDragData = unk
    *   snap={{ y: 96 }}
    *   onDraggableDrop={(eventDetails) => {
    *     // Already a multiple of 15 minutes.
-   *     const { y } = eventDetails.target.getSnappedLocalPoint();
+   *     const { y } = eventDetails.currentTarget.getSnappedLocalPoint();
    *     schedule(eventDetails.source.payload.id, y * MINUTES_PER_DAY);
    *   }}
    * />
@@ -403,7 +453,7 @@ export type DraggableTargetLeaveEventDetails<
   TTargetPayload = unknown,
   TDragData = unknown,
   TTargetDragData = unknown,
-> = DropTargetEventDetails<
+> = DropTargetLeaveEventDetails<
   DropTargetChangeReason,
   TSourcePayload,
   TTargetPayload,

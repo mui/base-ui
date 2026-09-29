@@ -102,17 +102,25 @@ export interface DraggableLocationHistory {
   previous: DraggableLocation;
 }
 
+// Phantom members that make a kind invariant in its types. They exist only in the type
+// system, and are named so that a mismatch error explains itself.
 declare class DragKindPayload<TPayload, TDragData> {
-  private payload: (payload: TPayload) => TPayload;
-  private dragData: (dragData: TDragData) => TDragData;
+  private payloadType: (payload: TPayload) => TPayload;
+  private dragDataType: (dragData: TDragData) => TDragData;
 }
 
 /**
  * A kind of draggable item or drop target, created with `Draggable.createKind` or
  * `Draggable.createGlobalKind`. Its payload type is declared once and types
  * `source.payload` and `target.payload` everywhere the kind is used.
+ *
+ * Without type arguments, `Draggable.Kind` fits any kind, for example in a list of kinds
+ * or a wrapper's props. `Draggable.Kind<Card>` fits only the kinds whose payload is `Card`.
  */
-export interface DraggableKind<in out TPayload = unknown, in out TDragData = unknown>
+// The type arguments default to `any` so an omitted one means "any kind". An `unknown`
+// default can't do that, because invariant parameters would then only match kinds
+// declared with `unknown` themselves.
+export interface DraggableKind<in out TPayload = any, in out TDragData = any>
   extends DragKindPayload<TPayload, TDragData>, DraggableAcceptedKind<TPayload, TDragData> {}
 
 /**

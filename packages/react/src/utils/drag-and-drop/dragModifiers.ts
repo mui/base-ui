@@ -96,11 +96,22 @@ export function restrictToElement(element: DraggableRootElementReference): Dragg
 export const restrictToParentElement: DraggableRootModifier = (context) => {
   // Use the composed parent, so a draggable that is a direct child of a shadow
   // root clamps to the host instead of doing nothing.
-  const parent = getComposedParentElement(context.sourceElement);
-  if (!parent) {
-    return context.point;
+  let parent = getComposedParentElement(context.sourceElement);
+  while (parent) {
+    const rect = parent.getBoundingClientRect();
+    // A `display: contents` parent, such as the `<slot>` a draggable is assigned
+    // to, has no box and measures 0×0. The parent that lays the draggable out is
+    // further up.
+    if (
+      rect.width !== 0 ||
+      rect.height !== 0 ||
+      ownerWindow(parent).getComputedStyle(parent).display !== 'contents'
+    ) {
+      return clampPointToRect(context, rect);
+    }
+    parent = getComposedParentElement(parent);
   }
-  return clampPointToRect(context, parent.getBoundingClientRect());
+  return context.point;
 };
 
 /**
@@ -191,7 +202,7 @@ export function applyDragModifiers(
     () => {
       let current = point;
       for (const modifier of modifiers) {
-        current = modifier({
+        const next = modifier({
           point: current,
           initialPoint: options.initialPoint,
           input: options.input,
@@ -208,6 +219,16 @@ export function applyDragModifiers(
           metaKey: options.keys.metaKey,
           ownerWindow: options.ownerWindow,
         });
+        // A `NaN` or infinite axis, such as `snapToGrid(Infinity)` produces, would
+        // make the hit-test throw on every frame. That axis keeps the modifier's
+        // input instead.
+        current =
+          Number.isFinite(next.x) && Number.isFinite(next.y)
+            ? next
+            : {
+                x: Number.isFinite(next.x) ? next.x : current.x,
+                y: Number.isFinite(next.y) ? next.y : current.y,
+              };
       }
       return current;
     },

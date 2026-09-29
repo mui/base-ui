@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { createDndRenderer, firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { lift, dragOver, drop, cancel, setupDragEngineTests } from '../../../test/dnd';
+import { lift, dragOver, drop, cancel, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 import { cancelDrag } from '../../utils/drag-and-drop/cancelDrag';
 
 setupDragEngineTests();
@@ -92,7 +92,90 @@ describe('Draggable.CollisionProvider', () => {
     await dragOver(b, { clientY: 120 });
     expect(ended).toHaveBeenCalledTimes(1);
     expect(changed).not.toHaveBeenCalled();
-    expect(b).not.toHaveAttribute('data-collision-before');
+  });
+
+  it('reports a start before the end when the provider mounts during the drag', async () => {
+    const started = vi.fn();
+    const changed = vi.fn();
+    const ended = vi.fn();
+    function Example({ withList }: { withList: boolean }) {
+      return (
+        <React.Fragment>
+          <Draggable.Root kind={kind} payload="a" data-testid="a">
+            <Draggable.Preview disabled />
+          </Draggable.Root>
+          {withList && (
+            <Draggable.CollisionProvider
+              kind={kind}
+              onMoveStart={started}
+              onCollisionChange={changed}
+              onMoveEnd={ended}
+            >
+              <Draggable.Root kind={kind} payload="b" data-testid="b" />
+            </Draggable.CollisionProvider>
+          )}
+        </React.Fragment>
+      );
+    }
+    const { rerender } = await renderDnd(<Example withList={false} />);
+    const a = screen.getByTestId('a');
+    await lift(a);
+    await rerender(<Example withList />);
+    const b = screen.getByTestId('b');
+    b.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
+    await dragOver(b, { clientY: 120 });
+    expect(started).toHaveBeenCalledTimes(1);
+    expect(started.mock.lastCall?.[0].source.element).toBe(a);
+    expect(started.mock.lastCall?.[0].target.payload).toBe('b');
+    expect(changed.mock.lastCall?.[0].target.payload).toBe('b');
+    expect(started.mock.invocationCallOrder[0]).toBeLessThan(changed.mock.invocationCallOrder[0]);
+    drop(b, { clientY: 120 });
+    expect(ended).toHaveBeenCalledTimes(1);
+    expect(started).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a hovered item registered when an inline ref changes identity', async () => {
+    // A new ref callback on every render makes React detach and re-attach the
+    // same node. Re-registering it would make the item leave and re-enter, and a
+    // handler that sets state would re-render with another new ref, forever.
+    const changed = vi.fn();
+    function List() {
+      const [over, setOver] = React.useState<string | null>(null);
+      return (
+        <Draggable.CollisionProvider
+          kind={kind}
+          onCollisionChange={({ target }) => {
+            changed(target?.payload ?? null);
+            // Bounded, so a regression fails the assertions below instead of hanging.
+            if (changed.mock.calls.length < 20) {
+              setOver(target?.payload ?? null);
+            }
+          }}
+        >
+          <Draggable.Root kind={kind} payload="a" data-testid="a">
+            <Draggable.Preview disabled />
+          </Draggable.Root>
+          <Draggable.Root
+            kind={kind}
+            payload="b"
+            data-testid="b"
+            data-over={over === 'b'}
+            ref={() => {}}
+          />
+        </Draggable.CollisionProvider>
+      );
+    }
+    await renderDnd(<List />);
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+    b.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
+    await lift(a);
+    await dragOver(b, { clientY: 120 });
+    await flushRaf();
+    expect(changed.mock.calls).toEqual([['b']]);
+    expect(b).toHaveAttribute('data-over', 'true');
+    cancel();
+    expect(changed.mock.lastCall).toEqual([null]);
   });
 
   it('reports coordinates on every move and captures the final drop coordinates', async () => {
@@ -720,7 +803,6 @@ describe('Draggable.CollisionProvider', () => {
     await lift(a);
     await dragOver(b, { clientY: 180 });
     expect(changed.mock.lastCall?.[0].target ?? null).toBeNull();
-    expect(b).not.toHaveAttribute('data-collision-after');
     drop(b, { clientY: 180 });
     // The ancestor target is vetoed too, not handed the drop.
     expect(containerDrop).not.toHaveBeenCalled();
@@ -833,9 +915,7 @@ describe('Draggable.CollisionProvider', () => {
     await dragOver(b, { clientY: 180 });
     expect(changed.mock.lastCall?.[0].target.getLocalPoint().y).toBe(0.8);
     expect(changed.mock.lastCall?.[0].target.element).toBe(b);
-    expect(b).not.toHaveAttribute('data-collision-after');
     cancel();
-    expect(screen.getByTestId('b')).not.toHaveAttribute('data-collision-after');
   });
 
   it('re-resolves a changed predicate without pointer movement', async () => {
@@ -857,7 +937,6 @@ describe('Draggable.CollisionProvider', () => {
       </Draggable.CollisionProvider>,
     );
     expect(changed.mock.lastCall?.[0].target).toBeNull();
-    expect(b).not.toHaveAttribute('data-collision-after');
   });
 
   it('does not call a pickup handler to read destination identity', async () => {

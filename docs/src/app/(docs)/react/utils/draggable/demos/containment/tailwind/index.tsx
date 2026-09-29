@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets } from '../../dashboardWidgets';
 import type { SlotId, WidgetData } from '../../dashboardWidgets';
@@ -9,7 +10,7 @@ import type { SlotId, WidgetData } from '../../dashboardWidgets';
 const widgetKind = Draggable.createKind<string>('draggable/contained-widget');
 
 const WIDGET_CLASS =
-  'box-border flex min-h-32 w-full cursor-grab flex-col border border-neutral-950 bg-white text-neutral-950 transition data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
+  'box-border flex min-h-32 w-full cursor-grab flex-col border border-neutral-950 bg-white text-neutral-950 transition-[background-color,opacity] data-[dragging]:opacity-40 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
 function Widget({
   widget,
@@ -91,7 +92,7 @@ export default function ContainedDashboard() {
   return (
     <Draggable.Provider>
       <div ref={dashboardRef} className="flex w-full flex-col gap-4 select-none">
-        <div role="status" className="sr-only">
+        <div role="status" style={visuallyHidden}>
           {announcement}
         </div>
         <div
@@ -114,7 +115,7 @@ export default function ContainedDashboard() {
         </div>
         <Draggable.Target
           accept={widgetKind}
-          className="box-border flex min-h-24 flex-col justify-center gap-1 border border-dashed border-neutral-300 px-4 text-neutral-500 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
+          className="box-border flex min-h-24 flex-col justify-center gap-1 border border-dashed border-neutral-300 px-4 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400"
         >
           <strong className="text-xs leading-4 font-semibold">Outside slot</strong>
           <span className="text-sm leading-5">The drag cannot reach this target.</span>

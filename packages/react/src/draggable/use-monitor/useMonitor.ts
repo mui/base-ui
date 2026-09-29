@@ -18,7 +18,9 @@ import type {
  */
 // The type argument is the `accept` value rather than the payload it promises, so
 // `accept: [task, file]` types `source.payload` as the union of theirs.
-export function useMonitor<TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
+export function useMonitor<
+  TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>,
+>(
   parameters: DragParametersWithInferredAccept<
     UseDraggableMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
     TAccept

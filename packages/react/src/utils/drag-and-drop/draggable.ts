@@ -16,9 +16,9 @@ import type {
 import type { DragCleanupFn, DraggablePayload } from './types';
 import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
 import { bindPointerListeners, unbindPointerListeners } from './synthetic/syntheticSensor';
-import { getRegistration } from './draggableRegistry';
+import { overrideInlineStyles } from './synthetic/dragRootLock';
+import type { InlineStyleOverride } from './synthetic/dragRootLock';
 import { getSharedSlot } from './sharedState';
-import { registerStaticSetupRefresh } from './staticSetupRefresh';
 import { getDragEventRoot, onceCleanup, resolveElementReference } from './utils';
 
 interface GestureSetupEntry {
@@ -32,12 +32,12 @@ const gestureSetups = getSharedSlot<WeakMap<Element, GestureSetupEntry>>(
 );
 
 /** The inline styles that stop the browser from handling pointer gestures on an element. */
-const GESTURE_STYLES = [
+const GESTURE_STYLES: readonly InlineStyleOverride[] = [
   { property: 'touchAction', cssName: 'touch-action', value: 'manipulation' },
   { property: 'userSelect', cssName: 'user-select', value: 'none' },
   { property: 'webkitUserSelect', cssName: '-webkit-user-select', value: 'none' },
   { property: 'webkitTouchCallout', cssName: '-webkit-touch-callout', value: 'none' },
-] as const;
+];
 
 /**
  * Apply pointer gesture styles to one element, or to none for `null`. The setup
@@ -50,33 +50,7 @@ function applyGestureSetup(gestureElement: HTMLElement | null): DragCleanupFn {
 
   let entry = gestureSetups.get(gestureElement);
   if (!entry) {
-    const gestureStyle = gestureElement.style as CSSStyleDeclaration & Record<string, string>;
-    // Read every previous value before writing any, because `userSelect` and
-    // `webkitUserSelect` alias each other in some engines. Properties missing in
-    // jsdom or other engines restore to an empty string instead of `undefined`.
-    const saved = GESTURE_STYLES.map((declaration) => ({
-      ...declaration,
-      previous: gestureStyle[declaration.property] ?? '',
-      priority: gestureStyle.getPropertyPriority(declaration.cssName),
-    }));
-    for (const { property, value } of saved) {
-      gestureStyle[property] = value;
-    }
-    entry = {
-      count: 0,
-      restore() {
-        for (const { property, cssName, value, previous, priority } of saved) {
-          // Skip properties a consumer has changed since.
-          if (gestureStyle[property] !== value) {
-            continue;
-          }
-          gestureStyle[property] = previous;
-          if (priority) {
-            gestureStyle.setProperty(cssName, previous, priority);
-          }
-        }
-      },
-    };
+    entry = { count: 0, restore: overrideInlineStyles(gestureElement, GESTURE_STYLES) };
     gestureSetups.set(gestureElement, entry);
   }
   entry.count += 1;
@@ -89,44 +63,57 @@ function applyGestureSetup(gestureElement: HTMLElement | null): DragCleanupFn {
   });
 }
 
+export interface DraggableStaticSetup {
+  /**
+   * Move the gesture styles to match the latest parameters. The draggable
+   * registry calls it on each pointer press inside the element (see
+   * `resolveDraggablePickup`).
+   */
+  refresh: (latest: Pick<DraggableConfig<any, any>, 'handle' | 'disabled'>) => void;
+  /** Restore the styles. */
+  release: DragCleanupFn;
+}
+
 /**
- * Apply pointer gesture styles and refresh them from the live registration on
- * the next pointer interaction. This keeps imperative registrations correct when
- * `disabled` or the resolved handle changes without re-registration.
+ * Apply pointer gesture styles from the parameters read at registration. The
+ * returned `refresh` re-applies them from the live registration, which keeps
+ * imperative registrations correct when `disabled` or the resolved handle
+ * changes without re-registration.
  */
 export function applyDraggableStaticSetup(
   parameters: Pick<DraggableConfig, 'element' | 'handle' | 'disabled'>,
-): DragCleanupFn {
+): DraggableStaticSetup {
   const { element } = parameters;
   /**
    * The node that gets the gesture styles. It is the handle when there is one,
    * otherwise the element, and none while disabled.
    */
-  const resolveGestureElement = (latest: Pick<DraggableConfig, 'handle' | 'disabled'>) =>
+  const resolveGestureElement = (latest: Pick<DraggableConfig<any, any>, 'handle' | 'disabled'>) =>
     latest.disabled
       ? null
       : ((resolveElementReference(latest.handle, undefined) as HTMLElement | null) ?? element);
   let appliedElement = resolveGestureElement(parameters);
   let releaseSetup = applyGestureSetup(appliedElement);
+  let released = false;
 
-  const releaseRefresh = registerStaticSetupRefresh(element, () => {
-    const getParameters = getRegistration(element);
-    if (getParameters === undefined) {
-      return;
-    }
-    const nextElement = resolveGestureElement(getParameters());
-    if (nextElement === appliedElement) {
-      return;
-    }
-    releaseSetup();
-    appliedElement = nextElement;
-    releaseSetup = applyGestureSetup(nextElement);
-  });
-
-  return onceCleanup(() => {
-    releaseRefresh();
-    releaseSetup();
-  });
+  return {
+    refresh(latest) {
+      if (released) {
+        return;
+      }
+      const nextElement = resolveGestureElement(latest);
+      if (nextElement === appliedElement) {
+        return;
+      }
+      releaseSetup();
+      appliedElement = nextElement;
+      releaseSetup = applyGestureSetup(nextElement);
+    },
+    release: onceCleanup(() => {
+      released = true;
+      releaseSetup();
+    }),
+  };
 }
 
 /** Bind the pointer sensor at the element's document or shadow root. */

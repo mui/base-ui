@@ -142,7 +142,7 @@ export interface DraggableManager {
         payload: DraggablePayload<TPayload>;
       },
     ): () => void;
-    <TKind extends DraggableKind<undefined, any> = DraggableKind<undefined>>(
+    <TKind extends DraggableKind<undefined, any> = DraggableKind<undefined, unknown>>(
       element: HTMLElement,
       getParameters: () => Omit<
         RegisterSourceParameters<undefined, AcceptedDragData<TKind>>,
@@ -156,10 +156,10 @@ export interface DraggableManager {
    */
   // Infer target data from its kind while requiring the declared payload.
   registerTarget: <
-    TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>,
+    TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>,
     TTargetPayload = undefined,
     TKind extends DraggableKind<NoInfer<TTargetPayload>, any> | undefined =
-      DraggableKind<TTargetPayload> | undefined,
+      DraggableKind<TTargetPayload, unknown> | undefined,
   >(
     element: HTMLElement,
     getParameters: () => DragParametersWithRequiredAccept<
@@ -183,7 +183,7 @@ export interface DraggableManager {
    * Pass `document.documentElement` to scroll the page.
    * Returns a cleanup function that unregisters it.
    */
-  registerViewport: <TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
+  registerViewport: <TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>>(
     element: HTMLElement,
     getParameters: () => DragParametersWithInferredAccept<
       RegisterViewportParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
@@ -194,7 +194,7 @@ export interface DraggableManager {
    * Registers a monitor, with the options of `useMonitor`.
    * Returns a cleanup function that unregisters it.
    */
-  registerMonitor: <TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
+  registerMonitor: <TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>>(
     getParameters: () => DragParametersWithInferredAccept<
       RegisterMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
       TAccept

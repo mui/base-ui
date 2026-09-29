@@ -4,7 +4,11 @@
  */
 
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
-import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
+import type {
+  DraggableAccept,
+  DraggableAcceptedKind,
+  DraggableKind,
+} from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 
@@ -75,36 +79,43 @@ function makeKind<TPayload, TDragData>(
  * ```
  *
  * The resulting `source.payload` is `unknown` until narrowed with a specific kind's `matches` method.
+ * It only fits `accept`, so a draggable, a preview, or a collision provider can't declare it
+ * as its `kind`.
  */
-export const anyDragKind: DraggableKind<unknown> = {
+export const anyDragKind: DraggableAcceptedKind<unknown> = {
   name: 'any',
   // Interned and matched on `.id` instead of object identity, because a doubly bundled
   // engine or a hot reload has two copies of this module. An identity check across them
   // would fail, and a catch-all target would accept nothing.
   id: ANY_KIND_ID,
   // The engine never calls this, because `matchesAccept` short-circuits on the id and
-  // nothing declares `anyDragKind` as its `kind`. It answers `true` for any record in
+  // nothing can declare `anyDragKind` as its `kind`. It answers `true` for any record in
   // case a consumer calls it as a predicate.
-  matches: ((value: unknown) => value != null) as unknown as DraggableKind<unknown>['matches'],
-} as DraggableKind<unknown>;
+  matches: ((value: unknown) =>
+    value != null) as unknown as DraggableAcceptedKind<unknown>['matches'],
+};
 
 /**
  * Tests a source against an `accept` declaration. An omitted `accept`, which monitors
  * and auto-scrollers allow, or {@link anyDragKind} accepts any source. A kind, or an
  * array of kinds, matches the source's own kind.
+ *
+ * Plain JS can pass `null`, or an array with holes. This runs for every target and
+ * viewport on every frame, where a `TypeError` would break the drag, so `null`
+ * counts as omitted and an empty array slot matches nothing.
  */
 export function matchesAccept(
   accept: DraggableAccept<unknown> | undefined,
   // Only `kind` is read, so this accepts a source carrying any payload.
   source: Pick<DraggableRootRecord<unknown>, 'kind'>,
 ): boolean {
-  if (accept === undefined || (accept as DraggableKind<unknown>).id === ANY_KIND_ID) {
+  if (accept == null || (accept as DraggableAcceptedKind<unknown>).id === ANY_KIND_ID) {
     return true;
   }
   if (Array.isArray(accept)) {
-    return accept.some((kind) => kind.id === ANY_KIND_ID || kind.id === source.kind);
+    return accept.some((kind) => kind?.id === ANY_KIND_ID || kind?.id === source.kind);
   }
-  return (accept as DraggableKind<unknown>).id === source.kind;
+  return (accept as DraggableAcceptedKind<unknown>).id === source.kind;
 }
 
 /**

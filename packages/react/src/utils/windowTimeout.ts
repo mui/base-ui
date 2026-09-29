@@ -12,8 +12,8 @@ export class WindowTimeout {
 
   currentId: TimeoutId = EMPTY;
 
-  /** Whether a timeout is armed and has not fired or been cleared. */
-  get isStarted(): boolean {
+  /** Whether a timeout is armed and has not fired or been cleared. A method, as on `Timeout`. */
+  isStarted(): boolean {
     return this.currentId !== EMPTY;
   }
 

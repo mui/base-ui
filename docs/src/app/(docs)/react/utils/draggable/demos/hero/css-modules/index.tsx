@@ -24,13 +24,13 @@ export default function DraggableHero() {
 
   return (
     <Draggable.Provider>
-      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className={styles.Root}>
         <Draggable.Target
           ref={surfaceRef}
           className={styles.Surface}
           onDraggableDrop={(eventDetails) => {
-            const surface = eventDetails.target.element;
-            const point = eventDetails.target.getSnappedLocalPoint({ anchor: 'source' });
+            const surface = eventDetails.currentTarget.element;
+            const point = eventDetails.currentTarget.getSnappedLocalPoint({ anchor: 'source' });
             const rect = surface.getBoundingClientRect();
             placeCard(
               point.x * rect.width - surface.clientLeft,
@@ -48,12 +48,11 @@ export default function DraggableHero() {
             style={{ left: position.x, top: position.y }}
           >
             Drag me
-            <Draggable.Preview />
           </Draggable.Root>
           {/* @focus-end */}
         </Draggable.Target>
-        <fieldset style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <legend>Move card</legend>
+        <fieldset className={styles.Controls}>
+          <legend className={styles.Legend}>Move card</legend>
           {[
             { label: 'Left', x: -20, y: 0 },
             { label: 'Right', x: 20, y: 0 },
@@ -63,14 +62,14 @@ export default function DraggableHero() {
             <button
               key={direction.label}
               type="button"
-              style={{ border: '1px solid', padding: '0.25rem 0.5rem' }}
+              className={styles.Button}
               onClick={() => placeCard(position.x + direction.x, position.y + direction.y)}
             >
               {direction.label}
             </button>
           ))}
         </fieldset>
-        <p role="status">
+        <p role="status" className={styles.Status}>
           Card position: {Math.round(position.x)}, {Math.round(position.y)}
         </p>
       </div>

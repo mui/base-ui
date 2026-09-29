@@ -3,8 +3,8 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { GripIcon } from '../../../GripIcon';
-import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
+import { GripIcon } from '../../GripIcon';
+import { DragPageAutoScroll } from '../../DragPageAutoScroll';
 
 type Zone = 'plain' | 'slow';
 
@@ -54,6 +54,8 @@ const INITIAL_TASKS: Record<Zone, Task[]> = {
   ],
 };
 
+const ZONE_LABELS: Record<Zone, string> = { plain: 'Default', slow: 'maxSpeed={150}' };
+
 const UPCOMING = ['Renew passport', 'Cancel the trial', 'Refill the coffee', 'Label the boxes'];
 
 // Find the insertion slot closest to the pointer, including slots scrolled out
@@ -91,7 +93,7 @@ function resolveDrop(container: HTMLElement, clientY: number): { index: number; 
 // The preview is a clone of the card, so it keeps these classes: `data-dragging`
 // dims the source, `data-drag-preview` lifts the clone above the board.
 const CARD_CLASS =
-  'inline-flex items-center gap-2 box-border border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800';
+  'inline-flex items-center gap-2 box-border border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition-[background-color,opacity] data-[dragging]:opacity-40 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800';
 
 const LIST_CLASS = 'relative flex min-h-0 flex-1 flex-col items-start gap-1.5 overflow-y-auto';
 
@@ -175,6 +177,10 @@ export default function AutoScrollBoard() {
   const [tasks, setTasks] = React.useState<Record<Zone, Task[]>>(INITIAL_TASKS);
   // Index into `UPCOMING`, so the tray always holds another card to drag.
   const [handedOut, setHandedOut] = React.useState(0);
+  // The list and slot picked in the controls, for adding the card without dragging.
+  const [chosenZone, setChosenZone] = React.useState<Zone>('plain');
+  const [chosenPosition, setChosenPosition] = React.useState(1);
+  const [message, setMessage] = React.useState('');
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   // Id of the card just dropped, so the effect below can scroll it into view.
   const droppedIdRef = React.useRef<string | null>(null);
@@ -184,6 +190,9 @@ export default function AutoScrollBoard() {
     label: UPCOMING[handedOut % UPCOMING.length],
   };
 
+  const position = Math.min(chosenPosition, tasks[chosenZone].length + 1);
+
+  // Shared by the drop handlers and the controls.
   function insert(zone: Zone, task: Task, index: number) {
     droppedIdRef.current = task.id;
     setTasks((prev) => ({
@@ -191,6 +200,7 @@ export default function AutoScrollBoard() {
       [zone]: [...prev[zone].slice(0, index), task, ...prev[zone].slice(index)],
     }));
     setHandedOut((count) => count + 1);
+    setMessage(`${task.label} added to ${ZONE_LABELS[zone]} at position ${index + 1}.`);
   }
 
   // The list reflows around the drop, which can push the new card out of view.
@@ -219,17 +229,60 @@ export default function AutoScrollBoard() {
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <DropZone
-            label="Default"
+            label={ZONE_LABELS.plain}
             tasks={tasks.plain}
             onInsert={(task, index) => insert('plain', task, index)}
           />
           <DropZone
-            label="maxSpeed={150}"
+            label={ZONE_LABELS.slow}
             tasks={tasks.slow}
             maxSpeed={150}
             onInsert={(task, index) => insert('slow', task, index)}
           />
         </div>
+        <fieldset className="m-0 flex flex-wrap items-center gap-2 border-0 p-0">
+          <legend className="mb-2 p-0 text-sm leading-5 font-medium text-neutral-950 dark:text-white">
+            Add “{pending.label}”
+          </legend>
+          <label className="flex items-center gap-2 text-sm leading-5 text-neutral-950 dark:text-white">
+            List
+            <select
+              className="box-border h-8 border border-neutral-950 bg-white px-2 text-sm text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:focus-visible:outline-white"
+              value={chosenZone}
+              onChange={(event) => setChosenZone(event.target.value as Zone)}
+            >
+              <option value="plain">{ZONE_LABELS.plain}</option>
+              <option value="slow">{ZONE_LABELS.slow}</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2 text-sm leading-5 text-neutral-950 dark:text-white">
+            Position
+            <select
+              className="box-border h-8 border border-neutral-950 bg-white px-2 text-sm text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:focus-visible:outline-white"
+              value={position}
+              onChange={(event) => setChosenPosition(Number(event.target.value))}
+            >
+              {Array.from({ length: tasks[chosenZone].length + 1 }, (_, index) => (
+                <option key={index} value={index + 1}>
+                  {index + 1}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className="flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus-visible:outline-white"
+            onClick={() => insert(chosenZone, pending, position - 1)}
+          >
+            Add
+          </button>
+        </fieldset>
+        <p
+          role="status"
+          className="m-0 min-h-5 text-sm leading-5 text-neutral-500 dark:text-neutral-400"
+        >
+          {message}
+        </p>
       </div>
     </Draggable.Provider>
   );

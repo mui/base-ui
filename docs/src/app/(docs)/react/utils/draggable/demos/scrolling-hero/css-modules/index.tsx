@@ -3,10 +3,10 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { GripIcon } from '../../../GripIcon';
-import { DragPageAutoScroll } from '../../../DragPageAutoScroll';
+import { GripIcon } from '../../GripIcon';
+import { DragPageAutoScroll } from '../../DragPageAutoScroll';
 
-import styles from '../../hero.module.css';
+import styles from '../../scrolling-hero.module.css';
 
 type Zone = 'plain' | 'slow';
 
@@ -55,6 +55,8 @@ const INITIAL_TASKS: Record<Zone, Task[]> = {
     { id: 'archive', label: 'Archive the branch' },
   ],
 };
+
+const ZONE_LABELS: Record<Zone, string> = { plain: 'Default', slow: 'maxSpeed={150}' };
 
 const UPCOMING = ['Renew passport', 'Cancel the trial', 'Refill the coffee', 'Label the boxes'];
 
@@ -164,6 +166,10 @@ export default function AutoScrollBoard() {
   const [tasks, setTasks] = React.useState<Record<Zone, Task[]>>(INITIAL_TASKS);
   // Index into `UPCOMING`, so the tray always holds another card to drag.
   const [handedOut, setHandedOut] = React.useState(0);
+  // The list and slot picked in the controls, for adding the card without dragging.
+  const [chosenZone, setChosenZone] = React.useState<Zone>('plain');
+  const [chosenPosition, setChosenPosition] = React.useState(1);
+  const [message, setMessage] = React.useState('');
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   // Id of the card just dropped, so the effect below can scroll it into view.
   const droppedIdRef = React.useRef<string | null>(null);
@@ -173,6 +179,9 @@ export default function AutoScrollBoard() {
     label: UPCOMING[handedOut % UPCOMING.length],
   };
 
+  const position = Math.min(chosenPosition, tasks[chosenZone].length + 1);
+
+  // Shared by the drop handlers and the controls.
   function insert(zone: Zone, task: Task, index: number) {
     droppedIdRef.current = task.id;
     setTasks((prev) => ({
@@ -180,6 +189,7 @@ export default function AutoScrollBoard() {
       [zone]: [...prev[zone].slice(0, index), task, ...prev[zone].slice(index)],
     }));
     setHandedOut((count) => count + 1);
+    setMessage(`${task.label} added to ${ZONE_LABELS[zone]} at position ${index + 1}.`);
   }
 
   // The list reflows around the drop, which can push the new card out of view.
@@ -208,17 +218,55 @@ export default function AutoScrollBoard() {
         </div>
         <div className={styles.Columns}>
           <DropZone
-            label="Default"
+            label={ZONE_LABELS.plain}
             tasks={tasks.plain}
             onInsert={(task, index) => insert('plain', task, index)}
           />
           <DropZone
-            label="maxSpeed={150}"
+            label={ZONE_LABELS.slow}
             tasks={tasks.slow}
             maxSpeed={150}
             onInsert={(task, index) => insert('slow', task, index)}
           />
         </div>
+        <fieldset className={styles.Controls}>
+          <legend className={styles.Legend}>Add “{pending.label}”</legend>
+          <label className={styles.Field}>
+            List
+            <select
+              className={styles.Select}
+              value={chosenZone}
+              onChange={(event) => setChosenZone(event.target.value as Zone)}
+            >
+              <option value="plain">{ZONE_LABELS.plain}</option>
+              <option value="slow">{ZONE_LABELS.slow}</option>
+            </select>
+          </label>
+          <label className={styles.Field}>
+            Position
+            <select
+              className={styles.Select}
+              value={position}
+              onChange={(event) => setChosenPosition(Number(event.target.value))}
+            >
+              {Array.from({ length: tasks[chosenZone].length + 1 }, (_, index) => (
+                <option key={index} value={index + 1}>
+                  {index + 1}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className={styles.Button}
+            onClick={() => insert(chosenZone, pending, position - 1)}
+          >
+            Add
+          </button>
+        </fieldset>
+        <p role="status" className={styles.Status}>
+          {message}
+        </p>
       </div>
     </Draggable.Provider>
   );

@@ -60,11 +60,12 @@ export default function NestedDropTargets() {
   return (
     <Draggable.Provider>
       <div className={styles.Root}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className={styles.Controls}>
           {(['chart', 'note'] as const).map((id) => (
-            <label key={id}>
-              {id === 'chart' ? 'Chart location' : 'Note location'}{' '}
+            <label key={id} className={styles.Field}>
+              {id === 'chart' ? 'Chart location' : 'Note location'}
               <select
+                className={styles.Select}
                 value={locations[id]}
                 onChange={(event) => placeLayer(id, event.target.value as Location)}
               >
@@ -75,7 +76,7 @@ export default function NestedDropTargets() {
             </label>
           ))}
         </div>
-        <p role="status">
+        <p role="status" className={styles.Status}>
           Chart: {locations.chart}. Note: {locations.note}.
         </p>
         <div className={styles.Palette}>{renderLayers('palette')}</div>

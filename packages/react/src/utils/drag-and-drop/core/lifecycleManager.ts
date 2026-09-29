@@ -34,6 +34,7 @@ import {
   dispatchDropTargetLeave,
   dispatchToAllDropTargets,
   dispatchToDropTarget,
+  getDropTargetShadowRootsByHost,
   getDropTargetsOver,
   refreshHoveredRecords,
 } from '../dropTarget';
@@ -290,7 +291,9 @@ export function start(parameters: StartParameters): DragSessionController | null
     }
     // Check every ancestor, including disabled, abstaining and rejecting targets.
     // The accepted stack alone can't tell whether changed parameters matter.
-    for (let node = lastTarget; node !== null; node = getComposedParentElement(node)) {
+    // The same walk as the resolution, including slots in registered closed roots.
+    const closedRoots = getDropTargetShadowRootsByHost();
+    for (let node = lastTarget; node !== null; node = getComposedParentElement(node, closedRoots)) {
       if (elements.has(node)) {
         return true;
       }
@@ -656,8 +659,13 @@ export function start(parameters: StartParameters): DragSessionController | null
 
     let newDropTargets: DraggableTargetRecord[];
     dispatching = true;
+    // Resolution contains each target's callbacks, so a throw here is an engine
+    // bug. Recover like a dispatch does, or the session would stay active and
+    // refuse every later pickup.
     try {
       newDropTargets = resolveStack(rawTarget, input);
+    } catch (error) {
+      recover(error);
     } finally {
       dispatching = false;
     }
@@ -786,34 +794,35 @@ export function start(parameters: StartParameters): DragSessionController | null
     // with the session.
     dispatching = true;
 
-    const freshDropTargets = getDropTargetsOver(rawTarget, { input, source });
-    // The final resolution runs consumer getters too. If one of them canceled
-    // the drag, the cancel has already torn the session down.
-    if (tornDown) {
-      return;
-    }
-    // Capture the drop recipient now, before an end dispatch can change the
-    // stack. An `onMoveEnd` that unregisters a target can re-resolve
-    // `location.current`, and reading `[0]` after that could hand the drop to a
-    // different target. `null` means the release was over no target, which is
-    // the `outside-release` outcome (`canceled: false`, `target: null`).
-    const innermostDropTarget = freshDropTargets[0] ?? null;
-    captureDropTargetCollision(innermostDropTarget, source);
-    // This path covers a drop on a target and a release over nothing. Neither is
-    // a cancel, and the reason tells them apart. Only a drop fires `onDraggableDrop`.
-    const endReason: DragEndReason = innermostDropTarget ? 'drop' : 'outside-release';
-    const previousDropTargets = location.current.targets;
-
-    location.previous = lastDispatched;
-    location.current = { input, targets: freshDropTargets };
-
-    // The final pointer position can resolve a different stack than the last
-    // sensor update, because the sensor calls `drop` directly. Reconcile enters
-    // and leaves against the new stack before the drop, so a target entered or
-    // left at release gets `onDraggableEnter` or `onDraggableLeave` instead of an
-    // `onDraggableDrop` based on stale hover state.
-    // Recover on throw (see `dispatchDragStart`).
+    // Recover on throw (see `dispatchDragStart`). The final resolution is inside
+    // too, so a throw from it still ends the drag.
     try {
+      const freshDropTargets = getDropTargetsOver(rawTarget, { input, source });
+      // The final resolution runs consumer getters too. If one of them canceled
+      // the drag, the cancel has already torn the session down.
+      if (tornDown) {
+        return;
+      }
+      // Capture the drop recipient now, before an end dispatch can change the
+      // stack. An `onMoveEnd` that unregisters a target can re-resolve
+      // `location.current`, and reading `[0]` after that could hand the drop to a
+      // different target. `null` means the release was over no target, which is
+      // the `outside-release` outcome (`canceled: false`, `target: null`).
+      const innermostDropTarget = freshDropTargets[0] ?? null;
+      captureDropTargetCollision(innermostDropTarget, source);
+      // This path covers a drop on a target and a release over nothing. Neither is
+      // a cancel, and the reason tells them apart. Only a drop fires `onDraggableDrop`.
+      const endReason: DragEndReason = innermostDropTarget ? 'drop' : 'outside-release';
+      const previousDropTargets = location.current.targets;
+
+      location.previous = lastDispatched;
+      location.current = { input, targets: freshDropTargets };
+
+      // The final pointer position can resolve a different stack than the last
+      // sensor update, because the sensor calls `drop` directly. Reconcile enters
+      // and leaves against the new stack before the drop, so a target entered or
+      // left at release gets `onDraggableEnter` or `onDraggableLeave` instead of an
+      // `onDraggableDrop` based on stale hover state.
       if (!areArraysEqual(previousDropTargets, freshDropTargets, dropTargetRecordsEqual)) {
         const changeDetails = createDragEventDetails(
           endReason,

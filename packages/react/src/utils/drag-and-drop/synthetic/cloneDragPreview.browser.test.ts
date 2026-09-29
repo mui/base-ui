@@ -3,7 +3,7 @@ import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, isJSDOM } from '#test-utils';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
-import { createDragPreviewElement } from './cloneDragPreview';
+import { createDragPreviewElement, PREVIEW_ELEMENT_ATTRIBUTE } from './cloneDragPreview';
 
 setupDragEngineTests();
 
@@ -35,7 +35,7 @@ function dispatchMouse(
 function findNeutralizerSheet(root: DocumentOrShadowRoot): CSSStyleSheet | undefined {
   return root.adoptedStyleSheets.find((sheet) =>
     Array.from(sheet.cssRules).some((rule) =>
-      rule.cssText.includes(DraggablePreviewDataAttributes.dragPreview),
+      rule.cssText.includes(`[${PREVIEW_ELEMENT_ATTRIBUTE}]`),
     ),
   );
 }
@@ -362,7 +362,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   it('bounds subtree queries for unrelated styles and reads CSSOM changes on the next pickup', () => {
     const sheet = document.createElement('style');
     sheet.textContent = Array.from(
-      { length: 512 },
+      { length: 8192 },
       (_, index) => `.Other${index} > .Unrelated { color: red; }`,
     ).join('\n');
     document.head.appendChild(sheet);
@@ -371,7 +371,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     const query = vi.spyOn(source, 'querySelectorAll');
     let handle = createDragPreviewElement(source, null, true)!;
     try {
-      // Includes cloning's descendant query. A rule-by-rule traversal needs 513.
+      // Includes cloning's descendant query. A rule-by-rule traversal needs 8193.
       expect(query.mock.calls.length).toBeLessThan(150);
       handle.destroy();
       sheet.sheet!.insertRule('.Card { color: blue !important; }');
@@ -404,6 +404,292 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     } finally {
       handle.destroy();
       sheet.remove();
+    }
+  });
+
+  it('lets a cascade-layered ending transition animate the drop', () => {
+    // Tailwind v4 puts `transition` and `data-ending-style:transition-[translate]`
+    // in `@layer utilities`, which loses to any unlayered rule.
+    const sheet = document.createElement('style');
+    sheet.textContent = `@layer utilities {
+      .Card { transition: background-color 150ms; }
+      .Card[data-drag-preview][data-ending-style] { transition: translate 200ms; }
+    }`;
+    document.head.appendChild(sheet);
+    source.className = 'Card';
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop();
+      expect(getComputedStyle(handle.element).transitionProperty).toBe('translate');
+      expect(getComputedStyle(handle.element).transitionDuration).toBe('0.2s');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('does not revive the source motion when the drop has no ending rule', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `.Card { transition: all 200ms; animation: preview-pulse 1s; }
+      @keyframes preview-pulse { from { opacity: 0.5; } }`;
+    document.head.appendChild(sheet);
+    source.className = 'Card';
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop();
+      const computed = getComputedStyle(handle.element);
+      expect(computed.transitionDuration).toBe('0s');
+      expect(computed.animationName).toBe('none');
+      expect(computed.transform).toBe('none');
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('keeps the rule scan for a small source in a mid-sized app stylesheet', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = Array.from(
+      { length: 2000 },
+      (_, index) => `.Other${index} > .Unrelated { color: red; }`,
+    ).join('\n');
+    document.head.appendChild(sheet);
+    source.innerHTML = '<span class="Child">Item</span>'.repeat(5);
+    const measure = vi.spyOn(window, 'getComputedStyle');
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      // The full snapshot reads every descendant. The scan reads none of these,
+      // since no structural rule matches them.
+      const descendants = new Set(source.querySelectorAll('.Child'));
+      expect(measure.mock.calls.filter(([node]) => descendants.has(node))).toHaveLength(0);
+    } finally {
+      handle.destroy();
+      measure.mockRestore();
+      sheet.remove();
+    }
+  });
+
+  it('keeps engine-owned values off descendants in the full computed-style snapshot', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `.List { --token: 4px; }
+      .List > .Card > .Child { --accent: rgb(1, 2, 3); color: var(--accent); }`;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    source.innerHTML = '<span class="Child">Item</span>';
+    const rules = vi.spyOn(sheet.sheet!, 'cssRules', 'get').mockImplementation(() => {
+      throw new DOMException('Stylesheet is cross-origin', 'SecurityError');
+    });
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      const child = handle.element.firstElementChild as HTMLElement;
+      const computed = getComputedStyle(child);
+      // The clone root's `pointer-events: none` must reach every descendant.
+      expect(child.style.pointerEvents).toBe('');
+      expect(computed.pointerEvents).toBe('none');
+      expect(child.style.getPropertyValue('interactivity')).toBe('');
+      // A token the child only inherits needs no copy. One its own lost rule
+      // declared is restored.
+      expect(child.style.getPropertyValue('--token')).toBe('');
+      expect(computed.getPropertyValue('--token')).toBe('4px');
+      expect(computed.getPropertyValue('--accent')).toBe('rgb(1, 2, 3)');
+      expect(computed.color).toBe('rgb(1, 2, 3)');
+    } finally {
+      handle.destroy();
+      rules.mockRestore();
+      sheet.remove();
+    }
+  });
+
+  it('shows restored descendant styles without transitioning them in', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `.Child { color: rgb(0, 0, 0); transition: color 10s linear; }
+      .List > .Card > .Child { color: rgb(255, 0, 0); }`;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    source.className = 'Card';
+    source.innerHTML = '<span class="Child">Item</span>';
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      const child = handle.element.firstElementChild!;
+      expect(getComputedStyle(child).color).toBe('rgb(255, 0, 0)');
+      expect(child.getAnimations()).toHaveLength(0);
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('keeps consumer sibling and popover rules off the engine wrapper', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `.List > * { animation: preview-fade-in 1s; }
+      [popover] { opacity: 0; filter: blur(4px); transition: opacity 1s; translate: 10px 10px; }
+      @keyframes preview-fade-in { from { opacity: 0; } }`;
+    document.head.appendChild(sheet);
+    list.className = 'List';
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      const wrapper = handle.element.parentElement!;
+      const computed = getComputedStyle(wrapper);
+      expect(computed.opacity).toBe('1');
+      expect(computed.filter).toBe('none');
+      expect(computed.animationName).toBe('none');
+      expect(computed.transitionDuration).toBe('0s');
+      expect(wrapper).toHaveAttribute('aria-hidden', 'true');
+      handle.element.style.translate = '300px 400px';
+      const rect = handle.element.getBoundingClientRect();
+      expect(Math.round(rect.left)).toBe(300);
+      expect(Math.round(rect.top)).toBe(400);
+    } finally {
+      handle.destroy();
+      sheet.remove();
+    }
+  });
+
+  it('keeps the preview on the pointer in a right-to-left page when the source sets `right`', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = '.Card { position: relative; right: 10px; }';
+    document.head.appendChild(sheet);
+    // A fixed box resolves an over-constrained inset against the viewport's
+    // direction, which is the root element's.
+    document.documentElement.dir = 'rtl';
+    source.className = 'Card';
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      handle.element.style.translate = '50px 60px';
+      const rect = handle.element.getBoundingClientRect();
+      expect(rect.left).toBeCloseTo(50);
+      expect(rect.top).toBeCloseTo(60);
+    } finally {
+      handle.destroy();
+      sheet.remove();
+      document.documentElement.removeAttribute('dir');
+    }
+  });
+
+  it.each(['collapse', 'separate'])(
+    'keeps the column widths of a dragged table row (border-collapse: %s)',
+    (borderCollapse) => {
+      const table = document.createElement('table');
+      table.style.cssText = `width: 400px; border-collapse: ${borderCollapse}; border-spacing: 0;`;
+      table.innerHTML =
+        '<tbody><tr><td>Long first column</td><td>b</td><td>c</td></tr>' +
+        '<tr><td>x</td><td>A much longer second cell</td><td>z</td></tr></tbody>';
+      document.body.appendChild(table);
+      const row = table.querySelector('tr')!;
+      const rowRect = row.getBoundingClientRect();
+      const sourceCells = Array.from(row.children, (cell) => cell.getBoundingClientRect());
+      const handle = createDragPreviewElement(row, null, true)!;
+      try {
+        handle.element.style.translate = `${rowRect.left}px ${rowRect.top}px`;
+        const cloneCells = Array.from(handle.element.children, (cell) =>
+          cell.getBoundingClientRect(),
+        );
+        cloneCells.forEach((cell, index) => {
+          expect(cell.left).toBeCloseTo(sourceCells[index].left, 0);
+          expect(cell.width).toBeCloseTo(sourceCells[index].width, 0);
+        });
+      } finally {
+        handle.destroy();
+        table.remove();
+      }
+    },
+  );
+
+  it('sizes a transformed source from its subpixel border box', () => {
+    source.style.width = '120.5px';
+    source.style.height = '30.25px';
+    source.style.scale = '1.5';
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      // `offsetWidth`/`offsetHeight` would round these to 121 and 30.
+      expect(handle.sourceRect.width).toBeCloseTo(120.5, 2);
+      expect(handle.sourceRect.height).toBeCloseTo(30.25, 2);
+    } finally {
+      handle.destroy();
+    }
+  });
+
+  it('restores a scrolled descendant inside a smooth-scrolling container', () => {
+    const scrollable = document.createElement('div');
+    scrollable.style.cssText = 'height: 20px; overflow: auto;';
+    scrollable.innerHTML = '<div style="height: 300px"></div>';
+    source.appendChild(scrollable);
+    scrollable.scrollTop = 120;
+    // Set after scrolling the source, so the setup itself is instant.
+    scrollable.style.scrollBehavior = 'smooth';
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      expect(handle.element.querySelector('div')!.scrollTop).toBe(120);
+    } finally {
+      handle.destroy();
+    }
+  });
+
+  it('keeps a cloned named <details> open', () => {
+    source.innerHTML = '<details name="faq" open><summary>Question</summary>Answer</details>';
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      // Inserting an open `<details>` into an exclusive group whose other member
+      // is open would close it.
+      expect(handle.element.querySelector('details')!.open).toBe(true);
+      expect(source.querySelector('details')!.open).toBe(true);
+    } finally {
+      handle.destroy();
+    }
+  });
+
+  it('renders the preview of a source assigned to a named slot', () => {
+    const host = document.createElement('div');
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = '<slot name="item"></slot>';
+    source.slot = 'item';
+    host.append(source);
+    list.append(host);
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      expect(handle.element.parentElement!.assignedSlot).toBe(root.querySelector('slot'));
+      expect(handle.element.getClientRects().length).toBeGreaterThan(0);
+    } finally {
+      handle.destroy();
+    }
+  });
+
+  it('rewrites url() references in inline styles through the CSSOM', () => {
+    // A strict CSP without 'unsafe-inline' blocks `setAttribute('style', …)`.
+    source.innerHTML =
+      '<svg><defs><filter id="preview-blur"></filter></defs><rect style="filter: url(#preview-blur)"></rect></svg>';
+    const setAttribute = vi.spyOn(Element.prototype, 'setAttribute');
+    const handle = createDragPreviewElement(source, null, true)!;
+    try {
+      expect(setAttribute.mock.calls.filter(([name]) => name === 'style')).toHaveLength(0);
+      const rect = handle.element.querySelector('rect')!;
+      expect(rect.style.filter).toContain('#preview-blur-drag-preview');
+    } finally {
+      setAttribute.mockRestore();
+      handle.destroy();
+    }
+  });
+
+  it('re-homes without throwing when a polyfill leaves :popover-open unsupported', () => {
+    const handle = createDragPreviewElement(source, null, true)!;
+    const originalMatches = Element.prototype.matches;
+    const matches = vi
+      .spyOn(Element.prototype, 'matches')
+      .mockImplementation(function matchesWithoutPopoverOpen(this: Element, selector: string) {
+        if (selector.includes(':popover-open')) {
+          throw new DOMException(`'${selector}' is not a valid selector.`, 'SyntaxError');
+        }
+        return originalMatches.call(this, selector);
+      });
+    try {
+      expect(() => handle.ensureConnected()).not.toThrow();
+    } finally {
+      matches.mockRestore();
+      handle.destroy();
     }
   });
 
@@ -558,7 +844,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   it('sizes the clone from the untransformed box of a transformed source', () => {
     // `getBoundingClientRect` includes the source's own transform (240×60 here),
     // but the clone renders with `transform` neutralized, so it must be sized from
-    // `offsetWidth`/`offsetHeight`.
+    // the untransformed layout box.
     source.style.transform = 'scale(2)';
 
     const handle = createDragPreviewElement(source, null, true)!;
@@ -856,6 +1142,51 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       list.style.zoom = zoom;
       const { sourceRect, cloneRect } = await liftAndMeasure();
       expectSameBox(cloneRect, sourceRect);
+    });
+
+    it('re-grabs a source whose previous preview is still settling without its settling state', async () => {
+      const animationsFlag = globalThis as { BASE_UI_ANIMATIONS_DISABLED?: boolean | undefined };
+      const previousFlag = animationsFlag.BASE_UI_ANIMATIONS_DISABLED;
+      animationsFlag.BASE_UI_ANIMATIONS_DISABLED = false;
+      const sheet = document.createElement('style');
+      sheet.textContent = `
+        .Card { color: rgb(0, 0, 0); }
+        .Card[data-settling] { color: transparent; width: 60px !important; }
+        .Card[data-drag-preview][data-ending-style] { transition: translate 10s linear; }
+      `;
+      document.head.appendChild(sheet);
+      source.className = 'Card';
+      try {
+        const { engine } = await renderDnd();
+        engine.registerSource(source, {});
+        const sourceRect = source.getBoundingClientRect();
+        const pressX = sourceRect.left + 8;
+        const pressY = sourceRect.top + 6;
+        dispatchMouse('pointerdown', source, pressX, pressY);
+        dispatchMouse('pointermove', source, pressX + 20, pressY);
+        await flushRaf();
+        dispatchMouse('pointerup', source, pressX + 20, pressY);
+        expect(source).toHaveAttribute('data-settling');
+
+        // Grab it again while the first clone is still settling.
+        dispatchMouse('pointerdown', source, pressX, pressY);
+        dispatchMouse('pointermove', source, pressX + 20, pressY);
+        await flushRaf();
+
+        const previews = document.querySelectorAll<HTMLElement>(
+          `[${DraggablePreviewDataAttributes.dragPreview}]`,
+        );
+        expect(previews).toHaveLength(1);
+        const preview = previews[0];
+        expect(preview).not.toHaveAttribute('data-settling');
+        expect(getComputedStyle(preview).color).toBe('rgb(0, 0, 0)');
+        // Measured without the `[data-settling]` width.
+        expect(preview.getBoundingClientRect().width).toBeCloseTo(sourceRect.width);
+        dispatchMouse('pointerup', source, pressX + 20, pressY);
+      } finally {
+        animationsFlag.BASE_UI_ANIMATIONS_DISABLED = previousFlag;
+        sheet.remove();
+      }
     });
 
     it('lifts a scaled source off exactly where it sits', async () => {

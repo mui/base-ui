@@ -73,6 +73,42 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
     }
   });
 
+  it('cleans up instead of settling onto a source that no longer renders a box', async () => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .hidden-source[data-dragging] { display: none; }
+      .hidden-source[data-drag-preview][data-ending-style] { transition: translate 100s linear; }
+    `;
+    document.head.appendChild(style);
+    const source = document.createElement('div');
+    source.className = 'hidden-source';
+    Object.assign(source.style, {
+      position: 'fixed',
+      left: '100px',
+      top: '100px',
+      width: '120px',
+      height: '30px',
+    });
+    document.body.appendChild(source);
+    const clone = createDragPreviewElement(source, null, true)!;
+    const preview = createSyntheticPreview(source, SOURCE_IDENTITY, null);
+    try {
+      preview.setPreviewElement(clone);
+      preview.update(300, 300);
+      preview.markSourceDragging();
+      preview.prepareForDrop();
+      preview.destroy();
+      await flushRaf();
+      // Measuring the hidden source would send the preview to the viewport corner.
+      expect(clone.element.isConnected).toBe(false);
+      expect(source).not.toHaveAttribute('data-dragging');
+    } finally {
+      clone.destroy();
+      source.remove();
+      style.remove();
+    }
+  });
+
   it('keeps a clone mounted until its real CSS transition finishes', async () => {
     const style = document.createElement('style');
     style.textContent = `

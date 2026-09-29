@@ -222,11 +222,17 @@ describe('lifecycle manager', () => {
   });
 
   describe('target drag data', () => {
-    // The engine's per-target drag data cache (see `dropTarget.ts`).
-    function cachedDragData(getParameters: object): unknown {
-      return getSharedSlot<{ dragData: WeakMap<object, unknown> }>('dropTarget', () => {
+    // The engine's per-target drag data cache (see `dropTarget.ts`), keyed by the
+    // registration's element and getter.
+    function cachedDragData(element: Element, getParameters: object): unknown {
+      const dropTargetState = getSharedSlot<{
+        registrationKeys: WeakMap<Element, WeakMap<object, object>>;
+        dragData: WeakMap<object, unknown>;
+      }>('dropTarget', () => {
         throw new Error('The drop target state is not initialized.');
-      }).dragData.get(getParameters);
+      });
+      const key = dropTargetState.registrationKeys.get(element)?.get(getParameters);
+      return key === undefined ? undefined : dropTargetState.dragData.get(key);
     }
 
     function registerDataTarget(parameters: { canDrop?: () => boolean } = {}) {
@@ -234,9 +240,9 @@ describe('lifecycle manager', () => {
       let record: DraggableTargetRecord | undefined;
       const getParameters = () => ({
         accept: TEST_KIND,
-        onDraggableEnter({ target }: { target: DraggableTargetRecord }) {
-          record = target;
-          target.updateDragData('data');
+        onDraggableEnter({ currentTarget }: { currentTarget: DraggableTargetRecord }) {
+          record = currentTarget;
+          currentTarget.updateDragData('data');
         },
         ...parameters,
       });
@@ -254,11 +260,11 @@ describe('lifecycle manager', () => {
     ])('releases it after %s while the target stays registered', (_, end) => {
       const target = registerDataTarget();
       const handle = startDragWithHandlers({}, target.element)!;
-      expect(cachedDragData(target.getParameters)).not.toBe(undefined);
+      expect(cachedDragData(target.element, target.getParameters)).not.toBe(undefined);
 
       end(handle, target.element);
 
-      expect(cachedDragData(target.getParameters)).toBe(undefined);
+      expect(cachedDragData(target.element, target.getParameters)).toBe(undefined);
       expect(target.getRecord()!.dragData).toBe('data');
     });
 
@@ -278,7 +284,7 @@ describe('lifecycle manager', () => {
       ).toThrow('move failed');
 
       expect(isActive()).toBe(false);
-      expect(cachedDragData(target.getParameters)).toBe(undefined);
+      expect(cachedDragData(target.element, target.getParameters)).toBe(undefined);
     });
 
     it('does not cache it for a drag canceled while its targets resolve', () => {
@@ -293,7 +299,104 @@ describe('lifecycle manager', () => {
       handle.update(makeInput(), target.element, new Event('pointermove'), 'pointer');
 
       expect(isActive()).toBe(false);
-      expect(cachedDragData(target.getParameters)).toBe(undefined);
+      expect(cachedDragData(target.element, target.getParameters)).toBe(undefined);
+    });
+  });
+
+  describe('malformed registrations', () => {
+    function registerRawTarget(element: Element, getParameters: () => unknown): void {
+      // Plain JS can pass what the types forbid.
+      const getter = getParameters as Parameters<typeof addDropTargetRegistration>[1];
+      addDropTargetRegistration(element, getter);
+      registerCleanup(() => removeDropTargetRegistration(element, getter));
+    }
+
+    it('ignores a target whose parameters getter returns undefined', () => {
+      const target = createElement();
+      registerRawTarget(target, () => undefined);
+      const onMoveEnd = vi.fn();
+      const handle = startDragWithHandlers({ onMoveEnd }, target)!;
+
+      handle.update(makeInput(), target, new Event('pointermove'), 'pointer');
+      handle.drop(makeInput(), target);
+
+      expect(onMoveEnd).toHaveBeenCalledTimes(1);
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
+      expect(isActive()).toBe(false);
+    });
+
+    it('treats `accept: null` like an omitted `accept`', () => {
+      const target = createElement();
+      const onDraggableDrop = vi.fn();
+      registerRawTarget(target, () => ({ accept: null, onDraggableDrop }));
+      const handle = startDragWithHandlers({}, target)!;
+
+      handle.update(makeInput(), target, new Event('pointermove'), 'pointer');
+      handle.drop(makeInput(), target);
+
+      expect(onDraggableDrop).toHaveBeenCalledTimes(1);
+      expect(isActive()).toBe(false);
+    });
+
+    it('skips a target whose parameters fail to resolve without ending the drag', () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const outer = createElement();
+      const inner = createElement();
+      outer.append(inner);
+      const onDraggableDrop = vi.fn();
+      registerRawTarget(outer, () => ({ accept: TEST_KIND, onDraggableDrop }));
+      registerRawTarget(inner, () => ({
+        get accept(): never {
+          throw new Error('accept failed');
+        },
+      }));
+      const handle = startDragWithHandlers({}, inner)!;
+
+      handle.update(makeInput(), inner, new Event('pointermove'), 'pointer');
+      expect(isActive()).toBe(true);
+      handle.drop(makeInput(), inner);
+
+      expect(onDraggableDrop).toHaveBeenCalledTimes(1);
+      expect(onDraggableDrop.mock.calls[0][0].currentTarget.element).toBe(outer);
+      expect(isActive()).toBe(false);
+    });
+
+    it.each([
+      [
+        'a move',
+        (handle: DragSessionController, element: Element) =>
+          handle.update(makeInput(), element, new Event('pointermove'), 'pointer'),
+      ],
+      [
+        'the release',
+        (handle: DragSessionController, element: Element) => handle.drop(makeInput(), element),
+      ],
+    ])('ends the drag when resolving the stack for %s throws', (_, resolve) => {
+      const onMoveEnd = vi.fn();
+      const handle = startDragWithHandlers({ onMoveEnd })!;
+      // The walk itself failing, outside any one target's containment.
+      const broken = createElement();
+      Object.defineProperty(broken, 'hasAttribute', {
+        value: () => {
+          throw new Error('walk failed');
+        },
+      });
+
+      expect(() => resolve(handle, broken)).toThrow('walk failed');
+
+      expect(isActive()).toBe(false);
+      expect(onMoveEnd).toHaveBeenCalledTimes(1);
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('handler-error');
+      expect(startDragWithHandlers({})).not.toBe(null);
+    });
+
+    it('starts a drag when a monitor getter returns undefined', () => {
+      const getMonitor = (() => undefined) as unknown as Parameters<typeof addMonitor>[0];
+      addMonitor(getMonitor);
+      registerCleanup(() => removeMonitor(getMonitor));
+
+      expect(startDragWithHandlers({})).not.toBe(null);
+      expect(isActive()).toBe(true);
     });
   });
 
@@ -333,7 +436,7 @@ describe('lifecycle manager', () => {
     changed = true;
     handle!.update(makeInput(), null, new Event('pointermove'), 'pointer');
     expect(previousLeave).toHaveBeenCalledTimes(1);
-    expect(previousLeave.mock.calls[0][0].target.payload).toEqual({ title: 'Original' });
+    expect(previousLeave.mock.calls[0][0].currentTarget.payload).toEqual({ title: 'Original' });
     expect(newLeave).not.toHaveBeenCalled();
     handle!.cancel();
     removeDropTargetRegistration(target, getTarget);
@@ -582,7 +685,7 @@ describe('lifecycle manager', () => {
       expect(onDraggableEnter).toHaveBeenCalledTimes(1);
       expect(onDraggableEnter).toHaveBeenCalledWith(
         expect.objectContaining({
-          target: expect.objectContaining({ element: under }),
+          currentTarget: expect.objectContaining({ element: under }),
           reason: 'pointer',
         }),
       );

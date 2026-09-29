@@ -889,7 +889,7 @@ function BrowserTabs({
             >,
           ) => {
             if (eventDetails.source.payload.type === 'tab') {
-              const movingRight = eventDetails.target.getLocalPoint().x > 0.5;
+              const movingRight = eventDetails.currentTarget.getLocalPoint().x > 0.5;
               const sourceId = eventDetails.source.payload.id;
               onTabsChange((current) => {
                 const targetIndex = current.findIndex((candidate) => candidate.id === tab.id);

@@ -16,10 +16,33 @@ const globalCard = Draggable.createGlobalKind<CardPayload>('myapp/card');
 const marker = Draggable.createKind('marker');
 const text = Draggable.createKind<string>('text');
 
-// The payload type is declared on the kind, and defaults to `undefined`.
-expectType<DraggableKind<CardPayload>, typeof card>(card);
-expectType<DraggableKind<CardPayload>, typeof globalCard>(globalCard);
-expectType<DraggableKind<undefined>, typeof marker>(marker);
+// The payload type is declared on the kind, and defaults to `undefined`. The drag data
+// defaults to `unknown`.
+expectType<DraggableKind<CardPayload, unknown>, typeof card>(card);
+expectType<DraggableKind<CardPayload, unknown>, typeof globalCard>(globalCard);
+expectType<DraggableKind<undefined, unknown>, typeof marker>(marker);
+
+// Without type arguments, `Draggable.Kind` fits any kind, whatever its payload and drag data.
+const column = Draggable.createKind<{ title: string }, { offset: number }>('column');
+const kinds: Draggable.Kind[] = [card, column, marker];
+void kinds;
+
+function KindList(props: { kind: Draggable.Kind }) {
+  return <Draggable.Root kind={props.kind} />;
+}
+<KindList kind={card} />;
+<KindList kind={column} />;
+<KindList kind={marker} />;
+
+// With a type argument, it only fits kinds of that payload.
+// @ts-expect-error a `column` kind is not a `card` kind.
+const cardOnly: Draggable.Kind<CardPayload> = column;
+
+// `anyKind` only fits `accept`. A draggable declares the one kind it is.
+// @ts-expect-error `anyKind` can't be a draggable's `kind`.
+<Draggable.Root kind={Draggable.anyKind} />;
+// @ts-expect-error `anyKind` isn't a `Draggable.Kind`.
+const anyKinds: Draggable.Kind[] = [Draggable.anyKind];
 
 // A kind with no payload type compiles without a payload, and the engine delivers `undefined`.
 <Draggable.Root kind={marker} />;
@@ -412,3 +435,6 @@ if (cardWithDragData.matches(untypedSource)) {
     return null;
   }}
 </Draggable.Preview>;
+
+// @ts-expect-error `anyKind` can't be a preview's `kind`, which types the source it renders.
+<Draggable.Preview kind={Draggable.anyKind}>{() => null}</Draggable.Preview>;

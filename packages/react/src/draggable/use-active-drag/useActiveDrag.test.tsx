@@ -130,4 +130,72 @@ describe('Draggable.useActiveDrag', () => {
     await flushRaf();
     expect(observers.dataset.matching).toBe('none');
   });
+
+  it('observes every drag when called without an argument', async () => {
+    function AnyObserver() {
+      const source = Draggable.useActiveDrag();
+      return <div data-testid="any" data-source={source?.element.dataset.testid ?? 'none'} />;
+    }
+
+    await renderDnd(
+      <React.Fragment>
+        <SourceProbe id="probe" />
+        <Draggable.Root kind={otherKind} payload={{ n: 1 }} data-testid="other" />
+        <AnyObserver />
+      </React.Fragment>,
+    );
+    const observer = screen.getByTestId('any');
+    expect(observer.dataset.source).toBe('none');
+
+    fireDrag.dragStart(screen.getByTestId('source-probe'));
+    await flushRaf();
+    expect(observer.dataset.source).toBe('source-probe');
+    cancel();
+    await flushRaf();
+    expect(observer.dataset.source).toBe('none');
+
+    fireDrag.dragStart(screen.getByTestId('other'));
+    await flushRaf();
+    expect(observer.dataset.source).toBe('other');
+    cancel();
+    await flushRaf();
+    expect(observer.dataset.source).toBe('none');
+  });
+
+  it('does not loop when the observer renders the dragged root with an inline payload', async () => {
+    const cardKind = Draggable.createKind<{ id: string }>('card');
+    let commits = 0;
+    function Board({ id }: { id: string }) {
+      commits += 1;
+      const source = Draggable.useActiveDrag(cardKind);
+      // A new payload object on every render. Each one re-notifies the observers,
+      // which re-render this component and pass yet another object.
+      return (
+        <Draggable.Root
+          kind={cardKind}
+          payload={{ id }}
+          data-testid="card"
+          data-active={source?.payload.id ?? 'none'}
+        />
+      );
+    }
+
+    const { rerender } = await renderDnd(<Board id="a" />);
+    const card = screen.getByTestId('card');
+    const commitsBeforeDrag = commits;
+
+    fireDrag.dragStart(card);
+    await flushRaf();
+    expect(card.dataset.active).toBe('a');
+    // Strict Mode renders twice. A feedback loop renders until React throws.
+    expect(commits - commitsBeforeDrag).toBeLessThan(10);
+
+    // A payload change in a later render still reaches the observers.
+    await rerender(<Board id="b" />);
+    expect(card.dataset.active).toBe('b');
+
+    cancel();
+    await flushRaf();
+    expect(card.dataset.active).toBe('none');
+  });
 });

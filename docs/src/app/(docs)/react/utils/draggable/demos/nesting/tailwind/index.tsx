@@ -30,7 +30,7 @@ function NoteIcon() {
 }
 
 const LAYER_CLASS =
-  'box-border inline-flex cursor-grab items-center gap-2 border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 text-neutral-950 transition data-[dragging]:opacity-0 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none dark:hover:bg-neutral-800';
+  'box-border inline-flex cursor-grab items-center gap-2 border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 text-neutral-950 transition-[background-color,opacity] data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none dark:hover:bg-neutral-800';
 
 function Layer({ id }: { id: LayerId }) {
   return (
@@ -63,11 +63,15 @@ export default function NestedDropTargets() {
   return (
     <Draggable.Provider>
       <div className="flex w-full flex-col gap-3 select-none">
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="flex flex-wrap gap-4">
           {(['chart', 'note'] as const).map((id) => (
-            <label key={id}>
-              {id === 'chart' ? 'Chart location' : 'Note location'}{' '}
+            <label
+              key={id}
+              className="flex items-center gap-2 text-sm leading-5 text-neutral-950 dark:text-white"
+            >
+              {id === 'chart' ? 'Chart location' : 'Note location'}
               <select
+                className="box-border h-8 border border-neutral-950 bg-white px-2 text-sm text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:focus-visible:outline-white"
                 value={locations[id]}
                 onChange={(event) => placeLayer(id, event.target.value as Location)}
               >
@@ -78,7 +82,7 @@ export default function NestedDropTargets() {
             </label>
           ))}
         </div>
-        <p role="status">
+        <p role="status" className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
           Chart: {locations.chart}. Note: {locations.note}.
         </p>
         <div className="flex min-h-9 items-start gap-2">{renderLayers('palette')}</div>

@@ -43,9 +43,9 @@ export function useDraggableRootContext<
   const context = React.useContext(DraggableRootContext);
   if (context === undefined) {
     throw new Error(
-      'Base UI: DraggableRootContext is missing. This means a <Draggable.*> part is rendered ' +
-        'outside of <Draggable.Root>, so it cannot reach the draggable it configures and would crash. ' +
-        'Place all Draggable parts within <Draggable.Root />. ' +
+      'Base UI: DraggableRootContext is missing. A <Draggable.Handle> or <Draggable.Preview> is ' +
+        'rendered outside of <Draggable.Root>, so it has no draggable to configure. ' +
+        'Place it within the <Draggable.Root> it belongs to. ' +
         'See https://base-ui.com/react/utils/draggable.',
     );
   }

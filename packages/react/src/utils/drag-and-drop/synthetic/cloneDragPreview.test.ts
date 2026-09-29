@@ -19,7 +19,7 @@ describe('createDragPreviewElement (clone)', () => {
       handles.pop()!.destroy();
     }
     host.remove();
-    const leaked = document.querySelectorAll('[data-drag-preview]').length;
+    const leaked = document.querySelectorAll('[data-drag-preview-container]').length;
     if (leaked > 0) {
       throw new Error(`${leaked} drag preview element(s) leaked into the document after cleanup.`);
     }
@@ -159,6 +159,10 @@ describe('createDragPreviewElement (clone)', () => {
     expect(style.position).toBe('fixed');
     expect(style.top).toBe('0px');
     expect(style.left).toBe('0px');
+    // A source `right` would over-constrain the box, and a right-to-left page
+    // would then drop `left`.
+    expect(style.right).toBe('auto');
+    expect(style.bottom).toBe('auto');
     // Margins are not part of the measured rect and would shift the preview off
     // its transform anchor.
     expect(style.margin).toBe('0px');
@@ -273,6 +277,15 @@ describe('createDragPreviewElement (clone)', () => {
     expect(handle.element).not.toHaveAttribute('data-dragging');
   });
 
+  it('never inherits data-settling from a source whose previous preview is settling', () => {
+    const source = createSource();
+    source.setAttribute('data-settling', '');
+
+    const handle = clone(source);
+
+    expect(handle.element).not.toHaveAttribute('data-settling');
+  });
+
   it('removes scripts, which would otherwise re-execute when the clone is inserted', () => {
     // `cloneNode` does not copy a script's "already started" flag.
     const handle = clone(createSource('<span>hi</span><script>window.ran = true;</script>'));
@@ -304,6 +317,38 @@ describe('createDragPreviewElement (clone)', () => {
     // `srcdoc` takes precedence over `src`. Left in place, inserting the clone
     // would load the embedded document on every drag.
     expect(frame).not.toHaveAttribute('srcdoc');
+  });
+
+  it('neuters objects and embeds so the clone does not reload or re-run them', () => {
+    const svg = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>";
+    const handle = clone(
+      createSource(`<object data="${svg}" type="image/svg+xml"></object><embed src="${svg}">`),
+    );
+
+    expect(handle.element.querySelector('object')).not.toHaveAttribute('data');
+    expect(handle.element.querySelector('embed')).not.toHaveAttribute('src');
+  });
+
+  it('loads cloned lazy images eagerly, since the preview starts off-screen', () => {
+    const handle = clone(createSource('<img alt="" loading="lazy" />'));
+
+    expect(handle.element.querySelector('img')).toHaveAttribute('loading', 'eager');
+  });
+
+  it('strips `name` from every cloned element except slots', () => {
+    const handle = clone(
+      createSource(
+        '<details name="faq" open><summary>Q</summary>A</details><form name="settings"></form>' +
+          '<slot name="icon"></slot>',
+      ),
+    );
+
+    // A named `<details>` in the source's exclusive group would close itself, and
+    // a named form would turn `document.settings` into a collection.
+    expect(handle.element.querySelector('details')).not.toHaveAttribute('name');
+    expect(handle.element.querySelector('form')).not.toHaveAttribute('name');
+    // A nameless slot would take the host's unassigned children.
+    expect(handle.element.querySelector('slot')).toHaveAttribute('name', 'icon');
   });
 
   it('strips autoplay from cloned media and blocks its preload', () => {
@@ -355,8 +400,9 @@ describe('createDragPreviewElement (clone)', () => {
     expect(handle.element.querySelector('clipPath')!.id).toBe('crop-drag-preview');
     expect(handle.element.querySelector('filter')!.id).toBe('blur-drag-preview');
     expect(path.getAttribute('clip-path')).toBe('url(#crop-drag-preview)');
-    expect(path.getAttribute('style')).toContain("url('#blur-drag-preview')");
-    expect(path.getAttribute('style')).toContain('url(#crop-drag-preview)');
+    // Browsers re-serialize the rewritten declarations with their own quoting.
+    expect(path.getAttribute('style')).toMatch(/filter: url\(['"]?#blur-drag-preview['"]?\)/);
+    expect(path.getAttribute('style')).toMatch(/fill: url\(['"]?#crop-drag-preview['"]?\)/);
     const use = handle.element.querySelector('use')!;
     expect(use.getAttribute('href')).toBe('#crop-drag-preview');
     expect(use.getAttribute('xlink:href')).toBe('#blur-drag-preview');

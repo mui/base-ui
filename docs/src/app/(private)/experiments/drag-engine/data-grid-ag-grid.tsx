@@ -2,9 +2,9 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { getHorizontalCollisionAfter } from 'docs/src/utils/getHorizontalCollisionAfter';
 import clsx from 'clsx';
 import { Menu } from '@base-ui/react/menu';
+import { getHorizontalCollisionAfter } from './getHorizontalCollisionAfter';
 import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
 import theme from './theme.module.css';

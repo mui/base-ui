@@ -4,7 +4,7 @@ import { screen, render as rtlRender } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { setupDragEngineTests, lift, flushRaf, fireDrag } from '../../../test/dnd';
+import { setupDragEngineTests, lift, flushRaf, fireDrag, dragOver } from '../../../test/dnd';
 import { DraggableProvider } from '../DraggableProvider';
 
 setupDragEngineTests();
@@ -37,7 +37,36 @@ describe('Draggable.Preview', () => {
     const source = screen.getByTestId('drag');
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
     fireDrag.dragStart(source);
-    expect(document.querySelector('[data-drag-preview]')).toBeNull();
+    expect(document.querySelector('[data-drag-preview-container]')).toBeNull();
+  });
+
+  it.each([
+    ['a clone', undefined],
+    ['custom content', 'Preview'],
+  ])('holds %s in a data-drag-preview-container element beside the source', (_name, children) => {
+    rtlRender(
+      <DraggableProvider>
+        <div data-testid="list">
+          <Draggable.Root kind={testDragKind} data-testid="drag">
+            Source
+            <Draggable.Preview>{children}</Draggable.Preview>
+          </Draggable.Root>
+          <div data-testid="sibling" />
+        </div>
+      </DraggableProvider>,
+    );
+    const source = screen.getByTestId('drag');
+    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+    fireDrag.dragStart(source);
+
+    // The only element added among the source's siblings, and it holds the preview.
+    const list = screen.getByTestId('list');
+    const containers = list.querySelectorAll(':scope > [data-drag-preview-container]');
+    expect(containers).toHaveLength(1);
+    expect(containers[0].querySelector('[data-drag-preview]')).not.toBeNull();
+    expect(
+      Array.from(list.querySelectorAll(':scope > :not([data-drag-preview-container])')),
+    ).toEqual([source, screen.getByTestId('sibling')]);
   });
 
   it.each([
@@ -130,7 +159,7 @@ describe('Draggable.Preview', () => {
     // With `disabled` there is no preview element to insert, so resolving the
     // reference would run consumer code for nothing.
     expect(container).not.toHaveBeenCalled();
-    expect(document.querySelector('[data-drag-preview]')).toBeNull();
+    expect(document.querySelector('[data-drag-preview-container]')).toBeNull();
   });
 
   it('does not call a typed render callback for a mismatched source kind', () => {
@@ -149,7 +178,7 @@ describe('Draggable.Preview', () => {
     fireDrag.dragStart(source);
 
     expect(renderPreview).not.toHaveBeenCalled();
-    expect(document.querySelector('[data-drag-preview]')).toBeNull();
+    expect(document.querySelector('[data-drag-preview-container]')).toBeNull();
   });
 
   it('throws when the nearest Draggable.Provider does not wrap the Draggable.Root', () => {
@@ -217,7 +246,7 @@ describe('Draggable.Preview', () => {
     // The drag is still live, so another move repositions the preview. The move
     // goes to `document` because `fireDrag` dispatches on the source, which is now
     // detached and out of reach of the engine's document-level listener.
-    const host = document.querySelector('[data-drag-preview]') as HTMLElement;
+    const host = document.querySelector('[data-base-ui-drag-preview]') as HTMLElement;
     const before = host.style.translate;
     await act(async () => {
       document.dispatchEvent(
@@ -238,6 +267,74 @@ describe('Draggable.Preview', () => {
     expect(screen.getByText('Preview content')).toBeInTheDocument();
     expect(host.style.translate).toMatch(/px/);
     expect(host.style.translate).not.toBe(before);
+  });
+
+  it('falls back to the source offset when a custom preview offset callback throws', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    let parameters: Draggable.Preview.OffsetParameters | undefined;
+    try {
+      rtlRender(
+        <DraggableProvider>
+          <Draggable.Root kind={testDragKind} data-testid="drag">
+            <Draggable.Preview
+              offset={(offsetParameters) => {
+                parameters = offsetParameters;
+                throw new Error('offset failed');
+              }}
+            >
+              <span data-testid="preview">Preview</span>
+            </Draggable.Preview>
+          </Draggable.Root>
+          <div data-testid="sibling" />
+        </DraggableProvider>,
+      );
+      const source = screen.getByTestId('drag');
+      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+      await lift(source, { clientX: 30, clientY: 40 });
+
+      // The throw runs in a layout effect. Uncontained, it would unmount the provider.
+      expect(screen.getByTestId('sibling')).toBeInTheDocument();
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('"offset" function threw'),
+        expect.anything(),
+        expect.any(Error),
+      );
+      // The `'source'` offset keeps the grab point the callback was given.
+      await dragOver(source, { clientX: 100, clientY: 100 });
+      const x = 100 - (parameters!.input.clientX - parameters!.sourceRect.left);
+      const y = 100 - (parameters!.input.clientY - parameters!.sourceRect.top);
+      const host = screen
+        .getByTestId('preview')
+        .closest('[data-base-ui-drag-preview]') as HTMLElement;
+      expect(host.style.translate).toBe(`${x}px ${y}px`);
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  describe('teardown between tests', () => {
+    it('ends right after dropping a cloned preview', () => {
+      rtlRender(
+        <DraggableProvider>
+          <Draggable.Root kind={testDragKind} data-testid="drag">
+            Source content
+          </Draggable.Root>
+        </DraggableProvider>,
+      );
+      const source = screen.getByTestId('drag');
+      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      fireDrag.dragStart(source);
+      fireDrag.drop(document.body);
+
+      // The clone settles until the next frame, which this test never waits for.
+      expect(document.querySelector('[data-drag-preview]')).not.toBeNull();
+    });
+
+    // Depends on the previous test. It must not inherit that test's settling clone.
+    it('starts without the previous test’s drag preview', () => {
+      expect(document.querySelector('[data-drag-preview-container]')).toBeNull();
+    });
   });
 
   it("drops another provider's stale preview when a drop and the next pickup share one flush", () => {

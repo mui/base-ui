@@ -201,7 +201,7 @@ function WeekAllDayCell(props: { dayMs: number }) {
           accept={CAL_DRAG_KINDS}
           payload={cellPayload}
           onDraggableMove={(eventDetails) => {
-            const next = resolveDropPreview(eventDetails.source, eventDetails.target);
+            const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
             if (!next) {
               return;
             }
@@ -401,7 +401,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           // snap setting can change at runtime.
           snap={() => ({ y: DAY_MS / (snapRef.current * MINUTE_MS) })}
           onDraggableMove={(eventDetails) => {
-            const next = resolveDropPreview(eventDetails.source, eventDetails.target);
+            const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
             if (!next) {
               return;
             }

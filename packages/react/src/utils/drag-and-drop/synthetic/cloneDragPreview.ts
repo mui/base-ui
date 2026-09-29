@@ -42,26 +42,49 @@ import type { LinearTransform } from '../linearTransform';
  * Tailwind's `rotate-4`), and a source that has them keeps its look on the clone.
  * The unlayered engine rule below beats every declaration in a cascade layer,
  * including all Tailwind v4 utilities, so neutralizing them here would lock
- * layered CSS out of that styling hook. `translate` needs no rule, because the
+ * layered CSS out of that styling hook. For the same reason, it neutralizes
+ * motion only until the drop. `translate` needs no rule, because the
  * engine's inline write beats any author value.
  *
  * The clone inherits these from class rules and from the source's inline style.
  * The sheet below clears the first and `removeProperty` the second, and both
  * derive their property list from this one.
  */
-const NEUTRALIZED_PROPERTIES = ['transition', 'animation', 'transform'];
+const MOTION_PROPERTIES = ['transition', 'animation'];
+const NEUTRALIZED_PROPERTIES = [...MOTION_PROPERTIES, 'transform'];
 
 /**
- * Not wrapped in `:where()`. At specificity (0,1,0) it beats the source's own
- * `.Card { transition }` on source order, while a consumer rule that also keys on
- * the attribute (`.Card[data-drag-preview] { transition: box-shadow .3s }`) still
- * wins. An inline declaration would force that consumer rule to use `!important`.
+ * Marks the element the engine positions: the clone, or the empty host a custom
+ * preview renders into. The engine finds the preview through it in either mode.
+ * The public `data-drag-preview` is on the element the consumer styles instead,
+ * which is the clone itself or the `Draggable.Preview` element inside the host.
+ * The `data-base-ui-` prefix means it's internal, not a styling hook.
+ */
+export const PREVIEW_ELEMENT_ATTRIBUTE = 'data-base-ui-drag-preview';
+
+/**
+ * Keyed on `PREVIEW_ELEMENT_ATTRIBUTE`, so it never reaches the consumer's
+ * `Draggable.Preview` element inside a custom preview's host. That element keeps
+ * its own `transform`, `rotate` and motion.
+ *
+ * At specificity (0,1,0) it beats the source's own `.Card { transition }` on
+ * source order, while a consumer rule keyed on the public attribute
+ * (`.Card[data-drag-preview] { transition: box-shadow .3s }`) still wins. An
+ * inline declaration would force that consumer rule to use `!important`. The
+ * `:not()` is wrapped in `:where()` to keep that specificity.
+ *
+ * Motion is neutralized only until the drop. Being unlayered, the rule would
+ * otherwise beat an ending transition in a cascade layer, such as Tailwind's
+ * `data-ending-style:transition-[translate]`, and the preview would jump back.
+ * `prepareForDrop` suppresses motion the preview shares with the source instead.
  *
  * The UA `[popover]` chrome needs no reset here. The `popover` attribute is on the
  * engine-owned wrapper (see below), not on the preview, and the wrapper resets
  * that chrome inline.
  */
-const NEUTRALIZER_CSS = `[${DraggablePreviewDataAttributes.dragPreview}]{${NEUTRALIZED_PROPERTIES.map((p) => `${p}:none`).join(';')};}`;
+const NEUTRALIZER_CSS =
+  `[${PREVIEW_ELEMENT_ATTRIBUTE}]{transform:none}` +
+  `[${PREVIEW_ELEMENT_ATTRIBUTE}]:where(:not([${DraggablePreviewDataAttributes.endingStyle}])){${MOTION_PROPERTIES.map((p) => `${p}:none`).join(';')}}`;
 
 /**
  * A constructable stylesheet, not a `<style>` element, because the CSSOM path is
@@ -73,6 +96,29 @@ const neutralizerSheets = getSharedSlot(
   'dragPreviewNeutralizerSheets',
   () => new WeakMap<DocumentOrShadowRoot, CSSStyleSheet>(),
 );
+
+/** Whether a computed `transition` or `animation` would animate anything. */
+function hasActiveMotion(property: string, style: CSSStyleDeclaration): boolean {
+  if (property === 'transition') {
+    return (style.transitionDuration || '0s')
+      .split(',')
+      .some((duration) => Number.parseFloat(duration) > 0);
+  }
+  return (style.animationName || 'none').split(',').some((name) => name.trim() !== 'none');
+}
+
+/**
+ * Whether a popover is open. A polyfilled `showPopover` in a browser without the
+ * Popover API leaves `:popover-open` unparseable, and `matches` throws. The
+ * polyfill keeps its own state, so the wrapper is treated as open.
+ */
+function isPopoverOpen(element: HTMLElement): boolean {
+  try {
+    return element.matches(':popover-open');
+  } catch {
+    return true;
+  }
+}
 
 function ensureNeutralizerStyles(host: PreviewHost): void {
   // `isShadowRoot` is realm-safe. A shadow root inside an iframe or popout has its
@@ -299,22 +345,38 @@ function sanitize(clone: HTMLElement, cloneNodes: Element[]): void {
         // would load the embedded document, scripts included, on every drag.
         node.removeAttribute('srcdoc');
         break;
+      case 'object':
+        // Like an iframe, an `<object>` or `<embed>` would fetch its resource again
+        // and run an HTML or SVG document's scripts on every drag.
+        node.removeAttribute('data');
+        break;
+      case 'embed':
+        node.removeAttribute('src');
+        break;
       case 'video':
       case 'audio':
         node.removeAttribute('autoplay');
         node.setAttribute('preload', 'none');
         break;
-      case 'input':
-      case 'select':
-      case 'textarea':
-      case 'button':
-        // A cloned control still belongs to the source's form, so it would be
-        // submitted with the real one. A checked radio with the same `name` would
-        // also uncheck the original when inserted.
-        node.removeAttribute('name');
+      case 'img':
+        // A lazy image waits until it nears the viewport, and the preview is
+        // parked off-screen until its first frame, so it would flash empty.
+        if (node.hasAttribute('loading')) {
+          node.setAttribute('loading', 'eager');
+        }
         break;
       default:
         break;
+    }
+
+    // A cloned control still belongs to the source's form, so it would be
+    // submitted with the real one. A checked radio with the same `name` would also
+    // uncheck the original when inserted, an open `<details>` in the source's
+    // exclusive accordion would close itself, and a named `<form>` would turn
+    // `document[name]` into a collection. A `<slot>` keeps its name, since a
+    // nameless slot would take the host's unassigned children.
+    if (node.localName !== 'slot') {
+      node.removeAttribute('name');
     }
 
     const id = node.getAttribute('id');
@@ -365,13 +427,45 @@ function sanitize(clone: HTMLElement, cloneNodes: Element[]): void {
         'marker-end',
         'fill',
         'stroke',
-        'style',
       ]) {
         const value = node.getAttribute(attribute);
         if (value?.includes('url(')) {
           node.setAttribute(attribute, remapUrlFragments(value));
         }
       }
+      if (node.getAttribute('style')?.includes('url(')) {
+        remapInlineStyleUrls(node, remapUrlFragments);
+      }
+    }
+  }
+}
+
+/**
+ * Rewrite `url(#id)` references in an inline style through the CSSOM. A strict
+ * CSP without `'unsafe-inline'` blocks `setAttribute('style', …)`, but not
+ * `style.setProperty`.
+ */
+function remapInlineStyleUrls(node: Element, remap: (value: string) => string): void {
+  const style = (node as Partial<ElementCSSInlineStyle>).style;
+  if (style) {
+    for (let i = 0; i < style.length; i += 1) {
+      const name = style[i];
+      const value = style.getPropertyValue(name);
+      const next = remap(value);
+      if (next !== value) {
+        style.setProperty(name, next, style.getPropertyPriority(name));
+      }
+    }
+  }
+  // A DOM without CSSOM support for a property (jsdom lacks most SVG ones) keeps it
+  // out of `style`, leaving the reference in the attribute. Real browsers
+  // re-serialize the attribute from the declarations above, so this never runs
+  // there.
+  const attribute = node.getAttribute('style');
+  if (attribute !== null) {
+    const next = remap(attribute);
+    if (next !== attribute) {
+      node.setAttribute('style', next);
     }
   }
 }
@@ -434,8 +528,74 @@ function copyLiveState(
 
   return () => {
     for (const { node, top, left } of scrolls) {
-      node.scrollTop = top;
-      node.scrollLeft = left;
+      scrollInstantly(node, top, left);
+    }
+  };
+}
+
+/**
+ * Set a scroll offset without animating it. Under `scroll-behavior: smooth`, a
+ * `scrollTop` write starts a smooth scroll, so the preview would show the top of
+ * the scroller and a mid-drag re-home would scroll it again.
+ */
+function scrollInstantly(node: HTMLElement, top: number, left: number): void {
+  if (typeof node.scrollTo === 'function') {
+    try {
+      node.scrollTo({ top, left, behavior: 'instant' });
+      return;
+    } catch {
+      // Browsers that predate the `instant` value reject it. Fall through.
+    }
+  }
+  node.scrollTop = top;
+  node.scrollLeft = left;
+}
+
+const TABLE_ROW_PARTS = new Set([
+  'table-row',
+  'table-row-group',
+  'table-header-group',
+  'table-footer-group',
+]);
+
+/**
+ * `position: fixed` blockifies a table row or row group, so its cells lay out in
+ * an anonymous table that sizes them to their content instead of the source's
+ * columns. Pin each cell to its used width. This is exact under
+ * `border-collapse: collapse`. Under separated borders, the anonymous table adds
+ * the outer `border-spacing`, so the cells land within that spacing.
+ *
+ * Reads the widths now and returns a function that writes them once the clone is
+ * inserted, or `null` when the source is not a row or row group.
+ */
+function captureTableCellWidths(
+  sourceNodes: Element[],
+  cloneNodes: Element[],
+  win: Window & typeof globalThis,
+): (() => void) | null {
+  const source = sourceNodes[0];
+  const display = win.getComputedStyle(source).display;
+  if (!TABLE_ROW_PARTS.has(display)) {
+    return null;
+  }
+  const clonesBySource = new Map<Element, Element>();
+  sourceNodes.forEach((node, index) => clonesBySource.set(node, cloneNodes[index]));
+  const rows = display === 'table-row' ? [source] : Array.from(source.children);
+  const widths: Array<{ cell: Element | undefined; width: string }> = [];
+  for (const row of rows) {
+    // Only the source's own cells. A table nested in a cell lays itself out.
+    for (const cell of Array.from(row.children)) {
+      const style = win.getComputedStyle(cell);
+      if (style.display === 'table-cell') {
+        widths.push({ cell: clonesBySource.get(cell), width: style.width });
+      }
+    }
+  }
+  return () => {
+    for (const { cell, width } of widths) {
+      if (cell instanceof win.HTMLElement) {
+        cell.style.width = width;
+      }
     }
   };
 }
@@ -468,6 +628,10 @@ function prepareDragPreviewClone(
   const applyPostInsertion = copyLiveState(sourceNodes, cloneNodes, win);
   sanitize(element, cloneNodes);
   element.removeAttribute(DraggableRootDataAttributes.dragging);
+  // Present on a source whose previous preview is still settling. A
+  // `[data-settling] { color: transparent }` placeholder rule would otherwise hide
+  // the preview's text for the whole drag.
+  element.removeAttribute(DraggableRootDataAttributes.settling);
 
   return { element, sourceNodes, nodes: cloneNodes, applyPostInsertion };
 }
@@ -570,6 +734,43 @@ function getUntransformedSourceRect(
   );
 }
 
+/**
+ * The source's border-box size in its own CSS pixels, before any transform.
+ * `offsetWidth`/`offsetHeight` round to integers, so the size comes from the
+ * computed box, which keeps the subpixels. It is trusted only when it agrees with
+ * the rounded one. It is `auto` on an inline box, and Chromium leaves a classic
+ * scrollbar out of the computed content width.
+ */
+function getUntransformedBorderBox(
+  source: HTMLElement,
+  style: CSSStyleDeclaration,
+): { width: number; height: number } {
+  const px = (value: string) => Number.parseFloat(value) || 0;
+  const isBorderBox = style.boxSizing === 'border-box';
+  const measure = (size: string, rounded: number, edges: string[]) => {
+    const value = Number.parseFloat(size);
+    if (!Number.isFinite(value)) {
+      return rounded;
+    }
+    const exact = isBorderBox ? value : edges.reduce((sum, edge) => sum + px(edge), value);
+    return Math.abs(exact - rounded) < 1 ? exact : rounded;
+  };
+  return {
+    width: measure(style.width, source.offsetWidth, [
+      style.paddingLeft,
+      style.paddingRight,
+      style.borderLeftWidth,
+      style.borderRightWidth,
+    ]),
+    height: measure(style.height, source.offsetHeight, [
+      style.paddingTop,
+      style.paddingBottom,
+      style.borderTopWidth,
+      style.borderBottomWidth,
+    ]),
+  };
+}
+
 /** Measure the layout anchor in viewport coordinates, undoing the source's own transform. */
 export function measurePreviewSource(source: HTMLElement): {
   sourceRect: DOMRect;
@@ -602,8 +803,9 @@ export function measurePreviewSource(source: HTMLElement): {
   const parentScale = parent ? getElementScale(parent) : { x: 1, y: 1 };
   const ownZoom = getOwnZoom(source, sourceStyle);
   const ancestorScale = { x: parentScale.x * ownZoom, y: parentScale.y * ownZoom };
-  const width = hasTransform ? source.offsetWidth * ancestorScale.x : rect.width;
-  const height = hasTransform ? source.offsetHeight * ancestorScale.y : rect.height;
+  const layoutSize = hasTransform ? getUntransformedBorderBox(source, sourceStyle) : null;
+  const width = layoutSize ? layoutSize.width * ancestorScale.x : rect.width;
+  const height = layoutSize ? layoutSize.height * ancestorScale.y : rect.height;
   // Everything downstream, such as the default `'source'` offset and the
   // `--drag-source-*` variables, must describe the box the preview has. Otherwise
   // the preview is anchored to a different box and jumps on pickup. So the
@@ -657,11 +859,13 @@ export function createDragPreviewElement(
   // coordinates do not carry across documents, so a container in another document
   // would offset the preview by the frame's position. Render it in place instead.
   if (container && ownerDocument(container) !== doc) {
-    warn(
-      'a drag preview `container` belongs to a different document than its draggable. ' +
-        'Viewport coordinates do not carry across documents, so the preview would be offset by the frame position. ' +
-        "Rendering the preview in place instead. Pass a container from the draggable's own document.",
-    );
+    if (process.env.NODE_ENV !== 'production') {
+      warn(
+        'a drag preview `container` belongs to a different document than its draggable. ' +
+          'Viewport coordinates do not carry across documents, so the preview would be offset by the frame position. ' +
+          "Rendering the preview in place instead. Pass a container from the draggable's own document.",
+      );
+    }
     container = null;
   }
 
@@ -684,7 +888,13 @@ export function createDragPreviewElement(
 
   const element = clone?.element ?? doc.createElement('div');
 
-  element.setAttribute(DraggablePreviewDataAttributes.dragPreview, '');
+  element.setAttribute(PREVIEW_ELEMENT_ATTRIBUTE, '');
+  // The public styling hook goes on the element the consumer styles. A custom
+  // preview's host is engine-owned, and the `Draggable.Preview` element rendered
+  // into it carries the attribute instead.
+  if (isClone) {
+    element.setAttribute(DraggablePreviewDataAttributes.dragPreview, '');
+  }
   element.setAttribute('aria-hidden', 'true');
   // Without it, a cloned `tabindex="0"` would be tabbable. The preview must never
   // be focusable or hit-tested.
@@ -696,6 +906,10 @@ export function createDragPreviewElement(
     position: 'fixed',
     top: '0px',
     left: '0px',
+    // A source `right` or `inset-inline-end` would over-constrain the box. In a
+    // right-to-left page the browser then drops `left` and pins it to the right.
+    right: 'auto',
+    bottom: 'auto',
     // Margins are not part of the measured rect and would shift the preview off
     // its transform anchor.
     margin: '0px',
@@ -750,13 +964,41 @@ export function createDragPreviewElement(
     color: 'inherit',
     pointerEvents: 'none',
     zIndex: '2147483647',
+    // Rules for the source's siblings (`.List > *`) or for popovers reach the
+    // wrapper too. An entrance animation or a hidden popover state would fade or
+    // hide the preview on every pickup. `display` is left to the UA popover rules,
+    // which the open state depends on.
+    opacity: '1',
+    visibility: 'inherit',
+    filter: 'none',
+    transform: 'none',
+    translate: 'none',
+    rotate: 'none',
+    transition: 'none',
+    animation: 'none',
   });
-  const restoredMotion = new Map<string, string>();
+  // The wrapper, not the preview, is the element inserted among the container's
+  // children, so layout code excludes it from sibling queries through this.
+  wrapper.setAttribute(DraggablePreviewDataAttributes.dragPreviewContainer, '');
+  wrapper.setAttribute('aria-hidden', 'true');
+  // A source assigned to a named slot sits in a shadow host's light DOM. The
+  // wrapper is appended there too, and an unassigned child is not rendered.
+  const slot = source.getAttribute('slot');
+  if (!container && slot !== null) {
+    wrapper.setAttribute('slot', slot);
+  }
   // Read from the source while the clone is still detached. Inserting the clone
   // beside the source would shift every sibling's `:nth-child` index and snapshot
   // it at a position the source does not hold.
   const contextualStyles = clone && capturePreviewStyles(clone.sourceNodes, clone.nodes);
+  const applyTableCellWidths =
+    clone && captureTableCellWidths(clone.sourceNodes, clone.nodes, ownerWindow(source));
   wrapper.appendChild(element);
+
+  // The source's own motion at pickup, before `data-dragging` lands on it. The
+  // neutralizer stops at the drop, so `prepareForDrop` compares the preview's
+  // ending motion against it.
+  const sourceMotion = new Map<string, string>();
 
   /**
    * A contextual motion rule from the source can outrank the shared neutralizer.
@@ -769,18 +1011,14 @@ export function createDragPreviewElement(
     const sourceStyle = win.getComputedStyle(source);
     const previewStyle = win.getComputedStyle(element);
     for (const property of NEUTRALIZED_PROPERTIES) {
+      const sourceValue = sourceStyle.getPropertyValue(property);
+      if (property !== 'transform' && hasActiveMotion(property, sourceStyle)) {
+        sourceMotion.set(property, sourceValue);
+      }
       const value = previewStyle.getPropertyValue(property);
       const activeMotion =
-        property === 'transition'
-          ? previewStyle.transitionDuration
-              .split(',')
-              .some((duration) => Number.parseFloat(duration) > 0)
-          : value !== 'none';
-      if (activeMotion && value && value === sourceStyle.getPropertyValue(property)) {
-        // `transform` is geometry rather than motion, so it stays neutralized for the drop.
-        if (property !== 'transform') {
-          restoredMotion.set(property, value);
-        }
+        property === 'transform' ? value !== 'none' : hasActiveMotion(property, previewStyle);
+      if (activeMotion && value && value === sourceValue) {
         element.style.setProperty(property, 'none', 'important');
       }
     }
@@ -851,6 +1089,7 @@ export function createDragPreviewElement(
     neutralizeInheritedMotion();
   }
   contextualStyles?.restore();
+  applyTableCellWidths?.();
   clone?.applyPostInsertion();
 
   function reconnect(): void {
@@ -863,7 +1102,7 @@ export function createDragPreviewElement(
       const survivor =
         ancestorChain.find((ancestor) => ancestor.isConnected) ?? doc.body ?? doc.documentElement;
       survivor.appendChild(wrapper);
-    } else if (!usesPopover || wrapper.matches(':popover-open')) {
+    } else if (!usesPopover || isPopoverOpen(wrapper)) {
       return;
     }
     // Any DOM move closes an open popover and sends it back to `display: none`.
@@ -901,15 +1140,22 @@ export function createDragPreviewElement(
     },
     ensureConnected: reconnect,
     prepareForDrop() {
-      // Allow a distinct ending rule without reviving inherited source motion.
-      for (const [property, inheritedValue] of restoredMotion) {
+      // Runs once `data-ending-style` is set, which lifts the neutralizer. Allow a
+      // distinct ending or preview rule, layered or not, without reviving the
+      // motion the preview shares with the source. Source motion that was already
+      // suppressed inline is cleared first so the comparison sees the cascade.
+      if (sourceMotion.size === 0) {
+        return;
+      }
+      for (const property of sourceMotion.keys()) {
         element.style.removeProperty(property);
-        if (
-          ownerWindow(element).getComputedStyle(element).getPropertyValue(property) ===
-          inheritedValue
-        ) {
-          element.style.setProperty(property, 'none', 'important');
-        }
+      }
+      const computed = ownerWindow(element).getComputedStyle(element);
+      const inherited = Array.from(sourceMotion).filter(
+        ([property, sourceValue]) => computed.getPropertyValue(property) === sourceValue,
+      );
+      for (const [property] of inherited) {
+        element.style.setProperty(property, 'none', 'important');
       }
     },
     destroy() {

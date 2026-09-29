@@ -106,11 +106,17 @@ interface DropTargetState {
    */
   grabOffset: { x: number; y: number } | null;
   /**
-   * Each registration's `dragData` for the active drag, replaced when its target
-   * kind changes. Emptied when the drag ends, because a mounted target keeps its
-   * getter alive and a leftover entry would retain the finished drag's source.
+   * The key each registration's payload and `dragData` are stored under, per
+   * element and getter (see {@link getRegistrationKey}).
    */
-  dragData: WeakMap<DropTargetGetter, TargetDragData>;
+  registrationKeys: WeakMap<Element, WeakMap<DropTargetGetter, object>>;
+  /**
+   * Each registration's `dragData` for the active drag, by registration key,
+   * replaced when its target kind changes. Emptied when the drag ends, because a
+   * mounted target keeps its key alive and a leftover entry would retain the
+   * finished drag's source.
+   */
+  dragData: WeakMap<object, TargetDragData>;
   recordRegistrations: WeakMap<DraggableTargetRecord, RecordRegistration>;
   /**
    * The frozen copy of each parameters object a getter has returned.
@@ -133,7 +139,8 @@ const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   retiring: new Map<Element, DropTargetGetter>(),
   sessionSource: null,
   grabOffset: null,
-  dragData: new WeakMap<DropTargetGetter, TargetDragData>(),
+  registrationKeys: new WeakMap<Element, WeakMap<DropTargetGetter, object>>(),
+  dragData: new WeakMap<object, TargetDragData>(),
   recordRegistrations: new WeakMap<DraggableTargetRecord, RecordRegistration>(),
   registrationSnapshots: new WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>(),
 }));
@@ -280,7 +287,46 @@ export function endDropTargetSession(): void {
   state.retiring.clear();
   state.sessionSource = null;
   state.grabOffset = null;
-  state.dragData = new WeakMap<DropTargetGetter, TargetDragData>();
+  state.dragData = new WeakMap<object, TargetDragData>();
+}
+
+/**
+ * The key a registration's payload and `dragData` are stored under.
+ *
+ * The getter alone can't be the key. One getter can register several elements,
+ * such as cells sharing `() => cellParameters`, and each cell needs its own
+ * `updatePayload()` and `updateDragData()` state. Unregistering one cell must not
+ * reset the others either.
+ */
+function getRegistrationKey(element: Element, getParameters: DropTargetGetter): object {
+  let keys = state.registrationKeys.get(element);
+  if (keys === undefined) {
+    keys = new WeakMap();
+    state.registrationKeys.set(element, keys);
+  }
+  let key = keys.get(getParameters);
+  if (key === undefined) {
+    key = {};
+    keys.set(getParameters, key);
+  }
+  return key;
+}
+
+/**
+ * Release a registration's payload and `dragData` once `element` no longer holds
+ * `getParameters`, so registering the pair again starts from the declared payload.
+ */
+function releaseRegistrationKey(element: Element, getParameters: DropTargetGetter): void {
+  if (state.registry.get(element)?.includes(getParameters)) {
+    return;
+  }
+  const keys = state.registrationKeys.get(element);
+  const key = keys?.get(getParameters);
+  if (key !== undefined) {
+    keys!.delete(getParameters);
+    resetParticipantPayload(key);
+    state.dragData.delete(key);
+  }
 }
 
 /**
@@ -306,8 +352,7 @@ export function removeDropTargetRegistration(
   try {
     holds.remove(element, getParameters, beforeDelete);
   } finally {
-    resetParticipantPayload(getParameters);
-    state.dragData.delete(getParameters);
+    releaseRegistrationKey(element, getParameters);
   }
 }
 
@@ -329,6 +374,7 @@ export function resetForTests(): void {
   endDropTargetSession();
   state.recordRegistrations = new WeakMap<DraggableTargetRecord, RecordRegistration>();
   state.registrationSnapshots = new WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>();
+  state.registrationKeys = new WeakMap<Element, WeakMap<DropTargetGetter, object>>();
 }
 
 type ConsumerCallbackName = 'canDrop' | 'snap' | 'getParameters';
@@ -364,7 +410,7 @@ function snapshotRegistration(registration: AnyDropTargetParameters): AnyDropTar
 
 /** The registration's `dragData` for this drag, starting from `undefined` for a new drag or kind. */
 function getTargetDragData(
-  getParameters: DropTargetGetter,
+  registrationKey: object,
   source: DraggableRootRecord,
   kind: symbol | undefined,
 ): TargetDragData {
@@ -373,10 +419,10 @@ function getTargetDragData(
   if (source !== state.sessionSource) {
     return { source, kind, value: undefined };
   }
-  let data = state.dragData.get(getParameters);
+  let data = state.dragData.get(registrationKey);
   if (data === undefined || data.source !== source || data.kind !== kind) {
     data = { source, kind, value: undefined };
-    state.dragData.set(getParameters, data);
+    state.dragData.set(registrationKey, data);
   }
   return data;
 }
@@ -391,7 +437,11 @@ export function syncDropTargetPayload(
   if (!element) {
     return;
   }
-  const payloadState = getParticipantPayload(getParameters, kind, payload);
+  const payloadState = getParticipantPayload(
+    getRegistrationKey(element, getParameters),
+    kind,
+    payload,
+  );
   const source = dragSessionStore.state?.source;
   const changed = payloadState.sync(payload);
   if (source && changed) {
@@ -440,8 +490,9 @@ function resolveDropTargetOutcome(
   // unregistered target.
   const registration = safeCall('getParameters', element, getRegistration, null);
   // A disabled target is not a candidate. Like a failed `canDrop`, the walk falls
-  // through to ancestor targets.
-  if (registration === null || registration.disabled) {
+  // through to ancestor targets. A getter written in plain JS can also return
+  // `undefined`.
+  if (registration == null || registration.disabled) {
     return null;
   }
   // Cheap kind filter first, before allocating the feedback object. This runs per
@@ -465,9 +516,10 @@ function resolveDropTargetOutcome(
   }
 
   const kind = registration.kind?.id;
-  const payloadState = getParticipantPayload(getRegistration, kind, registration.payload);
+  const registrationKey = getRegistrationKey(element, getRegistration);
+  const payloadState = getParticipantPayload(registrationKey, kind, registration.payload);
   payloadState.sync(registration.payload);
-  const data = getTargetDragData(getRegistration, source, kind);
+  const data = getTargetDragData(registrationKey, source, kind);
   const record: DraggableTargetRecord = {
     element,
     kind,
@@ -619,7 +671,11 @@ export function getDropTargetsOver(
 ): DraggableTargetRecord[] {
   const result: DraggableTargetRecord[] = [];
 
-  for (let node = target; node !== null; node = getComposedParentElement(node)) {
+  for (
+    let node = target;
+    node !== null;
+    node = getComposedParentElement(node, state.shadowRootsByHost)
+  ) {
     // Check the attribute, not the registry. While a target unregisters, its entry
     // outlives the attribute because `onLastRemove` runs before `beforeDelete`. Its
     // `onDraggableLeave` can still dispatch from the refresh, but the refreshed
@@ -627,7 +683,17 @@ export function getDropTargetsOver(
     if (!node.hasAttribute(DROP_TARGET_ATTR)) {
       continue;
     }
-    const outcome = resolveDropTargetOutcome(node, feedback);
+    // The consumer callbacks are contained one by one, but the parameters they
+    // come with can be malformed too, for example a non-kind `accept` from plain
+    // JS. A throw here would repeat on every frame and on the release, and leave
+    // the drag stuck, so it costs only this target.
+    const element = node;
+    const outcome = safeCall(
+      'getParameters',
+      element,
+      () => resolveDropTargetOutcome(element, feedback),
+      null,
+    );
     if (outcome === DROP_REJECTED) {
       result.length = 0;
       onReject?.(node);
@@ -653,7 +719,9 @@ type DropTargetEventName = keyof DropTargetEventReasonMap & keyof RegisterTarget
  * and the drop must still reach the target it landed on.
  *
  * `eventDetails` are the round's details as the source sees them. The target
- * receives a copy whose `target` is its own record.
+ * receives a copy with its own record as `currentTarget`. `target` stays the round's
+ * innermost target, like in a source's handlers. Every caller builds the details
+ * with `location.current.targets[0]`, which is `null` only for a leave.
  */
 export function dispatchToDropTarget<K extends DropTargetEventName>(
   record: DraggableTargetRecord,
@@ -672,7 +740,7 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   // Same containment as `resolveDropTargetOutcome`. A throwing getter costs this
   // target its event and doesn't unwind the dispatch sequence.
   const registration = safeCall('getParameters', record.element, getRegistration, null);
-  if (registration === null) {
+  if (registration == null) {
     return;
   }
   // A leave can outlive the kind contract that produced its record.
@@ -684,8 +752,8 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   }
   const handler = parameters[eventName] as
     ((eventDetails: DropTargetEventDetails<DropTargetEventReasonMap[K]>) => void) | undefined;
-  // The round's details, with this target's own record as `target`.
-  handler?.({ ...eventDetails, target: record } as DropTargetEventDetails<
+  // The round's details, with this target's own record as `currentTarget`.
+  handler?.({ ...eventDetails, currentTarget: record } as DropTargetEventDetails<
     DropTargetEventReasonMap[K]
   >);
 }
@@ -717,7 +785,7 @@ function replaceHoveredRecord(
  * frames where the resolved stack holds the same elements as the previous one. No
  * change dispatch runs on those frames, but the terminal `onDraggableLeave` on drop
  * or cancel reads these records. Without the swap, that leave would report the
- * `target.payload` resolved at entry while every `onDraggableMove` in between
+ * `currentTarget.payload` resolved at entry while every `onDraggableMove` in between
  * reported fresh ones.
  */
 export function refreshHoveredRecords(
@@ -851,8 +919,8 @@ export type RegisterTargetParameters<
   TTargetDragData = unknown,
 > = {
   /**
-   * The data attached to this target, available as `eventDetails.target.payload` in its
-   * handlers and on its record in `location.current.targets`.
+   * The data attached to this target, available as `eventDetails.currentTarget.payload`
+   * in its handlers and on its record in `location.current.targets`.
    */
   payload?: TTargetPayload | undefined;
   /**

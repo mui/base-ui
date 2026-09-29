@@ -7,25 +7,6 @@
   user-select: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .Widget[data-drag-preview][data-ending-style] {
-    transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
-  }
-}
-
-/*
- * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`. That
- * also drops the page's font smoothing, so text renders heavier than in the
- * Tailwind variant. Restore it so both variants look the same.
- */
-.Root,
-.Root * {
-  box-sizing: border-box;
-  font-synthesis: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 .Grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -37,6 +18,7 @@
 }
 
 .Slot {
+  box-sizing: border-box;
   display: flex;
   align-items: stretch;
   min-height: 8rem;
@@ -75,6 +57,7 @@
 }
 
 .Widget {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   width: 100%;

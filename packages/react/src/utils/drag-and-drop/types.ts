@@ -101,7 +101,10 @@ export interface DragSourceEventDetailsProperties<
   target: DraggableTargetRecord | null;
 }
 
-/** The properties the details of a drop target's handlers add: the dragged item and this target. */
+/**
+ * The properties the details of a drop target's handlers add: the dragged item, the
+ * innermost target under the pointer, and the target running the handler.
+ */
 export interface DropTargetEventDetailsProperties<
   TSourcePayload = unknown,
   TTargetPayload = unknown,
@@ -110,8 +113,35 @@ export interface DropTargetEventDetailsProperties<
 > extends DragEventDetailsProperties {
   /** The item being dragged. */
   source: DraggableRootRecord<TSourcePayload, TDragData>;
+  /**
+   * The innermost drop target under the pointer, the one that would receive the drop:
+   * `eventDetails.location.current.targets[0]`. It is this target or one nested inside it.
+   * Narrow its `payload` with a kind's `matches` method.
+   */
+  target: DraggableTargetRecord;
   /** This drop target's own record. */
-  target: DraggableTargetRecord<TTargetPayload, TTargetDragData>;
+  currentTarget: DraggableTargetRecord<TTargetPayload, TTargetDragData>;
+}
+
+/**
+ * The properties the details of a drop target's `onDraggableLeave` add. Unlike the other
+ * drop target events, no target may remain under the pointer.
+ */
+export interface DropTargetLeaveEventDetailsProperties<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> extends Omit<
+  DropTargetEventDetailsProperties<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>,
+  'target'
+> {
+  /**
+   * The innermost drop target under the pointer once the drag has left this target:
+   * `eventDetails.location.current.targets[0]`. It is `null` when there is none, as when
+   * the drag ends. Narrow its `payload` with a kind's `matches` method.
+   */
+  target: DraggableTargetRecord | null;
 }
 
 /**
@@ -125,7 +155,10 @@ export type DragEventDetails<
   TDragData = unknown,
 > = BaseUIGenericEventDetails<TReason, DragSourceEventDetailsProperties<TSourcePayload, TDragData>>;
 
-/** The details a drop target's handlers receive, whose `target` is that drop target. */
+/**
+ * The details a drop target's handlers receive. `currentTarget` is that drop target, and
+ * `target` is the innermost drop target under the pointer, as in a source's handlers.
+ */
 export type DropTargetEventDetails<
   TReason extends string,
   TSourcePayload = unknown,
@@ -135,6 +168,18 @@ export type DropTargetEventDetails<
 > = BaseUIGenericEventDetails<
   TReason,
   DropTargetEventDetailsProperties<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>
+>;
+
+/** The details a drop target's `onDraggableLeave` receives, whose `target` can be `null`. */
+export type DropTargetLeaveEventDetails<
+  TReason extends string,
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+> = BaseUIGenericEventDetails<
+  TReason,
+  DropTargetLeaveEventDetailsProperties<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>
 >;
 
 /** The properties `onBeforeMoveStart`'s event details add to the Base UI change details. */

@@ -76,6 +76,8 @@ expectType<Draggable.Target.Record | null, (typeof RootMoveEnd)['target']>(RootM
 expectType<boolean, (typeof RootMoveEnd)['canceled']>(RootMoveEnd.canceled);
 // @ts-expect-error `canceled` is only on `onMoveEnd`. A move reads `reason`.
 void RootMove.canceled;
+// @ts-expect-error `currentTarget` is only on a drop target's handlers.
+void RootMove.currentTarget;
 
 declare const TargetStart: Parameters<
   NonNullable<
@@ -90,9 +92,12 @@ expectType<Draggable.Target.StartEventReason, (typeof TargetStart)['reason']>(Ta
 expectType<Draggable.Root.Record<Payload, DragData>, (typeof TargetStart)['source']>(
   TargetStart.source,
 );
-expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetStart)['target']>(
-  TargetStart.target,
-);
+// `target` is the innermost target under the pointer, this target or one nested inside it.
+expectType<Draggable.Target.Record, (typeof TargetStart)['target']>(TargetStart.target);
+expectType<
+  Draggable.Target.Record<TargetPayload, TargetDragData>,
+  (typeof TargetStart)['currentTarget']
+>(TargetStart.currentTarget);
 
 declare const TargetMove: Parameters<
   NonNullable<
@@ -108,9 +113,12 @@ expectType<Draggable.LocationHistory, (typeof TargetMove)['location']>(TargetMov
 expectType<Draggable.Root.Record<Payload, DragData>, (typeof TargetMove)['source']>(
   TargetMove.source,
 );
-expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetMove)['target']>(
-  TargetMove.target,
-);
+// `target` is the innermost target under the pointer, this target or one nested inside it.
+expectType<Draggable.Target.Record, (typeof TargetMove)['target']>(TargetMove.target);
+expectType<
+  Draggable.Target.Record<TargetPayload, TargetDragData>,
+  (typeof TargetMove)['currentTarget']
+>(TargetMove.currentTarget);
 
 declare const TargetEnter: Parameters<
   NonNullable<
@@ -122,9 +130,12 @@ expectType<
   typeof TargetEnter
 >(TargetEnter);
 expectType<Draggable.Target.EnterEventReason, (typeof TargetEnter)['reason']>(TargetEnter.reason);
-expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetEnter)['target']>(
-  TargetEnter.target,
-);
+// `target` is the innermost target under the pointer, this target or one nested inside it.
+expectType<Draggable.Target.Record, (typeof TargetEnter)['target']>(TargetEnter.target);
+expectType<
+  Draggable.Target.Record<TargetPayload, TargetDragData>,
+  (typeof TargetEnter)['currentTarget']
+>(TargetEnter.currentTarget);
 
 declare const TargetLeave: Parameters<
   NonNullable<
@@ -136,9 +147,12 @@ expectType<
   typeof TargetLeave
 >(TargetLeave);
 expectType<Draggable.Target.LeaveEventReason, (typeof TargetLeave)['reason']>(TargetLeave.reason);
-expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetLeave)['target']>(
-  TargetLeave.target,
-);
+// Once the drag has left this target, no target may remain under the pointer.
+expectType<Draggable.Target.Record | null, (typeof TargetLeave)['target']>(TargetLeave.target);
+expectType<
+  Draggable.Target.Record<TargetPayload, TargetDragData>,
+  (typeof TargetLeave)['currentTarget']
+>(TargetLeave.currentTarget);
 // @ts-expect-error `canceled` is only on `onMoveEnd`. A leave reads `reason`.
 void TargetLeave.canceled;
 
@@ -155,9 +169,12 @@ expectType<Draggable.Target.DropEventReason, (typeof TargetDrop)['reason']>(Targ
 expectType<Draggable.Root.Record<Payload, DragData>, (typeof TargetDrop)['source']>(
   TargetDrop.source,
 );
-expectType<Draggable.Target.Record<TargetPayload, TargetDragData>, (typeof TargetDrop)['target']>(
-  TargetDrop.target,
-);
+// `target` is the innermost target under the pointer, this target or one nested inside it.
+expectType<Draggable.Target.Record, (typeof TargetDrop)['target']>(TargetDrop.target);
+expectType<
+  Draggable.Target.Record<TargetPayload, TargetDragData>,
+  (typeof TargetDrop)['currentTarget']
+>(TargetDrop.currentTarget);
 
 declare const CollisionProviderMoveStart: Parameters<
   NonNullable<Draggable.CollisionProvider.Props<Payload, DragData>['onMoveStart']>

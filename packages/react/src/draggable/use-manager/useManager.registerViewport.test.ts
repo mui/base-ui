@@ -418,7 +418,8 @@ describe('engine.registerViewport', () => {
     await flushRaf();
     await flushRaf();
     armed = true;
-    fireDrag.dragOver(outer, { clientX: 101, clientY: 190 });
+    // `inner` is the later sibling in the same box, so it's the element on top.
+    fireDrag.dragOver(inner, { clientX: 101, clientY: 190 });
     await flushRaf();
     await flushRaf();
     await flushRaf();
@@ -432,7 +433,7 @@ describe('engine.registerViewport', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
     const preview = document.createElement('div');
-    preview.setAttribute('data-drag-preview', '');
+    preview.setAttribute('data-base-ui-drag-preview', '');
     scroller.appendChild(preview);
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {});
@@ -452,6 +453,36 @@ describe('engine.registerViewport', () => {
       await waitFor(() => expect(measure).toHaveBeenCalled());
     } finally {
       measure.mockRestore();
+    }
+  });
+
+  it('checks a mutation batch for preview records only until it knows to wake the loop', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = makeEngageableScroller();
+    const rows = Array.from({ length: 20 }, () =>
+      scroller.appendChild(document.createElement('div')),
+    );
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
+    // The center is in no edge zone, so the loop parks and observes.
+    await lift(source, { clientX: 100, clientY: 100 });
+    await flushRaf();
+    await flushRaf();
+
+    const matches = vi.spyOn(Element.prototype, 'matches');
+    try {
+      rows.forEach((row, index) => row.setAttribute('data-index', String(index)));
+      await act(async () => {
+        await Promise.resolve();
+      });
+      const previewChecks = matches.mock.calls.filter(
+        ([selector]) => selector === '[data-base-ui-drag-preview]',
+      );
+      // One walk up from the first record, not one per record.
+      expect(previewChecks.length).toBeLessThan(rows.length);
+    } finally {
+      matches.mockRestore();
     }
   });
 
@@ -1052,6 +1083,44 @@ describe('engine.registerViewport', () => {
     expect(scroller.scrollBy).toHaveBeenCalled();
   });
 
+  it('scrolls at full depth when a clamping modifier stops the drag short of the edge zone', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
+    scroller.style.overflow = 'auto';
+    scroller.scrollBy = vi.fn();
+    Object.defineProperty(scroller, 'scrollTop', { value: 400, writable: true });
+    Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
+    Object.defineProperty(scroller, 'clientHeight', { value: 200 });
+    const seenY: number[] = [];
+
+    // Shaped like `restrictToElement` with a preview 80px tall grabbed at its top.
+    // The reported point can't get closer than 80px to the bottom, which is
+    // outside the 50px edge zone, so the drag would stop scrolling exactly when
+    // the user pushes past the edge.
+    engine.registerSource(source, {
+      modifiers: ({ point }) => ({ x: point.x, y: Math.min(point.y, 120) }),
+    });
+    engine.registerViewport(scroller, {
+      onDragScroll: ({ input, y }) => {
+        seenY.push(input.clientY);
+        expect(y).toBeGreaterThanOrEqual(0);
+      },
+    });
+
+    await lift(source, { clientX: 100, clientY: 100 });
+    fireDrag.dragOver(scroller, { clientX: 100, clientY: 290 });
+    await flushRaf();
+    await flushRaf();
+    await flushRaf();
+
+    expect(scroller.scrollBy).toHaveBeenCalled();
+    // The callbacks receive the point the edges were tested against, which takes
+    // the physical pointer on the axis it left the container through.
+    expect(seenY).toContain(290);
+    expect(seenY).not.toContain(120);
+  });
+
   it('scrolls the container a clamping modifier confines the drag to, not the neighbour under the pointer', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -1337,8 +1406,9 @@ describe('engine.registerViewport', () => {
     engine.registerViewport(outer, {});
     engine.registerViewport(inner, {});
 
-    // Both boxes span y=0..200, so y=190 is in both bottom edge zones.
-    await driveIntoEdgeZone(source, outer);
+    // Both boxes span y=0..200, so y=190 is in both bottom edge zones. The
+    // shadow scroller covers its host's box, so it's what the hit-test finds.
+    await driveIntoEdgeZone(source, inner);
 
     expect(inner.scrollBy).toHaveBeenCalled();
     expect(outer.scrollBy).not.toHaveBeenCalled();
@@ -1396,6 +1466,115 @@ describe('engine.registerViewport', () => {
         node.remove();
       }
       extraNodes.length = 0;
+    });
+
+    describe('overlapping viewports', () => {
+      async function dragTo(source: HTMLElement, hit: Element | null, x: number, y: number) {
+        // Picked up outside every viewport, so no edge zone engages before the move.
+        await lift(source, { clientX: 1000, clientY: 1000 });
+        if (hit === null) {
+          fireDrag.dragLeave({ clientX: x, clientY: y });
+        } else {
+          fireDrag.dragOver(hit, { clientX: x, clientY: y });
+        }
+        await flushRaf();
+        await flushRaf();
+        await flushRaf();
+      }
+
+      // An app shell's `main` (html > body > div > div > main) behind a bottom
+      // drawer portaled to `<body>` with its own list. The drawer sits over
+      // main's bottom edge zone, and main is nested deeper than the list.
+      function renderShellWithDrawer() {
+        const shell = document.createElement('div');
+        const layout = document.createElement('div');
+        shell.appendChild(layout);
+        document.body.appendChild(shell);
+        registerCleanupElement(shell);
+        const main = makeScroller({ top: 0, height: 400, left: 0, width: 400 }, layout);
+        const drawer = document.createElement('div');
+        document.body.appendChild(drawer);
+        registerCleanupElement(drawer);
+        const list = makeScroller({ top: 200, height: 200, left: 0, width: 400 }, drawer);
+        const row = document.createElement('div');
+        list.element.appendChild(row);
+        return { main, list, row };
+      }
+
+      it('scrolls the viewport under the pointer, not a deeper one behind it', async () => {
+        const { engine } = await renderDnd();
+        const source = createElement();
+        const { main, list, row } = renderShellWithDrawer();
+        engine.registerSource(source, {});
+        engine.registerViewport(main.element, {});
+        engine.registerViewport(list.element, {});
+
+        // Near the drawer's bottom edge, which is also main's bottom edge zone.
+        await dragTo(source, row, 200, 390);
+
+        expect(list.scrollBy).toHaveBeenCalled();
+        expect(main.scrollBy).not.toHaveBeenCalled();
+      });
+
+      it('skips a viewport where an ancestor clips it', async () => {
+        const { engine } = await renderDnd();
+        const source = createElement();
+        // The inner viewport extends past a clipping wrapper, so near its bottom
+        // edge the pointer is over the outer viewport's own content instead.
+        const outer = makeScroller({ top: 0, height: 400, left: 0, width: 200 });
+        const clip = document.createElement('div');
+        clip.style.overflow = 'hidden';
+        outer.element.appendChild(clip);
+        const inner = makeScroller({ top: 0, height: 400, left: 0, width: 200 }, clip);
+        const below = document.createElement('div');
+        outer.element.appendChild(below);
+        engine.registerSource(source, {});
+        engine.registerViewport(outer.element, {});
+        engine.registerViewport(inner.element, {});
+
+        await dragTo(source, below, 100, 390);
+
+        expect(outer.scrollBy).toHaveBeenCalled();
+        expect(inner.scrollBy).not.toHaveBeenCalled();
+      });
+
+      it('keeps the nesting order when neither viewport is under the pointer', async () => {
+        const { engine } = await renderDnd();
+        const source = createElement();
+        const { main, list } = renderShellWithDrawer();
+        engine.registerSource(source, {});
+        engine.registerViewport(main.element, {});
+        engine.registerViewport(list.element, {});
+
+        await dragTo(source, null, 200, 390);
+
+        expect(main.scrollBy).toHaveBeenCalled();
+        expect(list.scrollBy).not.toHaveBeenCalled();
+      });
+
+      it('finds a viewport inside a closed shadow root under the pointer', async () => {
+        const { engine } = await renderDnd();
+        const source = createElement();
+        const outer = makeScroller({ top: 0, height: 200, left: 0, width: 200 });
+        const host = document.createElement('div');
+        outer.element.appendChild(host);
+        const root = host.attachShadow({ mode: 'closed' });
+        const inner = makeScroller({ top: 0, height: 200, left: 0, width: 200 }, host);
+        root.appendChild(inner.element);
+        const row = document.createElement('div');
+        inner.element.appendChild(row);
+        // The document retargets the hit to the host. Only the closed root, which
+        // the engine knows from the registered viewport, reaches the row.
+        (root as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => row;
+        engine.registerSource(source, {});
+        engine.registerViewport(outer.element, {});
+        engine.registerViewport(inner.element, {});
+
+        await dragTo(source, host, 100, 190);
+
+        expect(inner.scrollBy).toHaveBeenCalled();
+        expect(outer.scrollBy).not.toHaveBeenCalled();
+      });
     });
 
     it('depth-sorts inner-first: only the inner scroller scrolls in its own edge zone', async () => {

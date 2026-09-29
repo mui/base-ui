@@ -1417,12 +1417,12 @@ describe('syntheticDrag sensor', () => {
     touchUp(10, 10);
   });
 
-  it('a press on a disabled nested control still starts the drag', async () => {
+  it('a press on a disabled nested input still starts the drag', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    const button = document.createElement('button');
-    button.disabled = true;
-    el.appendChild(button);
+    const input = document.createElement('input');
+    input.disabled = true;
+    el.appendChild(input);
 
     const onMoveStart = vi.fn();
     engine.registerSource(el, {
@@ -1430,8 +1430,8 @@ describe('syntheticDrag sensor', () => {
       onMoveStart,
     });
 
-    // A disabled control handles no gesture, so the press reaches the draggable.
-    touchDown(button, 50, 50);
+    // A disabled text field selects no text, so the press reaches the draggable.
+    touchDown(input, 50, 50);
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);
 
@@ -1736,7 +1736,7 @@ describe('syntheticDrag sensor', () => {
     await flushRaf();
 
     expect(onDrop).toHaveBeenCalledTimes(1);
-    const record = onDrop.mock.calls[0][0].target as DraggableTargetRecord;
+    const record = onDrop.mock.calls[0][0].currentTarget as DraggableTargetRecord;
     // Anchored at the press, (95 - 30) / 200 = 0.325, and the nearest of 8 steps
     // is 0.375. Anchored at activation, it would be (95 - 40) / 200 = 0.275,
     // which rounds to 0.25.
@@ -1906,16 +1906,34 @@ describe('syntheticDrag sensor', () => {
       );
     } finally {
       // Restore in `finally` so a failed assertion can't leave the document stuck
-      // `hidden` and cascade into every later test.
-      Object.defineProperty(document, 'visibilityState', {
-        value: 'visible',
-        configurable: true,
-      });
-      Object.defineProperty(document, 'hidden', {
-        value: false,
-        configurable: true,
-      });
+      // `hidden` and cascade into every later test. Deleting the own properties
+      // exposes the real getters again.
+      Reflect.deleteProperty(document, 'visibilityState');
+      Reflect.deleteProperty(document, 'hidden');
     }
+  });
+
+  it('does not swallow the next click after a browser-canceled drag', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const onMoveEnd = vi.fn();
+    engine.registerSource(el, {
+      activation: { touch: { type: 'immediate' } },
+      onMoveEnd,
+    });
+
+    touchDown(el, 50, 50);
+    await flushRaf();
+    touchCancel();
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('pointer-canceled');
+
+    // A canceled pointer produces no compatibility click, so the next click is a
+    // real one and must reach the page.
+    const onClick = vi.fn();
+    document.addEventListener('click', onClick, true);
+    registerCleanup(() => document.removeEventListener('click', onClick, true));
+    dispatch(el, new MouseEvent('click', { detail: 1, bubbles: true, cancelable: true }));
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('pointerup invokes the drop lifecycle', async () => {
@@ -2405,6 +2423,52 @@ describe('syntheticDrag sensor', () => {
     }
   });
 
+  it.skipIf(isJSDOM)(
+    'measures drop local points against the layout the drag was released over',
+    async () => {
+      const { engine } = await renderDnd();
+      // A `[data-dragging]` rule that collapses the source pulls the target up
+      // into its slot for the whole drag.
+      const style = document.createElement('style');
+      style.textContent = '.collapse-while-dragging[data-dragging] { display: none; }';
+      document.head.append(style);
+      const list = document.createElement('div');
+      list.style.cssText = 'position: fixed; top: 0; left: 0; width: 100px; z-index: 1;';
+      const source = document.createElement('div');
+      source.className = 'collapse-while-dragging';
+      source.style.height = '50px';
+      const target = document.createElement('div');
+      target.style.height = '50px';
+      list.append(source, target);
+      document.body.append(list);
+      registerCleanup(() => {
+        list.remove();
+        style.remove();
+      });
+
+      const localPoints: Array<{ x: number; y: number }> = [];
+      engine.registerSource(source, {
+        activation: { touch: { type: 'immediate' } },
+        // Custom content, whose host the engine removes as the drag ends.
+        preview: { render: () => 'Preview' },
+      });
+      engine.registerTarget(target, {
+        onDraggableDrop: (eventDetails) => {
+          localPoints.push(eventDetails.target!.getLocalPoint());
+        },
+      });
+
+      touchDown(source, 50, 25);
+      await flushRaf();
+      touchMove(50, 20);
+      await flushRaf();
+      touchUp(50, 20);
+
+      // The pointer was 20px into the 50px target as it sat during the drag.
+      expect(localPoints).toEqual([{ x: 0.5, y: 0.4 }]);
+    },
+  );
+
   it('ignores a second pointerdown while a drag is already active (multi-touch)', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
@@ -2668,6 +2732,12 @@ describe('syntheticDrag sensor', () => {
       );
     }
 
+    /** The lock waits for the frame after the lift (see `commitActivation`). */
+    async function flushLockFrames(): Promise<void> {
+      await flushRaf();
+      await flushRaf();
+    }
+
     function mouseUp(target: EventTarget, x: number, y: number): void {
       dispatch(
         target,
@@ -2690,7 +2760,7 @@ describe('syntheticDrag sensor', () => {
       expect(activeCursorRule()).toBeNull();
 
       mouseDown(el, 50, 50);
-      await flushRaf();
+      await flushLockFrames();
       expect(activeCursorRule()).toBe('grabbing');
 
       mouseUp(el, 80, 80);
@@ -2708,8 +2778,7 @@ describe('syntheticDrag sensor', () => {
       // teardown and `grabbing` stays on the page for good.
       mouseDown(el, 50, 50);
       mouseUp(el, 50, 50);
-      await flushRaf();
-      await flushRaf();
+      await flushLockFrames();
 
       expect(activeCursorRule()).toBeNull();
     });
@@ -2732,7 +2801,7 @@ describe('syntheticDrag sensor', () => {
       mouseDown(first, 50, 50);
       mouseUp(first, 50, 50);
       mouseDown(second, 50, 50);
-      await flushRaf();
+      await flushLockFrames();
 
       expect(activeCursorRule()).toBe('move');
       mouseUp(second, 50, 50);
@@ -2744,7 +2813,7 @@ describe('syntheticDrag sensor', () => {
       engine.registerSource(el, { activation: { mouse: { type: 'immediate' } } });
 
       mouseDown(el, 50, 50);
-      await flushRaf();
+      await flushLockFrames();
       expect(activeCursorRule()).not.toBeNull();
 
       // Escape cancels the active drag.
@@ -2761,7 +2830,7 @@ describe('syntheticDrag sensor', () => {
       });
 
       mouseDown(el, 50, 50);
-      await flushRaf();
+      await flushLockFrames();
       expect(activeCursorRule()).toBe('move');
 
       mouseUp(el, 80, 80);
@@ -2776,7 +2845,7 @@ describe('syntheticDrag sensor', () => {
       });
 
       mouseDown(el, 50, 50);
-      await flushRaf();
+      await flushLockFrames();
       expect(activeCursorRule()).toBeNull();
 
       mouseUp(el, 80, 80);
@@ -2788,10 +2857,60 @@ describe('syntheticDrag sensor', () => {
       engine.registerSource(el, { activation: { touch: { type: 'immediate' } } });
 
       touchDown(el, 50, 50);
-      await flushRaf();
+      await flushLockFrames();
       expect(activeCursorRule()).toBeNull();
 
       touchUp(50, 50);
+    });
+
+    it.skipIf(isJSDOM)('pins the cursor only after the frame that paints the lift', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      engine.registerSource(el, { activation: { mouse: { type: 'immediate' } } });
+
+      // The lock invalidates style for the whole document. A frame requested from
+      // the pickup runs in the rendering update that paints the lift, so the lock
+      // waits for the next one.
+      mouseDown(el, 50, 50);
+      await flushRaf();
+      expect(activeCursorRule()).toBeNull();
+      await flushRaf();
+      expect(activeCursorRule()).toBe('grabbing');
+
+      mouseUp(el, 80, 80);
+    });
+
+    it('cancels the deferred cursor frame when the drag ends before it runs', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      engine.registerSource(el, { activation: { mouse: { type: 'immediate' } } });
+
+      const requested: number[] = [];
+      const canceled: number[] = [];
+      const originalRequest = window.requestAnimationFrame;
+      const originalCancel = window.cancelAnimationFrame;
+      const request = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        const id = originalRequest.call(window, callback);
+        requested.push(id);
+        return id;
+      });
+      const cancel = vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => {
+        canceled.push(id);
+        originalCancel.call(window, id);
+      });
+      registerCleanup(() => {
+        request.mockRestore();
+        cancel.mockRestore();
+      });
+
+      mouseDown(el, 50, 50);
+      const pickupFrames = requested.slice();
+      mouseUp(el, 50, 50);
+
+      // Every frame the pickup requested belongs to the session, so its teardown
+      // cancels them rather than leaving callbacks to run against an ended drag.
+      expect(pickupFrames.length).toBeGreaterThan(0);
+      expect(pickupFrames.filter((id) => !canceled.includes(id))).toEqual([]);
     });
   });
 
@@ -3253,6 +3372,75 @@ describe('syntheticDrag sensor', () => {
       expect(eventDetails.event).toBeInstanceOf(KeyboardEvent);
 
       touchUp(10, 10);
+    });
+
+    it('reports a frame driven only by a scroll as pointer movement', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      const onMove = vi.fn();
+      engine.registerSource(el, { activation: { touch: { type: 'immediate' } }, onMove });
+
+      touchDown(el, 50, 50);
+      touchMove(60, 60);
+      await flushRaf();
+      const lastPointerMove = onMove.mock.lastCall?.[0].event;
+      expect(lastPointerMove.type).toBe('pointermove');
+
+      pressKey('keydown', true);
+      await flushRaf();
+      expect(onMove.mock.lastCall?.[0].reason).toBe('modifier-key');
+
+      // Content scrolls under the still pointer, long after the key press. That
+      // frame reports the pointer, not the old key event.
+      act(() => notifyExternalScroll());
+      await flushRaf();
+      expect(onMove.mock.lastCall?.[0].reason).toBe('pointer');
+      expect(onMove.mock.lastCall?.[0].event).toBe(lastPointerMove);
+
+      // A key change and a scroll in the same frame report the key, whose event
+      // carries the reported modifier flags.
+      pressKey('keyup', false);
+      act(() => notifyExternalScroll());
+      await flushRaf();
+      expect(onMove.mock.lastCall?.[0].reason).toBe('modifier-key');
+
+      touchUp(60, 60);
+    });
+
+    it('reports page coordinates that follow a scroll under a still pointer', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      const onMove = vi.fn();
+      engine.registerSource(el, { activation: { touch: { type: 'immediate' } }, onMove });
+
+      touchDown(el, 50, 50);
+      touchMove(60, 70);
+      await flushRaf();
+
+      const scrollX = window.scrollX + 30;
+      const scrollY = window.scrollY + 100;
+      for (const [property, value] of [
+        ['scrollX', scrollX],
+        ['scrollY', scrollY],
+      ] as const) {
+        const descriptor = Object.getOwnPropertyDescriptor(window, property);
+        Object.defineProperty(window, property, { configurable: true, get: () => value });
+        registerCleanup(() => {
+          if (descriptor) {
+            Object.defineProperty(window, property, descriptor);
+          } else {
+            Reflect.deleteProperty(window, property);
+          }
+        });
+      }
+      act(() => notifyExternalScroll());
+      await flushRaf();
+
+      const input = onMove.mock.lastCall?.[0].location.current.input;
+      expect(input.pageX).toBe(60 + scrollX);
+      expect(input.pageY).toBe(70 + scrollY);
+
+      touchUp(60, 70);
     });
 
     it('does not re-apply for a key press that changes no modifier', async () => {

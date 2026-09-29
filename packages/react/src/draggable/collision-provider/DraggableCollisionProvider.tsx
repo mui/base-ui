@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIGenericEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type {
   DragEndEventDetailsProperties,
   DragEndReason,
@@ -14,6 +15,7 @@ import type {
   MoveEndEventDetails,
   MoveStartEventDetails,
 } from '../../utils/drag-and-drop/types';
+import { createDragEventDetails } from '../../utils/drag-and-drop/dragEventDetails';
 import type { DraggableKind } from '../DraggableProvider';
 import type { DraggableRootRecord } from '../root/DraggableRoot';
 import type {
@@ -139,7 +141,10 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
 
   // A drag that started elsewhere joins the group when it first reaches one of its
   // items. Its start is replayed with that item as `target`.
-  const markInvolved = (target: DraggableTargetRecord<TPayload, TDragData>) => {
+  const markInvolved = (
+    target: DraggableTargetRecord<TPayload, TDragData>,
+    eventDetails: Pick<DropTargetChangeEventDetails<TPayload, TDragData>, 'location' | 'source'>,
+  ) => {
     if (involvedRef.current) {
       return;
     }
@@ -148,13 +153,26 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     pendingStart.current = null;
     if (start) {
       props.onMoveStart?.({ ...start, target });
+    } else {
+      // This provider mounted after the drag started, so its monitor missed the
+      // start. Report one from the event that reached the group, so `onMoveEnd`
+      // still has a matching start. How the drag started is unknown here.
+      props.onMoveStart?.(
+        createDragEventDetails(
+          REASONS.pointer,
+          undefined,
+          eventDetails.location,
+          eventDetails.source,
+          target,
+        ) as DraggableCollisionProviderMoveStartEventDetails<TPayload, TDragData>,
+      );
     }
   };
 
   const update = (eventDetails: DropTargetChangeEventDetails<TPayload, TDragData>) => {
     const target = resolve(eventDetails.target);
     if (target) {
-      markInvolved(target);
+      markInvolved(target, eventDetails);
       // The replayed start callback can cancel this drag synchronously.
       if (dragSessionStore.state?.source !== eventDetails.source) {
         return;
@@ -192,7 +210,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
       const target = resolve(eventDetails.target);
       const previousTarget = previous.current;
       if (target) {
-        markInvolved(target);
+        markInvolved(target, eventDetails);
       }
       const involved = involvedRef.current;
       involvedRef.current = false;

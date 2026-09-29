@@ -6,9 +6,9 @@ describe('draggable static setup', () => {
   it.skipIf(isJSDOM)('restores inline gesture style priorities', () => {
     const element = document.createElement('div');
     element.style.setProperty('user-select', 'text', 'important');
-    const cleanup = applyDraggableStaticSetup({ element });
+    const setup = applyDraggableStaticSetup({ element });
     expect(element.style.userSelect).toBe('none');
-    cleanup();
+    setup.release();
     expect(element.style.userSelect).toBe('text');
     expect(element.style.getPropertyPriority('user-select')).toBe('important');
   });

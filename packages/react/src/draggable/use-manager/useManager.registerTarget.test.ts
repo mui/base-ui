@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { act } from '@mui/internal-test-utils';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import {
@@ -13,6 +14,7 @@ import {
   fireDrag,
 } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
+import { isActive } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { registerTarget as registerTargetRaw } from '../../utils/drag-and-drop/registrations';
 import { anyDragKind } from '../../utils/drag-and-drop/dragKind';
 import type { MoveEventDetails } from '../../utils/drag-and-drop/types';
@@ -115,7 +117,7 @@ describe('engine.registerTarget', () => {
     expect(outerOnDrop).toHaveBeenCalledTimes(1);
     expect(outerOnDrop).toHaveBeenCalledWith(
       expect.objectContaining({
-        target: expect.objectContaining({ element: outer }),
+        currentTarget: expect.objectContaining({ element: outer }),
         reason: 'drop',
       }),
     );
@@ -317,7 +319,7 @@ describe('engine.registerTarget', () => {
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
   });
 
-  it('drop target kind is exposed on `target` and on records in location targets', async () => {
+  it('drop target kind is exposed on `currentTarget` and on records in location targets', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
@@ -327,8 +329,8 @@ describe('engine.registerTarget', () => {
     engine.registerTarget(target, {
       kind: slotKind,
       accept: cardKind,
-      onDraggableEnter: ({ target, location }) => {
-        observedSelfKind = target.kind;
+      onDraggableEnter: ({ currentTarget, location }) => {
+        observedSelfKind = currentTarget.kind;
         observedRecordKind = location.current.targets[0]?.kind;
       },
     });
@@ -383,7 +385,7 @@ describe('engine.registerTarget', () => {
     fireDrag.drop(target);
     await flushRaf();
 
-    expect(onDrop.mock.calls[0][0].target.payload).toEqual({ targetKey: 'targetValue' });
+    expect(onDrop.mock.calls[0][0].currentTarget.payload).toEqual({ targetKey: 'targetValue' });
   });
 
   it('keeps a function payload as data instead of invoking it', async () => {
@@ -403,7 +405,7 @@ describe('engine.registerTarget', () => {
     fireDrag.drop(target);
     await flushRaf();
 
-    expect(onDrop.mock.calls[0][0].target.payload).toBe(command);
+    expect(onDrop.mock.calls[0][0].currentTarget.payload).toBe(command);
     expect(command).not.toHaveBeenCalled();
   });
 
@@ -429,7 +431,7 @@ describe('engine.registerTarget', () => {
     fireDrag.drop(target);
     await flushRaf();
 
-    expect(onDrop.mock.calls[0][0].target.payload).toBe(value);
+    expect(onDrop.mock.calls[0][0].currentTarget.payload).toBe(value);
   });
 
   it('leaves the target payload undefined when none is declared', async () => {
@@ -448,7 +450,7 @@ describe('engine.registerTarget', () => {
     fireDrag.drop(target);
     await flushRaf();
 
-    expect(onDrop.mock.calls[0][0].target.payload).toBe(undefined);
+    expect(onDrop.mock.calls[0][0].currentTarget.payload).toBe(undefined);
   });
 
   it('fires onDraggableEnter when entering a target', async () => {
@@ -467,7 +469,7 @@ describe('engine.registerTarget', () => {
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(onDraggableEnter).toHaveBeenCalledWith(
       expect.objectContaining({
-        target: expect.objectContaining({ element: target }),
+        currentTarget: expect.objectContaining({ element: target }),
         reason: 'pointer',
       }),
     );
@@ -495,7 +497,7 @@ describe('engine.registerTarget', () => {
     expect(onMove).toHaveBeenCalled();
     expect(onMove).toHaveBeenCalledWith(
       expect.objectContaining({
-        target: expect.objectContaining({ element: target }),
+        currentTarget: expect.objectContaining({ element: target }),
         reason: 'pointer',
       }),
     );
@@ -579,7 +581,7 @@ describe('engine.registerTarget', () => {
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(onDrop).toHaveBeenCalledWith(
       expect.objectContaining({
-        target: expect.objectContaining({ element: target }),
+        currentTarget: expect.objectContaining({ element: target }),
         // `onDrop` only ever fires for a committed drop, so its reason is fixed.
         reason: 'drop',
       }),
@@ -613,7 +615,7 @@ describe('engine.registerTarget', () => {
     expect(innerOnDrop).toHaveBeenCalledTimes(1);
     expect(innerOnDrop).toHaveBeenCalledWith(
       expect.objectContaining({
-        target: expect.objectContaining({ element: inner }),
+        currentTarget: expect.objectContaining({ element: inner }),
         reason: 'drop',
       }),
     );
@@ -657,7 +659,7 @@ describe('engine.registerTarget', () => {
     expect(outerOnDrop).toHaveBeenCalledTimes(1);
     expect(outerOnDrop).toHaveBeenCalledWith(
       expect.objectContaining({
-        target: expect.objectContaining({ element: outer }),
+        currentTarget: expect.objectContaining({ element: outer }),
         reason: 'drop',
       }),
     );
@@ -788,7 +790,7 @@ describe('engine.registerTarget', () => {
       fireDrag.drop(target, { clientX, clientY });
 
       expect(onDrop).toHaveBeenCalledTimes(1);
-      return onDrop.mock.calls[0][0].target as DraggableTargetRecord;
+      return onDrop.mock.calls[0][0].currentTarget as DraggableTargetRecord;
     }
 
     it('quantizes getSnappedLocalPoint to the declared steps with symmetric rounding', async () => {
@@ -853,7 +855,7 @@ describe('engine.registerTarget', () => {
       await flushRaf();
       fireDrag.drop(target, { clientY: 265 });
 
-      const record = onDrop.mock.calls[0][0].target as DraggableTargetRecord;
+      const record = onDrop.mock.calls[0][0].currentTarget as DraggableTargetRecord;
       // Pointer: 0.65 → 0.75. Source top edge: (265 − 30 − 200) / 100 = 0.35 → 0.25.
       expect(record.getSnappedLocalPoint().y).toBe(0.75);
       expect(record.getSnappedLocalPoint({ anchor: 'source' }).y).toBe(0.25);
@@ -894,7 +896,7 @@ describe('engine.registerTarget', () => {
     expect(outerOnDragEnter).toHaveBeenCalledTimes(1);
   });
 
-  it('nested targets: each target receives its own record as `target`', async () => {
+  it('nested targets: each target receives its own record as `currentTarget`, and the innermost as `target`', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const outer = createElement();
@@ -918,13 +920,17 @@ describe('engine.registerTarget', () => {
 
     expect(outerEnter).toHaveBeenCalledTimes(1);
     expect(outerMove).toHaveBeenCalled();
-    // The outer target is told about itself, not about the innermost target that
-    // leads the stack (and would receive the drop).
+    // `currentTarget` is the outer target itself. `target` is the innermost target
+    // that leads the stack (and would receive the drop), as in a source's handlers.
     const outerDetails = outerEnter.mock.calls[0][0];
-    expect(outerDetails.target.element).toBe(outer);
-    expect(outerDetails.location.current.targets[0].element).toBe(inner);
-    expect(outerMove.mock.lastCall?.[0].target.element).toBe(outer);
+    expect(outerDetails.currentTarget.element).toBe(outer);
+    expect(outerDetails.target.element).toBe(inner);
+    expect(outerDetails.target).toBe(outerDetails.location.current.targets[0]);
+    expect(outerMove.mock.lastCall?.[0].currentTarget.element).toBe(outer);
+    expect(outerMove.mock.lastCall?.[0].target.element).toBe(inner);
+    expect(innerEnter.mock.calls[0][0].currentTarget.element).toBe(inner);
     expect(innerEnter.mock.calls[0][0].target.element).toBe(inner);
+    expect(innerMove.mock.lastCall?.[0].currentTarget.element).toBe(inner);
     expect(innerMove.mock.lastCall?.[0].target.element).toBe(inner);
 
     cancel();
@@ -1016,48 +1022,53 @@ describe('engine.registerTarget', () => {
     expect(elements).toEqual([inner, outer]);
   });
 
-  it('collects a shadow-tree target wrapping the slot a light-DOM node is assigned to', async () => {
-    // A `closest()` walk follows the light-DOM parent chain straight through the
-    // shadow host, so when a light-DOM ancestor is also a target, it skips the
-    // shadow-tree target around the `<slot>`. The composed walk enters the
-    // assigned slot first, then climbs out through the host.
-    const { engine } = await renderDnd();
-    const light = createElement();
-    const host = document.createElement('x-host');
-    light.appendChild(host);
-    const shadow = host.attachShadow({ mode: 'open' });
-    const zone = document.createElement('div');
-    zone.appendChild(document.createElement('slot'));
-    shadow.appendChild(zone);
-    const slotted = document.createElement('span');
-    host.appendChild(slotted);
+  it.each(['open', 'closed'] as const)(
+    'collects a shadow-tree target wrapping the slot a light-DOM node is assigned to (%s root)',
+    async (mode) => {
+      // A `closest()` walk follows the light-DOM parent chain straight through the
+      // shadow host, so when a light-DOM ancestor is also a target, it skips the
+      // shadow-tree target around the `<slot>`. The composed walk enters the
+      // assigned slot first, then climbs out through the host. A closed root hides
+      // the slot from `assignedSlot`, so the engine finds it in the root it knows
+      // from the registered target.
+      const { engine } = await renderDnd();
+      const light = createElement();
+      const host = document.createElement('x-host');
+      light.appendChild(host);
+      const shadow = host.attachShadow({ mode });
+      const zone = document.createElement('div');
+      zone.appendChild(document.createElement('slot'));
+      shadow.appendChild(zone);
+      const slotted = document.createElement('span');
+      host.appendChild(slotted);
 
-    const source = createElement();
-    const onDragEnterZone = vi.fn();
-    const onDragEnterLight = vi.fn();
-    engine.registerSource(source, {});
-    engine.registerTarget(zone, { onDraggableEnter: onDragEnterZone });
-    engine.registerTarget(light, { onDraggableEnter: onDragEnterLight });
+      const source = createElement();
+      const onDragEnterZone = vi.fn();
+      const onDragEnterLight = vi.fn();
+      engine.registerSource(source, {});
+      engine.registerTarget(zone, { onDraggableEnter: onDragEnterZone });
+      engine.registerTarget(light, { onDraggableEnter: onDragEnterLight });
 
-    fireDrag.dragStart(source);
-    await flushRaf();
-
-    const originalEFP = document.elementFromPoint;
-    document.elementFromPoint = () => slotted;
-    try {
-      fireDrag.dragOver(source);
+      fireDrag.dragStart(source);
       await flushRaf();
-    } finally {
-      document.elementFromPoint = originalEFP;
-    }
 
-    expect(onDragEnterZone).toHaveBeenCalledTimes(1);
-    expect(onDragEnterLight).toHaveBeenCalledTimes(1);
-    const elements = onDragEnterZone.mock.calls[0][0].location.current.targets.map(
-      (record: { element: Element }) => record.element,
-    );
-    expect(elements).toEqual([zone, light]);
-  });
+      const originalEFP = document.elementFromPoint;
+      document.elementFromPoint = () => slotted;
+      try {
+        fireDrag.dragOver(source);
+        await flushRaf();
+      } finally {
+        document.elementFromPoint = originalEFP;
+      }
+
+      expect(onDragEnterZone).toHaveBeenCalledTimes(1);
+      expect(onDragEnterLight).toHaveBeenCalledTimes(1);
+      const elements = onDragEnterZone.mock.calls[0][0].location.current.targets.map(
+        (record: { element: Element }) => record.element,
+      );
+      expect(elements).toEqual([zone, light]);
+    },
+  );
 
   it('keeps non-throwing drop targets active when an ancestor target throws from a consumer callback', async () => {
     // Nest the sane (inner) target inside the buggy (ancestor) target so the
@@ -1272,7 +1283,7 @@ describe('engine.registerTarget', () => {
       fireDrag.drop(target);
 
       expect(onDrop).toHaveBeenCalledTimes(1);
-      expect(onDrop.mock.calls[0][0].target.element).toBe(target);
+      expect(onDrop.mock.calls[0][0].currentTarget.element).toBe(target);
     });
 
     it('seeds previous.input from the pickup point so the first event reads a zero delta', async () => {
@@ -1473,8 +1484,8 @@ describe('engine.registerTarget', () => {
     engine.registerSource(sourceEl, {});
     engine.registerTarget(targetEl, {
       payload: { id: 'tgt-low' },
-      onDraggableDrop: ({ target }) => {
-        observedTargetId = target.payload.id as string;
+      onDraggableDrop: ({ currentTarget }) => {
+        observedTargetId = currentTarget.payload.id as string;
       },
     });
 
@@ -1497,7 +1508,7 @@ describe('engine.registerTarget', () => {
     engine.registerSource(source, {});
     engine.registerTarget(target, () => ({
       payload: value,
-      onDraggableLeave: ({ target }) => leavePayloads.push(target.payload),
+      onDraggableLeave: ({ currentTarget }) => leavePayloads.push(currentTarget.payload),
     }));
 
     await lift(source);
@@ -1525,7 +1536,7 @@ describe('engine.registerTarget', () => {
     engine.registerSource(source, {});
     engine.registerTarget(target, () => ({
       payload: value,
-      onDraggableLeave: ({ target }) => leavePayloads.push(target.payload),
+      onDraggableLeave: ({ currentTarget }) => leavePayloads.push(currentTarget.payload),
     }));
 
     await lift(source);
@@ -1635,7 +1646,9 @@ describe('engine.registerTarget', () => {
     engine.registerTarget(target, { kind: cardKind });
 
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(String(spy.mock.calls[0][0])).toContain('declares `kind` but no `accept`');
+    expect(String(spy.mock.calls[0][0])).toContain(
+      'registerTarget() was called with `kind` but no `accept`',
+    );
 
     // Declaring both is the normal way to give a target an identity.
     spy.mockClear();
@@ -1658,7 +1671,7 @@ describe('engine.registerTarget', () => {
     registerCleanup(cleanup);
 
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(String(spy.mock.calls[0][0])).toContain('declares no `accept`');
+    expect(String(spy.mock.calls[0][0])).toContain('registerTarget() was called without `accept`');
 
     // `anyDragKind` is the explicit way to accept everything.
     spy.mockClear();
@@ -1669,6 +1682,143 @@ describe('engine.registerTarget', () => {
 
     spy.mockRestore();
   });
+  it('drops onto a target inside an iframe, hit-testing and scrolling in that document', async () => {
+    const { engine } = await renderDnd();
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    registerCleanup(() => iframe.remove());
+    const frameDocument = iframe.contentDocument!;
+
+    function createFrameElement(
+      rect: { left: number; top: number; width: number; height: number },
+      parent: HTMLElement = frameDocument.body,
+    ): HTMLElement {
+      const el = frameDocument.createElement('div');
+      el.getBoundingClientRect = () => new DOMRect(rect.left, rect.top, rect.width, rect.height);
+      parent.appendChild(el);
+      return el;
+    }
+
+    const scroller = createFrameElement({ left: 0, top: 0, width: 200, height: 200 });
+    scroller.style.overflow = 'auto';
+    scroller.scrollBy = vi.fn();
+    Object.defineProperty(scroller, 'scrollTop', { value: 400, writable: true });
+    Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
+    Object.defineProperty(scroller, 'clientHeight', { value: 200 });
+    const source = createFrameElement({ left: 0, top: 0, width: 200, height: 50 }, scroller);
+    const target = createFrameElement({ left: 0, top: 150, width: 200, height: 50 }, scroller);
+
+    // The engine hit-tests the source's own document. Every other drop test
+    // stubs the top-level `document.elementFromPoint`, which would miss a
+    // lookup against the wrong document.
+    let hit: Element | null = null;
+    frameDocument.elementFromPoint = () => hit;
+    const topHitTest = vi.fn(() => target);
+    const originalTopHitTest = document.elementFromPoint;
+    document.elementFromPoint = topHitTest;
+    registerCleanup(() => {
+      document.elementFromPoint = originalTopHitTest;
+    });
+
+    const onDraggableEnter = vi.fn();
+    const onDraggableDrop = vi.fn();
+    engine.registerSource(source, {
+      kind: cardKind,
+      activation: { mouse: { type: 'immediate' } },
+    });
+    engine.registerTarget(target, { accept: cardKind, onDraggableEnter, onDraggableDrop });
+    engine.registerViewport(scroller, {});
+
+    function pointer(type: string, clientY: number): void {
+      act(() => {
+        source.dispatchEvent(
+          new PointerEvent(type, {
+            pointerType: 'mouse',
+            pointerId: 1,
+            clientX: 100,
+            clientY,
+            button: 0,
+            buttons: type === 'pointerup' ? 0 : 1,
+            bubbles: true,
+            cancelable: true,
+          }),
+        );
+      });
+    }
+
+    // The engine schedules its frames in the source's window, which runs its
+    // own frame clock.
+    async function flushFrameRaf(): Promise<void> {
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          iframe.contentWindow!.requestAnimationFrame(() => resolve());
+        });
+      });
+    }
+
+    pointer('pointerdown', 25);
+    await flushFrameRaf();
+    // Into the target, which also lies in the viewport's bottom edge zone.
+    hit = target;
+    pointer('pointermove', 190);
+    await flushFrameRaf();
+    await flushFrameRaf();
+    await flushFrameRaf();
+
+    expect(onDraggableEnter).toHaveBeenCalledTimes(1);
+    expect(scroller.scrollBy).toHaveBeenCalled();
+
+    pointer('pointerup', 190);
+    expect(onDraggableDrop).toHaveBeenCalledTimes(1);
+    expect(onDraggableDrop.mock.calls[0][0].currentTarget.element).toBe(target);
+    expect(topHitTest).not.toHaveBeenCalled();
+    expect(isActive()).toBe(false);
+  });
+
+  describe('parameters from plain JS', () => {
+    it('registers a getter that returns undefined without throwing', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const target = createElement();
+      const onMoveEnd = vi.fn();
+      engine.registerSource(source, { onMoveEnd });
+
+      const cleanup = registerTargetRaw(target, () => undefined as never);
+      registerCleanup(cleanup);
+
+      await lift(source);
+      await dragEnter(target);
+      fireDrag.drop(target);
+      expect(onMoveEnd).toHaveBeenCalledTimes(1);
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
+      expect(isActive()).toBe(false);
+    });
+
+    it('treats `accept: null` like an omitted `accept` and keeps later drags working', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const target = createElement();
+      const onDraggableDrop = vi.fn();
+      engine.registerSource(source, { kind: cardKind });
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const cleanup = registerTargetRaw(target, () => ({
+        accept: null as never,
+        onDraggableDrop,
+      }));
+      registerCleanup(cleanup);
+
+      await lift(source);
+      await dragEnter(target);
+      fireDrag.drop(target);
+      expect(onDraggableDrop).toHaveBeenCalledTimes(1);
+      expect(isActive()).toBe(false);
+
+      // `lift` throws if the engine refuses the pickup.
+      await lift(source);
+      cancel();
+    });
+  });
+
   it('refreshes callbacks in reused options before accept stops matching', async () => {
     const { engine } = await renderDnd();
     const source = createElement();

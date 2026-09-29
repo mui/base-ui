@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
 
 /**
@@ -19,10 +20,13 @@ export const DraggableHandle = React.forwardRef(function DraggableHandle(
   const { className, render, style, ...elementProps } = componentProps;
   const context = useDraggableRootContext();
 
-  const handleRef = useRefWithInit(() => {
-    const token = {};
-    return (node: HTMLElement | null) => context.setHandleElement(node, token);
-  }).current;
+  const token = useRefWithInit(() => ({})).current;
+  // Attaching or detaching a handle re-registers its root. `useRegistrationRef`
+  // ignores the detach and re-attach an inline `ref` causes on every render.
+  const handleRef = useRegistrationRef<HTMLElement>((node) => {
+    context.setHandleElement(node, token);
+    return () => context.setHandleElement(null, token);
+  });
 
   return useRenderElement('span', componentProps, {
     state: { disabled: context.disabled },

@@ -69,6 +69,18 @@ function AcceptsEverything() {
   expectType<unknown, typeof optionalPayload>(optionalPayload);
 }
 
+// `anyKind` is the explicit catch-all, which also leaves the payload `unknown`.
+function AcceptsAnyKind() {
+  Draggable.useMonitor({
+    accept: Draggable.anyKind,
+    onMoveStart: (eventDetails) =>
+      expectType<unknown, typeof eventDetails.source.payload>(eventDetails.source.payload),
+  });
+  const active = Draggable.useActiveDrag(Draggable.anyKind);
+  const activePayload = active?.payload;
+  expectType<unknown, typeof activePayload>(activePayload);
+}
+
 // @ts-expect-error extracted typed parameters must also require the runtime filter.
 const missingAccept: Draggable.useMonitor.Parameters<CardPayload> = {};
 
@@ -95,6 +107,7 @@ export {
   AcceptsOneKind,
   AcceptsTwoKinds,
   AcceptsEverything,
+  AcceptsAnyKind,
   RejectsMismatchedHandler,
   ForwardsDeclaredParameters,
 };

@@ -7,12 +7,62 @@
   user-select: none;
 }
 
-.Root,
-.Root * {
+.Controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.Field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.Select {
   box-sizing: border-box;
-  font-synthesis: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  height: 2rem;
+  padding: 0 0.5rem;
+  margin: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Status {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
 }
 
 .Palette {
@@ -24,6 +74,7 @@
 
 .Canvas {
   position: relative;
+  box-sizing: border-box;
   min-height: 15rem;
   padding: 0.75rem;
   overflow: hidden;
@@ -75,6 +126,7 @@
 
 .Frame {
   position: absolute;
+  box-sizing: border-box;
   right: 0.75rem;
   bottom: 0.75rem;
   display: flex;
@@ -127,6 +179,7 @@
 }
 
 .Layer {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;

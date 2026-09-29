@@ -71,7 +71,7 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
   ): React.JSX.Element;
   // Private inference overload for heterogeneous `accept` arrays. Explicit
   // component generics use the payload-keyed overload above.
-  <TAccept extends DraggableAccept<unknown> = DraggableKind<unknown>>(
+  <TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>>(
     props: DragParametersWithInferredAccept<
       DraggableViewportProps<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
       TAccept

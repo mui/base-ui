@@ -7,14 +7,6 @@
   user-select: none;
 }
 
-.Root,
-.Root * {
-  box-sizing: border-box;
-  font-synthesis: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 .Grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -26,6 +18,7 @@
 }
 
 .Slot {
+  box-sizing: border-box;
   display: flex;
   align-items: stretch;
   min-height: 8rem;
@@ -64,6 +57,7 @@
 }
 
 .Widget {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   width: 100%;

@@ -3,6 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 import { describe, it, expect, vi } from 'vitest';
 import { act, waitFor } from '@mui/internal-test-utils';
 import { createDndRenderer, firePointer, isJSDOM } from '#test-utils';
+import { restrictToElement } from '../../utils/drag-and-drop/dragModifiers';
 import { registerCleanup, setupDragEngineTests, flushRaf } from '../../../test/dnd';
 
 setupDragEngineTests();
@@ -322,7 +323,68 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
       }),
     );
     expect(drop).toHaveBeenCalledTimes(1);
-    expect(drop.mock.calls[0][0].target.element).toBe(target);
+    expect(drop.mock.calls[0][0].currentTarget.element).toBe(target);
+  });
+
+  function pointer(type: 'down' | 'move' | 'up', target: Element, x: number, y: number) {
+    act(() =>
+      firePointer[type](target, {
+        timeStamp: 100,
+        pointerId: 1,
+        pointerType: 'mouse',
+        button: 0,
+        buttons: type === 'up' ? 0 : 1,
+        clientX: x,
+        clientY: y,
+      }),
+    );
+  }
+
+  it('scrolls the viewport under the pointer, not a deeper one behind it', async () => {
+    const { engine } = await renderDnd();
+    const source = element('position:fixed;left:300px;top:0;width:100px;height:50px');
+    // An app shell's `main`, nested deeper than the drawer list portaled over its
+    // bottom half. Both bottom edge zones hold the pointer.
+    const shell = element('');
+    const layout = element('', shell);
+    const main = element(
+      'position:fixed;left:0;top:0;width:200px;height:400px;overflow:auto',
+      layout,
+    );
+    element('height:1000px', main);
+    const drawer = element('position:fixed;left:0;top:200px;width:200px;height:200px');
+    const list = element('width:200px;height:200px;overflow:auto', drawer);
+    element('height:1000px', list);
+    main.scrollTop = 100;
+    list.scrollTop = 100;
+    engine.registerSource(source, { activation: { type: 'immediate' } });
+    engine.registerViewport(main, {});
+    engine.registerViewport(list, {});
+
+    pointer('down', source, 310, 20);
+    pointer('move', document.body, 100, 390);
+    await waitFor(() => expect(list.scrollTop).toBeGreaterThan(100));
+    expect(main.scrollTop).toBe(100);
+    act(() => engine.cancelDrag());
+  });
+
+  it('keeps scrolling past the edge when restrictToElement holds a tall preview inside', async () => {
+    const { engine } = await renderDnd();
+    const viewport = element('position:fixed;left:0;top:0;width:200px;height:200px;overflow:auto');
+    // 120px tall and grabbed 10px from its top, so the clamped drag point stays
+    // 110px above the bottom, well outside the 50px edge zone.
+    const source = element('width:100px;height:120px', viewport);
+    element('height:1000px', viewport);
+    engine.registerSource(source, {
+      activation: { type: 'immediate' },
+      modifiers: restrictToElement(viewport),
+    });
+    engine.registerViewport(viewport, {});
+
+    pointer('down', source, 50, 10);
+    pointer('move', document.body, 50, 300);
+    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+    act(() => engine.cancelDrag());
   });
 
   it('hands scrolling to the outer viewport at the inner limit', async () => {

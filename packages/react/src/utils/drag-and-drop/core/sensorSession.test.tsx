@@ -39,7 +39,7 @@ describe('sensor session startup', () => {
               source.updatePayload('updated');
               source.updateDragData({ offset });
               expect(dragSourceStore.state).toBeNull();
-              expect(document.querySelector('[data-drag-preview]')).toBeNull();
+              expect(document.querySelector('[data-drag-preview-container]')).toBeNull();
             }}
             onMoveStart={onMoveStart}
           >
@@ -359,7 +359,7 @@ describe('sensor session startup', () => {
     expect(onMoveStart).not.toHaveBeenCalled();
     expect(dragSessionStore.state).toBeNull();
     expect(dragPreviewStore.state).toBeNull();
-    expect(document.querySelector('[data-drag-preview]')).toBeNull();
+    expect(document.querySelector('[data-drag-preview-container]')).toBeNull();
     expect(source).not.toHaveAttribute('data-dragging');
   });
 });

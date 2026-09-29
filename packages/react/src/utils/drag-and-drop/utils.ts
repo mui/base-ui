@@ -6,7 +6,7 @@ import type {
   DraggablePointerType,
   DraggablePosition,
 } from '../../draggable/DraggableProvider';
-import { getParentElement as getComposedParentElement } from '../getParentElement';
+import { getParentElement } from '../getParentElement';
 import { getElementAtPoint } from '../getElementAtPoint';
 import {
   identityLinearTransform,
@@ -58,7 +58,35 @@ export function resolveElementReference<T extends Element, TArgument = void>(
   return reference;
 }
 
-export { getComposedParentElement };
+const NO_CLOSED_ROOTS: ReadonlyMap<Element, ShadowRoot> = new Map();
+
+/**
+ * The parent of `element` in the composed tree: its assigned slot, then its
+ * parent, then the host of its shadow root.
+ *
+ * `assignedSlot` is `null` for an element slotted into a closed shadow root, so a
+ * plain walk would jump from the element straight to its host and skip whatever
+ * wraps the `<slot>`. `closedRootsByHost` supplies the closed roots the engine
+ * knows about, such as those holding a registered drop target, and the slot is
+ * looked up in the host's root instead.
+ */
+export function getComposedParentElement(
+  element: Element,
+  closedRootsByHost: ReadonlyMap<Element, ShadowRoot> = NO_CLOSED_ROOTS,
+): Element | null {
+  if (closedRootsByHost.size > 0 && element.assignedSlot === null) {
+    const host = element.parentElement;
+    const root = host === null ? undefined : closedRootsByHost.get(host);
+    if (root !== undefined) {
+      for (const slot of root.querySelectorAll('slot')) {
+        if (slot.assignedElements().includes(element)) {
+          return slot;
+        }
+      }
+    }
+  }
+  return getParentElement(element);
+}
 
 /** The event root that can observe a node before closed-shadow retargeting. */
 export function getDragEventRoot(node: Element): Document | ShadowRoot {
@@ -77,6 +105,8 @@ export function getDragEventRoot(node: Element): Document | ShadowRoot {
  * activation commit, outside every containment boundary and after the pending
  * listeners are removed. A `TypeError` here would leave the sensor stuck and
  * refuse every later pickup, so a missing method reports nothing under the pointer.
+ * A non-finite coordinate, which browsers reject with a `TypeError`, reports
+ * nothing for the same reason.
  */
 export function deepElementFromPoint(
   doc: Document,
@@ -84,6 +114,9 @@ export function deepElementFromPoint(
   clientY: number,
   rootsByHost: ReadonlyMap<Element, ShadowRoot>,
 ): Element | null {
+  if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) {
+    return null;
+  }
   let hit = getElementAtPoint(doc, clientX, clientY);
   let innerRoot = hit ? (hit.shadowRoot ?? rootsByHost.get(hit)) : undefined;
   while (innerRoot) {
@@ -403,6 +436,24 @@ export function getElementZoom(element: HTMLElement): number {
   return zoom;
 }
 
+// Set once `:popover-open` has failed to parse. Browsers that predate the popover
+// API throw a `SyntaxError` on the selector, and a `popover` attribute does
+// nothing there, so no element can be an open popover.
+let popoverOpenUnsupported = false;
+
+/** Whether `node` is a shown popover, which renders in the top layer. */
+function isOpenPopover(node: Element): boolean {
+  if (popoverOpenUnsupported || !node.hasAttribute('popover')) {
+    return false;
+  }
+  try {
+    return node.matches(':popover-open');
+  } catch {
+    popoverOpenUnsupported = true;
+    return false;
+  }
+}
+
 /**
  * The scale that CSS transforms and `zoom` apply to `element`, accumulated over the
  * element and its ancestors, such as a zoomable canvas or a scaled preview container.
@@ -445,7 +496,7 @@ export function getElementScale(element: HTMLElement): DraggablePosition {
     // `zoom` is not a transform, so it stays out of the matrix. It compounds down the
     // tree the same way, so it is multiplied in separately.
     zoom *= getOwnZoom(node, style);
-    if (node.hasAttribute('popover') && node.matches(':popover-open')) {
+    if (isOpenPopover(node)) {
       escapedTransforms = true;
     }
     node = getComposedParentElement(node);

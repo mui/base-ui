@@ -5,7 +5,16 @@ import { describe, it, expect } from 'vitest';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
-import { cancel, createElement, dragEnter, lift, setupDragEngineTests } from '../../../test/dnd';
+import { registerTarget } from '../../utils/drag-and-drop/registrations';
+import {
+  cancel,
+  createElement,
+  dragEnter,
+  dragOver,
+  lift,
+  registerCleanup,
+  setupDragEngineTests,
+} from '../../../test/dnd';
 import type { DraggableTargetRecord } from '../target/DraggableTarget';
 
 setupDragEngineTests();
@@ -27,7 +36,7 @@ describe('drop target imperative data', () => {
       accept: sourceKind,
       kind: targetKind,
       payload: declaredPayload,
-      onDraggableEnter: ({ target: record }) => {
+      onDraggableEnter: ({ currentTarget: record }) => {
         current = record;
       },
     }));
@@ -61,7 +70,7 @@ describe('drop target imperative data', () => {
       accept: sourceKind,
       kind: targetKind,
       payload: 'target',
-      onDraggableEnter: ({ target: record }) => {
+      onDraggableEnter: ({ currentTarget: record }) => {
         current = record;
       },
     });
@@ -98,20 +107,20 @@ describe('drop target imperative data', () => {
       accept: sourceKind,
       kind: targetKind,
       payload: 'outer',
-      onDraggableEnter: ({ target }) => {
-        observed.push([target.payload, target.dragData]);
+      onDraggableEnter: ({ currentTarget }) => {
+        observed.push([currentTarget.payload, currentTarget.dragData]);
       },
     });
     engine.registerTarget(inner, {
       accept: sourceKind,
       kind: targetKind,
       payload: 'inner',
-      onDraggableEnter: ({ target }) => {
-        target.updatePayload('updated');
-        target.updateDragData(7);
+      onDraggableEnter: ({ currentTarget }) => {
+        currentTarget.updatePayload('updated');
+        currentTarget.updateDragData(7);
       },
-      onDraggableLeave: ({ target }) => {
-        observed.push([target.payload, target.dragData]);
+      onDraggableLeave: ({ currentTarget }) => {
+        observed.push([currentTarget.payload, currentTarget.dragData]);
       },
     });
 
@@ -134,8 +143,8 @@ describe('drop target imperative data', () => {
           accept={sourceKind}
           kind={targetKind}
           payload={payload}
-          onDraggableEnter={({ target }) => {
-            current = target;
+          onDraggableEnter={({ currentTarget }) => {
+            current = currentTarget;
           }}
         />
       );
@@ -175,7 +184,7 @@ describe('drop target imperative data', () => {
       accept: sourceKind,
       kind: targetKind,
       payload: 'initial',
-      onDraggableEnter: ({ target: record }) => {
+      onDraggableEnter: ({ currentTarget: record }) => {
         current = record;
       },
     });
@@ -201,6 +210,54 @@ describe('drop target imperative data', () => {
     expect(screen.getByTestId('observer')).toHaveTextContent('third:undefined');
   });
 
+  it('keeps separate data for elements registered with the same getter', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const cellA = createElement();
+    const cellB = createElement();
+    // The latest record each cell received.
+    const records = new Map<Element, DraggableTargetRecord<string, number>>();
+    const keepRecord = ({
+      currentTarget,
+    }: {
+      currentTarget: DraggableTargetRecord<string, number>;
+    }) => {
+      records.set(currentTarget.element, currentTarget);
+    };
+    // One getter shared by every cell, as a grid registering its cells in a loop
+    // might do. The test engine wraps each getter, so register through the raw API.
+    const getParameters = () => ({
+      accept: sourceKind,
+      kind: targetKind,
+      payload: 'cell',
+      onDraggableEnter: keepRecord,
+      onDraggableMove: keepRecord,
+    });
+    engine.registerSource(source, { kind: sourceKind });
+    registerCleanup(registerTarget(cellA, getParameters));
+    const unregisterB = registerTarget(cellB, getParameters);
+    registerCleanup(unregisterB);
+
+    await lift(source);
+    await dragEnter(cellA);
+    records.get(cellA)!.updatePayload('a');
+    records.get(cellA)!.updateDragData(1);
+
+    await dragEnter(cellB);
+    expect(records.get(cellB)!.payload).toBe('cell');
+    expect(records.get(cellB)!.dragData).toBeUndefined();
+    records.get(cellB)!.updatePayload('b');
+    records.get(cellB)!.updateDragData(2);
+
+    await dragEnter(cellA);
+    // Unregistering one cell leaves the others' data alone.
+    unregisterB();
+    await dragOver(cellA);
+    expect(records.get(cellA)!.payload).toBe('a');
+    expect(records.get(cellA)!.dragData).toBe(1);
+    cancel();
+  });
+
   it('discards payload overrides when an imperative target unregisters', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -210,7 +267,11 @@ describe('drop target imperative data', () => {
       accept: sourceKind,
       kind: targetKind,
       payload: 'initial',
-      onDraggableEnter: ({ target: record }: { target: DraggableTargetRecord<string, number> }) => {
+      onDraggableEnter: ({
+        currentTarget: record,
+      }: {
+        currentTarget: DraggableTargetRecord<string, number>;
+      }) => {
         current = record;
       },
     };

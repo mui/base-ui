@@ -67,6 +67,21 @@ describe('dragRootLock', () => {
     expect(root.style.userSelect).toBe('text');
   });
 
+  it('keeps an inline style the page changed while the lock was held', () => {
+    const root = document.documentElement;
+    root.style.touchAction = 'pan-y';
+    root.style.overscrollBehavior = 'contain';
+
+    dragRootLock.lock(document.body);
+    // The page takes over this property mid-drag. Restoring the value saved at
+    // lock time would overwrite it.
+    root.style.touchAction = 'pinch-zoom';
+    dragRootLock.unlock();
+
+    expect(root.style.touchAction).toBe('pinch-zoom');
+    expect(root.style.overscrollBehavior).toBe('contain');
+  });
+
   it.skipIf(isJSDOM)('restores inline priorities after unlocking', () => {
     const root = document.documentElement;
     root.style.setProperty('user-select', 'text', 'important');
@@ -104,7 +119,9 @@ describe('dragRootLock', () => {
       document.documentElement,
       document.body,
     ];
-    const before = roots.map((root) => root.style.touchAction);
+    // jsdom doesn't implement `touchAction`, which reads `undefined` until it is
+    // written. The lock restores such a property to an empty string.
+    const before = roots.map((root) => root.style.touchAction ?? '');
     innerDoc.documentElement.style.touchAction = 'pan-y';
 
     try {

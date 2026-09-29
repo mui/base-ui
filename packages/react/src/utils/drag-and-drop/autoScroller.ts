@@ -21,16 +21,20 @@ import { getSharedSlot } from './sharedState';
 import {
   onceCleanup,
   safeCallConsumer,
+  elementFromPointIgnoring,
   getComposedParentElement,
   getOverflowFlags,
   getViewportSize,
   isPointInRect,
   isRtlElement,
+  remapInput,
 } from './utils';
 import type { OverflowFlags } from './utils';
 import { getRawActivePointerInput, notifyExternalScroll } from './activePointer';
+import { getActivePreviewHandle } from './activePreview';
+import { getDropTargetShadowRootsByHost } from './dropTarget';
 import { dragSessionStore } from './dragSessionStore';
-import * as DraggablePreviewDataAttributes from '../../draggable/preview/DraggablePreviewDataAttributes';
+import { PREVIEW_ELEMENT_ATTRIBUTE } from './synthetic/cloneDragPreview';
 import { getMaxScrollOffset } from '../scrollEdges';
 import type {
   DraggableViewportDragScrollDirection,
@@ -55,7 +59,9 @@ const CHAIN_OBSERVER_OPTIONS: MutationObserverInit = {
   attributes: true,
   childList: true,
 };
-const PREVIEW_SELECTOR = `[${DraggablePreviewDataAttributes.dragPreview}]`;
+// The element the engine positions, in both preview modes. The public
+// `data-drag-preview` is on the consumer's element inside a custom preview instead.
+const PREVIEW_SELECTOR = `[${PREVIEW_ELEMENT_ATTRIBUTE}]`;
 const ELEMENT_NODE = 1;
 // Speed ramps from 0 to `maxSpeed` over this many milliseconds, so a pointer
 // crossing a container's edge on its way elsewhere doesn't jerk it. The ramp
@@ -76,8 +82,7 @@ type ScrollerGetter = () => RegisterViewportParameters<any, any>;
 
 const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   scrollers: new Map<HTMLElement, ScrollerGetter[]>(),
-  scrollLoopRaf: null,
-  scrollWindow: null,
+  scrollFrame: null,
   scrollMonitorGetter: null,
   lastTimestamp: 0,
   currentInput: null,
@@ -86,6 +91,7 @@ const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   engagementStart: new Map<HTMLElement, number>(),
   overflowEligible: new Set<HTMLElement>(),
   sortedScrollers: null,
+  viewportClosedRoots: new Map<Element, ShadowRoot>(),
   chainMutationObserver: null,
   observedChainElements: new Set<Element>(),
   idleMutationObserver: null,
@@ -180,15 +186,19 @@ function isPreviewMutation(record: MutationRecord): boolean {
   return target.nodeType === ELEMENT_NODE && closest(target as Element, PREVIEW_SELECTOR) !== null;
 }
 
-/** Whether a batch of `childList` records added or removed an observed chain element. */
+/**
+ * Whether a batch of `childList` records added or removed an observed chain element.
+ * The set lookups come first because they cost constant time, while the preview
+ * check walks the record target's ancestors.
+ */
 function movesChainElement(records: MutationRecord[]): boolean {
   for (const record of records) {
-    if (record.type !== 'childList' || isPreviewMutation(record)) {
+    if (record.type !== 'childList') {
       continue;
     }
     for (const nodes of [record.addedNodes, record.removedNodes]) {
       for (const node of nodes) {
-        if (state.observedChainElements.has(node as Element)) {
+        if (state.observedChainElements.has(node as Element) && !isPreviewMutation(record)) {
           return true;
         }
       }
@@ -235,17 +245,21 @@ function handleObservedMutations(records: MutationRecord[]): void {
     refreshAutoScroll();
     return;
   }
+  // A preview inside a registered viewport writes its position on every frame, so
+  // most batches hold a preview record. The preview check walks the record
+  // target's ancestors, so it runs after the constant-time chain lookup, and only
+  // until one record has shown that the batch wakes the loop.
   let wake = false;
   for (const record of records) {
-    if (isPreviewMutation(record)) {
-      continue;
-    }
     // An attribute record always targets an element.
     if (record.type === 'attributes' && state.observedChainElements.has(record.target as Element)) {
-      refreshAutoScroll();
-      return;
+      if (!isPreviewMutation(record)) {
+        refreshAutoScroll();
+        return;
+      }
+      continue;
     }
-    wake = true;
+    wake ||= !isPreviewMutation(record);
   }
   if (wake) {
     wakeScrollLoop();
@@ -491,9 +505,20 @@ function readPageOverflowFlags(element: HTMLElement): AxisFlags {
 
 /**
  * Order the registered viewports inner-first, and observe the ancestor chains of
- * those in `doc` (see `observeChainMutations`) from the same walk.
+ * those in `doc` (see `observeChainMutations`) from the same walk. Also indexes
+ * the closed shadow roots holding a viewport, which the composed walks can't
+ * reach through their hosts (see `getComposedParentElement`).
  */
 function sortAndObserveScrollers(doc: Document): HTMLElement[] {
+  const closedRoots = new Map<Element, ShadowRoot>();
+  for (const el of state.scrollers.keys()) {
+    for (let root = el.getRootNode(); isShadowRoot(root); root = root.host.getRootNode()) {
+      if (root.mode === 'closed') {
+        closedRoots.set(root.host, root);
+      }
+    }
+  }
+  state.viewportClosedRoots = closedRoots;
   const depths = new Map<HTMLElement, number>();
   const chain = new Set<Element>([doc.documentElement]);
   if (doc.body) {
@@ -507,7 +532,11 @@ function sortAndObserveScrollers(doc: Document): HTMLElement[] {
     let depth = 0;
     // Walk composed ancestors, crossing shadow boundaries, so a scroller inside
     // a shadow tree sorts deeper than its light-DOM ancestors.
-    for (let node: Element | null = el; node !== null; node = getComposedParentElement(node)) {
+    for (
+      let node: Element | null = el;
+      node !== null;
+      node = getComposedParentElement(node, closedRoots)
+    ) {
       depth += 1;
       if (observed) {
         chain.add(node);
@@ -525,22 +554,21 @@ function sortAndObserveScrollers(doc: Document): HTMLElement[] {
 /**
  * Runs one loop frame and clears the frame slot if the frame throws.
  *
- * `wakeScrollLoop` returns early while `scrollLoopRaf !== null`. Without the
+ * `wakeScrollLoop` returns early while `scrollFrame !== null`. Without the
  * `catch`, a throw from a consumer `onDragScroll` or a drop-target getter would
- * leave this spent id in the slot and stop auto-scroll for the rest of the drag.
+ * leave the slot set and stop auto-scroll for the rest of the drag.
  *
- * The slot is cleared on the way out, not on entry. `wakeScrollLoop` reads it
- * during the frame to tell a pending frame from a parked loop. If a consumer
- * registered a scroller mid-frame with the slot already null, the wake would
- * schedule a second frame. The reschedule at the end of `runScrollFrame` would
- * then overwrite its id, leaving a frame that can't be cancelled and running the
- * loop at double rate.
+ * The slot stays set while the frame runs and is cleared on the way out, when
+ * the loop parks. A wake from a consumer callback mid-frame then does nothing,
+ * and the frame reads the change on its way out (see the end of `runScrollFrame`).
+ * Otherwise the wake would schedule a frame before this one had decided whether
+ * to park.
  */
 function scrollLoop(timestamp: number): void {
   try {
     runScrollFrame(timestamp);
   } catch (error) {
-    state.scrollLoopRaf = null;
+    state.scrollFrame = null;
     throw error;
   }
 }
@@ -629,16 +657,41 @@ function runScrollFrame(timestamp: number): void {
         overflowRect = marginRect;
       }
     }
-    candidates.push({ element, registration, getParameters, pageScroller, rect, overflowRect });
+    candidates.push({
+      element,
+      registration,
+      getParameters,
+      pageScroller,
+      rect,
+      overflowRect,
+      probe: null,
+    });
   }
   const preferReported = reportedPointHasCandidate(candidates, currentInput, currentReportedInput);
+  for (const candidate of candidates) {
+    const { rect } = candidate;
+    // The page scroller clamps a pointer outside the viewport back into it.
+    // Element margins don't affect that.
+    candidate.probe = candidate.pageScroller
+      ? {
+          ...currentInput,
+          clientX: clamp(currentInput.clientX, rect.left, rect.right),
+          clientY: clamp(currentInput.clientY, rect.top, rect.bottom),
+        }
+      : resolveProbePoint(
+          currentInput,
+          currentReportedInput,
+          candidate.overflowRect,
+          preferReported,
+        );
+  }
   const consumed: AxisFlags = { x: false, y: false };
   const overflowCandidates: ScrollCandidate[] = [];
 
   // Probes inside a container's rect claim axes first. Candidates whose probe is
   // only inside the margin wait for the second pass, which keeps inner-first
   // order and can only use the axes left unclaimed.
-  for (const pass of [candidates, overflowCandidates]) {
+  for (const pass of [dropOccludedCandidates(candidates, sourceDocument), overflowCandidates]) {
     const overflowPass = pass === overflowCandidates;
     for (const candidate of pass) {
       // Candidates are inner-first, so once both axes are consumed no outer
@@ -646,28 +699,34 @@ function runScrollFrame(timestamp: number): void {
       if (consumed.x && consumed.y) {
         break;
       }
-      const { element, rect, overflowRect, registration, pageScroller } = candidate;
+      const { element, rect, registration, pageScroller } = candidate;
       // A preceding callback can unregister a viewport read above.
       if (holds.getActive(element) !== candidate.getParameters) {
         continue;
       }
       const scrollTarget = pageScroller ?? element;
       const isPageScroller = pageScroller !== null;
-      // The page scroller clamps a pointer outside the viewport back into it.
-      // Element margins don't affect that.
-      const probe = pageScroller
-        ? {
-            ...currentInput,
-            clientX: clamp(currentInput.clientX, rect.left, rect.right),
-            clientY: clamp(currentInput.clientY, rect.top, rect.bottom),
-          }
-        : resolveProbePoint(currentInput, currentReportedInput, overflowRect, preferReported);
-      if (probe === null) {
+      const candidateProbe = candidate.probe;
+      if (candidateProbe === null) {
         continue;
       }
-      if (!overflowPass && !isPointInRect(probe.clientX, probe.clientY, rect)) {
+      if (!overflowPass && !isPointInRect(candidateProbe.clientX, candidateProbe.clientY, rect)) {
         overflowCandidates.push(candidate);
         continue;
+      }
+      // A reported probe stands in for a raw pointer outside the container, as
+      // when `restrictToElement` holds the preview inside it. That point stops
+      // short of the far edge by the preview's size, which can keep it out of the
+      // edge zone exactly when the user pushes past the edge. On an axis the raw
+      // pointer left, the edge test uses the raw pointer, which engages at full
+      // depth toward it.
+      let probe = candidateProbe;
+      if (!isPageScroller && probe !== currentInput) {
+        const { clientX, clientY } = currentInput;
+        probe = remapInput(probe, {
+          x: clientX < rect.left || clientX > rect.right ? clientX : probe.clientX,
+          y: clientY < rect.top || clientY > rect.bottom ? clientY : probe.clientY,
+        });
       }
       // Clamp into the rect so a probe beyond an edge engages at depth 1 without
       // moving the edge zones. The callbacks still receive the unclamped probe.
@@ -836,13 +895,13 @@ function runScrollFrame(timestamp: number): void {
   // Reached with nothing engaged only when a callback registered or released a
   // viewport this frame. The frame slot was still set, so that wake was dropped.
   // Schedule the next frame to pick up the change.
-  state.scrollLoopRaf = requestScrollFrame(currentSource);
+  requestScrollFrame(currentSource);
 }
 
 // Schedule in the source window so popout drags are not throttled with their opener.
-function requestScrollFrame(source: DraggableRootRecord): number {
-  state.scrollWindow ??= ownerWindow(source.element);
-  return state.scrollWindow.requestAnimationFrame(scrollLoop);
+function requestScrollFrame(source: DraggableRootRecord): void {
+  state.scrollFrame ??= new WindowAnimationFrame(ownerWindow(source.element));
+  state.scrollFrame.request(scrollLoop);
 }
 
 /**
@@ -860,7 +919,7 @@ function requestScrollFrame(source: DraggableRootRecord): number {
  * cost of those frames.
  */
 function idleScrollLoop(doc: Document): void {
-  state.scrollLoopRaf = null;
+  state.scrollFrame = null;
   const root = doc.documentElement;
   state.idleMutationObserver ??= new (ownerWindow(root).MutationObserver)(handleObservedMutations);
   state.idleMutationObserver.observe(root, MUTATION_OBSERVER_OPTIONS);
@@ -910,12 +969,12 @@ function observeChainMutations(
 
 /** Resume a parked loop when fresh input may have moved the pointer into an edge zone. */
 function wakeScrollLoop(): void {
-  if (state.currentSource === null || state.scrollLoopRaf !== null) {
+  if (state.currentSource === null || state.scrollFrame !== null) {
     return;
   }
   state.idleMutationObserver?.disconnect();
   state.lastTimestamp = 0;
-  state.scrollLoopRaf = requestScrollFrame(state.currentSource);
+  requestScrollFrame(state.currentSource);
 }
 
 /**
@@ -935,14 +994,12 @@ function resetStyleCaches(): void {
 }
 
 function stopScrollLoop(): void {
-  const scrollLoopRaf = state.scrollLoopRaf;
-  const scrollWindow = state.scrollWindow;
+  const scrollFrame = state.scrollFrame;
   // Reset the state before touching a window that may belong to a closed iframe
   // or popout. Firefox can throw on a dead Window proxy. The callback can't run
   // once its realm is gone, so cancelling is best effort, but the state must
   // always be reset.
-  state.scrollLoopRaf = null;
-  state.scrollWindow = null;
+  state.scrollFrame = null;
   state.currentInput = null;
   state.currentReportedInput = null;
   state.currentSource = null;
@@ -955,10 +1012,9 @@ function stopScrollLoop(): void {
   state.idleMutationObserver = null;
   // Rebuilt, with the chain observation, on the next drag's first frame.
   invalidateScrollerOrder();
+  state.viewportClosedRoots.clear();
   resetStyleCaches();
-  if (scrollLoopRaf !== null && scrollWindow !== null) {
-    WindowAnimationFrame.cancel(scrollLoopRaf, scrollWindow);
-  }
+  scrollFrame?.cancel();
 }
 
 /**
@@ -1036,6 +1092,88 @@ function reportedPointHasCandidate(
   );
 }
 
+/** Whether a candidate's probe lies inside its rect, not only inside its margin. */
+function isProbeInRect(candidate: ScrollCandidate): boolean {
+  const { probe, rect } = candidate;
+  return probe !== null && isPointInRect(probe.clientX, probe.clientY, rect);
+}
+
+/**
+ * Removes the viewports whose rect holds their probe while something else is
+ * under it. The inner-first order only knows the DOM nesting, so a viewport in a
+ * drawer portaled to `<body>` would lose the axis to a deeper app-shell viewport
+ * behind it, and a viewport clipped by an ancestor would scroll where it isn't
+ * visible.
+ *
+ * A candidate stays when it contains the element hit-tested at its probe. When
+ * none does, such as over a gap, the order is left alone. Hit-tests run only
+ * when two or more viewports hold their probe, because a single one can't lose
+ * the axis to another. The page scroller contains everything in its document, so
+ * it never needs one. Candidates probed only through their margin are left to
+ * the margin pass.
+ */
+function dropOccludedCandidates(
+  candidates: ScrollCandidate[],
+  doc: Document,
+): ReadonlyArray<ScrollCandidate> {
+  let contained = 0;
+  for (const candidate of candidates) {
+    if (candidate.pageScroller === null && isProbeInRect(candidate)) {
+      contained += 1;
+    }
+  }
+  if (contained < 2) {
+    return candidates;
+  }
+  const closedRoots = getClosedShadowRoots();
+  const preview = getActivePreviewHandle()?.getPreviewElement()?.element ?? null;
+  // The composed ancestors of the element under each probe. Probes are the raw or
+  // the reported input, so there are at most two.
+  const hitChains = new Map<DraggableInput, Set<Element>>();
+  const hovered = new Set<ScrollCandidate>();
+  for (const candidate of candidates) {
+    const probe = candidate.probe;
+    if (probe === null || candidate.pageScroller !== null || !isProbeInRect(candidate)) {
+      continue;
+    }
+    let hitChain = hitChains.get(probe);
+    if (hitChain === undefined) {
+      hitChain = new Set();
+      let node = elementFromPointIgnoring(doc, probe.clientX, probe.clientY, preview, closedRoots);
+      for (; node !== null; node = getComposedParentElement(node, closedRoots)) {
+        hitChain.add(node);
+      }
+      hitChains.set(probe, hitChain);
+    }
+    if (hitChain.has(candidate.element)) {
+      hovered.add(candidate);
+    }
+  }
+  if (hovered.size === 0) {
+    return candidates;
+  }
+  return candidates.filter(
+    (candidate) =>
+      candidate.pageScroller !== null || hovered.has(candidate) || !isProbeInRect(candidate),
+  );
+}
+
+/**
+ * The closed shadow roots the hit-test descends into and the composed walks
+ * cross: those holding a drop target and those holding a viewport.
+ */
+function getClosedShadowRoots(): ReadonlyMap<Element, ShadowRoot> {
+  const targetRoots = getDropTargetShadowRootsByHost();
+  const viewportRoots = state.viewportClosedRoots;
+  if (viewportRoots.size === 0) {
+    return targetRoots;
+  }
+  if (targetRoots.size === 0) {
+    return viewportRoots;
+  }
+  return new Map([...targetRoots, ...viewportRoots]);
+}
+
 export function normalizeOverflowMargin(value: DraggableViewportOverflowMargin | undefined) {
   const edge = (amount: number | undefined) =>
     amount !== undefined && Number.isFinite(amount) ? Math.max(0, amount) : 0;
@@ -1070,6 +1208,8 @@ interface ScrollCandidate {
   pageScroller: HTMLElement | null;
   rect: ScrollRect;
   overflowRect: Pick<ScrollRect, 'top' | 'right' | 'bottom' | 'left'>;
+  /** The point the edge zones are tested against (see `resolveProbePoint`). */
+  probe: DraggableInput | null;
 }
 
 // Stores fresh drag input and wakes the loop. Shared by `onMove` and
@@ -1130,8 +1270,11 @@ function createAutoScrollEventDetails(
 interface AutoScrollerState {
   /** Each scroll container maps to the stack of getters held against it (merged refs). */
   scrollers: Map<HTMLElement, ScrollerGetter[]>;
-  scrollLoopRaf: number | null;
-  scrollWindow: Window | null;
+  /**
+   * The loop's frame in the source window. Set from a wake until the loop parks
+   * or stops, including while the frame runs (see `scrollLoop`).
+   */
+  scrollFrame: WindowAnimationFrame | null;
   scrollMonitorGetter: (() => RegisterMonitorParameters) | null;
   lastTimestamp: number;
   /** The physical pointer; see {@link resolveProbePoint}. */
@@ -1140,7 +1283,7 @@ interface AutoScrollerState {
   currentReportedInput: DraggableInput | null;
   /**
    * Set from the scroll monitor's `onMoveStart` until `stopScrollLoop`. Unlike
-   * `scrollLoopRaf`, it stays set while the loop is parked (see `idleScrollLoop`).
+   * `scrollFrame`, it stays set while the loop is parked (see `idleScrollLoop`).
    */
   currentSource: DraggableRootRecord | null;
   /** When the pointer first entered each element's edge zone. */
@@ -1155,6 +1298,8 @@ interface AutoScrollerState {
    * Rebuilding it also rebuilds the observed chains (see `sortAndObserveScrollers`).
    */
   sortedScrollers: HTMLElement[] | null;
+  /** Closed shadow roots holding a viewport, by host. Rebuilt with `sortedScrollers`. */
+  viewportClosedRoots: Map<Element, ShadowRoot>;
   /**
    * Watches the registered viewports' subtrees and their ancestor chains in the
    * source document during a drag.

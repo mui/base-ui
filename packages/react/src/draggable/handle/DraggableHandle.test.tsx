@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { createDndRenderer, describeConformance, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { cancel, flushRaf, lift, setupDragEngineTests } from '../../../test/dnd';
+import { cancel, dragOver, flushRaf, lift, setupDragEngineTests } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 
 setupDragEngineTests();
@@ -109,6 +109,97 @@ describe('<Draggable.Handle />', () => {
 
     cancel();
     await flushRaf();
+  });
+
+  it('does not re-register a hovered root when an inline ref changes identity', async () => {
+    // A new ref callback on every render makes React detach and re-attach the
+    // same handle node. Re-registering the root each time would make it leave and
+    // re-enter as a collision item, and a handler that sets state would re-render
+    // with another new ref, forever.
+    const kind = Draggable.createKind<string>('handle-collision');
+    const changed = vi.fn();
+    function List() {
+      const [over, setOver] = React.useState<string | null>(null);
+      return (
+        <Draggable.CollisionProvider
+          kind={kind}
+          onCollisionChange={({ target }) => {
+            changed(target?.payload ?? null);
+            // Bounded, so a regression fails the assertions below instead of hanging.
+            if (changed.mock.calls.length < 20) {
+              setOver(target?.payload ?? null);
+            }
+          }}
+        >
+          <Draggable.Root kind={kind} payload="a" data-testid="a">
+            <Draggable.Preview disabled />
+          </Draggable.Root>
+          <Draggable.Root kind={kind} payload="b" data-testid="b" data-over={over === 'b'}>
+            <Draggable.Handle ref={() => {}} data-testid="handle-b">
+              grip
+            </Draggable.Handle>
+          </Draggable.Root>
+        </Draggable.CollisionProvider>
+      );
+    }
+
+    await renderDnd(<List />);
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+    b.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
+    await lift(a);
+    await dragOver(b, { clientY: 120 });
+    await flushRaf();
+    expect(changed.mock.calls).toEqual([['b']]);
+    expect(b).toHaveAttribute('data-over', 'true');
+    cancel();
+    await flushRaf();
+
+    // The handle is still the only pickup point of its root.
+    b.getBoundingClientRect = () => new DOMRect(0, 0, 100, 100);
+    await lift(b, { expectNoDrag: true });
+    expect(dragSessionStore.getSnapshot()).toBeNull();
+    await lift(screen.getByTestId('handle-b'));
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(b);
+    cancel();
+    await flushRaf();
+  });
+
+  describe('without Strict Mode', () => {
+    // Strict Mode re-attaches a newly mounted handle's ref, which re-registers the
+    // root a second time and would hide a stale registration.
+    const { renderDnd: renderNonStrict } = createDndRenderer({ strict: false });
+
+    it('applies the static setup to a handle swapped in a commit that changes the root ref', async () => {
+      // The root's inline ref detaches and re-attaches its node in the same commit
+      // as the handle swap. The re-attach must not keep the registration made
+      // while no handle was mounted.
+      function Card({ handleId }: { handleId: string }) {
+        return (
+          <Draggable.Root kind={testDragKind} data-testid="card" ref={() => {}}>
+            <span data-testid="body">content</span>
+            <Draggable.Handle key={handleId} data-testid={handleId}>
+              grip
+            </Draggable.Handle>
+          </Draggable.Root>
+        );
+      }
+
+      const { rerender } = await renderNonStrict(<Card handleId="handle-a" />);
+      const card = screen.getByTestId('card');
+      card.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+      await rerender(<Card handleId="handle-b" />);
+      const handleB = screen.getByTestId('handle-b');
+      expect(handleB.style.userSelect).toBe('none');
+
+      await lift(screen.getByTestId('body'), { expectNoDrag: true });
+      expect(dragSessionStore.getSnapshot()).toBeNull();
+      await lift(handleB);
+      expect(dragSessionStore.getSnapshot()?.source.element).toBe(card);
+      cancel();
+      await flushRaf();
+    });
   });
 
   it('resolves className and style callbacks from the disabled state', async () => {

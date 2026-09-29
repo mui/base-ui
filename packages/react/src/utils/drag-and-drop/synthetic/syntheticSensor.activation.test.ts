@@ -195,8 +195,12 @@ describe('syntheticDrag activation', () => {
 
     touchDown(el, 50, 50);
     Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
-    document.dispatchEvent(new Event('visibilitychange'));
-    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    try {
+      document.dispatchEvent(new Event('visibilitychange'));
+    } finally {
+      // Deleting the own property exposes the real getter again.
+      Reflect.deleteProperty(document, 'visibilityState');
+    }
     await new Promise<void>((resolve) => {
       setTimeout(resolve, 120);
     });
@@ -222,6 +226,26 @@ describe('syntheticDrag activation', () => {
     await flushRaf();
 
     expect(onMoveStart).not.toHaveBeenCalled();
+  });
+
+  it('activates a press-hold from the event timestamps of a still touch', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const onMoveStart = vi.fn();
+    engine.registerSource(el, {
+      activation: { type: 'press-hold', delay: 100, tolerance: 5 },
+      onMoveStart,
+    });
+
+    // The elapsed hold is measured between event timestamps, so a move stamped
+    // past the delay commits without waiting for the hold timer.
+    touchDown(el, 50, 50, 1, { timeStamp: 10 });
+    touchMove(51, 50, 1, { timeStamp: 60 });
+    expect(onMoveStart).not.toHaveBeenCalled();
+    touchMove(52, 50, 1, { timeStamp: 120 });
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+
+    touchUp(52, 50, 1, { timeStamp: 130 });
   });
 
   it('distance activation starts the drag after tolerance pixels', async () => {

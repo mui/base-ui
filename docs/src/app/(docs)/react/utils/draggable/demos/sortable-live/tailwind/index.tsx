@@ -33,7 +33,7 @@ const Task = React.memo(function Task({
         collisionElement={getTaskRow}
         data-sortable-item
         render={<button type="button" aria-label={task} />}
-        className="box-border min-h-10 w-full cursor-grab select-none border border-neutral-900 bg-white px-4 py-2 text-sm leading-5 text-neutral-900 data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-950 dark:text-white"
+        className="box-border min-h-10 w-full cursor-grab select-none border border-neutral-950 bg-white px-4 py-2 text-sm leading-5 text-neutral-950 data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-950 dark:text-white"
         modifiers={Draggable.restrictToVerticalAxis}
         aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
         onKeyDown={(event) => {
@@ -115,7 +115,7 @@ export default function SortableLive() {
           ))}
         </div>
       </Draggable.CollisionProvider>
-      <span role="status" aria-live="polite" aria-atomic="true" style={visuallyHidden}>
+      <span role="status" style={visuallyHidden}>
         {announcement}
       </span>
     </Draggable.Provider>

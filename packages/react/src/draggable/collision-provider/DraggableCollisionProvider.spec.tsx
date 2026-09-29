@@ -92,6 +92,9 @@ void snapProps;
 // @ts-expect-error placement is computed by the application.
 <Draggable.CollisionProvider kind={card} placement="edges" />;
 
+// @ts-expect-error `anyKind` only fits `accept`, and a group's items share one kind.
+<Draggable.CollisionProvider kind={Draggable.anyKind} />;
+
 // Exported aliases mirror the other parts.
 declare const startDetails: Draggable.CollisionProvider.MoveStartEventDetails<CardPayload>;
 expectType<CardPayload, typeof startDetails.source.payload>(startDetails.source.payload);

@@ -323,6 +323,27 @@ describe('restrictToParentElement', () => {
     expect(result).toEqual({ x: 300, y: 150 });
   });
 
+  it('clamps to the box that lays out a source slotted into a shadow root', () => {
+    // The composed parent is the `<slot>`, which is `display: contents` and
+    // measures 0×0. The wrapper around it is what the source visually sits in.
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const wrapper = document.createElement('div');
+    wrapper.getBoundingClientRect = () => makeRect(0, 0, 200, 200);
+    wrapper.appendChild(document.createElement('slot'));
+    host.attachShadow({ mode: 'open' }).appendChild(wrapper);
+    const child = document.createElement('div');
+    host.appendChild(child);
+    try {
+      const result = restrictToParentElement(
+        makeContext({ sourceElement: child, point: { x: 600, y: 150 } }),
+      );
+      expect(result).toEqual({ x: 200, y: 150 });
+    } finally {
+      host.remove();
+    }
+  });
+
   it('passes the point through when the source has no parent', () => {
     const result = restrictToParentElement(
       makeContext({ sourceElement: document.createElement('div'), point: { x: 7, y: 3 } }),
@@ -407,6 +428,34 @@ describe('applyDragModifiers', () => {
     expect(reads).toHaveLength(2);
     expect(reads[0]?.width).toBe(40);
     expect(reads[1]).toBe(reads[0]);
+  });
+
+  it('keeps the input of an axis a modifier leaves non-finite', () => {
+    const seen: DraggablePosition[] = [];
+    const result = applyDragModifiers(
+      [
+        ({ point }) => ({ x: Number.NaN, y: point.y + 5 }),
+        ({ point }) => {
+          seen.push(point);
+          return { x: point.x + 1, y: Infinity };
+        },
+      ],
+      { x: 3, y: 9 },
+      makeApplyOptions(),
+    );
+    // The second modifier sees the first's finite result, not the `NaN`.
+    expect(seen).toEqual([{ x: 3, y: 14 }]);
+    expect(result).toEqual({ x: 4, y: 14 });
+  });
+
+  it('leaves the point unconstrained for an infinite grid step', () => {
+    // `0 * Infinity` is `NaN`, which would make every hit-test throw.
+    const result = applyDragModifiers(
+      [snapToGrid(Infinity)],
+      { x: 30, y: 40 },
+      makeApplyOptions({ initialPoint: { x: 30, y: 40 } }),
+    );
+    expect(result).toEqual({ x: 30, y: 40 });
   });
 
   it('returns the original point and logs when a modifier throws', () => {

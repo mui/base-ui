@@ -12,6 +12,7 @@ import { resetForTests as resetDropTargets } from '../src/utils/drag-and-drop/dr
 import { unlock as resetDragRootLock } from '../src/utils/drag-and-drop/synthetic/dragRootLock';
 import { unlock as resetDragCursor } from '../src/utils/drag-and-drop/synthetic/dragCursor';
 import { resetForTests as resetPostDragClick } from '../src/utils/drag-and-drop/synthetic/postDragClick';
+import { finishAllEndingPreviewsForTests } from '../src/utils/drag-and-drop/synthetic/syntheticPreview';
 import { resetForTests as resetAutoScroller } from '../src/utils/drag-and-drop/autoScroller';
 import { clearPublishedDragPreview } from '../src/utils/drag-and-drop/overlay/dragPreviewStore';
 import { runAllCleanups } from '../src/utils/drag-and-drop/utils';
@@ -327,6 +328,11 @@ function resetDrag(): void {
   resetDragRootLock();
   resetDragCursor();
   resetPostDragClick();
+  // A drop keeps the clone mounted until the frame after it, or until its ending
+  // transition finishes. A test that ends right after `drop()` would otherwise
+  // leave it in the document, and its ancestor observer would re-home it to the
+  // body when the test's container is removed.
+  finishAllEndingPreviewsForTests();
   // `reset()` clears the active monitors without dispatching `onMoveEnd`, so the
   // scroll monitor never runs its own teardown. A running loop would keep
   // scheduling frames and calling `scrollBy` in the next test, and keep the
@@ -356,7 +362,8 @@ export function splitEnd<TPayload = unknown>(
     try {
       const target = eventDetails.target;
       if (eventDetails.reason === 'drop' && target !== null) {
-        onDrop({ ...eventDetails, target });
+        // A drop goes to the innermost target, so it is both `target` and `currentTarget`.
+        onDrop({ ...eventDetails, target, currentTarget: target });
       }
     } finally {
       onMoveEnd?.(eventDetails);

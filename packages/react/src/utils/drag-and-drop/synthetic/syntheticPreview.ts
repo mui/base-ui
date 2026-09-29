@@ -49,6 +49,25 @@ function findEndingPreview(source: Element): EndingPreview | undefined {
 }
 
 /**
+ * Finish the clone still settling onto `source`, if any. A new pickup calls this
+ * before it measures and clones the source, which would otherwise still carry
+ * `data-dragging` and `data-settling` and the styles keyed on them.
+ */
+export function finishEndingPreview(source: Element): void {
+  findEndingPreview(source)?.finish();
+}
+
+/**
+ * Finish every settling clone. Test-only, so a test that ends right after a drop
+ * does not leave its clone in the document for the next one.
+ */
+export function finishAllEndingPreviewsForTests(): void {
+  for (const entry of Array.from(endingPreviews)) {
+    entry.finish();
+  }
+}
+
+/**
  * Point a settling clone at a draggable that remounted in the drop commit.
  * A cross-container move creates a new React subtree, so the active-drag retargeting
  * path cannot link the old and new ref callbacks.
@@ -219,7 +238,7 @@ export function createSyntheticPreview(
       previewElement = preview;
     },
     markSourceDragging(): void {
-      findEndingPreview(sourceElement)?.finish();
+      finishEndingPreview(sourceElement);
       // Set only after the preview is built. A `[data-dragging]` rule that changes
       // the source's geometry or hides it would otherwise corrupt the measurement
       // the clone is sized from.
@@ -302,7 +321,14 @@ export function createSyntheticPreview(
         // slot, not the slot it held when the pointer came up.
         frame.request(() => {
           endingPreview.ensureConnected();
-          if (!sourceElement.isConnected || !element.isConnected) {
+          // A source that renders no box while the preview does, such as one a
+          // `[data-dragging] { display: none }` rule hides, measures as a zero rect
+          // at the viewport corner. There is nothing to settle onto.
+          if (
+            !sourceElement.isConnected ||
+            !element.isConnected ||
+            (sourceElement.getClientRects().length === 0 && element.getClientRects().length > 0)
+          ) {
             cleanup();
             return;
           }

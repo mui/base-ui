@@ -694,10 +694,19 @@ describe('Draggable.Root', () => {
       const el = screen.getByTestId('drag');
       el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-      await lift(el);
+      // A press with no movement at all. The default mouse activation would wait
+      // for 5px of travel.
+      const pointer = { pointerType: 'mouse', pointerId: 1, clientX: 10, clientY: 10 } as const;
+      act(() => {
+        firePointer.down(el, { ...pointer, button: 0, buttons: 1, timeStamp: 100 });
+      });
+      await flushRaf();
       expect(onMoveStart).toHaveBeenCalledTimes(1);
 
-      cancel();
+      act(() => {
+        firePointer.up(el, { ...pointer, button: 0, buttons: 0, timeStamp: 120 });
+      });
+      expect(dragSessionStore.getSnapshot()).toBeNull();
     });
 
     it('forwards modifiers: a root-level axis lock constrains a pointer drag', async () => {
@@ -772,6 +781,8 @@ describe('Draggable.Root', () => {
       el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
       await lift(el);
+      // The cursor lock is deferred past the frame that paints the lift.
+      await flushRaf();
 
       // The sensor sets the cursor for the whole document through a rule keyed on
       // this class and variable. The forwarded value must end up in the variable.
@@ -804,6 +815,8 @@ describe('Draggable.Root', () => {
       el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
       await lift(el);
+      // The cursor lock is deferred past the frame that paints the lift.
+      await flushRaf();
       expect(document.documentElement).toHaveClass('baseui-dragging');
       expect(document.documentElement).not.toHaveClass('baseui-dragging-styles');
       cancel();
@@ -811,6 +824,7 @@ describe('Draggable.Root', () => {
 
       act(() => setStyleElementsDisabled(false));
       await lift(el);
+      await flushRaf();
 
       expect(document.documentElement).toHaveClass('baseui-dragging', 'baseui-dragging-styles');
       const cursorStyle = Array.from(document.head.querySelectorAll('style')).find(
@@ -934,7 +948,7 @@ describe('Draggable.Root', () => {
 
       expect(stale).not.toHaveBeenCalled();
       expect(onDrop).toHaveBeenCalledTimes(1);
-      expect(onDrop.mock.calls[0][0].target.payload).toEqual({ slot: 2 });
+      expect(onDrop.mock.calls[0][0].currentTarget.payload).toEqual({ slot: 2 });
     });
   });
 
@@ -1510,7 +1524,7 @@ describe('Draggable.Root', () => {
       // Both hold at once. The content reads the app's context, and the element
       // stays where contextual CSS such as `.dark .Card` still matches it.
       expect(
-        screen.getByTestId('preview').closest('[data-drag-preview]')!.parentElement!.parentElement,
+        screen.getByTestId('preview').closest('[data-drag-preview-container]')!.parentElement,
       ).toBe(source.parentElement);
     });
 
@@ -1527,10 +1541,12 @@ describe('Draggable.Root', () => {
       fireDrag.dragStart(source);
 
       // `className` styles the part, not the host the engine transforms. The engine
-      // positions the host, and the consumer styles the part.
+      // positions the host, and the consumer styles the part, which also carries the
+      // public styling hook.
       const element = screen.getByTestId('preview').parentElement as HTMLElement;
       expect(element).toHaveClass('Ghost');
-      expect(element.parentElement).toHaveAttribute('data-drag-preview', '');
+      expect(element).toHaveAttribute('data-drag-preview', '');
+      expect(element.parentElement).not.toHaveAttribute('data-drag-preview');
     });
 
     it('renders the element the render prop returns, with no wrapper of its own', async () => {
@@ -1565,7 +1581,7 @@ describe('Draggable.Root', () => {
 
       // Pointer (100, 120) minus the declared offset (5, 6). The `'source'` default
       // would have anchored to the grab point.
-      const host = document.querySelector('[data-drag-preview]') as HTMLElement;
+      const host = document.querySelector('[data-base-ui-drag-preview]') as HTMLElement;
       expect(host.style.translate).toBe('95px 114px');
     });
 
@@ -1601,7 +1617,7 @@ describe('Draggable.Root', () => {
       // centering on `container.offsetWidth` must measure that element.
       expect(offsetSpy).toHaveBeenCalledTimes(1);
       expect(offsetSpy.mock.calls[0][0].container).toBe(
-        document.querySelector('[data-drag-preview]'),
+        document.querySelector('[data-base-ui-drag-preview]'),
       );
     });
 
@@ -1618,7 +1634,9 @@ describe('Draggable.Root', () => {
       await lift(source, { clientX: 100, clientY: 100 });
       await dragOver(source, { clientX: 80, clientY: 90 });
 
-      const overlay = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
+      const overlay = screen
+        .getByTestId('preview')
+        .closest('[data-base-ui-drag-preview]') as HTMLElement;
       // Pointer (80, 90) minus the returned offset (10, 20).
       expect(overlay.style.translate).toBe('70px 70px');
     });
@@ -1632,7 +1650,9 @@ describe('Draggable.Root', () => {
 
       // The documented `--drag-source-*` variables must be set on the overlay the
       // React preview renders into, not only on the vanilla synthetic container.
-      const overlay = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
+      const overlay = screen
+        .getByTestId('preview')
+        .closest('[data-base-ui-drag-preview]') as HTMLElement;
       expect(overlay.style.getPropertyValue('--drag-source-width')).toBe('200px');
       expect(overlay.style.getPropertyValue('--drag-source-height')).toBe('100px');
     });
@@ -1676,7 +1696,9 @@ describe('Draggable.Root', () => {
       await lift(source, { clientX: 10, clientY: 10 });
 
       // jsdom doesn't lay out, so stub the preview's measured size the clamp reads.
-      const overlay = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
+      const overlay = screen
+        .getByTestId('preview')
+        .closest('[data-base-ui-drag-preview]') as HTMLElement;
       overlay.getBoundingClientRect = () => new DOMRect(0, 0, 50, 30);
 
       // Drag far past the bottom-right corner. The preview stops at the edge, 200
@@ -1703,7 +1725,9 @@ describe('Draggable.Root', () => {
       // The content is portaled into an engine-owned host in the source's parent,
       // where a cloned preview also goes. A provider supplies the React tree but
       // moves nothing.
-      const host = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
+      const host = screen
+        .getByTestId('preview')
+        .closest('[data-base-ui-drag-preview]') as HTMLElement;
       expect(host).not.toBeNull();
       expect(host.parentElement!.parentElement).toBe(source.parentElement);
     });
@@ -1729,7 +1753,9 @@ describe('Draggable.Root', () => {
       fireDrag.dragStart(source);
 
       // `container` is the only thing that relocates a preview.
-      const host = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
+      const host = screen
+        .getByTestId('preview')
+        .closest('[data-base-ui-drag-preview]') as HTMLElement;
       expect(host.parentElement!.parentElement).toBe(screen.getByTestId('container'));
     });
 
@@ -1754,7 +1780,9 @@ describe('Draggable.Root', () => {
       fireDrag.dragStart(source);
 
       // The callback form reaches a container the caller has no ref to.
-      const host = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
+      const host = screen
+        .getByTestId('preview')
+        .closest('[data-base-ui-drag-preview]') as HTMLElement;
       expect(host.parentElement!.parentElement).toBe(screen.getByTestId('board'));
     });
 
@@ -1869,7 +1897,7 @@ describe('Draggable.Root', () => {
 
       expect(screen.getByTestId('preview')).toBeInTheDocument();
       // Exactly one preview. The declaration must replace the clone, not race it.
-      expect(document.querySelectorAll('[data-drag-preview]')).toHaveLength(1);
+      expect(document.querySelectorAll('[data-drag-preview-container]')).toHaveLength(1);
       expect(document.querySelector('.Card[data-drag-preview]')).toBeNull();
     });
 
@@ -1903,7 +1931,9 @@ describe('Draggable.Root', () => {
       await lift(source, { clientX: 30, clientY: 40 });
       await dragOver(source, { clientX: 100, clientY: 120 });
 
-      const host = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
+      const host = screen
+        .getByTestId('preview')
+        .closest('[data-base-ui-drag-preview]') as HTMLElement;
       expect(host.style.translate).toBe('95px 114px');
     });
 

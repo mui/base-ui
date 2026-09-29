@@ -75,9 +75,10 @@ function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
     null,
   );
   // The getter may have ended the drag, or ended it and started another. Engage
-  // the monitor only in the drag it was evaluated against.
+  // the monitor only in the drag it was evaluated against. A getter written in
+  // plain JS can also return `undefined`.
   if (
-    monitor !== null &&
+    monitor != null &&
     state.activeSource === activeSource &&
     matchesAccept(monitor.accept, activeSource)
   ) {

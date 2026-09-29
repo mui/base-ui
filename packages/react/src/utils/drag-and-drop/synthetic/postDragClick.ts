@@ -20,6 +20,7 @@
 import { ownerWindow } from '@base-ui/utils/owner';
 import { NOOP } from '@base-ui/utils/empty';
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import { WindowTimeout } from '../../windowTimeout';
 import { getSharedSlot } from '../sharedState';
 import type { DragCleanupFn } from '../types';
@@ -39,13 +40,24 @@ const CLICK_WINDOW_MS = 300;
  */
 const HELD_WINDOW_MS = 5000;
 
+/**
+ * Backstop for the rest of a double-click after a double-click drop. Only a
+ * click with `detail` 2 or more is swallowed, and browsers report that only
+ * within the OS double-click time, so `detail` decides and this only removes the
+ * listeners when no second click comes.
+ */
+const DOUBLE_CLICK_WINDOW_MS = 1000;
+
 interface PostDragClickState {
   /** Disarms the currently armed suppression, or `null` when none is armed. */
   disarm: DragCleanupFn | null;
+  /** The armed double-click follow-up suppression and its window, or `null` when none is armed. */
+  doubleClickFollowUp: { win: Window; disarm: DragCleanupFn } | null;
 }
 
 const state = getSharedSlot<PostDragClickState>('postDragClick', () => ({
   disarm: null,
+  doubleClickFollowUp: null,
 }));
 
 /**
@@ -183,7 +195,82 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
   timeout.start(HELD_WINDOW_MS, disarm);
 }
 
+/**
+ * Swallow the rest of a double-click whose first click dropped a double-click
+ * pickup: the next `click` with `detail` 2 or more, and the `dblclick`. The
+ * `dblclick` would otherwise pick up the item under the pointer again, which is
+ * often the one just dropped. A click with `detail` 1 starts a new sequence and
+ * disarms the suppression, as does the `dblclick` or the backstop timer.
+ */
+export function suppressDoubleClickFollowUp(element: Element): void {
+  state.doubleClickFollowUp?.disarm();
+
+  const win = ownerWindow(element);
+  const timeout = new WindowTimeout(win);
+  const cleanups: DragCleanupFn[] = [];
+
+  const followUp = {
+    win,
+    disarm() {
+      if (state.doubleClickFollowUp !== followUp) {
+        return;
+      }
+      state.doubleClickFollowUp = null;
+      timeout.clear();
+      for (const off of cleanups) {
+        off();
+      }
+    },
+  };
+
+  // Window capture runs before any document listener, as in `suppressNextClick`.
+  // The sensor's own `dblclick` listener on the window was added earlier and runs
+  // first, so it checks `consumeDoubleClickFollowUp`.
+  cleanups.push(
+    addEventListener(
+      win,
+      'click',
+      (event) => {
+        // A keyboard or programmatic click (`detail` 0) isn't part of the sequence.
+        if (event.detail === 0) {
+          return;
+        }
+        if (event.detail >= 2) {
+          swallow(event);
+        } else {
+          followUp.disarm();
+        }
+      },
+      { capture: true },
+    ),
+    addEventListener(win, 'dblclick', consumeDoubleClickFollowUp, { capture: true }),
+  );
+
+  state.doubleClickFollowUp = followUp;
+  timeout.start(DOUBLE_CLICK_WINDOW_MS, followUp.disarm);
+}
+
+/**
+ * Swallow `event` if it is the `dblclick` of a double-click that dropped (see
+ * {@link suppressDoubleClickFollowUp}), and report whether it was.
+ */
+export function consumeDoubleClickFollowUp(event: Event): boolean {
+  const followUp = state.doubleClickFollowUp;
+  if (!followUp || ownerWindow(getTarget(event)) !== followUp.win) {
+    return false;
+  }
+  swallow(event);
+  followUp.disarm();
+  return true;
+}
+
+function swallow(event: Event): void {
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}
+
 /** Disarm without waiting for a click. Used by the engine's test reset. */
 export function resetForTests(): void {
   state.disarm?.();
+  state.doubleClickFollowUp?.disarm();
 }

@@ -2,12 +2,12 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets } from '../../dashboardWidgets';
 import type { SlotId, WidgetData } from '../../dashboardWidgets';
 
 import styles from '../../containment.module.css';
-import statusStyles from '../../dashboardStatus.module.css';
 
 const widgetKind = Draggable.createKind<string>('draggable/contained-widget');
 
@@ -87,7 +87,7 @@ export default function ContainedDashboard() {
   return (
     <Draggable.Provider>
       <div ref={dashboardRef} className={styles.Root}>
-        <div role="status" className={statusStyles.Status}>
+        <div role="status" style={visuallyHidden}>
           {announcement}
         </div>
         <div ref={frameRef} className={styles.Frame}>

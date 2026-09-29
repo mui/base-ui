@@ -14,8 +14,8 @@ import type { DragEndReason, DragEventDetails, MoveEndEventDetails } from './typ
 
 /**
  * Creates the details the source and the monitors receive, where `target` is the
- * innermost drop target. Each drop target receives a copy whose `target` is its own
- * record (see `dispatchToDropTarget`).
+ * innermost drop target. Each drop target receives a copy that adds its own record as
+ * `currentTarget` (see `dispatchToDropTarget`).
  *
  * `event` is the native event of the latest input. Without one, as with a
  * programmatic `cancelDrag()`, the details get Base UI's placeholder event, so

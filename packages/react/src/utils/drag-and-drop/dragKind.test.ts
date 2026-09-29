@@ -102,6 +102,16 @@ describe('matchesAccept', () => {
     expect(matchesAccept([card, column], sourceOfKind(createKind('row').id))).toBe(false);
   });
 
+  it('treats `accept: null` from plain JS as omitted', () => {
+    expect(matchesAccept(null as never, sourceOfKind(card.id))).toBe(true);
+  });
+
+  it('skips empty slots in an array instead of throwing', () => {
+    const accept = [undefined, null, card] as never;
+    expect(matchesAccept(accept, sourceOfKind(card.id))).toBe(true);
+    expect(matchesAccept(accept, sourceOfKind(column.id))).toBe(false);
+  });
+
   it('accepts nothing when the array is empty', () => {
     expect(matchesAccept([], sourceOfKind(card.id))).toBe(false);
   });

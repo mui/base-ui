@@ -410,9 +410,9 @@ export function createSeedState(today: number): CalendarState {
  */
 export function resolveDropPreview(
   source: Draggable.Root.Record<CalendarDragSource>,
-  innermost: Draggable.Target.Record<CalendarDropPayload> | null,
+  dropTarget: Draggable.Target.Record<CalendarDropPayload> | null,
 ): DropPreview | null {
-  if (!innermost) {
+  if (!dropTarget) {
     return null;
   }
 
@@ -420,18 +420,18 @@ export function resolveDropPreview(
   // with the `'source'` anchor. Capped so the last slot stays inside the day.
   // Shared by all kinds.
   const timedMsAt = (dayMs: number, anchor?: 'source'): number => {
-    const fraction = innermost.getSnappedLocalPoint({ anchor }).y;
+    const fraction = dropTarget.getSnappedLocalPoint({ anchor }).y;
     return Math.min(dayMs + DAY_MS - MINUTE_MS, dayMs + fraction * DAY_MS);
   };
 
-  // The three drop payloads have the same shape, so narrowing `innermost` to one kind
+  // The three drop payloads have the same shape, so narrowing `dropTarget` to one kind
   // types it as `never` in the later branches. Read the shared field once instead.
-  const targetDayMs = innermost.payload.dayMs;
+  const targetDayMs = dropTarget.payload.dayMs;
 
   if (calEventMoveKind.matches(source)) {
     const sourcePayload = source.payload;
     const duration = sourcePayload.anchorEnd - sourcePayload.anchorStart;
-    if (calDayCellKind.matches(innermost)) {
+    if (calDayCellKind.matches(dropTarget)) {
       // Month view. Keep the time of day and change the date.
       const dayMs = targetDayMs;
       const offset = sourcePayload.allDay
@@ -447,7 +447,7 @@ export function resolveDropPreview(
         intent: 'move',
       };
     }
-    if (calAllDayRowKind.matches(innermost)) {
+    if (calAllDayRowKind.matches(dropTarget)) {
       const start = targetDayMs;
       return {
         start,
@@ -461,7 +461,7 @@ export function resolveDropPreview(
         intent: 'move',
       };
     }
-    if (calDayColumnKind.matches(innermost)) {
+    if (calDayColumnKind.matches(dropTarget)) {
       // Week view. The source anchor reports where the chip's top edge lands,
       // already snapped, so the chip stays under the pointer instead of jumping
       // its top to the cursor.
@@ -478,7 +478,7 @@ export function resolveDropPreview(
 
   if (calEventResizeKind.matches(source)) {
     const sourcePayload = source.payload;
-    if (calDayCellKind.matches(innermost)) {
+    if (calDayCellKind.matches(dropTarget)) {
       // Month view resize uses local midnight boundaries, with an exclusive end.
       const time = targetDayMs;
       if (sourcePayload.edge === 'start') {
@@ -498,7 +498,7 @@ export function resolveDropPreview(
         intent: 'resize',
       };
     }
-    if (calAllDayRowKind.matches(innermost)) {
+    if (calAllDayRowKind.matches(dropTarget)) {
       const time = targetDayMs;
       if (sourcePayload.edge === 'start') {
         const start = Math.min(time, addDays(sourcePayload.anchorEnd, -1));
@@ -512,7 +512,7 @@ export function resolveDropPreview(
       const end = Math.max(addDays(time, 1), addDays(sourcePayload.anchorStart, 1));
       return { start: sourcePayload.anchorStart, end, allDay: true, intent: 'resize' };
     }
-    if (calDayColumnKind.matches(innermost)) {
+    if (calDayColumnKind.matches(dropTarget)) {
       const pointerMs = timedMsAt(targetDayMs);
       if (sourcePayload.edge === 'start') {
         const start = Math.min(pointerMs, sourcePayload.anchorEnd - MIN_TIMED_DURATION_MS);
@@ -538,7 +538,7 @@ export function resolveDropPreview(
     const sourcePayload = source.payload;
     if (sourcePayload.allDay) {
       // Month view. Span from the anchor to the cell under the pointer.
-      if (calDayCellKind.matches(innermost) || calAllDayRowKind.matches(innermost)) {
+      if (calDayCellKind.matches(dropTarget) || calAllDayRowKind.matches(dropTarget)) {
         const dayMs = targetDayMs;
         const lo = Math.min(sourcePayload.anchorMs, dayMs);
         const hi = Math.max(sourcePayload.anchorMs, dayMs);
@@ -554,7 +554,7 @@ export function resolveDropPreview(
     // Timed create. The anchor is in one column and the drop can be in any
     // column. Both ends are already on the grid, because the anchor snapped when
     // the gesture started and the column's `snap` handles the pointer.
-    if (calDayColumnKind.matches(innermost)) {
+    if (calDayColumnKind.matches(dropTarget)) {
       const pointerMs = timedMsAt(targetDayMs);
       const lo = Math.min(sourcePayload.anchorMs, pointerMs);
       const hi = Math.max(sourcePayload.anchorMs, pointerMs);

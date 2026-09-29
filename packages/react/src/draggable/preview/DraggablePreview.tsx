@@ -16,6 +16,7 @@ import { useDraggableContext } from '../DraggableContext';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
 import type { DragPreviewDeclaration } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type { DraggableRootModifiers, DraggableRootRecord } from '../root/DraggableRoot';
+import * as DraggablePreviewDataAttributes from './DraggablePreviewDataAttributes';
 
 /**
  * Configures what follows the pointer during a drag.
@@ -36,19 +37,22 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
   const draggableContext = useDraggableContext();
   const getProps = useStableCallback(() => props);
   const useClone = props.children == null || props.children === false;
-  React.useEffect(() => {
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      useClone &&
-      (props.className !== undefined || props.style !== undefined || props.render !== undefined)
-    ) {
-      warn(
-        'Draggable.Preview received className, style, or render without custom children, so these props are ignored. ' +
-          'Style the source element to customize its clone, or provide preview children. ' +
-          'See https://base-ui.com/react/utils/draggable#preview.',
-      );
-    }
-  }, [useClone, props.className, props.style, props.render]);
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (
+        useClone &&
+        (props.className !== undefined || props.style !== undefined || props.render !== undefined)
+      ) {
+        warn(
+          'Draggable.Preview received className, style, or render without custom children, so these props are ignored. ' +
+            'Style the source element to customize its clone, or provide preview children. ' +
+            'See https://base-ui.com/react/utils/draggable#preview.',
+        );
+      }
+    }, [useClone, props.className, props.style, props.render]);
+  }
 
   // Resolved per drag, not per render.
   const render = useStableCallback(
@@ -100,6 +104,9 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
 }
 
 const EMPTY_STATE: DraggablePreviewState = EMPTY_OBJECT;
+// The styling hook a clone gets from the engine. Here it goes on the element the
+// consumer styles, not on the engine-owned host around it.
+const PREVIEW_ELEMENT_PROPS = { [DraggablePreviewDataAttributes.dragPreview as string]: '' };
 
 /**
  * The element a `Draggable.Preview` declares. The overlay renders it inside the
@@ -111,7 +118,7 @@ function PreviewElement(props: PreviewElementProps): React.ReactNode {
 
   return useRenderElement('div', props, {
     state: EMPTY_STATE,
-    props: elementProps,
+    props: [PREVIEW_ELEMENT_PROPS, elementProps],
   });
 }
 

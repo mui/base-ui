@@ -10,6 +10,9 @@ const sourcePayloads = getSharedSlot(
   () => new WeakMap<DraggableRootRecord, ParticipantPayload>(),
 );
 
+// Set while a `payload` prop change is being published, until the next microtask.
+const propSync = getSharedSlot('dragSource.propSync', () => ({ notifying: false }));
+
 /**
  * Creates the source record that every callback of one drag shares. `payload` reads
  * through to the registration's latest parameters, and `dragData` lives only as long
@@ -80,7 +83,18 @@ export function syncActiveDragSourcePayload(
   }
   const source = dragSessionStore.state?.source;
   if (source?.element === element && source.kind === kind) {
-    if (sourcePayloads.get(source)?.sync(payload)) {
+    // Publish at most one prop change per synchronous render cascade. An inline
+    // `payload={{ ... }}` is a new object on every render, so publishing re-renders
+    // a component that reads `useActiveDrag()` and renders this root, which passes
+    // another new object, and so on until React throws. React flushes those
+    // re-renders synchronously at the end of the commit, before the microtask
+    // runs. Later changes in the cascade are stored silently, so `source.payload`
+    // stays current, and the next change after it publishes again.
+    if (sourcePayloads.get(source)?.sync(payload) && !propSync.notifying) {
+      propSync.notifying = true;
+      queueMicrotask(() => {
+        propSync.notifying = false;
+      });
       notifyDragSourceUpdated(source);
     }
   } else {

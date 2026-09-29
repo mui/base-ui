@@ -13,6 +13,12 @@ type DragScrollHandler<TPayload = unknown> = NonNullable<
 <Draggable.Viewport />;
 <Draggable.Viewport disabled />;
 <Draggable.Viewport
+  accept={Draggable.anyKind}
+  onDragScroll={(eventDetails) => {
+    expectType<unknown, typeof eventDetails.source.payload>(eventDetails.source.payload);
+  }}
+/>;
+<Draggable.Viewport
   accept={card}
   onDrop={(event) => expectType<DataTransfer, typeof event.dataTransfer>(event.dataTransfer)}
   onDragOverCapture={(event) =>

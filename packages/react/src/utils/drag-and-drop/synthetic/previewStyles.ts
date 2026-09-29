@@ -29,13 +29,38 @@ function isPreviewRootProperty(name: string): boolean {
   );
 }
 
-const NODE_ATTRIBUTE = 'data-drag-preview-node';
+/**
+ * Properties never restored onto any node. Motion is the engine's (see
+ * `NEUTRALIZED_PROPERTIES` in `cloneDragPreview`). The clone root's inline
+ * `pointer-events: none` and `inert` reach every descendant through inheritance,
+ * and copying the source's `auto` onto a descendant would make it hit-testable
+ * and focusable again.
+ */
+function isEngineOwnedProperty(name: string): boolean {
+  return (
+    name.startsWith('transition') ||
+    name.startsWith('animation') ||
+    name === 'pointer-events' ||
+    name === 'interactivity'
+  );
+}
+
+// Internal, like every `data-base-ui-` attribute. It only keys the pseudo-element
+// rules restored below.
+const NODE_ATTRIBUTE = 'data-base-ui-drag-preview-node';
 const ids = getSharedSlot('dragPreviewStyleIds', () => ({ next: 0 }));
 
 type Properties = Map<string, Map<string, string>>;
 
-const MIN_RULE_BUDGET = 128;
-const RULES_PER_SOURCE_NODE = 64;
+/**
+ * Measured in Chromium, the rule scan costs about 0.5µs per rule (3µs for a
+ * structural one, which queries the source subtree), whatever the subtree size.
+ * The full snapshot costs about 0.35ms per node. They break even around 500 rules
+ * per node. The floor keeps the more faithful scan for small sources in a
+ * typical app sheet, at a cost of a few milliseconds.
+ */
+const MIN_RULE_BUDGET = 4096;
+const RULES_PER_SOURCE_NODE = 512;
 
 /**
  * Snapshot only declarations whose selectors may stop matching once the clone sits
@@ -162,12 +187,74 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
   // rule budget, snapshot the whole source subtree instead. Pickup cost then stays
   // independent of stylesheet size without caching a stale CSSOM.
   if (needsFullSnapshot) {
+    // Engines list a computed style's standard properties first, in one order
+    // shared by every element, then the element's custom properties. Reading a
+    // name by index costs about as much as reading its value, so the standard
+    // names are listed once and each later node only walks its custom tail.
+    let standardNames: string[] | null = null;
+    // Each node's custom properties, kept until its children compare against them.
+    // `sourceNodes` is in tree order, so a parent is always read first.
+    const customValues = new Map<Element, Map<string, string>>();
+    const readProperties = (
+      computed: CSSStyleDeclaration,
+      parentCustom: Map<string, string> | undefined,
+      custom: Map<string, string>,
+    ) => {
+      const names: string[] = [];
+      const standardCount = standardNames?.length ?? 0;
+      let start = 0;
+      if (
+        standardNames &&
+        standardCount > 0 &&
+        computed.length >= standardCount &&
+        !computed[standardCount - 1].startsWith('--') &&
+        (computed.length === standardCount || computed[standardCount].startsWith('--'))
+      ) {
+        names.push(...standardNames);
+        start = standardCount;
+      }
+      for (let i = start; i < computed.length; i += 1) {
+        const name = computed[i];
+        if (!name.startsWith('--')) {
+          names.push(name);
+          continue;
+        }
+        // Design systems declare hundreds of tokens on `:root`, and every node
+        // reports all of them. A custom property equal to the parent's is
+        // inherited. The clone's parent ends up with that same value, restored if
+        // needed, so the clone inherits it too and it needs no copy. Only the root
+        // copies every token, since the wrapper and container above it are not
+        // the source's ancestors.
+        const value = computed.getPropertyValue(name);
+        custom.set(name, value);
+        if (parentCustom?.get(name) !== value) {
+          names.push(name);
+        }
+      }
+      // Only a list with every standard name ahead of every custom one can be
+      // reused as a prefix.
+      if (standardNames === null && start === 0) {
+        const firstCustom = names.findIndex((name) => name.startsWith('--'));
+        const standard = firstCustom === -1 ? names : names.slice(0, firstCustom);
+        standardNames =
+          standard.length > 0 && !names.slice(standard.length).some((n) => !n.startsWith('--'))
+            ? standard
+            : [];
+      }
+      return names;
+    };
     for (const node of sourceNodes) {
-      add(node, '', win.getComputedStyle(node));
+      const parentCustom =
+        node === source || !node.parentElement ? undefined : customValues.get(node.parentElement);
+      const custom = new Map<string, string>();
+      customValues.set(node, custom);
+      add(node, '', readProperties(win.getComputedStyle(node), parentCustom, custom));
       for (const pseudo of ['::before', '::after', '::marker']) {
         const computed = win.getComputedStyle(node, pseudo);
         if (computed.content !== 'none' && computed.content !== 'normal') {
-          add(node, pseudo, computed);
+          // A pseudo-element inherits from its element, whose custom properties
+          // were just read.
+          add(node, pseudo, readProperties(computed, custom, new Map()));
         }
       }
     }
@@ -181,12 +268,12 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
         node,
         pseudo,
         values: Array.from(names)
-          // Skip motion and the clone root's layout, which the engine owns.
-          // Descendants and pseudo-elements get their contextual styles back.
+          // Skip what the engine owns: motion and interactivity everywhere, and
+          // the clone root's layout. Descendants and pseudo-elements get their
+          // contextual styles back.
           .filter(
             ([name]) =>
-              !name.startsWith('transition') &&
-              !name.startsWith('animation') &&
+              !isEngineOwnedProperty(name) &&
               !(node === clone && pseudo === '' && isPreviewRootProperty(name)),
           )
           .map(([name, priority]) => [name, computed.getPropertyValue(name), priority] as const),
@@ -212,6 +299,24 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
       sheetRoot = target;
     }
     adoptStyleSheet(target, sheet);
+  }
+
+  /**
+   * A restored value is a style change on a node that is already rendered, so a
+   * descendant whose own `transition` covers it would fade in from the value the
+   * wrapper position gave it. The preview must look settled on its first frame.
+   * Only transitions are finished. A running `@keyframes` inside the source, such
+   * as a spinner, keeps playing on the clone.
+   */
+  function finishTransitions() {
+    if (typeof clone.getAnimations !== 'function' || typeof win.CSSTransition !== 'function') {
+      return;
+    }
+    for (const animation of clone.getAnimations({ subtree: true })) {
+      if (animation instanceof win.CSSTransition) {
+        animation.finish();
+      }
+    }
   }
 
   return {
@@ -281,6 +386,11 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
         }
       }
       reconnect();
+      if (!changed.some(({ values }) => values.length > 0)) {
+        snapshots.length = 0;
+        return;
+      }
+      finishTransitions();
       // An unreadable sheet can also hold `!important` declarations. Computed
       // styles do not expose priority, so raise only the restorations that still
       // lose to a surviving declaration. Reads are batched before writes.
@@ -296,6 +406,9 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
         });
         for (const { node, name, value } of important) {
           node.style.setProperty(name, value, 'important');
+        }
+        if (important.length > 0) {
+          finishTransitions();
         }
       }
       snapshots.length = 0;
