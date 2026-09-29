@@ -48,6 +48,10 @@ function getBrowserConfig(): BrowserModeConfig {
 
 const config: UserWorkspaceConfig = {
   test: {
+    // Vitest 5 reads hook ordering from each project rather than the root config.
+    sequence: {
+      hooks: 'list',
+    },
     exclude: ['node_modules', 'build', '**/*.spec.*'],
     globals: true,
     setupFiles: [resolve(WORKSPACE_ROOT, './test/setupVitest.ts')],
