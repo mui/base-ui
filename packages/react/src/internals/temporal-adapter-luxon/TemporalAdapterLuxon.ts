@@ -370,7 +370,8 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
   };
 
   public isWeekend = (value: DateTime) => {
-    return this.setLocaleToValue(value).isWeekend;
+    /* istanbul ignore next */
+    return this.setLocaleToValue(value).isWeekend ?? [6, 7].includes(value.weekday);
   };
 }
 

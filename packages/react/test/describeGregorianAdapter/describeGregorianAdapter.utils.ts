@@ -6,7 +6,7 @@ export const TEST_DATE_ISO_STRING = '2018-10-30T11:44:25.750Z';
 export const TEST_DATE_LOCALE_STRING = '2018-10-30';
 
 /**
- * Returns the weekend days of the adapter's locale, from 1 (Monday) to 7 (Sunday).
+ * Returns the weekend days of the adapter's locale as ISO day numbers (1 is Monday, 7 is Sunday).
  */
 export function getAdapterWeekendDays(adapter: TemporalAdapter) {
   // Monday, October 29th 2018
@@ -14,19 +14,48 @@ export function getAdapterWeekendDays(adapter: TemporalAdapter) {
   return [1, 2, 3, 4, 5, 6, 7].filter((day) => adapter.isWeekend(adapter.addDays(monday, day - 1)));
 }
 
+type IntlWeekInfoApi = 'method' | 'accessor' | 'none';
+
 /**
- * Removes the Intl.Locale week info APIs to simulate an engine that doesn't support them.
- * Returns a function that restores them.
+ * Replaces the Intl.Locale week info APIs to simulate engines that only support
+ * the `getWeekInfo()` method, only the `weekInfo` accessor, or none of them.
+ * Returns a function that restores the original APIs.
  */
-export function removeIntlWeekInfo() {
+export function stubIntlWeekInfo(api: IntlWeekInfoApi) {
   const prototype = Intl.Locale.prototype;
-  const descriptors = ['getWeekInfo', 'weekInfo'].map(
-    (key) => [key, Object.getOwnPropertyDescriptor(prototype, key)] as const,
-  );
-  descriptors.forEach(([key]) => Reflect.deleteProperty(prototype, key));
+  const keys = ['getWeekInfo', 'weekInfo'];
+  const descriptors = keys.map((key) => Object.getOwnPropertyDescriptor(prototype, key));
+  const [methodDescriptor, accessorDescriptor] = descriptors;
+
+  function readWeekInfo(locale: Intl.Locale) {
+    return methodDescriptor
+      ? methodDescriptor.value.call(locale)
+      : accessorDescriptor!.get!.call(locale);
+  }
+
+  keys.forEach((key) => Reflect.deleteProperty(prototype, key));
+
+  if (api === 'method') {
+    Object.defineProperty(prototype, 'getWeekInfo', {
+      configurable: true,
+      writable: true,
+      value(this: Intl.Locale) {
+        return readWeekInfo(this);
+      },
+    });
+  } else if (api === 'accessor') {
+    Object.defineProperty(prototype, 'weekInfo', {
+      configurable: true,
+      get(this: Intl.Locale) {
+        return readWeekInfo(this);
+      },
+    });
+  }
 
   return () => {
-    descriptors.forEach(([key, descriptor]) => {
+    keys.forEach((key, index) => {
+      Reflect.deleteProperty(prototype, key);
+      const descriptor = descriptors[index];
       if (descriptor) {
         Object.defineProperty(prototype, key, descriptor);
       }

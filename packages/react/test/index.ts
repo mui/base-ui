@@ -11,8 +11,4 @@ export * from './wait';
 export { waitForPositioned } from './waitForPositioned';
 
 // Temporal
-export {
-  describeGregorianAdapter,
-  getAdapterWeekendDays,
-  removeIntlWeekInfo,
-} from './describeGregorianAdapter';
+export { describeGregorianAdapter } from './describeGregorianAdapter';

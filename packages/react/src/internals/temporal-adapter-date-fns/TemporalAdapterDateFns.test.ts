@@ -1,10 +1,12 @@
-import { describe, afterEach, it, expect, onTestFinished } from 'vitest';
+import { describe, afterEach, it, expect } from 'vitest';
+import { arEG } from 'date-fns/locale/ar-EG';
+import { arSA } from 'date-fns/locale/ar-SA';
 import { enIN } from 'date-fns/locale/en-IN';
 import { enUS } from 'date-fns/locale/en-US';
-import { faIR } from 'date-fns/locale/fa-IR';
 import { fr } from 'date-fns/locale/fr';
 import { he } from 'date-fns/locale/he';
-import { describeGregorianAdapter, getAdapterWeekendDays, removeIntlWeekInfo } from '#test-utils';
+import { hi } from 'date-fns/locale/hi';
+import { describeGregorianAdapter } from '#test-utils';
 import { TemporalAdapterDateFns } from './TemporalAdapterDateFns';
 
 describe('TemporalAdapterDateFns', () => {
@@ -14,6 +16,10 @@ describe('TemporalAdapterDateFns', () => {
     setDefaultTimezone: null,
     // The Date object doesn't contain a locale
     createDateInFrenchLocale: (dateStr) => new Date(dateStr),
+    createAdapterWithLocale: (localeCode) =>
+      new TemporalAdapterDateFns({
+        locale: { 'en-US': enUS, he, 'en-IN': enIN, 'ar-SA': arSA, hi, 'ar-EG': arEG }[localeCode],
+      }),
   });
 
   describe('date-only string parsing (UTC getters)', () => {
@@ -67,21 +73,12 @@ describe('TemporalAdapterDateFns', () => {
   });
 
   describe('isWeekend', () => {
-    it('should use the weekend days of the locale', () => {
-      expect(getAdapterWeekendDays(new TemporalAdapterDateFns({ locale: enUS }))).toEqual([6, 7]);
-      expect(getAdapterWeekendDays(new TemporalAdapterDateFns({ locale: he }))).toEqual([5, 6]);
-      expect(getAdapterWeekendDays(new TemporalAdapterDateFns({ locale: faIR }))).toEqual([5]);
-      expect(getAdapterWeekendDays(new TemporalAdapterDateFns({ locale: enIN }))).toEqual([7]);
-    });
-
-    it('should fall back to Saturday and Sunday when Intl.Locale has no week info', () => {
-      onTestFinished(removeIntlWeekInfo());
-      expect(getAdapterWeekendDays(new TemporalAdapterDateFns({ locale: he }))).toEqual([6, 7]);
-    });
-
     it('should fall back to Saturday and Sunday when the locale code is invalid', () => {
-      const locale = { ...he, code: 'not a locale' };
-      expect(getAdapterWeekendDays(new TemporalAdapterDateFns({ locale }))).toEqual([6, 7]);
+      const adapter = new TemporalAdapterDateFns({ locale: { ...he, code: 'not a locale' } });
+      // Friday and Saturday
+      const friday = adapter.date('2018-11-02T12:00:00.000Z', 'UTC');
+      expect(adapter.isWeekend(friday)).toBe(false);
+      expect(adapter.isWeekend(adapter.addDays(friday, 1))).toBe(true);
     });
   });
 });

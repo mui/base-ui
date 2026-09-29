@@ -386,6 +386,7 @@ export interface TemporalAdapter {
   getDayOfWeek(value: TemporalSupportedObject): number;
   /**
    * Checks if the given date is a weekend day in the locale of the adapter.
+   * The weekend days come from the runtime's `Intl.Locale` week info, with Saturday and Sunday as fallback.
    */
   isWeekend(value: TemporalSupportedObject): boolean;
 }
