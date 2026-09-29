@@ -3,6 +3,7 @@ import * as React from 'react';
 
 export interface MenuCheckboxItemContext {
   checked: boolean;
+  indeterminate: boolean;
   highlighted: boolean;
   disabled: boolean;
 }

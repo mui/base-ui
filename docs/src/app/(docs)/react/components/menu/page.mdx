@@ -72,6 +72,25 @@ import { DemoMenuCheckboxItems } from './demos/checkbox-items';
 
 <DemoMenuCheckboxItems />
 
+Use the `indeterminate` prop when an item represents a mixed collection of settings. The selection state and parent-child relationships remain controlled by your application:
+
+```jsx title="Controlled indeterminate state"
+<Menu.CheckboxItem
+  checked={allSelected}
+  indeterminate={someSelected && !allSelected}
+  onCheckedChange={setAllSelected}
+>
+  <Menu.CheckboxItemIndicator
+    render={(props, state) => (
+      <span {...props}>{state.indeterminate ? <MinusIcon /> : <CheckIcon />}</span>
+    )}
+  />
+  Select all
+</Menu.CheckboxItem>
+```
+
+The item reports `aria-checked="mixed"` while indeterminate. Set this state from your application when a related selection is partially complete. If the item controls other elements, add the appropriate `aria-controls` relationship.
+
 ### Radio items
 
 Use the `<Menu.RadioGroup>` and `<Menu.RadioItem>` parts to create menu items that work like radio buttons.
