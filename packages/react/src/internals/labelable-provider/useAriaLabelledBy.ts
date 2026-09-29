@@ -8,10 +8,10 @@ import { useBaseUiId } from '../useBaseUiId';
 // quadratic. Controls share one label index per tree instead, rebuilt whenever the observer saw a
 // change that can affect label association, and dropped at the end of the task.
 let labelIndex: Map<Node, Map<HTMLElement | null, HTMLLabelElement>> | undefined;
-let labelObserver: MutationObserver | undefined;
+let labelObserver: MutationObserver;
 
 function clearLabelIndex() {
-  labelObserver?.disconnect();
+  labelObserver.disconnect();
   labelIndex = undefined;
 }
 
@@ -58,7 +58,7 @@ function getAriaLabelledBy(labelSource: HTMLElement | null, generatedLabelId?: s
   if (!label.id && generatedLabelId) {
     label.id = generatedLabelId;
     // A label's own id doesn't affect association, so don't invalidate the index for it.
-    labelObserver?.takeRecords();
+    labelObserver.takeRecords();
   }
 
   return label.id || undefined;
@@ -68,7 +68,7 @@ function getAriaLabelledBy(labelSource: HTMLElement | null, generatedLabelId?: s
 function findAssociatedLabel(labelSource: HTMLElement) {
   const root = labelSource.getRootNode() as ParentNode;
 
-  if (!labelIndex || !labelObserver) {
+  if (!labelIndex) {
     labelIndex = new Map();
     labelObserver = new MutationObserver(NOOP);
     queueMicrotask(clearLabelIndex);
@@ -77,6 +77,11 @@ function findAssociatedLabel(labelSource: HTMLElement) {
     // lazily, so mutations between every pair of lookups cost no more than reading `labels` always.
     labelIndex.clear();
     return (labelSource as HTMLInputElement).labels?.[0];
+  }
+
+  // A detached tree's root can be the label itself, which `querySelectorAll` skips.
+  if ((root as HTMLLabelElement).control === labelSource) {
+    return root as HTMLLabelElement;
   }
 
   let labels = labelIndex.get(root);

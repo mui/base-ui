@@ -197,6 +197,30 @@ describe('useAriaLabelledBy', () => {
     );
   });
 
+  it('uses a detached root label that is attached later', async () => {
+    function Test() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const [label] = React.useState(() => {
+        const element = document.createElement('label');
+        element.textContent = 'Label';
+        return element;
+      });
+
+      useIsoLayoutEffect(() => {
+        ref.current!.append(label);
+      }, [label]);
+
+      return <div ref={ref}>{ReactDOM.createPortal(<Checkbox.Root />, label)}</div>;
+    }
+
+    // Strict Mode re-runs the effects after the label is attached, which would hide a miss.
+    await render(<Test />, { strict: false });
+
+    const label = screen.getByText('Label');
+    expect(label.id).not.toBe('');
+    expect(screen.getByRole('checkbox')).toHaveAttribute('aria-labelledby', label.id);
+  });
+
   it('only uses labels in the same shadow root', async () => {
     const host = document.createElement('div');
     const container = document.createElement('div');
