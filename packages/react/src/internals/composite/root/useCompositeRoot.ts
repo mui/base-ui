@@ -62,7 +62,7 @@ export interface UseCompositeRootParameters {
    * Array of item indices to be considered disabled.
    * Used for composite items that are focusable when disabled.
    */
-  disabledIndices?: number[] | undefined;
+  disabledIndices?: readonly number[] | undefined;
   /**
    * Array of [modifier key values](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values#modifier_keys) that should allow normal keyboard actions
    * when pressed. By default, all modifier keys prevent normal actions.
@@ -342,7 +342,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 // Resolves the item that should hold the tab stop: the active item when it can take focus,
 // otherwise the first item that can. Falls back to index 0 so an all-disabled composite keeps the
 // index in range and regains a tab stop as soon as one of its items becomes focusable.
-function getFallbackIndex(elements: Array<HTMLElement | null>, disabledIndices?: number[]) {
+function getFallbackIndex(
+  elements: Array<HTMLElement | null>,
+  disabledIndices?: readonly number[],
+) {
   let fallbackIndex = -1;
 
   for (let index = 0; index < elements.length; index += 1) {
@@ -364,7 +367,7 @@ function getFallbackIndex(elements: Array<HTMLElement | null>, disabledIndices?:
   return Math.max(fallbackIndex, 0);
 }
 
-function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
+function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: readonly ModifierKey[]) {
   for (const key of MODIFIER_KEYS) {
     if (ignoredModifierKeys.includes(key)) {
       continue;

@@ -35,7 +35,7 @@ export interface CompositeGridNavigationState {
   orientation: 'horizontal' | 'vertical' | 'both';
   loopFocus: boolean;
   onLoop?: CompositeGridOnLoop | undefined;
-  disabledIndices?: number[] | undefined;
+  disabledIndices?: readonly number[] | undefined;
   rtl: boolean;
 }
 

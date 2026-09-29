@@ -6,12 +6,12 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 export interface ComboboxDerivedItemsContext {
   query: string;
   hasItems: boolean;
-  filteredItems: any[];
+  filteredItems: readonly any[];
   /**
    * `filteredItems` flattened across groups and projected to selection values. Identical to the
    * items themselves unless `items` is a `createItems()` collection.
    */
-  flatFilteredValues: any[];
+  flatFilteredValues: readonly any[];
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);
