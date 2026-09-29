@@ -10713,9 +10713,14 @@ describe('<Combobox.Root />', () => {
     const fruits = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
     const asyncFruits = ['apple', 'banana', 'cherry'];
 
-    it.each([false, true])(
-      'clears the highlight and navigation cursor when a keepMounted dialog closes (multiple=%s)',
-      async (multiple) => {
+    it.each([
+      [false, ''],
+      [false, 'Ba'],
+      [true, ''],
+      [true, 'Ba'],
+    ] as const)(
+      'clears the highlight and navigation cursor when a keepMounted dialog closes (multiple=%s, query="%s")',
+      async (multiple, query) => {
         const onItemHighlighted = vi.fn();
         const onValueChange = vi.fn();
 
@@ -10737,7 +10742,10 @@ describe('<Combobox.Root />', () => {
               <Dialog.Root open={open} onOpenChange={setOpen}>
                 <Dialog.Trigger>Choose fruit</Dialog.Trigger>
                 <Dialog.Portal keepMounted>
-                  <Dialog.Popup aria-label="Fruit chooser">
+                  <Dialog.Popup
+                    aria-label="Fruit chooser"
+                    style={{ opacity: open ? 1 : 0, transition: 'opacity 50ms' }}
+                  >
                     <Combobox.Input />
                     <Combobox.List>
                       {(item: string) => (
@@ -10759,7 +10767,10 @@ describe('<Combobox.Root />', () => {
         await user.click(trigger);
         const input = screen.getByRole('combobox');
         await waitFor(() => expect(input).toHaveFocus());
-        await user.keyboard('{ArrowDown}{ArrowDown}');
+        if (query) {
+          await user.type(input, query);
+        }
+        await user.keyboard(query ? '{ArrowDown}' : '{ArrowDown}{ArrowDown}');
         expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
         onItemHighlighted.mockClear();
 
@@ -10768,7 +10779,7 @@ describe('<Combobox.Root />', () => {
         expect(onValueChange).toHaveBeenLastCalledWith(multiple ? ['Banana'] : 'Banana');
         expect(onItemHighlighted.mock.calls.map(([value]) => value)).toEqual([undefined]);
 
-        async function reopenAndNavigate() {
+        async function reopenAndNavigate(closeWithEscape = false) {
           await user.click(trigger);
           await waitFor(() => expect(input).toHaveFocus());
           expect(input).not.toHaveAttribute('aria-activedescendant');
@@ -10782,10 +10793,16 @@ describe('<Combobox.Root />', () => {
           );
           await user.keyboard('{ArrowUp}');
           expect(input).not.toHaveAttribute('aria-activedescendant');
-          await user.click(screen.getByRole('button', { name: 'Done' }));
+          await user.keyboard('{ArrowDown}');
+          if (closeWithEscape) {
+            await user.keyboard('{Escape}');
+          } else {
+            await user.click(screen.getByRole('button', { name: 'Done' }));
+          }
           await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
         }
 
+        await reopenAndNavigate(true);
         await reopenAndNavigate();
         await reopenAndNavigate();
       },
