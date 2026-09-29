@@ -373,6 +373,19 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return false;
       }
 
+      // Over a cross-axis gesture target, stay pending until the drawer axis wins the gesture.
+      // Starting on touchstart would leave the drawer swiping (and settling on release) while the
+      // cross-axis target handles the drag.
+      const touchState = touchScrollStateRef.current;
+      if (
+        touchLike &&
+        touchState?.hasCrossAxisGestureTarget &&
+        !touchState.drawerAxisAttributed &&
+        touchState.allowSwipe !== true
+      ) {
+        return false;
+      }
+
       return true;
     },
     onProgress(progress, details) {

@@ -686,6 +686,47 @@ describe('<Drawer.Viewport />', () => {
       },
     );
 
+    it.each(['marked', 'scrollable'] as const)(
+      'does not swipe or settle snap points while a %s cross-axis target handles the drag',
+      async (kind) => {
+        const handleSnapPointChange = vi.fn();
+        await render(
+          <Drawer.Root open snapPoints={[200, 360]} onSnapPointChange={handleSnapPointChange}>
+            <Drawer.Portal>
+              <Drawer.Backdrop data-testid="backdrop" />
+              <Drawer.Viewport>
+                <Drawer.Popup data-testid="popup">
+                  <div
+                    data-testid="target"
+                    data-base-ui-swipe-ignore={kind === 'marked' ? 'x' : undefined}
+                    style={kind === 'scrollable' ? { overflowX: 'auto' } : undefined}
+                  >
+                    Carousel
+                  </div>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>,
+        );
+
+        const target = screen.getByTestId('target');
+        if (kind === 'scrollable') {
+          Object.defineProperty(target, 'scrollWidth', { value: 400, configurable: true });
+          Object.defineProperty(target, 'clientWidth', { value: 100, configurable: true });
+        }
+
+        const crossAxis = { clientX: 140, clientY: 104 };
+        expect(swipe(target, [{ clientX: 103, clientY: 101 }, crossAxis])).toEqual([true, true]);
+        expect(screen.getByTestId('backdrop')).not.toHaveAttribute('data-swiping');
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-swiping');
+
+        endSwipe(target, crossAxis);
+        await flushMicrotasks();
+
+        expect(handleSnapPointChange).not.toHaveBeenCalled();
+      },
+    );
+
     it.each([
       [
         'down',
