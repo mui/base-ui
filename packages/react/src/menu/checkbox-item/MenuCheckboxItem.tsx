@@ -10,7 +10,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
-import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -41,13 +40,13 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   } = componentProps;
 
   const listItem = useCompositeListItem({ guess: true, label });
-  const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
+  const nodeId = store.useState('floatingNodeId');
   const itemProps = store.useState('itemProps');
 
   const [checked, setChecked] = useControlled({
@@ -64,7 +63,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.context.nodeId,
+    nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 

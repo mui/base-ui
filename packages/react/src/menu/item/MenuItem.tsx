@@ -6,7 +6,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
-import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
 /**
  * An individual interactive item in the menu.
@@ -31,13 +30,13 @@ export const MenuItem = React.forwardRef(function MenuItem(
   } = componentProps;
 
   const listItem = useCompositeListItem({ guess: true, label });
-  const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
+  const nodeId = store.useState('floatingNodeId');
   const itemProps = store.useState('itemProps');
 
   const { getItemProps, itemRef } = useMenuItem({
@@ -47,7 +46,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.context.nodeId,
+    nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
