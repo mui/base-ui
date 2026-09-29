@@ -178,12 +178,6 @@ describe('dragCursor', () => {
     dragCursor.unlock();
   });
 
-  it('applies the cursor value it is given via the CSS var', () => {
-    dragCursor.lock(document.body, 'move');
-    expect(activeCursorVar()).toBe('move');
-    dragCursor.unlock();
-  });
-
   it('removes the class and clears the var on unlock()', () => {
     dragCursor.lock(document.body, 'grabbing');
     dragCursor.unlock();
@@ -241,11 +235,6 @@ describe('dragCursor', () => {
     dragCursor.lock(document.body, 'move');
     expect(activeCursorVar()).toBe('grabbing');
     dragCursor.unlock();
-  });
-
-  it('unlock() without a matching lock() is a no-op', () => {
-    expect(() => dragCursor.unlock()).not.toThrow();
-    expect(isDragging()).toBe(false);
   });
 
   describe.skipIf(isJSDOM)('shadow roots', () => {

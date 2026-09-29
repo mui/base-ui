@@ -39,7 +39,7 @@ export function parseComputedLinearTransform(
 }
 
 /** Parse a computed CSS angle, whose canonical unit is degrees. */
-export function parseComputedDegrees(value: string): number | null {
+function parseComputedDegrees(value: string): number | null {
   const match = value.match(/^([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)deg$/i);
   if (!match) {
     return null;

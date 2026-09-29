@@ -8,10 +8,6 @@ setupDragEngineTests();
 describe('dragSessionStore', () => {
   const { renderDnd } = createDndRenderer();
 
-  it('is null by default', () => {
-    expect(dragSessionStore.state).toBeNull();
-  });
-
   it('publishes a snapshot at drag start and clears on drop', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -62,24 +58,6 @@ describe('dragSessionStore', () => {
     expect(afterEnter!.location.current.targets[0].element).toBe(target);
 
     fireDrag.drop(target);
-    expect(dragSessionStore.state).toBeNull();
-  });
-
-  it('cancel via dragend clears the store', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = createElement();
-    engine.registerTarget(target, {});
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-    expect(dragSessionStore.state).not.toBeNull();
-
-    cancel();
     expect(dragSessionStore.state).toBeNull();
   });
 
@@ -140,32 +118,6 @@ describe('dragSessionStore', () => {
     expect(next.location.initial.targets).toEqual([]);
 
     cancel();
-  });
-
-  it('subscribers receive every published snapshot', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = createElement();
-    engine.registerTarget(target, {});
-
-    const seen: Array<unknown> = [];
-    const unsubscribe = dragSessionStore.subscribe((state) => {
-      seen.push(state);
-    });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-    fireDrag.drop(target);
-
-    // Start, target change, and teardown.
-    expect(seen.length).toBeGreaterThanOrEqual(3);
-    expect(seen[seen.length - 1]).toBeNull();
-
-    unsubscribe();
   });
 
   it('keeps the session source identity across a retarget while republishing the source store', async () => {

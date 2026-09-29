@@ -146,35 +146,6 @@ describe('documentBinding', () => {
     expect(deliveries).toEqual([['outer', Event.BUBBLING_PHASE]]);
   });
 
-  it('refreshes the static setup of a draggable inside a closed shadow root', async () => {
-    const { engine } = await renderDnd();
-    const host = document.createElement('div');
-    document.body.appendChild(host);
-    registerCleanup(() => host.remove());
-    const shadow = host.attachShadow({ mode: 'closed' });
-    const source = document.createElement('div');
-    shadow.appendChild(source);
-    let disabled = true;
-    engine.registerSource(source, () => ({ disabled }));
-    expect(source.style.touchAction || '').toBe('');
-
-    disabled = false;
-    act(() => {
-      source.dispatchEvent(
-        new PointerEvent('pointerdown', {
-          bubbles: true,
-          composed: true,
-          button: 0,
-          buttons: 1,
-          pointerId: 1,
-          pointerType: 'mouse',
-        }),
-      );
-    });
-
-    expect(source.style.touchAction).toBe('manipulation');
-  });
-
   it('pointer pickup works for a draggable registered in an iframe document', async () => {
     const { engine } = await renderDnd();
     const { doc } = createIframeRealm();

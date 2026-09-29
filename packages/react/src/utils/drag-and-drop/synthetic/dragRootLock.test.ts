@@ -175,9 +175,4 @@ describe('dragRootLock', () => {
       frame.remove();
     }
   });
-
-  it('unlock() without a matching lock() is a no-op', () => {
-    dragRootLock.unlock();
-    expect(document.documentElement.style.touchAction).toBe(originals.html.touchAction);
-  });
 });

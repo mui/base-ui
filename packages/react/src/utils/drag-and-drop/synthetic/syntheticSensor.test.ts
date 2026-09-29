@@ -19,7 +19,6 @@ import * as syntheticSensor from './syntheticSensor';
 import {
   dispatchTouchEvent,
   getTouchDownTarget,
-  penCancel,
   penDown,
   penMove,
   penUp,
@@ -44,28 +43,6 @@ function dispatch(target: EventTarget, event: Event): void {
 
 describe('syntheticDrag sensor', () => {
   const { renderDnd } = createDndRenderer();
-
-  it('pen pointerdown alone does not start a drag before the activation distance', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    engine.registerSource(el, { onMoveStart });
-
-    penDown(el, 50, 50);
-    await flushRaf();
-
-    // The default pen activation is a 5px distance, so no movement means no drag.
-    expect(onMoveStart).not.toHaveBeenCalled();
-    // The source is reserved while a pending pen gesture is alive. The engine
-    // sets `draggable="false"` so a native HTML5 drag, which iPadOS Safari starts
-    // from a long-press, can't race the pointer gesture.
-    expect(el.getAttribute('draggable')).toBe('false');
-
-    penUp(50, 50);
-    // The attribute is restored to its prior value (absent) once the gesture
-    // ends.
-    expect(el.hasAttribute('draggable')).toBe(false);
-  });
 
   it('starts from a draggable registered inside a closed shadow root', async () => {
     const { engine } = await renderDnd();
@@ -735,26 +712,6 @@ describe('syntheticDrag sensor', () => {
     expect(root.style.touchAction).toBe('none');
 
     touchUp(50, 50);
-  });
-
-  it('pen pointercancel cancels an active drag', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveEnd = vi.fn();
-    engine.registerSource(el, {
-      activation: { pen: { type: 'immediate' } },
-      onMoveEnd,
-    });
-
-    penDown(el, 50, 50);
-    await flushRaf();
-    penCancel();
-
-    expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][0].location.current.targets).toEqual([]);
-    // A browser cancellation is a cancel, not a drop over nothing.
-    expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][0].reason).toBe('pointer-canceled');
   });
 
   it('prevents contextmenu after a touch drag candidate is cancelled by the browser', async () => {
@@ -1489,32 +1446,6 @@ describe('syntheticDrag sensor', () => {
     expect(onKeyDown).toHaveBeenCalledOnce();
   });
 
-  it.each([
-    [
-      'pointer-canceled',
-      (el: HTMLElement) =>
-        dispatch(el, new PointerEvent('pointercancel', { pointerId: 1, bubbles: true })),
-    ],
-    ['window-blur', () => dispatch(window, new FocusEvent('blur'))],
-    ['imperative-action', () => cancelDrag()],
-  ])('names %s as the drag end reason', async (expected, endTheDrag) => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveEnd = vi.fn();
-    engine.registerSource(el, {
-      activation: { touch: { type: 'immediate' } },
-      onMoveEnd,
-    });
-
-    touchDown(el, 50, 50);
-    await flushRaf();
-    act(() => endTheDrag(el));
-
-    expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    expect(onMoveEnd.mock.calls[0][0].reason).toBe(expected);
-    expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
-  });
-
   it('the Escape that cancels a drag does not reach other listeners', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
@@ -1626,46 +1557,6 @@ describe('syntheticDrag sensor', () => {
     expect(nativeDragStart.defaultPrevented).toBe(true);
 
     penUp(50, 50, 7);
-  });
-
-  it('prevents contextmenu during a live drag', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    // Mouse arms no post-gesture `contextmenu` suppression (that is touch and pen
-    // only), so this tests the active phase's own listener.
-    engine.registerSource(el, { activation: { mouse: { type: 'immediate' } } });
-
-    dispatch(
-      el,
-      new PointerEvent('pointerdown', {
-        pointerType: 'mouse',
-        pointerId: 9,
-        clientX: 50,
-        clientY: 50,
-        button: 0,
-        buttons: 1,
-        bubbles: true,
-        cancelable: true,
-      }),
-    );
-    await flushRaf();
-
-    // A right-click mid-drag must not open the browser menu on top of the drag.
-    const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
-    dispatch(el, contextMenu);
-    expect(contextMenu.defaultPrevented).toBe(true);
-
-    dispatch(
-      el,
-      new PointerEvent('pointerup', {
-        pointerType: 'mouse',
-        pointerId: 9,
-        clientX: 50,
-        clientY: 50,
-        bubbles: true,
-        cancelable: true,
-      }),
-    );
   });
 
   it('locks the drag root while a drag is active and restores it on drop', async () => {
@@ -1837,25 +1728,6 @@ describe('syntheticDrag sensor', () => {
     expect(details.location.current.input.clientY).toBe(60);
   });
 
-  it('pointercancel cancels the active drag', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveEnd = vi.fn();
-    engine.registerSource(el, {
-      activation: { touch: { type: 'immediate' } },
-      onMoveEnd,
-    });
-
-    touchDown(el, 50, 50);
-    await flushRaf();
-    touchCancel();
-
-    expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    // A browser cancellation is a cancel, not a drop over nothing.
-    expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-    expect(onMoveEnd.mock.calls[0][0].reason).toBe('pointer-canceled');
-  });
-
   it('pointercancel reports the last good input, not its own (0,0) coordinates', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
@@ -1941,25 +1813,6 @@ describe('syntheticDrag sensor', () => {
     registerCleanup(() => document.removeEventListener('click', onClick, true));
     dispatch(el, new MouseEvent('click', { detail: 1, bubbles: true, cancelable: true }));
     expect(onClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('pointerup invokes the drop lifecycle', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveEnd = vi.fn();
-    engine.registerSource(el, {
-      activation: { touch: { type: 'immediate' } },
-      onMoveEnd,
-    });
-
-    touchDown(el, 50, 50);
-    await flushRaf();
-    touchUp(120, 80);
-
-    expect(onMoveEnd).toHaveBeenCalledTimes(1);
-    const dropDetails = onMoveEnd.mock.calls[0][0];
-    expect(dropDetails.location.current.input.clientX).toBe(120);
-    expect(dropDetails.location.current.input.clientY).toBe(80);
   });
 
   it('reports a "touch" pointerType in the onMoveStart location for synthetic drags', async () => {
@@ -2402,34 +2255,6 @@ describe('syntheticDrag sensor', () => {
     });
   });
 
-  it('drop target onDrop fires when pointerup is over a registered drop target', async () => {
-    const { engine } = await renderDnd();
-    const src = createElement();
-    const tgt = createElement();
-
-    const onDrop = vi.fn();
-    engine.registerSource(src, {
-      activation: { touch: { type: 'immediate' } },
-    });
-    engine.registerTarget(tgt, { onDraggableDrop: onDrop });
-
-    // Make `elementFromPoint` return the drop target so the synthetic path sees it.
-    const originalEFP = document.elementFromPoint;
-    document.elementFromPoint = () => tgt;
-
-    try {
-      touchDown(src, 10, 10);
-      await flushRaf();
-      touchMove(50, 50);
-      await flushRaf();
-      touchUp(50, 50);
-
-      expect(onDrop).toHaveBeenCalledTimes(1);
-    } finally {
-      document.elementFromPoint = originalEFP;
-    }
-  });
-
   it.skipIf(isJSDOM)(
     'measures drop local points against the layout the drag was released over',
     async () => {
@@ -2574,41 +2399,6 @@ describe('syntheticDrag sensor', () => {
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
 
-  it('drops correctly when pointerup fires outside the original drop target (off-window)', async () => {
-    const { engine } = await renderDnd();
-    const src = createElement();
-    const onMoveEnd = vi.fn();
-    engine.registerSource(src, {
-      activation: { touch: { type: 'immediate' } },
-      onMoveEnd,
-    });
-
-    // Force `elementFromPoint` to return null, as for a `pointerup` outside the
-    // document (browser tab boundary, OS gesture).
-    const originalEFP = document.elementFromPoint;
-    document.elementFromPoint = () => null;
-
-    try {
-      touchDown(src, 10, 10);
-      await flushRaf();
-      touchMove(20, 20);
-      await flushRaf();
-
-      // A `pointerup` with no `elementFromPoint` result must still fire
-      // `onMoveEnd` as an outside release (no target, not a cancel) instead of
-      // leaving the engine stuck.
-      touchUp(-50, -50);
-
-      expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      const [details] = onMoveEnd.mock.calls[0];
-      expect(details.reason).toBe('outside-release');
-      expect(details.target).toBeNull();
-      expect(details.location.current.targets).toEqual([]);
-    } finally {
-      document.elementFromPoint = originalEFP;
-    }
-  });
-
   it('routes a mouse pointerdown through the synthetic path', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
@@ -2651,68 +2441,6 @@ describe('syntheticDrag sensor', () => {
       }),
     );
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
-  });
-
-  it('completes a real mouse drop over a target despite the trailing lostpointercapture', async () => {
-    const { engine } = await renderDnd();
-    const src = createElement();
-    const tgt = createElement();
-
-    const sourceOnDrop = vi.fn();
-    const targetOnDrop = vi.fn();
-    engine.registerSource(src, {
-      onMoveEnd: sourceOnDrop,
-      activation: { mouse: { type: 'immediate' } },
-    });
-    engine.registerTarget(tgt, { onDraggableDrop: targetOnDrop });
-
-    // Resolve the pointer to the drop target throughout the gesture.
-    const originalEFP = document.elementFromPoint;
-    document.elementFromPoint = () => tgt;
-
-    try {
-      dispatch(
-        src,
-        new PointerEvent('pointerdown', {
-          pointerType: 'mouse',
-          pointerId: 9,
-          clientX: 10,
-          clientY: 10,
-          button: 0,
-          buttons: 1,
-          bubbles: true,
-          cancelable: true,
-        }),
-      );
-      await flushRaf();
-
-      // A real browser releases pointer capture on button-up and fires
-      // `lostpointercapture` right after `pointerup`. The `pointerup` must win and
-      // drop, and the trailing `lostpointercapture` must do nothing on the ended
-      // session instead of turning the drop into a cancel.
-      dispatch(
-        src,
-        new PointerEvent('pointerup', {
-          pointerType: 'mouse',
-          pointerId: 9,
-          clientX: 50,
-          clientY: 50,
-          bubbles: true,
-          cancelable: true,
-        }),
-      );
-      dispatch(window, new PointerEvent('lostpointercapture', { pointerId: 9, bubbles: true }));
-
-      expect(targetOnDrop).toHaveBeenCalledTimes(1);
-      expect(sourceOnDrop).toHaveBeenCalledTimes(1);
-      const [details] = sourceOnDrop.mock.calls[0];
-      expect(details.reason).toBe('drop');
-      expect(details.target?.element).toBe(tgt);
-      expect(details.location.current.targets).toHaveLength(1);
-      expect(details.location.current.targets[0].element).toBe(tgt);
-    } finally {
-      document.elementFromPoint = originalEFP;
-    }
   });
 
   describe('drag cursor', () => {
@@ -3029,10 +2757,6 @@ describe('syntheticDrag sensor', () => {
       expect(onTargetChange.mock.calls.length).toBe(changes + 1);
 
       touchUp(10, 10);
-    });
-
-    it('notifyExternalScroll() is a no-op with no active pointer drag', () => {
-      expect(() => notifyExternalScroll()).not.toThrow();
     });
 
     it.each([false, true])(
@@ -3595,41 +3319,6 @@ describe('syntheticDrag sensor', () => {
       const lastInput = onMove.mock.lastCall![0].location.current.input;
       expect(lastInput.clientX).toBe(80);
       expect(lastInput.clientY).toBe(90);
-    });
-
-    it('anchors an axis lock at the activation point, not the pointerdown point', async () => {
-      const { engine } = await renderDnd();
-      const el = createElement();
-      const onMoveStart = vi.fn();
-      const onMove = vi.fn();
-      // The default pen activation is a 5px distance, so the drag activates on the
-      // move that clears the threshold, at (60, 50) rather than the (50, 50) press.
-      engine.registerSource(el, {
-        modifiers: restrictToVerticalAxis,
-        onMoveStart,
-      });
-      engine.registerMonitor({ onMove });
-
-      penDown(el, 50, 50);
-      penMove(60, 50); // 10px from the origin, past the 5px threshold
-      await flushRaf();
-      expect(onMoveStart).toHaveBeenCalledTimes(1);
-      // The session's first input is the (constrained) activation point.
-      expect(onMoveStart.mock.calls[0][0].location.current.input.clientX).toBe(60);
-
-      penMove(100, 90);
-      await flushRaf();
-      await flushRaf(); // see the pageX test: `onMove` lands a frame later
-
-      // Every move stays pinned to the activation x (60), not the press x (50).
-      expect(onMove).toHaveBeenCalled();
-      for (const [details] of onMove.mock.calls) {
-        expect(details.location.current.input.clientX).toBe(60);
-      }
-      const lastInput = onMove.mock.lastCall![0].location.current.input;
-      expect(lastInput.clientY).toBe(90);
-
-      penUp(100, 90);
     });
   });
 

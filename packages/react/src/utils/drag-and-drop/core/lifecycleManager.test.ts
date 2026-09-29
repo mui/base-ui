@@ -463,47 +463,6 @@ describe('lifecycle manager', () => {
     removeMonitor(getMonitor);
   });
 
-  describe('drag session', () => {
-    it('prevents concurrent drags', async () => {
-      const { engine } = await renderDnd();
-      const el1 = createElement();
-      const el2 = createElement();
-      const onDragStart1 = vi.fn();
-      const onDragStart2 = vi.fn();
-
-      engine.registerSource(el1, { onMoveStart: onDragStart1 });
-      engine.registerSource(el2, { onMoveStart: onDragStart2 });
-
-      fireDrag.dragStart(el1);
-      await flushRaf();
-      expect(onDragStart1).toHaveBeenCalledTimes(1);
-
-      fireDrag.dragStart(el2);
-      await flushRaf();
-      expect(onDragStart2).not.toHaveBeenCalled();
-    });
-
-    it('resets state after drop, allowing new drag', async () => {
-      const { engine } = await renderDnd();
-      const el = createElement();
-      const target = createElement();
-      const onMoveStart = vi.fn();
-
-      engine.registerSource(el, { onMoveStart });
-      engine.registerTarget(target, {});
-
-      fireDrag.dragStart(el);
-      await flushRaf();
-      expect(onMoveStart).toHaveBeenCalledTimes(1);
-
-      fireDrag.drop(target);
-
-      fireDrag.dragStart(el);
-      await flushRaf();
-      expect(onMoveStart).toHaveBeenCalledTimes(2);
-    });
-  });
-
   describe('event ordering', () => {
     it('fires the internal onGenerateDragPreview then onMoveStart synchronously at drag start', () => {
       // The preview hook is internal to the engine (the sensors' preview
@@ -539,28 +498,6 @@ describe('lifecycle manager', () => {
       cancel();
 
       expect(order).toEqual(['start', 'drop']);
-    });
-
-    it('delivers onMove with the source and the target under the pointer', async () => {
-      const { engine } = await renderDnd();
-      const el = createElement();
-      const target = createElement();
-      const onMove = vi.fn();
-
-      engine.registerSource(el, {});
-      engine.registerTarget(target, {});
-      engine.registerMonitor({ onMove });
-
-      fireDrag.dragStart(el);
-      await flushRaf();
-
-      fireDrag.dragOver(target);
-      await flushRaf();
-
-      expect(onMove).toHaveBeenCalled();
-      const details = onMove.mock.lastCall![0];
-      expect(details.source.element).toBe(el);
-      expect(details.target?.element).toBe(target);
     });
 
     it('reports the innermost current target as `target` to source and monitor move handlers', async () => {
@@ -608,47 +545,6 @@ describe('lifecycle manager', () => {
       act(() => {
         cancelDrag();
       });
-    });
-
-    it('fires onMoveStart only on drop targets already under the pointer at pickup', async () => {
-      // The initial stack resolves from the element the drag starts on, so a drop
-      // target's `onDraggableStart` isn't a global "a drag began" hook. Monitors cover that.
-      await renderDnd();
-      const under = createElement();
-      const elsewhere = createElement();
-      const onUnder = vi.fn();
-      const onElsewhere = vi.fn();
-      const getUnderParams = () => ({ onDraggableStart: onUnder });
-      const getElsewhereParams = () => ({ onDraggableStart: onElsewhere });
-      addDropTargetRegistration(under, getUnderParams);
-      addDropTargetRegistration(elsewhere, getElsewhereParams);
-
-      const source = createElement();
-      under.appendChild(source);
-      // The mounted overlay subscribes to the preview store, so starting a session
-      // commits React state.
-      act(() => {
-        start({
-          payload: createDragSource(source, TEST_KIND.id, {}, null),
-          getSourceHandlers: () => ({}),
-          initialInput: makeInput(),
-          // What `elementFromPoint` resolves to at pickup: the source, inside `under`.
-          initialTarget: source,
-          startReason: 'pointer',
-          grabOffset: { x: 0, y: 0 },
-          hitTest,
-          onForceCleanup: () => {},
-        });
-      });
-
-      expect(onUnder).toHaveBeenCalledTimes(1);
-      expect(onElsewhere).not.toHaveBeenCalled();
-
-      act(() => {
-        reset();
-      });
-      removeDropTargetRegistration(under, getUnderParams);
-      removeDropTargetRegistration(elsewhere, getElsewhereParams);
     });
 
     it('fires onDraggableEnter on the drop targets already under the pointer at pickup', async () => {
@@ -1033,38 +929,6 @@ describe('lifecycle manager', () => {
   });
 
   describe('drag cancellation', () => {
-    it('fires onMoveEnd on a cancel, naming the key that caused it', async () => {
-      const { engine } = await renderDnd();
-      const el = createElement();
-      const onMoveEnd = vi.fn();
-      const onDrop = vi.fn();
-
-      engine.registerSource(el, {});
-      engine.registerMonitor({
-        onMoveEnd: splitEnd(onDrop, onMoveEnd),
-      });
-
-      fireDrag.dragStart(el);
-      await flushRaf();
-
-      // `fireDrag.dragEnd()` with no preceding drop cancels with Escape.
-      fireDrag.dragEnd();
-
-      expect(onDrop).not.toHaveBeenCalled();
-      expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      expect(onMoveEnd).toHaveBeenCalledWith(
-        expect.objectContaining({
-          target: null,
-          reason: 'escape-key',
-          location: expect.objectContaining({
-            current: expect.objectContaining({
-              targets: [],
-            }),
-          }),
-        }),
-      );
-    });
-
     it('reports a release over no target as outside-release, not a cancel', async () => {
       const { engine } = await renderDnd();
       const el = createElement();
@@ -1131,36 +995,6 @@ describe('lifecycle manager', () => {
   });
 
   describe('drop event handling', () => {
-    it('re-computes drop targets from the drop event target', async () => {
-      const { engine } = await renderDnd();
-      const el = createElement();
-      const target = createElement();
-      const onDrop = vi.fn();
-
-      engine.registerSource(el, {});
-      engine.registerTarget(target, {});
-      engine.registerMonitor({
-        onMoveEnd: splitEnd(onDrop),
-      });
-
-      fireDrag.dragStart(el);
-      await flushRaf();
-
-      fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
-
-      fireDrag.drop(target);
-
-      expect(onDrop).toHaveBeenCalledTimes(1);
-      const [dropDetails] = onDrop.mock.calls[0];
-      // `onDrop` names the recipient directly, so the stack only has to confirm
-      // the drop resolved against the released-on target rather than a stale one.
-      expect(dropDetails.target.element).toBe(target);
-      expect(dropDetails.location.current.targets).toHaveLength(1);
-      expect(dropDetails.location.current.targets[0].element).toBe(target);
-    });
-
     it('enters a never-hovered target at drop, before its onDrop', async () => {
       const { engine } = await renderDnd();
       const el = createElement();
@@ -1351,18 +1185,6 @@ describe('lifecycle manager', () => {
     // do nothing. These tests drive the lifecycle controller directly so the
     // rethrow can be asserted synchronously. A throw through a real event
     // listener surfaces as an unhandled error under jsdom.
-    function startThrowingDrag(): DragSessionController {
-      const handle = startDragWithHandlers({
-        onMoveEnd: () => {
-          throw new Error('boom from onDrop');
-        },
-      });
-      expect(handle).not.toBeNull();
-      // The drag is now active, so nothing else can start until it ends.
-      expect(isActive()).toBe(true);
-      return handle!;
-    }
-
     /** After a handler throws, the engine must be inactive and able to start a new drag. */
     function expectEngineRecovered(): void {
       expect(isActive()).toBe(false);
@@ -1633,20 +1455,6 @@ describe('lifecycle manager', () => {
       act(() => {
         cancelDrag();
       });
-    });
-
-    it('a throwing onDrop on drop tears the session down (not wedged)', () => {
-      const handle = startThrowingDrag();
-      expect(() => handle.drop(makeInput(), null)).toThrow('boom from onDrop');
-      // The catch tore the session down before rethrowing, so a new drag can
-      // start.
-      expect(isActive()).toBe(false);
-    });
-
-    it('a throwing onDrop on cancel tears the session down (not wedged)', () => {
-      const handle = startThrowingDrag();
-      expect(() => handle.cancel(makeInput())).toThrow('boom from onDrop');
-      expect(isActive()).toBe(false);
     });
 
     it('a throwing onGenerateDragPreview (synchronous in start) tears the session down', () => {

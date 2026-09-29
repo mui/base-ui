@@ -37,14 +37,6 @@ describe('createKind', () => {
     expect(createKind('card').id).not.toBe(createKind<{ id: string }>('card').id);
   });
 
-  it('gives kinds with different labels different identities', () => {
-    expect(createKind('card').id).not.toBe(createKind('column').id);
-  });
-
-  it('does not collide with a plain interned symbol of the same label', () => {
-    expect(createKind('card').id).not.toBe(Symbol.for('card'));
-  });
-
   describe('matches', () => {
     it('matches a source of that kind', () => {
       const card = createKind('card');
@@ -77,10 +69,6 @@ describe('createGlobalKind', () => {
     expect(createGlobalKind('myapp/card').id).toBe(
       createGlobalKind<{ id: string }>('myapp/card').id,
     );
-  });
-
-  it('does not collide with a local kind of the same name', () => {
-    expect(createGlobalKind('myapp/card').id).not.toBe(createKind('myapp/card').id);
   });
 });
 

@@ -255,7 +255,3 @@ export function penUp(
 ): void {
   pointerUp('pen', x, y, pointerId, options);
 }
-
-export function penCancel(pointerId = 1, options?: SyntheticPointerOptions): void {
-  pointerCancel('pen', pointerId, options);
-}

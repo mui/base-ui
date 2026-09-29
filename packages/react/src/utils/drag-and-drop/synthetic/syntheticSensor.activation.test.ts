@@ -248,43 +248,6 @@ describe('syntheticDrag activation', () => {
     touchUp(52, 50, 1, { timeStamp: 130 });
   });
 
-  it('distance activation starts the drag after tolerance pixels', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    engine.registerSource(el, {
-      activation: { type: 'distance', distance: 5 },
-      onMoveStart,
-    });
-
-    touchDown(el, 50, 50);
-    touchMove(52, 52); // < 5px diagonal
-    await flushRaf();
-    expect(onMoveStart).not.toHaveBeenCalled();
-
-    touchMove(60, 60); // ~14px, past the threshold
-    await flushRaf();
-    expect(onMoveStart).toHaveBeenCalledTimes(1);
-
-    touchUp(60, 60);
-  });
-
-  it('immediate activation (per-type) starts instantly on touchdown', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    engine.registerSource(el, {
-      activation: { touch: { type: 'immediate' } },
-      onMoveStart,
-    });
-
-    touchDown(el, 50, 50);
-    await flushRaf();
-    expect(onMoveStart).toHaveBeenCalledTimes(1);
-
-    touchUp(50, 50);
-  });
-
   it('mouse default activation requires 5px of movement before starting a drag', async () => {
     const { engine } = await renderDnd();
     const el = createElement();

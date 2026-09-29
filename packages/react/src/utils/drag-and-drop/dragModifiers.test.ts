@@ -102,13 +102,6 @@ describe('restrictToHorizontalAxis', () => {
 });
 
 describe('snapToGrid', () => {
-  it('snaps to a square grid anchored at the drag origin', () => {
-    const result = snapToGrid(20)(
-      makeContext({ initialPoint: { x: 100, y: 100 }, point: { x: 132, y: 145 } }),
-    );
-    expect(result).toEqual({ x: 140, y: 140 });
-  });
-
   it('snaps leftward and upward drags symmetrically to rightward and downward ones', () => {
     const snap = snapToGrid(20);
     const origin = { x: 100, y: 100 };

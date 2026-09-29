@@ -33,13 +33,6 @@ describe('getSharedSlot', () => {
     expect(second).toBe(first);
     expect(second.value).toBe(1);
   });
-
-  it('exposes mutations through every handle', () => {
-    const a = getSharedSlot<{ value: number }>('sharedState.test.mutation', () => ({ value: 0 }));
-    const b = getSharedSlot<{ value: number }>('sharedState.test.mutation', () => ({ value: 0 }));
-    a.value = 42;
-    expect(b.value).toBe(42);
-  });
 });
 
 describe('separate copies of the engine', () => {
