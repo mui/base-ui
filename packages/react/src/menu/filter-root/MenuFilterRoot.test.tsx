@@ -4540,6 +4540,44 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(screen.getByRole('menu').id).toBe('');
     });
 
+    // A Server Component's render element reaches the client as a `react.lazy` wrapper.
+    it.skipIf(reactMajor < 19)(
+      'points aria-controls at the id of a server-created render element',
+      async () => {
+        const serverElement = {
+          $$typeof: Symbol.for('react.lazy'),
+          _payload: <div id="filtered-actions" />,
+          _init: (payload: unknown) => payload,
+        } as unknown as React.ReactElement;
+
+        await render(
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List render={serverElement}>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        expect(screen.getByRole('menu').id).toBe('filtered-actions');
+        await waitFor(() => {
+          expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveAttribute(
+            'aria-controls',
+            'filtered-actions',
+          );
+        });
+      },
+    );
+
     it('omits the list label when the trigger renders with an explicitly empty id', async () => {
       await render(
         <Menu.FilterProvider>

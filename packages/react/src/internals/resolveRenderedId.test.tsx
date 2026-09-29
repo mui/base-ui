@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
+import { reactMajor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { resolveRenderedId, useRenderedId } from './resolveRenderedId';
 
@@ -24,6 +25,12 @@ describe('resolveRenderedId', () => {
 
   it('treats an undefined id on a render element as no id', () => {
     expect(resolveRenderedId({ render: <div id={undefined} /> }, 'fallback')).toBe('');
+  });
+
+  it.skipIf(reactMajor < 19)("reads a server-created render element's id", () => {
+    expect(resolveRenderedId({ render: serverElement(<div id="rendered" />) }, 'fallback')).toBe(
+      'rendered',
+    );
   });
 
   it('ignores a render element that does not set an id', () => {
@@ -117,3 +124,12 @@ describe('useRenderedId', () => {
     expect(onIdChange).toHaveBeenLastCalledWith(undefined);
   });
 });
+
+// A Server Component's render element reaches the client as a `react.lazy` wrapper.
+function serverElement(element: React.ReactElement) {
+  return {
+    $$typeof: Symbol.for('react.lazy'),
+    _payload: element,
+    _init: (payload: unknown) => payload,
+  } as unknown as React.ReactElement;
+}

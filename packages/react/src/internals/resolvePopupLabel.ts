@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { unwrapLazyRenderProp } from './useRenderElement';
 
 interface PopupLabelProps {
   'aria-label'?: string | undefined;
@@ -11,8 +12,9 @@ export function resolvePopupLabel(
   activeTriggerElement: Element | null,
   activeTriggerId: string | null,
 ) {
-  const renderedElementProps = React.isValidElement(props.render)
-    ? (props.render.props as React.HTMLAttributes<HTMLElement>)
+  const render = unwrapLazyRenderProp(props.render);
+  const renderedElementProps = React.isValidElement(render)
+    ? (render.props as React.HTMLAttributes<HTMLElement>)
     : undefined;
   const ariaLabel = props['aria-label'] ?? renderedElementProps?.['aria-label'];
   let ariaLabelledBy = props['aria-labelledby'] ?? renderedElementProps?.['aria-labelledby'];

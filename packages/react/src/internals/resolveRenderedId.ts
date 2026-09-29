@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { unwrapLazyRenderProp } from './useRenderElement';
 
 interface ResolveRenderedIdProps {
   id?: string | undefined;
@@ -15,8 +16,9 @@ interface ResolveRenderedIdProps {
  * @internal
  */
 export function resolveRenderedId(props: ResolveRenderedIdProps, fallbackId: string | undefined) {
-  if (React.isValidElement(props.render)) {
-    const renderProps = props.render.props as { id?: string | undefined };
+  const render = unwrapLazyRenderProp(props.render);
+  if (React.isValidElement(render)) {
+    const renderProps = render.props as { id?: string | undefined };
     if (Object.hasOwn(renderProps, 'id')) {
       return renderProps.id ?? '';
     }
