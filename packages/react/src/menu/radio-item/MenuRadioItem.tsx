@@ -15,7 +15,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
-const MenuRadioItemPlain = React.forwardRef(function MenuRadioItem(
+const MenuRadioItemPlain = React.forwardRef(function MenuRadioItemPlain(
   componentProps: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -109,13 +109,13 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const filter = useMenuFilterItem(props, forwardedRef);
+  const filterItem = useMenuFilterItem(props, forwardedRef);
 
-  if (!filter.visible) {
+  if (!filterItem.visible) {
     return null;
   }
 
-  return <MenuRadioItemPlain {...props} ref={filter.ref} />;
+  return <MenuRadioItemPlain {...props} ref={filterItem.ref} />;
 });
 
 export interface MenuRadioItemState {

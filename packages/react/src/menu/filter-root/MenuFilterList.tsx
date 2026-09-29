@@ -37,7 +37,8 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   const { listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
 
-  const handleInputKeyDown = useMenuFilterKeyDown(useFilterDropdownValueContext() !== '');
+  const value = useFilterDropdownValueContext();
+  const handleInputKeyDown = useMenuFilterKeyDown(value !== '');
 
   const handleKeyDown = useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
     const owner = focusOwnerRef.current;
@@ -61,15 +62,12 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
         event.stopPropagation();
         const trigger = fromNestedPopup && ownerFocused ? getNestedPopupTrigger(target) : undefined;
         if (trigger) {
-          moveHighlightFrom(
-            store,
-            trigger,
-            event.key,
+          moveHighlightFrom(store, trigger, event.key, {
             orientation,
-            direction === 'rtl',
+            rtl: direction === 'rtl',
             loopFocus,
-            !autoHighlight,
-          );
+            allowEscape: !autoHighlight,
+          });
         }
       }
       return;
@@ -129,7 +127,7 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
     return subscribeMapChange(handleItemMapChange);
   }, [subscribeMapChange, handleItemMapChange]);
 
-  const { ariaLabelledBy } = resolvePopupLabel(componentProps, null, triggerId ?? null);
+  const ariaLabelledBy = resolvePopupLabel(componentProps, null, triggerId ?? null);
 
   const listProps = mergeProps<typeof FilterDropdownList>(
     {

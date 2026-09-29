@@ -18,7 +18,7 @@ describe('useItemRegistry', () => {
     }
 
     function App(props: { items: string[] }) {
-      const [registeredItems, registerItem] = useItemRegistry<string, string>();
+      const { items: registeredItems, registerItem } = useItemRegistry<string, string>();
       snapshots.push(registeredItems);
 
       return props.items.map((item) => <Item key={item} id={item} registerItem={registerItem} />);
@@ -45,7 +45,7 @@ describe('useItemRegistry', () => {
     }
 
     function App(props: { items: string[] }) {
-      const [registeredItems, registerItem] = useItemRegistry<string, string>();
+      const { items: registeredItems, registerItem } = useItemRegistry<string, string>();
       snapshots.push(registeredItems);
 
       return props.items.map((item) => <Item key={item} id={item} registerItem={registerItem} />);
@@ -77,7 +77,7 @@ describe('useItemRegistry', () => {
     }
 
     function App(props: { items: string[] }) {
-      const [registeredItems, registerItem] = useItemRegistry<string, string>();
+      const { items: registeredItems, registerItem } = useItemRegistry<string, string>();
       snapshots.push(registeredItems);
 
       return props.items.map((item) => <Item key={item} id={item} registerItem={registerItem} />);

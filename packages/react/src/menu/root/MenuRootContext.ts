@@ -10,7 +10,8 @@ export interface MenuRootContext<Payload = unknown> {
   orientation: MenuRoot.Orientation;
   loopFocus: boolean;
   defaultFloatingId: string | undefined;
-  setFloatingId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  /** Records the id the popup rendered with, when it differs from `defaultFloatingId`. */
+  setRenderedFloatingId: React.Dispatch<React.SetStateAction<string | undefined>>;
   virtualFocus: boolean;
   parentVirtualFocus: boolean;
   /** The parent list's WebKit selection state, used by this menu's submenu trigger. */

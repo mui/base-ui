@@ -7,7 +7,7 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 
-export const MenuListPlain = React.forwardRef(function MenuList(
+export const MenuListPlain = React.forwardRef(function MenuListPlain(
   componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -21,11 +21,7 @@ export const MenuListPlain = React.forwardRef(function MenuList(
 
   const id = useBaseUiId(idProp);
 
-  const { ariaLabelledBy } = resolvePopupLabel(
-    componentProps,
-    activeTriggerElement,
-    activeTriggerId,
-  );
+  const ariaLabelledBy = resolvePopupLabel(componentProps, activeTriggerElement, activeTriggerId);
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement],

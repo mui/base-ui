@@ -30,60 +30,65 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     children,
     open,
     disabled = false,
-    inputFocusVisible = false,
+    openedByKeyboard = false,
     locale,
     value,
     query,
     onValueChange,
     filter,
     autoHighlight = false,
-    triggerId: externalTriggerId,
+    triggerId: triggerIdProp,
     listRef,
     getActiveIndex,
-    setActiveIndex = NOOP,
-    inputRef: externalFocusOwnerRef,
+    setActiveIndex,
+    focusOwnerRef: focusOwnerRefProp,
   } = props;
 
   const parentItemContext = React.useContext(FilterDropdownItemContext);
 
-  const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
-  const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
-  const [keyboardModality, setKeyboardModality] = React.useState(inputFocusVisible);
-  const [previousInputFocusVisible, setPreviousInputFocusVisible] =
-    React.useState(inputFocusVisible);
+  const [renderedListId, setRenderedListId] = React.useState<string | undefined>(undefined);
+  const [inputFocusVisible, setInputFocusVisible] = React.useState(openedByKeyboard);
+  const [keyboardModality, setKeyboardModality] = React.useState(openedByKeyboard);
+  const [previousOpenedByKeyboard, setPreviousOpenedByKeyboard] = React.useState(openedByKeyboard);
 
   // Both reset when the host reports a new value; doing it during render skips an extra commit.
-  if (inputFocusVisible !== previousInputFocusVisible) {
-    setPreviousInputFocusVisible(inputFocusVisible);
-    setFocusVisible(inputFocusVisible);
-    setKeyboardModality(inputFocusVisible);
+  if (openedByKeyboard !== previousOpenedByKeyboard) {
+    setPreviousOpenedByKeyboard(openedByKeyboard);
+    setInputFocusVisible(openedByKeyboard);
+    setKeyboardModality(openedByKeyboard);
   }
 
-  const [registeredItems, registerItem, liveItems] = useItemRegistry<
-    symbol,
-    FilterDropdownItemRegistration
-  >();
+  const {
+    items: registeredItems,
+    registerItem,
+    liveItems,
+  } = useItemRegistry<symbol, FilterDropdownItemRegistration>();
 
   const defaultId = useBaseUiId();
-
   const store = useRefWithInit(() => new FilterDropdownStore()).current;
 
-  const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
+  const fallbackFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const keyReplayRef = React.useRef(false);
   const lastFilterQueryRef = React.useRef<string | null>(null);
 
-  const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
+  const defaultMatchItem = React.useMemo(() => getFilter({ locale }).contains, [locale]);
 
-  const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
+  const focusOwnerRef = focusOwnerRefProp ?? fallbackFocusOwnerRef;
   const filterQuery = (query ?? value).trim();
   // An unused inline filter must not re-run auto-highlighting when the consumer re-renders.
-  const matches = filterQuery === '' || filter === null ? null : (filter ?? defaultMatches);
+  const matchItem = filterQuery === '' || filter === null ? null : (filter ?? defaultMatchItem);
   const autoHighlightEnabled =
     open && (autoHighlight === 'always' || (autoHighlight && filterQuery !== ''));
+  // React 17 resolves generated ids in an effect, so they must be read live rather than captured
+  // in a state initializer.
+  const defaultListId = defaultId ? `${defaultId}-list` : undefined;
+  const listId = (renderedListId ?? defaultListId) || undefined;
+  // The host owns the trigger. `null` and `''` both mean no element carries an id to point at.
+  const triggerId = triggerIdProp || undefined;
 
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
 
-  const onItemsChange = useStableCallback((previousItems: readonly (HTMLElement | null)[]) => {
+  const handleItemsChange = useStableCallback((previousItems: readonly (HTMLElement | null)[]) => {
     const items = listRef.current;
     const activeIndex = getActiveIndex();
 
@@ -101,13 +106,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     setActiveIndex(autoHighlightEnabled && items.length > 0 ? 0 : null);
   });
 
-  // React 17 resolves generated ids in an effect, so they must be read live rather than captured
-  // in a state initializer.
-  const defaultListId = defaultId ? `${defaultId}-list` : undefined;
-  // The host owns the trigger. `null` and `''` both mean no element carries an id to point at.
-  const triggerId = externalTriggerId || undefined;
-  const listId = (registeredListId ?? defaultListId) || undefined;
-
   store.useSyncedValue('registeredItemCount', registeredItems.size);
 
   // Re-runs on the registry snapshot published once every item in the commit has registered,
@@ -121,9 +119,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     const queryChanged =
       lastFilterQueryRef.current !== null && lastFilterQueryRef.current !== filterQuery;
     lastFilterQueryRef.current = filterQuery;
+
     // With no query or external filtering, every registered item is visible. External filtering
     // still follows `autoHighlight`; otherwise the item set invalidates the highlight.
-    if (matches === null) {
+    if (matchItem === null) {
       store.set('visibleItemIds', null);
       // Registry updates, such as an item's text changing, keep the current highlight.
       if (autoHighlightEnabled && liveItems.size > 0) {
@@ -146,8 +145,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     const nextIds = new Set<symbol>();
     let hasNewMatch = currentIds === null;
     liveItems.forEach(({ getText }, id) => {
-      const filterText = getText();
-      if (filterText != null && matches(filterText, filterQuery)) {
+      const text = getText();
+      if (text != null && matchItem(text, filterQuery)) {
         nextIds.add(id);
         hasNewMatch ||= !currentIds?.has(id);
       }
@@ -172,7 +171,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     filterQuery,
     registeredItems,
     liveItems,
-    matches,
+    matchItem,
     autoHighlightEnabled,
     store,
     setActiveIndex,
@@ -183,8 +182,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     () => ({
       open,
       disabled,
-      inputFocusVisible: focusVisible,
-      setInputFocusVisible: setFocusVisible,
+      inputFocusVisible,
+      setInputFocusVisible,
       keyboardModality,
       setKeyboardModality,
       autoHighlight,
@@ -192,17 +191,17 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       triggerId,
       defaultListId,
       listId,
-      setListId,
+      setRenderedListId,
       focusOwnerRef,
       keyReplayRef,
       setActiveIndex,
-      onItemsChange,
+      onItemsChange: handleItemsChange,
       onValueChange: handleValueChange,
     }),
     [
       open,
       disabled,
-      focusVisible,
+      inputFocusVisible,
       keyboardModality,
       autoHighlight,
       store,
@@ -211,7 +210,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       listId,
       focusOwnerRef,
       setActiveIndex,
-      onItemsChange,
+      handleItemsChange,
       handleValueChange,
     ],
   );
@@ -245,8 +244,8 @@ export interface FilterDropdownRootProps {
   open: boolean;
   /** Whether the filter controls should be disabled. */
   disabled?: boolean | undefined;
-  /** Whether the input should render its focus ring. */
-  inputFocusVisible?: boolean | undefined;
+  /** Whether the popup opened from the keyboard, so the input starts with its focus ring. */
+  openedByKeyboard?: boolean | undefined;
   /**
    * Locale used for filtering comparisons.
    */
@@ -286,11 +285,11 @@ export interface FilterDropdownRootProps {
   /**
    * Moves the host's highlight.
    */
-  setActiveIndex?: ((index: number | null) => void) | undefined;
+  setActiveIndex: (index: number | null) => void;
   /**
-   * The host's ref for the filter input.
+   * The host's ref for the input, which holds real focus while the list is navigated virtually.
    */
-  inputRef?: React.RefObject<HTMLElement | null> | undefined;
+  focusOwnerRef?: React.RefObject<HTMLElement | null> | undefined;
 }
 
 export namespace FilterDropdownRoot {

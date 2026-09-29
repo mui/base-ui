@@ -43,7 +43,7 @@ export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
   const { store } = useFilterDropdownItemContext();
   const parentContext = useFilterDropdownGroupContext();
 
-  const [items, registerItem] = useItemRegistry<symbol, boolean>();
+  const { items, registerItem } = useItemRegistry<symbol, boolean>();
   const hidden = useStore(store, isGroupHidden, items);
 
   // A nested container collects its own items, so the enclosing one only ever sees this

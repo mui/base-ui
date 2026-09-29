@@ -36,9 +36,14 @@ describe('getMenuFilterKeyAction', () => {
     ['ArrowLeft in an empty input', key('ArrowLeft'), false, false, 'navigate'],
     ['Escape', key('Escape'), true, true, 'navigate'],
   ])('vertical: %s', (_, event, hasActiveItem, hasValue, expected) => {
-    expect(getMenuFilterKeyAction(event, 'vertical', false, hasActiveItem, hasValue)).toBe(
-      expected,
-    );
+    expect(
+      getMenuFilterKeyAction(event, {
+        orientation: 'vertical',
+        rtl: false,
+        hasActiveItem,
+        hasValue,
+      }),
+    ).toBe(expected);
   });
 
   it.each<[string, React.KeyboardEvent, boolean, boolean, MenuFilterKeyAction]>([
@@ -49,8 +54,13 @@ describe('getMenuFilterKeyAction', () => {
     ['ArrowRight in an empty input', key('ArrowRight'), false, false, 'navigate'],
     ['ArrowRight on a highlight', key('ArrowRight'), true, true, 'navigate'],
   ])('horizontal: %s', (_, event, hasActiveItem, hasValue, expected) => {
-    expect(getMenuFilterKeyAction(event, 'horizontal', false, hasActiveItem, hasValue)).toBe(
-      expected,
-    );
+    expect(
+      getMenuFilterKeyAction(event, {
+        orientation: 'horizontal',
+        rtl: false,
+        hasActiveItem,
+        hasValue,
+      }),
+    ).toBe(expected);
   });
 });

@@ -11,11 +11,7 @@ type RegisterItem<Key, Item> = (key: Key, item: Item) => () => void;
  * Also returns the live registry for reads that must include the registrations of the current
  * commit before its snapshot is published.
  */
-export function useItemRegistry<Key, Item>(): readonly [
-  ReadonlyMap<Key, Item>,
-  RegisterItem<Key, Item>,
-  ReadonlyMap<Key, Item>,
-] {
+export function useItemRegistry<Key, Item>(): ItemRegistry<Key, Item> {
   const itemRegistry = useRefWithInit(() => new Map<Key, Item>()).current;
 
   const [registryVersion, setRegistryVersion] = React.useState(0);
@@ -54,5 +50,13 @@ export function useItemRegistry<Key, Item>(): readonly [
     isUpdateScheduledRef.current = false;
   }, [registryVersion]);
 
-  return [registeredItems, registerItem, itemRegistry];
+  return { items: registeredItems, registerItem, liveItems: itemRegistry };
+}
+
+export interface ItemRegistry<Key, Item> {
+  /** The snapshot published after the latest commit's registrations. */
+  items: ReadonlyMap<Key, Item>;
+  registerItem: RegisterItem<Key, Item>;
+  /** The registry itself, including registrations whose snapshot hasn't been published yet. */
+  liveItems: ReadonlyMap<Key, Item>;
 }

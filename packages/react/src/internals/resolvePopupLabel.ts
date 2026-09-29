@@ -26,5 +26,5 @@ export function resolvePopupLabel(
       : activeTriggerId || undefined;
   }
 
-  return { ariaLabelledBy };
+  return ariaLabelledBy;
 }

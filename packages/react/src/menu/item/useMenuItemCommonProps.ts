@@ -45,15 +45,9 @@ export interface UseMenuItemCommonPropsParameters {
    * Metadata for checking item type before triggering click.
    */
   itemMetadata: UseMenuItemMetadata;
-  /**
-   * Whether the containing list uses virtual focus.
-   * @default false
-   */
+  /** See `UseMenuItemParameters['virtualFocus']`. */
   virtualFocus?: boolean | undefined;
-  /**
-   * Whether items should expose `aria-selected`. Resolved once per menu root.
-   * @default false
-   */
+  /** See `UseMenuItemParameters['webkitItemSelected']`. */
   webkitItemSelected?: boolean | undefined;
 }
 

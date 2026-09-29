@@ -12,7 +12,7 @@ import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
 
-const MenuLinkItemPlain = React.forwardRef(function MenuLinkItem(
+const MenuLinkItemPlain = React.forwardRef(function MenuLinkItemPlain(
   componentProps: MenuLinkItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -81,13 +81,13 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   props: MenuLinkItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const filter = useMenuFilterItem(props, forwardedRef);
+  const filterItem = useMenuFilterItem(props, forwardedRef);
 
-  if (!filter.visible) {
+  if (!filterItem.visible) {
     return null;
   }
 
-  return <MenuLinkItemPlain {...props} ref={filter.ref} />;
+  return <MenuLinkItemPlain {...props} ref={filterItem.ref} />;
 });
 
 export interface MenuLinkItemState {

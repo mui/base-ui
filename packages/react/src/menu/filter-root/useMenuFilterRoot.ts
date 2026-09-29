@@ -17,7 +17,7 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>) 
     ...otherProps
   } = props;
 
-  const focusOwnerRef = React.useRef<HTMLElement | null>(null);
+  const virtualFocusRef = React.useRef<HTMLElement | null>(null);
 
   const hydrating = useIsHydrating();
 
@@ -29,7 +29,7 @@ export function useMenuFilterRoot<Payload>(props: MenuFilterRootProps<Payload>) 
       // WebKit needs selection state to follow a searchbox's active descendant into a menu.
       // Wait until after hydration so server and client markup agree.
       webkitItemSelected: !hydrating && platform.engine.webkit,
-      virtualFocusRef: focusOwnerRef,
+      virtualFocusRef,
       allowEscape: !autoHighlight,
       resetOnPointerLeave: autoHighlight !== 'always',
     },

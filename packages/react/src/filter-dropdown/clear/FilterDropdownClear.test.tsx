@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NOOP } from '@base-ui/utils/empty';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, resetBrowserPointer } from '#test-utils';
@@ -119,6 +120,7 @@ function ControlledFilterDropdownRoot(props: ControlledFilterDropdownRootProps) 
       value={value}
       listRef={listRef}
       getActiveIndex={getNoActiveIndex}
+      setActiveIndex={NOOP}
       onValueChange={(nextValue, eventDetails) => {
         onValueChange?.(nextValue, eventDetails);
         setValue(nextValue);

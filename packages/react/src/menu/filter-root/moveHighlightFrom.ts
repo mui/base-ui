@@ -14,11 +14,9 @@ export function moveHighlightFrom(
   store: MenuStore<unknown>,
   item: HTMLElement,
   key: string,
-  orientation: MenuRoot.Orientation,
-  rtl: boolean,
-  loopFocus: boolean,
-  allowEscape: boolean,
+  options: MoveHighlightOptions,
 ): HTMLElement | undefined {
+  const { orientation, rtl, loopFocus, allowEscape } = options;
   const items = store.context.itemDomElements.current;
   const decrement =
     orientation === 'vertical' ? key === 'ArrowUp' : key === (rtl ? 'ArrowRight' : 'ArrowLeft');
@@ -46,4 +44,12 @@ export function moveHighlightFrom(
     next.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }
   return next ?? undefined;
+}
+
+export interface MoveHighlightOptions {
+  orientation: MenuRoot.Orientation;
+  rtl: boolean;
+  loopFocus: boolean;
+  /** Whether the menu's navigation escapes to its input at either end instead of wrapping. */
+  allowEscape: boolean;
 }

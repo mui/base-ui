@@ -35,16 +35,23 @@ export type MenuFilterKeyAction =
   /** The key belongs to an IME composition or leaves the popup (Tab). */
   | 'ignore';
 
+export interface MenuFilterKeyContext {
+  orientation: MenuRoot.Orientation;
+  rtl: boolean;
+  /** Whether an item is highlighted. */
+  hasActiveItem: boolean;
+  /** Whether the input has text. */
+  hasValue: boolean;
+}
+
 /**
  * Decides what a key does while the filter input owns the keyboard.
  */
 export function getMenuFilterKeyAction(
   event: React.KeyboardEvent,
-  orientation: MenuRoot.Orientation,
-  rtl: boolean,
-  hasActiveItem: boolean,
-  hasValue: boolean,
+  context: MenuFilterKeyContext,
 ): MenuFilterKeyAction {
+  const { orientation, rtl, hasActiveItem, hasValue } = context;
   const { key } = event;
   // Enter that commits an IME composition belongs to the input, not the list.
   if (event.which === 229) {
@@ -109,13 +116,12 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
 
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
     const activeItem = store.state.highlightedItem;
-    const action = getMenuFilterKeyAction(
-      event,
+    const action = getMenuFilterKeyAction(event, {
       orientation,
-      direction === 'rtl',
-      activeItem != null,
+      rtl: direction === 'rtl',
+      hasActiveItem: activeItem != null,
       hasValue,
-    );
+    });
 
     switch (action) {
       case 'edit':

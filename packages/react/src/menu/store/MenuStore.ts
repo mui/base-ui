@@ -36,12 +36,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   inputProps: HTMLProps;
   /** The element at `activeIndex` once the item list settles. */
   highlightedItem: HTMLElement | undefined;
-  /**
-   * Whether real focus stays inside the popup while the list is navigated with
-   * `aria-activedescendant`. Set by a filter root; detached triggers read it once the root
-   * attaches.
-   */
-  virtualFocus: boolean;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
@@ -95,7 +89,6 @@ const selectors = {
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   },
   activeIndex: (state: State<unknown>) => state.activeIndex,
-  virtualFocus: (state: State<unknown>) => state.virtualFocus,
   listElement: (state: State<unknown>) => state.listElement,
   filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
   inputProps: (state: State<unknown>) => state.inputProps,
@@ -276,7 +269,6 @@ function createInitialState<Payload>(
     filterTriggerProps: EMPTY_OBJECT,
     inputProps: EMPTY_OBJECT,
     highlightedItem: undefined,
-    virtualFocus: false,
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,

@@ -4,8 +4,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { MenuRootContext } from '../root/MenuRootContext';
 import type { HTMLProps } from '../../internals/types';
 import type { MenuFilterPopup } from './MenuFilterPopup';
-import type { MenuFilterGroup } from './MenuFilterGroup';
-import type { MenuFilterRadioGroup } from './MenuFilterRadioGroup';
+import type { MenuFilterGroup, MenuFilterRadioGroup } from './MenuFilterGroup';
 import type { MenuFilterList } from './MenuFilterList';
 
 export interface MenuFilterItemParams {
@@ -100,8 +99,8 @@ export function useMenuFilterItem(
 
   const useItem =
     (scope === 'submenu-trigger' ? impl?.useSubmenuTrigger : impl?.useItem) ?? useUnfilteredItem;
-  const filter = useItem({ label: props.label, children: props.children, render: props.render });
-  const ref = useMergedRefs(forwardedRef, filter.ref);
+  const item = useItem({ label: props.label, children: props.children, render: props.render });
+  const ref = useMergedRefs(forwardedRef, item.ref);
 
-  return { visible: filter.visible, ref, props: filter.props };
+  return { visible: item.visible, ref, props: item.props };
 }

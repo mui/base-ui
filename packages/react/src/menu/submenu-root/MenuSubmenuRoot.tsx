@@ -16,14 +16,14 @@ const EMPTY_SUBMENU_ROOT_CONTEXT = {};
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props): React.JSX.Element {
-  const filter = React.useContext(MenuFilterProviderContext);
+  const filterProvider = React.useContext(MenuFilterProviderContext);
 
-  if (filter !== null) {
-    const FilterSubmenuRoot = filter.SubmenuRoot;
+  if (filterProvider !== null) {
+    const FilterSubmenuRoot = filterProvider.SubmenuRoot;
 
     return (
       <MenuFilterProviderContext.Provider value={null}>
-        <FilterSubmenuRoot {...filter.options} {...props} />
+        <FilterSubmenuRoot {...filterProvider.options} {...props} />
       </MenuFilterProviderContext.Provider>
     );
   }

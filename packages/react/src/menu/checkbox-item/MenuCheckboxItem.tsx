@@ -16,7 +16,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 
-const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItem(
+const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItemPlain(
   componentProps: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -107,7 +107,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { checked: checkedProp, defaultChecked, onCheckedChange, ...itemProps } = props;
+  const { checked: checkedProp, defaultChecked, onCheckedChange, ...plainProps } = props;
 
   // Owned above the element so an uncontrolled item keeps its state while a filter hides it.
   const [checked, setChecked] = useControlled({
@@ -117,7 +117,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     state: 'checked',
   });
 
-  const filter = useMenuFilterItem(props, forwardedRef);
+  const filterItem = useMenuFilterItem(props, forwardedRef);
 
   function handleCheckedChange(
     nextChecked: boolean,
@@ -129,15 +129,16 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     }
   }
 
-  if (!filter.visible) {
+  if (!filterItem.visible) {
     return null;
   }
+
   return (
     <MenuCheckboxItemPlain
-      {...itemProps}
+      {...plainProps}
       checked={checked}
       onCheckedChange={handleCheckedChange}
-      ref={filter.ref}
+      ref={filterItem.ref}
     />
   );
 });

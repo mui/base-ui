@@ -81,7 +81,7 @@ export function useFilterDropdownItem(
 
   const itemId = useRefWithInit(() => Symbol('filter-dropdown-item')).current;
   const ref = React.useRef<HTMLElement | null>(null);
-  const previousTextRef = React.useRef<string | undefined>(undefined);
+  const registeredTextRef = React.useRef<string | undefined>(undefined);
 
   const matched = useStore(store, selectors.isItemVisible, itemId);
 
@@ -109,8 +109,8 @@ export function useFilterDropdownItem(
     // A filtered-out item has no DOM node left. Its children are only a stand-in for the text it
     // renders, which can differ (a translation component, for example), so the cached text wins
     // unless the children changed.
-    if (previousTextRef.current !== undefined && fromChildren === previousChildrenText) {
-      return previousTextRef.current;
+    if (registeredTextRef.current !== undefined && fromChildren === previousChildrenText) {
+      return registeredTextRef.current;
     }
     return fromChildren;
   }, [label, childrenRef]);
@@ -119,10 +119,10 @@ export function useFilterDropdownItem(
     (resolvedText?: string) => {
       const text = resolvedText ?? resolveText();
       if (text) {
-        previousTextRef.current = text;
+        registeredTextRef.current = text;
       }
       return registerItem(itemId, {
-        getText: () => previousTextRef.current,
+        getText: () => registeredTextRef.current,
       });
     },
     [itemId, registerItem, resolveText],
@@ -142,8 +142,8 @@ export function useFilterDropdownItem(
   // Re-register when the item's text changes, so the active query runs again.
   useIsoLayoutEffect(() => {
     const text = resolveText();
-    if (text !== previousTextRef.current) {
-      previousTextRef.current = text;
+    if (text !== registeredTextRef.current) {
+      registeredTextRef.current = text;
       void register(text);
     }
   }, [register, resolveText, children, render, label]);

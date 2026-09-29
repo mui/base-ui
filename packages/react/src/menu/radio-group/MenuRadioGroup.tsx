@@ -9,7 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { MenuRoot } from '../root/MenuRoot';
 
-export const MenuRadioGroupPlain = React.forwardRef(function MenuRadioGroup(
+export const MenuRadioGroupPlain = React.forwardRef(function MenuRadioGroupPlain(
   componentProps: MenuRadioGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {

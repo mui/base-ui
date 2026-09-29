@@ -51,11 +51,17 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         onChange(event) {
           const nextValue = event.currentTarget.value;
           const reason = nextValue === '' ? REASONS.inputClear : REASONS.inputChange;
-          const details = createChangeEventDetails(reason, event.nativeEvent);
-          context.onValueChange(nextValue, details);
-          if (!details.isCanceled && !context.autoHighlight) {
+          const eventDetails = createChangeEventDetails(reason, event.nativeEvent);
+          context.onValueChange(nextValue, eventDetails);
+          if (!eventDetails.isCanceled && !context.autoHighlight) {
             context.setActiveIndex(null);
           }
+        },
+        onKeyDown() {
+          context.setKeyboardModality(true);
+        },
+        onPointerDown() {
+          context.setKeyboardModality(false);
         },
         onMouseEnter(event) {
           context.setKeyboardModality(false);
@@ -64,10 +70,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
             focusByPointer(event.currentTarget);
           }
         },
-        onPointerDown() {
-          context.setKeyboardModality(false);
-        },
-        onFocus(event: React.FocusEvent<HTMLInputElement>) {
+        onFocus(event) {
           context.setInputFocusVisible(true);
 
           // A screen reader that followed `aria-activedescendant` put real focus on the item, so
@@ -88,9 +91,6 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         },
         onBlur() {
           context.setInputFocusVisible(false);
-        },
-        onKeyDown() {
-          context.setKeyboardModality(true);
         },
       },
       elementProps,

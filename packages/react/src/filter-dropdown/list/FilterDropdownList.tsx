@@ -15,12 +15,16 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   componentProps: FilterDropdownList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  // `id` is resolved by `useRenderedId`, which also honors an id on the `render` element.
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
-  const { setListId } = context;
 
-  const [id, registerIdRef] = useRenderedId(componentProps, context.defaultListId, setListId);
+  const [id, registerIdRef] = useRenderedId(
+    componentProps,
+    context.defaultListId,
+    context.setRenderedListId,
+  );
 
   const defaultProps: HTMLProps = {
     // Chromium includes scrollable elements in sequential focus navigation by default.

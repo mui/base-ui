@@ -9,7 +9,7 @@ import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
-const MenuItemPlain = React.forwardRef(function MenuItem(
+const MenuItemPlain = React.forwardRef(function MenuItemPlain(
   componentProps: MenuItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -72,13 +72,13 @@ export const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const filter = useMenuFilterItem(props, forwardedRef);
+  const filterItem = useMenuFilterItem(props, forwardedRef);
 
-  if (!filter.visible) {
+  if (!filterItem.visible) {
     return null;
   }
 
-  return <MenuItemPlain {...props} ref={filter.ref} />;
+  return <MenuItemPlain {...props} ref={filterItem.ref} />;
 });
 
 export interface MenuItemState {

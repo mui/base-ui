@@ -26,7 +26,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
-const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
+const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlain(
   componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -274,15 +274,15 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   props: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const filter = useMenuFilterItem(props, forwardedRef, 'submenu-trigger');
+  const filterItem = useMenuFilterItem(props, forwardedRef, 'submenu-trigger');
 
-  if (!filter.visible) {
+  if (!filterItem.visible) {
     return null;
   }
 
-  const mergedProps = filter.props ? mergeProps(filter.props, props) : props;
+  const mergedProps = filterItem.props ? mergeProps(filterItem.props, props) : props;
 
-  return <MenuSubmenuTriggerPlain {...mergedProps} ref={filter.ref} />;
+  return <MenuSubmenuTriggerPlain {...mergedProps} ref={filterItem.ref} />;
 });
 
 export interface MenuSubmenuTriggerState {

@@ -5,13 +5,13 @@ import { resolvePopupLabel } from './resolvePopupLabel';
 
 describe('resolvePopupLabel', () => {
   it('falls back to the trigger id', () => {
-    expect(resolvePopupLabel({}, null, 'trigger')).toEqual({ ariaLabelledBy: 'trigger' });
+    expect(resolvePopupLabel({}, null, 'trigger')).toBe('trigger');
   });
 
   it("uses a render element's own label instead of the trigger", () => {
-    expect(resolvePopupLabel({ render: <div aria-label="Commands" /> }, null, 'trigger')).toEqual({
-      ariaLabelledBy: undefined,
-    });
+    expect(resolvePopupLabel({ render: <div aria-label="Commands" /> }, null, 'trigger')).toBe(
+      undefined,
+    );
   });
 
   it.skipIf(reactMajor < 19)("reads a server-created render element's label", () => {
@@ -22,6 +22,6 @@ describe('resolvePopupLabel', () => {
       _init: (payload: unknown) => payload,
     };
 
-    expect(resolvePopupLabel({ render }, null, 'trigger')).toEqual({ ariaLabelledBy: undefined });
+    expect(resolvePopupLabel({ render }, null, 'trigger')).toBe(undefined);
   });
 });

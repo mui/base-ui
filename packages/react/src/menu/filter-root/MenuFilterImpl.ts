@@ -1,7 +1,6 @@
 import { MenuFilterPopup } from './MenuFilterPopup';
 import { MenuFilterList } from './MenuFilterList';
-import { MenuFilterGroup } from './MenuFilterGroup';
-import { MenuFilterRadioGroup } from './MenuFilterRadioGroup';
+import { MenuFilterGroup, MenuFilterRadioGroup } from './MenuFilterGroup';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import { useMenuFilterSubmenuTrigger } from './useMenuFilterSubmenuTrigger';
 import type { MenuFilterImpl } from './MenuFilterContext';

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NOOP } from '@base-ui/utils/empty';
 import * as ReactDOM from 'react-dom';
 import { expect, describe, beforeEach, it } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
@@ -391,10 +392,20 @@ describe('<FilterDropdown.Root />', () => {
 });
 
 function TestFilterDropdownRoot(
-  props: Omit<React.ComponentProps<typeof FilterDropdown.Root>, 'listRef' | 'getActiveIndex'>,
+  props: Omit<
+    React.ComponentProps<typeof FilterDropdown.Root>,
+    'listRef' | 'getActiveIndex' | 'setActiveIndex'
+  >,
 ) {
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  return <FilterDropdown.Root {...props} listRef={listRef} getActiveIndex={getNoActiveIndex} />;
+  return (
+    <FilterDropdown.Root
+      {...props}
+      listRef={listRef}
+      getActiveIndex={getNoActiveIndex}
+      setActiveIndex={NOOP}
+    />
+  );
 }
 
 function getNoActiveIndex() {

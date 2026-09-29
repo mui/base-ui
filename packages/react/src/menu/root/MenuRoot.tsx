@@ -6,8 +6,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import {
   FloatingTree,
   useDismiss,
@@ -44,36 +42,10 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
 
-interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
-  /**
-   * Marks this root as a submenu of the enclosing menu.
-   */
-  isSubmenu?: boolean | undefined;
-  /**
-   * Keeps real focus on an element inside the popup and navigates the list with
-   * `aria-activedescendant`.
-   */
-  virtualFocus?: boolean | undefined;
-  /**
-   * The element that retains real focus while virtual list navigation is active.
-   */
-  virtualFocusRef?: React.RefObject<HTMLElement | null> | undefined;
-  /**
-   * Whether virtual focus can leave the list during arrow navigation.
-   */
-  allowEscape?: boolean | undefined;
-  /**
-   * Whether pointer leave should clear the active item.
-   */
-  resetOnPointerLeave?: boolean | undefined;
-  /**
-   * Whether virtual-focus items need WebKit's `aria-selected` compatibility state.
-   */
-  webkitItemSelected?: boolean | undefined;
-}
-
-export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
+export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>(
   props: MenuRootInternalProps<Payload>,
 ) {
   const {
@@ -107,15 +79,15 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
 
   // Depend on the stable pieces rather than the parent context object, so a parent context
   // invalidation doesn't cascade into every descendant root's context.
-  const parentContextStore = parentMenuRootContext?.store;
+  const enclosingMenuStore = parentMenuRootContext?.store;
   const parentVirtualFocus = parentMenuRootContext?.virtualFocus ?? false;
   const parentWebkitItemSelected = parentMenuRootContext?.webkitItemSelected ?? false;
 
   const parentFromContext: MenuParent = React.useMemo(() => {
-    if (isSubmenu && parentContextStore) {
+    if (isSubmenu && enclosingMenuStore) {
       return {
         type: 'menu',
-        store: parentContextStore,
+        store: enclosingMenuStore,
       };
     }
 
@@ -129,7 +101,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     // Ensure this is not a Menu nested inside ContextMenu.Trigger.
     // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
     // <MenuRootContext.Provider value={undefined}>
-    if (contextMenuContext && !parentContextStore) {
+    if (contextMenuContext && !enclosingMenuStore) {
       return {
         type: 'context-menu',
         context: contextMenuContext,
@@ -139,18 +111,18 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     return {
       type: undefined,
     };
-  }, [contextMenuContext, parentContextStore, menubarContext, isSubmenu]);
+  }, [contextMenuContext, enclosingMenuStore, menubarContext, isSubmenu]);
 
   const rootId = useBaseUiId();
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
   // in a state initializer.
   const defaultFloatingId = useBaseUiId();
 
-  const [customFloatingId, setFloatingId] = React.useState<string | undefined>(undefined);
+  const [renderedFloatingId, setRenderedFloatingId] = React.useState<string | undefined>(undefined);
 
   // A registered `''` means the popup rendered with an explicitly empty id, so nothing may point
   // at the generated fallback.
-  const floatingId = (customFloatingId ?? defaultFloatingId) || undefined;
+  const floatingId = (renderedFloatingId ?? defaultFloatingId) || undefined;
 
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
@@ -186,7 +158,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
         modal: parentFromContext.type === undefined ? modalProp : undefined,
         rootId,
         instantType: seededInstantType,
-        virtualFocus,
       },
       floatingId,
       floatingParentNodeIdFromContext != null,
@@ -241,7 +212,6 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
-    virtualFocus,
   });
 
   useImplicitActiveTrigger(store);
@@ -605,29 +575,28 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
   // can come to point at a different element while its value stays the same.
   const syncHighlightedItem = useStableCallback(() => {
     const index = store.state.activeIndex;
-    const element = index === null ? undefined : store.context.itemDomElements.current[index];
+    const item =
+      index === null ? undefined : (store.context.itemDomElements.current[index] ?? undefined);
     // An item removed in this commit stays registered until the list flushes, which calls back
     // here with the settled registry.
-    if (element != null && !element.isConnected) {
+    if (item?.isConnected === false) {
       return;
     }
-    const nextIndex = element == null ? -1 : (index as number);
-    const nextElement = element ?? undefined;
-    if (
-      lastHighlightIndexRef.current === nextIndex &&
-      store.state.highlightedItem === nextElement
-    ) {
+
+    const itemIndex = item === undefined ? -1 : index!;
+    if (lastHighlightIndexRef.current === itemIndex && store.state.highlightedItem === item) {
       return;
     }
-    lastHighlightIndexRef.current = nextIndex;
-    store.set('highlightedItem', nextElement);
+
+    lastHighlightIndexRef.current = itemIndex;
+    store.set('highlightedItem', item);
     // The tag left by the write that produced this committed value.
     const reason = store.context.highlightReason;
     store.context.highlightReason = REASONS.none;
-    onItemHighlighted(element ?? undefined, {
+    onItemHighlighted(item, {
       reason,
       label:
-        element == null ? undefined : (store.context.itemLabels.current[nextIndex] ?? undefined),
+        item === undefined ? undefined : (store.context.itemLabels.current[itemIndex] ?? undefined),
     });
   });
 
@@ -650,6 +619,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
     const { onFocus, ...rest } = listNavigation.trigger;
     return rest;
   }, [virtualFocus, listNavigation.reference, listNavigation.trigger]);
+
   store.useSyncedValue(
     'inputProps',
     virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT,
@@ -741,7 +711,7 @@ export const MenuRootInternal = fastComponent(function MenuRoot<Payload>(
       orientation,
       loopFocus,
       defaultFloatingId,
-      setFloatingId,
+      setRenderedFloatingId,
       virtualFocus,
       parentVirtualFocus,
       parentWebkitItemSelected,
@@ -802,23 +772,51 @@ function getHighlightReason(
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>): React.JSX.Element {
-  const filter = React.useContext(MenuFilterProviderContext);
+  const filterProvider = React.useContext(MenuFilterProviderContext);
 
-  if (filter === null) {
+  if (filterProvider === null) {
     return <MenuRootInternal {...props} />;
   }
 
-  const FilterRoot = filter.Root;
+  const FilterRoot = filterProvider.Root;
 
   return (
     // The root consumes its provider so a plain submenu inside doesn't inherit it.
     <MenuFilterProviderContext.Provider value={null}>
-      <FilterRoot {...filter.options} {...props} />
+      <FilterRoot {...filterProvider.options} {...props} />
     </MenuFilterProviderContext.Provider>
   );
 }
 
 export interface MenuRootState {}
+
+interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
+  /**
+   * Marks this root as a submenu of the enclosing menu.
+   */
+  isSubmenu?: boolean | undefined;
+  /**
+   * Keeps real focus on an element inside the popup and navigates the list with
+   * `aria-activedescendant`.
+   */
+  virtualFocus?: boolean | undefined;
+  /**
+   * The element that retains real focus while virtual list navigation is active.
+   */
+  virtualFocusRef?: React.RefObject<HTMLElement | null> | undefined;
+  /**
+   * Whether virtual focus can leave the list during arrow navigation.
+   */
+  allowEscape?: boolean | undefined;
+  /**
+   * Whether pointer leave should clear the active item.
+   */
+  resetOnPointerLeave?: boolean | undefined;
+  /**
+   * Whether virtual-focus items need WebKit's `aria-selected` compatibility state.
+   */
+  webkitItemSelected?: boolean | undefined;
+}
 
 export interface MenuRootProps<Payload = unknown> {
   /**

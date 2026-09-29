@@ -30,7 +30,7 @@ export function Popup(props: React.ComponentProps<'div'>) {
 
 export function List(props: React.ComponentProps<typeof FilterDropdownList>) {
   const { triggerId } = useFilterDropdownRootContext();
-  const { ariaLabelledBy } = resolvePopupLabel(props, null, triggerId ?? null);
+  const ariaLabelledBy = resolvePopupLabel(props, null, triggerId ?? null);
   return (
     <FilterDropdownList
       {...mergeProps<typeof FilterDropdownList>(

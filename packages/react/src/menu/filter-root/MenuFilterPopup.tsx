@@ -52,12 +52,6 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
   const popupProps = mergeProps<typeof MenuPopupPlain>(interactionProps, props);
 
   return (
-    <MenuPopupPlain
-      {...popupProps}
-      role="dialog"
-      initialFocus={initialFocus}
-      modal={false}
-      ref={forwardedRef}
-    />
+    <MenuPopupPlain {...popupProps} role="dialog" initialFocus={initialFocus} ref={forwardedRef} />
   );
 });

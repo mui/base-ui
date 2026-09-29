@@ -189,15 +189,12 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
   }, [mounted, store, parentStore, handleReturnFocus]);
 
   function moveInParent(from: HTMLElement, key: string) {
-    const item = moveHighlightFrom(
-      parentStore,
-      from,
-      key,
-      parentOrientation,
-      direction === 'rtl',
-      parentLoopFocus,
-      parentAllowEscape,
-    );
+    const item = moveHighlightFrom(parentStore, from, key, {
+      orientation: parentOrientation,
+      rtl: direction === 'rtl',
+      loopFocus: parentLoopFocus,
+      allowEscape: parentAllowEscape,
+    });
     if (!parentVirtualFocus) {
       item?.focus({ preventScroll: true });
     }

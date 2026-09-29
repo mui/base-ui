@@ -28,20 +28,19 @@ export interface MenuFilterDropdownProps {
 
 /**
  * Reads the menu store, which is only available below the menu root, and hands the filter
- * substrate the list the menu navigates and the command that moves its highlight. The query is
+ * engine the list the menu navigates and the command that moves its highlight. The query is
  * owned here; the menu root keeps sole ownership of the open state.
  */
 export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   const { value: valueProp, defaultValue = '', onValueChange, ...dropdownProps } = props;
 
   const { store } = useMenuRootContext();
-  const isInMenubar = useMenubarContext(true) != null;
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const keyboardOpen = store.useState('keyboardOpen');
-  const triggerId = store.useState('activeTriggerId');
-  const triggerElement = store.useState('activeTriggerElement');
+  const activeTriggerId = store.useState('activeTriggerId');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const disabled = store.useState('disabled');
 
   const [value, setValue] = useControlled({
@@ -52,13 +51,18 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   });
 
   const handleValueChange = useStableCallback(
-    (nextValue: string, details: MenuFilterProvider.ValueChangeEventDetails) => {
-      onValueChange?.(nextValue, details);
-      if (!details.isCanceled) {
+    (nextValue: string, eventDetails: MenuFilterProvider.ValueChangeEventDetails) => {
+      onValueChange?.(nextValue, eventDetails);
+      if (!eventDetails.isCanceled) {
         setValue(nextValue);
       }
     },
   );
+
+  const getActiveIndex = useStableCallback(() => store.state.activeIndex);
+  const setActiveIndex = useStableCallback((index: number | null) => {
+    store.setActiveIndex(index, REASONS.none);
+  });
 
   const query = useFilterDropdownCloseQuery({
     open,
@@ -67,7 +71,8 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
     onValueChange: handleValueChange,
   });
 
-  const handleInputKeyDown = useMenuFilterKeyDown(value !== '');
+  const filterTriggerProps = useFilterTriggerProps(value !== '');
+  store.useSyncedValue('filterTriggerProps', filterTriggerProps);
 
   // Only `setOpen` records a keyboard open, so a controlled close that bypasses it must not leave
   // the next programmatic open looking like one.
@@ -77,14 +82,42 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
     }
   }, [open, store]);
 
-  const getActiveIndex = useStableCallback(() => store.state.activeIndex);
-  const setActiveIndex = useStableCallback((index: number | null) => {
-    store.setActiveIndex(index, REASONS.none);
-  });
+  // Trust the rendered element's id once it exists: an explicitly empty id must not fall back to a
+  // registered id that no element carries.
+  const triggerId = activeTriggerElement ? activeTriggerElement.id || null : activeTriggerId;
 
-  // The trigger announces a dialog and routes list navigation typed on it as the input would,
-  // since the input holds real focus while the popup is open.
-  const filterTriggerProps = React.useMemo<HTMLProps>(
+  return (
+    <MenuFilterImplContext.Provider value={MENU_FILTER_IMPL}>
+      <FilterDropdownRoot
+        {...dropdownProps}
+        open={open}
+        openedByKeyboard={keyboardOpen}
+        disabled={disabled}
+        value={value}
+        query={query}
+        onValueChange={handleValueChange}
+        triggerId={triggerId}
+        listRef={store.context.itemDomElements}
+        getActiveIndex={getActiveIndex}
+        setActiveIndex={setActiveIndex}
+        focusOwnerRef={store.context.virtualFocusRef}
+      />
+    </MenuFilterImplContext.Provider>
+  );
+}
+
+/**
+ * The props a filterable menu adds to its triggers: dialog semantics, screen reader press
+ * tracking, and a relay of list navigation typed on the trigger to the input, since the input
+ * holds real focus while the popup is open.
+ */
+function useFilterTriggerProps(hasValue: boolean) {
+  const { store } = useMenuRootContext();
+  const isInMenubar = useMenubarContext(true) != null;
+
+  const handleInputKeyDown = useMenuFilterKeyDown(hasValue);
+
+  return React.useMemo<HTMLProps>(
     () => ({
       'aria-haspopup': 'dialog',
       onPointerDown(event: React.PointerEvent<HTMLElement>) {
@@ -96,15 +129,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
           return;
         }
 
-        const isVerticalArrow = event.key === 'ArrowUp' || event.key === 'ArrowDown';
-        const isTypeaheadKey =
-          event.key.length === 1 &&
-          event.key !== ' ' &&
-          !event.ctrlKey &&
-          !event.metaKey &&
-          !event.altKey;
-
-        if (isVerticalArrow) {
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
           focusOwner.focus({ preventScroll: true });
           handleInputKeyDown(event);
           event.preventDefault();
@@ -112,34 +137,17 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
         } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
           // Cross-axis keys drive submenu open/close, which the trigger must not relay.
           event.preventBaseUIHandler();
-        } else if (isTypeaheadKey) {
+        } else if (isTypeaheadKey(event)) {
           focusOwner.focus({ preventScroll: true });
         }
       },
     }),
     [store, isInMenubar, handleInputKeyDown],
   );
+}
 
-  store.useSyncedValue('filterTriggerProps', filterTriggerProps);
-
+function isTypeaheadKey(event: React.KeyboardEvent) {
   return (
-    <MenuFilterImplContext.Provider value={MENU_FILTER_IMPL}>
-      <FilterDropdownRoot
-        {...dropdownProps}
-        open={open}
-        inputFocusVisible={keyboardOpen}
-        value={value}
-        query={query}
-        onValueChange={handleValueChange}
-        disabled={disabled}
-        // Trust the rendered element's id once it exists: an explicitly empty id must not
-        // fall back to a registered id that no element carries.
-        triggerId={triggerElement ? triggerElement.id || null : triggerId}
-        listRef={store.context.itemDomElements}
-        getActiveIndex={getActiveIndex}
-        setActiveIndex={setActiveIndex}
-        inputRef={store.context.virtualFocusRef}
-      />
-    </MenuFilterImplContext.Provider>
+    event.key.length === 1 && event.key !== ' ' && !event.ctrlKey && !event.metaKey && !event.altKey
   );
 }

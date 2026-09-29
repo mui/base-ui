@@ -5,11 +5,10 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import type { MenuRoot } from '../root/MenuRoot';
+import type { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -25,15 +24,15 @@ import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMou
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
+import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
+import type { MenuStore } from '../store/MenuStore';
 
 interface MenuPopupPlainProps extends MenuPopup.Props {
   /** A filter root's own initial focus target; the plain default focuses the popup or its list. */
   initialFocus?: FloatingFocusManagerProps['initialFocus'] | undefined;
-  /** Whether a filter root traps focus in the popup. */
-  modal?: boolean | undefined;
 }
 
-export const MenuPopupPlain = React.forwardRef(function MenuPopup(
+export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   componentProps: MenuPopupPlainProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -44,12 +43,11 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
     finalFocus,
     id: idProp,
     initialFocus: initialFocusProp,
-    modal: modalProp = false,
     ...elementProps
   } = componentProps;
 
-  const rootContext = useMenuRootContext();
-  const { store, defaultFloatingId, setFloatingId, virtualFocus, orientation } = rootContext;
+  const { store, defaultFloatingId, setRenderedFloatingId, virtualFocus, orientation } =
+    useMenuRootContext();
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -72,13 +70,13 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   const activeTriggerId = store.useState('activeTriggerId');
   const listElement = store.useState('listElement');
 
-  const [id, registerIdRef] = useRenderedId(componentProps, defaultFloatingId, setFloatingId);
-
-  const { ariaLabelledBy } = resolvePopupLabel(
+  const [id, registerIdRef] = useRenderedId(
     componentProps,
-    activeTriggerElement,
-    activeTriggerId,
+    defaultFloatingId,
+    setRenderedFloatingId,
   );
+
+  const ariaLabelledBy = resolvePopupLabel(componentProps, activeTriggerElement, activeTriggerId);
 
   // A dialog's menu can render under a submenu provider; only the actual submenu inherits it.
   const submenuRootContext = parent.type === 'menu' ? inheritedSubmenuRootContext : undefined;
@@ -130,42 +128,12 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
 
   const setPopupElement = store.useStateSetter('popupElement');
 
-  // A virtually focused parent keeps real focus on its input, so its submenu trigger never blurs.
-  // Real focus entering a plain submenu is the equivalent moment: the parent has no active item
-  // until a keyboard close hands the cursor back to the trigger.
-  const parentStore = parent.type === 'menu' ? parent.store : null;
-  const parentFocusRef = parentStore?.context.virtualFocusRef;
-
-  // Hand focus and the cursor back as the submenu starts closing. Return focus waits for the exit
-  // animation, which would leave the parent input focused with nothing highlighted until then.
-  const returnToParent = useStableCallback((trigger: Element | null, reason: string | null) => {
-    const focusOwner = parentFocusRef?.current;
-    if (virtualFocus || store.select('open') || !parentStore?.select('open') || !focusOwner) {
-      return;
-    }
-
-    if (contains(store.context.popupRef.current, activeElement(ownerDocument(focusOwner)))) {
-      focusOwner.focus({ preventScroll: true });
-    }
-
-    if (
-      (reason === REASONS.listNavigation || reason === REASONS.escapeKey) &&
-      parentStore.state.activeIndex == null
-    ) {
-      parentStore.highlightItem(trigger, REASONS.keyboard);
-    }
-  });
-
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      // A parent closing in the same commit, such as on an item press, syncs its controlled `open`
-      // in its own layout effect, which runs after this one. An unmount can clear the trigger by
-      // then, so read it now.
-      const trigger = store.state.activeTriggerElement;
-      const reason = store.select('lastOpenChangeReason');
-      queueMicrotask(() => returnToParent(trigger, reason));
-    }
-  }, [open, store, returnToParent]);
+  const { parentVirtualFocusRef, handleFocus } = useVirtualFocusParentHandoff(
+    store,
+    parent,
+    open,
+    virtualFocus,
+  );
 
   const state: MenuPopupState = {
     transitionStatus,
@@ -200,11 +168,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
             event.stopPropagation();
           }
         },
-        onFocus() {
-          if (!virtualFocus && parentFocusRef && parentStore?.state.activeIndex != null) {
-            parentStore.setActiveIndex(null, REASONS.none);
-          }
-        },
+        onFocus: handleFocus,
       },
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
@@ -221,13 +185,13 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   }
 
   // Internal defaults rather than consumer targets, so focus that already moved is respected.
-  const dynamicReturnFocus = submenuRootContext?.getReturnElement ?? parentFocusRef;
+  const dynamicReturnFocus = submenuRootContext?.getReturnElement ?? parentVirtualFocusRef;
 
   return (
     <FloatingFocusManager
       context={floatingContext}
       openInteractionType={openMethod}
-      modal={isContextMenu || modalProp}
+      modal={isContextMenu}
       disabled={!mounted}
       returnFocus={finalFocus ?? dynamicReturnFocus ?? returnFocus}
       explicitReturnFocus={finalFocus === undefined && dynamicReturnFocus ? false : undefined}
@@ -249,6 +213,62 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopup(
     </FloatingFocusManager>
   );
 });
+
+/**
+ * A plain submenu whose parent is filterable. The parent keeps real focus on its input, so its
+ * trigger never blurs and its return focus waits for this popup's exit animation. The submenu
+ * hands focus and the parent's highlight back itself.
+ */
+function useVirtualFocusParentHandoff(
+  store: MenuStore<unknown>,
+  parent: MenuParent,
+  open: boolean,
+  virtualFocus: boolean,
+) {
+  const parentStore = parent.type === 'menu' ? parent.store : null;
+  const parentVirtualFocusRef = parentStore?.context.virtualFocusRef;
+
+  const returnToParent = useStableCallback(
+    (trigger: Element | null, reason: MenuRoot.ChangeEventReason | null) => {
+      const focusOwner = parentVirtualFocusRef?.current;
+      if (virtualFocus || store.select('open') || !parentStore?.select('open') || !focusOwner) {
+        return;
+      }
+
+      if (contains(store.context.popupRef.current, activeElement(ownerDocument(focusOwner)))) {
+        focusOwner.focus({ preventScroll: true });
+      }
+
+      if (
+        (reason === REASONS.listNavigation || reason === REASONS.escapeKey) &&
+        parentStore.state.activeIndex == null
+      ) {
+        parentStore.highlightItem(trigger, REASONS.keyboard);
+      }
+    },
+  );
+
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      // A parent closing in the same commit, such as on an item press, syncs its controlled `open`
+      // in its own layout effect, which runs after this one. An unmount can clear the trigger by
+      // then, so read it now.
+      const trigger = store.state.activeTriggerElement;
+      const reason = store.select('lastOpenChangeReason');
+      queueMicrotask(() => returnToParent(trigger, reason));
+    }
+  }, [open, store, returnToParent]);
+
+  // Real focus entering this submenu is when a plain parent's trigger would blur: the parent has
+  // no active item until a keyboard close hands the cursor back to the trigger.
+  function handleFocus() {
+    if (!virtualFocus && parentVirtualFocusRef && parentStore?.state.activeIndex != null) {
+      parentStore.setActiveIndex(null, REASONS.none);
+    }
+  }
+
+  return { parentVirtualFocusRef, handleFocus };
+}
 
 /**
  * A container for the menu items.
