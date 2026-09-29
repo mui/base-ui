@@ -2721,8 +2721,6 @@ describe('<Menu.Root />', () => {
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
-        // Opening the modal menu covers the outside element with its backdrop. Resolve the
-        // backdrop after pointer-down so the drag ends on the element receiving pointer events.
         // eslint-disable-next-line testing-library/prefer-screen-queries -- The browser locator must resolve after pointer-down.
         const backdrop = page.getByRole('presentation').first();
 

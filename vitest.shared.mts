@@ -48,7 +48,6 @@ function getBrowserConfig(): BrowserModeConfig {
 
 const config: UserWorkspaceConfig = {
   test: {
-    // Vitest 5 reads hook ordering from each project rather than the root config.
     sequence: {
       hooks: 'list',
     },
