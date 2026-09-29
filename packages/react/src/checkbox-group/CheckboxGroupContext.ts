@@ -8,6 +8,7 @@ import type { LabelableContext } from '../internals/labelable-provider/Labelable
 
 export interface CheckboxGroupContext {
   value: string[];
+  valueRef: React.RefObject<string[] | null>;
   setValue: (
     value: string[],
     eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,

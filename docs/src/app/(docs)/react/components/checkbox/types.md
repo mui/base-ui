@@ -173,11 +173,29 @@ type CheckboxIndicatorState = {
 };
 ```
 
+### PaintSelectionProvider
+
+Enables painting checkboxes with a mouse or pen in the checkbox group it wraps.
+Touch gestures retain native scrolling.
+Doesn't render its own HTML element.
+
+**PaintSelectionProvider Props:**
+
+| Prop     | Type              | Default | Description                                                                   |
+| :------- | :---------------- | :------ | :---------------------------------------------------------------------------- |
+| disabled | `boolean`         | `false` | Whether painting is disabled. Clicking and keyboard interaction keep working. |
+| children | `React.ReactNode` | -       | -                                                                             |
+
+### PaintSelectionProvider.Props
+
+Re-export of [PaintSelectionProvider](#paintselectionprovider) props.
+
 ## Export Groups
 
 - `Checkbox.Root`: `Checkbox.Root`, `Checkbox.Root.State`, `Checkbox.Root.Props`, `Checkbox.Root.ChangeEventReason`, `Checkbox.Root.ChangeEventDetails`
 - `Checkbox.Indicator`: `Checkbox.Indicator`, `Checkbox.Indicator.State`, `Checkbox.Indicator.Props`
-- `Default`: `CheckboxRootState`, `CheckboxRootProps`, `CheckboxRootChangeEventReason`, `CheckboxRootChangeEventDetails`, `CheckboxIndicatorState`, `CheckboxIndicatorProps`
+- `Checkbox.PaintSelectionProvider`: `Checkbox.PaintSelectionProvider`, `Checkbox.PaintSelectionProvider.Props`
+- `Default`: `CheckboxRootState`, `CheckboxRootProps`, `CheckboxRootChangeEventReason`, `CheckboxRootChangeEventDetails`, `CheckboxIndicatorState`, `CheckboxIndicatorProps`, `CheckboxPaintSelectionProviderProps`
 
 ## Canonical Types
 
@@ -189,3 +207,4 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Checkbox.Root.ChangeEventDetails`: `CheckboxRootChangeEventDetails`
 - `Checkbox.Indicator.State`: `CheckboxIndicatorState`
 - `Checkbox.Indicator.Props`: `CheckboxIndicatorProps`
+- `Checkbox.PaintSelectionProvider.Props`: `CheckboxPaintSelectionProviderProps`

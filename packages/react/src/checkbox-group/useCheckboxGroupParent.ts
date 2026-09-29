@@ -8,7 +8,7 @@ import type { BaseUIEventReasons } from '../internals/reasons';
 export function useCheckboxGroupParent(
   params: UseCheckboxGroupParentParameters,
 ): UseCheckboxGroupParentReturnValue {
-  const { allValues = EMPTY_ARRAY, value, onValueChange: onValueChangeProp } = params;
+  const { allValues = EMPTY_ARRAY, value, valueRef, onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
@@ -102,11 +102,12 @@ export function useCheckboxGroupParent(
     (childValue: string) => ({
       checked: value.includes(childValue),
       onCheckedChange(nextChecked, eventDetails) {
-        const newValue = value.slice();
-        if (nextChecked) {
+        const newValue = (valueRef?.current ?? value).slice();
+        const index = newValue.indexOf(childValue);
+        if (nextChecked && index === -1) {
           newValue.push(childValue);
-        } else {
-          newValue.splice(newValue.indexOf(childValue), 1);
+        } else if (!nextChecked && index !== -1) {
+          newValue.splice(index, 1);
         }
 
         onValueChange(newValue, eventDetails);
@@ -117,7 +118,7 @@ export function useCheckboxGroupParent(
         }
       },
     }),
-    [onValueChange, value],
+    [onValueChange, value, valueRef],
   );
 
   return React.useMemo(
@@ -134,6 +135,7 @@ export function useCheckboxGroupParent(
 export interface UseCheckboxGroupParentParameters {
   allValues?: string[] | undefined;
   value: string[];
+  valueRef?: React.RefObject<string[] | null> | undefined;
   onValueChange?:
     | ((
         value: string[],
