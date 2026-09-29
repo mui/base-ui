@@ -14,24 +14,24 @@ export function getAdapterWeekendDays(adapter: TemporalAdapter) {
   return [1, 2, 3, 4, 5, 6, 7].filter((day) => adapter.isWeekend(adapter.addDays(monday, day - 1)));
 }
 
+export const hasIntlWeekInfo =
+  'getWeekInfo' in Intl.Locale.prototype || 'weekInfo' in Intl.Locale.prototype;
+
+// Doesn't match any real locale, so the tests can tell that the data comes from the stub.
+const stubWeekInfo = { firstDay: 1, weekend: [2, 3] };
+
 type IntlWeekInfoApi = 'method' | 'accessor' | 'none';
 
 /**
  * Replaces the Intl.Locale week info APIs to simulate engines that only support
  * the `getWeekInfo()` method, only the `weekInfo` accessor, or none of them.
+ * The stubbed APIs return Tuesday and Wednesday as weekend days.
  * Returns a function that restores the original APIs.
  */
 export function stubIntlWeekInfo(api: IntlWeekInfoApi) {
   const prototype = Intl.Locale.prototype;
   const keys = ['getWeekInfo', 'weekInfo'];
   const descriptors = keys.map((key) => Object.getOwnPropertyDescriptor(prototype, key));
-  const [methodDescriptor, accessorDescriptor] = descriptors;
-
-  function readWeekInfo(locale: Intl.Locale) {
-    return methodDescriptor
-      ? methodDescriptor.value.call(locale)
-      : accessorDescriptor!.get!.call(locale);
-  }
 
   keys.forEach((key) => Reflect.deleteProperty(prototype, key));
 
@@ -39,16 +39,12 @@ export function stubIntlWeekInfo(api: IntlWeekInfoApi) {
     Object.defineProperty(prototype, 'getWeekInfo', {
       configurable: true,
       writable: true,
-      value(this: Intl.Locale) {
-        return readWeekInfo(this);
-      },
+      value: () => stubWeekInfo,
     });
   } else if (api === 'accessor') {
     Object.defineProperty(prototype, 'weekInfo', {
       configurable: true,
-      get(this: Intl.Locale) {
-        return readWeekInfo(this);
-      },
+      get: () => stubWeekInfo,
     });
   }
 

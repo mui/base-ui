@@ -10,6 +10,7 @@ import {
   TEST_DATE_ISO_STRING,
   TEST_DATE_LOCALE_STRING,
   getAdapterWeekendDays,
+  hasIntlWeekInfo,
   stubIntlWeekInfo,
 } from './describeGregorianAdapter.utils';
 
@@ -875,17 +876,20 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
       expect(adapterFr.isWeekend(adapterFr.addDays(testDateIso, 5))).toBe(true);
     });
 
-    it('should use the weekend days of the locale', () => {
+    it.skipIf(!hasIntlWeekInfo)('should use the weekend days of the locale', () => {
       expect(getAdapterWeekendDays(createAdapterWithLocale('en-US'))).toEqual([6, 7]);
       expect(getAdapterWeekendDays(createAdapterWithLocale('he'))).toEqual([5, 6]);
       expect(getAdapterWeekendDays(createAdapterWithLocale('en-IN'))).toEqual([7]);
     });
 
-    it('should use the adapter locale when the date has another locale', () => {
-      // Friday
-      const friday = createDateInFrenchLocale('2018-11-02T12:00:00.000Z');
-      expect(createAdapterWithLocale('he').isWeekend(friday)).toBe(true);
-    });
+    it.skipIf(!hasIntlWeekInfo)(
+      'should use the adapter locale when the date has another locale',
+      () => {
+        // Friday
+        const friday = createDateInFrenchLocale('2018-11-02T12:00:00.000Z');
+        expect(createAdapterWithLocale('he').isWeekend(friday)).toBe(true);
+      },
+    );
 
     it('should use the day in the timezone of the date', () => {
       // Friday in UTC, Saturday in Kiritimati (UTC+14)
@@ -898,12 +902,12 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     // so each of the tests below uses a locale that isn't used by any other test.
     it('should support engines that only expose the week info method', () => {
       onTestFinished(stubIntlWeekInfo('method'));
-      expect(getAdapterWeekendDays(createAdapterWithLocale('ar-SA'))).toEqual([5, 6]);
+      expect(getAdapterWeekendDays(createAdapterWithLocale('ar-SA'))).toEqual([2, 3]);
     });
 
     it('should support engines that only expose the week info accessor', () => {
       onTestFinished(stubIntlWeekInfo('accessor'));
-      expect(getAdapterWeekendDays(createAdapterWithLocale('hi'))).toEqual([7]);
+      expect(getAdapterWeekendDays(createAdapterWithLocale('hi'))).toEqual([2, 3]);
     });
 
     it('should fall back to Saturday and Sunday when the engine has no week info', () => {
