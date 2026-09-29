@@ -6,11 +6,11 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import { useListEmpty } from '../utils/parts';
-import {
-  type Side,
-  type Align,
-  useAnchorPositioning,
-  type UseAnchorPositioningSharedParameters,
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Side,
+  Align,
+  UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';

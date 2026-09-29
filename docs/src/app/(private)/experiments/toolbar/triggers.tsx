@@ -26,7 +26,8 @@ import {
   MoreHorizontalIcon,
   ChevronRightIcon,
 } from './_icons';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 
 interface Settings extends Record<string, boolean> {}
 

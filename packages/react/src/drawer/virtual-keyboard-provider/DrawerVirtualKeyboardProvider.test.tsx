@@ -3872,4 +3872,426 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       }
     }
   });
+
+  describe('layout viewport resized for the keyboard (Chrome on iOS)', () => {
+    function mockResizableInnerHeight(initialHeight: number) {
+      const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'innerHeight');
+      let innerHeight = initialHeight;
+
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        get: () => innerHeight,
+      });
+
+      return {
+        resize(nextHeight: number) {
+          innerHeight = nextHeight;
+          window.dispatchEvent(new Event('resize'));
+        },
+        restore() {
+          if (originalDescriptor) {
+            Object.defineProperty(window, 'innerHeight', originalDescriptor);
+          }
+        },
+      };
+    }
+
+    function renderKeyboardDrawer() {
+      return render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport data-testid="viewport">
+                <Drawer.Popup>
+                  <Drawer.Content
+                    data-testid="scroll"
+                    style={{ height: 420, overflowY: 'auto', paddingBottom: 20 }}
+                  >
+                    <div style={{ height: 900 }} />
+                    <input data-testid="input" type="text" />
+                  </Drawer.Content>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
+    }
+
+    // New Chrome on iOS shrinks `svh` for the keyboard before resizing the layout viewport.
+    function mockSmallViewportHeight(initialHeight: number) {
+      const originalDescriptor = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        'offsetHeight',
+      )!;
+      let smallViewportHeight = initialHeight;
+
+      Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+        configurable: true,
+        get(this: HTMLElement) {
+          return this.style.height === '100svh'
+            ? smallViewportHeight
+            : originalDescriptor.get!.call(this);
+        },
+      });
+
+      return {
+        set(nextHeight: number) {
+          smallViewportHeight = nextHeight;
+        },
+        restore() {
+          Object.defineProperty(HTMLElement.prototype, 'offsetHeight', originalDescriptor);
+        },
+      };
+    }
+
+    function mockScrollGeometry(scroll: HTMLElement, input: HTMLElement) {
+      Object.defineProperties(scroll, {
+        clientHeight: { configurable: true, value: 380 },
+        scrollHeight: { configurable: true, value: 1200 },
+      });
+      // The shrunken viewport keeps the scroller above the keyboard.
+      scroll.getBoundingClientRect = () => new DOMRect(0, 100, 320, 380);
+      input.getBoundingClientRect = () => new DOMRect(0, 650 - scroll.scrollTop, 320, 40);
+    }
+
+    it.skipIf(isJSDOM)(
+      'applies no keyboard inset or slack when the small viewport follows the keyboard',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        const smallViewport = mockSmallViewportHeight(800);
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const viewport = screen.getByTestId('viewport');
+          const scroll = screen.getByTestId('scroll');
+          const input = screen.getByTestId('input');
+
+          // The scroller lays out inside the layout viewport; against the full-height one, the
+          // keyboard would overlap its bottom 220px.
+          scroll.getBoundingClientRect = () => new DOMRect(0, window.innerHeight - 500, 320, 420);
+
+          await act(async () => {
+            input.focus();
+            smallViewport.set(500);
+            visualViewport.resize(500);
+            vi.advanceTimersToNextFrame();
+          });
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+          expect(scroll.style.paddingBottom).toBe('20px');
+
+          await act(async () => {
+            innerHeight.resize(650);
+            vi.advanceTimersToNextFrame();
+          });
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+          expect(scroll.style.paddingBottom).toBe('20px');
+        } finally {
+          vi.useRealTimers();
+          smallViewport.restore();
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'aligns the focused field once the layout viewport has shrunk to the visual viewport',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const viewport = screen.getByTestId('viewport');
+          const scroll = screen.getByTestId('scroll');
+          const input = screen.getByTestId('input');
+
+          mockScrollGeometry(scroll, input);
+          scroll.scrollTo = (options?: ScrollToOptions | number) => {
+            if (typeof options === 'object' && options !== null && options.top !== undefined) {
+              scroll.scrollTop = options.top;
+            }
+          };
+
+          // The visual viewport shrinks first; the layout viewport follows a frame later.
+          await act(async () => {
+            input.focus();
+            scroll.scrollTop = 0;
+            visualViewport.resize(500);
+            vi.advanceTimersToNextFrame();
+          });
+          await act(async () => {
+            innerHeight.resize(500);
+            await vi.advanceTimersByTimeAsync(200);
+          });
+
+          const inputRect = input.getBoundingClientRect();
+          expect((inputRect.top + inputRect.bottom) / 2).toBeCloseTo((100 + 480) / 2, 0);
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+          expect(scroll.style.paddingBottom).toBe('20px');
+        } finally {
+          vi.useRealTimers();
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'scrolls the focused field once the layout viewport reaches the visual viewport',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        const smallViewport = mockSmallViewportHeight(800);
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const scroll = screen.getByTestId('scroll');
+          const input = screen.getByTestId('input');
+
+          mockScrollGeometry(scroll, input);
+          const scrollToSpy = vi.spyOn(scroll, 'scrollTo').mockImplementation(() => {});
+
+          await act(async () => {
+            input.focus();
+            smallViewport.set(500);
+            visualViewport.resize(500);
+            vi.advanceTimersToNextFrame();
+          });
+          // The layout viewport can pause on its way down.
+          await act(async () => {
+            innerHeight.resize(700);
+            vi.advanceTimersToNextFrame();
+          });
+          await act(async () => {
+            innerHeight.resize(600);
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+          });
+          expect(scrollToSpy).not.toHaveBeenCalled();
+
+          await act(async () => {
+            innerHeight.resize(500);
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+          });
+          expect(scrollToSpy).toHaveBeenCalledTimes(1);
+        } finally {
+          vi.useRealTimers();
+          smallViewport.restore();
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'waits for the layout viewport to grow to a shorter keyboard before scrolling',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        const smallViewport = mockSmallViewportHeight(800);
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const scroll = screen.getByTestId('scroll');
+          const input = screen.getByTestId('input');
+
+          mockScrollGeometry(scroll, input);
+          const scrollToSpy = vi.spyOn(scroll, 'scrollTo').mockImplementation(() => {});
+
+          await act(async () => {
+            input.focus();
+            smallViewport.set(500);
+            visualViewport.resize(500);
+            vi.advanceTimersToNextFrame();
+          });
+          await act(async () => {
+            innerHeight.resize(500);
+            await vi.advanceTimersByTimeAsync(2000);
+          });
+          expect(scrollToSpy).toHaveBeenCalledTimes(1);
+          scrollToSpy.mockClear();
+
+          // The keyboard gets shorter while staying open; the layout viewport follows later.
+          await act(async () => {
+            smallViewport.set(540);
+            visualViewport.resize(540);
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+          });
+          expect(scrollToSpy).not.toHaveBeenCalled();
+
+          await act(async () => {
+            innerHeight.resize(540);
+            vi.advanceTimersToNextFrame();
+            vi.advanceTimersToNextFrame();
+          });
+          expect(scrollToSpy).toHaveBeenCalledTimes(1);
+        } finally {
+          vi.useRealTimers();
+          smallViewport.restore();
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'does not treat a plain resize of both viewports as the software keyboard',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const viewport = screen.getByTestId('viewport');
+          const scroll = screen.getByTestId('scroll');
+          const input = screen.getByTestId('input');
+
+          mockScrollGeometry(scroll, input);
+          const scrollToSpy = vi.spyOn(scroll, 'scrollTo').mockImplementation(() => {});
+
+          await act(async () => {
+            input.focus();
+            await vi.advanceTimersByTimeAsync(100);
+          });
+
+          // A window resize (or rotation) moves both viewports together.
+          await act(async () => {
+            visualViewport.resize(500);
+            innerHeight.resize(500);
+            await vi.advanceTimersByTimeAsync(200);
+          });
+
+          expect(scrollToSpy).not.toHaveBeenCalled();
+          expect(['', '0px']).toContain(viewport.style.getPropertyValue('--drawer-keyboard-inset'));
+          expect(scroll.style.paddingBottom).toBe('20px');
+        } finally {
+          vi.useRealTimers();
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'clears the keyboard inset and slack once the layout viewport catches up with the visual viewport',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const viewport = screen.getByTestId('viewport');
+          const scroll = screen.getByTestId('scroll');
+          const input = screen.getByTestId('input');
+
+          // Place the scroller so the keyboard overlaps its bottom 220px.
+          let scrollBottom = 720;
+          scroll.getBoundingClientRect = () => new DOMRect(0, scrollBottom - 420, 320, 420);
+
+          // Let the alignment passes finish so only the resize can re-measure.
+          await act(async () => {
+            input.focus();
+            visualViewport.resize(500);
+            await vi.advanceTimersByTimeAsync(2000);
+          });
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+          expect(scroll.style.paddingBottom).toBe('240px');
+
+          // The layout viewport catches up and the fixed drawer lays out inside it.
+          scrollBottom = 480;
+          await act(async () => {
+            innerHeight.resize(500);
+            vi.advanceTimersToNextFrame();
+          });
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+          expect(scroll.style.paddingBottom).toBe('20px');
+        } finally {
+          vi.useRealTimers();
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'preserves native taps while the keyboard is open and refocuses once it closes',
+      async () => {
+        const innerHeight = mockResizableInnerHeight(800);
+        const visualViewport = mockVisualViewport(800);
+        vi.useFakeTimers();
+
+        try {
+          await renderKeyboardDrawer();
+
+          const input = screen.getByTestId('input');
+
+          const tap = async () => {
+            fireEvent.touchStart(input, {
+              touches: [createTouch(input, { clientX: 0, clientY: 0 })],
+            });
+            const touchEnd = createNativeTouchEnd(input, { clientX: 0, clientY: 0 });
+            await act(async () => {
+              input.dispatchEvent(touchEnd);
+            });
+            return touchEnd;
+          };
+
+          await act(async () => {
+            input.focus();
+            visualViewport.resize(500);
+            vi.advanceTimersToNextFrame();
+          });
+          await act(async () => {
+            innerHeight.resize(500);
+            await vi.advanceTimersByTimeAsync(200);
+          });
+
+          const focusSpy = vi.spyOn(input, 'focus');
+          const originalElementFromPoint = document.elementFromPoint;
+          document.elementFromPoint = () => input;
+
+          try {
+            // The overlap is gone, but the keyboard is still open.
+            expect((await tap()).defaultPrevented).toBe(false);
+            expect(focusSpy).not.toHaveBeenCalled();
+
+            await act(async () => {
+              visualViewport.resize(800);
+              innerHeight.resize(800);
+              await vi.advanceTimersByTimeAsync(200);
+            });
+
+            expect((await tap()).defaultPrevented).toBe(true);
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          } finally {
+            document.elementFromPoint = originalElementFromPoint;
+            focusSpy.mockRestore();
+          }
+        } finally {
+          vi.useRealTimers();
+          visualViewport.restore();
+          innerHeight.restore();
+        }
+      },
+    );
+  });
 });

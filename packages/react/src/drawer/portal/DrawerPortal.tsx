@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { DialogPortal } from '../../dialog/portal/DialogPortal';
-import { type BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.

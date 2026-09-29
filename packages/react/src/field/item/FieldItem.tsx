@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type FieldRootState } from '../root/FieldRoot';
+import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import type { BaseUIComponentProps } from '../../internals/types';

@@ -1,5 +1,5 @@
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import * as ComboboxInputDataAttributes from '../input/ComboboxInputDataAttributes';

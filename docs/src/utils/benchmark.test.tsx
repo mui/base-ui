@@ -5,9 +5,8 @@ import * as ReactDOM from 'react-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, createRenderer, fireEvent, screen, within } from '@mui/internal-test-utils';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import PerformanceBenchmark, {
-  BenchmarkVariant,
-} from '../app/(private)/experiments/performance/utils/benchmark';
+import type { BenchmarkVariant } from '../app/(private)/experiments/performance/utils/benchmark';
+import PerformanceBenchmark from '../app/(private)/experiments/performance/utils/benchmark';
 
 const variants: BenchmarkVariant[] = [
   { key: 'first', label: 'First', render: () => <div>First workload</div> },

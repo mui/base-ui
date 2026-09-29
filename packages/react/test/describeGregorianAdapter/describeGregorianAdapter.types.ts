@@ -1,5 +1,5 @@
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
-import {
+import type {
   TemporalAdapter,
   TemporalSupportedObject,
   TemporalTimezone,

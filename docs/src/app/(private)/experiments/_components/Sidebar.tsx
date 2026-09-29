@@ -4,7 +4,8 @@ import { ExperimentsList } from './ExperimentsList';
 import { EditPanel } from './EditPanel';
 import classes from './Sidebar.module.css';
 import { HideSidebar } from './HideSidebar';
-import { SettingsMetadata, SettingsPanel } from './SettingsPanel';
+import type { SettingsMetadata } from './SettingsPanel';
+import { SettingsPanel } from './SettingsPanel';
 
 export function Sidebar(props: SidebarProps) {
   const { experimentPath, settingsMetadata, className, ...otherProps } = props;
