@@ -1,12 +1,24 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { NOOP } from '@base-ui/utils/empty';
 import { useBaseUiId } from '../useBaseUiId';
+
+// Reading `element.labels` scans the whole tree, so looking up every control's label that way is
+// quadratic. Controls share one label index per tree instead, rebuilt whenever the observer saw a
+// change that can affect label association, and dropped at the end of the task.
+let labelIndex: Map<Node, Map<HTMLElement | null, HTMLLabelElement>> | undefined;
+let labelObserver: MutationObserver | undefined;
+
+function clearLabelIndex() {
+  labelObserver?.disconnect();
+  labelIndex = undefined;
+}
 
 export function useAriaLabelledBy(
   explicitAriaLabelledBy: string | undefined,
   labelId: string | undefined,
-  labelSourceRef: React.RefObject<LabelSource | null>,
+  labelSourceRef: React.RefObject<HTMLElement | null>,
   enableFallback = true,
   labelSourceId?: string,
   ariaLabel?: string,
@@ -37,40 +49,52 @@ export function useAriaLabelledBy(
   return ariaLabelledBy;
 }
 
-function getAriaLabelledBy(labelSource?: LabelSource | null, generatedLabelId?: string) {
-  const label = findAssociatedLabel(labelSource);
+function getAriaLabelledBy(labelSource: HTMLElement | null, generatedLabelId?: string) {
+  const label = labelSource && findAssociatedLabel(labelSource);
   if (!label) {
     return undefined;
   }
 
   if (!label.id && generatedLabelId) {
     label.id = generatedLabelId;
+    // A label's own id doesn't affect association, so don't invalidate the index for it.
+    labelObserver?.takeRecords();
   }
 
   return label.id || undefined;
 }
 
-function findAssociatedLabel(labelSource?: LabelSource | null) {
-  if (!labelSource) {
-    return undefined;
+// Same result as `labelSource.labels[0]`.
+function findAssociatedLabel(labelSource: HTMLElement) {
+  const root = labelSource.getRootNode() as ParentNode;
+
+  if (!labelIndex || !labelObserver) {
+    labelIndex = new Map();
+    labelObserver = new MutationObserver(NOOP);
+    queueMicrotask(clearLabelIndex);
+  } else if (labelObserver.takeRecords().length) {
+    // Something else changed the DOM since the index was built. Read `labels` this once and rebuild
+    // lazily, so mutations between every pair of lookups cost no more than reading `labels` always.
+    labelIndex.clear();
+    return (labelSource as HTMLInputElement).labels?.[0];
   }
 
-  // Fast path before the expensive `.labels` read.
-  const parent = labelSource.parentElement;
-  if (parent && parent.tagName === 'LABEL') {
-    return parent as HTMLLabelElement;
+  let labels = labelIndex.get(root);
+  if (!labels) {
+    labelObserver.observe(root, {
+      subtree: true,
+      childList: true,
+      attributeFilter: ['for', 'id', 'type'],
+    });
+    const nextLabels = new Map<HTMLElement | null, HTMLLabelElement>();
+    root.querySelectorAll('label').forEach((label) => {
+      if (!nextLabels.has(label.control)) {
+        nextLabels.set(label.control, label);
+      }
+    });
+    labels = nextLabels;
+    labelIndex.set(root, labels);
   }
 
-  const controlId = labelSource.id;
-  if (controlId) {
-    const nextSibling = labelSource.nextElementSibling as HTMLLabelElement | null;
-    if (nextSibling && nextSibling.htmlFor === controlId) {
-      return nextSibling;
-    }
-  }
-
-  const labels = labelSource.labels;
-  return labels && labels[0];
+  return labels.get(labelSource);
 }
-
-type LabelSource = HTMLElement & { labels?: NodeListOf<HTMLLabelElement> | null | undefined };
