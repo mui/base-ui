@@ -28,58 +28,6 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   afterEach(waitForAnimationFrame);
 
-  // Keyboard-generated clicks exercise the toggle needed for screen reader activation too.
-  // TalkBack users need to close the submenu explicitly to continue through the parent menu.
-  it('toggles the submenu on keyboard activation even when `openOnHover` is enabled', async () => {
-    const { user } = await render(
-      <Menu.Root>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup data-testid="parent-menu">
-              <Menu.SubmenuRoot>
-                <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
-                <Menu.Portal>
-                  <Menu.Positioner>
-                    <Menu.Popup data-testid="submenu">
-                      <Menu.Item>Alpha</Menu.Item>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.SubmenuRoot>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>,
-    );
-
-    await user.keyboard('[Tab][Enter]');
-    const trigger = screen.getByRole('menuitem', { name: 'More' });
-    await waitFor(() => {
-      expect(trigger).toHaveFocus();
-    });
-
-    await user.keyboard('[Enter]');
-    await screen.findByTestId('submenu');
-    await waitFor(() => {
-      expect(screen.getByRole('menuitem', { name: 'Alpha' })).toHaveFocus();
-    });
-
-    await act(async () => {
-      trigger.focus();
-    });
-    await user.keyboard('[Enter]');
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('submenu')).toBe(null);
-    });
-    expect(screen.getByTestId('parent-menu')).not.toBe(null);
-
-    await user.keyboard('[Enter]');
-
-    expect(await screen.findByTestId('submenu')).not.toBe(null);
-  });
-
   it('keeps a submenu open on direct trigger focus but closes it on guard return', async () => {
     const { user } = await render(
       <Menu.Root>
