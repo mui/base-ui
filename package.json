@@ -78,16 +78,16 @@
     "@mui/internal-test-utils": "2.0.18-canary.25",
     "@netlify/types": "3.0.0",
     "@next/eslint-plugin-next": "16.3.5",
-    "@playwright/test": "1.62.1",
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@testing-library/jest-dom": "7.0.1",
     "@types/node": "22.20.4",
     "@types/react": "19.3.0",
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitejs/plugin-react": "6.1.1",
-    "@vitest/browser-playwright": "4.1.11",
-    "@vitest/coverage-istanbul": "4.1.11",
-    "@vitest/ui": "4.1.11",
+    "@vitest/browser-playwright": "5.0.2",
+    "@vitest/coverage-istanbul": "5.0.2",
+    "@vitest/ui": "5.0.2",
     "concurrently": "10.0.5",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
@@ -112,7 +112,7 @@
     "tsx": "4.23.13",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "vite": "8.3.0",
-    "vitest": "4.1.11"
+    "vitest": "5.0.2"
   },
   "config": {
     "valeVersion": "3.22.0"

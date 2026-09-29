@@ -10,7 +10,6 @@ import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
-import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
@@ -38,11 +37,11 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   } = componentProps;
 
   const listItem = useCompositeListItem({ guess: true, label });
-  const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
+  const nodeId = store.useState('floatingNodeId');
   const itemProps = store.useState('itemProps');
 
   const {
@@ -62,7 +61,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.context.nodeId,
+    nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
