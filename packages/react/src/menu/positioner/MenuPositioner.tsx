@@ -7,13 +7,13 @@ import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
-import {
-  useAnchorPositioning,
-  type Align,
-  type Side,
-  type UseAnchorPositioningSharedParameters,
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Align,
+  Side,
+  UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
@@ -21,7 +21,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../i
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { MenuOpenEventDetails } from '../utils/types';
+import type { MenuOpenEventDetails } from '../utils/types';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';

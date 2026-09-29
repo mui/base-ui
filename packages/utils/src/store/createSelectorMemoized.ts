@@ -1,5 +1,6 @@
-import { lruMemoize, createSelectorCreator } from 'reselect';
+import { createSelectorCreator } from 'reselect';
 import type { CreateSelectorOptions, UnknownMemoizer, Selector, weakMapMemoize } from 'reselect';
+import { lruMemoize } from '../lruMemoize';
 import type { CreateSelectorMemoizedFunction } from './createSelector';
 
 /* eslint-disable no-underscore-dangle */ // __cacheKey__

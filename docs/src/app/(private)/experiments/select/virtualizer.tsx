@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { Virtualizer } from '@base-ui/react/virtualizer';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './virtualizer.module.css';
 
 interface Country {

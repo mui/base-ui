@@ -2,7 +2,8 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { Field } from '@base-ui/react/field';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Radio.Root />', () => {
@@ -133,6 +134,21 @@ describe('<Radio.Root />', () => {
     });
   });
 
+  it('prefers `aria-label` over an associated label', async () => {
+    await render(
+      <RadioGroup>
+        <label>
+          <Radio.Root value="a" aria-label="Apple" />
+          Apple
+        </label>
+      </RadioGroup>,
+    );
+
+    const radio = screen.getByRole('radio');
+    expect(radio).not.toHaveAttribute('aria-labelledby');
+    expect(radio).toHaveAccessibleName('Apple');
+  });
+
   describe('prop: onClick', () => {
     it('propagates a single click event to ancestors per user click', async () => {
       const handleParentClick = vi.fn();
@@ -240,6 +256,39 @@ describe('<Radio.Root />', () => {
       const radio = screen.getByTestId('radio');
       expect(radio).not.toHaveAttribute('disabled');
       expect(radio).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('does not acquire the field focused state when focused programmatically', async () => {
+      await render(
+        <Field.Root data-testid="field">
+          <Radio.Root value="a" disabled data-testid="radio" />
+        </Field.Root>,
+      );
+
+      const radio = screen.getByTestId('radio');
+
+      act(() => {
+        radio.focus();
+      });
+
+      expect(radio).toHaveFocus();
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+    });
+  });
+
+  describe('prop: readOnly', () => {
+    it('acquires the field focused state on focus', async () => {
+      await render(
+        <Field.Root data-testid="field">
+          <Radio.Root value="a" readOnly data-testid="radio" />
+        </Field.Root>,
+      );
+
+      act(() => {
+        screen.getByTestId('radio').focus();
+      });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
     });
   });
 });

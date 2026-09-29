@@ -8,11 +8,11 @@ import { useSelectVirtualizer } from '../root/SelectVirtualizationContext';
 import { getSelectCollection } from '../utils/getSelectCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
-import {
-  useAnchorPositioning,
-  type Align,
-  type Side,
-  type UseAnchorPositioningSharedParameters,
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Align,
+  Side,
+  UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';

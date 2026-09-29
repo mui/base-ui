@@ -358,7 +358,7 @@ describe('<Collapsible.Root />', () => {
         const trigger = screen.getByRole('button');
 
         await user.keyboard('[Tab]');
-        expect(trigger).toHaveFocus();
+        expect(trigger).not.toHaveFocus();
 
         await user.keyboard(`[${key}]`);
 

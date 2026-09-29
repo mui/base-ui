@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useComboboxGroupContext } from '../group/ComboboxGroupContext';
 import { useComboboxVirtualGroupContext } from '../group/ComboboxVirtualGroupContext';

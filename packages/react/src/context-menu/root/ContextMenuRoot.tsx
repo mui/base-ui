@@ -84,7 +84,21 @@ export interface ContextMenuRootProps extends Omit<
   children?: React.ReactNode | undefined;
 }
 
-export type ContextMenuRootActions = MenuRoot.Actions;
+/**
+ * The item `highlightItem` moves the highlight to.
+ * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
+ *   the matching end when nothing is highlighted. They wrap around unless `loopFocus` is
+ *   disabled and never leave the list.
+ * - `'first'` and `'last'` jump to either end of the list.
+ * - `'none'` clears the highlight and hands focus back to the popup.
+ */
+export type ContextMenuRootHighlightItemTarget = MenuRoot.HighlightItemTarget;
+
+export interface ContextMenuRootActions {
+  unmount: () => void;
+  close: () => void;
+  highlightItem: (target: ContextMenuRootHighlightItemTarget) => void;
+}
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type ContextMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<ContextMenuRoot.ChangeEventReason>;
@@ -93,6 +107,7 @@ export namespace ContextMenuRoot {
   export type State = ContextMenuRootState;
   export type Props = ContextMenuRootProps;
   export type Actions = ContextMenuRootActions;
+  export type HighlightItemTarget = ContextMenuRootHighlightItemTarget;
   export type ChangeEventReason = ContextMenuRootChangeEventReason;
   export type ChangeEventDetails = ContextMenuRootChangeEventDetails;
 }

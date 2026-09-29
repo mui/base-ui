@@ -7,13 +7,11 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { RowWindow, RowsGeometry } from './geometry';
 import { getLaidOutRowElements } from './getLaidOutRowElements';
-import { getLayoutScale, toScrollOffset, type RowsInset } from './scrollport';
+import { getLayoutScale, toScrollOffset } from './scrollport';
+import type { RowsInset } from './scrollport';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
-import type {
-  VirtualizerScrollAlignment,
-  VirtualizerScrollToIndexOptions,
-} from '../internals/virtualization/ListVirtualizationRegistry';
 import type { VirtualizerRow } from '../internals/virtualization/types';
+import type { VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions } from './types';
 import type { AdaptiveEstimate } from './useAdaptiveEstimate';
 import type { ScrollInputEvidence } from './useScrollGesture';
 
@@ -21,6 +19,42 @@ import type { ScrollInputEvidence } from './useScrollGesture';
  * Nearby rows do not accumulate enough estimate error to justify delaying scroll completion.
  */
 const ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE = 10;
+
+/**
+ * Insets a caller asks a row to rest clear of, in place of the scrollport's own `scroll-padding`.
+ * An absent edge falls back to the computed style, so a caller overriding one edge keeps the CSS
+ * on the other.
+ */
+interface ScrollPaddingOverride {
+  end: number | undefined;
+  start: number | undefined;
+}
+
+const EMPTY_SCROLL_PADDING_OVERRIDE: ScrollPaddingOverride = { end: undefined, start: undefined };
+
+/**
+ * A caller's inset as pixels, or `undefined` when there is none to apply. A negative or
+ * non-finite value describes no inset rather than an inset the other way, as CSS `scroll-padding`
+ * itself does not accept one.
+ */
+function resolvePaddingOverride(value: number | undefined) {
+  return value != null && Number.isFinite(value) ? Math.max(0, value) : undefined;
+}
+
+/**
+ * The insets a request carries, or the shared empty one when it carries none, so an unpadded
+ * request allocates nothing per call.
+ */
+function toScrollPaddingOverride(
+  start: number | undefined,
+  end: number | undefined,
+): ScrollPaddingOverride {
+  const resolvedStart = resolvePaddingOverride(start);
+  const resolvedEnd = resolvePaddingOverride(end);
+  return resolvedStart == null && resolvedEnd == null
+    ? EMPTY_SCROLL_PADDING_OVERRIDE
+    : { end: resolvedEnd, start: resolvedStart };
+}
 
 /**
  * A scroll-to-row request that the geometry cannot satisfy yet, and what the rest of the
@@ -90,6 +124,16 @@ export interface UsePendingScrollParameters<RowModel> {
   rowsInset: RowsInset;
   scrollToRowAlignment: VirtualizerScrollAlignment;
   scrollToRowIndex: number | undefined;
+  /**
+   * Inset at the end edge the activation asks its row to rest clear of, or `undefined` to read
+   * the scrollport's own `scroll-padding-bottom`.
+   */
+  scrollToRowPaddingEnd: number | undefined;
+  /**
+   * Inset at the start edge the activation asks its row to rest clear of, or `undefined` to read
+   * the scrollport's own `scroll-padding-top`.
+   */
+  scrollToRowPaddingStart: number | undefined;
   /** The engine's current row geometry, read when asked rather than captured at render. */
   readRowsGeometry: () => RowsGeometry;
   trailingHeight: number;
@@ -128,12 +172,20 @@ export function usePendingScroll<RowModel>(
     scrollToRowAlignment,
     readRowsGeometry,
     scrollToRowIndex,
+    scrollToRowPaddingEnd,
+    scrollToRowPaddingStart,
     trailingHeight,
   } = parameters;
 
   const rowIndexRef = React.useRef<number | null>(null);
   const rowIdRef = React.useRef<React.Key | null>(null);
   const alignmentRef = React.useRef<VirtualizerScrollAlignment>('auto');
+  /**
+   * The insets the standing request keeps its row clear of, which stand in for the scrollport's
+   * own `scroll-padding` while it lasts. They belong to the request, so retries reuse them
+   * rather than reading a style that has since changed.
+   */
+  const paddingRef = React.useRef<ScrollPaddingOverride>(EMPTY_SCROLL_PADDING_OVERRIDE);
   const requiresMeasurementRef = React.useRef(false);
   const requiresAdaptiveEstimateRef = React.useRef(false);
   /**
@@ -151,6 +203,8 @@ export function usePendingScroll<RowModel>(
    */
   const viewportScrollTopRef = React.useRef<number | null>(null);
   const viewportScrollFrame = useAnimationFrame();
+  const measurementFrame = useAnimationFrame();
+  const retryRef = React.useRef<(() => void) | null>(null);
 
   const rowsInsetTotal = rowsInset.start + rowsInset.end;
 
@@ -162,15 +216,19 @@ export function usePendingScroll<RowModel>(
   const cancel = useStableCallback(() => {
     rowIndexRef.current = null;
     rowIdRef.current = null;
+    paddingRef.current = EMPTY_SCROLL_PADDING_OVERRIDE;
     requiresAdaptiveEstimateRef.current = false;
     viewportScrollTopRef.current = null;
     viewportScrollFrame.cancel();
+    measurementFrame.cancel();
   });
 
   /** Retires a request whose destination is now where it was asked to be. */
   const settle = useStableCallback(() => {
+    measurementFrame.cancel();
     rowIndexRef.current = null;
     rowIdRef.current = null;
+    paddingRef.current = EMPTY_SCROLL_PADDING_OVERRIDE;
     requiresAdaptiveEstimateRef.current = false;
   });
 
@@ -205,6 +263,21 @@ export function usePendingScroll<RowModel>(
     }
   });
 
+  const waitForMeasurement = useStableCallback((rowIndex: number) => {
+    const rowsParent = getRowsParent();
+    if (
+      rowsParent != null &&
+      getLaidOutRowElements(rowsParent).some(
+        (element) => Number(element.dataset.rowIndex) === rowIndex,
+      )
+    ) {
+      // A first measurement matching the estimate only changes the engine's measured flag;
+      // it does not publish new geometry. Retry after ResizeObserver has had a chance to
+      // deliver it, or the request can wait forever for a geometry update that never comes.
+      measurementFrame.request(() => retryRef.current?.());
+    }
+  });
+
   const scrollRowIntoView = useStableCallback(
     (rowIndex: number, requireMeasurement = false, align: VirtualizerScrollAlignment = 'auto') => {
       const scrollElement = scrollElementRef.current;
@@ -220,6 +293,7 @@ export function usePendingScroll<RowModel>(
       // the real row measurement; treating an estimated position as final can leave only the
       // zero-sized focus proxy mounted after row heights expand.
       if (requireMeasurement && !measured) {
+        waitForMeasurement(rowIndex);
         return false;
       }
 
@@ -242,6 +316,7 @@ export function usePendingScroll<RowModel>(
         start,
         end,
         align,
+        paddingRef.current,
       );
 
       if (align === 'auto' && resolvedAlignment !== 'auto' && rowIndexRef.current === rowIndex) {
@@ -292,6 +367,7 @@ export function usePendingScroll<RowModel>(
       }
 
       if (!measured) {
+        waitForMeasurement(rowIndex);
         return false;
       }
 
@@ -352,7 +428,7 @@ export function usePendingScroll<RowModel>(
    * it shows, unlike a windowed request, which stands until the geometry satisfies it.
    */
   const scrollRowElementIntoView = useStableCallback(
-    (rowIndex: number, align: VirtualizerScrollAlignment) => {
+    (rowIndex: number, align: VirtualizerScrollAlignment, padding: ScrollPaddingOverride) => {
       const scrollElement = scrollElementRef.current;
       const rowsParent = getRowsParent();
 
@@ -381,6 +457,7 @@ export function usePendingScroll<RowModel>(
         start,
         end,
         align,
+        padding,
       );
 
       if (nextScrollTop == null) {
@@ -406,16 +483,18 @@ export function usePendingScroll<RowModel>(
       }
 
       const align = options?.align ?? 'auto';
+      const padding = toScrollPaddingOverride(options?.paddingStart, options?.paddingEnd);
 
       if (!enabled) {
         cancel();
-        scrollRowElementIntoView(rowIndex, align);
+        scrollRowElementIntoView(rowIndex, align, padding);
         return;
       }
 
       rowIndexRef.current = rowIndex;
       rowIdRef.current = row.id;
       alignmentRef.current = align;
+      paddingRef.current = padding;
       requiresMeasurementRef.current = false;
       requiresAdaptiveEstimateRef.current = false;
 
@@ -431,6 +510,13 @@ export function usePendingScroll<RowModel>(
   // move the viewport on its own.
   const scrollToRowAlignmentRef = React.useRef(scrollToRowAlignment);
   scrollToRowAlignmentRef.current = scrollToRowAlignment;
+  // The insets belong to the activation for the same reason the alignment does: changing only
+  // how much room an activation leaves describes no new activation.
+  const scrollToRowPaddingRef = React.useRef<ScrollPaddingOverride>(EMPTY_SCROLL_PADDING_OVERRIDE);
+  scrollToRowPaddingRef.current = toScrollPaddingOverride(
+    scrollToRowPaddingStart,
+    scrollToRowPaddingEnd,
+  );
   const adaptiveEnabled = adaptive.enabled;
   const readAdaptiveEstimate = adaptive.readEstimate;
 
@@ -443,7 +529,11 @@ export function usePendingScroll<RowModel>(
     if (!enabled) {
       // Nothing to retain: the row is on the page already.
       cancel();
-      scrollRowElementIntoView(scrollToRowIndex, scrollToRowAlignmentRef.current);
+      scrollRowElementIntoView(
+        scrollToRowIndex,
+        scrollToRowAlignmentRef.current,
+        scrollToRowPaddingRef.current,
+      );
       return;
     }
 
@@ -451,6 +541,7 @@ export function usePendingScroll<RowModel>(
     rowIndexRef.current = scrollToRowIndex;
     rowIdRef.current = scrollToRowId;
     alignmentRef.current = alignment;
+    paddingRef.current = scrollToRowPaddingRef.current;
     requiresMeasurementRef.current = false;
     requiresAdaptiveEstimateRef.current =
       requiresAdaptiveEstimateRef.current ||
@@ -508,6 +599,8 @@ export function usePendingScroll<RowModel>(
       settle();
     }
   });
+
+  retryRef.current = retry;
 
   // The window computation reads the outstanding request during render, so these must stay
   // callable there: they only read refs.
@@ -612,16 +705,27 @@ export function isRowFarFromWindow(
  * Where the scrollport should scroll so a row spanning `start` to `end`, in scroll coordinates,
  * lands as `align` asks, or `null` when `auto` finds it in view already. `auto` reports the edge it
  * chose, so a retry can keep to it.
+ *
+ * The row is kept clear of the insets the request carries, and of the scrollport's own
+ * `scroll-padding` at whichever edge the request leaves to CSS.
  */
 function resolveAlignedScrollTop(
   scrollElement: HTMLElement,
   start: number,
   end: number,
   align: VirtualizerScrollAlignment,
+  padding: ScrollPaddingOverride,
 ): { resolvedAlignment: VirtualizerScrollAlignment; scrollTop: number | null } {
-  const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
-  const scrollPaddingStart = resolveScrollPadding(scrollElement, styles.scrollPaddingTop);
-  const scrollPaddingEnd = resolveScrollPadding(scrollElement, styles.scrollPaddingBottom);
+  // Read only for the edges the caller left to CSS: a request that supplies both is served
+  // without a style lookup at all.
+  const styles =
+    padding.start == null || padding.end == null
+      ? ownerWindow(scrollElement).getComputedStyle(scrollElement)
+      : null;
+  const scrollPaddingStart =
+    padding.start ?? resolveScrollPadding(scrollElement, styles!.scrollPaddingTop);
+  const scrollPaddingEnd =
+    padding.end ?? resolveScrollPadding(scrollElement, styles!.scrollPaddingBottom);
   const viewportStart = scrollElement.scrollTop + scrollPaddingStart;
   const viewportEnd = scrollElement.scrollTop + scrollElement.clientHeight - scrollPaddingEnd;
   const viewportSize = Math.max(

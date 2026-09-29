@@ -4,8 +4,8 @@ import {
   getItemValue,
   isGroupedItems,
   stringifyAsLabel,
-  type Group,
 } from '../../internals/resolveValueLabel';
+import type { Group } from '../../internals/resolveValueLabel';
 import type { State } from '../store';
 
 /**

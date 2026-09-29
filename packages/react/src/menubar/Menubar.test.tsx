@@ -86,6 +86,33 @@ describe('<Menubar />', () => {
     });
   });
 
+  it('closes on a touch item click immediately after focus opens another menu', async () => {
+    const { user } = await render(<ContainedTriggerMenubar />);
+
+    await user.click(screen.getByTestId('file-trigger'));
+    await screen.findByTestId('file-menu');
+
+    // Freeze timers so the 300ms touch-click cooldown started by the focus-open is still
+    // active when the item is clicked.
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        screen.getByTestId('edit-trigger').focus();
+      });
+
+      fireEvent(
+        screen.getByTestId('edit-item-1'),
+        new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('edit-menu')).toBe(null);
+    });
+  });
+
   it('keeps focus on an outside target when a triggerless menubar menu closes', async () => {
     function TestComponent() {
       const [open, setOpen] = React.useState(true);

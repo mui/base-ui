@@ -1,0 +1,1 @@
+export { lruMemoize } from 'reselect';

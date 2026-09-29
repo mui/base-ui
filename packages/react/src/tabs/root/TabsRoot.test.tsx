@@ -1,7 +1,8 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, flushMicrotasks, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
-import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import type { TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
 import { Tabs } from '@base-ui/react/tabs';

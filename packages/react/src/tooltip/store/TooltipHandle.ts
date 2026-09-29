@@ -1,4 +1,5 @@
-import { TooltipStore, createNullTooltipStore, type TooltipHandleStore } from './TooltipStore';
+import type { TooltipStore, TooltipHandleStore } from './TooltipStore';
+import { createNullTooltipStore } from './TooltipStore';
 import { BasePopupHandle } from '../../utils/popups/popupHandle';
 
 /**

@@ -14,10 +14,10 @@ import {
   createVirtualizerItems as createItems,
   renderVirtualizerItem as renderItem,
   renderVirtualizerItemOf as renderItemOf,
-  type VirtualizerTestItem as TestItem,
 } from '#test-utils';
-import type { VirtualizerHandle } from '../internals/virtualization/ListVirtualizationRegistry';
-import { Virtualizer } from './Virtualizer';
+import type { VirtualizerTestItem as TestItem } from '#test-utils';
+import type { VirtualizerHandle } from './host';
+import type { Virtualizer } from './Virtualizer';
 
 describe('<Virtualizer /> windowing', () => {
   const { render } = createRenderer();

@@ -15,12 +15,8 @@ import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { shouldScrollActiveIntoView } from '../../internals/list/scrollActivation';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { clickHighlightedItem } from '../utils/parts';
-import {
-  ListVirtualizationHostContext,
-  ListVirtualizationListStateContext,
-  type ListVirtualizationHost,
-  type ListVirtualizationListState,
-} from '../../internals/virtualization/ListVirtualizationHostContext';
+import { VirtualizerHostContext, VirtualizerHostStateContext } from '../../virtualizer/host';
+import type { VirtualizerHost, VirtualizerHostState } from '../../virtualizer/host';
 import { ComboboxVirtualItemContext } from '../item/ComboboxVirtualItemContext';
 import { ComboboxVirtualGroupContext } from '../group/ComboboxVirtualGroupContext';
 import { isGroupedItems } from '../../internals/resolveValueLabel';
@@ -94,7 +90,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   });
 
   // Kept free of reactive state: <Combobox.Item> reads this to detect that it is inside a list.
-  const virtualizationHost = React.useMemo<ListVirtualizationHost>(
+  const virtualizationHost = React.useMemo<VirtualizerHost>(
     () => ({
       componentName,
       registry: store.context.virtualizationRegistry,
@@ -106,7 +102,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     [componentName, store, warnUnsupportedConfiguration],
   );
 
-  const virtualizationListState = React.useMemo<ListVirtualizationListState>(
+  const virtualizationListState = React.useMemo<VirtualizerHostState>(
     () => ({
       activeIndex,
       // The filtered collection's own shape decides, rather than the root's `isGrouped`: an
@@ -171,11 +167,11 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   });
 
   const contextualElement = (
-    <ListVirtualizationHostContext.Provider value={virtualizationHost}>
-      <ListVirtualizationListStateContext.Provider value={virtualizationListState}>
+    <VirtualizerHostContext.Provider value={virtualizationHost}>
+      <VirtualizerHostStateContext.Provider value={virtualizationListState}>
         {element}
-      </ListVirtualizationListStateContext.Provider>
-    </ListVirtualizationHostContext.Provider>
+      </VirtualizerHostStateContext.Provider>
+    </VirtualizerHostContext.Provider>
   );
 
   if (externallyVirtualized) {

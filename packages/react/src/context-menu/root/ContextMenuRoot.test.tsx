@@ -283,6 +283,35 @@ describe('<ContextMenu.Root />', () => {
     });
   });
 
+  it('returns focus to the focused surface when closing with Shift+Tab', async () => {
+    const { user } = await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger render={<button />}>Surface</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.Item>Item</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const surface = screen.getByRole('button', { name: 'Surface' });
+    await user.tab();
+    expect(surface).toHaveFocus();
+    fireEvent.contextMenu(surface, { clientX: 20, clientY: 20, button: 2 });
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toHaveFocus();
+    });
+
+    await user.tab({ shift: true });
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+    expect(surface).toHaveFocus();
+  });
+
   describe.skipIf(isJSDOM)('prop: collisionAvoidance', () => {
     const popupHeight = 100;
     const popupWidth = 150;

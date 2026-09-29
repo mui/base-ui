@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import type { createRenderer } from '#test-utils';
+import { isJSDOM } from '#test-utils';
 
 export function popupConformanceTests(config: PopupTestConfig) {
   const {

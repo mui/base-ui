@@ -202,6 +202,71 @@ describe('<Virtualizer /> standalone', () => {
     expect(document.activeElement).toBe(activeOption);
   });
 
+  it('keeps a scrolled item clear of an inset the request carries', async () => {
+    const actionsRef = React.createRef<Virtualizer.Actions>();
+    await render(
+      <TestListbox
+        actionsRef={actionsRef}
+        estimatedItemHeight={20}
+        overscanPx={0}
+        render={
+          <div
+            ref={setElementClientHeight(40)}
+            data-testid="virtualizer"
+            style={{ scrollPaddingTop: 50 }}
+          />
+        }
+        items={createItems(100)}
+      />,
+    );
+    const virtualizer = screen.getByTestId('virtualizer');
+
+    // Without one, the scrollport's own `scroll-padding-top` is what the row rests below.
+    await act(async () => {
+      actionsRef.current?.scrollToIndex(80, { align: 'start' });
+    });
+    await waitFor(() => expect(virtualizer.scrollTop).toBe(1550));
+
+    // The request's own inset takes its place, so an overlay whose height depends on the row
+    // being scrolled to needs no style write before the call.
+    await act(async () => {
+      actionsRef.current?.scrollToIndex(80, { align: 'start', paddingStart: 10 });
+    });
+    await waitFor(() => expect(virtualizer.scrollTop).toBe(1590));
+
+    // And the same at the end edge, which `align: 'end'` rests the row against.
+    await act(async () => {
+      actionsRef.current?.scrollToIndex(80, { align: 'end', paddingEnd: 12 });
+    });
+    await waitFor(() => expect(virtualizer.scrollTop).toBe(1592));
+  });
+
+  it('keeps an activated item clear of the inset the activation carries', async () => {
+    const { setProps } = await render(
+      <TestListbox
+        activeIndex={{ index: 0, scroll: false }}
+        estimatedItemHeight={20}
+        overscanPx={0}
+        render={<div ref={setElementClientHeight(40)} data-testid="virtualizer" />}
+        items={createItems(100)}
+      />,
+    );
+    const virtualizer = screen.getByTestId('virtualizer');
+
+    // The declarative path carries the inset with the index, so a consumer with a sticky overlay
+    // never has to scroll by hand to leave room for it.
+    await setProps({ activeIndex: { index: 60, align: 'start', paddingStart: 40 } });
+    await waitFor(() => expect(virtualizer.scrollTop).toBe(1160));
+
+    // A different inset alone is not a new activation, so nothing moves until the index changes.
+    await setProps({ activeIndex: { index: 60, align: 'start', paddingStart: 10 } });
+    await flushMicrotasks();
+    expect(virtualizer.scrollTop).toBe(1160);
+
+    await setProps({ activeIndex: { index: 70, align: 'start', paddingStart: 10 } });
+    await waitFor(() => expect(virtualizer.scrollTop).toBe(1390));
+  });
+
   it.skipIf(isJSDOM)(
     'scrolls the active item into view while virtualization is disabled',
     async () => {
@@ -254,6 +319,12 @@ describe('<Virtualizer /> standalone', () => {
         actionsRef.current?.scrollToIndex(60, { align: 'start' });
       });
       await waitFor(() => expect(virtualizer.scrollTop).toBe(1200));
+
+      // The rows are laid out natively here, but the request's inset applies just the same.
+      await act(async () => {
+        actionsRef.current?.scrollToIndex(60, { align: 'start', paddingStart: 25 });
+      });
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(1175));
     },
   );
 

@@ -29,6 +29,36 @@ describe('<Collapsible.Trigger />', () => {
     },
   }));
 
+  it('renders the disabled attribute when disabled', async () => {
+    await render(
+      <Collapsible.Root disabled>
+        <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+      </Collapsible.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    expect(trigger).toBeDisabled();
+    expect(trigger).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('removes a disabled non-native trigger from the tab order', async () => {
+    const { user } = await render(
+      <Collapsible.Root disabled>
+        <Collapsible.Trigger nativeButton={false} render={<span />}>
+          Trigger
+        </Collapsible.Trigger>
+      </Collapsible.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    expect(trigger).toHaveAttribute('aria-disabled', 'true');
+    expect(trigger).toHaveAttribute('tabindex', '-1');
+    expect(trigger).not.toHaveAttribute('disabled');
+
+    await user.keyboard('[Tab]');
+    expect(trigger).not.toHaveFocus();
+  });
+
   it('forwards the id prop', async () => {
     await render(
       <Collapsible.Root>

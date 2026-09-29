@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import type { VirtualizerHandle } from '../../internals/virtualization/ListVirtualizationRegistry';
+import type { VirtualizerHandle } from '../../virtualizer/host';
 import { getTargetScrollTop, getVirtualizedTargetScrollTop } from './scrollArrowStepping';
 
 interface Row {

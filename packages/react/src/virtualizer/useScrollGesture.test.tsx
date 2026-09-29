@@ -1,9 +1,11 @@
 import * as React from 'react';
-import { expect, type Mock, describe, beforeEach, it } from 'vitest';
+import { expect, describe, beforeEach, it } from 'vitest';
+import type { Mock } from 'vitest';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { advanceReactClock, createRenderer, firePointer } from '#test-utils';
-import { SCROLL_IDLE_MS, useScrollGesture, type ScrollGesture } from './useScrollGesture';
+import { SCROLL_IDLE_MS, useScrollGesture } from './useScrollGesture';
+import type { ScrollGesture } from './useScrollGesture';
 
 /** A scroll event the caller does not recognize as one of its own corrective writes. */
 const USER_SCROLL = () => false;

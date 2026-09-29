@@ -23,6 +23,7 @@ export interface OTPFieldRootContext {
   readOnly: boolean;
   required: boolean;
   normalizeValue: ((value: string) => string) | undefined;
+  setFocused: React.Dispatch<React.SetStateAction<boolean>>;
   setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => string | null;
   state: OTPFieldRootState;
   validationType: OTPFieldRoot.ValidationType;

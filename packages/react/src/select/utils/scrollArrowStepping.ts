@@ -1,5 +1,5 @@
 import { normalizeScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scrollEdges';
-import type { VirtualizerHandle } from '../../internals/virtualization/ListVirtualizationRegistry';
+import type { VirtualizerHandle } from '../../virtualizer/host';
 
 /**
  * Where a scroll arrow's next step should land.

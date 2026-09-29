@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { useSelectRootContext, useSelectRootPropsContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
@@ -22,7 +22,7 @@ import {
 } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
 import { useSelectVirtualItemContext } from './SelectVirtualItemContext';
-import { useListVirtualizationHost } from '../../internals/virtualization/ListVirtualizationHostContext';
+import { useVirtualizerHost } from '../../virtualizer/host';
 import {
   useNonVirtualizedItemRegistration,
   useVirtualItemDiagnostics,
@@ -62,7 +62,7 @@ export const SelectItem = React.memo(
     });
 
     const store = useSelectRootContext();
-    const insideList = useListVirtualizationHost() != null;
+    const insideList = useVirtualizerHost() != null;
 
     useNonVirtualizedItemRegistration({
       componentName: store.context.componentName,
@@ -70,7 +70,10 @@ export const SelectItem = React.memo(
       registry: store.context.virtualizationRegistry,
       virtualized,
     });
-    const { itemProps, multiple, disabled: selectDisabled, readOnly } = useSelectRootPropsContext();
+    const itemProps = store.useState('itemProps');
+    const multiple = store.useState('multiple');
+    const selectDisabled = store.useState('disabled');
+    const readOnly = store.useState('readOnly');
     const isItemDisabled = store.useState('isItemDisabled');
     const disabled =
       selectDisabled ||

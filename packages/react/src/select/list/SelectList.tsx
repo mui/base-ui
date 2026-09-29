@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps, BaseUIEvent, HTMLProps } from '../../internals/types';
-import { useSelectRootContext, useSelectRootPropsContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectVirtualizer } from '../root/SelectVirtualizationContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -11,15 +11,12 @@ import { shouldScrollActiveIntoView } from '../../internals/list/scrollActivatio
 import { mergeProps } from '../../merge-props';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES, SCROLLPORT_FUNCTIONAL_STYLES } from '../popup/utils';
-import {
-  ListVirtualizationHostContext,
-  ListVirtualizationListStateContext,
-  type ListVirtualizationHost,
-  type ListVirtualizationListState,
-} from '../../internals/virtualization/ListVirtualizationHostContext';
+import { VirtualizerHostContext, VirtualizerHostStateContext } from '../../virtualizer/host';
+import type { VirtualizerHost, VirtualizerHostState } from '../../virtualizer/host';
 import { SelectVirtualItemContext } from '../item/SelectVirtualItemContext';
 import { SelectVirtualGroupContext } from '../group/SelectVirtualGroupContext';
-import { getSelectCollection, type SelectCollection } from '../utils/getSelectCollection';
+import { getSelectCollection } from '../utils/getSelectCollection';
+import type { SelectCollection } from '../utils/getSelectCollection';
 
 /**
  * A container for the select items.
@@ -34,7 +31,8 @@ export const SelectList = React.forwardRef(function SelectList(
   const { render, className, style, ...elementProps } = componentProps;
 
   const store = useSelectRootContext();
-  const { multiple, readOnly } = useSelectRootPropsContext();
+  const multiple = store.useState('multiple');
+  const readOnly = store.useState('readOnly');
   const { alignItemWithTriggerActive, alignItemWithTriggerExplicit } = useSelectPositionerContext();
   const registeredVirtualizer = useSelectVirtualizer();
 
@@ -103,7 +101,7 @@ export const SelectList = React.forwardRef(function SelectList(
   });
 
   // Kept free of reactive state: `<Select.Item>` reads this to detect that it is inside a list.
-  const virtualizationHost = React.useMemo<ListVirtualizationHost>(
+  const virtualizationHost = React.useMemo<VirtualizerHost>(
     () => ({
       componentName,
       registry: store.context.virtualizationRegistry,
@@ -140,11 +138,11 @@ export const SelectList = React.forwardRef(function SelectList(
   });
 
   return (
-    <ListVirtualizationHostContext.Provider value={virtualizationHost}>
+    <VirtualizerHostContext.Provider value={virtualizationHost}>
       <SelectVirtualizationState collection={collection} scrollportProps={scrollportProps}>
         {element}
       </SelectVirtualizationState>
-    </ListVirtualizationHostContext.Provider>
+    </VirtualizerHostContext.Provider>
   );
 });
 
@@ -169,7 +167,7 @@ function SelectVirtualizationState(props: SelectVirtualizationStateProps) {
   const activeIndex = store.useState('activeIndex');
   const highlightType = store.useState('highlightType');
 
-  const value = React.useMemo<ListVirtualizationListState>(
+  const value = React.useMemo<VirtualizerHostState>(
     () => ({
       activeIndex,
       // The grouped view of the same collection, when the root's `items` is grouped: the
@@ -186,9 +184,9 @@ function SelectVirtualizationState(props: SelectVirtualizationStateProps) {
   );
 
   return (
-    <ListVirtualizationListStateContext.Provider value={value}>
+    <VirtualizerHostStateContext.Provider value={value}>
       {children}
-    </ListVirtualizationListStateContext.Provider>
+    </VirtualizerHostStateContext.Provider>
   );
 }
 

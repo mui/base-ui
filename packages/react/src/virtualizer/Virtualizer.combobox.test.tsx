@@ -1173,8 +1173,8 @@ describe('<Virtualizer /> in Combobox', () => {
           </Combobox.Root>,
         ),
       ).rejects.toThrow(
-        'Base UI: <Virtualizer> was rendered without an `items` prop and outside of a list ' +
-          'that supports virtualization',
+        'Base UI: <Virtualizer> was rendered without an `items` prop and outside of a ' +
+          'component that publishes a collection to virtualize',
       );
     } finally {
       errorSpy.mockRestore();

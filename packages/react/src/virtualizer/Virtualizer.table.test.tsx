@@ -223,6 +223,34 @@ describe('<Virtualizer /> table layout', () => {
     expect(Array.from(getSection().children).every((child) => child.tagName === 'TR')).toBe(true);
   });
 
+  it('positions rows from a declared height, and still expects the renderer argument', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const actionsRef = React.createRef<Virtualizer.Actions>();
+
+    try {
+      await render(
+        <TestTable
+          actionsRef={actionsRef}
+          estimatedItemHeight={undefined}
+          itemHeight={20}
+          items={createRows(100)}
+        />,
+      );
+
+      await screen.findByText('Item 1');
+      // The rows are bound as measured rows are — the binding is what carries the row's index and
+      // its place in the section — so only the observer is left off.
+      expect(getRow('Item 1')).toHaveAttribute('data-row-index', '0');
+      // Rows a declared height apart, wherever the table's own surroundings put the first one.
+      const fiftyFirst = actionsRef.current!.getItemMetrics(50)!;
+      expect(fiftyFirst.size).toBe(20);
+      expect(actionsRef.current!.getItemMetrics(51)!.offset - fiftyFirst.offset).toBe(20);
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('warns when a row does not receive the renderer argument', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
