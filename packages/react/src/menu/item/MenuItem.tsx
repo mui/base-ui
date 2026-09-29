@@ -7,7 +7,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
-import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
 const MenuItemPlain = React.forwardRef(function MenuItemPlain(
   componentProps: MenuItem.Props,
@@ -25,7 +24,6 @@ const MenuItemPlain = React.forwardRef(function MenuItemPlain(
     ...elementProps
   } = componentProps;
 
-  const menuPositionerContext = useMenuPositionerContext(true);
   const { store } = useMenuRootContext();
 
   const listItem = useCompositeListItem({ guess: true, label });
@@ -33,6 +31,7 @@ const MenuItemPlain = React.forwardRef(function MenuItemPlain(
 
   const rootDisabled = store.useState('disabled');
   const highlighted = store.useState('isActive', listItem.index);
+  const nodeId = store.useState('floatingNodeId');
   const itemProps = store.useState('itemProps');
 
   const disabled = disabledProp || rootDisabled;
@@ -44,7 +43,7 @@ const MenuItemPlain = React.forwardRef(function MenuItemPlain(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.context.nodeId,
+    nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 

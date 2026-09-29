@@ -355,6 +355,9 @@ export function useListNavigation(
   const waitForListPopulatedFrame = useAnimationFrame();
 
   const focusItem = useStableCallback(() => {
+    // Synchronous navigation must also supersede any deferred focus from an earlier update.
+    focusFrame.cancel();
+
     function runFocus(item: HTMLElement) {
       if (!virtual) {
         cancelQueuedFocusRef.current = enqueueFocus(item, {

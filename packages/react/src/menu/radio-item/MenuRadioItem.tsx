@@ -11,7 +11,6 @@ import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
-import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
@@ -32,7 +31,6 @@ const MenuRadioItemPlain = React.forwardRef(function MenuRadioItemPlain(
     ...elementProps
   } = componentProps;
 
-  const menuPositionerContext = useMenuPositionerContext(true);
   const { store } = useMenuRootContext();
   const {
     value: selectedValue,
@@ -44,6 +42,7 @@ const MenuRadioItemPlain = React.forwardRef(function MenuRadioItemPlain(
   const id = useBaseUiId(idProp);
 
   const highlighted = store.useState('isActive', listItem.index);
+  const nodeId = store.useState('floatingNodeId');
   const itemProps = store.useState('itemProps');
   const rootDisabled = store.useState('disabled');
 
@@ -57,7 +56,7 @@ const MenuRadioItemPlain = React.forwardRef(function MenuRadioItemPlain(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.context.nodeId,
+    nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 

@@ -189,6 +189,45 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).toHaveAttribute('data-unchecked', '');
     });
 
+    it('toggles with Space after closing during typeahead and reopening', async () => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem>Settings</Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemcheckbox')).toHaveFocus();
+      });
+
+      await user.keyboard('s[Escape]');
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+      const item = screen.getByRole('menuitemcheckbox');
+      await waitFor(() => {
+        expect(item).toHaveFocus();
+      });
+      expect(item).toHaveAttribute('aria-checked', 'false');
+
+      await user.keyboard('[Space]');
+      expect(item).toHaveAttribute('aria-checked', 'true');
+    });
+
     it.skipIf(isJSDOM)(
       'does not toggle when Space is pressed during an active typeahead session',
       async () => {
