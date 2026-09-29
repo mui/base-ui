@@ -10,6 +10,7 @@ import {
   describeConformance,
   isJSDOM,
   createDOMRect,
+  resetBrowserPointer,
   setElementClientHeight,
   setElementScrollState,
 } from '#test-utils';
@@ -428,6 +429,9 @@ describe('<Virtualizer /> in Combobox', () => {
     'renders a distant selection immediately without changing its alignment',
     async () => {
       vi.restoreAllMocks();
+      // A pointer an earlier test file left resting where the popup opens interferes with the
+      // alignment this test measures.
+      await resetBrowserPointer();
 
       function Test(props: { rowHeight: number }) {
         return (
