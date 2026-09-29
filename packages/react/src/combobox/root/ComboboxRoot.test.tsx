@@ -9048,6 +9048,7 @@ describe('<Combobox.Root />', () => {
             {...props}
           >
             <Combobox.Input />
+            <Combobox.Trigger data-testid="trigger" />
             <Combobox.Portal keepMounted={keepMounted}>
               <Combobox.Positioner>
                 <Combobox.Popup ref={popupRef}>
@@ -9102,6 +9103,37 @@ describe('<Combobox.Root />', () => {
         await setProps({ open: true });
         expect(screen.getByRole('option')).toHaveAttribute('data-highlighted');
       });
+
+      it.each(['trigger', 'ArrowDown'] as const)(
+        'discards the request when a rejected typed open is followed by a %s open',
+        async (method) => {
+          const { user } = await render(
+            <AsyncCombobox
+              items={['32', '320']}
+              onOpenChange={(nextOpen, details) => {
+                if (nextOpen && details.reason === 'input-change') {
+                  details.cancel();
+                }
+              }}
+            />,
+          );
+          const input = screen.getByRole('combobox');
+          await act(() => input.focus());
+          await user.keyboard('32');
+          expect(screen.queryByRole('listbox')).toBe(null);
+
+          if (method === 'trigger') {
+            await user.click(screen.getByTestId('trigger'));
+          } else {
+            await user.keyboard('{ArrowDown}');
+          }
+
+          expect(screen.getByRole('option', { name: '32' })).not.toHaveAttribute(
+            'data-highlighted',
+          );
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+        },
+      );
 
       it('does not highlight arrivals before typing', async () => {
         const { setProps } = await render(<AsyncCombobox open />);

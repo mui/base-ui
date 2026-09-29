@@ -657,10 +657,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       // A canceled selection clear must not suppress close-completion cleanup.
       hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
 
-      if (pendingQueryHighlightRef.current?.hasQuery) {
-        pendingQueryHighlightRef.current = null;
-      }
-
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
       if (eventDetails.reason === REASONS.inputChange) {
@@ -780,7 +776,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         return;
       }
 
-      if (!nextOpen && pendingQueryHighlightRef.current?.hasQuery) {
+      // A request left by a rejected typed open must not highlight a later open.
+      if (
+        eventDetails.reason !== REASONS.inputChange &&
+        pendingQueryHighlightRef.current?.hasQuery
+      ) {
         pendingQueryHighlightRef.current = null;
       }
 
