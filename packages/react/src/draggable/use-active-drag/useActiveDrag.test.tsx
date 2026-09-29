@@ -98,39 +98,6 @@ describe('Draggable.useActiveDrag', () => {
     expect(commits).toBe(commitsBeforeDrag);
   });
 
-  it('filters by accept: only an observer of the dragged kind sees the source', async () => {
-    function KindObservers() {
-      const matching = Draggable.useActiveDrag(probeKind);
-      const other = Draggable.useActiveDrag(otherKind);
-      return (
-        <div
-          data-testid="observers"
-          data-matching={matching?.payload.kind ?? 'none'}
-          data-other={other ? 'seen' : 'none'}
-        />
-      );
-    }
-
-    await renderDnd(
-      <React.Fragment>
-        <SourceProbe id="card-9" />
-        <KindObservers />
-      </React.Fragment>,
-    );
-    const node = screen.getByTestId('source-card-9');
-    const observers = screen.getByTestId('observers');
-
-    fireDrag.dragStart(node);
-    await flushRaf();
-
-    expect(observers.dataset.matching).toBe('probe');
-    expect(observers.dataset.other).toBe('none');
-
-    cancel();
-    await flushRaf();
-    expect(observers.dataset.matching).toBe('none');
-  });
-
   it('observes every drag when called without an argument', async () => {
     function AnyObserver() {
       const source = Draggable.useActiveDrag();

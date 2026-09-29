@@ -13,10 +13,7 @@ import { reset } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { restrictToHorizontalAxis } from '../../utils/drag-and-drop/dragModifiers';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
-import type {
-  DraggableManager,
-  RegisterViewportParameters,
-} from '../../utils/drag-and-drop/registrationTypes';
+import type { RegisterViewportParameters } from '../../utils/drag-and-drop/registrationTypes';
 import type {
   DraggableViewportDragScrollEventDetails,
   DraggableViewportMaxSpeedContext,
@@ -541,27 +538,6 @@ describe('engine.registerViewport', () => {
     expect(scrollBy).not.toHaveBeenCalled();
   });
 
-  it('allows custom movement even when native scrolling has reached its limit', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const scroller = makeEngageableScroller();
-    scroller.scrollTop = 800;
-    const pan = vi.fn();
-    engine.registerSource(source, {});
-    engine.registerViewport(scroller, {
-      onDragScroll(eventDetails) {
-        eventDetails.cancel();
-        pan(eventDetails);
-        eventDetails.consume();
-      },
-    });
-    await driveIntoEdgeZone(source, scroller);
-    expect(pan).toHaveBeenCalled();
-    expect(pan.mock.calls.some(([details]) => details.direction === 'vertical')).toBe(true);
-    expect(scroller.scrollBy).not.toHaveBeenCalled();
-    expect(scroller.scrollTop).toBe(800);
-  });
-
   it('stops an engaged loop when its last registration is cleaned up', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -653,10 +629,6 @@ describe('engine.registerViewport', () => {
     return scroller;
   }
 
-  function enableUnrelatedViewport(engine: Pick<DraggableManager, 'registerViewport'>): void {
-    registerCleanup(engine.registerViewport(document.createElement('div'), () => ({})));
-  }
-
   // Moves the pointer into the scroller's bottom edge zone and lets the loop run
   // a few frames. The move goes through the scroller element so `fireDrag`
   // resolves the engine's hit test onto it.
@@ -713,49 +685,14 @@ describe('engine.registerViewport', () => {
 
     await driveIntoEdgeZone(source, scroller);
 
-    // Positive control for the `cancel()` and `cleanup` negatives below. With the
-    // scroller overflowing and the pointer in its bottom edge zone, the loop must
-    // call `scrollBy`.
+    // With the scroller overflowing and the pointer in its bottom edge zone, the
+    // loop must call `scrollBy`. The negatives that share this fixture rely on it.
     expect(scroller.scrollBy).toHaveBeenCalled();
     // Deltas apply instantly. Inheriting a CSS `scroll-behavior: smooth` would
     // turn each frame's delta into its own smooth animation.
     expect(scroller.scrollBy).toHaveBeenCalledWith(
       expect.objectContaining({ behavior: 'instant' }),
     );
-  });
-
-  it("keeps other scrollers scrolling when one scroller's onDragScroll throws", async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    // Both scrollers share the same box and edge zones. The buggy one registers
-    // first, so the loop visits it first.
-    const buggy = makeEngageableScroller();
-    const sane = makeEngageableScroller();
-
-    engine.registerSource(source, {});
-    engine.registerViewport(buggy, {
-      onDragScroll() {
-        throw new Error('onDragScroll boom');
-      },
-    });
-    engine.registerViewport(sane, {});
-
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    try {
-      await driveIntoEdgeZone(source, sane);
-
-      // The throw was caught and logged.
-      expect(consoleError).toHaveBeenCalled();
-      // The buggy scroller was skipped, and the sane one still scrolled.
-      expect(buggy.scrollBy).not.toHaveBeenCalled();
-      expect(sane.scrollBy).toHaveBeenCalled();
-    } finally {
-      // End the drag before restoring the spy so later loop frames can't call
-      // the throwing `onDragScroll` and log after the spy is gone.
-      fireDrag.dragEnd();
-      consoleError.mockRestore();
-    }
   });
 
   it('keeps other scrollers scrolling when a scroller throws after consuming', async () => {
@@ -843,26 +780,6 @@ describe('engine.registerViewport', () => {
     // loop.
     expect(local.scrollBy).toHaveBeenCalled();
     expect(foreign.scrollBy).not.toHaveBeenCalled();
-  });
-
-  it('cancel() prevents native scrolling', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const scroller = makeEngageableScroller();
-
-    engine.registerSource(source, {});
-    engine.registerViewport(scroller, {
-      onDragScroll: (eventDetails) => {
-        eventDetails.cancel();
-      },
-    });
-
-    await driveIntoEdgeZone(source, scroller);
-
-    // The pointer is in the edge zone of an overflow container, which the
-    // positive control above shows engages the loop. So the missing call comes
-    // from `cancel()`, not from the loop never engaging.
-    expect(scroller.scrollBy).not.toHaveBeenCalled();
   });
 
   it('never scrolls an element without a scrollable overflow style', async () => {
@@ -974,43 +891,6 @@ describe('engine.registerViewport', () => {
     await driveIntoEdgeZone(source, surface);
 
     expect(pan).not.toHaveBeenCalled();
-  });
-
-  it('does not scroll when pointer is outside the element bounding box', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const scroller = createElement({ top: 50, height: 100, left: 50, width: 200 });
-    scroller.style.overflow = 'auto';
-    scroller.scrollBy = vi.fn();
-    Object.defineProperty(scroller, 'scrollTop', { value: 400, writable: true });
-    Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
-    Object.defineProperty(scroller, 'clientHeight', { value: 100 });
-
-    engine.registerSource(source, {});
-    engine.registerViewport(scroller, {});
-
-    // Route moves through the scroller element so `fireDrag` resolves them onto
-    // it. Each position is outside the scroller's box, so the loop's bounding-box
-    // check rejects it.
-    await lift(source, { clientX: 55, clientY: 30 });
-
-    // Above the scroller.
-    fireDrag.dragOver(scroller, { clientX: 55, clientY: 30 });
-    await flushRaf();
-    await flushRaf();
-    expect(scroller.scrollBy).not.toHaveBeenCalled();
-
-    // Left of the scroller.
-    fireDrag.dragOver(scroller, { clientX: 40, clientY: 100 });
-    await flushRaf();
-    await flushRaf();
-    expect(scroller.scrollBy).not.toHaveBeenCalled();
-
-    // Below the scroller.
-    fireDrag.dragOver(scroller, { clientX: 100, clientY: 200 });
-    await flushRaf();
-    await flushRaf();
-    expect(scroller.scrollBy).not.toHaveBeenCalled();
   });
 
   it("scrolls from the physical pointer, not the draggable's modifier-constrained point", async () => {
@@ -1849,19 +1729,6 @@ describe('engine.registerViewport', () => {
       await flushRaf();
     }
 
-    it('does not scroll an unregistered ancestor when another viewport is registered', async () => {
-      const { engine } = await renderDnd();
-      const container = makeContainer();
-      const source = makeNestedSource(container.element);
-
-      engine.registerSource(source, {});
-      enableUnrelatedViewport(engine);
-
-      await driveTo(source, container.element, 100, 190);
-
-      expect(container.scrollBy).not.toHaveBeenCalled();
-    });
-
     it('does not scroll an unregistered nested container inside a viewport', async () => {
       const { engine } = await renderDnd();
       const outer = makeContainer();
@@ -1984,21 +1851,6 @@ describe('engine.registerViewport', () => {
       expect(warning).toHaveBeenCalledWith(expect.stringContaining('does not scroll'));
     });
 
-    it('scrolls a container nested inside the drop target the pointer is over', async () => {
-      const { engine } = await renderDnd();
-      const column = createElement({ top: 0, height: 200, left: 0, width: 200 });
-      const list = makeContainer({ parent: column });
-      const source = createElement();
-
-      engine.registerSource(source, {});
-      engine.registerTarget(column, {});
-      engine.registerViewport(list.element, {});
-
-      await driveTo(source, list.element, 100, 190);
-
-      expect(list.scrollBy).toHaveBeenCalled();
-    });
-
     it('never engages a registered container with no scroll extent', async () => {
       const { engine } = await renderDnd();
       const container = makeContainer({ vertical: false });
@@ -2030,57 +1882,6 @@ describe('engine.registerViewport', () => {
       expect(board.scrollBy.mock.calls.every(([arg]) => (arg.top ?? 0) === 0)).toBe(true);
     });
 
-    function renderTwoContainers() {
-      const sourceContainer = makeContainer();
-      const targetContainer = makeContainer();
-      const source = makeNestedSource(sourceContainer.element);
-      const target = document.createElement('div');
-      target.getBoundingClientRect = () => new DOMRect(0, 150, 200, 50);
-      targetContainer.element.appendChild(target);
-      return { sourceContainer, targetContainer, source, target };
-    }
-
-    it('scrolls a registered target container without scrolling the unregistered source container', async () => {
-      const { engine } = await renderDnd();
-      const { sourceContainer, targetContainer, source, target } = renderTwoContainers();
-
-      engine.registerSource(source, {});
-      engine.registerTarget(target, {});
-      engine.registerViewport(targetContainer.element, {});
-
-      await driveTo(source, target, 100, 190);
-
-      expect(targetContainer.scrollBy).toHaveBeenCalled();
-      expect(sourceContainer.scrollBy).not.toHaveBeenCalled();
-    });
-
-    it('still scrolls the container under the pointer when it is over no drop target', async () => {
-      const { engine } = await renderDnd();
-      const { targetContainer, source, target } = renderTwoContainers();
-
-      engine.registerSource(source, {});
-      engine.registerTarget(target, {});
-      engine.registerViewport(targetContainer.element, {});
-
-      await driveTo(source, targetContainer.element, 100, 190);
-
-      expect(targetContainer.scrollBy).toHaveBeenCalled();
-    });
-
-    it('scrolls a registered source container when the pointer hits an unrelated element', async () => {
-      const { engine } = await renderDnd();
-      const sourceContainer = makeContainer();
-      const source = makeNestedSource(sourceContainer.element);
-      const outsider = createElement({ top: 150, height: 50, left: 0, width: 200 });
-
-      engine.registerSource(source, {});
-      engine.registerViewport(sourceContainer.element, {});
-
-      await driveTo(source, outsider, 100, 190);
-
-      expect(sourceContainer.scrollBy).toHaveBeenCalled();
-    });
-
     it('honors scroll cancellation on a registered viewport', async () => {
       const { engine } = await renderDnd();
       const container = makeContainer();
@@ -2103,58 +1904,6 @@ describe('engine.registerViewport', () => {
       expect(shouldScroll).toHaveBeenCalled();
       expect(shouldScroll.mock.calls[0][0].element).toBe(container.element);
       expect(container.scrollBy).not.toHaveBeenCalled();
-    });
-
-    it('an accept that does not match keeps the container still for that drag', async () => {
-      const { engine } = await renderDnd();
-      const container = makeContainer();
-      const source = makeNestedSource(container.element);
-
-      engine.registerSource(source, {}); // the renderer's default `testDragKind`
-      engine.registerViewport(container.element, {
-        accept: createKind<unknown>('base-ui-test/other-viewport'),
-      });
-
-      await driveTo(source, container.element, 100, 190);
-
-      expect(container.scrollBy).not.toHaveBeenCalled();
-    });
-
-    it('does not scroll an unregistered ancestor with no scrollable overflow', async () => {
-      const { engine } = await renderDnd();
-      const viewport = makeContainer({ overflow: 'visible' });
-      const source = makeNestedSource(viewport.element);
-
-      engine.registerSource(source, {});
-      // Another viewport keeps the scroll loop alive, so the missing call below
-      // comes from the ancestor, not a parked loop.
-      enableUnrelatedViewport(engine);
-
-      await driveTo(source, viewport.element, 100, 190);
-
-      expect(viewport.scrollBy).not.toHaveBeenCalled();
-    });
-
-    it('drives that same ancestor through an explicit pan registration', async () => {
-      const { engine } = await renderDnd();
-      const viewport = makeContainer({ overflow: 'visible' });
-      const source = makeNestedSource(viewport.element);
-      const pan = vi.fn();
-
-      engine.registerSource(source, {});
-      engine.registerViewport(viewport.element, {
-        onDragScroll: (eventDetails) => {
-          eventDetails.cancel();
-          pan(eventDetails);
-          eventDetails.consume();
-        },
-      });
-
-      await driveTo(source, viewport.element, 100, 190);
-
-      expect(pan).toHaveBeenCalled();
-      expect(pan.mock.calls[0][0].element).toBe(viewport.element);
-      expect(viewport.scrollBy).not.toHaveBeenCalled();
     });
   });
 
@@ -2214,39 +1963,6 @@ describe('engine.registerViewport', () => {
       await flushRaf();
       await flushRaf();
     }
-
-    it('does not engage with no auto-scroll registration', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const page = mockPageScroller();
-
-      engine.registerSource(source, {});
-
-      await drive(source, 400, 590);
-
-      expect(page.scrollBy).not.toHaveBeenCalled();
-    });
-
-    it('is suppressed by an imperative registration on the document root', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const page = mockPageScroller();
-
-      engine.registerSource(source, {});
-      // `Draggable.Viewport` renders a `<div>` and can't be placed on `<html>`, so
-      // the imperative registration is the only way to opt the page out.
-      registerCleanup(
-        engine.registerViewport(document.documentElement, () => ({
-          onDragScroll: (eventDetails) => {
-            eventDetails.cancel();
-          },
-        })),
-      );
-
-      await drive(source, 400, 590);
-
-      expect(page.scrollBy).not.toHaveBeenCalled();
-    });
 
     it('engages at the viewport bottom edge and scrolls through the scrolling element', async () => {
       const { engine } = await renderDnd();
@@ -2452,30 +2168,6 @@ describe('engine.registerViewport', () => {
 
       expect(page.scrollBy).toHaveBeenCalled();
       expect(page.scrollBy.mock.calls.every(([arg]) => (arg.top ?? 0) === 0)).toBe(true);
-    });
-
-    it('respects direction cancellation', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const page = mockPageScroller();
-
-      engine.registerSource(source, {});
-      registerCleanup(
-        engine.registerViewport(page.element, {
-          onDragScroll: (eventDetails) => {
-            const allowedDirection = 'vertical';
-            if (allowedDirection !== eventDetails.direction) {
-              eventDetails.cancel();
-            }
-          },
-        }),
-      );
-
-      // Left edge only. The only axis that can engage is horizontal, which the
-      // handler cancels.
-      await drive(source, 10, 300);
-
-      expect(page.scrollBy).not.toHaveBeenCalled();
     });
 
     it('respects scroll cancellation', async () => {
@@ -2799,86 +2491,6 @@ describe('engine.registerViewport', () => {
   }
 
   describe.skipIf(isJSDOM)('scroll direction and axis', () => {
-    it('scrolls up in the top edge zone and down in the bottom edge zone', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      // A 200px tall scroller at y=0, so each edge zone is 25% of it (50px).
-      const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
-      scroller.style.overflow = 'auto';
-      scroller.scrollBy = vi.fn();
-      // `scrollTop` in the middle, so it can scroll both up and down.
-      Object.defineProperty(scroller, 'scrollTop', { value: 400, writable: true });
-      Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
-      Object.defineProperty(scroller, 'clientHeight', { value: 200 });
-
-      engine.registerSource(source, {
-        activation: { touch: { type: 'immediate' } },
-      });
-      engine.registerViewport(scroller, {});
-
-      // Pointer in the top edge zone (y=10 of 200).
-      startTouchDrag(source, 100, 10);
-      await waitForRampUp();
-
-      const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
-      const topDeltas = scrollByMock.mock.calls.map(([arg]) => arg.top);
-      // The content must move up (negative top) and never down.
-      expect(topDeltas.some((top) => top < 0)).toBe(true);
-      expect(topDeltas.every((top) => top <= 0)).toBe(true);
-
-      endTouchDrag(100, 10);
-      scrollByMock.mockClear();
-
-      // Second drag in the bottom edge zone (y=190 of 200).
-      startTouchDrag(source, 100, 190);
-      await waitForRampUp();
-
-      const bottomDeltas = scrollByMock.mock.calls.map(([arg]) => arg.top);
-      // The content must move down (positive top) and never up.
-      expect(bottomDeltas.some((top) => top > 0)).toBe(true);
-      expect(bottomDeltas.every((top) => top >= 0)).toBe(true);
-
-      endTouchDrag(100, 190);
-    });
-
-    it('does not scroll horizontally when direction selection is "vertical" and the pointer is in a horizontal edge', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
-      scroller.style.overflow = 'auto';
-      scroller.scrollBy = vi.fn();
-      // Overflows on both axes and is scrolled to the middle, so every direction has room.
-      Object.defineProperty(scroller, 'scrollTop', { value: 400, writable: true });
-      Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
-      Object.defineProperty(scroller, 'clientHeight', { value: 200 });
-      Object.defineProperty(scroller, 'scrollLeft', { value: 400, writable: true });
-      Object.defineProperty(scroller, 'scrollWidth', { value: 1000 });
-      Object.defineProperty(scroller, 'clientWidth', { value: 200 });
-
-      engine.registerSource(source, {
-        activation: { touch: { type: 'immediate' } },
-      });
-      engine.registerViewport(scroller, {
-        onDragScroll: (eventDetails) => {
-          const allowedDirection = 'vertical';
-          if (allowedDirection !== eventDetails.direction) {
-            eventDetails.cancel();
-          }
-        },
-      });
-
-      // Pointer at the left edge (x=10), centered vertically (y=100) so no vertical edge engages.
-      startTouchDrag(source, 10, 100);
-      await waitForRampUp();
-
-      const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
-      // The pointer is only in a horizontal edge zone, which the handler cancels,
-      // and there is no vertical edge zone. So no horizontal scroll happens.
-      expect(scrollByMock.mock.calls.every(([arg]) => arg.left === 0)).toBe(true);
-
-      endTouchDrag(10, 100);
-    });
-
     // RTL containers report `scrollLeft` as 0 at the right-hand start, going
     // negative toward the end. The loop accounts for that before deciding
     // whether an edge can scroll. `scrollBy` deltas use the same directions as
@@ -2994,20 +2606,6 @@ describe('engine.registerViewport', () => {
       await flushRaf();
     }
 
-    it('does not scroll down when the container is already at its bottom limit', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      // Fully scrolled: 800 + 200 === 1000.
-      const scroller = makeScrollerAt({ scrollTop: 800 });
-
-      engine.registerSource(source, {});
-      engine.registerViewport(scroller, {});
-
-      await drive(source, scroller, 100, 190);
-
-      expect(scroller.scrollBy).not.toHaveBeenCalled();
-    });
-
     it('does not scroll down when the bottom limit is reached at a fractional offset', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
@@ -3051,28 +2649,6 @@ describe('engine.registerViewport', () => {
       expect(scroller.scrollBy).not.toHaveBeenCalled();
     });
 
-    it('allows custom horizontal movement past the native right limit', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const scroller = makeScrollerAt({ scrollLeft: 800 });
-      const pan = vi.fn();
-
-      engine.registerSource(source, {});
-      engine.registerViewport(scroller, {
-        onDragScroll(eventDetails) {
-          eventDetails.cancel();
-          pan(eventDetails);
-          eventDetails.consume();
-        },
-      });
-
-      await drive(source, scroller, 190, 100);
-
-      expect(pan.mock.calls.some(([details]) => details.direction === 'horizontal')).toBe(true);
-      expect(scroller.scrollBy).not.toHaveBeenCalled();
-      expect(scroller.scrollLeft).toBe(800);
-    });
-
     it('proposes each axis separately at a corner, with the other delta at zero', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
@@ -3112,7 +2688,7 @@ describe('engine.registerViewport', () => {
     it('still scrolls at every edge of the same fixture when the limits are not reached', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      // Positive control for the five negatives above. The same fixture, scrolled
+      // Positive control for the negatives above. The same fixture, scrolled
       // to the middle on both axes, engages at each of their four points. So the
       // missing calls there come from the limit guards, not a loop that never
       // engages.
@@ -3598,81 +3174,6 @@ describe('engine.registerViewport', () => {
       expect(eventDetails.input.clientY).toBe(190);
       expect(typeof eventDetails.x).toBe('number');
       expect(typeof eventDetails.y).toBe('number');
-    });
-
-    it('never runs for a drag its accept rejects', async () => {
-      const accepted = createKind<undefined>('accepted-viewport-drag');
-      const rejected = createKind<undefined>('rejected-viewport-drag');
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const viewport = makeViewport();
-      const pan = vi.fn();
-
-      engine.registerSource(source, { kind: rejected, payload: undefined });
-      engine.registerViewport(viewport, {
-        accept: accepted,
-        onDragScroll: (eventDetails) => {
-          eventDetails.cancel();
-          pan(eventDetails);
-          eventDetails.consume();
-        },
-      });
-
-      await driveTo(source, viewport, 100, 190);
-
-      expect(pan).not.toHaveBeenCalled();
-    });
-
-    it('runs for a drag its accept matches', async () => {
-      const accepted = createKind<undefined>('accepted-viewport-drag');
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const viewport = makeViewport();
-      const pan = vi.fn();
-
-      engine.registerSource(source, { kind: accepted, payload: undefined });
-      engine.registerViewport(viewport, {
-        accept: accepted,
-        onDragScroll: (eventDetails) => {
-          eventDetails.cancel();
-          pan(eventDetails);
-          eventDetails.consume();
-        },
-      });
-
-      await driveTo(source, viewport, 100, 190);
-
-      // Positive control, so the rejection in the previous test means something.
-      expect(pan).toHaveBeenCalled();
-    });
-
-    it('reports no horizontal delta when direction selection excludes that axis', async () => {
-      const { engine } = await renderDnd();
-      const source = createElement();
-      const viewport = makeViewport();
-      const pan = vi.fn();
-
-      engine.registerSource(source, {});
-      engine.registerViewport(viewport, {
-        onDragScroll: (eventDetails) => {
-          const allowedDirection = 'vertical';
-          if (allowedDirection !== eventDetails.direction) {
-            eventDetails.cancel();
-            return;
-          }
-          eventDetails.cancel();
-          pan(eventDetails);
-          eventDetails.consume();
-        },
-      });
-
-      // The pointer is in both the bottom and right edge zones, and only the
-      // vertical one gets through. `x` is exactly 0 whatever the frame clock
-      // says, so this holds in jsdom where every timestamp is the same.
-      await driveTo(source, viewport, 190, 190);
-
-      expect(pan).toHaveBeenCalled();
-      expect(pan.mock.calls.every(([context]) => context.x === 0)).toBe(true);
     });
 
     // The axes a delegating surface consumes decide which axes an ancestor

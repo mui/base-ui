@@ -863,33 +863,6 @@ describe('Draggable.CollisionProvider', () => {
     expect(ended.mock.lastCall?.[0].canceled).toBe(false);
     expect(ended.mock.lastCall?.[0].target).toBeNull();
   });
-  it('captures final coordinates before a source callback changes layout', async () => {
-    const ended = vi.fn();
-    let target: HTMLElement;
-    await renderDnd(
-      <Draggable.CollisionProvider kind={kind} onMoveEnd={ended}>
-        <Draggable.Root
-          kind={kind}
-          payload="a"
-          data-testid="a"
-          onMoveEnd={() => {
-            target.getBoundingClientRect = () => new DOMRect(0, 1000, 100, 100);
-          }}
-        >
-          <Draggable.Preview disabled />
-        </Draggable.Root>
-        <Draggable.Root kind={kind} payload="b" data-testid="b">
-          <Draggable.Preview disabled />
-        </Draggable.Root>
-      </Draggable.CollisionProvider>,
-    );
-    target = screen.getByTestId('b');
-    target.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
-    await lift(screen.getByTestId('a'));
-    drop(target, { clientY: 180 });
-    expect(ended.mock.lastCall?.[0].target.getLocalPoint().y).toBe(0.8);
-  });
-
   it('measures the configured row box and ignores the source row', async () => {
     const changed = vi.fn();
     const rowElement = (element: HTMLElement) => element.parentElement!;

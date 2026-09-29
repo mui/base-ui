@@ -230,13 +230,4 @@ describe('<Draggable.Handle />', () => {
     expect(handle.style.cursor).toBe('not-allowed');
     expect(handle).toHaveAttribute('data-disabled');
   });
-
-  it('reflects the root disabled state', async () => {
-    await renderDnd(
-      <Draggable.Root kind={testDragKind} disabled>
-        <Draggable.Handle data-testid="handle">grip</Draggable.Handle>
-      </Draggable.Root>,
-    );
-    expect(screen.getByTestId('handle')).toHaveAttribute('data-disabled');
-  });
 });

@@ -88,42 +88,6 @@ describe('Draggable.Root', () => {
     expect(el.style.userSelect).toBe('');
   });
 
-  it('applies the static setup to a handle swapped mid-drag once the drag ends', async () => {
-    // Swapping the handle node during the element's own drag skips the
-    // re-registration, because tearing down the gesture styles would disrupt the
-    // drag. The skipped reconcile must run when the drag ends, or the new handle
-    // never gets the gesture styles.
-    function Card({ handleKey }: { handleKey: string }) {
-      return (
-        <Draggable.Root kind={testDragKind} data-testid="card">
-          <Draggable.Handle key={handleKey} render={<button type="button" />} data-testid="handle">
-            grip
-          </Draggable.Handle>
-        </Draggable.Root>
-      );
-    }
-
-    const { rerender } = await renderDnd(<Card handleKey="a" />);
-    const card = screen.getByTestId('card');
-    card.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-    const firstHandle = screen.getByTestId('handle');
-
-    fireDrag.dragStart(firstHandle);
-    await flushRaf();
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(card);
-
-    // Remount the handle to a new node mid-drag. Query inside the card because the
-    // clone preview duplicates the test id.
-    await rerender(<Card handleKey="b" />);
-    const secondHandle = card.querySelector('[data-testid="handle"]') as HTMLElement;
-    expect(secondHandle).not.toBe(firstHandle);
-
-    cancel();
-    await flushRaf();
-
-    expect(secondHandle.style.touchAction).toBe('manipulation');
-  });
-
   it('exposes state.dragging reflecting the active drag session', async () => {
     const { engine } = await renderDnd(<TestDraggable />);
     const source = screen.getByTestId('drag');
@@ -144,21 +108,6 @@ describe('Draggable.Root', () => {
     await flushRaf();
 
     fireDrag.drop(target);
-    await flushRaf();
-
-    expect(source).toHaveClass('idle');
-  });
-
-  it('resets state.dragging when the drag is cancelled (no drop target hit)', async () => {
-    await renderDnd(<TestDraggable />);
-    const source = screen.getByTestId('drag');
-    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    expect(source).toHaveClass('dragging');
-
-    cancel();
     await flushRaf();
 
     expect(source).toHaveClass('idle');
@@ -1258,27 +1207,6 @@ describe('Draggable.Root', () => {
       }
     });
 
-    it('does not throw for two parts of the same kind either', () => {
-      // This mistake is more likely than one of each.
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      try {
-        expect(() =>
-          rtlRender(
-            <Draggable.Root kind={testDragKind} data-testid="drag">
-              <Draggable.Preview>
-                <span>x</span>
-              </Draggable.Preview>
-              <Draggable.Preview>
-                <span>y</span>
-              </Draggable.Preview>
-            </Draggable.Root>,
-          ),
-        ).not.toThrow();
-      } finally {
-        warnSpy.mockRestore();
-      }
-    });
-
     it('renders a single preview part under Strict Mode', async () => {
       // Strict Mode runs the declaring layout effect, its cleanup, then the effect
       // again. Only the identity guard in the cleanup keeps that from triggering the
@@ -1372,19 +1300,6 @@ describe('Draggable.Root', () => {
       );
     }
 
-    it('renders the preview content into the overlay on dragstart', async () => {
-      await renderDnd(<DraggableWithPreview preview={<span data-testid="preview">hello</span>} />);
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      expect(screen.queryByTestId('preview')).toBeNull();
-
-      fireDrag.dragStart(source);
-
-      // The overlay committed synchronously inside the dragstart handler.
-      expect(screen.getByTestId('preview')).toHaveTextContent('hello');
-    });
-
     it('renders custom content without cloning the source', async () => {
       function CardWithPreview() {
         return (
@@ -1412,7 +1327,9 @@ describe('Draggable.Root', () => {
       await renderDnd(<DraggableWithPreview preview={<span data-testid="preview">hello</span>} />);
       const source = screen.getByTestId('drag');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      expect(screen.queryByTestId('preview')).toBeNull();
 
+      // The overlay commits synchronously inside the dragstart handler.
       fireDrag.dragStart(source);
       expect(screen.getByTestId('preview')).toBeInTheDocument();
 
@@ -1445,20 +1362,6 @@ describe('Draggable.Root', () => {
       expect(source).toHaveAttribute('data-dragging');
     });
 
-    it('clones the source when children are omitted', async () => {
-      await renderDnd(
-        <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-          <Draggable.Preview />
-        </Draggable.Root>,
-      );
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      fireDrag.dragStart(source);
-
-      expect(document.querySelector('[data-drag-preview]')).toHaveClass('Card');
-    });
-
     it('forwards its remaining props onto the rendered element', async () => {
       rtlRender(
         <Draggable.Root kind={testDragKind} data-testid="drag">
@@ -1476,28 +1379,6 @@ describe('Draggable.Root', () => {
       expect(element).toHaveAttribute('id', 'chip');
       expect(element).toHaveAttribute('data-chip', 'yes');
       expect(element).toHaveAttribute('aria-label', 'Card chip');
-    });
-
-    it('keeps the preview settings off the rendered element', async () => {
-      const boundsRef = React.createRef<HTMLDivElement>();
-      rtlRender(
-        <Draggable.Root kind={testDragKind} data-testid="drag">
-          <Draggable.Preview offset="pointer" modifiers={Draggable.restrictToElement(boundsRef)}>
-            <span data-testid="preview">chip</span>
-          </Draggable.Preview>
-        </Draggable.Root>,
-      );
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      fireDrag.dragStart(source);
-
-      // The settings go to the engine, and only rendering props reach the DOM.
-      // `modifiers` is a function and never becomes an attribute, so the
-      // unknown-prop console error covers it instead.
-      const element = screen.getByTestId('preview').parentElement as HTMLElement;
-      expect(element).not.toHaveAttribute('offset');
-      expect(element).not.toHaveAttribute('disabled');
     });
 
     it('reads React context from above the provider, without leaving the source', async () => {

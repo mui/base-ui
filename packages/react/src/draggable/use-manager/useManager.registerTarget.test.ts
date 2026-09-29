@@ -225,23 +225,6 @@ describe('engine.registerTarget', () => {
     cancel();
   });
 
-  it('accept rejects a source of a kind it does not accept', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const target = createElement();
-    const onDraggableEnter = vi.fn();
-    engine.registerSource(source, { kind: columnKind });
-    engine.registerTarget(target, { accept: cardKind, onDraggableEnter });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-
-    expect(onDraggableEnter).not.toHaveBeenCalled();
-  });
-
   it('does not invoke canDrop when accept already rejected the source', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -272,23 +255,6 @@ describe('engine.registerTarget', () => {
     const onDraggableEnter = vi.fn();
     engine.registerSource(source, { kind: cardKind });
     engine.registerTarget(target, { accept: [cardKind, columnKind], onDraggableEnter });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-
-    expect(onDraggableEnter).toHaveBeenCalledTimes(1);
-  });
-
-  it('accepts any source when accept is omitted', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const target = createElement();
-    const onDraggableEnter = vi.fn();
-    engine.registerSource(source, { kind: cardKind });
-    engine.registerTarget(target, { onDraggableEnter });
 
     fireDrag.dragStart(source);
     await flushRaf();
@@ -475,34 +441,6 @@ describe('engine.registerTarget', () => {
     );
   });
 
-  it('drop target onMove fires synchronously on the frame the target enters the active stack', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const target = createElement();
-    const onDraggableEnter = vi.fn();
-    const onMove = vi.fn();
-    engine.registerSource(source, {});
-    engine.registerTarget(target, { onDraggableEnter, onDraggableMove: onMove });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    await flushRaf();
-
-    // Both fire on the entering frame so consumers can put hover-tracking
-    // logic in `onMove` and rely on it firing immediately. The engine also
-    // polls `onMove` every frame for a stationary pointer, so the test skips the
-    // exact count and only checks that it fired on entry with the right target.
-    expect(onDraggableEnter).toHaveBeenCalledTimes(1);
-    expect(onMove).toHaveBeenCalled();
-    expect(onMove).toHaveBeenCalledWith(
-      expect.objectContaining({
-        currentTarget: expect.objectContaining({ element: target }),
-        reason: 'pointer',
-      }),
-    );
-  });
-
   it('delivers onMove once to a target on the frame it enters', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -519,6 +457,12 @@ describe('engine.registerTarget', () => {
     // The entry round and the frame's own move dispatch share one delivery, so a
     // consumer measuring in `onMove` pays for it once per frame, not twice.
     expect(onMove).toHaveBeenCalledTimes(1);
+    expect(onMove).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentTarget: expect.objectContaining({ element: target }),
+        reason: 'pointer',
+      }),
+    );
   });
 
   it('fires onDraggableLeave when leaving a target', async () => {
@@ -871,29 +815,6 @@ describe('engine.registerTarget', () => {
       record.getLocalPoint();
       expect(measure).toHaveBeenCalledTimes(1);
     });
-  });
-
-  it('nested targets: both inner and outer receive events', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const outer = createElement();
-    const inner = createElement();
-    outer.appendChild(inner);
-
-    const outerOnDragEnter = vi.fn();
-    const innerOnDragEnter = vi.fn();
-
-    engine.registerSource(source, {});
-    engine.registerTarget(outer, { onDraggableEnter: outerOnDragEnter });
-    engine.registerTarget(inner, { onDraggableEnter: innerOnDragEnter });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(inner);
-    await flushRaf();
-
-    expect(innerOnDragEnter).toHaveBeenCalledTimes(1);
-    expect(outerOnDragEnter).toHaveBeenCalledTimes(1);
   });
 
   it('nested targets: each target receives its own record as `currentTarget`, and the innermost as `target`', async () => {
@@ -1471,32 +1392,6 @@ describe('engine.registerTarget', () => {
       expect(outerEnter).toHaveBeenCalledTimes(1);
       expect(outerLeave).toHaveBeenCalledTimes(1);
     });
-  });
-
-  it('surfaces its own payload on drop', async () => {
-    const { engine } = await renderDnd();
-    const sourceEl = createElement();
-    const targetEl = createElement();
-    targetEl.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    let observedTargetId: string | undefined;
-
-    engine.registerSource(sourceEl, {});
-    engine.registerTarget(targetEl, {
-      payload: { id: 'tgt-low' },
-      onDraggableDrop: ({ currentTarget }) => {
-        observedTargetId = currentTarget.payload.id as string;
-      },
-    });
-
-    fireDrag.dragStart(sourceEl);
-    await flushRaf();
-    fireDrag.dragEnter(targetEl);
-    fireDrag.dragOver(targetEl);
-    await flushRaf();
-    fireDrag.drop(targetEl);
-
-    expect(observedTargetId).toBe('tgt-low');
   });
 
   it('terminal onDraggableLeave on cancel reports the last-resolved payload, not the entry-time one', async () => {

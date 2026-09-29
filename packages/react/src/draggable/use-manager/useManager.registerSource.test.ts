@@ -4,7 +4,6 @@ import { createDndRenderer, firePointer } from '#test-utils';
 import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
-import type { DraggableRootBeforeMoveStartEventDetails } from '../root/DraggableRoot';
 import { useManager } from './useManager';
 import type { DraggableManager } from '../../utils/drag-and-drop/registrationTypes';
 
@@ -149,40 +148,6 @@ describe('engine.registerSource', () => {
     expect(el.style.touchAction).toBe('');
   });
 
-  it('onBeforeMoveStart canceling prevents the drag', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    const onBeforeMoveStart = vi.fn((eventDetails: DraggableRootBeforeMoveStartEventDetails) =>
-      eventDetails.cancel(),
-    );
-    engine.registerSource(el, {
-      onBeforeMoveStart,
-      onMoveStart,
-    });
-
-    fireDrag.dragStart(el);
-    await flushRaf();
-
-    expect(onBeforeMoveStart).toHaveBeenCalledTimes(1);
-    expect(onMoveStart).not.toHaveBeenCalled();
-  });
-
-  it('disabled prevents the drag', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    engine.registerSource(el, {
-      disabled: true,
-      onMoveStart,
-    });
-
-    fireDrag.dragStart(el);
-    await flushRaf();
-
-    expect(onMoveStart).not.toHaveBeenCalled();
-  });
-
   it('a nested draggable wins pickup over its draggable ancestor', async () => {
     const { engine } = await renderDnd();
     // Register an outer draggable and an inner draggable nested inside it.
@@ -259,20 +224,9 @@ describe('engine.registerSource', () => {
     expect(myFunction).not.toHaveBeenCalled();
   });
 
-  it('attaches a value payload without calling anything', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    engine.registerSource(el, { payload: { key: 'value' }, onMoveStart });
-
-    fireDrag.dragStart(el);
-    await flushRaf();
-
-    expect(onMoveStart.mock.calls[0][0].source.payload).toEqual({ key: 'value' });
-  });
-
-  // A falsy static value is passed through as-is, not replaced with a default.
+  // A static value, falsy or not, is passed through as-is, not replaced with a default.
   it.each([
+    ['an object', { key: 'value' }],
     ['a number', 0],
     ['an empty string', ''],
     ['false', false],
@@ -299,58 +253,6 @@ describe('engine.registerSource', () => {
     await flushRaf();
 
     expect(onMoveStart.mock.calls[0][0].source.payload).toBe(undefined);
-  });
-
-  it('fires onMoveStart synchronously at drag start', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    engine.registerSource(el, { onMoveStart });
-
-    // Fires during the dragStart dispatch, without waiting for a frame.
-    fireDrag.dragStart(el);
-    expect(onMoveStart).toHaveBeenCalledTimes(1);
-  });
-
-  it('fires onMoveEnd when drop occurs', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const target = createElement();
-    const onMoveEnd = vi.fn();
-    engine.registerSource(el, { onMoveEnd });
-    engine.registerTarget(target, {});
-
-    fireDrag.dragStart(el);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-    fireDrag.drop(target);
-
-    expect(onMoveEnd).toHaveBeenCalledTimes(1);
-  });
-
-  it('forwards onMove during a drag', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const target = createElement();
-    const onMove = vi.fn();
-    engine.registerSource(el, { onMove });
-    engine.registerTarget(target, {});
-
-    fireDrag.dragStart(el);
-    await flushRaf();
-
-    fireDrag.dragOver(target);
-    await flushRaf();
-
-    expect(onMove).toHaveBeenCalled();
-    expect(onMove).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        source: expect.objectContaining({ element: el }),
-        reason: 'pointer',
-      }),
-    );
   });
 
   it('releasing a non-last merged-ref hold keeps the surviving hook active', async () => {

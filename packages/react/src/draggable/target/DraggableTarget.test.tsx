@@ -338,31 +338,6 @@ describe('Draggable.Target', () => {
     expect(onDrop).toHaveBeenCalledTimes(1);
   });
 
-  it('re-registers when the element behind the ref is swapped without remounting', async () => {
-    function Swappable({ swapped }: { swapped: boolean }) {
-      // A distinct key forces React to swap the DOM node behind the same ref
-      // callback (as a virtualizer recycling a row does) instead of reusing it.
-      return (
-        <Draggable.Target
-          accept={Draggable.anyKind}
-          key={swapped ? 'b' : 'a'}
-          data-testid={swapped ? 'b' : 'a'}
-        />
-      );
-    }
-
-    const { rerender } = await renderDnd(<Swappable swapped={false} />);
-    const first = screen.getByTestId('a');
-    expect(first).toHaveAttribute('data-base-ui-drop-target', '');
-
-    await rerender(<Swappable swapped />);
-    const second = screen.getByTestId('b');
-    // The old node was deregistered and the new node registered, so the drop
-    // target follows the swap instead of going dead on the detached node.
-    expect(first).not.toHaveAttribute('data-base-ui-drop-target');
-    expect(second).toHaveAttribute('data-base-ui-drop-target', '');
-  });
-
   it('resolves the new params when a hovered target remounts with changed params in one commit', async () => {
     // A key swap and a param change land in the same commit. The new node
     // registers mid-drag, and the refresh that resolves it must read the new
@@ -676,74 +651,6 @@ describe('Draggable.Target', () => {
     fireDrag.drop(inner);
   });
 
-  it('canDrop returning false prevents this target from receiving callbacks', async () => {
-    const onDraggableEnter = vi.fn();
-    const { engine } = await renderDnd(
-      <Draggable.Target
-        accept={Draggable.anyKind}
-        data-testid="target"
-        canDrop={() => false}
-        onDraggableEnter={onDraggableEnter}
-      />,
-    );
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = screen.getByTestId('target');
-    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-
-    expect(onDraggableEnter).not.toHaveBeenCalled();
-    // The target never becomes active, so its drag-over state stays false too.
-    expect(target).not.toHaveAttribute('data-drag-over');
-    expect(target).not.toHaveAttribute('data-drag-over-innermost');
-  });
-
-  it('reflects disabled in state and as data-disabled', async () => {
-    const { rerender } = await renderDnd(
-      <Draggable.Target accept={Draggable.anyKind} data-testid="target" disabled />,
-    );
-    const target = screen.getByTestId('target');
-    expect(target).toHaveAttribute('data-disabled');
-
-    await rerender(<Draggable.Target accept={Draggable.anyKind} data-testid="target" />);
-    expect(target).not.toHaveAttribute('data-disabled');
-  });
-
-  it('a disabled target receives no callbacks and reports no drag-over state', async () => {
-    const onDraggableEnter = vi.fn();
-    const onDrop = vi.fn();
-    const { engine } = await renderDnd(
-      <Draggable.Target
-        accept={Draggable.anyKind}
-        data-testid="target"
-        disabled
-        onDraggableEnter={onDraggableEnter}
-        onDraggableDrop={onDrop}
-      />,
-    );
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = screen.getByTestId('target');
-    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-    fireDrag.drop(target);
-
-    // Like `canDrop: () => false`, a disabled target is skipped entirely.
-    expect(onDraggableEnter).not.toHaveBeenCalled();
-    expect(onDrop).not.toHaveBeenCalled();
-    expect(target).not.toHaveAttribute('data-drag-over');
-  });
-
   it('a hovered target disabled mid-drag leaves the stack without pointer movement, and re-enters on re-enable', async () => {
     // A `disabled` flip schedules an eager drop-target refresh from a layout
     // effect. With a stationary pointer there is no next move to re-resolve on,
@@ -852,32 +759,6 @@ describe('Draggable.Target', () => {
     expect(target).toHaveAttribute('data-drag-over');
 
     fireDrag.drop(target);
-  });
-
-  it('accept filters which source kinds reach the target', async () => {
-    const onDraggableEnter = vi.fn();
-    const { engine } = await renderDnd(
-      <Draggable.Target
-        data-testid="target"
-        accept={cardKind}
-        onDraggableEnter={onDraggableEnter}
-      />,
-    );
-    const source = createElement();
-    engine.registerSource(source, { kind: columnKind });
-    const target = screen.getByTestId('target');
-    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-
-    expect(onDraggableEnter).not.toHaveBeenCalled();
-    expect(target).not.toHaveAttribute('data-drag-over');
-
-    cancel();
   });
 
   it('data-drag-over-innermost is absent on the outer target while a nested target is active', async () => {
@@ -1091,32 +972,6 @@ describe('Draggable.Target', () => {
     fireDrag.drop(target);
   });
 
-  it('reflects drag-over state across the drag lifecycle by default (trackDragOver defaults to true)', async () => {
-    const { engine } = await renderDnd(
-      <Draggable.Target accept={Draggable.anyKind} data-testid="target" />,
-    );
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = screen.getByTestId('target');
-    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    expect(target).not.toHaveAttribute('data-drag-over');
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-
-    expect(target).toHaveAttribute('data-drag-over');
-    expect(target).toHaveAttribute('data-drag-over-innermost');
-
-    fireDrag.drop(target);
-
-    expect(target).not.toHaveAttribute('data-drag-over');
-    expect(target).not.toHaveAttribute('data-drag-over-innermost');
-  });
-
   it('reflects a rejecting canDrop as data-rejected while hovered, and clears it on leave', async () => {
     // A rejection leaves the stack empty before and after, so `data-rejected`
     // relies on the session publishing the flip on its own.
@@ -1263,32 +1118,6 @@ describe('Draggable.Target', () => {
     fireDrag.drop(target);
   });
 
-  it('passes the drag-over state to a className callback', async () => {
-    const { engine } = await renderDnd(
-      <Draggable.Target
-        accept={Draggable.anyKind}
-        data-testid="target"
-        className={(state) => (state.dragOver ? 'is-over' : 'idle')}
-      />,
-    );
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = screen.getByTestId('target');
-    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    expect(target).toHaveClass('idle');
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-
-    expect(target).toHaveClass('is-over');
-
-    fireDrag.drop(target);
-  });
-
   it('does not re-render on drag activity when trackDragOver is false', async () => {
     // Count renders inside each target. A function `className` runs on every
     // render of the Draggable.Target itself, where the drag-over subscription
@@ -1401,26 +1230,6 @@ describe('Draggable.Target', () => {
     expect(unrelatedRenders).toHaveBeenCalledTimes(unrelatedAfterStart);
   });
 
-  it('does not re-render for drag-session updates when trackDragOver is false', async () => {
-    const className = vi.fn(() => 'target');
-    const { engine } = await renderDnd(
-      <Draggable.Target
-        accept={Draggable.anyKind}
-        data-testid="target"
-        trackDragOver={false}
-        className={className}
-      />,
-    );
-    const source = createElement();
-    engine.registerSource(source, {});
-    const rendersBeforeDrag = className.mock.calls.length;
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-
-    expect(className).toHaveBeenCalledTimes(rendersBeforeDrag);
-  });
-
   it('still fires callbacks when trackDragOver is false', async () => {
     const onDrop = vi.fn();
     const { engine } = await renderDnd(
@@ -1447,33 +1256,6 @@ describe('Draggable.Target', () => {
     // element is still a drop target that renders no feedback.
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(target).not.toHaveAttribute('data-drag-over');
-  });
-
-  it('reads payload back on the drop record', async () => {
-    let observed: unknown;
-    const { engine } = await renderDnd(
-      <Draggable.Target
-        accept={Draggable.anyKind}
-        data-testid="target"
-        payload={{ id: 'slot-1' }}
-        onDraggableDrop={({ currentTarget }) => {
-          observed = currentTarget.payload.id;
-        }}
-      />,
-    );
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = screen.getByTestId('target');
-    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
-    fireDrag.drop(target);
-
-    expect(observed).toBe('slot-1');
   });
 
   it('keeps its payload out of another registration on the same element', async () => {

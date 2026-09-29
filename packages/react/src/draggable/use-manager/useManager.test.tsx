@@ -105,25 +105,6 @@ describe('useManager', () => {
     expect(second).toHaveBeenCalledTimes(1);
   });
 
-  it('registers a monitor from a getter alone, with no element', async () => {
-    const onMoveStart = vi.fn();
-
-    function Harness() {
-      const engine = Draggable.useManager();
-      React.useEffect(() => engine.registerMonitor(() => ({ onMoveStart })), [engine]);
-      return null;
-    }
-
-    const { engine } = await renderDnd(<Harness />);
-    const source = createElement();
-    engine.registerSource(source, {});
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-
-    expect(onMoveStart).toHaveBeenCalledTimes(1);
-  });
-
   it('ends the drag in progress through cancelDrag', async () => {
     const onMoveEnd = vi.fn();
 

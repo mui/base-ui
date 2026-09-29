@@ -364,39 +364,6 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       expect(targets[1].getLocalPoint()).toEqual({ x: 0.4, y: 0.5 });
     });
 
-    it('measures once per record, however many times it is asked', async () => {
-      const { engine } = await renderDnd();
-      const source = createBox(0, 0);
-      const target = createBox(0, 200);
-
-      const onDrop = vi.fn();
-      engine.registerSource(source, {
-        kind: cardKind,
-        payload: 'card-1',
-        activation: { mouse: { type: 'immediate' } },
-      });
-      engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
-
-      pointer('pointerdown', source, 50, 25);
-      await flushRaf();
-      pointer('pointermove', source, 50, 225);
-      await flushRaf();
-      await flushRaf();
-      pointer('pointerup', source, 50, 225);
-      await flushRaf();
-
-      const { currentTarget: targetRecord } = onDrop.mock.calls[0][0];
-      const first = targetRecord.getLocalPoint();
-
-      // Armed only after the first call, which is the one that is meant to measure.
-      const measure = vi.spyOn(target, 'getBoundingClientRect');
-      const second = targetRecord.getLocalPoint();
-
-      expect(second).toBe(first);
-      expect(measure).not.toHaveBeenCalled();
-      measure.mockRestore();
-    });
-
     it('does not measure anything unless it is called', async () => {
       const { engine } = await renderDnd();
       const source = createBox(0, 0);

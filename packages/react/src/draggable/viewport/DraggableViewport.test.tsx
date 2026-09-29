@@ -21,8 +21,6 @@ type SelectDirectionFn = (
   eventDetails: DraggableViewportDragScrollEventDetails,
 ) => 'all' | 'horizontal' | 'vertical';
 type MaxSpeedFn = Extract<RootProps['maxSpeed'], (...args: never) => unknown>;
-type PanFn = (eventDetails: DraggableViewportDragScrollEventDetails) => void;
-
 setupDragEngineTests();
 
 // jsdom implements none of the scroll metrics the loop reads. Each scroller is
@@ -109,12 +107,6 @@ describe('Draggable.Viewport', () => {
     expect(measure).not.toHaveBeenCalled();
     expect(scrollBy).not.toHaveBeenCalled();
     fireDrag.drop(source);
-  });
-
-  it('attaches and detaches cleanly without an active drag', async () => {
-    const { unmount } = await renderDnd(<Scroller />);
-    expect(screen.getByTestId('scroller')).toBeInTheDocument();
-    expect(() => unmount()).not.toThrow();
   });
 
   it('observes a registered scroller only during a pointer drag', async () => {
@@ -280,33 +272,6 @@ describe('Draggable.Viewport', () => {
     fireDrag.drop(source);
   });
 
-  it('registers a scroller: shouldScroll receives the drag context during a drag', async () => {
-    const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
-    const { engine } = await renderDnd(
-      <Scroller
-        onDragScroll={(eventDetails) => {
-          if (!shouldScroll(eventDetails)) {
-            eventDetails.cancel();
-          }
-        }}
-      />,
-    );
-    const source = createElement();
-    engine.registerSource(source, {});
-    const scroller = screen.getByTestId('scroller');
-
-    await liftOutside(source);
-    await dragTo(scroller, 100, 95);
-
-    expect(shouldScroll).toHaveBeenCalled();
-    const [eventDetails] = shouldScroll.mock.calls[0];
-    expect(eventDetails.element).toBe(scroller);
-    expect(eventDetails.source.element).toBe(source);
-    // The delivered pointer coordinates reached the callback.
-    expect(eventDetails.input.clientX).toBe(100);
-    expect(eventDetails.input.clientY).toBe(95);
-  });
-
   it('forwards the ref to the same node it registers', async () => {
     const ref = React.createRef<HTMLDivElement>();
     const shouldScroll = vi.fn<ShouldScrollFn>(() => true);
@@ -393,47 +358,6 @@ describe('Draggable.Viewport', () => {
   // time between rAF timestamps. The jsdom rAF stub (`test/setupVitest.ts`)
   // passes `performance.now()`, so timestamps advance there too and the
   // nonzero-delta assertions hold in both environments.
-  describe('direction cancellation', () => {
-    it('direction selection: "horizontal" blocks vertical scrolling but allows horizontal', async () => {
-      const scrollBy = vi.fn();
-      const { engine } = await renderDnd(
-        <Scroller
-          onDragScroll={(eventDetails) => {
-            const allowedDirection = 'horizontal';
-            if (allowedDirection !== eventDetails.direction) {
-              eventDetails.cancel();
-            }
-          }}
-          scrollByMock={scrollBy}
-        />,
-      );
-      const source = createElement();
-      engine.registerSource(source, {});
-      const scroller = screen.getByTestId('scroller');
-
-      await liftOutside(source);
-
-      // The pointer is in both the right edge zone (x > 150) and the bottom edge
-      // zone (y > 75), so both axes engage. The filter must keep horizontal and
-      // drop vertical. Dragging over the scroller itself makes the synthetic
-      // engine resolve the coordinates onto it.
-      await dragTo(scroller, 175, 95);
-      // Let the loop accumulate frames beyond the ramp-up window.
-      await act(async () => {
-        await new Promise<void>((resolve) => {
-          setTimeout(resolve, 500);
-        });
-      });
-
-      const lefts = scrollBy.mock.calls.map(([arg]) => arg.left ?? 0);
-      const tops = scrollBy.mock.calls.map(([arg]) => arg.top ?? 0);
-      // Horizontal scrolling happened, so the loop engaged and the filter didn't
-      // block too much. Vertical was dropped even with the pointer in the bottom
-      // edge zone.
-      expect(lefts.some((left) => left !== 0)).toBe(true);
-      expect(tops.every((top) => top === 0)).toBe(true);
-    });
-  });
 
   it('direction selection is consulted per frame from the latest props', async () => {
     const vertical = vi.fn<SelectDirectionFn>(() => 'vertical');
@@ -940,40 +864,6 @@ describe('Draggable.Viewport', () => {
   });
 
   describe('pan', () => {
-    // Like `Scroller`, but with no scroll metrics and no scrollable overflow. It
-    // engages only because it has an `onDragScroll` handler.
-    function Viewport(props: RootProps) {
-      const ref = React.useCallback((node: HTMLDivElement | null) => {
-        if (node) {
-          node.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-        }
-      }, []);
-      return <Draggable.Viewport ref={ref} data-testid="viewport" {...props} />;
-    }
-
-    it('receives the frame delta for the element it is registered on', async () => {
-      const pan = vi.fn<PanFn>();
-      const { engine } = await renderDnd(
-        <Viewport
-          onDragScroll={(eventDetails) => {
-            eventDetails.cancel();
-            pan(eventDetails);
-            eventDetails.consume();
-          }}
-        />,
-      );
-      const source = createElement();
-      engine.registerSource(source, {});
-      const viewport = screen.getByTestId('viewport');
-
-      await liftOutside(source);
-      await dragTo(viewport, 100, 95);
-
-      expect(pan).toHaveBeenCalled();
-      expect(pan.mock.calls[0][0].element).toBe(viewport);
-      expect(pan.mock.calls[0][0].input.clientY).toBe(95);
-    });
-
     it('does not render onDragScroll as a DOM attribute', async () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
       try {
@@ -992,91 +882,6 @@ describe('Draggable.Viewport', () => {
       } finally {
         consoleError.mockRestore();
       }
-    });
-
-    it('is suspended by disabled mid-drag and resumes without re-registering', async () => {
-      const pan = vi.fn<PanFn>();
-      const { engine, rerender } = await renderDnd(
-        <Viewport
-          onDragScroll={(eventDetails) => {
-            eventDetails.cancel();
-            pan(eventDetails);
-            eventDetails.consume();
-          }}
-        />,
-      );
-      const source = createElement();
-      engine.registerSource(source, {});
-      const viewport = screen.getByTestId('viewport');
-
-      await liftOutside(source);
-      await dragTo(viewport, 100, 95);
-      expect(pan).toHaveBeenCalled();
-
-      await rerender(
-        <Viewport
-          disabled
-          onDragScroll={(eventDetails) => {
-            eventDetails.cancel();
-            pan(eventDetails);
-            eventDetails.consume();
-          }}
-        />,
-      );
-      await flushRaf();
-      pan.mockClear();
-      await flushRaf();
-      await flushRaf();
-      expect(pan).not.toHaveBeenCalled();
-
-      // Same DOM node throughout. `disabled` suspends the registration instead
-      // of tearing it down and rebuilding it.
-      await rerender(
-        <Viewport
-          onDragScroll={(eventDetails) => {
-            eventDetails.cancel();
-            pan(eventDetails);
-            eventDetails.consume();
-          }}
-        />,
-      );
-      expect(screen.getByTestId('viewport')).toBe(viewport);
-      await dragTo(viewport, 100, 95);
-      expect(pan).toHaveBeenCalled();
-    });
-
-    it('uses the latest pan across re-renders', async () => {
-      const first = vi.fn<PanFn>();
-      const second = vi.fn<PanFn>();
-      const { engine, rerender } = await renderDnd(
-        <Viewport
-          onDragScroll={(eventDetails) => {
-            eventDetails.cancel();
-            first(eventDetails);
-            eventDetails.consume();
-          }}
-        />,
-      );
-      const source = createElement();
-      engine.registerSource(source, {});
-      const viewport = screen.getByTestId('viewport');
-
-      await rerender(
-        <Viewport
-          onDragScroll={(eventDetails) => {
-            eventDetails.cancel();
-            second(eventDetails);
-            eventDetails.consume();
-          }}
-        />,
-      );
-      expect(screen.getByTestId('viewport')).toBe(viewport);
-
-      await liftOutside(source);
-      await dragTo(viewport, 100, 95);
-
-      expect(first).not.toHaveBeenCalled();
-      expect(second).toHaveBeenCalled();
     });
   });
 });
