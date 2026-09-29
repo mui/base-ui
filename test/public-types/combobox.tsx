@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Combobox, type ComboboxItemCollection } from '@base-ui/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
+import type { ComboboxItemCollection } from '@base-ui/react/combobox';
 
 interface User {
   id: number;

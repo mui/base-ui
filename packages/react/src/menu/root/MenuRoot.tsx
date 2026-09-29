@@ -18,27 +18,25 @@ import {
 } from '../../floating-ui-react';
 import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
-import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
+import type { MenubarContext } from '../../menubar/MenubarContext';
+import { useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import {
-  ContextMenuRootContext,
-  useContextMenuRootContext,
-} from '../../context-menu/root/ContextMenuRootContext';
+import type { ContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
-import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
-import { MenuHandle } from '../store/MenuHandle';
+import { MenuStore } from '../store/MenuStore';
+import type { State as MenuStoreState } from '../store/MenuStore';
+import type { MenuHandle } from '../store/MenuHandle';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 import {
   attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
-  PayloadChildRenderFunction,
   createPopupOpenState,
   PopupHandleAttachment,
   useImplicitActiveTrigger,
@@ -351,6 +349,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       const nativeEvent = eventDetails.event as Event;
       if (
         nextOpen === false &&
+        reason !== REASONS.itemPress &&
         nativeEvent?.type === 'click' &&
         (nativeEvent as PointerEvent).pointerType === 'touch' &&
         !allowTouchToCloseRef.current

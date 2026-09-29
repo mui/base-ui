@@ -1,7 +1,8 @@
 import { expect, vi, describe, beforeAll, afterAll, it } from 'vitest';
 import * as React from 'react';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import type { TextDirection } from '@base-ui/react/direction-provider';
 import { Field } from '@base-ui/react/field';
 import { Slider } from '@base-ui/react/slider';
 import { Form } from '@base-ui/react/form';
@@ -3416,6 +3417,93 @@ describe('<Slider.Root />', () => {
       fireEvent.blur(input);
 
       expect(root).not.toHaveAttribute('data-focused');
+    });
+
+    describe('[data-focused] without a blur event', () => {
+      function Thumbs(props: {
+        firstMounted?: boolean;
+        firstDisabled?: boolean;
+        rangeValue?: boolean;
+      }) {
+        const { firstMounted = true, firstDisabled = false, rangeValue = false } = props;
+        return (
+          <Field.Root data-testid="root">
+            <Slider.Root defaultValue={rangeValue ? [20, 40] : 20}>
+              <Slider.Control>
+                {firstMounted && <Slider.Thumb disabled={firstDisabled} />}
+                {rangeValue && <Slider.Thumb />}
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused thumb becomes disabled', async () => {
+        const { setProps } = await render(<Thumbs />);
+
+        act(() => {
+          screen.getByRole('slider').focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused thumb unmounts', async () => {
+        const { setProps } = await render(<Thumbs />);
+
+        act(() => {
+          screen.getByRole('slider').focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      });
+
+      // A thumb's `blur` deliberately does nothing when focus moves to a sibling thumb, so a thumb
+      // that once held focus must not assume it still owns the field's focused state.
+      it('is kept when focus moved to a sibling before the first thumb is disabled', async () => {
+        const { setProps } = await render(<Thumbs rangeValue />);
+
+        const [first, second] = screen.getAllByRole('slider');
+
+        act(() => {
+          first.focus();
+        });
+        act(() => {
+          second.focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      });
+
+      it('is kept when a sibling thumb is disabled or unmounted', async () => {
+        const { setProps } = await render(<Thumbs rangeValue />);
+
+        act(() => {
+          screen.getAllByRole('slider')[1].focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      });
     });
 
     describe('prop: validate', () => {

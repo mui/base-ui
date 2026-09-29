@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
-import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
+import { AriaCombobox } from '../../combobox/root/AriaCombobox';
+import type { AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
+import { stringifyAsLabel } from '../../internals/resolveValueLabel';
+import type { Group } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
 
 /**

@@ -1,10 +1,10 @@
 import type { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootContext } from '../../floating-ui-react';
 import { FloatingRootStore } from '../../floating-ui-react/components/FloatingRootStore';
-import { TransitionStatus } from '../../internals/useTransitionStatus';
-import { PopupTriggerMap } from './popupTriggerMap';
-import { HTMLProps } from '../../internals/types';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { PopupTriggerMap } from './popupTriggerMap';
+import type { HTMLProps } from '../../internals/types';
 
 /**
  * State common to all popup stores.

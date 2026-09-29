@@ -11,7 +11,7 @@ import {
 import { isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
-import { type CompositeMetadata } from '../list/CompositeList';
+import type { CompositeMetadata } from '../list/CompositeList';
 import { useCompositeListItem } from '../list/useCompositeListItem';
 import { CompositeRoot } from './CompositeRoot';
 import { gridNavigation } from './gridNavigation';

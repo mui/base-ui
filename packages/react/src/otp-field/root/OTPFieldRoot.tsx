@@ -23,8 +23,10 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { OTPFieldRootContext } from './OTPFieldRootContext';
@@ -33,8 +35,8 @@ import {
   getOTPValidationConfig,
   normalizeOTPValue,
   normalizeOTPValueWithDetails,
-  type OTPValidationType,
 } from '../utils/otp';
+import type { OTPValidationType } from '../utils/otp';
 
 /**
  * Groups all OTP field parts and manages their state.
@@ -83,7 +85,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     state: fieldState,
     validation,
     validationMode,
-    setFocused,
+    setFocused: setFieldFocused,
     setTouched,
   } = useFieldRootContext();
   const { clearErrors } = useFormContext();
@@ -277,8 +279,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       }
 
       setFocusedIndex(index);
-      setFocusedState(true);
-      setFocused(true);
       event.currentTarget.select();
     },
   );
@@ -290,7 +290,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
     setTouched(true);
     setFocusedState(false);
-    setFocused(false);
+    setFieldFocused(false);
 
     if (validationMode === 'onBlur') {
       validation.commit(valueRef.current);
@@ -345,6 +345,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       required,
       normalizeValue,
       setValue,
+      setFocused: setFocusedState,
       state,
       validationType,
       value,
@@ -370,6 +371,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       required,
       normalizeValue,
       setValue,
+      setFocusedState,
       state,
       validationType,
       value,

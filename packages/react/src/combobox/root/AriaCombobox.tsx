@@ -11,8 +11,8 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import type { ElementProps } from '../../floating-ui-react';
 import {
-  ElementProps,
   getOverflowAncestors,
   useDismiss,
   useFloatingRootContext,
@@ -25,8 +25,10 @@ import { closest, contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-  type BaseUIChangeEventDetails,
-  type BaseUIGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -36,13 +38,15 @@ import {
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
-import { selectors, type ComboboxStoreContext, type State as StoreState } from '../store';
+import { selectors } from '../store';
+import type { ComboboxStoreContext, State as StoreState } from '../store';
 import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import { createCollatorItemFilter, type FilterItemToString } from './utils';
+import { createCollatorItemFilter } from './utils';
+import type { FilterItemToString } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -52,10 +56,10 @@ import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
+import type { Group } from '../../internals/resolveValueLabel';
 import {
   stringifyAsLabel,
   stringifyAsValue,
-  Group,
   flattenLeafItems,
   isGroupedItems,
 } from '../../internals/resolveValueLabel';
@@ -70,11 +74,8 @@ import {
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import {
-  findCollectionItem,
-  type ComboboxItemCollection,
-  type ItemCollection,
-} from '../items/itemCollection';
+import { findCollectionItem } from '../items/itemCollection';
+import type { ComboboxItemCollection, ItemCollection } from '../items/itemCollection';
 
 type InternalAriaComboboxProps<Value, Mode extends SelectionMode, Item = Value> = AriaComboboxProps<
   Value,

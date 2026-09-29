@@ -8,7 +8,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { script as prehydrationScript } from '#prehydration/slider/thumb';
 import { clamp } from '@base-ui/utils/clamp';
 import { formatNumber } from '@base-ui/utils/formatNumber';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';
@@ -29,6 +29,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { contains } from '../../floating-ui-react/utils';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -150,10 +151,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const vertical = orientation === 'vertical';
   const rtl = direction === 'rtl';
 
-  const { setTouched, setFocused, validationMode } = useFieldRootContext();
+  const { setTouched, validationMode } = useFieldRootContext();
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const setFocused = useSetFieldFocused(disabled, inputRef);
   const restoringFocusVisibleRef = React.useRef(false);
 
   // Attached to the `input` (not the thumb wrapper) so `event.currentTarget` is the

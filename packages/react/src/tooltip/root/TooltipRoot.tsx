@@ -5,21 +5,20 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-react';
-import {
-  type BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import {
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
-  type PayloadChildRenderFunction,
 } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
-import { TooltipStore, type State as TooltipStoreState } from '../store/TooltipStore';
-import { type TooltipHandle } from '../store/TooltipHandle';
+import { TooltipStore } from '../store/TooltipStore';
+import type { State as TooltipStoreState } from '../store/TooltipStore';
+import type { TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../internals/reasons';
 
 /**

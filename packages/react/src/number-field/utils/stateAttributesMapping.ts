@@ -1,4 +1,4 @@
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 

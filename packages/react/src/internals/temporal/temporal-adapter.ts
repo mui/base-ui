@@ -1,4 +1,4 @@
-import { TemporalTimezone, TemporalSupportedObject, TemporalSupportedValue } from './temporal';
+import type { TemporalTimezone, TemporalSupportedObject, TemporalSupportedValue } from './temporal';
 
 export interface TemporalAdapterFormats {
   /**

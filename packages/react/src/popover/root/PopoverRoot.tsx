@@ -3,12 +3,11 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
-import { PopoverHandle } from '../store/PopoverHandle';
-import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { PopoverStore } from '../store/PopoverStore';
+import type { State as PopoverStoreState } from '../store/PopoverStore';
+import type { PopoverHandle } from '../store/PopoverHandle';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
   PopupHandleAttachment,
@@ -17,8 +16,8 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
-  type PayloadChildRenderFunction,
 } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 
 const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload>({
   props,
