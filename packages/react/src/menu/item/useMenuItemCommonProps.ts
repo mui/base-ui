@@ -5,6 +5,7 @@ import type { HTMLProps } from '../../internals/types';
 import type { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { useMenuRootContext } from '../root/MenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
@@ -45,10 +46,6 @@ export interface UseMenuItemCommonPropsParameters {
    * Metadata for checking item type before triggering click.
    */
   itemMetadata: UseMenuItemMetadata;
-  /** See `UseMenuItemParameters['virtualFocus']`. */
-  virtualFocus?: boolean | undefined;
-  /** See `UseMenuItemParameters['webkitItemSelected']`. */
-  webkitItemSelected?: boolean | undefined;
 }
 
 /**
@@ -56,20 +53,17 @@ export interface UseMenuItemCommonPropsParameters {
  * This hook extracts the shared logic for id, role, tabIndex, and interaction handlers.
  */
 export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters): HTMLProps {
-  const {
-    closeOnClick,
-    highlighted,
-    id,
-    nodeId,
-    store,
-    typingRef,
-    itemRef,
-    itemMetadata,
-    virtualFocus = false,
-    webkitItemSelected = false,
-  } = params;
+  const { closeOnClick, highlighted, id, nodeId, store, typingRef, itemRef, itemMetadata } = params;
 
+  const rootContext = useMenuRootContext();
   const contextMenuContext = useContextMenuRootContext(true);
+
+  // A submenu trigger is an item of the parent menu's list, so it follows that list's focus model.
+  const isSubmenuTrigger = itemMetadata.type === 'submenu-trigger';
+  const virtualFocus = isSubmenuTrigger ? rootContext.parentVirtualFocus : rootContext.virtualFocus;
+  const webkitItemSelected = isSubmenuTrigger
+    ? rootContext.parentWebkitItemSelected
+    : rootContext.webkitItemSelected;
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const open = store.useState('open');

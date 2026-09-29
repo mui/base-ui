@@ -27,7 +27,7 @@ const MenuLinkItemPlain = React.forwardRef(function MenuLinkItemPlain(
   } = componentProps;
 
   const menuPositionerContext = useMenuPositionerContext(true);
-  const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const { store } = useMenuRootContext();
 
   const linkRef = React.useRef<HTMLAnchorElement | null>(null);
 
@@ -54,8 +54,6 @@ const MenuLinkItemPlain = React.forwardRef(function MenuLinkItemPlain(
     typingRef,
     itemRef: linkRef,
     itemMetadata: REGULAR_ITEM,
-    virtualFocus,
-    webkitItemSelected,
   });
 
   function getItemProps(externalProps?: HTMLProps): HTMLProps {

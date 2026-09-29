@@ -22,8 +22,6 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     nativeButton,
     itemMetadata,
     nodeId,
-    virtualFocus = false,
-    webkitItemSelected = false,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
@@ -44,8 +42,6 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     typingRef,
     itemRef,
     itemMetadata,
-    virtualFocus,
-    webkitItemSelected,
   });
 
   const getItemProps = React.useCallback(
@@ -120,16 +116,6 @@ export interface UseMenuItemParameters {
    * @default store.context.typingRef
    */
   typingRef?: React.RefObject<boolean> | undefined;
-  /**
-   * Whether the containing list uses virtual focus.
-   * @default false
-   */
-  virtualFocus?: boolean | undefined;
-  /**
-   * Whether items should expose `aria-selected`. Resolved once per menu root.
-   * @default false
-   */
-  webkitItemSelected?: boolean | undefined;
 }
 
 export type UseMenuItemMetadata =

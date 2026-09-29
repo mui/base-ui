@@ -33,7 +33,7 @@ const MenuRadioItemPlain = React.forwardRef(function MenuRadioItemPlain(
   } = componentProps;
 
   const menuPositionerContext = useMenuPositionerContext(true);
-  const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const { store } = useMenuRootContext();
   const {
     value: selectedValue,
     setValue: setSelectedValue,
@@ -59,8 +59,6 @@ const MenuRadioItemPlain = React.forwardRef(function MenuRadioItemPlain(
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
-    virtualFocus,
-    webkitItemSelected,
   });
 
   const state: MenuRadioItemState = React.useMemo(

@@ -35,7 +35,7 @@ const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItemPlain(
   } = componentProps;
 
   const menuPositionerContext = useMenuPositionerContext(true);
-  const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const { store } = useMenuRootContext();
 
   const listItem = useCompositeListItem({ guess: true, label });
   const id = useBaseUiId(idProp);
@@ -55,8 +55,6 @@ const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItemPlain(
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
-    virtualFocus,
-    webkitItemSelected,
   });
 
   const state: MenuCheckboxItemState = React.useMemo(

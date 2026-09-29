@@ -26,7 +26,7 @@ const MenuItemPlain = React.forwardRef(function MenuItemPlain(
   } = componentProps;
 
   const menuPositionerContext = useMenuPositionerContext(true);
-  const { store, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const { store } = useMenuRootContext();
 
   const listItem = useCompositeListItem({ guess: true, label });
   const id = useBaseUiId(idProp);
@@ -46,8 +46,6 @@ const MenuItemPlain = React.forwardRef(function MenuItemPlain(
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
-    virtualFocus,
-    webkitItemSelected,
   });
 
   const state: MenuItemState = {
