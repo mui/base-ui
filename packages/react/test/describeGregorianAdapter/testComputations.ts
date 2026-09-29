@@ -855,4 +855,16 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
   it('Method: getWeekNumber', () => {
     expect(adapter.getWeekNumber(testDateIso)).toBe(44);
   });
+
+  it('Method: isWeekend', () => {
+    // Tuesday
+    expect(adapter.isWeekend(testDateIso)).toBe(false);
+    expect(adapterFr.isWeekend(testDateIso)).toBe(false);
+
+    // Saturday and Sunday
+    expect(adapter.isWeekend(adapter.addDays(testDateIso, 4))).toBe(true);
+    expect(adapter.isWeekend(adapter.addDays(testDateIso, 5))).toBe(true);
+    expect(adapterFr.isWeekend(adapterFr.addDays(testDateIso, 4))).toBe(true);
+    expect(adapterFr.isWeekend(adapterFr.addDays(testDateIso, 5))).toBe(true);
+  });
 };

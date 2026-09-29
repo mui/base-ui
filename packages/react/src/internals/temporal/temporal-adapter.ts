@@ -384,4 +384,8 @@ export interface TemporalAdapter {
    * The value is 1-based, 1 - first day of the week, 7 - last day of the week.
    */
   getDayOfWeek(value: TemporalSupportedObject): number;
+  /**
+   * Checks if the given date is a weekend day in the locale of the adapter.
+   */
+  isWeekend(value: TemporalSupportedObject): boolean;
 }

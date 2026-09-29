@@ -94,6 +94,32 @@ const FORMATS: TemporalAdapterFormats = {
   localizedNumericDate: 'P', // Note: Day and month are padded on enUS unlike Luxon
 };
 
+// Day numbers follow Intl.Locale week info: 1 is Monday, 7 is Sunday.
+const DEFAULT_WEEKEND_DAYS = [6, 7];
+
+interface LocaleWithWeekInfo {
+  getWeekInfo?: (() => { weekend: number[] }) | undefined;
+  // Older engines expose the week info as an accessor property.
+  weekInfo?: { weekend: number[] } | undefined;
+}
+
+// date-fns locales don't contain weekend data, so it's read from Intl.
+// Falls back to Saturday and Sunday on engines without week info support.
+function getWeekendDays(localeCode: string | undefined): number[] {
+  if (localeCode == null || typeof Intl.Locale !== 'function') {
+    return DEFAULT_WEEKEND_DAYS;
+  }
+
+  try {
+    const locale = new Intl.Locale(localeCode) as Intl.Locale & LocaleWithWeekInfo;
+    const weekInfo =
+      typeof locale.getWeekInfo === 'function' ? locale.getWeekInfo() : locale.weekInfo;
+    return weekInfo?.weekend ?? DEFAULT_WEEKEND_DAYS;
+  } catch {
+    return DEFAULT_WEEKEND_DAYS;
+  }
+}
+
 declare module '@base-ui/react/internals/temporal' {
   interface TemporalSupportedObjectLookup {
     'date-fns': Date;
@@ -106,6 +132,8 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
   public lib = 'date-fns';
 
   private locale: DateFnsLocale;
+
+  private weekendDays: number[] | null = null;
 
   public formats = FORMATS;
 
@@ -461,6 +489,15 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
   public getDayOfWeek = (value: Date) => {
     const weekStartsOn = this.locale.options?.weekStartsOn ?? 0;
     return ((getDay(value) + 7 - weekStartsOn) % 7) + 1;
+  };
+
+  public isWeekend = (value: Date) => {
+    if (this.weekendDays === null) {
+      this.weekendDays = getWeekendDays(this.locale.code);
+    }
+
+    const day = getDay(value);
+    return this.weekendDays.includes(day === 0 ? 7 : day);
   };
 }
 
