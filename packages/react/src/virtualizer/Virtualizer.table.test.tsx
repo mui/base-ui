@@ -1,7 +1,13 @@
 import * as React from 'react';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, createDOMRect, isJSDOM, setElementClientHeight } from '#test-utils';
+import {
+  createRenderer,
+  createDOMRect,
+  isJSDOM,
+  resetBrowserPointer,
+  setElementClientHeight,
+} from '#test-utils';
 import { Virtualizer } from './Virtualizer';
 
 interface TestRow {
@@ -329,6 +335,9 @@ describe('<Virtualizer /> table layout', () => {
   });
 
   describe.skipIf(isJSDOM)('in a laid-out table', () => {
+    // A pointer an earlier test file left resting where the scroller renders interferes with the
+    // scrolling these tests measure.
+    beforeEach(resetBrowserPointer);
     beforeEach(() => {
       vi.restoreAllMocks();
     });
