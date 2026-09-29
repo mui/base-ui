@@ -391,8 +391,12 @@ describe('<FilterDropdown.Root />', () => {
 });
 
 function TestFilterDropdownRoot(
-  props: Omit<React.ComponentProps<typeof FilterDropdown.Root>, 'listRef'>,
+  props: Omit<React.ComponentProps<typeof FilterDropdown.Root>, 'listRef' | 'getActiveIndex'>,
 ) {
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  return <FilterDropdown.Root {...props} listRef={listRef} />;
+  return <FilterDropdown.Root {...props} listRef={listRef} getActiveIndex={getNoActiveIndex} />;
+}
+
+function getNoActiveIndex() {
+  return null;
 }

@@ -118,6 +118,7 @@ function ControlledFilterDropdownRoot(props: ControlledFilterDropdownRootProps) 
       open
       value={value}
       listRef={listRef}
+      getActiveIndex={getNoActiveIndex}
       onValueChange={(nextValue, eventDetails) => {
         onValueChange?.(nextValue, eventDetails);
         setValue(nextValue);
@@ -126,4 +127,8 @@ function ControlledFilterDropdownRoot(props: ControlledFilterDropdownRootProps) 
       {children}
     </FilterDropdown.Root>
   );
+}
+
+function getNoActiveIndex() {
+  return null;
 }

@@ -600,6 +600,9 @@ describe('closing a filtered submenu from the keyboard', () => {
 
       await act(async () => screen.getByRole('button', { name: 'Actions' }).focus());
       await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+      });
       await user.keyboard('[ArrowRight]');
       const trigger = screen.getByRole('menuitem', { name: 'More' });
       await waitFor(() => {
