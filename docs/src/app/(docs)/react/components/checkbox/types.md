@@ -176,6 +176,7 @@ type CheckboxIndicatorState = {
 ### PaintSelectionProvider
 
 Enables painting checkboxes with a mouse or pen in the checkbox group it wraps.
+Dragging back to an earlier checkbox restores the items beyond it to their original state.
 Touch gestures retain native scrolling.
 Doesn't render its own HTML element.
 

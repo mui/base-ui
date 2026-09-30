@@ -142,7 +142,7 @@ import { DemoCheckboxGroupNested } from './demos/nested';
 ### Paint selection
 
 Wrap `<CheckboxGroup>` in `<Checkbox.PaintSelectionProvider>` to enable paint selection.
-Press a checkbox with a mouse or pen, then drag across other checkboxes to apply the same checked state. Starting on a checked checkbox clears the painted items. Moving back over an item leaves its state unchanged.
+Press a checkbox with a mouse or pen, then drag across other checkboxes to apply the same checked state. Starting on a checked checkbox clears the painted items. Dragging back to an earlier checkbox restores the items beyond it to their original state.
 
 Painting stays within the same group and skips disabled and read-only checkboxes. Parent checkboxes do not participate.
 Touch gestures retain native scrolling. Clicking and keyboard selection continue to work normally.

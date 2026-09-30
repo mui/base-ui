@@ -3,7 +3,10 @@ import * as React from 'react';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { PaintSelectionController } from '../../internals/paint-selection/PaintSelectionController';
+import {
+  PaintSelectionController,
+  type PaintSelectionChange,
+} from '../../internals/paint-selection/PaintSelectionController';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import {
   CheckboxGroupPaintSelectionContext,
@@ -14,6 +17,7 @@ import {
 
 /**
  * Enables painting checkboxes with a mouse or pen in the checkbox group it wraps.
+ * Dragging back to an earlier checkbox restores the items beyond it to their original state.
  * Touch gestures retain native scrolling.
  * Doesn't render its own HTML element.
  *
@@ -43,14 +47,14 @@ function CheckboxGroupPaintSelection(props: { disabled: boolean; children: React
   const { disabled, children } = props;
   const group = useCheckboxGroupContext();
   const paint = useStableCallback(
-    (items: CheckboxPaintItem[], checked: boolean, event: PointerEvent) => {
+    (changes: PaintSelectionChange<CheckboxPaintItem>[], event: PointerEvent) => {
       if (!group) {
         return;
       }
       // Reconcile controlled state before each batch, then accumulate changes within that batch.
       group.valueRef.current = group.value;
       try {
-        for (const item of items) {
+        for (const { item, checked } of changes) {
           item.setChecked(checked, event);
         }
       } finally {

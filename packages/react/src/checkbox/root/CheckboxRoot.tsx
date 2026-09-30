@@ -250,6 +250,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       : undefined;
   const getPaintState = useStableCallback(() => ({
     checked: computedChecked && !computedIndeterminate,
+    selected: computedChecked,
     disabled: Boolean(disabled || readOnly),
   }));
   const paintChecked = useStableCallback((nextChecked: boolean, event: PointerEvent) => {

@@ -5,7 +5,13 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 export interface PaintSelectionItem {
   /** Logical identity, independent of recycled DOM nodes. */
   id: unknown;
-  getState: () => { checked: boolean; disabled: boolean };
+  /** `selected` preserves the model value when the checkbox display is mixed or derived. */
+  getState: () => { checked: boolean; selected: boolean; disabled: boolean };
+}
+
+export interface PaintSelectionChange<Item> {
+  item: Item;
+  checked: boolean;
 }
 
 type Point = { x: number; y: number };
@@ -16,7 +22,11 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
   private cleanup: (() => void) | undefined;
 
   constructor(
-    private readonly paint: (items: Item[], checked: boolean, event: PointerEvent) => void,
+    private readonly paint: (
+      changes: PaintSelectionChange<Item>[],
+      event: PointerEvent,
+      anchor: Item,
+    ) => void,
   ) {}
 
   register(element: HTMLElement, item: Item) {
@@ -48,7 +58,9 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
     const doc = ownerDocument(element);
     const win = ownerWindow(element);
     const checked = !first.getState().checked;
-    const visited = new Set<unknown>();
+    const initialSelection = new Map<unknown, boolean>();
+    const trail: Item[] = [];
+    const trailIndices = new Map<unknown, number>();
     const origin = { x: event.clientX, y: event.clientY };
     let previous = origin;
     let painting = false;
@@ -101,35 +113,61 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
       if (!painting && Math.hypot(point.x - origin.x, point.y - origin.y) < 4) {
         return;
       }
-      if (!painting) {
+      const starting = !painting;
+      if (starting) {
         painting = true;
         element.focus({ preventScroll: true });
       }
       nativeEvent.preventDefault();
-      const crossed: Item[] = [];
-      const add = (item: Item) => {
-        if (!visited.has(item.id) && !item.getState().disabled) {
-          visited.add(item.id);
-          crossed.push(item);
+      const changes = new Map<unknown, PaintSelectionChange<Item>>();
+      const visit = (item: Item) => {
+        const index = trailIndices.get(item.id);
+        if (index === undefined) {
+          trailIndices.set(item.id, trail.length);
+          trail.push(item);
+          changes.set(item.id, { item, checked });
+        } else {
+          for (const removed of trail.splice(index + 1)) {
+            trailIndices.delete(removed.id);
+            const original = initialSelection.get(removed.id);
+            if (original !== undefined && !removed.getState().disabled) {
+              changes.set(removed.id, { item: removed, checked: original });
+            }
+          }
         }
       };
-      if (first && self.items.get(element) === first && element.isConnected) {
-        add(first);
+      if (
+        starting &&
+        first &&
+        self.items.get(element) === first &&
+        element.isConnected &&
+        !first.getState().disabled
+      ) {
+        initialSelection.set(first.id, first.getState().selected);
+        visit(first);
       }
+      const clippingBounds = new Map<HTMLElement, DOMRect>();
+      const crossed: { item: Item; hit: Point }[] = [];
       for (const [node, item] of self.items) {
-        if (
-          !node.isConnected ||
-          ownerDocument(node) !== doc ||
-          visited.has(item.id) ||
-          item.getState().disabled
-        ) {
+        if (!node.isConnected || ownerDocument(node) !== doc) {
+          continue;
+        }
+        const index = trailIndices.get(item.id);
+        if (index !== undefined) {
+          trail[index] = item;
+        }
+        const state = item.getState();
+        if (starting || !initialSelection.has(item.id)) {
+          initialSelection.set(item.id, state.selected);
+        }
+        if (state.disabled) {
           continue;
         }
         const rect = node.getBoundingClientRect();
         if (!intersect(previous, point, rect)) {
           continue;
         }
-        const hit = intersect(previous, point, getVisibleRect(node, rect));
+        const hit = intersect(previous, point, getVisibleRect(node, rect, clippingBounds));
         if (!hit) {
           continue;
         }
@@ -137,12 +175,22 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
         const nodeRoot = node.getRootNode() as Document | ShadowRoot;
         const target = nodeRoot.elementFromPoint(hit.x, hit.y);
         if (target && contains(node, target)) {
-          add(item);
+          crossed.push({ item, hit });
+        }
+      }
+      // Registration order can differ from the order the pointer crosses the checkboxes.
+      const distance = (hit: Point) => (hit.x - previous.x) ** 2 + (hit.y - previous.y) ** 2;
+      crossed.sort((a, b) => distance(a.hit) - distance(b.hit));
+      const seen = new Set<unknown>();
+      for (const { item } of crossed) {
+        if (!seen.has(item.id)) {
+          seen.add(item.id);
+          visit(item);
         }
       }
       previous = point;
-      if (crossed.length) {
-        self.paint(crossed, checked, nativeEvent);
+      if (changes.size) {
+        self.paint([...changes.values()], nativeEvent, trail[trail.length - 1]);
       }
     }
     function up(nativeEvent: PointerEvent) {
@@ -203,7 +251,11 @@ function intersect(a: Point, b: Point, rect: DOMRect): Point | null {
 }
 
 /** Clip the hit area before sampling it so partly visible checkboxes remain paintable. */
-function getVisibleRect(node: HTMLElement, rect: DOMRect): DOMRect {
+function getVisibleRect(
+  node: HTMLElement,
+  rect: DOMRect,
+  clippingBounds: Map<HTMLElement, DOMRect>,
+): DOMRect {
   const win = ownerWindow(node);
   let left = Math.max(0, rect.left);
   let top = Math.max(0, rect.top);
@@ -213,20 +265,28 @@ function getVisibleRect(node: HTMLElement, rect: DOMRect): DOMRect {
     if (!isHTMLElement(ancestor)) {
       continue;
     }
-    const bounds = ancestor.getBoundingClientRect();
-    const style = win.getComputedStyle(ancestor);
-    const scaleX = ancestor.offsetWidth ? bounds.width / ancestor.offsetWidth : 1;
-    const scaleY = ancestor.offsetHeight ? bounds.height / ancestor.offsetHeight : 1;
-    const x = bounds.left + ancestor.clientLeft * scaleX;
-    const y = bounds.top + ancestor.clientTop * scaleY;
-    if (/auto|scroll|hidden|clip/.test(style.overflowX)) {
-      left = Math.max(left, x);
-      right = Math.min(right, x + ancestor.clientWidth * scaleX);
+    let clip = clippingBounds.get(ancestor);
+    if (!clip) {
+      const bounds = ancestor.getBoundingClientRect();
+      const style = win.getComputedStyle(ancestor);
+      const scaleX = ancestor.offsetWidth ? bounds.width / ancestor.offsetWidth : 1;
+      const scaleY = ancestor.offsetHeight ? bounds.height / ancestor.offsetHeight : 1;
+      const x = bounds.left + ancestor.clientLeft * scaleX;
+      const y = bounds.top + ancestor.clientTop * scaleY;
+      const clipX = /auto|scroll|hidden|clip/.test(style.overflowX);
+      const clipY = /auto|scroll|hidden|clip/.test(style.overflowY);
+      clip = new win.DOMRect(
+        clipX ? x : 0,
+        clipY ? y : 0,
+        clipX ? ancestor.clientWidth * scaleX : win.innerWidth,
+        clipY ? ancestor.clientHeight * scaleY : win.innerHeight,
+      );
+      clippingBounds.set(ancestor, clip);
     }
-    if (/auto|scroll|hidden|clip/.test(style.overflowY)) {
-      top = Math.max(top, y);
-      bottom = Math.min(bottom, y + ancestor.clientHeight * scaleY);
-    }
+    left = Math.max(left, clip.left);
+    right = Math.min(right, clip.right);
+    top = Math.max(top, clip.top);
+    bottom = Math.min(bottom, clip.bottom);
   }
   return new win.DOMRect(left, top, Math.max(0, right - left), Math.max(0, bottom - top));
 }

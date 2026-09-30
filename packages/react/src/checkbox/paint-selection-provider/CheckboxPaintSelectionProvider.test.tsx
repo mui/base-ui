@@ -90,16 +90,22 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
     expect(c).toHaveAttribute('aria-checked', 'true');
   });
 
-  it.each([false, true])(
-    'paints skipped items and preserves its intent on backtracking, controlled=%s',
-    async (controlled) => {
+  it.each([
+    [false, false],
+    [false, true],
+    [true, false],
+    [true, true],
+  ])(
+    'shrinks and extends the painted range, controlled=%s, clearing=%s',
+    async (controlled, clearing) => {
+      const initialValue = clearing ? ['a', 'c', 'd'] : ['b', 'd'];
       function App() {
-        const [value, setValue] = React.useState(['b']);
+        const [value, setValue] = React.useState(initialValue);
         return (
           <Checkbox.PaintSelectionProvider>
             <CheckboxGroup
               value={controlled ? value : undefined}
-              defaultValue={['b']}
+              defaultValue={initialValue}
               onValueChange={setValue}
             >
               <Checkboxes />
@@ -111,20 +117,24 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
       const [a, b, c, d] = screen.getAllByRole('checkbox');
       down(a);
       move(c);
-      move(a);
-      up(a);
-      fireEvent.click(a, { detail: 1 });
       for (const item of [a, b, c]) {
-        expect(item).toHaveAttribute('aria-checked', 'true');
+        expect(item).toHaveAttribute('aria-checked', String(!clearing));
       }
-      expect(d).toHaveAttribute('aria-checked', 'false');
-      down(c);
+      move(b);
+      expect(a).toHaveAttribute('aria-checked', String(!clearing));
+      expect(b).toHaveAttribute('aria-checked', String(!clearing));
+      expect(c).toHaveAttribute('aria-checked', String(clearing));
       move(a);
-      up(a);
-      fireEvent.click(a, { detail: 1 });
-      for (const item of [a, b, c, d]) {
-        expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(b).toHaveAttribute('aria-checked', String(!clearing));
+      expect(c).toHaveAttribute('aria-checked', String(clearing));
+      move(c);
+      for (const item of [a, b, c]) {
+        expect(item).toHaveAttribute('aria-checked', String(!clearing));
       }
+      up(c);
+      fireEvent.click(c, { detail: 1 });
+      expect(c).toHaveAttribute('aria-checked', String(!clearing));
+      expect(d).toHaveAttribute('aria-checked', 'true');
     },
   );
 
@@ -135,24 +145,52 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
       await render(
         <Checkbox.PaintSelectionProvider>
           <CheckboxGroup
-            defaultValue={['a']}
+            defaultValue={['b']}
             allValues={withParent ? ['a', 'b'] : undefined}
             onValueChange={onValueChange}
           >
+            <Checkbox.Root value="a" style={{ display: 'block', width: 24, height: 24 }} />
             <Checkbox.Root
-              value="a"
+              value="b"
               indeterminate
               style={{ display: 'block', width: 24, height: 24 }}
             />
-            <Checkbox.Root value="b" style={{ display: 'block', width: 24, height: 24 }} />
           </CheckboxGroup>
         </Checkbox.PaintSelectionProvider>,
       );
       const [a, b] = screen.getAllByRole('checkbox');
       down(a);
       move(b);
-      up(b);
-      expect(onValueChange.mock.lastCall?.[0]).toEqual(['a', 'b']);
+      expect(onValueChange.mock.lastCall?.[0]).toEqual(['b', 'a']);
+      move(a);
+      up(a);
+      expect(onValueChange.mock.lastCall?.[0]).toEqual(['b', 'a']);
+    },
+  );
+
+  it.each([false, true])(
+    'reverses past the starting checkbox in one sample, controlled=%s',
+    async (controlled) => {
+      function App() {
+        const [value, setValue] = React.useState<string[]>([]);
+        return (
+          <Checkbox.PaintSelectionProvider>
+            <CheckboxGroup value={controlled ? value : undefined} onValueChange={setValue}>
+              <Checkboxes />
+            </CheckboxGroup>
+          </Checkbox.PaintSelectionProvider>
+        );
+      }
+      await render(<App />);
+      const [a, b, c, d] = screen.getAllByRole('checkbox');
+      down(b);
+      move(d);
+      move(a);
+      up(a);
+      expect(a).toHaveAttribute('aria-checked', 'true');
+      expect(b).toHaveAttribute('aria-checked', 'true');
+      expect(c).toHaveAttribute('aria-checked', 'false');
+      expect(d).toHaveAttribute('aria-checked', 'false');
     },
   );
 
@@ -166,19 +204,27 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
               render={replace ? <div /> : <span />}
               style={{ display: 'block', width: 24, height: 24 }}
             />
-            <Checkbox.Root value="b" style={{ display: 'block', width: 24, height: 24 }} />
+            <Checkbox.Root
+              value="b"
+              render={replace ? <div /> : <span />}
+              style={{ display: 'block', width: 24, height: 24 }}
+            />
           </CheckboxGroup>
         </Checkbox.PaintSelectionProvider>
       );
     }
     const { setProps } = await render(<App />);
-    await setProps({ replace: true });
     const [a, b] = screen.getAllByRole('checkbox');
     down(a);
     move(b);
-    up(b);
     expect(a).toHaveAttribute('aria-checked', 'true');
     expect(b).toHaveAttribute('aria-checked', 'true');
+    await setProps({ replace: true });
+    const [newA, newB] = screen.getAllByRole('checkbox');
+    move(newA);
+    up(newA);
+    expect(newA).toHaveAttribute('aria-checked', 'true');
+    expect(newB).toHaveAttribute('aria-checked', 'false');
   });
 
   it('paints the visible part of a clipped checkbox and skips fully clipped items', async () => {
