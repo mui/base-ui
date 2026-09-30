@@ -2,15 +2,11 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   createVirtualizerRegistry,
+  useVirtualizerItem,
   Virtualizer,
-  VirtualizerHostContext,
-  VirtualizerHostStateContext,
+  VirtualizerHostProvider,
 } from '@base-ui/react/virtualizer';
-import type {
-  VirtualizerHost,
-  VirtualizerHostState,
-  VirtualizerItemMetadata,
-} from '@base-ui/react/virtualizer';
+import type { VirtualizerHost, VirtualizerHostState } from '@base-ui/react/virtualizer';
 
 /**
  * A windowed `treegrid` assembled from plain elements, standing in for a tree hosting the
@@ -73,8 +69,6 @@ const rows = createRows();
  */
 const REVEAL_INDEX = 14 * (FILES_PER_FOLDER + 1) + 7;
 
-const TreeItemContext = React.createContext<VirtualizerItemMetadata | undefined>(undefined);
-
 /**
  * The tree's own item part: it takes the positional data attribute the virtualizer supplies and
  * states the ARIA itself, from the row's place among its siblings.
@@ -86,10 +80,8 @@ function TreeItem(props: {
   onKeyDown: (event: React.KeyboardEvent) => void;
 }) {
   const { active, onActivate, onKeyDown, row } = props;
-  const virtualItem = React.useContext(TreeItemContext);
-
-  // The host contract's development check: exactly one item part per row.
-  useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
+  // Also the host contract's development check: exactly one item part per row.
+  const virtualItem = useVirtualizerItem();
 
   return (
     <div
@@ -139,7 +131,7 @@ export default function VirtualizedTreegrid() {
       // A tree states position among siblings, which the flat collection's own position is not.
       itemAria: 'none',
       registry,
-      virtualItemContext: TreeItemContext,
+      rendersItemPart: true,
     }),
     [registry],
   );
@@ -187,24 +179,22 @@ export default function VirtualizedTreegrid() {
         aria-rowcount={rows.length}
         data-testid="treegrid"
       >
-        <VirtualizerHostContext.Provider value={host}>
-          <VirtualizerHostStateContext.Provider value={hostState}>
-            <Virtualizer<TreeRow>
-              getItemKey={(row) => row.id}
-              itemHeight={28}
-              style={{ height: 320, width: 320 }}
-            >
-              {(row, index) => (
-                <TreeItem
-                  row={row}
-                  active={index === activeIndex}
-                  onActivate={() => setActiveIndex(index)}
-                  onKeyDown={handleKeyDown}
-                />
-              )}
-            </Virtualizer>
-          </VirtualizerHostStateContext.Provider>
-        </VirtualizerHostContext.Provider>
+        <VirtualizerHostProvider host={host} state={hostState}>
+          <Virtualizer<TreeRow>
+            getItemKey={(row) => row.id}
+            itemHeight={28}
+            style={{ height: 320, width: 320 }}
+          >
+            {(row, index) => (
+              <TreeItem
+                row={row}
+                active={index === activeIndex}
+                onActivate={() => setActiveIndex(index)}
+                onKeyDown={handleKeyDown}
+              />
+            )}
+          </Virtualizer>
+        </VirtualizerHostProvider>
       </div>
     </React.Fragment>
   );

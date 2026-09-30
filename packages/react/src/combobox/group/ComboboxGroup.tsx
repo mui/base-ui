@@ -4,9 +4,8 @@ import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
-import { useComboboxVirtualGroupContext } from './ComboboxVirtualGroupContext';
 import { GroupCollectionProvider } from '../collection/GroupCollectionContext';
-import { useComboboxVirtualItemContext } from '../item/ComboboxVirtualItemContext';
+import { useVirtualizerGroupHeader, VirtualizerItemContext } from '../../virtualizer/host';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 
 /**
@@ -27,8 +26,9 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
     /* eslint-disable react-hooks/rules-of-hooks */
-    const virtualGroup = useComboboxVirtualGroupContext();
-    const virtualItem = useComboboxVirtualItemContext();
+    const virtualGroup = useVirtualizerGroupHeader();
+    // Read without `useVirtualizerItem`, which would count a group as an item part.
+    const virtualItem = React.useContext(VirtualizerItemContext);
     React.useEffect(() => {
       if (virtualGroup != null || virtualItem != null) {
         warn(
