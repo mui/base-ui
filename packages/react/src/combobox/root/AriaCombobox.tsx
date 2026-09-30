@@ -21,7 +21,7 @@ import {
 } from '../../floating-ui-react';
 import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
 import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
-import { closest, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -1084,8 +1084,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       // kept-mounted Positioner is hidden and should stay inert.
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
-        // Keep the request while results or a controlled popup opening are pending.
-        if (!autoHighlightMode || String(inputValue).trim() === '') {
+        const input = inputRef.current;
+        // Keep the request while results or a controlled popup opening are pending,
+        // but do not restore an inline highlight after focus has left the input.
+        if (
+          !autoHighlightMode ||
+          String(inputValue).trim() === '' ||
+          (inline &&
+            autoHighlightMode !== 'always' &&
+            (!input || activeElement(input.ownerDocument) !== input))
+        ) {
           pendingQueryHighlightRef.current = null;
         } else if (candidateItems[0] !== undefined && listIsNavigable) {
           store.set('activeIndex', 0);

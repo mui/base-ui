@@ -1136,6 +1136,41 @@ describe('<Autocomplete.Root />', () => {
         expect(input).toHaveValue('32');
       });
 
+      it.each([true, 'always'] as const)(
+        'handles asynchronous results after an inline input blurs with autoHighlight=%s',
+        async (autoHighlight) => {
+          function Test({ items = [] }: { items?: string[] }) {
+            return (
+              <React.Fragment>
+                <Autocomplete.Root inline defaultOpen autoHighlight={autoHighlight} items={items}>
+                  <Autocomplete.Input />
+                  <Autocomplete.List>
+                    {(item: string) => (
+                      <Autocomplete.Item key={item} value={item}>
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Root>
+                <button type="button">Blur target</button>
+              </React.Fragment>
+            );
+          }
+
+          const { user, setProps } = await render(<Test />);
+          const input = screen.getByRole('combobox');
+          await user.type(input, '32');
+          await user.click(screen.getByRole('button', { name: 'Blur target' }));
+          await setProps({ items: ['32'] });
+
+          const option = screen.getByRole('option');
+          expect(option.hasAttribute('data-highlighted')).toBe(autoHighlight === 'always');
+          expect(input.getAttribute('aria-activedescendant')).toBe(
+            autoHighlight === 'always' ? option.id : null,
+          );
+        },
+      );
+
       it('discards the request when the clear button clears the query', async () => {
         const { user, setProps } = await render(<AsyncAutocomplete />);
         const input = screen.getByRole('combobox');
