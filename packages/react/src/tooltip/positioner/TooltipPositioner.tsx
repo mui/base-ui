@@ -37,7 +37,6 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     arrowPadding = 5,
     sticky = false,
     disableAnchorTracking = false,
-    updatePositionStrategy,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     style,
     ...elementProps
@@ -69,7 +68,6 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     sticky,
     arrowPadding,
     disableAnchorTracking,
-    updatePositionStrategy,
     keepMounted,
     collisionAvoidance,
     adaptiveOrigin,

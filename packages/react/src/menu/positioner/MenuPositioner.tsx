@@ -50,7 +50,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     arrowPadding = 5,
     sticky = false,
     disableAnchorTracking = false,
-    updatePositionStrategy,
     collisionAvoidance: collisionAvoidanceProp = DROPDOWN_COLLISION_AVOIDANCE,
     style,
     ...elementProps
@@ -125,7 +124,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     nodeId: floatingNodeId,
     keepMounted,
     disableAnchorTracking,
-    updatePositionStrategy,
     collisionAvoidance,
     shift: contextMenu
       ? {

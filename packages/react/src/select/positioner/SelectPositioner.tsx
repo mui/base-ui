@@ -50,7 +50,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding,
     sticky,
     disableAnchorTracking,
-    updatePositionStrategy,
     alignItemWithTrigger = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style,
@@ -107,10 +106,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    disableAnchorTracking:
-      disableAnchorTracking ??
-      (updatePositionStrategy === 'always' ? false : alignItemWithTriggerActive),
-    updatePositionStrategy,
+    disableAnchorTracking: disableAnchorTracking ?? alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
   });

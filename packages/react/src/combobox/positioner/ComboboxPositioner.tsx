@@ -45,7 +45,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     arrowPadding,
     sticky,
     disableAnchorTracking = false,
-    updatePositionStrategy,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style: styleProp,
     ...elementProps
@@ -84,7 +83,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     collisionPadding,
     sticky,
     disableAnchorTracking,
-    updatePositionStrategy,
     keepMounted,
     collisionAvoidance,
     lazyFlip: true,

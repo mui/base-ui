@@ -6,14 +6,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  autoUpdate,
-  flip,
-  limitShift,
-  offset,
-  shift as floatingShift,
-  size,
-} from '../floating-ui-react';
+import { flip, limitShift, offset, shift as floatingShift, size } from '../floating-ui-react';
 import type {
   UseFloatingOptions,
   UseFloatingReturn,
@@ -32,6 +25,7 @@ import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from '../utils/hideMiddleware';
+import { autoUpdateWhileMoving } from '../utils/autoUpdateWhileMoving';
 import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
 import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
 
@@ -151,7 +145,6 @@ export function useAnchorPositioningWithHook(
     sticky = false,
     arrowPadding = 5,
     disableAnchorTracking = false,
-    updatePositionStrategy = 'optimized',
     inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
@@ -469,11 +462,8 @@ export function useAnchorPositioningWithHook(
       ancestorScroll: !disableAnchorTracking,
       elementResize: !disableAnchorTracking && typeof ResizeObserver !== 'undefined',
       layoutShift: !disableAnchorTracking && typeof IntersectionObserver !== 'undefined',
-      ...(updatePositionStrategy === 'always' && !disableAnchorTracking
-        ? { animationFrame: true }
-        : {}),
     }),
-    [disableAnchorTracking, updatePositionStrategy],
+    [disableAnchorTracking],
   );
 
   const {
@@ -495,7 +485,7 @@ export function useAnchorPositioningWithHook(
     strategy: positionMethod,
     whileElementsMounted: keepMounted
       ? undefined
-      : (...args) => autoUpdate(...args, autoUpdateOptions),
+      : (...args) => autoUpdateWhileMoving(...args, autoUpdateOptions),
     nodeId,
     externalTree,
   });
@@ -578,7 +568,12 @@ export function useAnchorPositioningWithHook(
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.reference && elements.floating) {
-      return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
+      return autoUpdateWhileMoving(
+        elements.reference,
+        elements.floating,
+        update,
+        autoUpdateOptions,
+      );
     }
     return undefined;
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
@@ -748,21 +743,10 @@ export interface UseAnchorPositioningSharedParameters {
    */
   arrowPadding?: number | undefined;
   /**
-   * Whether to disable the popup from tracking its positioning anchor. When `true`, this disables
-   * scroll, resize, layout shift, and animation frame tracking, including `updatePositionStrategy="always"`.
+   * Whether to disable the popup from tracking any layout shift of its positioning anchor.
    * @default false
    */
   disableAnchorTracking?: boolean | undefined;
-  /**
-   * How the popup tracks the position of its anchor element. `optimized` uses resize, layout shift,
-   * and scroll observers; `always` recalculates the position on every animation frame. Use `always`
-   * when the anchor is animated or transformed.
-   * `disableAnchorTracking` disables tracking for either strategy.
-   * In Select, `optimized` suppresses tracking while `alignItemWithTrigger` is active (its default
-   * for mouse input). `always` enables tracking unless `disableAnchorTracking` is `true`.
-   * @default 'optimized'
-   */
-  updatePositionStrategy?: 'optimized' | 'always' | undefined;
   /**
    * Determines how to handle collisions when positioning the popup.
    *
