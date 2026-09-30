@@ -6,20 +6,13 @@ import { warn } from '@base-ui/utils/warn';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useBaseUiId } from '../useBaseUiId';
 import {
-  hasStaticItems,
   useVirtualizerHost,
   useVirtualizerHostState,
   VirtualizerGroupHeaderContext,
   VirtualizerItemContext,
-  warnAboutStaticItems,
 } from '../../virtualizer/host';
+import type { VirtualizerHost, VirtualizerHostState } from '../../virtualizer/host';
 import type {
-  VirtualizerHandle,
-  VirtualizerHost,
-  VirtualizerHostState,
-} from '../../virtualizer/host';
-import type {
-  VirtualizerActions,
   VirtualizerActiveIndex,
   VirtualizerActiveItem,
   VirtualizerGroup,
@@ -31,7 +24,6 @@ import type {
   VirtualizerRenderGroupHeader,
   VirtualizerRowProps,
   VirtualizerScrollAlignment,
-  VirtualizerScrollToIndexOptions,
 } from '../../virtualizer/types';
 import { isGroupedItems } from '../resolveValueLabel';
 import { isGroupHeaderRow } from './types';
@@ -210,7 +202,6 @@ const VirtualizerItemRow = React.memo(
 ) as typeof VirtualizerItemRowImpl;
 
 export interface UseListBindingParameters<Item> {
-  actionsRef: React.RefObject<VirtualizerActions | null> | undefined;
   /**
    * The item to keep mounted and scroll to, for a virtualizer given its own collection.
    * Ignored when the collection comes from a surrounding host, which publishes its own
@@ -248,10 +239,16 @@ export interface UseListBindingParameters<Item> {
 }
 
 export interface ListBinding<Item> {
-  /** The virtualizer's own imperative handle, which this binding republishes to the list. */
-  apiRef: React.RefObject<VirtualizerHandle | null>;
-  /** Whether the window may be active. A list asking for every row suspends it. */
-  enabled: boolean;
+  /**
+   * Whether the collection is the virtualizer's own, given through `items`, rather than a host's.
+   * Nobody else can scroll it into place then, whether or not it is windowed.
+   */
+  hasOwnCollection: boolean;
+  /**
+   * Whether windowing is asked for. A list asking for every row suspends it, and the virtualizer
+   * can still find it has nothing to window against.
+   */
+  windowingRequested: boolean;
   /**
    * The id the wrapper of a group references, for the header carrying the given ordinal;
    * `undefined` while the id hook has not resolved (React 17, first render).
@@ -269,9 +266,9 @@ export interface ListBinding<Item> {
   renderRow: (
     params: VirtualizerRenderRowParameters<VirtualizerRowModel<Item>>,
   ) => React.ReactElement;
+  /** Whether the activation asks for its item to be scrolled into view. */
+  scrollsActiveItem: boolean;
   scrollToRowAlignment: VirtualizerScrollAlignment;
-  /** The item to scroll into view. */
-  scrollToItemIndex: number | undefined;
   /**
    * Inset at the end edge the activation asks its item to rest clear of, in place of the
    * scrollport's `scroll-padding-bottom`; `undefined` when it asks for none.
@@ -291,8 +288,7 @@ export interface ListBinding<Item> {
 
 /**
  * Resolves what `<Virtualizer>` windows, from either of its two sources: an `items` prop, or the
- * surrounding host's collection and highlight state. Supplies each row's item metadata, and
- * registers the imperative handle with the host, if any.
+ * surrounding host's collection and highlight state, and supplies each row's item metadata.
  *
  * The collection's source and the row's item channel are independent: a virtualizer given its own
  * `items` inside a host still publishes metadata through that host's `<Item>` context.
@@ -301,7 +297,6 @@ export function useListBinding<Item>(
   parameters: UseListBindingParameters<Item>,
 ): ListBinding<Item> {
   const {
-    actionsRef,
     activeIndex: activeIndexProp,
     children,
     enabled: enabledProp,
@@ -478,76 +473,21 @@ export function useListBinding<Item>(
   );
 
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
-  // labels for browser autofill), which suspends windowing until they finish. The list root reads
-  // this off the registry to know whether the virtualizer currently owns scrolling.
-  const enabled = enabledProp && !windowingSuspended;
-  // A hosted list that is not windowed scrolls its own item elements (see `scrollActivation.ts`),
-  // so it hands the virtualizer a request only while the virtualizer owns scrolling. A standalone
-  // list has no one else to scroll it, in either mode.
-  const scrollToItemIndex =
-    scrollActiveIntoView && (hasOwnCollection || enabled) ? focusedItemIndex : undefined;
-
-  const apiRef = React.useRef<VirtualizerHandle | null>(null);
-  const getItemMetrics = useStableCallback(
-    (index: number) => apiRef.current?.getItemMetrics(index) ?? null,
-  );
-  const getIndexAtOffset = useStableCallback(
-    (offset: number) => apiRef.current?.getIndexAtOffset(offset) ?? null,
-  );
-  const remeasure = useStableCallback(() => apiRef.current?.remeasure());
-  const resetScroll = useStableCallback(() => apiRef.current?.resetScroll());
-  const scrollToIndex = useStableCallback(
-    (index: number, options?: VirtualizerScrollToIndexOptions) =>
-      apiRef.current?.scrollToIndex(index, options),
-  );
-  const virtualizerHandle = React.useMemo(
-    () => ({ enabled, getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex }),
-    [enabled, getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
-  );
-
-  useIsoLayoutEffect(() => {
-    // A standalone virtualizer has no list root to coordinate scrolling and item registration with.
-    if (host == null) {
-      return undefined;
-    }
-
-    const { registry } = host;
-
-    if (process.env.NODE_ENV !== 'production') {
-      if (registry.virtualizer != null) {
-        warn(`<${host.componentName}.Root> must not contain more than one <Virtualizer>.`);
-      }
-      if (hasStaticItems(registry)) {
-        warnAboutStaticItems(host.componentName);
-      }
-    }
-
-    registry.virtualizer = virtualizerHandle;
-    return () => {
-      if (registry.virtualizer === virtualizerHandle) {
-        registry.virtualizer = null;
-      }
-    };
-  }, [host, virtualizerHandle]);
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ getIndexAtOffset, getItemMetrics, remeasure, scrollToIndex }),
-    [getIndexAtOffset, getItemMetrics, remeasure, scrollToIndex],
-  );
+  // labels for browser autofill), which suspends windowing until they finish.
+  const windowingRequested = enabledProp && !windowingSuspended;
 
   return {
-    apiRef,
-    enabled,
     getGroupHeaderId,
     groups,
+    hasOwnCollection,
     items,
     pinnedItemIndex: focusedItemIndex,
     renderRow,
+    scrollsActiveItem: scrollActiveIntoView,
     scrollToRowAlignment: scrollActiveAlignment,
-    scrollToItemIndex,
     scrollToRowPaddingEnd: scrollActivePaddingEnd,
     scrollToRowPaddingStart: scrollActivePaddingStart,
+    windowingRequested,
     windowingSuspended,
   };
 }

@@ -21,6 +21,15 @@ export interface VirtualizerHandle {
    */
   getIndexAtOffset: (offset: number) => number | null;
   /**
+   * Returns the element that scrolls the windowed collection, or `null` before it is attached.
+   *
+   * A getter rather than a value: the element arrives through a ref, without a render, so a
+   * property captured on the handle when it is created would stay `null` for the handle's life.
+   * A host needs the element itself to observe scrolling, since a scroll event does not bubble
+   * out of the element that scrolls.
+   */
+  getScrollElement: () => HTMLElement | null;
+  /**
    * Returns the logical geometry for an item, including when it is outside the rendered window.
    */
   getItemMetrics: (index: number) => VirtualizerItemMetrics | null;
@@ -54,6 +63,19 @@ export interface VirtualizerRegistration extends VirtualizerHandle {
  * Coordinates virtualized and non-virtualized content rendered by a single host.
  */
 export interface VirtualizerRegistry {
+  /**
+   * Called when a virtualizer registers, unregisters, or replaces its registration — which it does
+   * whenever `enabled` changes.
+   *
+   * The `virtualizer` field below is mutable and notifies nobody, which is enough for a host that
+   * only reads it from an effect or an event handler: registration happens in the virtualizer's
+   * layout effect, and React runs those child-first, so every ancestor effect in the same commit
+   * already sees it. A host that must know while *rendering* — to choose a prop rather than to run
+   * an effect — needs this instead, and must hold the result in React state rather than in an
+   * external store: a state update made from the layout-effect phase is flushed before paint,
+   * while a store subscription is installed passively, after it.
+   */
+  onVirtualizerChange?: ((virtualizer: VirtualizerRegistration | null) => void) | undefined;
   /**
    * The registered virtualizer. A host supports at most one; the binding warns when more than one
    * registers.
@@ -310,4 +332,39 @@ export function useVirtualizerItem(): VirtualizerItemMetadata | undefined {
  */
 export function useVirtualizerGroupHeader(): VirtualizerGroupHeaderMetadata | undefined {
   return React.useContext(VirtualizerGroupHeaderContext);
+}
+
+/**
+ * Registers a virtualizer with its host for as long as it is mounted, and again whenever its
+ * registration changes. A standalone virtualizer, outside any host, registers nowhere.
+ */
+export function useVirtualizerRegistration(
+  host: VirtualizerHost | undefined,
+  registration: VirtualizerRegistration,
+) {
+  useIsoLayoutEffect(() => {
+    if (host == null) {
+      return undefined;
+    }
+
+    const { registry } = host;
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (registry.virtualizer != null) {
+        warn(`<${host.componentName}.Root> must not contain more than one <Virtualizer>.`);
+      }
+      if (hasStaticItems(registry)) {
+        warnAboutStaticItems(host.componentName);
+      }
+    }
+
+    registry.virtualizer = registration;
+    registry.onVirtualizerChange?.(registration);
+    return () => {
+      if (registry.virtualizer === registration) {
+        registry.virtualizer = null;
+        registry.onVirtualizerChange?.(null);
+      }
+    };
+  }, [host, registration]);
 }
