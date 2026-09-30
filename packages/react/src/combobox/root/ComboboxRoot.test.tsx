@@ -10808,6 +10808,80 @@ describe('<Combobox.Root />', () => {
       },
     );
 
+    it('clears the highlight when an inline list in an unbound dialog unmounts', async () => {
+      await render(
+        <Combobox.Root inline items={['Apple', 'Banana', 'Cherry']}>
+          <Dialog.Root>
+            <Dialog.Trigger>Choose fruit</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup aria-label="Fruit chooser">
+                <Combobox.Input />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Choose fruit' });
+      fireEvent.click(trigger);
+      let input = await screen.findByRole('combobox');
+      await waitFor(() => expect(input).toHaveFocus());
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+
+      fireEvent.keyDown(input, { key: 'Escape' });
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+
+      fireEvent.click(trigger);
+      input = await screen.findByRole('combobox');
+      await waitFor(() => expect(input).toHaveFocus());
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(screen.getByRole('option', { name: 'Apple' })).toHaveAttribute('data-highlighted');
+    });
+
+    it('keeps the inline navigation cursor on the highlight when the value changes while closed', async () => {
+      function Test() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <Combobox.Root inline items={['A', 'B', 'C', 'D']} value={value} onValueChange={setValue}>
+            <button type="button" onClick={() => setValue('D')}>
+              Select D
+            </button>
+            <Combobox.Input />
+            <Combobox.List>
+              {(item: string) => (
+                <Combobox.Item key={item} value={item}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<Test />);
+      const input = screen.getByRole('combobox');
+      await act(async () => input.focus());
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(screen.getByRole('option', { name: 'A' })).toHaveAttribute('data-highlighted');
+
+      // Change the value without blurring the input.
+      fireEvent.click(screen.getByRole('button', { name: 'Select D' }));
+      expect(screen.getByRole('option', { name: 'A' })).toHaveAttribute('data-highlighted');
+
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(screen.getByRole('option', { name: 'B' })).toHaveAttribute('data-highlighted');
+    });
+
     function AsyncDialogCombobox() {
       const [loading, setLoading] = React.useState(true);
       const [value, setValue] = React.useState<string | null>(null);

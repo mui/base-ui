@@ -1385,9 +1385,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event, source) {
       // Ignore automatic navigation while closed, including selected-index sync for inline lists.
-      // Allow imperative navigation for inline lists, which remain navigable while `open` is false,
-      // so their highlight stays in sync with the internal cursor advanced by `highlightItem()`.
-      if ((!event && !open && source !== 'imperative') || transitionStatus === 'ending') {
+      // Inline lists remain navigable while `open` is false, so still allow imperative navigation
+      // (keeping the highlight in sync with the cursor advanced by `highlightItem()`) and resets
+      // (clearing the highlight when an unbound inline list unmounts, e.g. in a closed dialog).
+      if (
+        (!event && !open && source !== 'imperative' && !(inline && nextActiveIndex === null)) ||
+        transitionStatus === 'ending'
+      ) {
         return;
       }
 
