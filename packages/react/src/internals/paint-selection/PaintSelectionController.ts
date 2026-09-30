@@ -29,6 +29,8 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
       event: PointerEvent,
       anchor: Item,
     ) => void,
+    /** Called once a gesture stops painting, so state kept across its samples can be released. */
+    private readonly end?: () => void,
   ) {}
 
   register(element: HTMLElement, item: Item) {
@@ -71,6 +73,9 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
 
     const self = this;
     function stop() {
+      if (finished) {
+        return;
+      }
       doc.removeEventListener('pointermove', move);
       doc.removeEventListener('pointerup', up);
       doc.removeEventListener('pointercancel', cancel);
@@ -78,6 +83,7 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
       doc.removeEventListener('dragstart', preventSelection);
       win.removeEventListener('blur', cancel);
       finished = true;
+      self.end?.();
     }
     function cleanup() {
       stop();

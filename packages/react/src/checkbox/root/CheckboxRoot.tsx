@@ -260,12 +260,13 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     groupContext?.setValue === paintContext?.owner && !parent && value !== undefined
       ? paintContext?.controller
       : undefined;
-  // A gesture can outlive a `value` change. Its descriptors keep the value they
-  // were registered with, so a retraced checkbox restores that value in the group
-  // rather than the one it renders now.
+  // A gesture can outlive a `value` change, or the checkbox becoming the parent
+  // checkbox. Its descriptors keep the group member they were registered as, so a
+  // retraced checkbox restores that member rather than what it renders now.
+  const rendersMember = (memberValue: string) => !parent && memberValue === value;
   const getPaintState = useStableCallback((paintValue: string) => {
     const paintDisabled = Boolean(disabled || readOnly);
-    if (paintValue !== value) {
+    if (!rendersMember(paintValue)) {
       const selected = Boolean(groupValue?.includes(paintValue));
       return { checked: selected, selected, disabled: paintDisabled };
     }
@@ -281,13 +282,18 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         return;
       }
       const details = createChangeEventDetails(REASONS.none, event);
-      if (paintValue !== value) {
+      if (!rendersMember(paintValue)) {
         if (isGroupedWithParent) {
           parentContext.getChildProps(paintValue).onCheckedChange?.(nextChecked, details);
         } else {
           setGroupValue(paintValue, nextChecked, details);
         }
-      } else if (nextChecked !== computedChecked || computedIndeterminate) {
+      } else if (
+        // A gesture builds on the value it proposed, which a controlled owner may
+        // not have rendered yet.
+        nextChecked !== (groupContext?.valueRef.current?.includes(paintValue) ?? computedChecked) ||
+        computedIndeterminate
+      ) {
         changeChecked(nextChecked, details);
       }
     },

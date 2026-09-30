@@ -46,23 +46,38 @@ export function CheckboxPaintSelectionProvider(props: CheckboxPaintSelectionProv
 function CheckboxGroupPaintSelection(props: { disabled: boolean; children: React.ReactNode }) {
   const { disabled, children } = props;
   const group = useCheckboxGroupContext();
+  // The value the last sample proposed, and the group value it built on. A controlled
+  // owner can apply a proposal after later samples, so they build on the proposal
+  // until the owner renders a different value.
+  const gestureRef = React.useRef<{ value: string[]; proposal: string[] } | null>(null);
   const paint = useStableCallback(
     (changes: PaintSelectionChange<CheckboxPaintItem>[], event: PointerEvent) => {
       if (!group) {
         return;
       }
-      // Reconcile controlled state before each batch, then accumulate changes within that batch.
-      group.valueRef.current = group.value;
+      const gesture = gestureRef.current;
+      const base =
+        gesture != null && haveSameItems(gesture.value, group.value)
+          ? gesture.proposal
+          : group.value;
+      // Changes within a sample accumulate on the base.
+      group.valueRef.current = base;
       try {
         for (const { item, checked } of changes) {
           item.setChecked(checked, event);
         }
+        gestureRef.current = { value: group.value, proposal: group.valueRef.current ?? base };
       } finally {
         group.valueRef.current = null;
       }
     },
   );
-  const controller = useRefWithInit(() => new PaintSelectionController(paint)).current;
+  const controller = useRefWithInit(
+    () =>
+      new PaintSelectionController(paint, () => {
+        gestureRef.current = null;
+      }),
+  ).current;
   useOnMount(controller.disposeEffect);
   React.useEffect(() => {
     if (disabled) {
@@ -79,6 +94,11 @@ function CheckboxGroupPaintSelection(props: { disabled: boolean; children: React
       {children}
     </CheckboxGroupPaintSelectionContext.Provider>
   );
+}
+
+function haveSameItems(a: readonly string[], b: readonly string[]) {
+  const items = new Set(b);
+  return a.length === b.length && a.every((item) => items.has(item));
 }
 
 export interface CheckboxPaintSelectionProviderProps {

@@ -455,24 +455,91 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
     }
   });
 
-  it('respects a controlled owner refusing the proposed changes', async () => {
-    const onValueChange = vi.fn();
-    await render(
-      <Checkbox.PaintSelectionProvider>
-        <CheckboxGroup value={[]} onValueChange={onValueChange}>
-          <Checkboxes />
-        </CheckboxGroup>
-      </Checkbox.PaintSelectionProvider>,
-    );
-    const [a, b, c] = screen.getAllByRole('checkbox');
+  it('proposes the whole trail to a controlled owner that applies it later', async () => {
+    let proposal: string[] = [];
+    function App() {
+      const [value, setValue] = React.useState<string[]>([]);
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => setValue(proposal)}>
+            Apply
+          </button>
+          <Checkbox.PaintSelectionProvider>
+            <CheckboxGroup
+              value={value}
+              onValueChange={(next) => {
+                proposal = next;
+              }}
+            >
+              <Checkboxes />
+            </CheckboxGroup>
+          </Checkbox.PaintSelectionProvider>
+        </React.Fragment>
+      );
+    }
+    await render(<App />);
+    const [a, b, c, d] = screen.getAllByRole('checkbox');
     down(a);
     move(b);
-    expect(onValueChange.mock.lastCall?.[0]).toEqual(['a', 'b']);
-    move(c);
-    expect(onValueChange.mock.lastCall?.[0]).toEqual(['c']);
-    for (const item of [a, b, c]) {
+    expect(proposal).toEqual(['a', 'b']);
+    move(d);
+    expect(proposal).toEqual(['a', 'b', 'c', 'd']);
+    move(b);
+    expect(proposal).toEqual(['a', 'b']);
+    // The owner has not applied any of them yet.
+    for (const item of [a, b, c, d]) {
       expect(item).toHaveAttribute('aria-checked', 'false');
     }
+    up(b);
+    fireEvent.click(b, { detail: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+    expect(a).toHaveAttribute('aria-checked', 'true');
+    expect(b).toHaveAttribute('aria-checked', 'true');
+    expect(c).toHaveAttribute('aria-checked', 'false');
+    expect(d).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('restores a painted checkbox that became the parent checkbox as the group member it was', async () => {
+    function App({ parent = false }: { parent?: boolean }) {
+      const [value, setValue] = React.useState(['a', 'b']);
+      return (
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup value={value} onValueChange={setValue} allValues={['a', 'b', 'c']}>
+            <Checkbox.Root
+              value="a"
+              aria-label="a"
+              style={{ display: 'block', width: 24, height: 24, marginBottom: 8 }}
+            />
+            <Checkbox.Root
+              value="b"
+              parent={parent}
+              aria-label="b"
+              style={{ display: 'block', width: 24, height: 24, marginBottom: 8 }}
+            />
+            <Checkbox.Root
+              value="c"
+              aria-label="c"
+              style={{ display: 'block', width: 24, height: 24, marginBottom: 8 }}
+            />
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>
+      );
+    }
+    const { setProps } = await render(<App />);
+    const a = screen.getByRole('checkbox', { name: 'a' });
+    const b = screen.getByRole('checkbox', { name: 'b' });
+    down(a);
+    move(b);
+    expect(a).toHaveAttribute('aria-checked', 'false');
+    await setProps({ parent: true });
+    move(a);
+    up(a);
+
+    // Only `b` returns to the group, rather than the parent toggling every member.
+    expect(a).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByRole('checkbox', { name: 'c' })).toHaveAttribute('aria-checked', 'false');
+    expect(b).toHaveAttribute('aria-checked', 'mixed');
   });
 });
 
