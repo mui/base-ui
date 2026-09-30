@@ -12,7 +12,12 @@ import type { VirtualizerTestItem as TestItem } from '#test-utils';
 import { Select } from '../select';
 import { Virtualizer } from './Virtualizer';
 import { createVirtualizerRegistry, useVirtualizerItem, VirtualizerHostProvider } from './host';
-import type { VirtualizerHost, VirtualizerHostState } from './host';
+import type {
+  VirtualizerHost,
+  VirtualizerHostState,
+  VirtualizerRegistration,
+  VirtualizerRegistry,
+} from './host';
 import type { VirtualizerItemMetadata } from './types';
 
 /**
@@ -22,10 +27,12 @@ import type { VirtualizerItemMetadata } from './types';
 function Host(props: {
   children: React.ReactNode;
   items: readonly TestItem[];
+  registry?: VirtualizerRegistry;
   rendersItemPart?: boolean;
 }) {
   const { children, items, rendersItemPart = true } = props;
-  const registry = React.useRef(createVirtualizerRegistry()).current;
+  const ownRegistry = React.useRef(createVirtualizerRegistry()).current;
+  const registry = props.registry ?? ownRegistry;
   const host = React.useMemo<VirtualizerHost>(
     () => ({ componentName: 'TestList', registry, rendersItemPart }),
     [registry, rendersItemPart],
@@ -213,5 +220,74 @@ describe('<Virtualizer /> host contract', () => {
     } finally {
       warnSpy.mockRestore();
     }
+  });
+
+  describe('registration', () => {
+    it('tells the host whenever the registration changes, and what it is', async () => {
+      const registry = createVirtualizerRegistry();
+      const changes: Array<VirtualizerRegistration | null> = [];
+      registry.onVirtualizerChange = (virtualizer) => changes.push(virtualizer);
+
+      function Test(props: { enabled: boolean; mounted: boolean }) {
+        return (
+          <Host items={createItems(3)} registry={registry}>
+            {props.mounted && (
+              <Virtualizer<TestItem>
+                enabled={props.enabled}
+                estimatedItemHeight={20}
+                getItemKey={(item) => item.label}
+                render={<div data-testid="scrollport" ref={setElementClientHeight(60)} />}
+              >
+                {(item) => <TestListItem>{item.label}</TestListItem>}
+              </Virtualizer>
+            )}
+          </Host>
+        );
+      }
+
+      const { setProps } = await render(<Test enabled mounted />);
+
+      expect(changes.at(-1)?.enabled).toBe(true);
+      expect(registry.virtualizer).toBe(changes.at(-1));
+      expect(registry.virtualizer?.getScrollElement()).toBe(screen.getByTestId('scrollport'));
+
+      await setProps({ enabled: false });
+      expect(changes.at(-1)?.enabled).toBe(false);
+
+      await setProps({ mounted: false });
+      expect(changes.at(-1)).toBe(null);
+      expect(registry.virtualizer).toBe(null);
+    });
+
+    it('does not claim the scroll position for a table it cannot window', async () => {
+      const registry = createVirtualizerRegistry();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      try {
+        await render(
+          <Host items={createItems(3)} registry={registry}>
+            {/* No element around the table scrolls, so there is nothing to window against. */}
+            <table>
+              <Virtualizer<TestItem>
+                estimatedItemHeight={20}
+                getItemKey={(item) => item.label}
+                layout="table"
+              >
+                {(item, _index, itemProps) => (
+                  <tr {...itemProps}>
+                    <td>{item.label}</td>
+                  </tr>
+                )}
+              </Virtualizer>
+            </table>
+          </Host>,
+        );
+
+        expect(await screen.findByText('Item 3')).not.toBe(null);
+        expect(registry.virtualizer?.enabled).toBe(false);
+      } finally {
+        warnSpy.mockRestore();
+      }
+    });
   });
 });

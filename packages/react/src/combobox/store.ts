@@ -143,8 +143,7 @@ type VirtualizationStore = {
  * Mounts or releases the whole collection for a browser autofill label pass.
  *
  * A built-in `<Virtualizer>` reads this as its windowing being suspended, and re-measures its
- * viewport when it is cleared. That makes the order of the release load-bearing: clear this
- * **before** releasing `forceMounted`, so the virtualizer is still mounted to observe it.
+ * viewport when it is cleared, or when it mounts again after the list was released.
  *
  * Repeating a request is not a new pass, so an unchanged value publishes nothing: a redundant
  * notification would arm a viewport restore for a suspension that never happened.
