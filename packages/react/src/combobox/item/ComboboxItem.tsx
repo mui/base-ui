@@ -21,7 +21,7 @@ import {
 } from '../../internals/itemEquality';
 import { useVirtualizerItem } from '../../virtualizer/host';
 import type { VirtualizerItemMetadata } from '../../virtualizer/types';
-import { useVirtualItemDiagnostics } from '../../internals/virtualization/useListBinding';
+import { useVirtualItemDiagnostics } from '../../internals/virtualization/useVirtualItemDiagnostics';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
