@@ -1054,6 +1054,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [items, flatFilteredValues]);
 
   useIsoLayoutEffect(() => {
+    // A kept-mounted dialog hides its inline list on close. Discard query-clear restoration
+    // before it can overwrite the cleared highlight or report an item from the unfiltered list.
+    if (!open && inline && resolvedPopupRef.current) {
+      pendingQueryHighlightRef.current = null;
+      return;
+    }
+
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       // A directly rendered list remains visible when the popup state is closed, while a
@@ -1084,7 +1091,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           // commit, so the item registries are mid-update here. Defer past React's cascade.
           queueMicrotask(() => {
             if (
-              (!store.state.open && !store.state.inline) ||
+              (!store.state.open && (!store.state.inline || resolvedPopupRef.current)) ||
               (inputRef.current && inputRef.current.value.trim() !== '')
             ) {
               return;
@@ -1180,6 +1187,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     flatFilteredValues,
     inline,
     open,
+    resolvedPopupRef,
     store,
     // Reruns the effect when the query changes without affecting the deps above, such as
     // clearing the input when no items are filtered out (individually rendered items).
@@ -1376,12 +1384,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     disabledIndices: EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event, source) {
-      // Retain the highlight only while actually transitioning out or closed. `inline` lists are
-      // navigable while `open` is false, and the floating store is told they are open (see the
-      // `useFloatingRootContext` call above), so they must not be vetoed here either: doing so
-      // would discard programmatic navigation while `useListNavigation` had already advanced its
-      // internal cursor, leaving the two permanently out of sync.
-      if ((!event && !open && !inline) || transitionStatus === 'ending') {
+      // Ignore automatic navigation while closed, including selected-index sync for inline lists.
+      // Inline lists remain navigable while `open` is false, so still allow imperative navigation
+      // (keeping the highlight in sync with the cursor advanced by `highlightItem()`) and resets
+      // (clearing the highlight when an unbound inline list unmounts, e.g. in a closed dialog).
+      if (
+        (!event && !open && source !== 'imperative' && !(inline && nextActiveIndex === null)) ||
+        transitionStatus === 'ending'
+      ) {
         return;
       }
 
