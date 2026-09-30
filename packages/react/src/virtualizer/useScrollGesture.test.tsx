@@ -21,11 +21,13 @@ describe('useScrollGesture', () => {
   let hydrateRowsMeta: Mock<() => void>;
   let hasDeferredRowHeights: boolean;
   let onSettled: Mock<() => void>;
+  let onScrollbarDragEnd: Mock<() => void>;
 
   function Probe(props: { tag?: 'div' | 'section' }) {
     const { tag: Tag = 'div' } = props;
     const resolved = useScrollGesture({
       hasDeferredRowHeights: () => hasDeferredRowHeights,
+      onScrollbarDragEnd,
       onSettled,
       settleGeometry: hydrateRowsMeta,
     });
@@ -41,6 +43,7 @@ describe('useScrollGesture', () => {
     hydrateRowsMeta = vi.fn();
     hasDeferredRowHeights = false;
     onSettled = vi.fn();
+    onScrollbarDragEnd = vi.fn();
   });
 
   it('ignores a scroll the caller recognizes as its own', async () => {
@@ -140,5 +143,22 @@ describe('useScrollGesture', () => {
     });
     expect(gesture.isScrollbarDrag()).toBe(false);
     expect(onSettled).toHaveBeenCalledTimes(1);
+  });
+
+  it('announces a released drag before committing the measurements it deferred', async () => {
+    await render(<Probe />);
+
+    const scroller = screen.getByTestId('scroller');
+    firePointer.down(scroller, { timeStamp: 1 });
+    gesture.noteScroll(USER_SCROLL);
+    hasDeferredRowHeights = true;
+    firePointer.up(scroller, { timeStamp: 2 });
+
+    await waitFor(() => {
+      expect(onScrollbarDragEnd).toHaveBeenCalledTimes(1);
+    });
+    expect(onScrollbarDragEnd.mock.invocationCallOrder[0]).toBeLessThan(
+      hydrateRowsMeta.mock.invocationCallOrder[0],
+    );
   });
 });

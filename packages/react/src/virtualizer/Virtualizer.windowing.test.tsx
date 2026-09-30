@@ -14,6 +14,7 @@ import {
   createVirtualizerItems as createItems,
   renderVirtualizerItem as renderItem,
   renderVirtualizerItemOf as renderItemOf,
+  waitSingleFrame,
 } from '#test-utils';
 import type { VirtualizerTestItem as TestItem } from '#test-utils';
 import type { VirtualizerHandle } from './host';
@@ -698,7 +699,7 @@ describe('<Virtualizer /> windowing', () => {
   );
 
   it.skipIf(isJSDOM)(
-    'holds the window where it stands while a scrollbar drag outruns it',
+    'freezes the window where it stands while a scrollbar drag outruns it',
     async () => {
       vi.restoreAllMocks();
 
@@ -742,12 +743,10 @@ describe('<Virtualizer /> windowing', () => {
 
       // Once released, native scrolling moves the rows within the window again.
       fireEvent.mouseUp(virtualizer);
-      await act(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(resolve, 50);
-          }),
-      );
+      // The window thaws in the frame after release.
+      await act(async () => {
+        await waitSingleFrame();
+      });
       const centerRow = rowAtCenter()!;
       const centerRowTop = centerRow.getBoundingClientRect().top;
       virtualizer.scrollTop += 40;

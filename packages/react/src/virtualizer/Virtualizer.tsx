@@ -79,7 +79,7 @@ import { useViewportRestore } from './useViewportRestore';
 import { useViewportController } from './useViewportController';
 import {
   EMPTY_WINDOW_PLACEMENT,
-  getHeldInsets,
+  getFrozenInsets,
   getWindowHeight,
   isWindowDisplaced,
   placeWindow,
@@ -620,47 +620,54 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     (): HTMLElement | null => windowContentRef.current ?? rootElementRef.current,
   );
   const windowPlacementRef = React.useRef<WindowPlacement>(EMPTY_WINDOW_PLACEMENT);
-  /** Whether a scrollbar drag holds the window where it stands, with insets of its own. */
-  const isWindowHeldRef = React.useRef(false);
   /** The sticky box the rows are held in while windowing: the section itself in the table layout. */
   const getStickyWindow = useStableCallback(() =>
     isTable ? rootElementRef.current : listWindowRef.current,
   );
   /**
-   * Holds the window where it stands during a scrollbar drag, stuck at both edges of the
+   * Writes the window's sticky insets straight to its element, where every write of them outside
+   * rendering goes: the table section's placement on every commit, and a scrollbar drag freezing
+   * the window and thawing it.
+   */
+  const applyWindowInsets = useStableCallback(
+    (insets: Pick<WindowPlacement, 'insetTop' | 'insetBottom'>) => {
+      const stickyWindow = getStickyWindow();
+
+      if (stickyWindow == null) {
+        return;
+      }
+
+      stickyWindow.style.top = `${insets.insetTop}px`;
+      stickyWindow.style.bottom = `${insets.insetBottom}px`;
+    },
+  );
+  /**
+   * Freezes the window where it stands during a scrollbar drag, stuck at both edges of the
    * scrollport. A drag moves the scrollport further in a frame than the window's buffers reach,
    * and the compositor moves it without waiting for the main thread: a window stuck by its own
    * insets would be held at the scrollport's edge by the far end of its buffer, which was never on
-   * screen and is not rasterized yet, and paints blank until the next window commits. Held where
+   * screen and is not rasterized yet, and paints blank until the next window commits. Frozen where
    * it stands, the frames the main thread misses show the rows the last one painted instead,
-   * while the next scroll event puts the rows where they belong. Written straight to the element,
-   * on every scroll event and every commit while the drag lasts, and undone when it releases.
+   * while the next scroll event puts the rows where they belong. Written on every scroll event and
+   * every commit while the drag lasts, and thawed when it releases.
    */
-  const holdWindow = useStableCallback(() => {
+  const freezeWindow = useStableCallback(() => {
     const scrollElement = scrollElementRef.current;
-    const stickyWindow = getStickyWindow();
     const placement = windowPlacementRef.current;
 
-    if (scrollElement == null || stickyWindow == null || !placement.windowed) {
+    if (scrollElement == null || !placement.windowed) {
       return;
     }
 
-    const held = getHeldInsets(placement, scrollElement.scrollTop);
-    stickyWindow.style.top = `${held.insetTop}px`;
-    stickyWindow.style.bottom = `${held.insetBottom}px`;
-    isWindowHeldRef.current = true;
+    applyWindowInsets(getFrozenInsets(placement, scrollElement.scrollTop));
   });
-  const releaseWindow = useStableCallback(() => {
-    const stickyWindow = getStickyWindow();
+  /** Gives the window its own insets back once a scrollbar drag releases. */
+  const thawWindow = useStableCallback(() => {
     const placement = windowPlacementRef.current;
 
-    if (!isWindowHeldRef.current || stickyWindow == null) {
-      return;
+    if (placement.windowed) {
+      applyWindowInsets(placement);
     }
-
-    stickyWindow.style.top = `${placement.insetTop}px`;
-    stickyWindow.style.bottom = `${placement.insetBottom}px`;
-    isWindowHeldRef.current = false;
   });
   /**
    * Whether the window stands where its rows belong, rather than held at the scrollport's edge
@@ -722,15 +729,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const { ledger } = rowHeights;
   const hasDeferredRowHeights = useStableCallback(() => ledger.hasDeferredHeights());
   const handleGestureSettled = useStableCallback(() => ledger.noteSettled());
-  // A released drag gives the window its own insets back before the heights it deferred land.
-  const settleDrag = useStableCallback(() => {
-    releaseWindow();
-    settleGeometry();
-  });
   const gesture = useScrollGesture({
     hasDeferredRowHeights,
+    onScrollbarDragEnd: thawWindow,
     onSettled: handleGestureSettled,
-    settleGeometry: settleDrag,
+    settleGeometry,
   });
 
   const isRowMeasured = heightCache.hasMeasurement;
@@ -820,7 +823,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
     // After the engine committed whatever window this position asked for, from inside the event.
     if (gesture.isScrollbarDrag()) {
-      holdWindow();
+      freezeWindow();
     }
   });
 
@@ -1392,8 +1395,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
     // The section is placed from the height its committed rows give it.
     const placement = placeWindow({ ...placementInputs, windowHeight: section.offsetHeight });
-    section.style.top = `${placement.insetTop}px`;
-    section.style.bottom = `${placement.insetBottom}px`;
+    applyWindowInsets(placement);
     if (startSpacerRow != null) {
       startSpacerRow.style.height = `${placement.spacerHeight}px`;
     }
@@ -1404,10 +1406,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   });
 
   // A commit during a scrollbar drag writes the window's own insets, the list's through its style
-  // and the table's from the effect above: held again, from the placement just committed.
+  // and the table's from the effect above: frozen again, from the placement just committed.
   useIsoLayoutEffect(() => {
-    if (enabled && gesture.isScrollbarDrag()) {
-      holdWindow();
+    if (gesture.isScrollbarDrag()) {
+      freezeWindow();
     }
   });
 

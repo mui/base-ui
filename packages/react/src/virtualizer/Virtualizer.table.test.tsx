@@ -7,6 +7,7 @@ import {
   isJSDOM,
   resetBrowserPointer,
   setElementClientHeight,
+  waitSingleFrame,
 } from '#test-utils';
 import { Virtualizer } from './Virtualizer';
 
@@ -387,7 +388,7 @@ describe('<Virtualizer /> table layout', () => {
       expect(getRow('Item 199').getBoundingClientRect().height).toBe(40);
     });
 
-    it('holds the section where it stands while a scrollbar drag outruns it', async () => {
+    it('freezes the section where it stands while a scrollbar drag outruns it', async () => {
       await render(<TestTable items={createRows(500)} />);
       const scroller = screen.getByTestId('scroller');
       await screen.findByText('Item 1');
@@ -417,12 +418,10 @@ describe('<Virtualizer /> table layout', () => {
 
       // Once released, native scrolling moves the rows within the section again.
       fireEvent.mouseUp(scroller);
-      await act(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(resolve, 50);
-          }),
-      );
+      // The section thaws in the frame after release.
+      await act(async () => {
+        await waitSingleFrame();
+      });
       const centerRow = rowAtCenter()!;
       const centerRowTop = centerRow.getBoundingClientRect().top;
       scroller.scrollTop += 40;

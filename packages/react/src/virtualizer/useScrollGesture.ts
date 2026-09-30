@@ -44,6 +44,11 @@ export interface UseScrollGestureParameters {
    * measurements it deferred.
    */
   onSettled: () => void;
+  /**
+   * Called once a scrollbar drag releases, in the frame after release and before the heights it
+   * deferred are committed.
+   */
+  onScrollbarDragEnd: () => void;
 }
 
 /**
@@ -83,7 +88,7 @@ export interface ScrollGesture {
  * under the pointer.
  */
 export function useScrollGesture(parameters: UseScrollGestureParameters): ScrollGesture {
-  const { hasDeferredRowHeights, onSettled, settleGeometry } = parameters;
+  const { hasDeferredRowHeights, onScrollbarDragEnd, onSettled, settleGeometry } = parameters;
 
   // Scrolling is treated as ongoing until this long without a scroll position change, so that
   // geometry rewrites can be held back for the duration of a gesture.
@@ -131,6 +136,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
 
     isScrollbarDragRef.current = false;
     releaseScrollbarDragFrame.request(() => {
+      onScrollbarDragEnd();
       // Commit real heights collected during the drag in one geometry update after release.
       settleGeometry();
       onSettled();

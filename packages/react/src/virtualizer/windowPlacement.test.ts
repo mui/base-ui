@@ -2,7 +2,7 @@ import { expect, describe, it } from 'vitest';
 import type { RowsGeometry } from './geometry';
 import {
   EMPTY_WINDOW_PLACEMENT,
-  getHeldInsets,
+  getFrozenInsets,
   getWindowHeight,
   isWindowDisplaced,
   placeWindow,
@@ -159,29 +159,35 @@ describe('isWindowDisplaced', () => {
     expect(isWindowDisplaced(atEnd, 1900)).toBe(false);
   });
 
+  it('finds a window in place within a pixel of rounding', () => {
+    // Past 700 the start inset pushes the window down: by 1px at 701, by 2px at 702.
+    expect(isWindowDisplaced(placement, 701)).toBe(false);
+    expect(isWindowDisplaced(placement, 702)).toBe(true);
+  });
+
   it('never finds an unwindowed list displaced', () => {
     expect(isWindowDisplaced(EMPTY_WINDOW_PLACEMENT, 500)).toBe(false);
   });
 });
 
-describe('getHeldInsets', () => {
+describe('getFrozenInsets', () => {
   const placement = placeWindow(inputs());
 
-  it('holds a window in place where it stands', () => {
+  it('freezes a window in place where it stands', () => {
     // The window spans 400 to 800; at 500 it begins 100px above the scrollport.
-    expect(getHeldInsets(placement, 500)).toEqual({ insetTop: -100, insetBottom: -200 });
+    expect(getFrozenInsets(placement, 500)).toEqual({ insetTop: -100, insetBottom: -200 });
   });
 
-  it('holds a window a scroll outran where its insets stuck it', () => {
+  it('freezes a window a scroll outran where its insets stuck it', () => {
     // Stuck by its end at the scrollport's end edge, and by its start at the start edge.
-    expect(getHeldInsets(placement, 1000)).toEqual({ insetTop: -300, insetBottom: 0 });
-    expect(getHeldInsets(placement, 100)).toEqual({ insetTop: 0, insetBottom: -300 });
+    expect(getFrozenInsets(placement, 1000)).toEqual({ insetTop: -300, insetBottom: 0 });
+    expect(getFrozenInsets(placement, 100)).toEqual({ insetTop: 0, insetBottom: -300 });
   });
 
-  it('holds a window no further than its block lets its insets push it', () => {
+  it('freezes a window no further than its block lets its insets push it', () => {
     // Its block ends 100px after it, which is all the start inset can push it down by.
     const nearEnd = { ...placement, blockEnd: 900 };
 
-    expect(getHeldInsets(nearEnd, 1000)).toEqual({ insetTop: -500, insetBottom: 200 });
+    expect(getFrozenInsets(nearEnd, 1000)).toEqual({ insetTop: -500, insetBottom: 200 });
   });
 });
