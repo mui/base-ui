@@ -371,6 +371,15 @@ type VirtualizerHostState = {
   /** The flat, ordered collection to window. */
   items: unknown[];
   /**
+   * Props the host contributes to the virtualizer's scrollport.
+   *
+   * The virtualizer is the element that scrolls, so behavior a host would otherwise put on its own
+   * scrolling element belongs here instead: a scroll handler, or a class that styles the
+   * scrollbar. Merged ahead of the props passed to `<Virtualizer>` itself, so an application's own
+   * props still win.
+   */
+  scrollportProps?: HTMLProps;
+  /**
    * Whether the host currently needs every item mounted, which suspends windowing for as long as
    * it is `true`. A host that never needs this omits the field.
    *

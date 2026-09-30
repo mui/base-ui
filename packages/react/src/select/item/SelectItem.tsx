@@ -22,7 +22,7 @@ import {
 } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
 import { useVirtualizerItem } from '../../virtualizer/host';
-import { useVirtualItemDiagnostics } from '../../internals/virtualization/useListBinding';
+import { useVirtualItemDiagnostics } from '../../internals/virtualization/useVirtualItemDiagnostics';
 
 /**
  * An individual option in the select popup.

@@ -169,13 +169,17 @@ function SelectVirtualizationState(props: SelectVirtualizationStateProps) {
 
   const value = React.useMemo<VirtualizerHostState>(
     () => ({
-      activeIndex,
+      // The scroll decision travels with the index it belongs to: a highlight the pointer moved
+      // leaves the viewport alone.
+      activeIndex:
+        activeIndex == null
+          ? null
+          : { index: activeIndex, scroll: shouldScrollActiveIntoView(highlightType) },
       // The grouped view of the same collection, when the root's `items` is grouped: the
       // virtualizer interleaves a header row before each group and renders it through
       // `renderGroupHeader`, which returns a `<Select.GroupLabel>`.
       groups: collection.groups,
       items: collection.items,
-      scrollActiveIntoView: shouldScrollActiveIntoView(highlightType),
       // `Select` never suspends windowing: its autofill matches against the values and labels the
       // root derives from `items`, so it never needs every row mounted.
       scrollportProps,
