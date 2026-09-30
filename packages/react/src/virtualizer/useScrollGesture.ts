@@ -39,6 +39,11 @@ export interface UseScrollGestureParameters {
    * after the drag itself stopped counting as one.
    */
   hasDeferredRowHeights: () => boolean;
+  /**
+   * Called whenever a gesture settles: the idle timer elapses, or a scrollbar drag releases the
+   * measurements it deferred.
+   */
+  onSettled: () => void;
 }
 
 /**
@@ -64,11 +69,6 @@ export interface ScrollGesture {
    */
   isScrollbarDrag: () => boolean;
   /**
-   * Bumped whenever a gesture settles: the idle timer elapses, or a scrollbar drag releases the
-   * measurements it deferred.
-   */
-  settledRevision: number;
-  /**
    * Binds the input listeners to the scroll element it is handed, and unbinds them when handed
    * `null`. Merged into the scroll element's ref, so the listeners follow the element the caller
    * renders, including a root the `render` prop replaces without the component remounting.
@@ -83,13 +83,12 @@ export interface ScrollGesture {
  * under the pointer.
  */
 export function useScrollGesture(parameters: UseScrollGestureParameters): ScrollGesture {
-  const { hasDeferredRowHeights, settleGeometry } = parameters;
+  const { hasDeferredRowHeights, onSettled, settleGeometry } = parameters;
 
   // Scrolling is treated as ongoing until this long without a scroll position change, so that
   // geometry rewrites can be held back for the duration of a gesture.
   const scrollIdleTimeout = useTimeout();
   const isScrollingRef = React.useRef(false);
-  const [settledRevision, bumpSettledRevision] = React.useReducer((value) => value + 1, 0);
 
   /** Timestamp of the last wheel/touch input on the scroller. */
   const lastDirectInputTimeRef = React.useRef(Number.NEGATIVE_INFINITY);
@@ -117,7 +116,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
       isScrollingRef.current = true;
       scrollIdleTimeout.start(SCROLL_IDLE_MS, () => {
         isScrollingRef.current = false;
-        bumpSettledRevision();
+        onSettled();
       });
 
       isScrollbarDragRef.current = evidence.isPointerDown && !evidence.hasDirectInput;
@@ -134,7 +133,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
     releaseScrollbarDragFrame.request(() => {
       // Commit real heights collected during the drag in one geometry update after release.
       settleGeometry();
-      bumpSettledRevision();
+      onSettled();
     });
   });
 
@@ -200,8 +199,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
       isScrolling,
       noteScroll,
       scrollElementRefCallback,
-      settledRevision,
     }),
-    [isScrollbarDrag, isScrolling, noteScroll, settledRevision, scrollElementRefCallback],
+    [isScrollbarDrag, isScrolling, noteScroll, scrollElementRefCallback],
   );
 }

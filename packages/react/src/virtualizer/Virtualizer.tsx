@@ -73,14 +73,13 @@ import {
   getScrollportPadding,
 } from './scrollport';
 import type { RowsInset } from './scrollport';
-import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
 import { useEngineMode } from './useEngineMode';
 import { useItemHeightEstimate } from './useItemHeightEstimate';
 import { useScrollGesture } from './useScrollGesture';
 import { useViewportRestore } from './useViewportRestore';
 import { useViewportController } from './useViewportController';
-import { RowHeightLedger } from './rowHeightLedger';
-import type { RowHeightCache, RowHeightEntry } from './rowHeightLedger';
+import type { MeasurableRow, RowHeightCache, RowHeightEntry } from './rowHeightLedger';
+import { useRowHeightLedger } from './useRowHeightLedger';
 import { VirtualizerCssVars } from './VirtualizerCssVars';
 
 interface VirtualRowProps<RowModel> {
@@ -713,72 +712,65 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   // The running average describes items: it is fed the item rows alone, so headers neither seed
   // it nor count among the rows it is judged against.
-  const adaptive = useAdaptiveEstimate({
+  const rowHeights = useRowHeightLedger<VirtualizerItemRowModel<Value>>({
+    cache: heightCache,
     rows: itemRows,
     // There is no estimate to refine when the items' height is declared: the average exists to
     // converge on what measuring would have found, and measuring is what this replaces.
     staticEstimatedItemHeight:
       fixedItemHeight != null ? null : itemHeightEstimate.staticEstimatedItemHeight,
   });
-  const { isMeasured, markMeasured } = adaptive;
-  const ledger = useRefWithInit(
-    () =>
-      new RowHeightLedger({
-        cache: heightCache,
-        isCommitted: isMeasured,
-        markCommitted: markMeasured,
-      }),
-  ).current;
+  const { ledger } = rowHeights;
   const hasDeferredRowHeights = useStableCallback(() => ledger.hasDeferredHeights());
-  const gesture = useScrollGesture({ hasDeferredRowHeights, settleGeometry });
+  const handleGestureSettled = useStableCallback(() => ledger.noteSettled());
+  const gesture = useScrollGesture({
+    hasDeferredRowHeights,
+    onSettled: handleGestureSettled,
+    settleGeometry,
+  });
 
   const isRowMeasured = heightCache.hasMeasurement;
   const readRowsGeometry = useStableCallback(
     (): RowsGeometry => muiStoreRef.current!.state.rowsMeta,
   );
   /**
-   * Measures the laid-out rows the engine has no measurement for, and commits their heights to its
-   * geometry at once. Their ResizeObserver reports the same heights a frame later, which then
-   * changes nothing.
+   * The rows laid out wherever they are, that measuring can learn a height for. Only rows in
+   * layout: the retained focus proxy and a retained header carry no usable height, and a hidden
+   * one stored as zero would be worse than its estimate. A row whose height was declared has none
+   * to learn: the declaration is final, and outlives any invalidation.
    */
-  const measureNewRows = useStableCallback(() => {
+  const getMeasurableRows = useStableCallback((): MeasurableRow[] => {
     const rowsParent = getRowsParent();
 
     if (rowsParent == null) {
-      return;
+      return [];
     }
 
-    let measuredAny = false;
+    const measurable: MeasurableRow[] = [];
     for (const element of getLaidOutRowElements(rowsParent)) {
       const rowIndex = Number(element.dataset.rowIndex);
       const row = rows[rowIndex];
-      // A declared height is final, and was never going to be measured.
       const declared = row != null && fixedItemHeight != null && !isGroupHeaderRow(row.model);
 
-      if (row != null && !declared && !isRowMeasured(row.id)) {
-        const height = element.getBoundingClientRect().height;
-
-        if (height > 0) {
-          heightCache.store(row.id, height);
-          adaptive.markMeasured(row.id);
-          heightCache.setLastMeasuredRowIndex(rowIndex);
-          measuredAny = true;
-        }
+      if (row != null && !declared) {
+        measurable.push({ element, rowId: row.id, rowIndex });
       }
     }
-
-    if (measuredAny) {
-      heightCache.hydrate();
-    }
+    return measurable;
   });
+  const measureNewRows = useStableCallback(() => ledger.measureNewRows(getMeasurableRows()));
 
   const isDraggingScrollbar = useStableCallback(() => gesture.isScrollbarDrag());
-  const hasAdaptiveEstimate = useStableCallback(() => adaptive.readEstimate() != null);
+  const isItemRowId = useStableCallback((rowId: React.Key) => !isGroupHeaderRowId(rowId));
+  const isGestureActive = useStableCallback(
+    () => gesture.isScrolling() || gesture.isScrollbarDrag(),
+  );
+  const hasAdaptiveEstimate = useStableCallback(() => ledger.readEstimate() != null);
   const isAdaptiveEstimateSettled = useStableCallback(
-    () => adaptive.readEstimate() != null || adaptive.isRefinementExhausted(),
+    () => ledger.readEstimate() != null || ledger.isRefinementExhausted(),
   );
   const viewportEstimate = {
-    enabled: adaptive.enabled,
+    enabled: rowHeights.enabled,
     hasEstimate: hasAdaptiveEstimate,
     isSettled: isAdaptiveEstimateSettled,
   };
@@ -928,9 +920,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   // MUI Virtualizer rehydrates row metadata when these callback identities change. This intentionally uses
   // a dependency-sensitive callback so estimate changes invalidate cached geometry.
-  const adaptiveEnabled = adaptive.enabled;
-  const adaptiveInvalidated = adaptive.invalidated;
-  const readAdaptiveEstimate = adaptive.readEstimate;
+  const adaptiveEnabled = rowHeights.enabled;
+  const adaptiveInvalidated = rowHeights.invalidated;
+  const readAdaptiveEstimate = rowHeights.readEstimate;
   const hasGroupHeaders = grouped != null;
   const getEstimatedRowHeight = React.useCallback(
     (row: RowEntry) => {
@@ -973,7 +965,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     ],
   );
   const resolvedEstimatedItemHeight =
-    adaptiveEnabled && adaptive.estimate != null ? adaptive.estimate : defaultEstimatedItemHeight;
+    adaptiveEnabled && rowHeights.estimate != null
+      ? rowHeights.estimate
+      : defaultEstimatedItemHeight;
   // Depends on the gesture's member rather than the whole handle: the engine rehydrates its
   // geometry when this identity changes, and the handle is republished on every settled gesture.
   const { isScrollbarDrag } = gesture;
@@ -1078,39 +1072,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     virtualizer.store.set('rootSize', { ...virtualizer.store.state.rootSize, height });
     virtualizer.api.updateDimensions();
   });
-  const readMeasuredHeight = useStableCallback((rowId: React.Key): number | null => {
-    const entry = heightCache.peek(rowId);
-    return entry == null || entry.needsFirstMeasurement ? null : entry.content;
-  });
-  const readMeasuredHeights = useStableCallback(function* readMeasuredHeights() {
-    for (const [rowId, entry] of heightCache.entries()) {
-      if (!entry.needsFirstMeasurement) {
-        yield [rowId, entry.content] as [React.Key, number];
-      }
-    }
-  });
-  // The same cache without the headers, including headers of groups no longer in the collection:
-  // the adaptive refresh demotes every measured row it did not sample to the item average, and a
-  // header's measured height must survive that.
-  const readMeasuredItemHeights = useStableCallback(function* readMeasuredItemHeights() {
-    for (const [rowId, height] of readMeasuredHeights()) {
-      if (!isGroupHeaderRowId(rowId)) {
-        yield [rowId, height] as [React.Key, number];
-      }
-    }
-  });
-  // Reaches into the engine's height cache: it has `resetRowHeights` for every row but no way to
-  // send one row back to its estimate, which the adaptive refresh needs for rows measured under a
-  // transient layout. The entries are plain mutable objects, so this is what a per-row reset
-  // would do; it is the one place that knows so.
-  const demoteRowHeight = useStableCallback((rowId: React.Key, height: number) => {
-    const entry = heightCache.peek(rowId);
-    if (entry != null) {
-      entry.content = height;
-      entry.needsFirstMeasurement = true;
-    }
-  });
-
   if (process.env.NODE_ENV !== 'production') {
     // NODE_ENV doesn't change at runtime
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -1560,40 +1521,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     // it, and the engine rehydrates again once the new estimates arrive.
     itemHeightEstimate.invalidate();
     groupHeaderHeightEstimate.invalidate();
-    adaptive.reset();
-    ledger.clearDeferredHeights();
-
-    if (muiApiRef.current != null) {
-      heightCache.reset();
-
-      // Rows are measured wherever they are laid out.
-      const rowsParent = getRowsParent();
-
-      if (rowsParent != null) {
-        // Only rows in layout: the retained focus proxy and a retained header carry no usable
-        // height, and a hidden one stored as zero would be worse than its estimate.
-        for (const element of getLaidOutRowElements(rowsParent)) {
-          const rowIndex = Number(element.dataset.rowIndex);
-          const row = rows[rowIndex];
-          const height = element.getBoundingClientRect().height;
-          // A row whose height was declared has nothing to take again: the declaration outlives
-          // the invalidation, and the hydration below restores it over anything stored here.
-          const declared = row != null && fixedItemHeight != null && !isGroupHeaderRow(row.model);
-
-          if (row != null && height > 0 && !declared) {
-            heightCache.store(row.id, height);
-            adaptive.markMeasured(row.id);
-            heightCache.setLastMeasuredRowIndex(rowIndex);
-          }
-        }
-      }
-
-      heightCache.hydrate();
-    }
-
     // Scroll anchoring compensates for whatever the rewrite moved, which is what keeps the
     // position across an invalidation that remounting to drop the caches would lose.
-    adaptive.noteMeasurements();
+    ledger.remeasure(getMeasurableRows());
   });
 
   // Public requests name items; the viewport works in rows.
@@ -1705,8 +1635,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   ]);
 
   // The refresh samples the settled window and demotes every cached height it did not sample;
-  // both must see items only, so a grouped list hands it the window in item space and a view of
-  // the cache without the headers.
+  // both must see items only, so a grouped list hands it the window in item space and tells it
+  // which cached rows are items.
   const itemRenderContext: RowWindow =
     grouped == null
       ? windowRows
@@ -1717,17 +1647,18 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
             collection.length,
         };
 
-  const refreshAdaptiveEstimate = useAdaptiveEstimateRefresh<VirtualizerItemRowModel<Value>>({
-    adaptive,
-    defaultEstimatedItemHeight,
-    demoteRowHeight,
-    gesture,
-    readMeasuredHeight,
-    readMeasuredHeights: grouped == null ? readMeasuredHeights : readMeasuredItemHeights,
-    renderContext: itemRenderContext,
-    rows: itemRows,
-    rowsMeta,
-    settleGeometry: settleGeometryAnchored,
+  useInsertionEffect(() => {
+    ledger.update({
+      defaultEstimatedItemHeight,
+      enabled: rowHeights.enabled,
+      isGestureActive,
+      isItemRowId: grouped == null ? undefined : isItemRowId,
+      revision: rowHeights.revision,
+      rows: itemRows,
+      rowsMeta,
+      settleGeometry: settleGeometryAnchored,
+      window: itemRenderContext,
+    });
   });
 
   // The viewport's commit, in the order its steps depend on. Declared after the effects that
@@ -1738,7 +1669,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // it in the same commit.
   useIsoLayoutEffect(() => {
     viewport.commit();
-    refreshAdaptiveEstimate();
+    ledger.refresh();
     viewport.retry();
   });
 

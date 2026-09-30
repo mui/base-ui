@@ -20,11 +20,13 @@ describe('useScrollGesture', () => {
   let gesture: ScrollGesture;
   let hydrateRowsMeta: Mock<() => void>;
   let hasDeferredRowHeights: boolean;
+  let onSettled: Mock<() => void>;
 
   function Probe(props: { tag?: 'div' | 'section' }) {
     const { tag: Tag = 'div' } = props;
     const resolved = useScrollGesture({
       hasDeferredRowHeights: () => hasDeferredRowHeights,
+      onSettled,
       settleGeometry: hydrateRowsMeta,
     });
 
@@ -38,6 +40,7 @@ describe('useScrollGesture', () => {
   beforeEach(() => {
     hydrateRowsMeta = vi.fn();
     hasDeferredRowHeights = false;
+    onSettled = vi.fn();
   });
 
   it('ignores a scroll the caller recognizes as its own', async () => {
@@ -58,15 +61,15 @@ describe('useScrollGesture', () => {
     expect(gesture.isScrolling()).toBe(false);
   });
 
-  it('publishes a new settled revision once a gesture ends', async () => {
+  it('announces that a gesture settled once it ends', async () => {
     await render(<Probe />);
 
-    const initialRevision = gesture.settledRevision;
     gesture.noteScroll(USER_SCROLL);
+    expect(onSettled).not.toHaveBeenCalled();
 
     await advanceReactClock(clock, SCROLL_IDLE_MS);
 
-    expect(gesture.settledRevision).not.toBe(initialRevision);
+    expect(onSettled).toHaveBeenCalledTimes(1);
   });
 
   it('reads a scroll under a held pointer with no wheel input as a scrollbar drag', async () => {
@@ -136,5 +139,6 @@ describe('useScrollGesture', () => {
       expect(hydrateRowsMeta).toHaveBeenCalledTimes(1);
     });
     expect(gesture.isScrollbarDrag()).toBe(false);
+    expect(onSettled).toHaveBeenCalledTimes(1);
   });
 });
