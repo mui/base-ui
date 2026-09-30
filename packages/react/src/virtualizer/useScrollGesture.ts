@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 
@@ -35,6 +34,11 @@ export interface UseScrollGestureParameters {
    * releases, so the heights deferred during the drag land together rather than under the pointer.
    */
   settleGeometry: () => void;
+  /**
+   * Whether measurements are being held back for a drag, which a release then has to commit even
+   * after the drag itself stopped counting as one.
+   */
+  hasDeferredRowHeights: () => boolean;
 }
 
 /**
@@ -65,17 +69,6 @@ export interface ScrollGesture {
    */
   settledRevision: number;
   /**
-   * Holds a row's real height back while a scrollbar drag is in progress, so committing it cannot
-   * move the geometry out from under the pointer. Returns the height to commit instead.
-   */
-  deferRowHeight: (rowId: React.Key, measuredHeight: number, estimatedHeight: number) => number;
-  /** Returns a height deferred during a drag that has since ended, and forgets it. */
-  releaseRowHeight: (rowId: React.Key) => number | undefined;
-  /** The real height a drag is holding back for a row, if any, left in place. */
-  getDeferredRowHeight: (rowId: React.Key) => number | undefined;
-  /** Drops every deferred measurement, for a caller that is re-measuring from scratch. */
-  clearDeferredRowHeights: () => void;
-  /**
    * Binds the input listeners to the scroll element it is handed, and unbinds them when handed
    * `null`. Merged into the scroll element's ref, so the listeners follow the element the caller
    * renders, including a root the `render` prop replaces without the component remounting.
@@ -85,12 +78,12 @@ export interface ScrollGesture {
 
 /**
  * Tracks how the user is scrolling: whether a gesture is in progress, whether it is a native
- * scrollbar drag, and when one has settled. Row measurements taken mid-drag are deferred here and
+ * scrollbar drag, and when one has settled. The row measurements held back during a drag are
  * committed in a single geometry update on release, so the scrollbar thumb never moves out from
  * under the pointer.
  */
 export function useScrollGesture(parameters: UseScrollGestureParameters): ScrollGesture {
-  const { settleGeometry } = parameters;
+  const { hasDeferredRowHeights, settleGeometry } = parameters;
 
   // Scrolling is treated as ongoing until this long without a scroll position change, so that
   // geometry rewrites can be held back for the duration of a gesture.
@@ -107,7 +100,6 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
    * held — a native scrollbar drag.
    */
   const isScrollbarDragRef = React.useRef(false);
-  const deferredRowHeightsRef = useRefWithInit(() => new Map<React.Key, number>());
   const releaseScrollbarDragFrame = useAnimationFrame();
 
   const noteScroll = useStableCallback(
@@ -134,7 +126,7 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
   );
 
   const commitScrollbarDrag = useStableCallback(() => {
-    if (!isScrollbarDragRef.current && deferredRowHeightsRef.current.size === 0) {
+    if (!isScrollbarDragRef.current && !hasDeferredRowHeights()) {
       return;
     }
 
@@ -197,69 +189,19 @@ export function useScrollGesture(parameters: UseScrollGestureParameters): Scroll
     unbindScrollElementRef.current = scrollElement ? bindScrollElement(scrollElement) : undefined;
   });
 
-  // The engine calls the row-height hooks while it renders, and the window computation reads the
-  // gesture during render, so these must stay callable there: they only read refs.
-  const deferRowHeight = React.useCallback(
-    (rowId: React.Key, measuredHeight: number, estimatedHeight: number) => {
-      const deferredHeight = deferredRowHeightsRef.current.get(rowId);
-
-      // ResizeObserver may report the same mounted row more than once during a drag. Preserve the
-      // newest real height, but do not mistake our committed estimate for a new measurement.
-      if (deferredHeight == null || measuredHeight !== estimatedHeight) {
-        deferredRowHeightsRef.current.set(rowId, measuredHeight);
-      }
-
-      return estimatedHeight;
-    },
-    [deferredRowHeightsRef],
-  );
-
-  const releaseRowHeight = React.useCallback(
-    (rowId: React.Key) => {
-      const deferredHeight = deferredRowHeightsRef.current.get(rowId);
-
-      if (deferredHeight != null) {
-        deferredRowHeightsRef.current.delete(rowId);
-      }
-
-      return deferredHeight;
-    },
-    [deferredRowHeightsRef],
-  );
-
-  // Read during render, where the window's height is worked out: it only reads a ref.
-  const getDeferredRowHeight = React.useCallback(
-    (rowId: React.Key) => deferredRowHeightsRef.current.get(rowId),
-    [deferredRowHeightsRef],
-  );
-
-  // Only ever called from the imperative `remeasure` handler, never during render.
-  const clearDeferredRowHeights = useStableCallback(() => deferredRowHeightsRef.current.clear());
+  // The window computation reads the gesture during render, so these must stay callable there:
+  // they only read refs.
   const isScrolling = React.useCallback(() => isScrollingRef.current, []);
   const isScrollbarDrag = React.useCallback(() => isScrollbarDragRef.current, []);
 
   return React.useMemo(
     () => ({
-      clearDeferredRowHeights,
-      deferRowHeight,
-      getDeferredRowHeight,
       isScrollbarDrag,
       isScrolling,
       noteScroll,
-      releaseRowHeight,
       scrollElementRefCallback,
       settledRevision,
     }),
-    [
-      clearDeferredRowHeights,
-      deferRowHeight,
-      getDeferredRowHeight,
-      isScrollbarDrag,
-      isScrolling,
-      noteScroll,
-      releaseRowHeight,
-      settledRevision,
-      scrollElementRefCallback,
-    ],
+    [isScrollbarDrag, isScrolling, noteScroll, settledRevision, scrollElementRefCallback],
   );
 }

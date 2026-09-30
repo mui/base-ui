@@ -79,6 +79,7 @@ import { useItemHeightEstimate } from './useItemHeightEstimate';
 import { useScrollGesture } from './useScrollGesture';
 import { useViewportRestore } from './useViewportRestore';
 import { useViewportController } from './useViewportController';
+import { RowHeightLedger } from './rowHeightLedger';
 import type { RowHeightCache, RowHeightEntry } from './rowHeightLedger';
 import { VirtualizerCssVars } from './VirtualizerCssVars';
 
@@ -710,7 +711,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   const rowsInsetTotal = rowsInset.start + rowsInset.end;
 
-  const gesture = useScrollGesture({ settleGeometry });
   // The running average describes items: it is fed the item rows alone, so headers neither seed
   // it nor count among the rows it is judged against.
   const adaptive = useAdaptiveEstimate({
@@ -720,6 +720,17 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     staticEstimatedItemHeight:
       fixedItemHeight != null ? null : itemHeightEstimate.staticEstimatedItemHeight,
   });
+  const { isMeasured, markMeasured } = adaptive;
+  const ledger = useRefWithInit(
+    () =>
+      new RowHeightLedger({
+        cache: heightCache,
+        isCommitted: isMeasured,
+        markCommitted: markMeasured,
+      }),
+  ).current;
+  const hasDeferredRowHeights = useStableCallback(() => ledger.hasDeferredHeights());
+  const gesture = useScrollGesture({ hasDeferredRowHeights, settleGeometry });
 
   const isRowMeasured = heightCache.hasMeasurement;
   const readRowsGeometry = useStableCallback(
@@ -963,46 +974,15 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   );
   const resolvedEstimatedItemHeight =
     adaptiveEnabled && adaptive.estimate != null ? adaptive.estimate : defaultEstimatedItemHeight;
-  // Depends on the individual members rather than the whole handles: the engine rehydrates its
-  // geometry when this identity changes, and the handles are republished on every settled gesture
-  // and every measurement pass.
-  const { deferRowHeight, isScrollbarDrag, releaseRowHeight } = gesture;
-  const { isMeasured, markMeasured } = adaptive;
+  // Depends on the gesture's member rather than the whole handle: the engine rehydrates its
+  // geometry when this identity changes, and the handle is republished on every settled gesture.
+  const { isScrollbarDrag } = gesture;
   const applyRowHeight = React.useCallback(
-    (entry: HeightEntry, row: RowEntry) => {
-      const rowId = row.id as React.Key;
-
-      // A row whose height was declared is already final: it is never measured, so there is no
-      // measurement to defer through a scrollbar drag and none to sample for the average.
-      if (!entry.autoHeight && !entry.needsFirstMeasurement) {
-        return;
-      }
-
-      if (!isScrollbarDrag()) {
-        const releasedHeight = releaseRowHeight(rowId);
-        if (releasedHeight != null) {
-          entry.content = releasedHeight;
-        }
-        if (!entry.needsFirstMeasurement) {
-          markMeasured(rowId);
-        }
-        return;
-      }
-
-      if (entry.needsFirstMeasurement || isMeasured(rowId)) {
-        return;
-      }
-
-      entry.content = deferRowHeight(rowId, entry.content, getEstimatedRowHeight(row));
-    },
-    [
-      deferRowHeight,
-      getEstimatedRowHeight,
-      isMeasured,
-      isScrollbarDrag,
-      markMeasured,
-      releaseRowHeight,
-    ],
+    (entry: HeightEntry, row: RowEntry) =>
+      ledger.applyRowHeight(entry, row.id as React.Key, isScrollbarDrag(), () =>
+        getEstimatedRowHeight(row),
+      ),
+    [getEstimatedRowHeight, isScrollbarDrag, ledger],
   );
   const range = React.useMemo(
     () =>
@@ -1398,7 +1378,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     for (let rowIndex = renderContext.firstRowIndex; rowIndex < lastRowIndex; rowIndex += 1) {
       const rowEnd = rowsMeta.positions[rowIndex + 1] ?? rowsTotalHeight;
       knownHeight +=
-        gesture.getDeferredRowHeight(rows[rowIndex].id) ?? rowEnd - rowsMeta.positions[rowIndex];
+        ledger.getDeferredHeight(rows[rowIndex].id) ?? rowEnd - rowsMeta.positions[rowIndex];
     }
     windowHeight = knownHeight;
   }
@@ -1581,7 +1561,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     itemHeightEstimate.invalidate();
     groupHeaderHeightEstimate.invalidate();
     adaptive.reset();
-    gesture.clearDeferredRowHeights();
+    ledger.clearDeferredHeights();
 
     if (muiApiRef.current != null) {
       heightCache.reset();

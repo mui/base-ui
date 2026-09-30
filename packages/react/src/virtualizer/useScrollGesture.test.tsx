@@ -19,10 +19,14 @@ describe('useScrollGesture', () => {
 
   let gesture: ScrollGesture;
   let hydrateRowsMeta: Mock<() => void>;
+  let hasDeferredRowHeights: boolean;
 
   function Probe(props: { tag?: 'div' | 'section' }) {
     const { tag: Tag = 'div' } = props;
-    const resolved = useScrollGesture({ settleGeometry: hydrateRowsMeta });
+    const resolved = useScrollGesture({
+      hasDeferredRowHeights: () => hasDeferredRowHeights,
+      settleGeometry: hydrateRowsMeta,
+    });
 
     useIsoLayoutEffect(() => {
       gesture = resolved;
@@ -33,6 +37,7 @@ describe('useScrollGesture', () => {
 
   beforeEach(() => {
     hydrateRowsMeta = vi.fn();
+    hasDeferredRowHeights = false;
   });
 
   it('ignores a scroll the caller recognizes as its own', async () => {
@@ -115,26 +120,13 @@ describe('useScrollGesture', () => {
     expect(gesture.isScrollbarDrag()).toBe(false);
   });
 
-  it('holds a row measurement back for the duration of a drag', async () => {
-    await render(<Probe />);
-
-    firePointer.down(screen.getByTestId('scroller'), { timeStamp: 1 });
-    gesture.noteScroll(USER_SCROLL);
-
-    // The estimate is committed instead, so the geometry cannot move under the pointer.
-    expect(gesture.deferRowHeight('row-1', 90, 30)).toBe(30);
-    expect(gesture.releaseRowHeight('row-1')).toBe(90);
-    // A released measurement is committed once and then forgotten.
-    expect(gesture.releaseRowHeight('row-1')).toBe(undefined);
-  });
-
   it('commits the measurements a drag deferred once the pointer is released', async () => {
     await render(<Probe />);
 
     const scroller = screen.getByTestId('scroller');
     firePointer.down(scroller, { timeStamp: 1 });
     gesture.noteScroll(USER_SCROLL);
-    gesture.deferRowHeight('row-1', 90, 30);
+    hasDeferredRowHeights = true;
 
     expect(hydrateRowsMeta).not.toHaveBeenCalled();
 
@@ -144,17 +136,5 @@ describe('useScrollGesture', () => {
       expect(hydrateRowsMeta).toHaveBeenCalledTimes(1);
     });
     expect(gesture.isScrollbarDrag()).toBe(false);
-  });
-
-  it('drops every deferred measurement on request', async () => {
-    await render(<Probe />);
-
-    firePointer.down(screen.getByTestId('scroller'), { timeStamp: 1 });
-    gesture.noteScroll(USER_SCROLL);
-    gesture.deferRowHeight('row-1', 90, 30);
-
-    gesture.clearDeferredRowHeights();
-
-    expect(gesture.releaseRowHeight('row-1')).toBe(undefined);
   });
 });
