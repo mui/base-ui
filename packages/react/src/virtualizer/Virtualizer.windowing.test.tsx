@@ -14,6 +14,7 @@ import {
   createVirtualizerItems as createItems,
   renderVirtualizerItem as renderItem,
   renderVirtualizerItemOf as renderItemOf,
+  wait,
   waitSingleFrame,
 } from '#test-utils';
 import type { VirtualizerTestItem as TestItem } from '#test-utils';
@@ -1162,6 +1163,7 @@ describe('<Virtualizer /> windowing', () => {
     'keeps the content anchored when an estimate refresh shrinks the total above the bottom',
     async () => {
       vi.restoreAllMocks();
+      const reactGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean };
 
       // Tall rows up front seed a high estimate; the short remainder keeps lowering the average
       // as it is measured, so each refresh shrinks the virtual total. A refresh moves every
@@ -1192,99 +1194,103 @@ describe('<Virtualizer /> windowing', () => {
       fireEvent.scroll(virtualizer);
       await screen.findByText('Item 3000');
       fireEvent.mouseUp(virtualizer);
-      await act(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(resolve, 600);
-          }),
-      );
 
-      // Scroll up past the rows measured at the bottom: the engine's buffer spans fifteen rows at
-      // the seeded estimate, so settling there measured several dozen of the short rows. The rows
-      // this scroll mounts are new samples, so the next idle refresh shrinks the total below the
-      // current scroll position and the browser clamps `scrollTop`.
-      virtualizer.scrollTop -= 2000;
-      fireEvent.scroll(virtualizer);
-      await act(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(resolve, 50);
-          }),
-      );
+      // From here on the list runs on its own: the drag's release, the measurements, and the
+      // refreshes all land on later frames. React 18 holds back every update scheduled inside an
+      // `act()` scope until the scope ends, so waiting inside one would commit a whole wait's
+      // worth of work at once, and nothing in between could be observed. Scroll events are
+      // dispatched directly, since `fireEvent` wraps them in `act()`.
+      reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+      try {
+        await wait(600);
 
-      const getTopVisibleRow = () => {
-        const scrollerRect = virtualizer.getBoundingClientRect();
-        let topRow: { index: number; offset: number } | null = null;
-        for (const rowElement of virtualizer.querySelectorAll<HTMLElement>('[data-row-index]')) {
-          if (rowElement.style.position === 'absolute') {
-            continue;
-          }
-          const rect = rowElement.getBoundingClientRect();
-          if (rect.height > 0 && rect.bottom > scrollerRect.top && rect.top < scrollerRect.bottom) {
-            if (topRow === null || rect.top < topRow.offset) {
-              topRow = { index: Number(rowElement.dataset.rowIndex), offset: rect.top };
+        // Scroll up past the rows measured at the bottom: the engine's buffer spans fifteen rows at
+        // the seeded estimate, so settling there measured several dozen of the short rows. The rows
+        // this scroll mounts are new samples, so the next idle refresh shrinks the total below the
+        // current scroll position and the browser clamps `scrollTop`.
+        virtualizer.scrollTop -= 2000;
+        virtualizer.dispatchEvent(new Event('scroll'));
+
+        const getTopVisibleRow = () => {
+          const scrollerRect = virtualizer.getBoundingClientRect();
+          let topRow: { index: number; offset: number } | null = null;
+          for (const rowElement of virtualizer.querySelectorAll<HTMLElement>('[data-row-index]')) {
+            if (rowElement.style.position === 'absolute') {
+              continue;
+            }
+            const rect = rowElement.getBoundingClientRect();
+            if (
+              rect.height > 0 &&
+              rect.bottom > scrollerRect.top &&
+              rect.top < scrollerRect.bottom
+            ) {
+              if (topRow === null || rect.top < topRow.offset) {
+                topRow = { index: Number(rowElement.dataset.rowIndex), offset: rect.top };
+              }
             }
           }
-        }
-        return topRow;
-      };
+          return topRow;
+        };
 
-      const tracked = getTopVisibleRow();
-      expect(tracked).not.toBe(null);
-      const trackedElement = virtualizer.querySelector<HTMLElement>(
-        `[data-row-index="${tracked!.index}"]`,
-      );
-      expect(trackedElement).not.toBe(null);
-
-      // Watch every committed state until the refresh settles, not just painted frames: the row
-      // the user is looking at must stay mounted, as the same element, and must not move on
-      // screen even though the geometry rewrite clamps the scroll position. A window committed
-      // for a stale position and corrected before the paint would still remount the row, losing
-      // its focus and any state inside it.
-      const disturbances: string[] = [];
-      const observer = new MutationObserver(() => {
-        const element = virtualizer.querySelector<HTMLElement>(
-          `[data-row-index="${tracked!.index}"]`,
+        // The rows for the new position are placed by their estimates, and reach the viewport
+        // once they are measured.
+        const tracked = await waitFor(() => {
+          const row = getTopVisibleRow();
+          expect(row).not.toBe(null);
+          return row!;
+        });
+        const trackedElement = virtualizer.querySelector<HTMLElement>(
+          `[data-row-index="${tracked.index}"]`,
         );
-        if (element === null || element.style.position === 'absolute') {
-          disturbances.push(`row ${tracked!.index} left the window`);
-          return;
-        }
-        if (element !== trackedElement) {
-          disturbances.push(`row ${tracked!.index} was remounted`);
-          return;
-        }
-        const offset = element.getBoundingClientRect().top;
-        if (Math.abs(offset - tracked!.offset) > 2) {
-          disturbances.push(
-            `row ${tracked!.index} moved from ${tracked!.offset.toFixed(1)} to ${offset.toFixed(1)}`,
+        expect(trackedElement).not.toBe(null);
+
+        // Watch every committed state until the refresh settles, not just painted frames: the row
+        // the user is looking at must stay mounted, as the same element, and must not move on
+        // screen even though the geometry rewrite clamps the scroll position. A window committed
+        // for a stale position and corrected before the paint would still remount the row, losing
+        // its focus and any state inside it.
+        const disturbances: string[] = [];
+        const observer = new MutationObserver(() => {
+          const element = virtualizer.querySelector<HTMLElement>(
+            `[data-row-index="${tracked.index}"]`,
           );
+          if (element === null || element.style.position === 'absolute') {
+            disturbances.push(`row ${tracked.index} left the window`);
+            return;
+          }
+          if (element !== trackedElement) {
+            disturbances.push(`row ${tracked.index} was remounted`);
+            return;
+          }
+          const offset = element.getBoundingClientRect().top;
+          if (Math.abs(offset - tracked.offset) > 2) {
+            disturbances.push(
+              `row ${tracked.index} moved from ${tracked.offset.toFixed(1)} to ${offset.toFixed(1)}`,
+            );
+          }
+        });
+        observer.observe(virtualizer, {
+          subtree: true,
+          childList: true,
+          attributes: true,
+          attributeFilter: ['style'],
+        });
+
+        const scrollHeightBeforeRefresh = virtualizer.scrollHeight;
+        try {
+          // The refresh fires after the idle window; wait long enough for it and its follow-ups.
+          await waitFor(() =>
+            expect(virtualizer.scrollHeight).toBeLessThan(scrollHeightBeforeRefresh - 500),
+          );
+          await wait(400);
+        } finally {
+          observer.disconnect();
         }
-      });
-      observer.observe(virtualizer, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['style'],
-      });
 
-      const scrollHeightBeforeRefresh = virtualizer.scrollHeight;
-      try {
-        // The refresh fires after the idle window; wait long enough for it and its follow-ups.
-        await waitFor(() =>
-          expect(virtualizer.scrollHeight).toBeLessThan(scrollHeightBeforeRefresh - 500),
-        );
-        await act(
-          () =>
-            new Promise((resolve) => {
-              setTimeout(resolve, 400);
-            }),
-        );
+        expect(disturbances).toEqual([]);
       } finally {
-        observer.disconnect();
+        reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
       }
-
-      expect(disturbances).toEqual([]);
     },
   );
 
