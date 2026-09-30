@@ -1,22 +1,20 @@
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 // Through the package's public entry point, as a host outside this repository reaches it: the
 // contract is only implementable if everything it needs is exported from there.
 import {
   createVirtualizerRegistry,
+  useVirtualizerGroupHeader,
+  useVirtualizerItem,
   Virtualizer,
-  VirtualizerHostContext,
-  VirtualizerHostStateContext,
+  VirtualizerHostProvider,
 } from '@base-ui/react/virtualizer';
 import type {
   VirtualizerActiveIndex,
   VirtualizerGroup,
-  VirtualizerGroupHeaderMetadata,
   VirtualizerHandle,
   VirtualizerHost,
   VirtualizerHostState,
   VirtualizerItemAria,
-  VirtualizerItemMetadata,
   VirtualizerItemProps,
 } from '@base-ui/react/virtualizer';
 
@@ -36,18 +34,12 @@ export function createItems(count: number): TestItem[] {
   }));
 }
 
-export const TestVirtualItemContext = React.createContext<VirtualizerItemMetadata | undefined>(
-  undefined,
-);
-
 /**
- * Stands in for a list's `<Item>`: applies the collection metadata the virtualizer supplies and
- * registers itself as the single item rendered for its row.
+ * Stands in for a list's `<Item>`: applies the collection metadata the virtualizer supplies, which
+ * also registers it as the single item rendered for its row.
  */
 export function TestListItem(props: { children: React.ReactNode; style?: React.CSSProperties }) {
-  const virtualItem = React.useContext(TestVirtualItemContext);
-
-  useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
+  const virtualItem = useVirtualizerItem();
 
   return (
     <div role="listitem" {...virtualItem?.props} style={props.style}>
@@ -56,15 +48,11 @@ export function TestListItem(props: { children: React.ReactNode; style?: React.C
   );
 }
 
-export const TestVirtualGroupContext = React.createContext<
-  VirtualizerGroupHeaderMetadata | undefined
->(undefined);
-
 /**
  * Stands in for a list's `<GroupLabel>`: adopts the id the virtualizer names the group by.
  */
 export function TestGroupLabel(props: { children: React.ReactNode }) {
-  const virtualGroup = React.useContext(TestVirtualGroupContext);
+  const virtualGroup = useVirtualizerGroupHeader();
 
   return (
     <div id={virtualGroup?.id} aria-hidden>
@@ -182,8 +170,7 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
       componentName: 'TestList',
       itemAria: hostItemAria,
       registry,
-      virtualGroupContext: TestVirtualGroupContext,
-      virtualItemContext: TestVirtualItemContext,
+      rendersItemPart: true,
     }),
     [hostItemAria, registry],
   );
@@ -209,17 +196,15 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
   );
 
   return (
-    <VirtualizerHostContext.Provider value={host}>
-      <VirtualizerHostStateContext.Provider value={hostState}>
-        <Virtualizer<Item>
-          getItemKey={
-            (getItemKey ?? (isTestItemCollection(items) ? testItemKey : undefined)) as (
-              item: Item,
-            ) => string | number
-          }
-          {...virtualizerProps}
-        />
-      </VirtualizerHostStateContext.Provider>
-    </VirtualizerHostContext.Provider>
+    <VirtualizerHostProvider host={host} state={hostState}>
+      <Virtualizer<Item>
+        getItemKey={
+          (getItemKey ?? (isTestItemCollection(items) ? testItemKey : undefined)) as (
+            item: Item,
+          ) => string | number
+        }
+        {...virtualizerProps}
+      />
+    </VirtualizerHostProvider>
   );
 }

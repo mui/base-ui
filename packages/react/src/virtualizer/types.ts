@@ -256,6 +256,4 @@ export interface VirtualizerItemMetadata {
   index: number;
   /** Accessibility and collection metadata applied to the item. */
   props: VirtualizerItemProps;
-  /** Registers the item rendered for this virtual row. */
-  registerItem: (() => () => void) | undefined;
 }

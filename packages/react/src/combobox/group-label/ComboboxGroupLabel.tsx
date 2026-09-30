@@ -5,7 +5,7 @@ import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useComboboxGroupContext } from '../group/ComboboxGroupContext';
-import { useComboboxVirtualGroupContext } from '../group/ComboboxVirtualGroupContext';
+import { useVirtualizerGroupHeader } from '../../virtualizer/host';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -22,7 +22,7 @@ export const ComboboxGroupLabel = React.forwardRef(function ComboboxGroupLabel(
 
   // Inside a virtualizer the group's wrapper is the virtualizer's, and it already references the
   // id it hands the header; the label adopts that id rather than registering one of its own.
-  const virtualGroup = useComboboxVirtualGroupContext();
+  const virtualGroup = useVirtualizerGroupHeader();
   const groupContext = useComboboxGroupContext(virtualGroup != null);
 
   const ownId = useBaseUiId(idProp);

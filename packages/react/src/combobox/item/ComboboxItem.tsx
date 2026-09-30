@@ -19,13 +19,9 @@ import {
   findItemIndex,
   resolveSelectedIndex,
 } from '../../internals/itemEquality';
-import { useComboboxVirtualItemContext } from './ComboboxVirtualItemContext';
-import type { ComboboxVirtualItemMetadata } from './ComboboxVirtualItemContext';
-import { useVirtualizerHost } from '../../virtualizer/host';
-import {
-  useNonVirtualizedItemRegistration,
-  useVirtualItemDiagnostics,
-} from '../../internals/virtualization/useListBinding';
+import { useVirtualizerItem } from '../../virtualizer/host';
+import type { VirtualizerItemMetadata } from '../../virtualizer/types';
+import { useVirtualItemDiagnostics } from '../../internals/virtualization/useListBinding';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -39,7 +35,7 @@ interface ComboboxItemInnerProps {
    * Metadata supplied by the built-in virtualizer for the row containing this item.
    * `undefined` for non-virtualized items and items managed by an external virtualizer.
    */
-  virtualItem: ComboboxVirtualItemMetadata | undefined;
+  virtualItem: VirtualizerItemMetadata | undefined;
   /**
    * Pre-resolved index for the virtualized fallback (when no `index` prop is provided).
    * `undefined` for the common path, where the index is derived from `index` prop or the
@@ -300,15 +296,7 @@ export const ComboboxItem = React.memo(
   ) {
     const store = useComboboxRootContext();
     const externallyVirtualized = store.useState('externallyVirtualized');
-    const virtualItem = useComboboxVirtualItemContext();
-    const insideList = useVirtualizerHost() != null;
-
-    useNonVirtualizedItemRegistration({
-      componentName: store.context.componentName,
-      insideList,
-      registry: store.context.virtualizationRegistry,
-      virtualized: virtualItem != null,
-    });
+    const virtualItem = useVirtualizerItem();
 
     // External virtualization and whether an item provides an explicit `index` must be stable
     // for an item's lifetime: the two branches return different component types, so flipping
