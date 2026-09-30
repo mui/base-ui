@@ -2,9 +2,6 @@ import { getComputedStyle, getNodeName, isHTMLElement, isShadowRoot } from '@flo
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from './element';
 import { isElementVisible } from './composite';
-import { isElementInFloatingTree } from './nodes';
-import { createAttribute } from './createAttribute';
-import type { FloatingNodeType } from '../types';
 
 export type FocusableElement = HTMLElement | SVGElement;
 
@@ -230,7 +227,7 @@ type NearResult =
   | { found: true; element: FocusableElement }
   | { found: false; trackedElement: FocusableElement | null };
 
-function findTabbableNear(
+export function findTabbableNear(
   referenceElement: Element,
   direction: 1 | -1,
   shouldSkip: (element: FocusableElement) => boolean,
@@ -271,16 +268,6 @@ export function getTabbableNearElement(
   return result.trackedElement;
 }
 
-export function getTabbableAfterElement(referenceElement: Element | null): FocusableElement | null {
-  return getTabbableNearElement(referenceElement, 1);
-}
-
-export function getTabbableBeforeElement(
-  referenceElement: Element | null,
-): FocusableElement | null {
-  return getTabbableNearElement(referenceElement, -1);
-}
-
 export function isOutsideEvent(event: FocusEvent | React.FocusEvent, container?: Element) {
   const containerElement = container || (event.currentTarget as Element);
   const relatedTarget = event.relatedTarget as HTMLElement | null;
@@ -307,23 +294,4 @@ export function enableFocusInside(container: HTMLElement) {
       element.removeAttribute('tabindex');
     }
   });
-}
-
-export function getTabExitTarget(
-  referenceElement: Element | null,
-  direction: 1 | -1,
-  nodes: Array<FloatingNodeType>,
-): FocusableElement | null {
-  if (!referenceElement) {
-    return null;
-  }
-
-  const result = findTabbableNear(
-    referenceElement,
-    direction,
-    (element) =>
-      element.hasAttribute(createAttribute('focus-guard')) ||
-      isElementInFloatingTree(element, nodes),
-  );
-  return result.found ? result.element : null;
 }

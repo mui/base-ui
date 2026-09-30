@@ -30,12 +30,12 @@ import {
   isTabbable,
   getNextTabbable,
   getPreviousTabbable,
-  getTabExitTarget,
+  findTabbableNear,
 } from '../utils/tabbable';
 import type { FocusableElement } from '../utils/tabbable';
-import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
+import { getNodeAncestors, getNodeChildren, isElementInFloatingTree } from '../utils/nodes';
 import { isElementVisible } from '../utils/composite';
-import type { FloatingRootContext } from '../types';
+import type { FloatingNodeType, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
@@ -105,6 +105,25 @@ function getFirstTabbableElement(container: Element | null) {
   }
 
   return tabbable(container)[0] || container;
+}
+
+function getTabExitTarget(
+  referenceElement: Element | null,
+  direction: 1 | -1,
+  nodes: Array<FloatingNodeType>,
+): FocusableElement | null {
+  if (!referenceElement) {
+    return null;
+  }
+
+  const result = findTabbableNear(
+    referenceElement,
+    direction,
+    (element) =>
+      element.hasAttribute(createAttribute('focus-guard')) ||
+      isElementInFloatingTree(element, nodes),
+  );
+  return result.found ? result.element : null;
 }
 
 function handleTabIndex(floatingFocusElement: HTMLElement) {

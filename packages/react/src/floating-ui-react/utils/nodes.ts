@@ -32,21 +32,25 @@ export function getNodeAncestors(nodes: Array<FloatingNodeType>, id: string | un
   return allAncestors;
 }
 
+/**
+ * Determine whether element belongs to a currently open popup
+ */
 export function isElementInFloatingTree(element: Element, nodes: Array<FloatingNodeType>): boolean {
   return nodes.some((node) => {
     const context = node.context;
     if (!context?.open) {
-      return false;
+      return false; // Ignore closed popups
     }
 
     const { domReference, floating } = context.elements;
     if (domReference && (domReference === element || contains(domReference, element))) {
-      return true;
+      return true; // The popup's reference/trigger element
     }
     if (floating && (floating === element || contains(floating, element))) {
-      return true;
+      return true; // The popup's content
     }
 
+    // Other elements registered as opening this popup (e.g. detached/multiple triggers)
     return context.rootStore.context.triggerElements.hasMatchingElement(
       (trigger) => trigger === element || contains(trigger, element),
     );

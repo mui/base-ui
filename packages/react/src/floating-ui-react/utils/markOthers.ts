@@ -104,10 +104,12 @@ function removeFromTabOrder(node: Element): TabIndexRestoreEntry[] {
   if (node.querySelectorAll) {
     targets.push(...node.querySelectorAll(CANDIDATE_SELECTOR));
   }
+
   const restore: TabIndexRestoreEntry[] = []; // Init to restore array
 
   // Loop through tabbable target elements in tree
   targets.forEach((element) => {
+    // Skip target if disabled
     if (element.matches(':disabled')) {
       return;
     }
@@ -117,9 +119,11 @@ function removeFromTabOrder(node: Element): TabIndexRestoreEntry[] {
     if (tabIndex !== null && Number(tabIndex) < 0) {
       return;
     }
-    restore.push([element, tabIndex]);
-    element.setAttribute('tabindex', '-1');
+
+    restore.push([element, tabIndex]); // Store element for later tab index restore
+    element.setAttribute('tabindex', '-1'); // Hide element from tab sequence
   });
+
   return restore;
 }
 
@@ -127,17 +131,20 @@ function removeFromTabOrder(node: Element): TabIndexRestoreEntry[] {
  * Function to restore tab order state to altered elements
  */
 function restoreTabOrder(node: Element): void {
-  const restore = focusRestoreMap.get(node);
+  const restore = focusRestoreMap.get(node); // Retrieve element restore values
   if (!restore) {
     return;
   }
-  focusRestoreMap.delete(node);
 
-  // Loop through tabIndex restore entries
+  focusRestoreMap.delete(node); // Delete this node from restore map
+
+  // Loop through tabIndex restore entries for this node
   restore.forEach(([element, tabIndex]) => {
+    // Only restore if -1 rewrite still active
     if (element.getAttribute('tabindex') !== '-1') {
       return;
     }
+    // Restore previous tab index
     if (tabIndex === null) {
       element.removeAttribute('tabindex');
     } else {
