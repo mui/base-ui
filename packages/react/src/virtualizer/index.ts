@@ -3,14 +3,16 @@ export { Virtualizer } from './index.parts';
 export type { VirtualizerLayout, VirtualizerProps, VirtualizerState } from './Virtualizer';
 export {
   createVirtualizerRegistry,
+  useVirtualizerGroupHeader,
   useVirtualizerHost,
   useVirtualizerHostState,
-  VirtualizerHostContext,
-  VirtualizerHostStateContext,
+  useVirtualizerItem,
+  VirtualizerHostProvider,
 } from './host';
 export type {
   VirtualizerHandle,
   VirtualizerHost,
+  VirtualizerHostProviderProps,
   VirtualizerHostState,
   VirtualizerRegistration,
   VirtualizerRegistry,

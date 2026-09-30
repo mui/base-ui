@@ -15,10 +15,8 @@ import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { shouldScrollActiveIntoView } from '../../internals/list/scrollActivation';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { clickHighlightedItem } from '../utils/parts';
-import { VirtualizerHostContext, VirtualizerHostStateContext } from '../../virtualizer/host';
+import { VirtualizerHostProvider } from '../../virtualizer/host';
 import type { VirtualizerHost, VirtualizerHostState } from '../../virtualizer/host';
-import { ComboboxVirtualItemContext } from '../item/ComboboxVirtualItemContext';
-import { ComboboxVirtualGroupContext } from '../group/ComboboxVirtualGroupContext';
 import { isGroupedItems } from '../../internals/resolveValueLabel';
 
 /**
@@ -94,8 +92,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     () => ({
       componentName,
       registry: store.context.virtualizationRegistry,
-      virtualGroupContext: ComboboxVirtualGroupContext,
-      virtualItemContext: ComboboxVirtualItemContext,
+      rendersItemPart: true,
       warnUnsupportedConfiguration:
         process.env.NODE_ENV === 'production' ? undefined : warnUnsupportedConfiguration,
     }),
@@ -167,11 +164,9 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   });
 
   const contextualElement = (
-    <VirtualizerHostContext.Provider value={virtualizationHost}>
-      <VirtualizerHostStateContext.Provider value={virtualizationListState}>
-        {element}
-      </VirtualizerHostStateContext.Provider>
-    </VirtualizerHostContext.Provider>
+    <VirtualizerHostProvider host={virtualizationHost} state={virtualizationListState}>
+      {element}
+    </VirtualizerHostProvider>
   );
 
   if (externallyVirtualized) {

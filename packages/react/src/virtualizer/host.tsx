@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import type { HTMLProps } from '../internals/types';
 import type {
   VirtualizerActiveIndex,
@@ -63,10 +65,6 @@ export interface VirtualizerRegistration extends VirtualizerHandle {
  */
 export interface VirtualizerRegistry {
   /**
-   * Number of non-virtualized items currently registered with the host.
-   */
-  nonVirtualItemCount: number;
-  /**
    * Called when a virtualizer registers, unregisters, or replaces its handle.
    *
    * The `virtualizer` field below is mutable and notifies nobody, which is enough for a host that
@@ -89,10 +87,34 @@ export interface VirtualizerRegistry {
  * Creates the virtualization registry owned by a host's root.
  */
 export function createVirtualizerRegistry(): VirtualizerRegistry {
-  return {
+  const registry: RegistryWithStaticItems = {
     nonVirtualItemCount: 0,
     virtualizer: null,
   };
+  return registry;
+}
+
+/**
+ * The registry as the virtualizer keeps it: it also counts the item parts a host renders outside
+ * the virtualizer, which only `useVirtualizerItem` maintains.
+ */
+interface RegistryWithStaticItems extends VirtualizerRegistry {
+  nonVirtualItemCount: number;
+}
+
+/**
+ * Whether a host's list currently renders item parts outside the virtualizer, which it must not
+ * alongside one.
+ */
+export function hasStaticItems(registry: VirtualizerRegistry) {
+  return ((registry as RegistryWithStaticItems).nonVirtualItemCount ?? 0) > 0;
+}
+
+export function warnAboutStaticItems(componentName: string) {
+  warn(
+    `<${componentName}.List> must not render static <${componentName}.Item> elements alongside ` +
+      '<Virtualizer>. Render every list item through the virtualizer.',
+  );
 }
 
 /**
@@ -121,15 +143,12 @@ export interface VirtualizerHost {
    */
   registry: VirtualizerRegistry;
   /**
-   * Channel the host's `<Item>` reads its collection and accessibility metadata from.
+   * Whether every row renders the host's own item part, which reads its metadata with
+   * `useVirtualizerItem()`. The virtualizer then warns when an item renderer returns none of them,
+   * or several. A host whose rows are plain elements spreading the renderer's third argument
+   * leaves it out.
    */
-  virtualItemContext: React.Context<VirtualizerItemMetadata | undefined>;
-  /**
-   * Channel the host's `<GroupLabel>` reads the id of the group header it is rendered in from.
-   * A host without group parts omits it; its group headers then receive the same metadata as the
-   * third argument of the header renderer.
-   */
-  virtualGroupContext?: React.Context<VirtualizerGroupHeaderMetadata | undefined> | undefined;
+  rendersItemPart?: boolean | undefined;
   /**
    * Warns about configurations the host cannot window, in its own vocabulary. Called once while a
    * virtualizer is mounted, so a host that can be windowed says nothing. Development only.
@@ -239,4 +258,108 @@ export function useVirtualizerHost() {
  */
 export function useVirtualizerHostState() {
   return React.useContext(VirtualizerHostStateContext);
+}
+
+/**
+ * Metadata a row publishes to the host's item part, including the registration the virtualizer
+ * counts to tell that the part was rendered.
+ */
+interface VirtualizerItemChannelValue extends VirtualizerItemMetadata {
+  registerItem: (() => () => void) | undefined;
+}
+
+/**
+ * The channel every row rendered for a host publishes its metadata through. A host provider
+ * clears it for its subtree, so a list nested inside another list's row does not read the row it
+ * is rendered in.
+ */
+export const VirtualizerItemContext = React.createContext<VirtualizerItemChannelValue | undefined>(
+  undefined,
+);
+
+/**
+ * The channel every group header rendered for a host publishes the id it is named by through.
+ */
+export const VirtualizerGroupHeaderContext = React.createContext<
+  VirtualizerGroupHeaderMetadata | undefined
+>(undefined);
+
+export interface VirtualizerHostProviderProps {
+  /**
+   * The host's stable wiring, or `undefined` to publish none — around a part rendered outside the
+   * host's list element, such as a root nested in another list's row.
+   */
+  host: VirtualizerHost | undefined;
+  /** The collection and the activation the virtualizer windows against. */
+  state: VirtualizerHostState | undefined;
+  children?: React.ReactNode;
+}
+
+/**
+ * Publishes a host's collection to the `<Virtualizer>` rendered inside it. Render it around the
+ * list element, where the host's item parts are. The item and group-header metadata of any row
+ * this is rendered in stop here: the parts inside belong to this host, not to that row.
+ */
+export function VirtualizerHostProvider(props: VirtualizerHostProviderProps) {
+  const { children, host, state } = props;
+
+  return (
+    <VirtualizerHostContext.Provider value={host}>
+      <VirtualizerHostStateContext.Provider value={state}>
+        <VirtualizerItemContext.Provider value={undefined}>
+          <VirtualizerGroupHeaderContext.Provider value={undefined}>
+            {children}
+          </VirtualizerGroupHeaderContext.Provider>
+        </VirtualizerItemContext.Provider>
+      </VirtualizerHostStateContext.Provider>
+    </VirtualizerHostContext.Provider>
+  );
+}
+
+/**
+ * Returns the metadata of the row a host's item part is rendered in, or `undefined` when the
+ * `<Virtualizer>` did not render it. Spread `props` onto the element that represents the item,
+ * and use `index` as its place in the collection.
+ *
+ * Call it from the host's item part, once per item: in development, it is how the virtualizer
+ * checks that each row renders exactly one, and that no item part is rendered outside it.
+ */
+export function useVirtualizerItem(): VirtualizerItemMetadata | undefined {
+  const host = React.useContext(VirtualizerHostContext);
+  const item = React.useContext(VirtualizerItemContext);
+
+  if (process.env.NODE_ENV !== 'production') {
+    // The build-time environment never changes during a component's lifetime.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => item?.registerItem?.(), [item]);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      if (host == null || item != null) {
+        return undefined;
+      }
+
+      // An item part of the host's list that no row rendered: a static item, which the list must
+      // not render alongside a virtualizer, in whichever order the two mount.
+      const registry = host.registry as RegistryWithStaticItems;
+      registry.nonVirtualItemCount = (registry.nonVirtualItemCount ?? 0) + 1;
+
+      if (registry.virtualizer != null) {
+        warnAboutStaticItems(host.componentName);
+      }
+
+      return () => {
+        registry.nonVirtualItemCount -= 1;
+      };
+    }, [host, item]);
+  }
+
+  return item;
+}
+
+/**
+ * Returns the metadata of the group header a host's group-label part is rendered in, or
+ * `undefined` outside one. The label adopts `id`, which the group's wrapper references.
+ */
+export function useVirtualizerGroupHeader(): VirtualizerGroupHeaderMetadata | undefined {
+  return React.useContext(VirtualizerGroupHeaderContext);
 }

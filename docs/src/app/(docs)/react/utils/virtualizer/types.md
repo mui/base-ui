@@ -14,6 +14,17 @@ Creates the virtualization registry owned by a host's root.
 type ReturnValue = Virtualizer.Registry;
 ```
 
+### useVirtualizerGroupHeader
+
+Returns the metadata of the group header a host's group-label part is rendered in, or
+`undefined` outside one. The label adopts `id`, which the group's wrapper references.
+
+**useVirtualizerGroupHeader Return Value:**
+
+```tsx
+type ReturnValue = Virtualizer.GroupHeaderMetadata | undefined;
+```
+
 ### useVirtualizerHost
 
 Returns the surrounding host's virtualization wiring, or `undefined` outside of a host.
@@ -32,6 +43,21 @@ Returns the surrounding host's collection and highlight state, or `undefined` ou
 
 ```tsx
 type ReturnValue = Virtualizer.HostState | undefined;
+```
+
+### useVirtualizerItem
+
+Returns the metadata of the row a host's item part is rendered in, or `undefined` when the
+`<Virtualizer>` did not render it. Spread `props` onto the element that represents the item,
+and use `index` as its place in the collection.
+
+Call it from the host's item part, once per item: in development, it is how the virtualizer
+checks that each row renders exactly one, and that no item part is rendered outside it.
+
+**useVirtualizerItem Return Value:**
+
+```tsx
+type ReturnValue = Virtualizer.ItemMetadata | undefined;
 ```
 
 ### Virtualizer
@@ -148,8 +174,6 @@ type VirtualizerItemMetadata = {
   index: number;
   /** Accessibility and collection metadata applied to the item. */
   props: Virtualizer.ItemProps;
-  /** Registers the item rendered for this virtual row. */
-  registerItem: (() => () => void) | undefined;
 };
 ```
 
@@ -305,14 +329,13 @@ type VirtualizerHost = {
   itemAria?: Virtualizer.ItemAria;
   /** Coordinates virtualized and non-virtualized content rendered by the host. */
   registry: Virtualizer.Registry;
-  /** Channel the host's `<Item>` reads its collection and accessibility metadata from. */
-  virtualItemContext: React.Context<Virtualizer.ItemMetadata | undefined>;
   /**
-   * Channel the host's `<GroupLabel>` reads the id of the group header it is rendered in from.
-   * A host without group parts omits it; its group headers then receive the same metadata as the
-   * third argument of the header renderer.
+   * Whether every row renders the host's own item part, which reads its metadata with
+   * `useVirtualizerItem()`. The virtualizer then warns when an item renderer returns none of them,
+   * or several. A host whose rows are plain elements spreading the renderer's third argument
+   * leaves it out.
    */
-  virtualGroupContext?: React.Context<Virtualizer.GroupHeaderMetadata | undefined>;
+  rendersItemPart?: boolean;
   /**
    * Warns about configurations the host cannot window, in its own vocabulary. Called once while a
    * virtualizer is mounted, so a host that can be windowed says nothing. Development only.
@@ -446,8 +469,6 @@ Coordinates virtualized and non-virtualized content rendered by a single host.
 
 ```typescript
 type VirtualizerRegistry = {
-  /** Number of non-virtualized items currently registered with the host. */
-  nonVirtualItemCount: number;
   /**
    * Called when a virtualizer registers, unregisters, or replaces its handle.
    *
@@ -525,6 +546,20 @@ beyond its `items`.
 type ReturnValue = string | number;
 ```
 
+### VirtualizerHostProvider
+
+Publishes a host's collection to the `<Virtualizer>` rendered inside it. Render it around the
+list element, where the host's item parts are. The item and group-header metadata of any row
+this is rendered in stop here: the parts inside belong to this host, not to that row.
+
+**VirtualizerHostProvider Props:**
+
+| Prop     | Type                                 | Default | Description                                                                                                                                                         |
+| :------- | :----------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| host\*   | `Virtualizer.Host \| undefined`      | -       | The host's stable wiring, or `undefined` to publish none — around a part rendered outside the&#xA;host's list element, such as a root nested in another list's row. |
+| state\*  | `Virtualizer.HostState \| undefined` | -       | The collection and the activation the virtualizer windows against.                                                                                                  |
+| children | `React.ReactNode`                    | -       | -                                                                                                                                                                   |
+
 ### VirtualizerRenderGroupHeader
 
 Renders the element carrying a group's name. Annotate `group` with your own group type to read
@@ -546,16 +581,19 @@ type ReturnValue = Virtualizer.GroupHeaderElement;
 
 ## Additional Types
 
-### VirtualizerHostContext
+### VirtualizerHostProviderProps
 
 ```typescript
-type VirtualizerHostContext = React.Context<Virtualizer.Host | undefined>;
-```
-
-### VirtualizerHostStateContext
-
-```typescript
-type VirtualizerHostStateContext = React.Context<Virtualizer.HostState | undefined>;
+type VirtualizerHostProviderProps = {
+  /**
+   * The host's stable wiring, or `undefined` to publish none — around a part rendered outside the
+   * host's list element, such as a root nested in another list's row.
+   */
+  host: Virtualizer.Host | undefined;
+  /** The collection and the activation the virtualizer windows against. */
+  state: Virtualizer.HostState | undefined;
+  children?: React.ReactNode;
+};
 ```
 
 ### VirtualizerItemMetrics

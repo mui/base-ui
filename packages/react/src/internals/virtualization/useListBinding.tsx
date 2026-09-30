@@ -6,15 +6,18 @@ import { warn } from '@base-ui/utils/warn';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useBaseUiId } from '../useBaseUiId';
 import {
+  hasStaticItems,
   useVirtualizerHost,
   useVirtualizerHostState,
+  VirtualizerGroupHeaderContext,
+  VirtualizerItemContext,
   VirtualizerOwnerContext,
+  warnAboutStaticItems,
 } from '../../virtualizer/host';
 import type {
   VirtualizerHandle,
   VirtualizerHost,
   VirtualizerHostState,
-  VirtualizerRegistry,
 } from '../../virtualizer/host';
 import type {
   VirtualizerActions,
@@ -53,14 +56,14 @@ interface VirtualizerGroupHeaderRowProps<Item> {
    */
   rowProps: VirtualizerRowProps | undefined;
   /**
-   * The owning list's group-label channel, or `undefined` when the virtualizer renders standalone
-   * headers that have no `<GroupLabel>` to publish the id to.
+   * Whether the header is rendered for a host, whose group-label part reads the id through
+   * `useVirtualizerGroupHeader`. Standalone headers have no such part.
    */
-  virtualGroupContext: React.Context<VirtualizerGroupHeaderMetadata | undefined> | undefined;
+  hosted: boolean;
 }
 
 function VirtualizerGroupHeaderRowImpl<Item>(props: VirtualizerGroupHeaderRowProps<Item>) {
-  const { group, groupIndex, id, renderGroupHeader, rowProps, virtualGroupContext } = props;
+  const { group, groupIndex, hosted, id, renderGroupHeader, rowProps } = props;
 
   const headerProps = React.useMemo<VirtualizerGroupHeaderProps>(
     () => ({ ...rowProps, id, 'aria-hidden': true }),
@@ -75,12 +78,15 @@ function VirtualizerGroupHeaderRowImpl<Item>(props: VirtualizerGroupHeaderRowPro
   // through the renderer's third argument. Both describe the same header.
   const content = renderGroupHeader(group, groupIndex, headerProps);
 
-  if (virtualGroupContext == null) {
+  if (!hosted) {
     return content;
   }
 
-  const VirtualGroupContext = virtualGroupContext;
-  return <VirtualGroupContext.Provider value={metadata}>{content}</VirtualGroupContext.Provider>;
+  return (
+    <VirtualizerGroupHeaderContext.Provider value={metadata}>
+      {content}
+    </VirtualizerGroupHeaderContext.Provider>
+  );
 }
 
 const VirtualizerGroupHeaderRow = React.memo(
@@ -100,10 +106,12 @@ interface VirtualizerItemRowProps<Item> {
    */
   rowProps: VirtualizerRowProps | undefined;
   /**
-   * The owning list's item channel, or `undefined` when the virtualizer renders standalone rows
-   * that have no `<Item>` to publish metadata to.
+   * Whether the row is rendered for a host, whose item part reads the metadata through
+   * `useVirtualizerItem`. Standalone rows have no such part.
    */
-  virtualItemContext: React.Context<VirtualizerItemMetadata | undefined> | undefined;
+  hosted: boolean;
+  /** Whether the host's item part is expected once in every row, which is checked. */
+  rendersItemPart: boolean;
 }
 
 function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
@@ -111,10 +119,11 @@ function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
     children,
     collectionAria,
     componentName,
+    hosted,
     itemCount,
     model,
+    rendersItemPart,
     rowProps,
-    virtualItemContext,
   } = props;
   const registeredItemCountRef = React.useRef(0);
 
@@ -129,8 +138,8 @@ function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
     // The build-time environment never changes during a component's lifetime.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
-      // Only a list's own `<Item>` registers itself, so standalone rows have nothing to count.
-      if (virtualItemContext != null && registeredItemCountRef.current !== 1) {
+      // Only a host's own item part registers itself, so other rows have nothing to count.
+      if (rendersItemPart && registeredItemCountRef.current !== 1) {
         warn(
           'Each <Virtualizer> item renderer must render exactly one ' +
             `<${componentName}.Item>. Rendered ${registeredItemCountRef.current} items for the ` +
@@ -140,7 +149,7 @@ function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
     });
   }
 
-  const contextValue = React.useMemo<VirtualizerItemMetadata>(
+  const contextValue = React.useMemo(
     () => ({
       index: model.itemIndex,
       props: {
@@ -169,12 +178,15 @@ function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
   // list can mix them: a `<Combobox.Item>` keeps working next to a plain element that spreads them.
   const content = children(model.item, model.itemIndex, contextValue.props);
 
-  if (virtualItemContext == null) {
+  if (!hosted) {
     return content;
   }
 
-  const VirtualItemContext = virtualItemContext;
-  return <VirtualItemContext.Provider value={contextValue}>{content}</VirtualItemContext.Provider>;
+  return (
+    <VirtualizerItemContext.Provider value={contextValue}>
+      {content}
+    </VirtualizerItemContext.Provider>
+  );
 }
 
 function areVirtualizerItemRowPropsEqual<Item>(
@@ -188,8 +200,9 @@ function areVirtualizerItemRowPropsEqual<Item>(
     previous.itemCount === next.itemCount &&
     previous.model.item === next.model.item &&
     previous.model.itemIndex === next.model.itemIndex &&
+    previous.rendersItemPart === next.rendersItemPart &&
     previous.rowProps === next.rowProps &&
-    previous.virtualItemContext === next.virtualItemContext
+    previous.hosted === next.hosted
   );
 }
 
@@ -305,8 +318,8 @@ export function useListBinding<Item>(
   } = parameters;
 
   const componentName = host?.componentName;
-  const virtualItemContext = host?.virtualItemContext;
-  const virtualGroupContext = host?.virtualGroupContext;
+  const hosted = host != null;
+  const rendersItemPart = host?.rendersItemPart === true;
   const warnUnsupportedConfiguration = host?.warnUnsupportedConfiguration;
 
   // An `items` prop is the virtualizer's own collection, and everything derived from a collection
@@ -434,8 +447,8 @@ export function useListBinding<Item>(
             groupIndex={model.groupIndex}
             id={getGroupHeaderId(model.ordinal)}
             renderGroupHeader={renderGroupHeader!}
+            hosted={hosted}
             rowProps={params.rowProps}
-            virtualGroupContext={virtualGroupContext}
           />
         );
       }
@@ -444,10 +457,11 @@ export function useListBinding<Item>(
         <VirtualizerItemRow
           collectionAria={collectionAria}
           componentName={componentName}
+          hosted={hosted}
           itemCount={totalItems ?? items.length}
           model={model}
+          rendersItemPart={rendersItemPart}
           rowProps={params.rowProps}
-          virtualItemContext={virtualItemContext}
         >
           {children}
         </VirtualizerItemRow>
@@ -461,9 +475,9 @@ export function useListBinding<Item>(
       groups,
       items.length,
       renderGroupHeader,
+      hosted,
+      rendersItemPart,
       totalItems,
-      virtualGroupContext,
-      virtualItemContext,
     ],
   );
 
@@ -524,7 +538,7 @@ export function useListBinding<Item>(
       if (registry.virtualizer != null) {
         warn(`<${host.componentName}.Root> must not contain more than one <Virtualizer>.`);
       }
-      if (registry.nonVirtualItemCount > 0) {
+      if (hasStaticItems(registry)) {
         warnAboutStaticItems(host.componentName);
       }
     }
@@ -619,8 +633,6 @@ export function useVirtualItemDiagnostics(parameters: UseVirtualItemDiagnosticsP
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
       if (virtualItem != null && disabledProp && !hasIsItemDisabled) {
         warn(
@@ -632,47 +644,4 @@ export function useVirtualItemDiagnostics(parameters: UseVirtualItemDiagnosticsP
       }
     }, [componentName, disabledProp, hasIsItemDisabled, virtualItem]);
   }
-}
-
-export interface UseNonVirtualizedItemRegistrationParameters {
-  componentName: ComponentName;
-  insideList: boolean;
-  registry: VirtualizerRegistry;
-  virtualized: boolean;
-}
-
-/**
- * Tracks static items so mixed static and built-in-virtualized lists can warn in either mount order.
- */
-export function useNonVirtualizedItemRegistration(
-  parameters: UseNonVirtualizedItemRegistrationParameters,
-) {
-  const { componentName, insideList, registry, virtualized } = parameters;
-
-  if (process.env.NODE_ENV !== 'production') {
-    // The build-time environment never changes during a component's lifetime.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
-      if (virtualized || !insideList) {
-        return undefined;
-      }
-
-      registry.nonVirtualItemCount += 1;
-
-      if (registry.virtualizer != null) {
-        warnAboutStaticItems(componentName);
-      }
-
-      return () => {
-        registry.nonVirtualItemCount -= 1;
-      };
-    }, [componentName, insideList, registry, virtualized]);
-  }
-}
-
-function warnAboutStaticItems(componentName: ComponentName) {
-  warn(
-    `<${componentName}.List> must not render static <${componentName}.Item> elements alongside ` +
-      '<Virtualizer>. Render every list item through the virtualizer.',
-  );
 }

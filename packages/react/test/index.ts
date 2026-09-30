@@ -11,7 +11,6 @@ export { resetBrowserPointer } from './resetBrowserPointer';
 export { useTestInteractions } from './useTestInteractions';
 export {
   TestListItem,
-  TestVirtualItemContext,
   TestGroupLabel,
   TestVirtualizedList,
   createItems as createVirtualizerItems,
