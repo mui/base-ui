@@ -4,6 +4,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { useInsertionEffect } from '@base-ui/utils/useInsertionEffect';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { NOOP } from '@base-ui/utils/empty';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import {
@@ -78,10 +79,11 @@ import { useItemHeightEstimate } from './useItemHeightEstimate';
 import { useScrollGesture } from './useScrollGesture';
 import { useViewportRestore } from './useViewportRestore';
 import { useViewportController } from './useViewportController';
+import type { RowHeightCache, RowHeightEntry } from './rowHeightLedger';
 import { VirtualizerCssVars } from './VirtualizerCssVars';
 
 interface VirtualRowProps<RowModel> {
-  apiRef: React.RefObject<MuiVirtualizer['api'] | null>;
+  heightCache: RowHeightCache;
   /**
    * Whether the element the renderer returns is the row itself. Its binding to the virtualizer
    * then travels through the renderer's metadata argument rather than a wrapper of the
@@ -128,7 +130,8 @@ const virtualRowStyle: React.CSSProperties = {
 const trailingFlowStyle: React.CSSProperties = virtualRowStyle;
 
 function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
-  const { apiRef, bare, isVirtualFocusRow, measured, renderRow, retained, row, rowIndex } = props;
+  const { bare, heightCache, isVirtualFocusRow, measured, renderRow, retained, row, rowIndex } =
+    props;
 
   const measureCleanupRef = React.useRef<(() => void) | undefined>(undefined);
   /**
@@ -143,7 +146,7 @@ function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
     rowElementRef.current = element;
 
     if (element != null && measured) {
-      measureCleanupRef.current = apiRef.current?.rowsMeta.observeRowHeight(element, row.id);
+      measureCleanupRef.current = heightCache.observe(element, row.id);
     }
   });
   // The ref keeps its identity, so React does not call it again when a mounted row starts or
@@ -168,9 +171,9 @@ function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
     if (inLayout) {
       // Dynamic row measurement is incremental in MUI Virtualizer. Mark real rows as measured so their
       // metadata can advance the measured boundary; the zero-sized focus proxy must not count.
-      apiRef.current?.rowsMeta.setLastMeasuredRowIndex(rowIndex);
+      heightCache.setLastMeasuredRowIndex(rowIndex);
     }
-  }, [apiRef, inLayout, rowIndex]);
+  }, [heightCache, inLayout, rowIndex]);
 
   if (process.env.NODE_ENV !== 'production') {
     // NODE_ENV doesn't change at runtime
@@ -491,6 +494,32 @@ function renderGroupedWindow<RowModel>(
   return elements;
 }
 
+/**
+ * The engine's height cache behind the virtualizer's own port to it. The engine is reached through
+ * the refs at call time: the port is handed out before the engine exists, and every call comes
+ * from an effect, an event, or the engine itself.
+ */
+function createEngineHeightCache(
+  apiRef: React.RefObject<MuiVirtualizer['api'] | null>,
+  storeRef: React.RefObject<MuiVirtualizer['store'] | null>,
+): RowHeightCache {
+  const getCache = () =>
+    storeRef.current?.state.rowHeights as Map<React.Key, RowHeightEntry> | undefined;
+
+  return {
+    entries: () => getCache() ?? [],
+    peek: (rowId) => getCache()?.get(rowId),
+    hasMeasurement: (rowId) =>
+      apiRef.current?.rowsMeta.getRowHeightEntry(rowId).needsFirstMeasurement === false,
+    store: (rowId, height) => apiRef.current?.rowsMeta.storeRowHeightMeasurement(rowId, height),
+    setLastMeasuredRowIndex: (rowIndex) =>
+      apiRef.current?.rowsMeta.setLastMeasuredRowIndex(rowIndex),
+    hydrate: () => apiRef.current?.rowsMeta.hydrateRowsMeta(),
+    reset: () => apiRef.current?.rowsMeta.resetRowHeights(),
+    observe: (element, rowId) => apiRef.current?.rowsMeta.observeRowHeight(element, rowId) ?? NOOP,
+  };
+}
+
 const stateAttributesMapping: StateAttributesMapping<VirtualizerState> = {
   totalSize: () => null,
 };
@@ -654,11 +683,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const muiApiRef = React.useRef<MuiVirtualizer['api'] | null>(null);
   const muiStoreRef = React.useRef<MuiVirtualizer['store'] | null>(null);
   // The concerns below are handed the engine operations they use, in this component's vocabulary,
-  // and nothing more: this is the only file that knows the engine. Read through the ref, since
-  // the gesture concern is declared before the engine is.
-  const settleGeometry = useStableCallback(() => {
-    muiApiRef.current?.rowsMeta.hydrateRowsMeta();
-  });
+  // and nothing more: this is the only file that knows the engine. Read through the refs, since
+  // the concerns are declared before the engine is.
+  const heightCache = useRefWithInit(() => createEngineHeightCache(muiApiRef, muiStoreRef)).current;
+  const settleGeometry = heightCache.hydrate;
   /**
    * The scrollport's own block padding. Rows begin below it, scroll through it, and the virtual
    * content covers it, matching how a plain scrolling list treats its padding. The engine's
@@ -693,10 +721,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       fixedItemHeight != null ? null : itemHeightEstimate.staticEstimatedItemHeight,
   });
 
-  const isRowMeasured = useStableCallback(
-    (rowId: React.Key) =>
-      muiApiRef.current?.rowsMeta.getRowHeightEntry(rowId).needsFirstMeasurement === false,
-  );
+  const isRowMeasured = heightCache.hasMeasurement;
   const readRowsGeometry = useStableCallback(
     (): RowsGeometry => muiStoreRef.current!.state.rowsMeta,
   );
@@ -706,10 +731,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
    * changes nothing.
    */
   const measureNewRows = useStableCallback(() => {
-    const api = muiApiRef.current;
     const rowsParent = getRowsParent();
 
-    if (api == null || rowsParent == null) {
+    if (rowsParent == null) {
       return;
     }
 
@@ -724,16 +748,16 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         const height = element.getBoundingClientRect().height;
 
         if (height > 0) {
-          api.rowsMeta.storeRowHeightMeasurement(row.id, height);
+          heightCache.store(row.id, height);
           adaptive.markMeasured(row.id);
-          api.rowsMeta.setLastMeasuredRowIndex(rowIndex);
+          heightCache.setLastMeasuredRowIndex(rowIndex);
           measuredAny = true;
         }
       }
     }
 
     if (measuredAny) {
-      api.rowsMeta.hydrateRowsMeta();
+      heightCache.hydrate();
     }
   });
 
@@ -826,8 +850,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       return (
         <VirtualRow
           key={params.id}
-          apiRef={muiApiRef}
           bare={isTable}
+          heightCache={heightCache}
           isVirtualFocusRow={params.isVirtualFocusRow}
           // A declared height covers the items. A group header is content of the consumer's own
           // whose height nothing declared, so it is measured as it always is.
@@ -839,7 +863,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         />
       );
     },
-    [fixedItemHeight, isTable, renderRowProp, rows],
+    [fixedItemHeight, heightCache, isTable, renderRowProp, rows],
   );
 
   const engineRenderRow = React.useCallback(
@@ -1075,14 +1099,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     virtualizer.api.updateDimensions();
   });
   const readMeasuredHeight = useStableCallback((rowId: React.Key): number | null => {
-    const entry = (virtualizer.store.state.rowHeights as Map<React.Key, HeightEntry>).get(rowId);
+    const entry = heightCache.peek(rowId);
     return entry == null || entry.needsFirstMeasurement ? null : entry.content;
   });
   const readMeasuredHeights = useStableCallback(function* readMeasuredHeights() {
-    for (const [rowId, entry] of virtualizer.store.state.rowHeights as Map<
-      React.Key,
-      HeightEntry
-    >) {
+    for (const [rowId, entry] of heightCache.entries()) {
       if (!entry.needsFirstMeasurement) {
         yield [rowId, entry.content] as [React.Key, number];
       }
@@ -1103,7 +1124,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // transient layout. The entries are plain mutable objects, so this is what a per-row reset
   // would do; it is the one place that knows so.
   const demoteRowHeight = useStableCallback((rowId: React.Key, height: number) => {
-    const entry = (virtualizer.store.state.rowHeights as Map<React.Key, HeightEntry>).get(rowId);
+    const entry = heightCache.peek(rowId);
     if (entry != null) {
       entry.content = height;
       entry.needsFirstMeasurement = true;
@@ -1562,10 +1583,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     adaptive.reset();
     gesture.clearDeferredRowHeights();
 
-    const api = muiApiRef.current;
-
-    if (api != null) {
-      api.rowsMeta.resetRowHeights();
+    if (muiApiRef.current != null) {
+      heightCache.reset();
 
       // Rows are measured wherever they are laid out.
       const rowsParent = getRowsParent();
@@ -1582,14 +1601,14 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
           const declared = row != null && fixedItemHeight != null && !isGroupHeaderRow(row.model);
 
           if (row != null && height > 0 && !declared) {
-            api.rowsMeta.storeRowHeightMeasurement(row.id, height);
+            heightCache.store(row.id, height);
             adaptive.markMeasured(row.id);
-            api.rowsMeta.setLastMeasuredRowIndex(rowIndex);
+            heightCache.setLastMeasuredRowIndex(rowIndex);
           }
         }
       }
 
-      api.rowsMeta.hydrateRowsMeta();
+      heightCache.hydrate();
     }
 
     // Scroll anchoring compensates for whatever the rewrite moved, which is what keeps the
