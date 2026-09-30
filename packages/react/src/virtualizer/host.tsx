@@ -194,9 +194,8 @@ export interface VirtualizerHostState {
    * The virtualizer measures its viewport while windowed, so a suspension invalidates that
    * measurement: a scrollport constrained only by a maximum height grows to fit the whole
    * collection, and the observer reports the expanded box. It re-measures when this returns to
-   * `false`, which means the host **must clear it while the virtualizer is still mounted**. A host
-   * that unmounts the virtualizer first — by releasing whatever kept the list rendered — loses the
-   * transition and leaves the engine sizing its window from a viewport that no longer exists.
+   * `false`. A virtualizer unmounted while suspended measures afresh when it mounts again, so the
+   * order in which a host clears this and releases the list does not matter.
    */
   windowingSuspended?: boolean | undefined;
 }

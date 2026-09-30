@@ -1727,9 +1727,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             }
 
             function restoreRenderedLabels() {
-              // Restore the virtual window before releasing a temporary mount. Keeping these in
-              // separate commits lets an open max-height list recover its measured viewport before
-              // a closed list is removed again.
+              // Restore the virtual window, then release a temporary mount.
               if (restoreRenderAllRows) {
                 ReactDOM.flushSync(() => {
                   setVirtualizationRenderAllRows(store, false);
