@@ -198,6 +198,24 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validation.change(checked);
   });
 
+  function setGroupValue(
+    memberValue: string,
+    nextChecked: boolean,
+    details: CheckboxRoot.ChangeEventDetails,
+  ) {
+    if (groupContext === undefined) {
+      return;
+    }
+    const currentValue = groupContext.valueRef.current ?? groupContext.value;
+    let nextGroupValue = currentValue.filter((item) => item !== memberValue);
+    if (nextChecked) {
+      nextGroupValue = currentValue.includes(memberValue)
+        ? currentValue
+        : [...currentValue, memberValue];
+    }
+    groupContext.setValue(nextGroupValue, details);
+  }
+
   const changeChecked = useStableCallback(
     (nextChecked: boolean, details: CheckboxRoot.ChangeEventDetails) => {
       onCheckedChange?.(nextChecked, details);
@@ -214,14 +232,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
       setCheckedState(nextChecked);
 
-      if (value !== undefined && groupContext !== undefined && !parent && !isGroupedWithParent) {
-        const currentValue = groupContext.valueRef.current ?? groupContext.value;
-        let nextGroupValue = currentValue.filter((item) => item !== value);
-        if (nextChecked) {
-          nextGroupValue = currentValue.includes(value) ? currentValue : [...currentValue, value];
-        }
-
-        groupContext.setValue(nextGroupValue, details);
+      if (value !== undefined && !parent && !isGroupedWithParent) {
+        setGroupValue(value, nextChecked, details);
       }
     },
   );
@@ -248,27 +260,48 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     groupContext?.setValue === paintContext?.owner && !parent && value !== undefined
       ? paintContext?.controller
       : undefined;
-  const getPaintState = useStableCallback((paintValue: string | undefined) => ({
-    checked: computedChecked && !computedIndeterminate,
-    selected: computedChecked,
-    // A gesture can outlive a `value` change; the checkbox no longer represents the old value.
-    disabled: Boolean(disabled || readOnly) || paintValue !== value,
-  }));
-  const paintChecked = useStableCallback((nextChecked: boolean, event: PointerEvent) => {
-    if (!disabled && !readOnly && (nextChecked !== computedChecked || computedIndeterminate)) {
-      changeChecked(nextChecked, createChangeEventDetails(REASONS.none, event));
+  // A gesture can outlive a `value` change. Its descriptors keep the value they
+  // were registered with, so a retraced checkbox restores that value in the group
+  // rather than the one it renders now.
+  const getPaintState = useStableCallback((paintValue: string) => {
+    const paintDisabled = Boolean(disabled || readOnly);
+    if (paintValue !== value) {
+      const selected = Boolean(groupValue?.includes(paintValue));
+      return { checked: selected, selected, disabled: paintDisabled };
     }
+    return {
+      checked: computedChecked && !computedIndeterminate,
+      selected: computedChecked,
+      disabled: paintDisabled,
+    };
   });
+  const paintChecked = useStableCallback(
+    (paintValue: string, nextChecked: boolean, event: PointerEvent) => {
+      if (disabled || readOnly) {
+        return;
+      }
+      const details = createChangeEventDetails(REASONS.none, event);
+      if (paintValue !== value) {
+        if (isGroupedWithParent) {
+          parentContext.getChildProps(paintValue).onCheckedChange?.(nextChecked, details);
+        } else {
+          setGroupValue(paintValue, nextChecked, details);
+        }
+      } else if (nextChecked !== computedChecked || computedIndeterminate) {
+        changeChecked(nextChecked, details);
+      }
+    },
+  );
   const unregisterPaint = React.useRef<(() => void) | undefined>(undefined);
   const paintRef = React.useCallback(
     (element: HTMLElement | null) => {
       unregisterPaint.current?.();
       unregisterPaint.current =
-        element && paintController
+        element && paintController && value !== undefined
           ? paintController.register(element, {
               id: value,
               getState: () => getPaintState(value),
-              setChecked: paintChecked,
+              setChecked: (checked, event) => paintChecked(value, checked, event),
             })
           : undefined;
     },
