@@ -138,6 +138,12 @@ interface ScrollAnchorSnapshot<RowModel> {
   relativeTop: number;
   maxScrollTop: number;
   scrollTop: number;
+  /**
+   * Whether the viewport is held at the end of the content: it was at the maximum scroll position,
+   * or it is owed a pin there that the browser clamped, the content not having grown to the
+   * geometry yet.
+   */
+  pinnedToEnd: boolean;
   /** The anchor's position in the engine's coordinates, used when its element is recycled. */
   virtualOffset: number | null;
   rowsMeta: RowsGeometry;
@@ -415,8 +421,7 @@ export class ViewportController<RowModel> {
       latestRowsMeta.currentPageTotalHeight + rowsInset.start + rowsInset.end + trailingHeight,
       scrollElement.clientHeight,
     );
-    const pinnedToBottom =
-      previous.maxScrollTop > 0 && Math.abs(previous.scrollTop - previous.maxScrollTop) < 1;
+    const pinnedToBottom = previous.maxScrollTop > 0 && previous.pinnedToEnd;
     let nextScrollTop = scrollTop;
     if (pinnedToBottom) {
       nextScrollTop = maxScrollTop;
@@ -880,14 +885,22 @@ export class ViewportController<RowModel> {
     const shouldPinToBottom =
       previous !== null &&
       previous.maxScrollTop > 0 &&
-      Math.abs(previous.scrollTop - previous.maxScrollTop) < 1 &&
+      previous.pinnedToEnd &&
       (Math.abs(scrollTop - previous.scrollTop) < 1 || Math.abs(scrollTop - maxScrollTop) < 1);
+    const smallestCorrection = getSmallestCorrection(scrollElement);
+    // A commit that runs ahead of the geometry it renders lays out content shorter than the
+    // geometry's end, and the browser clamps a pin there. The pin is owed until the content has
+    // grown enough to take it, whether or not the geometry changes again by then.
+    const isPinOwed =
+      shouldPinToBottom &&
+      maxScrollTop - scrollTop >= smallestCorrection &&
+      scrollElement.scrollHeight - scrollElement.clientHeight - scrollTop >= smallestCorrection;
 
     if (
       !isRequestPending &&
       previous !== null &&
       previous.rows === rows &&
-      geometryChanged &&
+      (geometryChanged || isPinOwed) &&
       // During a scrollbar drag the user dictates the absolute position and corrections would
       // fight the pointer; the snapshot below simply absorbs whatever shifted.
       !environment.isScrollbarDrag() &&
@@ -930,20 +943,25 @@ export class ViewportController<RowModel> {
         }
       }
 
-      const smallestCorrection = getSmallestCorrection(scrollElement);
       if (shouldPinToBottom || Math.abs(shift) >= smallestCorrection) {
         const nextScrollTop = shouldPinToBottom
           ? maxScrollTop
           : clamp(scrollTop + shift, 0, maxScrollTop);
 
         if (Math.abs(nextScrollTop - scrollTop) >= smallestCorrection) {
-          scrollTop = nextScrollTop;
           // The engine adopts the written position and renders the window it calls for in the
           // commit that follows, before the browser paints.
-          this.write(scrollElement, nextScrollTop, 'always');
+          const accepted = this.write(scrollElement, nextScrollTop, 'always');
+          // A clamped pin is recorded where it landed, so the next commit sees that the user has
+          // not scrolled since, and pins again.
+          scrollTop = accepted || !shouldPinToBottom ? nextScrollTop : scrollElement.scrollTop;
         }
       }
     }
+
+    // Held at the end once pinned there, until the user scrolls away, even through a pin the
+    // browser clamped.
+    const pinnedToEnd = shouldPinToBottom || Math.abs(scrollTop - maxScrollTop) < 1;
 
     if (hasPendingRowsMeta) {
       if (previous != null) {
@@ -957,6 +975,7 @@ export class ViewportController<RowModel> {
             // double-counts the scrolling that happened in between as a geometry shift.
             relativeTop: previous.relativeTop - (scrollTop - previous.scrollTop),
             scrollTop,
+            pinnedToEnd,
             virtualOffset,
             rowsMeta: latestRowsMeta,
             firstLaidOutRowIndex,
@@ -985,6 +1004,7 @@ export class ViewportController<RowModel> {
           maxScrollTop,
           relativeTop: previous.relativeTop - userScrollDelta,
           scrollTop,
+          pinnedToEnd,
           virtualOffset,
           rowsMeta,
           firstLaidOutRowIndex,
@@ -1009,6 +1029,7 @@ export class ViewportController<RowModel> {
             relativeTop: anchor.relativeTop,
             maxScrollTop,
             scrollTop,
+            pinnedToEnd,
             virtualOffset: rowsMeta.positions[anchor.rowIndex] ?? null,
             rowsMeta,
             rows,

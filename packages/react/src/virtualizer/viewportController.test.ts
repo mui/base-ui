@@ -92,9 +92,11 @@ function createViewport(initialHeights: number[], viewportHeight = 100) {
   let scrollTop = 0;
   // A scrollport a popup just mounted has no scrollable overflow yet.
   let scrollable = true;
+  // The height the content is laid out at, when a commit runs ahead of the geometry it renders.
+  let heldContentHeight: number | null = null;
+  const getContentHeight = () => heldContentHeight ?? geometry.currentPageTotalHeight;
 
-  const getMaxScrollTop = () =>
-    scrollable ? Math.max(0, geometry.currentPageTotalHeight - viewportHeight) : 0;
+  const getMaxScrollTop = () => (scrollable ? Math.max(0, getContentHeight() - viewportHeight) : 0);
 
   const rect = (top: number, height: number) =>
     ({ top, bottom: top + height, height, left: 0, right: 100, width: 100 }) as DOMRect;
@@ -108,7 +110,7 @@ function createViewport(initialHeights: number[], viewportHeight = 100) {
       },
     },
     clientHeight: { get: () => viewportHeight },
-    scrollHeight: { get: () => Math.max(viewportHeight, geometry.currentPageTotalHeight) },
+    scrollHeight: { get: () => Math.max(viewportHeight, getContentHeight()) },
   });
   scrollElement.scrollTo = ((options: ScrollToOptions) => {
     scrollElement.scrollTop = options.top ?? scrollTop;
@@ -222,6 +224,13 @@ function createViewport(initialHeights: number[], viewportHeight = 100) {
     },
     setScrollable(value: boolean) {
       scrollable = value;
+    },
+    /** Keeps the content laid out at a height, or lays it out from the geometry again with `null`. */
+    holdContentHeight(height: number | null) {
+      heldContentHeight = height;
+    },
+    get geometry() {
+      return geometry;
     },
   };
 }
@@ -420,6 +429,28 @@ describe('ViewportController', () => {
 
       viewport.resize(49, 60);
       viewport.commit();
+
+      expect(viewport.scrollTop).toBe(940);
+    });
+
+    it('stays pinned to the bottom through a commit that runs ahead of the content', () => {
+      const viewport = createViewport(heights());
+      viewport.commit();
+      viewport.scrollTo(900);
+      viewport.commit();
+
+      // The engine publishes the grown geometry before React commits the content for it: that
+      // commit still renders the previous geometry and lays the content out at its height, so the
+      // browser clamps the pin to the old end.
+      const renderedGeometry = viewport.geometry;
+      viewport.resize(49, 60);
+      viewport.holdContentHeight(1000);
+      viewport.commit({ rowsMeta: renderedGeometry });
+      expect(viewport.scrollTop).toBe(900);
+
+      // The commit that follows renders the geometry the previous one ran ahead to.
+      viewport.holdContentHeight(null);
+      viewport.commit({});
 
       expect(viewport.scrollTop).toBe(940);
     });
