@@ -209,8 +209,8 @@ importers:
         specifier: 7.59.0
         version: 7.59.0(@types/node@22.20.4)
       '@mui/internal-code-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@8d7301c
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@8d7301c(a2dc95898cc28445d279d9ad9811c119)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@571c393
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@571c393(a2dc95898cc28445d279d9ad9811c119)
       '@mui/internal-netlify-cache':
         specifier: 0.0.3-canary.5
         version: 0.0.3-canary.5
@@ -2398,8 +2398,8 @@ packages:
     resolution: {integrity: sha512-lmR9P2ITjA1kWgQNafGviA/3k4KLHv+gqvYyZjChzkEIv0dNKpf7pyF1KRzdGfGQwHFIBTIbS07pGXUtgsMm7g==}
     hasBin: true
 
-  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@8d7301c':
-    resolution: {integrity: sha512-iXnzMhpsSExecOh8wepomBnMdVijpn6I38MQ7saRZE2TSXNrDESrOGvwVFPypAvd2RHmUOd4m5humDPLVN6IpQ==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@8d7301c}
+  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@571c393':
+    resolution: {integrity: sha512-iz8nkkcHrXN2FRVNCdsYBKm42fskpqQgqIICc9BKZMJan7DGTbRjuwnpZUluyab3TDfvP/k+Gm7+SUGDspXamQ==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@571c393}
     version: 0.1.0
     hasBin: true
     peerDependencies:
@@ -11757,7 +11757,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@8d7301c(a2dc95898cc28445d279d9ad9811c119)':
+  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@571c393(a2dc95898cc28445d279d9ad9811c119)':
     dependencies:
       '@argos-ci/core': 6.8.4(@types/node@22.20.4)(supports-color@7.2.0)
       '@babel/cli': 8.0.6(@babel/core@8.0.6)
