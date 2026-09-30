@@ -1279,6 +1279,59 @@ describe('<Virtualizer /> in Combobox', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'windows a closed list opened after a rendered-label autofill pass',
+    async () => {
+      vi.restoreAllMocks();
+      const items = Array.from({ length: 100 }, (_, index) => `V${index + 1}`);
+      const onValueChange = vi.fn();
+
+      await render(
+        <Combobox.Root filter={null} name="country" items={items} onValueChange={onValueChange}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Virtualizer<string>
+                    estimatedItemHeight={20}
+                    overscanPx={0}
+                    render={<div data-testid="virtualizer" style={{ maxHeight: 60, width: 200 }} />}
+                  >
+                    {(item: string, index) => (
+                      <Combobox.Item value={item} style={{ display: 'block', height: 20 }}>
+                        {`Country ${index + 1}`}
+                      </Combobox.Item>
+                    )}
+                  </Virtualizer>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // The pass mounts the closed list with every row, and unmounts it again.
+      const hiddenInput = screen
+        .getAllByDisplayValue('')
+        .find((element) => element.getAttribute('name') === 'country') as HTMLInputElement;
+      fireEvent.change(hiddenInput, { target: { value: 'Country 50' } });
+      await flushMicrotasks();
+      expect(onValueChange).toHaveBeenCalledWith(
+        'V50',
+        expect.objectContaining({ reason: 'none' }),
+      );
+
+      const input = screen.getByTestId('input');
+      input.focus();
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+      const virtualizer = await screen.findByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.clientHeight).toBe(60));
+      await waitFor(() => expect(screen.getAllByRole('option').length).toBeLessThan(items.length));
+    },
+  );
+
   it('collects rendered labels from large non-virtualized lists for browser autofill', async () => {
     const items = Array.from({ length: 1001 }, (_, index) => `V${index + 1}`);
     const onValueChange = vi.fn();

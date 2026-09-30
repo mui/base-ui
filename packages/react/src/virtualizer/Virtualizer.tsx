@@ -46,6 +46,7 @@ import type {
   VirtualizerRegistration,
   VirtualizerRegistry,
 } from './host';
+import { useVirtualizerRegistration } from './host';
 import type {
   VirtualizerActions,
   VirtualizerActiveIndex,
@@ -571,20 +572,19 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const { host, hostState } = useVirtualizerSources(items != null);
 
   const {
-    apiRef: apiRefProp,
-    enabled: windowingRequested,
     getGroupHeaderId,
     groups,
+    hasOwnCollection,
     items: collection,
     pinnedItemIndex,
     renderRow: renderRowProp,
+    scrollsActiveItem,
     scrollToRowAlignment,
-    scrollToItemIndex,
     scrollToRowPaddingEnd,
     scrollToRowPaddingStart,
+    windowingRequested,
     windowingSuspended,
   } = useListBinding<Value>({
-    actionsRef,
     activeIndex,
     totalItems,
     children,
@@ -609,6 +609,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // rendered, as the table would render them without a virtualizer.
   const [scrollContainerMissing, setScrollContainerMissing] = React.useState(false);
   const enabled = windowingRequested && !(isTable && scrollContainerMissing);
+  // A hosted list that is not windowed scrolls its own item elements (see `scrollActivation.ts`),
+  // so it hands the virtualizer a request only while the virtualizer owns scrolling. A standalone
+  // list has no one else to scroll it, in either mode.
+  const scrollToItemIndex =
+    scrollsActiveItem && (hasOwnCollection || enabled) ? pinnedItemIndex : undefined;
 
   // The item rows are the collection as the flat concerns know it — estimates, the adaptive
   // average — and the engine windows either them or, for a grouped collection, the projection that
@@ -1541,10 +1546,34 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   );
 
   React.useImperativeHandle(
-    apiRefProp,
-    () => ({ getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex }),
-    [getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
+    actionsRef,
+    () => ({ getIndexAtOffset, getItemMetrics, remeasure, scrollToIndex }),
+    [getIndexAtOffset, getItemMetrics, remeasure, scrollToIndex],
   );
+
+  // What the host learns of this virtualizer, including whether it owns the scroll position: the
+  // mode it is actually in, which a table without a scroll container falls back from.
+  const registration = React.useMemo<VirtualizerRegistration>(
+    () => ({
+      enabled,
+      getIndexAtOffset,
+      getItemMetrics,
+      getScrollElement,
+      remeasure,
+      resetScroll,
+      scrollToIndex,
+    }),
+    [
+      enabled,
+      getIndexAtOffset,
+      getItemMetrics,
+      getScrollElement,
+      remeasure,
+      resetScroll,
+      scrollToIndex,
+    ],
+  );
+  useVirtualizerRegistration(host, registration);
 
   const handleEndReached = useStableCallback(() => onEndReached?.());
   /**

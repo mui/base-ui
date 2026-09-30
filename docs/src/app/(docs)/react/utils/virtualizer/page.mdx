@@ -259,7 +259,7 @@ What the host publishes:
 - `rendersItemPart` declares that every row renders your item part. In development, the virtualizer then warns when an item renderer returns none of them, or several, and when an item part is rendered outside the virtualizer. Leave it out if your rows are plain elements that spread the renderer's third argument.
 - `itemAria` declares what the host's items need. Leave it out for a listbox, whose options are placed in the flat collection; publish `'none'` for a tree or a grid, whose items are placed relative to something else, and state the position in your own item part.
 - `registry` lets the host reach the virtualizer's geometry: `getItemMetrics`, `getIndexAtOffset` and `scrollToIndex` are on `registry.virtualizer` while one is mounted, so a sticky header of your own can be positioned without an `actionsRef`.
-- `windowingSuspended` asks for every item to be mounted for a moment, and **must be cleared while the virtualizer is still mounted**, since that transition is what makes it measure its viewport again.
+- `windowingSuspended` asks for every item to be mounted for a moment. Clearing it windows the list again, measuring its viewport afresh.
 
 Your item part reads the metadata of the row it is rendered in with `useVirtualizerItem()`, and spreads it onto the element representing the item, the way `<Combobox.Item>` does. `index` is the item's place in the collection. A group label reads the id the group is named by with `useVirtualizerGroupHeader()`:
 

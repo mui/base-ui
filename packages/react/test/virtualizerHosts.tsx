@@ -175,18 +175,22 @@ export function TestVirtualizedList<Item = TestItem>(props: TestVirtualizedListP
     [hostItemAria, registry],
   );
 
-  const activeIndex = activeIndexProp ?? scrollToRowIndex ?? pinnedRowIndex ?? null;
+  const activation = activeIndexProp ?? scrollToRowIndex ?? pinnedRowIndex ?? null;
   const scrollActiveIntoView = scrollActiveIntoViewProp ?? scrollToRowIndex != null;
 
   const hostState = React.useMemo<VirtualizerHostState>(
     () => ({
-      activeIndex,
+      // A bare index takes its scroll decision from the sugar props, published with it as a host
+      // publishes one; an activation object carries its own.
+      activeIndex:
+        typeof activation === 'number'
+          ? { index: activation, scroll: scrollActiveIntoView }
+          : activation,
       groups,
       items,
-      scrollActiveIntoView,
       windowingSuspended,
     }),
-    [activeIndex, groups, items, scrollActiveIntoView, windowingSuspended],
+    [activation, groups, items, scrollActiveIntoView, windowingSuspended],
   );
 
   React.useImperativeHandle<VirtualizerHandle | null, VirtualizerHandle | null>(
