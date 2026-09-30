@@ -143,17 +143,30 @@ describe('draggable demos', () => {
   });
 
   describe.each([AxisCss, AxisTailwind])('axis lane keyboard shortcut', (Demo) => {
+    it('moves a selected stop with click controls and keeps control focus', async () => {
+      const { user } = await renderDnd(<Demo />);
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Stop' }), 'coffee');
+      const right = screen.getByRole('button', { name: 'Move right' });
+      await user.click(right);
+      const coffee = screen.getByRole('button', { name: 'Coffee' });
+      expect(within(coffee.parentElement!).getAllByRole('button')[2]).toBe(coffee);
+      expect(right).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent('Coffee moved to position 3 of 12.');
+    });
+
     it('moves the focused stop, announces it, and keeps it focused', async () => {
       const { user } = await renderDnd(<Demo />);
       const coffee = screen.getByRole('button', { name: 'Coffee' });
       coffee.focus();
       await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
-      const labels = screen.getAllByRole('button').map((button) => button.textContent);
+      const labels = within(coffee.parentElement!)
+        .getAllByRole('button')
+        .map((button) => button.textContent);
       expect(labels.slice(0, 3)).toEqual(['Wake up', 'Standup', 'Coffee']);
       expect(coffee).toHaveFocus();
       expect(screen.getByRole('status')).toHaveTextContent('Coffee moved to position 3 of 12.');
       await user.keyboard('{Alt>}{ArrowLeft}{/Alt}{Alt>}{ArrowLeft}{/Alt}{Alt>}{ArrowLeft}{/Alt}');
-      expect(screen.getAllByRole('button')[0]).toBe(coffee);
+      expect(within(coffee.parentElement!).getAllByRole('button')[0]).toBe(coffee);
       expect(screen.getByRole('status')).toHaveTextContent('Coffee moved to position 1 of 12.');
     });
   });
@@ -214,6 +227,21 @@ describe('draggable demos', () => {
     ['CSS Modules', HandleCss],
     ['Tailwind', HandleTailwind],
   ] as const)('dashboard keyboard shortcut with %s', (_name, Demo) => {
+    it('moves a selected widget with click controls and keeps control focus', async () => {
+      const { user } = await renderDnd(<Demo />);
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Widget' }), 'conversion');
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Destination' }), 'right');
+      const move = screen.getByRole('button', { name: 'Move widget' });
+      await user.click(move);
+      expect(screen.getByRole('group', { name: 'Right dashboard slot' })).toHaveTextContent(
+        'Conversion',
+      );
+      expect(move).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent(
+        'Conversion moved to Right dashboard slot.',
+      );
+    });
+
     it('moves the focused widget to the next empty slot and keeps it focused', async () => {
       const { user } = await renderDnd(<Demo />);
       const widget = screen.getByRole('group', { name: 'Center dashboard slot' })
@@ -367,6 +395,22 @@ describe('draggable demos', () => {
     ['live CSS Modules', SortableLiveCss],
     ['live Tailwind', SortableLiveTailwind],
   ] as const)('sorting announcements with %s', (_name, Demo) => {
+    it('reorders a selected task with click controls and keeps control focus', async () => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn(() => ({ matches: true })),
+      );
+      const { user } = await renderDnd(<Demo />);
+      const move = screen.getByRole('button', { name: 'Move down' });
+      await user.click(move);
+      const source = screen.getByRole('button', { name: 'Write the spec' });
+      expect(source.parentElement!.parentElement!.children[1]).toBe(source.parentElement);
+      expect(move).toHaveFocus();
+      expect(screen.getByRole('status')).toHaveTextContent(
+        'Write the spec moved to position 2 of 4.',
+      );
+    });
+
     it('announces accepted keyboard moves once and retains focus', async () => {
       vi.stubGlobal(
         'matchMedia',
@@ -524,7 +568,7 @@ describe('draggable demos', () => {
           expect(source).toHaveFocus();
           listTop = 160;
           await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
-          const group = screen.getByRole('group');
+          const group = screen.getByRole('group', { name: 'Tasks reordered while dragging' });
           expect(group.querySelector('button')).toBe(neighbor);
           expect(sourceAnimate.mock.calls).toEqual(
             reducedMotion

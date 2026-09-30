@@ -1027,6 +1027,10 @@ describe('engine.registerViewport', () => {
     engine.registerViewport(listA, {});
 
     await lift(source, { clientX: 100, clientY: 100 });
+    const hitTest = vi
+      .spyOn(document, 'elementFromPoint')
+      .mockImplementation((x) => (x < 200 ? listA : listB));
+    registerCleanup(() => hitTest.mockRestore());
     // The physical pointer is in B's bottom edge zone, and the reported point is
     // pinned to A's bottom-right corner. B contains only the raw pointer, so it
     // must not take the vertical axis from A.
@@ -1957,9 +1961,14 @@ describe('engine.registerViewport', () => {
     // Lift at the viewport center, outside any edge zone, then move to the given
     // point, so only the `dragOver` can engage the loop. The sensor flushes
     // `onMove` in its own frame, and the loop runs in the next one.
-    async function drive(source: HTMLElement, clientX: number, clientY: number): Promise<void> {
+    async function drive(
+      source: HTMLElement,
+      clientX: number,
+      clientY: number,
+      target: Element = document.documentElement,
+    ): Promise<void> {
       await lift(source, { clientX: 400, clientY: 300 });
-      fireDrag.dragOver(document.documentElement, { clientX, clientY });
+      fireDrag.dragOver(target, { clientX, clientY });
       await flushRaf();
       await flushRaf();
     }
@@ -2204,7 +2213,7 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       engine.registerViewport(inner, {});
 
-      await drive(source, 400, 590);
+      await drive(source, 400, 590, inner);
 
       expect(inner.scrollBy).toHaveBeenCalled();
       expect(page.scrollBy).not.toHaveBeenCalled();
@@ -2228,7 +2237,7 @@ describe('engine.registerViewport', () => {
       registerCleanup(engine.registerViewport(page.element, {}));
       const cleanupInner = engine.registerViewport(inner, {});
 
-      await drive(source, 400, 590);
+      await drive(source, 400, 590, inner);
 
       // The root is every scroller's ancestor, so the depth sort visits it last.
       // The inner container consumes the vertical axis and the page stays idle.
@@ -2503,6 +2512,8 @@ describe('engine.registerViewport', () => {
       Object.defineProperty(scroller, 'scrollLeft', { value: scrollLeft, writable: true });
       Object.defineProperty(scroller, 'scrollWidth', { value: 1000 });
       Object.defineProperty(scroller, 'clientWidth', { value: 200 });
+      const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(scroller);
+      registerCleanup(() => hitTest.mockRestore());
       return scroller;
     }
 
@@ -3453,6 +3464,8 @@ describe('engine.registerViewport', () => {
     scroller.scrollBy = vi.fn();
     Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
     Object.defineProperty(scroller, 'clientHeight', { value: 100 });
+    const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(scroller);
+    registerCleanup(() => hitTest.mockRestore());
 
     engine.registerSource(source, {
       activation: { touch: { type: 'immediate' } },

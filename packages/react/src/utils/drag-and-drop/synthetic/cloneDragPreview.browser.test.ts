@@ -990,7 +990,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     const handle = createDragPreviewElement(source, null, true)!;
     const computed = getComputedStyle(handle.element);
 
-    expect(handle.element.id).toBe('drag-card-drag-preview');
+    expect(handle.element.id).not.toBe(source.id);
+    expect(document.getElementById(handle.element.id)).toBe(handle.element);
     expect(computed.color).not.toBe('rgb(123, 45, 67)');
     expect(computed.opacity).toBe('0.5');
 

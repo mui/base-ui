@@ -28,9 +28,9 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     slot,
     () => new WeakMap<DragEventRoot, DocumentBindingEntry>(),
   );
-  const boundShadowRoots = getSharedSlot<Set<ShadowRoot>>(
-    `${slot}.shadowRoots`,
-    () => new Set<ShadowRoot>(),
+  const boundShadowRoots = getSharedSlot<Map<EventTarget, ShadowRoot>>(
+    `${slot}.shadowRootsByHost`,
+    () => new Map<EventTarget, ShadowRoot>(),
   );
   /**
    * Events already delivered. An event from inside a bound shadow root reaches
@@ -54,12 +54,10 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
       return false;
     }
     const path = event.composedPath();
-    for (const root of boundShadowRoots.keys()) {
-      if (
-        root !== currentRoot &&
-        path.includes(root.host) &&
-        (!isShadowRoot(currentRoot) || path.indexOf(root.host) < path.indexOf(currentRoot))
-      ) {
+    const end = isShadowRoot(currentRoot) ? path.indexOf(currentRoot) : path.length;
+    for (let i = 0; i < end; i += 1) {
+      const root = boundShadowRoots.get(path[i]);
+      if (root && root !== currentRoot) {
         return true;
       }
     }
@@ -70,7 +68,7 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     const shadowRoot = isShadowRoot(root);
     const target = shadowRoot ? root : ownerWindow(root.documentElement);
     if (shadowRoot) {
-      boundShadowRoots.add(root);
+      boundShadowRoots.set(root.host, root);
     }
     // Use fresh wrappers so deferred cleanup cannot remove a later binding.
     const onCapture = (event: Event) => {
@@ -92,7 +90,7 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
         off();
       }
       if (shadowRoot) {
-        boundShadowRoots.delete(root);
+        boundShadowRoots.delete(root.host);
       }
     };
   };

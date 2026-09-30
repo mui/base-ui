@@ -1092,7 +1092,6 @@ function reportedPointHasCandidate(
   );
 }
 
-/** Whether a candidate's probe lies inside its rect, not only inside its margin. */
 function isProbeInRect(candidate: ScrollCandidate): boolean {
   const { probe, rect } = candidate;
   return probe !== null && isPointInRect(probe.clientX, probe.clientY, rect);
@@ -1105,24 +1104,17 @@ function isProbeInRect(candidate: ScrollCandidate): boolean {
  * behind it, and a viewport clipped by an ancestor would scroll where it isn't
  * visible.
  *
- * A candidate stays when it contains the element hit-tested at its probe. When
- * none does, such as over a gap, the order is left alone. Hit-tests run only
- * when two or more viewports hold their probe, because a single one can't lose
- * the axis to another. The page scroller contains everything in its document, so
- * it never needs one. Candidates probed only through their margin are left to
- * the margin pass.
+ * A candidate stays when it contains the element hit-tested at its probe. An
+ * unregistered overlay can cover even a sole candidate. The page scroller and
+ * candidates probed only through their margin are left to their existing passes.
  */
 function dropOccludedCandidates(
   candidates: ScrollCandidate[],
   doc: Document,
 ): ReadonlyArray<ScrollCandidate> {
-  let contained = 0;
-  for (const candidate of candidates) {
-    if (candidate.pageScroller === null && isProbeInRect(candidate)) {
-      contained += 1;
-    }
-  }
-  if (contained < 2) {
+  if (
+    !candidates.some((candidate) => candidate.pageScroller === null && isProbeInRect(candidate))
+  ) {
     return candidates;
   }
   const closedRoots = getClosedShadowRoots();
@@ -1149,7 +1141,8 @@ function dropOccludedCandidates(
       hovered.add(candidate);
     }
   }
-  if (hovered.size === 0) {
+  // Preserve the geometric fallback when the environment cannot hit-test.
+  if (Array.from(hitChains.values()).every((chain) => chain.size === 0)) {
     return candidates;
   }
   return candidates.filter(

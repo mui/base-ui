@@ -683,6 +683,10 @@ describe('Draggable.Viewport', () => {
 
     await liftOutside(source);
     await dragTo(first, 100, 95);
+    const hitTest = vi
+      .spyOn(document, 'elementFromPoint')
+      .mockImplementation(() => screen.getByTestId('scroller'));
+    registerCleanup(() => hitTest.mockRestore());
     expect(scrollBy).not.toHaveBeenCalled();
 
     await rerender(<Draggable.Viewport ref={ref} render={<section />} data-testid="scroller" />);

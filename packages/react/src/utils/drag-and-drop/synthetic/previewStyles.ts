@@ -53,11 +53,8 @@ const ids = getSharedSlot('dragPreviewStyleIds', () => ({ next: 0 }));
 type Properties = Map<string, Map<string, string>>;
 
 /**
- * Measured in Chromium, the rule scan costs about 0.5µs per rule (3µs for a
- * structural one, which queries the source subtree), whatever the subtree size.
- * The full snapshot costs about 0.35ms per node. They break even around 500 rules
- * per node. The floor keeps the more faithful scan for small sources in a
- * typical app sheet, at a cost of a few milliseconds.
+ * Bound selector work before falling back to computed styles. Larger source
+ * trees get a larger budget because a full snapshot also grows with the tree.
  */
 const MIN_RULE_BUDGET = 4096;
 const RULES_PER_SOURCE_NODE = 512;
@@ -247,7 +244,9 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
       const parentCustom =
         node === source || !node.parentElement ? undefined : customValues.get(node.parentElement);
       const custom = new Map<string, string>();
-      customValues.set(node, custom);
+      if (node.childElementCount > 0) {
+        customValues.set(node, custom);
+      }
       add(node, '', readProperties(win.getComputedStyle(node), parentCustom, custom));
       for (const pseudo of ['::before', '::after', '::marker']) {
         const computed = win.getComputedStyle(node, pseudo);

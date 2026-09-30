@@ -340,6 +340,29 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     );
   }
 
+  it('does not scroll a viewport covered by an unregistered overlay', async () => {
+    const { engine } = await renderDnd();
+    const viewport = element('position:fixed;left:0;top:0;width:200px;height:200px;overflow:auto');
+    element('height:1000px', viewport);
+    const overlay = element(
+      'position:fixed;left:0;top:0;width:200px;height:200px;background:red;z-index:1000',
+    );
+    const source = element('width:50px;height:50px', overlay);
+    engine.registerSource(source, { activation: { type: 'immediate' } });
+    engine.registerViewport(viewport, {});
+
+    pointer('down', source, 10, 10);
+    pointer('move', overlay, 100, 190);
+    expect(source).toHaveAttribute('data-dragging');
+    for (let i = 0; i < 15; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await flushRaf();
+    }
+
+    expect(viewport.scrollTop).toBe(0);
+    act(() => engine.cancelDrag());
+  });
+
   it('scrolls the viewport under the pointer, not a deeper one behind it', async () => {
     const { engine } = await renderDnd();
     const source = element('position:fixed;left:300px;top:0;width:100px;height:50px');

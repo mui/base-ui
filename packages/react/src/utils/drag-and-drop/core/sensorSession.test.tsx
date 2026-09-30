@@ -17,6 +17,29 @@ setupDragEngineTests();
 describe('sensor session startup', () => {
   const { renderDnd } = createDndRenderer();
 
+  it('finishes a child preview before picking up its parent', async () => {
+    const { engine } = await renderDnd();
+    const parent = createElement();
+    const child = createElement();
+    child.id = 'settling-child';
+    parent.appendChild(child);
+    engine.registerSource(parent, { activation: { type: 'immediate' } });
+    engine.registerSource(child, { activation: { type: 'immediate' } });
+
+    penDown(child, 10, 10);
+    penUp(10, 10);
+    expect(child).toHaveAttribute('data-settling');
+
+    penDown(parent, 150, 80);
+
+    const ids = Array.from(document.querySelectorAll('[id]'), (node) => node.id);
+    expect(ids.length).toBe(new Set(ids).size);
+    expect(child).not.toHaveAttribute('data-settling');
+    expect(parent.querySelector('[data-drag-preview-container]')).toBeNull();
+    act(() => engine.cancelDrag());
+    penUp(150, 80);
+  });
+
   it('carries the typed pre-start source and data into target resolution, preview and start', async () => {
     const kind = Draggable.createKind<string, { offset: number }>('prepared-source');
     let candidate: DraggableRootRecord<string, { offset: number }> | undefined;

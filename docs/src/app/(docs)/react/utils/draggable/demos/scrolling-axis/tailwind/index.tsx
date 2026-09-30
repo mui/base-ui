@@ -1,4 +1,5 @@
 'use client';
+
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
@@ -10,6 +11,9 @@ interface Stop {
   id: string;
   label: string;
 }
+
+const CONTROL_CLASS =
+  'flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus-visible:outline-white';
 
 const stopKind = Draggable.createKind<string>('stop');
 
@@ -69,10 +73,11 @@ const STOP_CLASS =
 
 export default function AxisLane() {
   const [stops, setStops] = React.useState(INITIAL_STOPS);
+  const [selectedStop, setSelectedStop] = React.useState(INITIAL_STOPS[0].id);
+  const selectedIndex = stops.findIndex((stop) => stop.id === selectedStop);
   const [announcement, setAnnouncement] = React.useState('');
   const trackRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Shared by the drop handler and the keyboard shortcut.
   function moveStop(id: string, insertIndex: number) {
     const sourceIndex = stops.findIndex((stop) => stop.id === id);
     // Dropping immediately before or after the source position is a no-op.
@@ -147,6 +152,37 @@ export default function AxisLane() {
             ))}
           </Draggable.Target>
         </Draggable.Viewport>
+        <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0">
+          <legend className="mb-2 p-0 text-sm leading-5 font-medium text-neutral-950 dark:text-white">
+            Move stop
+          </legend>
+          <select
+            aria-label="Stop"
+            className={CONTROL_CLASS}
+            value={selectedStop}
+            onChange={(event) => setSelectedStop(event.target.value)}
+          >
+            {stops.map((stop) => (
+              <option key={stop.id} value={stop.id}>
+                {stop.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className={CONTROL_CLASS}
+            onClick={() => moveStop(selectedStop, selectedIndex - 1)}
+          >
+            Move left
+          </button>
+          <button
+            type="button"
+            className={CONTROL_CLASS}
+            onClick={() => moveStop(selectedStop, selectedIndex + 2)}
+          >
+            Move right
+          </button>
+        </fieldset>
         <span role="status" style={visuallyHidden}>
           {announcement}
         </span>

@@ -1,5 +1,6 @@
 import { clamp } from '@base-ui/utils/clamp';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { contains } from '@base-ui/utils/shadowDom';
 import { getFiniteAnimations } from '../../getFiniteAnimations';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
@@ -49,12 +50,16 @@ function findEndingPreview(source: Element): EndingPreview | undefined {
 }
 
 /**
- * Finish the clone still settling onto `source`, if any. A new pickup calls this
- * before it measures and clones the source, which would otherwise still carry
- * `data-dragging` and `data-settling` and the styles keyed on them.
+ * Finish previews settling onto the source or its descendants before pickup.
+ * Their state attributes affect measurement, and a child's preview would be
+ * included in a parent clone.
  */
 export function finishEndingPreview(source: Element): void {
-  findEndingPreview(source)?.finish();
+  for (const entry of endingPreviews) {
+    if (contains(source, entry.source)) {
+      entry.finish();
+    }
+  }
 }
 
 /**

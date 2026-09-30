@@ -8,6 +8,7 @@ import { SLOTS, useDashboardWidgets } from '../../dashboardWidgets';
 import type { SlotId, WidgetData } from '../../dashboardWidgets';
 
 import styles from '../../handle.module.css';
+import controlStyles from '../../hero.module.css';
 
 const widgetKind = Draggable.createKind<string>('draggable/handle-widget');
 
@@ -80,6 +81,9 @@ export default function HandleDashboard() {
   const { dashboardRef, widgets, moveWidget, onWidgetKeyDown, announcement } =
     useDashboardWidgets();
 
+  const [selectedWidget, setSelectedWidget] = React.useState(widgets[0].id);
+  const [selectedSlot, setSelectedSlot] = React.useState<SlotId>('right');
+
   return (
     <Draggable.Provider>
       <div ref={dashboardRef} className={styles.Root}>
@@ -98,6 +102,46 @@ export default function HandleDashboard() {
             />
           ))}
         </div>
+        <fieldset className={controlStyles.Controls}>
+          <legend className={controlStyles.Legend}>Move widget</legend>
+          <select
+            aria-label="Widget"
+            className={controlStyles.Button}
+            value={selectedWidget}
+            onChange={(event) => setSelectedWidget(event.target.value)}
+          >
+            {widgets.map((widget) => (
+              <option key={widget.id} value={widget.id}>
+                {widget.title}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Destination"
+            className={controlStyles.Button}
+            value={selectedSlot}
+            onChange={(event) => setSelectedSlot(event.target.value as SlotId)}
+          >
+            {SLOTS.map((slot) => (
+              <option
+                key={slot.id}
+                value={slot.id}
+                disabled={widgets.some(
+                  (widget) => widget.slot === slot.id && widget.id !== selectedWidget,
+                )}
+              >
+                {slot.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className={controlStyles.Button}
+            onClick={() => moveWidget(selectedWidget, selectedSlot)}
+          >
+            Move widget
+          </button>
+        </fieldset>
       </div>
     </Draggable.Provider>
   );

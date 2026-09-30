@@ -7,6 +7,7 @@ import { GripIcon } from '../../GripIcon';
 import { DragPageAutoScroll } from '../../DragPageAutoScroll';
 
 import styles from '../../scrolling-axis.module.css';
+import controlStyles from '../../hero.module.css';
 
 interface Stop {
   id: string;
@@ -66,10 +67,11 @@ function resolveDropIndex(track: HTMLElement, clientX: number): number {
 
 export default function AxisLane() {
   const [stops, setStops] = React.useState(INITIAL_STOPS);
+  const [selectedStop, setSelectedStop] = React.useState(INITIAL_STOPS[0].id);
+  const selectedIndex = stops.findIndex((stop) => stop.id === selectedStop);
   const [announcement, setAnnouncement] = React.useState('');
   const trackRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Shared by the drop handler and the keyboard shortcut.
   function moveStop(id: string, insertIndex: number) {
     const sourceIndex = stops.findIndex((stop) => stop.id === id);
     // Dropping immediately before or after the source position is a no-op.
@@ -144,6 +146,35 @@ export default function AxisLane() {
             ))}
           </Draggable.Target>
         </Draggable.Viewport>
+        <fieldset className={controlStyles.Controls}>
+          <legend className={controlStyles.Legend}>Move stop</legend>
+          <select
+            aria-label="Stop"
+            className={controlStyles.Button}
+            value={selectedStop}
+            onChange={(event) => setSelectedStop(event.target.value)}
+          >
+            {stops.map((stop) => (
+              <option key={stop.id} value={stop.id}>
+                {stop.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className={controlStyles.Button}
+            onClick={() => moveStop(selectedStop, selectedIndex - 1)}
+          >
+            Move left
+          </button>
+          <button
+            type="button"
+            className={controlStyles.Button}
+            onClick={() => moveStop(selectedStop, selectedIndex + 2)}
+          >
+            Move right
+          </button>
+        </fieldset>
         <span role="status" style={visuallyHidden}>
           {announcement}
         </span>

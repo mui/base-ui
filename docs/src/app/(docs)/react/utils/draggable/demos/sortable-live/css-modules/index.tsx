@@ -14,6 +14,7 @@ import {
 import type { TaskDestination } from '../../sortableTasks';
 import { useSortableAnimation } from '../../useSortableAnimation';
 import styles from '../sortable.module.css';
+import controlStyles from '../../hero.module.css';
 
 const taskKind = Draggable.createKind<string>('sortable-live-task');
 
@@ -52,6 +53,7 @@ const Task = React.memo(function Task({
 
 export default function SortableLive() {
   const [tasks, setTasks] = React.useState(INITIAL_TASKS);
+  const [selectedTask, setSelectedTask] = React.useState(INITIAL_TASKS[0]);
   const [announcement, setAnnouncement] = React.useState('');
   const initialOrder = React.useRef(tasks);
   const listRef = useSortableAnimation(tasks);
@@ -116,6 +118,35 @@ export default function SortableLive() {
           ))}
         </div>
       </Draggable.CollisionProvider>
+      <fieldset className={controlStyles.Controls} style={{ marginTop: '0.75rem' }}>
+        <legend className={controlStyles.Legend}>Move task</legend>
+        <select
+          aria-label="Task"
+          className={controlStyles.Button}
+          value={selectedTask}
+          onChange={(event) => setSelectedTask(event.target.value)}
+        >
+          {tasks.map((task) => (
+            <option key={task} value={task}>
+              {task}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          className={controlStyles.Button}
+          onClick={() => swap(selectedTask, 'up')}
+        >
+          Move up
+        </button>
+        <button
+          type="button"
+          className={controlStyles.Button}
+          onClick={() => swap(selectedTask, 'down')}
+        >
+          Move down
+        </button>
+      </fieldset>
       <span role="status" style={visuallyHidden}>
         {announcement}
       </span>

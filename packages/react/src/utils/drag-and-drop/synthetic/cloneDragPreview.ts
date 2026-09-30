@@ -166,8 +166,7 @@ type PreviewHost = HTMLElement | ShadowRoot;
 
 const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
-/** Appended to every id in the clone, so it never duplicates one in the document. */
-const ID_SUFFIX = '-drag-preview';
+const previewIds = getSharedSlot('dragPreviewIds', () => ({ next: 0 }));
 
 /**
  * The node the preview is appended to. A draggable that is a direct child of a
@@ -330,11 +329,12 @@ function sanitize(clone: HTMLElement, cloneNodes: Element[]): void {
   // As a result, `#id` selectors do not style the preview. Classes and
   // `[data-drag-preview]` are the supported styling hooks.
   const rewritten = new Map<string, string>();
+  const idSuffix = `-drag-preview-${previewIds.next}`;
+  previewIds.next += 1;
   for (const node of cloneNodes) {
     switch (node.localName) {
       case 'script':
-        // `cloneNode` does not copy a script's "already started" flag, so a
-        // descendant script re-executes the moment the clone is inserted.
+        // Unstarted scripts must not execute when the preview is inserted.
         if (node !== clone) {
           node.remove();
         }
@@ -349,6 +349,17 @@ function sanitize(clone: HTMLElement, cloneNodes: Element[]): void {
         // Like an iframe, an `<object>` or `<embed>` would fetch its resource again
         // and run an HTML or SVG document's scripts on every drag.
         node.removeAttribute('data');
+        node.setAttribute('form', '');
+        break;
+      case 'input':
+      case 'select':
+      case 'textarea':
+      case 'button':
+      case 'fieldset':
+      case 'output':
+        // An empty owner keeps the enabled appearance without adding controls to
+        // the source's form or its constraint validation, including `form="id"`.
+        node.setAttribute('form', '');
         break;
       case 'embed':
         node.removeAttribute('src');
@@ -381,7 +392,7 @@ function sanitize(clone: HTMLElement, cloneNodes: Element[]): void {
 
     const id = node.getAttribute('id');
     if (id) {
-      const next = `${id}${ID_SUFFIX}`;
+      const next = `${id}${idSuffix}`;
       rewritten.set(id, next);
       node.setAttribute('id', next);
     }
@@ -471,14 +482,10 @@ function remapInlineStyleUrls(node: Element, remap: (value: string) => string): 
 }
 
 /**
- * Copy the live state `cloneNode` leaves behind. It copies attributes, so a form
- * control clones with its `defaultValue`/`defaultChecked` instead of what the user
- * typed, and a canvas clones with a blank backing store.
+ * Copy select state and canvas pixels that native cloning does not preserve.
  *
- * The two node lists are walked in parallel, which only works while both trees
- * have the same structure. So this runs on the fresh clone, before `sanitize()`
- * removes nodes. Scroll offsets are no-ops on a detached node, so the returned
- * function applies them once the clone is inserted.
+ * Source and clone lists are paired before sanitization removes nodes. Scroll
+ * offsets need layout, so the returned function applies them after insertion.
  */
 function copyLiveState(
   sourceNodes: Element[],
@@ -493,16 +500,7 @@ function copyLiveState(
 
     // Use the source window's constructors. A draggable inside an iframe or popout
     // has its own, and this realm's would never match.
-    if (from instanceof win.HTMLInputElement && to instanceof win.HTMLInputElement) {
-      // A file input's value cannot be set from script (a non-empty value throws
-      // `InvalidStateError`), so the clone's stays empty.
-      if (from.type !== 'file') {
-        to.value = from.value;
-        to.checked = from.checked;
-      }
-    } else if (from instanceof win.HTMLTextAreaElement && to instanceof win.HTMLTextAreaElement) {
-      to.value = from.value;
-    } else if (from instanceof win.HTMLSelectElement && to instanceof win.HTMLSelectElement) {
+    if (from instanceof win.HTMLSelectElement && to instanceof win.HTMLSelectElement) {
       for (let option = 0; option < from.options.length; option += 1) {
         to.options[option].selected = from.options[option].selected;
       }

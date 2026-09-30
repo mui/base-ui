@@ -286,25 +286,23 @@ describe('createDragPreviewElement (clone)', () => {
     expect(handle.element).not.toHaveAttribute('data-settling');
   });
 
-  it('removes scripts, which would otherwise re-execute when the clone is inserted', () => {
-    // `cloneNode` does not copy a script's "already started" flag.
+  it('removes descendant scripts from the preview', () => {
     const handle = clone(createSource('<span>hi</span><script>window.ran = true;</script>'));
 
     expect(handle.element.querySelector('script')).toBeNull();
     expect(handle.element.querySelector('span')).not.toBeNull();
   });
 
-  it('copies live state before removing scripts, so the node zip stays aligned', () => {
-    // `copyLiveState` pairs the source and clone trees by index. Removing the
-    // clone's `<script>` first would shift every later clone node by one, and the
-    // typed value would land on the wrong element, or nowhere.
-    const source = createSource('<script>window.ran = true;</script><input type="text" />');
-    source.querySelector<HTMLInputElement>('input')!.value = 'typed';
+  it('preserves live select state when removing scripts', () => {
+    const source = createSource(
+      '<script>window.ran = true;</script><select><option>a</option><option>b</option></select>',
+    );
+    source.querySelector('select')!.selectedIndex = 1;
 
     const handle = clone(source);
 
     expect(handle.element.querySelector('script')).toBeNull();
-    expect(handle.element.querySelector<HTMLInputElement>('input')!.value).toBe('typed');
+    expect(handle.element.querySelector('select')!.selectedIndex).toBe(1);
   });
 
   it('neuters iframes so the clone does not refetch or re-run the embedded document', () => {
@@ -367,19 +365,21 @@ describe('createDragPreviewElement (clone)', () => {
 
     const handle = clone(source);
 
-    // Duplicate ids would break `getElementById`, `<label for>` and `aria-labelledby`.
-    expect(handle.element.querySelector('input')!.id).toBe('name-input-drag-preview');
-    expect(handle.element.querySelector('label')!.getAttribute('for')).toBe(
-      'name-input-drag-preview',
-    );
-    expect(handle.element.querySelector('input')!.getAttribute('aria-describedby')).toBe(
-      'hint-drag-preview',
-    );
+    const input = handle.element.querySelector('input')!;
+    const hint = handle.element.querySelector('p')!;
+    expect(input.id).not.toBe('name-input');
+    expect(hint.id).not.toBe('hint');
+    expect(handle.element.querySelector('label')!.getAttribute('for')).toBe(input.id);
+    expect(input.getAttribute('aria-describedby')).toBe(hint.id);
     expect(handle.element.querySelector('input')!.getAttribute('aria-owns')).toBe(
-      'hint-drag-preview external',
+      `${hint.id} external`,
     );
     // The real source still owns the original id.
     expect(document.getElementById('name-input')).toBe(source.querySelector('input'));
+
+    const next = clone(source);
+    expect(next.element.querySelector('input')!.id).not.toBe(input.id);
+    expect(next.element.querySelector('p')!.id).not.toBe(hint.id);
   });
 
   it('rewrites SVG paint-server references to the cloned ids', () => {
@@ -396,16 +396,18 @@ describe('createDragPreviewElement (clone)', () => {
 
     const handle = clone(source);
     const path = handle.element.querySelector('path')!;
+    const cropId = handle.element.querySelector('clipPath')!.id;
+    const blurId = handle.element.querySelector('filter')!.id;
 
-    expect(handle.element.querySelector('clipPath')!.id).toBe('crop-drag-preview');
-    expect(handle.element.querySelector('filter')!.id).toBe('blur-drag-preview');
-    expect(path.getAttribute('clip-path')).toBe('url(#crop-drag-preview)');
+    expect(cropId).not.toBe('crop');
+    expect(blurId).not.toBe('blur');
+    expect(path.getAttribute('clip-path')).toBe(`url(#${cropId})`);
     // Browsers re-serialize the rewritten declarations with their own quoting.
-    expect(path.getAttribute('style')).toMatch(/filter: url\(['"]?#blur-drag-preview['"]?\)/);
-    expect(path.getAttribute('style')).toMatch(/fill: url\(['"]?#crop-drag-preview['"]?\)/);
+    expect(path.getAttribute('style')).toMatch(new RegExp(`filter: url\\(['"]?#${blurId}['"]?\\)`));
+    expect(path.getAttribute('style')).toMatch(new RegExp(`fill: url\\(['"]?#${cropId}['"]?\\)`));
     const use = handle.element.querySelector('use')!;
-    expect(use.getAttribute('href')).toBe('#crop-drag-preview');
-    expect(use.getAttribute('xlink:href')).toBe('#blur-drag-preview');
+    expect(use.getAttribute('href')).toBe(`#${cropId}`);
+    expect(use.getAttribute('xlink:href')).toBe(`#${blurId}`);
   });
 
   it('uses an inert native placeholder instead of cloning custom-element application code', () => {
@@ -447,7 +449,7 @@ describe('createDragPreviewElement (clone)', () => {
     expect(placeholder.style.order).toBe('2');
   });
 
-  it('copies live form state, which cloneNode leaves at its defaults', () => {
+  it('preserves live form state', () => {
     const source = createSource(
       '<input type="text" /><input type="checkbox" /><select><option>a</option><option>b</option></select><textarea></textarea>',
     );
@@ -462,8 +464,6 @@ describe('createDragPreviewElement (clone)', () => {
 
     const handle = clone(source);
 
-    // `cloneNode` copies the `value`/`checked` attributes, which hold the defaults,
-    // not what the user typed or picked.
     expect(handle.element.querySelector<HTMLInputElement>('input[type=text]')!.value).toBe('typed');
     expect(handle.element.querySelector<HTMLInputElement>('input[type=checkbox]')!.checked).toBe(
       true,
@@ -472,7 +472,7 @@ describe('createDragPreviewElement (clone)', () => {
     expect(handle.element.querySelector('textarea')!.value).toBe('drafted');
   });
 
-  it('skips the value copy for file inputs, whose value cannot be set programmatically', () => {
+  it('does not assign a file input value programmatically', () => {
     const source = createSource('<input type="file" /><input type="text" />');
     const fileInput = source.querySelector<HTMLInputElement>('input[type=file]')!;
     const text = source.querySelector<HTMLInputElement>('input[type=text]')!;
@@ -506,6 +506,30 @@ describe('createDragPreviewElement (clone)', () => {
       expect(control).not.toHaveAttribute('name');
     }
   });
+
+  it.each(['ancestor', 'explicit'] as const)(
+    'keeps cloned controls out of their %s form without disabling them',
+    (association) => {
+      const form = document.createElement('form');
+      form.id = 'preview-form';
+      host.appendChild(form);
+      const source = createSource('<input name="title" required>');
+      const input = source.querySelector('input')!;
+      if (association === 'ancestor') {
+        form.appendChild(source);
+      } else {
+        input.setAttribute('form', form.id);
+      }
+
+      const handle = clone(source);
+      input.value = 'Corrected after pickup';
+
+      expect(form.checkValidity()).toBe(true);
+      expect(form.elements).toHaveLength(1);
+      expect(Array.from(new FormData(form).entries())).toEqual([['title', input.value]]);
+      expect(handle.element.querySelector('input')).not.toBeDisabled();
+    },
+  );
 
   it('strips `name` from a cloned root control, which querySelectorAll never returns', () => {
     // The draggable itself is often the control, such as a radio card or a button.
