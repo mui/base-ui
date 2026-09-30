@@ -53,7 +53,7 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
 
   public lib = 'luxon';
 
-  private locale: string;
+  declare private locale: string;
 
   public formats: TemporalAdapterFormats = FORMATS;
 

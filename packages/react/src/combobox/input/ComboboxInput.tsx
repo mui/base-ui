@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { platform } from '@base-ui/utils/platform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -99,7 +100,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
   const lastActiveIndexRef = React.useRef<number | null>(null);
-  const shouldRestoreActiveIndexRef = React.useRef(false);
+
+  // Restore the saved highlight on refocus only within the same open cycle.
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      lastActiveIndexRef.current = null;
+    }
+  }, [open]);
 
   const inputOwnsFormValue = selectionMode === 'none' && !hasPositionerParent;
 
@@ -210,12 +217,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         onFocus() {
           setFocused(true);
 
-          if (!inline || !shouldRestoreActiveIndexRef.current) {
+          if (!inline) {
             return;
           }
 
-          shouldRestoreActiveIndexRef.current = false;
           const nextActiveIndex = lastActiveIndexRef.current;
+          lastActiveIndexRef.current = null;
 
           if (
             nextActiveIndex == null ||
@@ -234,7 +241,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           const activeIndex = store.state.activeIndex;
           if (inline && activeIndex !== null && autoHighlightMode !== 'always') {
             lastActiveIndexRef.current = activeIndex;
-            shouldRestoreActiveIndexRef.current = true;
             store.context.setIndices({ activeIndex: null });
           }
 

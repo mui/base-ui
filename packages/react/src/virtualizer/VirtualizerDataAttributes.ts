@@ -1,6 +1,4 @@
-export enum VirtualizerDataAttributes {
-  /**
-   * Present when the virtualized collection is empty.
-   */
-  empty = 'data-empty',
-}
+/**
+ * Present when the virtualized collection is empty.
+ */
+export const empty = 'data-empty';

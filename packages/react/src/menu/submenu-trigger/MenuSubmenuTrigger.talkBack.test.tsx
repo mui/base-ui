@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { vi, describe, it, expect } from 'vitest';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -25,7 +25,7 @@ function Test(props: { submenuTriggerProps?: React.ComponentProps<typeof Menu.Su
       <Menu.Trigger>Open menu</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner>
-          <Menu.Popup>
+          <Menu.Popup data-testid="parent-menu">
             <Menu.SubmenuRoot>
               <Menu.SubmenuTrigger data-testid="submenu-trigger" {...props.submenuTriggerProps}>
                 More
@@ -80,7 +80,7 @@ async function waitForFrames(count = 2) {
 describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with TalkBack', () => {
   const { render } = createRenderer();
 
-  it('opens the submenu on a TalkBack press with the default `openOnHover`', async () => {
+  it('toggles the submenu on repeated TalkBack activation with the default `openOnHover`', async () => {
     const { user } = await render(<Test />);
 
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
@@ -88,11 +88,26 @@ describe.skipIf(isJSDOM)('<Menu.SubmenuTrigger /> with TalkBack', () => {
 
     fireTalkBackPress(submenuTrigger);
 
-    // The mousedown open path defers through a rAF.
+    // The mousedown path defers through a rAF; let opening focus settle before activating again.
+    await screen.findByTestId('submenu');
+    await waitForFrames();
+
+    fireTalkBackPress(submenuTrigger);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu')).toBe(null);
+    });
+    expect(screen.getByTestId('parent-menu')).not.toBe(null);
+    await waitForFrames();
+
+    fireTalkBackPress(submenuTrigger);
+
     expect(await screen.findByTestId('submenu')).not.toBe(null);
+    await waitForFrames();
+    expect(screen.getByTestId('parent-menu')).not.toBe(null);
   });
 
-  it('keeps the submenu open on a TalkBack press with `openOnHover={false}`', async () => {
+  it('does not close the submenu on the trailing click of a TalkBack press with `openOnHover={false}`', async () => {
     const { user } = await render(<Test submenuTriggerProps={{ openOnHover: false }} />);
 
     await user.click(screen.getByRole('button', { name: 'Open menu' }));

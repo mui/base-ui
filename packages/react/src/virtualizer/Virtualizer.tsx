@@ -87,7 +87,7 @@ import {
 import type { WindowPlacement, WindowPlacementInputs } from './windowPlacement';
 import type { MeasurableRow, RowHeightCache, RowHeightEntry } from './rowHeightLedger';
 import { useRowHeightLedger } from './useRowHeightLedger';
-import { VirtualizerCssVars } from './VirtualizerCssVars';
+import * as VirtualizerCssVars from './VirtualizerCssVars';
 
 interface VirtualRowProps<RowModel> {
   heightCache: RowHeightCache;
