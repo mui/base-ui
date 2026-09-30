@@ -29,3 +29,22 @@ export type {
   Filter as MenuFilter,
   GetFilterParameters as MenuFilterOptions,
 } from '../internals/filter';
+
+export * as MenuArrowDataAttributes from './arrow/MenuArrowDataAttributes';
+export * as MenuBackdropDataAttributes from './backdrop/MenuBackdropDataAttributes';
+export * as MenuCheckboxItemDataAttributes from './checkbox-item/MenuCheckboxItemDataAttributes';
+export * as MenuCheckboxItemIndicatorDataAttributes from './checkbox-item-indicator/MenuCheckboxItemIndicatorDataAttributes';
+export * as MenuItemDataAttributes from './item/MenuItemDataAttributes';
+export * as MenuLinkItemDataAttributes from './link-item/MenuLinkItemDataAttributes';
+export * as MenuPopupDataAttributes from './popup/MenuPopupDataAttributes';
+export * as MenuPositionerCssVariables from './positioner/MenuPositionerCssVars';
+export * as MenuPositionerDataAttributes from './positioner/MenuPositionerDataAttributes';
+export * as MenuRadioItemDataAttributes from './radio-item/MenuRadioItemDataAttributes';
+export * as MenuRadioItemIndicatorDataAttributes from './radio-item-indicator/MenuRadioItemIndicatorDataAttributes';
+export * as MenuTriggerDataAttributes from './trigger/MenuTriggerDataAttributes';
+export * as MenuViewportCssVariables from './viewport/MenuViewportCssVars';
+export * as MenuViewportDataAttributes from './viewport/MenuViewportDataAttributes';
+export * as MenuSeparatorDataAttributes from '../separator/SeparatorDataAttributes';
+export * as MenuSubmenuTriggerDataAttributes from './submenu-trigger/MenuSubmenuTriggerDataAttributes';
+export * as MenuInputDataAttributes from './input/MenuInputDataAttributes';
+export * as MenuClearDataAttributes from './clear/MenuClearDataAttributes';
