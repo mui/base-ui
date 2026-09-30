@@ -1,0 +1,158 @@
+# Listbox
+
+<Subtitle>An always-visible list for selecting one or more options.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React listbox component for selecting options from an always-visible list."
+/>
+
+import { DemoListboxHero } from './demos/hero';
+
+<DemoListboxHero />
+
+## Usage guidelines
+
+- **Always visible**: Unlike [Select](https://base-ui.com/react/components/select), the Listbox is always open and does not use a popup or trigger. Use it when all options should be visible at once.
+- **Multi-select support**: Set `selectionMode="multiple"` or `"explicit-multiple"` to allow selecting more than one item.
+- **Form controls must have an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered. See the [forms guide](https://base-ui.com/react/handbook/forms).
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Listbox } from '@base-ui/react/listbox';
+
+<Listbox.Root>
+  <Listbox.Label />
+  <Listbox.DragAndDropProvider>
+    <Listbox.List>
+      <Listbox.Item>
+        <Listbox.ItemIndicator />
+        <Listbox.ItemText />
+        <Listbox.ItemDragHandle />
+      </Listbox.Item>
+      <Listbox.Group>
+        <Listbox.GroupLabel />
+      </Listbox.Group>
+      <Listbox.LoadingTrigger />
+    </Listbox.List>
+  </Listbox.DragAndDropProvider>
+</Listbox.Root>;
+```
+
+## Examples
+
+### Selection modes
+
+The `selectionMode` prop controls how items are selected:
+
+- `"single"` (default) — clicking an item selects it and deselects any other.
+- `"multiple"` — every click toggles an item. Hold <kbd>Shift</kbd> and click to select a contiguous range.
+- `"explicit-multiple"` — clicking an item replaces the selection. Hold <kbd>Ctrl</kbd>/<kbd>⌘</kbd> and click to toggle, or <kbd>Shift</kbd> and click to select a range.
+
+import { DemoListboxMultiSelection } from './demos/multi-selection';
+
+<DemoListboxMultiSelection />
+
+### Lazy loading
+
+Use `Listbox.LoadingTrigger` as a sentinel at the end of the list. When it scrolls into view, the `onLoadMore` callback fires.
+
+import { DemoListboxLazyLoading } from './demos/lazy-loading';
+
+<DemoListboxLazyLoading />
+
+### Drag and drop
+
+Wrap reorderable content in `Listbox.DragAndDropProvider` and provide `onItemsReorder` on the provider.
+Use the provider's `canDrag` and `canDrop` predicates to control which items can be dragged or dropped, and use `Listbox.ItemDragHandle` to restrict drag initiation to a handle.
+Items can also be reordered with the keyboard using <kbd>Alt</kbd> + Arrow keys.
+
+Use `canDrop` to constrain reordering within a `Listbox.Group` or apply other custom drop rules.
+
+In `multiple` or `explicit-multiple` mode, dragging a selected item moves all selected items together, preserving their relative order.
+
+import { DemoListboxDragAndDrop } from './demos/drag-and-drop';
+import { DemoListboxDragWithinGroups } from './demos/drag-within-groups';
+
+<DemoListboxDragAndDrop />
+
+### Drag within groups
+
+Pass `canDrop` to `Listbox.DragAndDropProvider` to keep reordering inside the current `Listbox.Group`. This example only accepts drops when every dragged item belongs to the same group as the target item.
+
+The same `canDrop` callback can also enforce other drop target rules, such as preventing drops around locked items or only allowing certain item types to be reordered next to each other. Because it receives the dragged items, the target item, and the drop edge, you can use it to express custom placement logic in one place.
+
+<DemoListboxDragWithinGroups />
+
+### Custom keyboard shortcuts
+
+You can add custom keyboard shortcuts by handling `onKeyDown` on `Listbox.List` and updating the items array directly. This example uses <kbd>]</kbd> and <kbd>[</kbd> to move the focused item to the beginning or the end of the list.
+
+import { DemoListboxCustomShortcuts } from './demos/custom-shortcuts';
+
+<DemoListboxCustomShortcuts />
+
+## API reference
+
+import { TypesListbox } from './types';
+
+### Root
+
+<TypesListbox.Root />
+
+### Label
+
+<TypesListbox.Label />
+
+### List
+
+<TypesListbox.List />
+
+### DragAndDropProvider
+
+<TypesListbox.DragAndDropProvider />
+
+### Item
+
+<TypesListbox.Item />
+
+### ItemText
+
+<TypesListbox.ItemText />
+
+### ItemIndicator
+
+<TypesListbox.ItemIndicator />
+
+### ItemDragHandle
+
+<TypesListbox.ItemDragHandle />
+
+### Group
+
+<TypesListbox.Group />
+
+### GroupLabel
+
+<TypesListbox.GroupLabel />
+
+### LoadingTrigger
+
+<TypesListbox.LoadingTrigger />
+
+export const metadata = {
+  keywords: [
+    'React Listbox Component',
+    'Listbox',
+    'Option List',
+    'Multi Select',
+    'Drag and Drop List',
+    'Reorderable List',
+    'Accessible Listbox',
+    'Lazy Loading List',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
