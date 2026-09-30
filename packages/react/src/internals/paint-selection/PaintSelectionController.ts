@@ -12,6 +12,8 @@ export interface PaintSelectionItem {
 export interface PaintSelectionChange<Item> {
   item: Item;
   checked: boolean;
+  /** Whether the pointer retraced past the item, so `checked` restores its state from before the gesture. */
+  restored: boolean;
 }
 
 type Point = { x: number; y: number };
@@ -125,13 +127,13 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
         if (index === undefined) {
           trailIndices.set(item.id, trail.length);
           trail.push(item);
-          changes.set(item.id, { item, checked });
+          changes.set(item.id, { item, checked, restored: false });
         } else {
           for (const removed of trail.splice(index + 1)) {
             trailIndices.delete(removed.id);
             const original = initialSelection.get(removed.id);
             if (original !== undefined && !removed.getState().disabled) {
-              changes.set(removed.id, { item: removed, checked: original });
+              changes.set(removed.id, { item: removed, checked: original, restored: true });
             }
           }
         }

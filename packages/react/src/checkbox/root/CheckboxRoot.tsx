@@ -248,10 +248,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     groupContext?.setValue === paintContext?.owner && !parent && value !== undefined
       ? paintContext?.controller
       : undefined;
-  const getPaintState = useStableCallback(() => ({
+  const getPaintState = useStableCallback((paintValue: string | undefined) => ({
     checked: computedChecked && !computedIndeterminate,
     selected: computedChecked,
-    disabled: Boolean(disabled || readOnly),
+    // A gesture can outlive a `value` change; the checkbox no longer represents the old value.
+    disabled: Boolean(disabled || readOnly) || paintValue !== value,
   }));
   const paintChecked = useStableCallback((nextChecked: boolean, event: PointerEvent) => {
     if (!disabled && !readOnly && (nextChecked !== computedChecked || computedIndeterminate)) {
@@ -266,7 +267,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         element && paintController
           ? paintController.register(element, {
               id: value,
-              getState: getPaintState,
+              getState: () => getPaintState(value),
               setChecked: paintChecked,
             })
           : undefined;

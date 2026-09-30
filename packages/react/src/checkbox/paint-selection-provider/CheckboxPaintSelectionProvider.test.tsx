@@ -227,6 +227,31 @@ describe.skipIf(isJSDOM)('<Checkbox.PaintSelectionProvider />', () => {
     expect(newB).toHaveAttribute('aria-checked', 'false');
   });
 
+  it('does not restore an earlier value through a checkbox that now has another value', async () => {
+    const onValueChange = vi.fn();
+    function App({ second }: { second: string }) {
+      return (
+        <Checkbox.PaintSelectionProvider>
+          <CheckboxGroup defaultValue={['b']} onValueChange={onValueChange}>
+            <Checkbox.Root value="a" style={{ display: 'block', width: 24, height: 24 }} />
+            <Checkbox.Root value={second} style={{ display: 'block', width: 24, height: 24 }} />
+          </CheckboxGroup>
+        </Checkbox.PaintSelectionProvider>
+      );
+    }
+    const { setProps } = await render(<App second="b" />);
+    const [a, second] = screen.getAllByRole('checkbox');
+    down(a);
+    move(second);
+    await setProps({ second: 'd' });
+    move(a);
+    up(a);
+
+    expect(a).toHaveAttribute('aria-checked', 'true');
+    expect(second).toHaveAttribute('aria-checked', 'false');
+    expect(onValueChange.mock.lastCall?.[0]).toEqual(['b', 'a']);
+  });
+
   it('paints the visible part of a clipped checkbox and skips fully clipped items', async () => {
     await render(
       <React.Fragment>
