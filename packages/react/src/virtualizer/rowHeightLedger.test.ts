@@ -335,6 +335,30 @@ describe('RowHeightLedger', () => {
       );
     });
 
+    it('holds a demoted row back again in a drag, as a row never measured', () => {
+      const subject = createSubject();
+      subject.measure('a', 20);
+      subject.measure('b', 20);
+      subject.measure('c', 20);
+      subject.measure('gone', 50);
+      // The hydration commits every measured height, the transient one included.
+      subject.hydrate();
+
+      subject.commit();
+      subject.idle();
+      subject.commit();
+
+      // Measured again mid-drag, its real height would move the geometry under the pointer.
+      const entry = measured(50);
+      subject.ledger.applyRowHeight(entry, 'gone', true, () => 20);
+      expect(entry.content).toBe(20);
+      expect(subject.ledger.getDeferredHeight('gone')).toBe(50);
+      // The sampled rows are left as they measured.
+      expect(subject.entries.get('a')).toEqual(
+        expect.objectContaining({ content: 20, needsFirstMeasurement: false }),
+      );
+    });
+
     it('keeps heights measured while scrolling once the layout has settled', () => {
       const subject = createSubject(['a', 'b', 'c', 'd']);
       subject.measure('a', 20);
