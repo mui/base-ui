@@ -13,6 +13,7 @@ import {
   resetBrowserPointer,
   setElementClientHeight,
   setElementScrollState,
+  waitSingleFrame,
 } from '#test-utils';
 
 describe('<Virtualizer /> in Combobox', () => {
@@ -466,6 +467,14 @@ describe('<Virtualizer /> in Combobox', () => {
       const { user, rerender } = await render(<Test rowHeight={33} />);
 
       await user.click(screen.getByTestId('input'));
+      // The selection is first placed from the estimate and corrected once ResizeObserver
+      // measures the mounted rows, before that frame paints. The click can return before that
+      // frame, so wait for it to paint (its callbacks run on the next frame) and measure the
+      // alignment the user first sees.
+      await act(async () => {
+        await waitSingleFrame();
+        await waitSingleFrame();
+      });
 
       const virtualizer = screen.getByTestId('virtualizer');
       const selectedItem = screen.getByRole('option', { name: 'Item 4000' });
