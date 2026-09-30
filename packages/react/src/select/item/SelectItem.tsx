@@ -21,12 +21,8 @@ import {
   resolveSelectedIndex,
 } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
-import { useSelectVirtualItemContext } from './SelectVirtualItemContext';
-import { useVirtualizerHost } from '../../virtualizer/host';
-import {
-  useNonVirtualizedItemRegistration,
-  useVirtualItemDiagnostics,
-} from '../../internals/virtualization/useListBinding';
+import { useVirtualizerItem } from '../../virtualizer/host';
+import { useVirtualItemDiagnostics } from '../../internals/virtualization/useListBinding';
 
 /**
  * An individual option in the select popup.
@@ -51,7 +47,7 @@ export const SelectItem = React.memo(
     } = componentProps;
 
     const textRef = React.useRef<HTMLElement | null>(null);
-    const virtualItem = useSelectVirtualItemContext();
+    const virtualItem = useVirtualizerItem();
     const virtualized = virtualItem != null;
     const listItem = useCompositeListItem({
       guess: true,
@@ -62,14 +58,6 @@ export const SelectItem = React.memo(
     });
 
     const store = useSelectRootContext();
-    const insideList = useVirtualizerHost() != null;
-
-    useNonVirtualizedItemRegistration({
-      componentName: store.context.componentName,
-      insideList,
-      registry: store.context.virtualizationRegistry,
-      virtualized,
-    });
     const itemProps = store.useState('itemProps');
     const multiple = store.useState('multiple');
     const selectDisabled = store.useState('disabled');

@@ -5,7 +5,7 @@ import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
-import { useSelectVirtualGroupContext } from '../group/SelectVirtualGroupContext';
+import { useVirtualizerGroupHeader } from '../../virtualizer/host';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -22,7 +22,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   // Inside a virtualizer the group's wrapper is the virtualizer's, and it already references the
   // id it hands the header; the label adopts that id rather than registering one of its own.
-  const virtualGroup = useSelectVirtualGroupContext();
+  const virtualGroup = useVirtualizerGroupHeader();
   const groupContext = useSelectGroupContext(virtualGroup != null);
 
   const ownId = useBaseUiId(idProp);

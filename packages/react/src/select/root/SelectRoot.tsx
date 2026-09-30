@@ -52,7 +52,11 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
-import { createVirtualizerRegistry, VirtualizerOwnerContext } from '../../virtualizer/host';
+import {
+  createVirtualizerRegistry,
+  VirtualizerHostProvider,
+  VirtualizerOwnerContext,
+} from '../../virtualizer/host';
 import type { VirtualizerOwner, VirtualizerRegistration } from '../../virtualizer/host';
 import { SelectVirtualizationContext } from './SelectVirtualizationContext';
 import { getSelectCollection, getSelectItemLabel } from '../utils/getSelectCollection';
@@ -843,7 +847,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       <SelectFloatingContext.Provider value={floatingContext}>
         <SelectVirtualizationContext.Provider value={registeredVirtualizer}>
           <VirtualizerOwnerContext.Provider value={VIRTUALIZATION_OWNER}>
-            {children}
+            {/* A root rendered inside a virtualized item of another list, portaled out of it or
+                not, must not read that row's metadata or that list: its own list provides its
+                own, and its items outside the list are static. */}
+            <VirtualizerHostProvider host={undefined} state={undefined}>
+              {children}
+            </VirtualizerHostProvider>
           </VirtualizerOwnerContext.Provider>
         </SelectVirtualizationContext.Provider>
       </SelectFloatingContext.Provider>

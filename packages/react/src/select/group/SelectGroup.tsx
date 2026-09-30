@@ -3,8 +3,7 @@ import * as React from 'react';
 import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { SelectGroupContext } from './SelectGroupContext';
-import { useSelectVirtualGroupContext } from './SelectVirtualGroupContext';
-import { useSelectVirtualItemContext } from '../item/SelectVirtualItemContext';
+import { useVirtualizerGroupHeader, VirtualizerItemContext } from '../../virtualizer/host';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -22,8 +21,9 @@ export const SelectGroup = React.forwardRef(function SelectGroup(
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
     /* eslint-disable react-hooks/rules-of-hooks */
-    const virtualGroup = useSelectVirtualGroupContext();
-    const virtualItem = useSelectVirtualItemContext();
+    const virtualGroup = useVirtualizerGroupHeader();
+    // Read without `useVirtualizerItem`, which would count a group as an item part.
+    const virtualItem = React.useContext(VirtualizerItemContext);
     React.useEffect(() => {
       if (virtualGroup != null || virtualItem != null) {
         warn(

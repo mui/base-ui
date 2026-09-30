@@ -9,6 +9,7 @@ import {
   createVirtualizerItems as createItems,
 } from '#test-utils';
 import type { VirtualizerTestItem as TestItem } from '#test-utils';
+import { Select } from '../select';
 import { Virtualizer } from './Virtualizer';
 import { createVirtualizerRegistry, useVirtualizerItem, VirtualizerHostProvider } from './host';
 import type { VirtualizerHost, VirtualizerHostState } from './host';
@@ -89,6 +90,39 @@ describe('<Virtualizer /> host contract', () => {
     expect(await screen.findByText('Item 1')).not.toBe(null);
     expect(seen.length).toBeGreaterThan(0);
     expect(seen.every((metadata) => metadata === undefined)).toBe(true);
+  });
+
+  it('keeps the items of a Select nested in a row out of that row', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Host items={createItems(1)}>
+          {renderVirtualizer((item) => (
+            <TestListItem>
+              {item.label}
+              <Select.Root defaultOpen>
+                <Select.Portal>
+                  <Select.Positioner>
+                    {/* Items without a <Select.List> are static items of the Select alone. */}
+                    <Select.Popup>
+                      <Select.Item value="nested">nested</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </TestListItem>
+          ))}
+        </Host>,
+      );
+
+      expect(await screen.findByRole('option', { name: 'nested' })).not.toHaveAttribute(
+        'data-index',
+      );
+      expect(collectWarnings(warnSpy)).not.toContain('TestList');
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 
   it('warns about an item part rendered outside the virtualizer', async () => {

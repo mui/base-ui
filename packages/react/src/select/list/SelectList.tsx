@@ -11,10 +11,8 @@ import { shouldScrollActiveIntoView } from '../../internals/list/scrollActivatio
 import { mergeProps } from '../../merge-props';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES, SCROLLPORT_FUNCTIONAL_STYLES } from '../popup/utils';
-import { VirtualizerHostContext, VirtualizerHostStateContext } from '../../virtualizer/host';
+import { VirtualizerHostProvider } from '../../virtualizer/host';
 import type { VirtualizerHost, VirtualizerHostState } from '../../virtualizer/host';
-import { SelectVirtualItemContext } from '../item/SelectVirtualItemContext';
-import { SelectVirtualGroupContext } from '../group/SelectVirtualGroupContext';
 import { getSelectCollection } from '../utils/getSelectCollection';
 import type { SelectCollection } from '../utils/getSelectCollection';
 
@@ -105,8 +103,7 @@ export const SelectList = React.forwardRef(function SelectList(
     () => ({
       componentName,
       registry: store.context.virtualizationRegistry,
-      virtualGroupContext: SelectVirtualGroupContext,
-      virtualItemContext: SelectVirtualItemContext,
+      rendersItemPart: true,
       warnUnsupportedConfiguration:
         process.env.NODE_ENV === 'production' ? undefined : warnUnsupportedConfiguration,
     }),
@@ -138,22 +135,25 @@ export const SelectList = React.forwardRef(function SelectList(
   });
 
   return (
-    <VirtualizerHostContext.Provider value={virtualizationHost}>
-      <SelectVirtualizationState collection={collection} scrollportProps={scrollportProps}>
-        {element}
-      </SelectVirtualizationState>
-    </VirtualizerHostContext.Provider>
+    <SelectVirtualizationState
+      collection={collection}
+      host={virtualizationHost}
+      scrollportProps={scrollportProps}
+    >
+      {element}
+    </SelectVirtualizationState>
   );
 });
 
 interface SelectVirtualizationStateProps {
   children: React.ReactNode;
   collection: SelectCollection;
+  host: VirtualizerHost;
   scrollportProps: HTMLProps;
 }
 
 /**
- * Publishes the reactive state a `<Virtualizer>` windows against.
+ * Publishes the list as a host, with the reactive state a `<Virtualizer>` windows against.
  *
  * Separate from `SelectList` so the highlight subscriptions live here: only `<Virtualizer>` reads
  * them, and a static list has none, so subscribing in the list itself would re-render it on every
@@ -161,7 +161,7 @@ interface SelectVirtualizationStateProps {
  * referentially unchanged, so the list element below it is not reconciled again.
  */
 function SelectVirtualizationState(props: SelectVirtualizationStateProps) {
-  const { children, collection, scrollportProps } = props;
+  const { children, collection, host, scrollportProps } = props;
 
   const store = useSelectRootContext();
   const activeIndex = store.useState('activeIndex');
@@ -184,9 +184,9 @@ function SelectVirtualizationState(props: SelectVirtualizationStateProps) {
   );
 
   return (
-    <VirtualizerHostStateContext.Provider value={value}>
+    <VirtualizerHostProvider host={host} state={value}>
       {children}
-    </VirtualizerHostStateContext.Provider>
+    </VirtualizerHostProvider>
   );
 }
 
