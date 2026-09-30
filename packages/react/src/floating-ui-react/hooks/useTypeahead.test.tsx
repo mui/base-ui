@@ -63,6 +63,7 @@ const useImpl = ({
 function Combobox(
   props: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
     list?: Array<string>;
+    open?: boolean;
   },
 ) {
   const { getReferenceProps, getFloatingProps } = useImpl(props);
@@ -303,6 +304,26 @@ describe('useTypeahead', () => {
     vi.advanceTimersByTime(750);
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenCalledWith(false);
+  });
+
+  it('onTyping is called when the popup closes without moving focus', async () => {
+    const spy = vi.fn();
+    const { rerender } = render(<Combobox open onTyping={spy} />);
+
+    expect(spy).not.toHaveBeenCalled();
+
+    act(() => screen.getByRole('combobox').focus());
+    await userEvent.keyboard('t');
+    expect(spy.mock.calls).toEqual([[true]]);
+
+    rerender(<Combobox open={false} onTyping={spy} />);
+    expect(spy.mock.calls).toEqual([[true], [false]]);
+
+    vi.advanceTimersByTime(750);
+    expect(spy.mock.calls).toEqual([[true], [false]]);
+
+    rerender(<Combobox open onTyping={spy} />);
+    expect(spy.mock.calls).toEqual([[true], [false]]);
   });
 
   it('skips hidden items when matching with elementsRef', async () => {

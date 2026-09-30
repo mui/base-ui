@@ -11,7 +11,7 @@ import {
   reactMajor,
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
-import { Combobox } from '@base-ui/react/combobox';
+import { Combobox, ComboboxSeparatorDataAttributes } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Dialog } from '@base-ui/react/dialog';
@@ -150,6 +150,13 @@ describe('<Combobox.Root />', () => {
   });
 
   const { render, renderToString } = createRenderer();
+
+  it('exposes the orientation attribute rendered by Separator', async () => {
+    await render(<Combobox.Separator orientation="vertical" />);
+
+    const separator = screen.getByRole('presentation');
+    expect(separator).toHaveAttribute(ComboboxSeparatorDataAttributes.orientation, 'vertical');
+  });
 
   popupConformanceTests({
     createComponent: (props) => (

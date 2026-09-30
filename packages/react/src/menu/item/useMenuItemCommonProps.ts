@@ -80,7 +80,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       },
       onClick(event: React.MouseEvent) {
         if (closeOnClick) {
-          menuEvents.emit('close', { domEvent: event, reason: REASONS.itemPress });
+          menuEvents.emit('close', { domEvent: event.nativeEvent, reason: REASONS.itemPress });
         }
       },
       onMouseUp(event: React.MouseEvent) {
@@ -111,9 +111,12 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
           // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
           // We trigger the click and override the `closeOnClick` preference to always close the menu.
           if (itemMetadata.type === 'regular-item') {
-            // `detail: 1` marks this as a mouse-gesture click so MenuRoot doesn't
-            // treat it as a keyboard activation (`detail === 0` → `data-instant`).
-            dispatchClickWithModifiers(itemRef.current, event, { detail: 1 });
+            // `detail: 1` and `pointerType: 'mouse'` mark this as a mouse-gesture click so
+            // MenuRoot and FloatingFocusManager don't treat it as a keyboard activation.
+            dispatchClickWithModifiers(itemRef.current, event, {
+              detail: 1,
+              pointerType: 'mouse',
+            });
           }
         }
       },
