@@ -332,7 +332,6 @@ export function useListNavigation(
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
-  const activeIndexRef = useValueAsRef(activeIndex);
   const selectedIndexRef = useValueAsRef(selectedIndex);
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
 
@@ -404,11 +403,6 @@ export function useListNavigation(
         forceScrollIntoViewRef.current = true;
         onNavigate();
       }
-      // `onNavigate` may ignore the selected-index sync (e.g. a closed inline combobox). Keep the
-      // cursor on the current highlight until an accepted sync updates `activeIndex`.
-      if (selectedIndex != null && activeIndexRef.current != null) {
-        indexRef.current = activeIndexRef.current;
-      }
     } else if (previousMountedRef.current) {
       // Reset the active index when the list is no longer open and mounted (closing or
       // unmounting). `onNavigate` is a stable callback that always forwards to the latest
@@ -416,10 +410,7 @@ export function useListNavigation(
       indexRef.current = -1;
       onNavigate();
     }
-  }, [enabled, open, floatingElement, selectedIndex, activeIndexRef, onNavigate]);
-
-  // A selection change must resync a cleared cursor without refocusing an already active item.
-  const selectedIndexWhileInactive = activeIndex == null ? selectedIndex : null;
+  }, [enabled, open, floatingElement, selectedIndex, onNavigate]);
 
   // Sync `activeIndex` to be the focused item while the floating element is
   // open.
@@ -438,10 +429,7 @@ export function useListNavigation(
     if (activeIndex == null) {
       forceSyncFocusRef.current = false;
 
-      if (selectedIndexWhileInactive != null) {
-        // The selected-index sync may have been ignored by `onNavigate` while closing.
-        // Keep the cursor aligned with the cleared highlight.
-        indexRef.current = -1;
+      if (selectedIndexRef.current != null) {
         return;
       }
 
@@ -498,7 +486,7 @@ export function useListNavigation(
     open,
     floatingElement,
     activeIndex,
-    selectedIndexWhileInactive,
+    selectedIndexRef,
     nested,
     listRef,
     orientation,
