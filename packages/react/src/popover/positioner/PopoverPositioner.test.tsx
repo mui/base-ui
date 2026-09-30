@@ -50,6 +50,72 @@ describe('<Popover.Positioner />', () => {
     }
   });
 
+  describe.skipIf(isJSDOM)('local portal positioning', () => {
+    it.each([
+      { activation: 'click', keepMounted: false },
+      { activation: 'keyboard', keepMounted: false },
+      { activation: 'click', keepMounted: true },
+      { activation: 'keyboard', keepMounted: true },
+    ])(
+      'does not scroll an offset ancestor on $activation (keepMounted: $keepMounted)',
+      async ({ activation, keepMounted }) => {
+        const scrollPositions: number[] = [];
+
+        function Test() {
+          const containerRef = React.useRef<HTMLDivElement>(null);
+
+          return (
+            <div
+              data-testid="scroller"
+              style={{ marginLeft: 400, width: 300, height: 260, overflow: 'auto' }}
+              onScroll={(event) => scrollPositions.push(event.currentTarget.scrollLeft)}
+              onFocusCapture={(event) => scrollPositions.push(event.currentTarget.scrollLeft)}
+            >
+              <div ref={containerRef} style={{ position: 'relative', padding: '80px 24px' }}>
+                <Popover.Root>
+                  <Popover.Trigger>Trigger</Popover.Trigger>
+                  <Popover.Portal container={containerRef} keepMounted={keepMounted}>
+                    <Popover.Positioner side="top" sideOffset={8}>
+                      <Popover.Popup style={{ width: 220, padding: 12 }}>
+                        <Popover.Description>Information about the prompt.</Popover.Description>
+                        <a href="#details">Learn more</a>
+                      </Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              </div>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        async function openAndClose() {
+          if (activation === 'keyboard') {
+            await act(async () => trigger.focus());
+            await user.keyboard('{Enter}');
+          } else {
+            await user.click(trigger);
+          }
+
+          await waitFor(() =>
+            expect(screen.getByRole('link', { name: 'Learn more' })).toHaveFocus(),
+          );
+          await act(async () => waitSingleFrame());
+          expect(Math.max(...scrollPositions)).toBe(0);
+          expect(screen.getByTestId('scroller').scrollLeft).toBe(0);
+          await user.keyboard('{Escape}');
+          await waitFor(() => expect(trigger).toHaveFocus());
+          await act(async () => waitSingleFrame());
+        }
+
+        await openAndClose();
+        await openAndClose();
+      },
+    );
+  });
+
   const baselineX = 10;
   const baselineY = 36;
   const popupWidth = 52;

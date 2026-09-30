@@ -491,7 +491,11 @@ export function useAnchorPositioningWithHook(
     strategy: positionMethod,
     whileElementsMounted: keepMounted
       ? undefined
-      : (...args) => autoUpdate(...args, autoUpdateOptions),
+      : (reference, floating, onUpdate) => {
+          // Measure with the requested strategy's offset parent, not the initial fixed one.
+          floating.style.position = positionMethod;
+          return autoUpdate(reference, floating, onUpdate, autoUpdateOptions);
+        },
     nodeId,
     externalTree,
   });
@@ -574,10 +578,11 @@ export function useAnchorPositioningWithHook(
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.reference && elements.floating) {
+      elements.floating.style.position = positionMethod;
       return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
     }
     return undefined;
-  }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
+  }, [keepMounted, mounted, elements, update, autoUpdateOptions, positionMethod]);
 
   const renderedSide = getSide(renderedPlacement);
   const logicalRenderedSide = getLogicalSide(sideParam, renderedSide, isRtl);
