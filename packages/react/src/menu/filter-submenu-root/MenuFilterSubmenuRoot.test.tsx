@@ -508,6 +508,10 @@ describe('closing a filtered submenu from the keyboard', () => {
 
       await act(async () => screen.getByRole('button', { name: 'Actions' }).focus());
       await user.keyboard('[Enter]');
+      const initialFocus = parentFilterable
+        ? await screen.findByRole('searchbox', { name: 'Filter actions' })
+        : await screen.findByRole('menuitem', { name: 'First' });
+      await waitFor(() => expect(initialFocus).toHaveFocus());
       await user.keyboard('[ArrowRight]');
       const trigger = screen.getByRole('menuitem', { name: 'More' });
       await waitFor(() => {

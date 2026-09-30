@@ -313,9 +313,10 @@ describe('filterable menu list semantics', () => {
     const { user, setProps } = await render(<TestMenu secondId="old-id" />);
     const input = screen.getByRole('searchbox');
     await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'first-item'));
+    await waitFor(() => expect(input).toHaveFocus());
     await setProps({ secondId: 'new-id' });
     await user.keyboard('[ArrowDown]');
-    expect(input).toHaveAttribute('aria-activedescendant', 'new-id');
+    await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'new-id'));
   });
 
   it('exposes horizontal navigation on the menu instead of the dialog', async () => {
