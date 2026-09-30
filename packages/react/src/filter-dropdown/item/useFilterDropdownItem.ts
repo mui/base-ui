@@ -8,6 +8,7 @@ import { useFilterDropdownItemContext } from '../root/FilterDropdownRootContext'
 import type { FilterDropdownItemContext } from '../root/FilterDropdownRootContext';
 import { useFilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
 import { DETACHED_OWNER, selectors } from '../store';
+import { unwrapLazyRenderProp } from '../../internals/useRenderElement';
 
 /** Text of the rendered children, for when the element is filtered out and has no DOM node. */
 function childrenText(children: React.ReactNode): string {
@@ -90,8 +91,9 @@ export function useFilterDropdownItem(
   // unregistered and renders once so its DOM text can be captured.
   const [registered, setRegistered] = React.useState(matched);
 
-  // Read through a ref so `register` stays stable while the children change identity.
+  // Read through refs so `register` stays stable while the children change identity.
   const childrenRef = useValueAsRef(children);
+  const renderRef = useValueAsRef(render);
 
   // What the children last read as, to tell whether they changed while the item rendered no text.
   const childrenTextRef = React.useRef<string | undefined>(undefined);
@@ -100,7 +102,10 @@ export function useFilterDropdownItem(
     if (label != null) {
       return label;
     }
-    const fromChildren = childrenText(childrenRef.current);
+    // An item without children can carry its text in its `render` element instead.
+    const fromChildren = childrenText(
+      childrenRef.current ?? (unwrapLazyRenderProp(renderRef.current) as React.ReactNode),
+    );
     const previousChildrenText = childrenTextRef.current;
     childrenTextRef.current = fromChildren;
     if (ref.current !== null) {
@@ -113,7 +118,7 @@ export function useFilterDropdownItem(
       return registeredTextRef.current;
     }
     return fromChildren;
-  }, [label, childrenRef]);
+  }, [label, childrenRef, renderRef]);
 
   const register = React.useCallback(
     (resolvedText?: string) => {

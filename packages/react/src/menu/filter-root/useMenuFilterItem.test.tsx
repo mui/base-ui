@@ -196,6 +196,35 @@ describe('filtered Menu items', () => {
 
       expect(screen.getByRole('menuitem', { name: 'Two' })).toBeVisible();
     });
+
+    it('matches a render element whose text changed while the item was filtered out', async () => {
+      function Test(props: { value: string; name: string }) {
+        return (
+          <Menu.FilterProvider value={props.value}>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item render={<div>{props.name}</div>} />
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      const { setProps } = await render(<Test value="two" name="One" />);
+      expect(screen.queryByRole('menuitem', { name: 'One' })).toBe(null);
+
+      await setProps({ value: 'two', name: 'Two' });
+
+      expect(screen.getByRole('menuitem', { name: 'Two' })).toBeVisible();
+    });
   });
 
   describe('disabled items', () => {
