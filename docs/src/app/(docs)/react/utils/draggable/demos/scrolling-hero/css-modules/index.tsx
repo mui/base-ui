@@ -3,6 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { GripIcon } from '../../GripIcon';
 import { DragPageAutoScroll } from '../../DragPageAutoScroll';
 
@@ -92,7 +93,15 @@ function resolveDrop(container: HTMLElement, clientY: number): { index: number; 
   return { index, slotY: slotYs[index] };
 }
 
-function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
+function Card({
+  task,
+  draggable,
+  onKeyDown,
+}: {
+  task: Task;
+  draggable?: boolean;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, task: Task) => void;
+}) {
   return (
     <Draggable.Root
       kind={taskKind}
@@ -101,6 +110,9 @@ function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
       disabled={!draggable}
       data-card
       data-id={task.id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
+      onKeyDown={(event) => onKeyDown(event, task)}
       className={styles.Card}
     >
       <GripIcon className={styles.Grip} />
@@ -114,12 +126,14 @@ function DropZone({
   tasks,
   maxSpeed,
   onInsert,
+  onCardKeyDown,
 }: {
   label: string;
   tasks: Task[];
   // Unset on the plain list, which keeps the default auto-scroll speed.
   maxSpeed?: number;
   onInsert: (task: Task, index: number) => void;
+  onCardKeyDown: (event: React.KeyboardEvent<HTMLElement>, task: Task) => void;
 }) {
   const listRef = React.useRef<HTMLDivElement | null>(null);
   // Y offset of the drop line within the list's scrolled content.
@@ -151,7 +165,7 @@ function DropZone({
       {/* @highlight-start @focus */}
       <Draggable.Viewport ref={listRef} className={styles.Cards} maxSpeed={maxSpeed}>
         {tasks.map((task) => (
-          <Card key={task.id} task={task} />
+          <Card key={task.id} task={task} onKeyDown={onCardKeyDown} />
         ))}
         {dropLineTop != null && (
           <div className={styles.DropLine} style={{ top: dropLineTop }} aria-hidden="true" />
@@ -166,30 +180,71 @@ export default function AutoScrollBoard() {
   const [tasks, setTasks] = React.useState<Record<Zone, Task[]>>(INITIAL_TASKS);
   // Index into `UPCOMING`, so the tray always holds another card to drag.
   const [handedOut, setHandedOut] = React.useState(0);
-  // The list and slot picked in the controls, for adding the card without dragging.
-  const [chosenZone, setChosenZone] = React.useState<Zone>('plain');
-  const [chosenPosition, setChosenPosition] = React.useState(1);
   const [message, setMessage] = React.useState('');
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   // Id of the card just dropped, so the effect below can scroll it into view.
   const droppedIdRef = React.useRef<string | null>(null);
+  const focusMovedCardRef = React.useRef(false);
 
   const pending: Task = {
     id: `new-${handedOut}`,
     label: UPCOMING[handedOut % UPCOMING.length],
   };
 
-  const position = Math.min(chosenPosition, tasks[chosenZone].length + 1);
-
-  // Shared by the drop handlers and the controls.
-  function insert(zone: Zone, task: Task, index: number) {
+  function insert(zone: Zone, task: Task, index: number, sourceZone?: Zone) {
     droppedIdRef.current = task.id;
-    setTasks((prev) => ({
-      ...prev,
-      [zone]: [...prev[zone].slice(0, index), task, ...prev[zone].slice(index)],
-    }));
-    setHandedOut((count) => count + 1);
-    setMessage(`${task.label} added to ${ZONE_LABELS[zone]} at position ${index + 1}.`);
+    setTasks((current) => {
+      const next = { ...current };
+      if (sourceZone) {
+        next[sourceZone] = next[sourceZone].filter((entry) => entry.id !== task.id);
+      }
+      next[zone] = [...next[zone].slice(0, index), task, ...next[zone].slice(index)];
+      return next;
+    });
+    if (!sourceZone) {
+      setHandedOut((count) => count + 1);
+    }
+    setMessage(
+      `${task.label} ${sourceZone ? 'moved' : 'added'} to ${ZONE_LABELS[zone]} at position ${index + 1}.`,
+    );
+  }
+
+  function onCardKeyDown(event: React.KeyboardEvent<HTMLElement>, task: Task, zone?: Zone) {
+    if (!event.altKey) {
+      return;
+    }
+    let destination = zone;
+    let index = zone ? tasks[zone].findIndex((entry) => entry.id === task.id) : 0;
+    switch (event.key) {
+      case 'ArrowLeft':
+        destination = 'plain';
+        break;
+      case 'ArrowRight':
+        destination = 'slow';
+        break;
+      case 'ArrowUp':
+        index -= 1;
+        break;
+      case 'ArrowDown':
+        index += 1;
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    if (
+      !destination ||
+      (destination === zone &&
+        (event.key === 'ArrowLeft' ||
+          event.key === 'ArrowRight' ||
+          index < 0 ||
+          index >= tasks[destination].length))
+    ) {
+      return;
+    }
+    index = Math.min(index, tasks[destination].length);
+    focusMovedCardRef.current = true;
+    insert(destination, task, index, zone);
   }
 
   // The list reflows around the drop, which can push the new card out of view.
@@ -200,9 +255,14 @@ export default function AutoScrollBoard() {
       return;
     }
     droppedIdRef.current = null;
-    rootRef.current
-      ?.querySelector(`[data-id="${id}"]:not([data-drag-preview])`)
-      ?.scrollIntoView({ block: 'nearest' });
+    const card = rootRef.current?.querySelector<HTMLElement>(
+      `[data-id="${id}"]:not([data-drag-preview])`,
+    );
+    card?.scrollIntoView({ block: 'nearest' });
+    if (focusMovedCardRef.current) {
+      focusMovedCardRef.current = false;
+      card?.focus();
+    }
   }, [tasks]);
 
   return (
@@ -214,57 +274,24 @@ export default function AutoScrollBoard() {
           the second list scrolls more slowly.
         </p>
         <div className={styles.Tray}>
-          <Card key={pending.id} task={pending} draggable />
+          <Card key={pending.id} task={pending} draggable onKeyDown={onCardKeyDown} />
         </div>
         <div className={styles.Columns}>
           <DropZone
             label={ZONE_LABELS.plain}
             tasks={tasks.plain}
             onInsert={(task, index) => insert('plain', task, index)}
+            onCardKeyDown={(event, task) => onCardKeyDown(event, task, 'plain')}
           />
           <DropZone
             label={ZONE_LABELS.slow}
             tasks={tasks.slow}
             maxSpeed={150}
             onInsert={(task, index) => insert('slow', task, index)}
+            onCardKeyDown={(event, task) => onCardKeyDown(event, task, 'slow')}
           />
         </div>
-        <fieldset className={styles.Controls}>
-          <legend className={styles.Legend}>Add “{pending.label}”</legend>
-          <label className={styles.Field}>
-            List
-            <select
-              className={styles.Select}
-              value={chosenZone}
-              onChange={(event) => setChosenZone(event.target.value as Zone)}
-            >
-              <option value="plain">{ZONE_LABELS.plain}</option>
-              <option value="slow">{ZONE_LABELS.slow}</option>
-            </select>
-          </label>
-          <label className={styles.Field}>
-            Position
-            <select
-              className={styles.Select}
-              value={position}
-              onChange={(event) => setChosenPosition(Number(event.target.value))}
-            >
-              {Array.from({ length: tasks[chosenZone].length + 1 }, (_, index) => (
-                <option key={index} value={index + 1}>
-                  {index + 1}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            className={styles.Button}
-            onClick={() => insert(chosenZone, pending, position - 1)}
-          >
-            Add
-          </button>
-        </fieldset>
-        <p role="status" className={styles.Status}>
+        <p role="status" style={visuallyHidden}>
           {message}
         </p>
       </div>

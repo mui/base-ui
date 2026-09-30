@@ -17,20 +17,6 @@ const puckKind = Draggable.createKind('activation-puck');
 
 const ACTIVATION_MODES: ActivationMode[] = [
   {
-    id: 'distance-5',
-    label: 'Move 5px',
-    activation: { type: 'distance', distance: 5 },
-    readyMessage: 'Move 5px while pressed to activate.',
-    waitingMessage: 'Waiting for 5px of movement…',
-  },
-  {
-    id: 'press-hold',
-    label: 'Hold 250ms',
-    activation: { type: 'press-hold', delay: 250 },
-    readyMessage: 'Press and hold for 250ms to activate.',
-    waitingMessage: 'Waiting for the 250ms hold…',
-  },
-  {
     id: 'immediate',
     label: 'Immediate',
     activation: { type: 'immediate' },
@@ -63,9 +49,37 @@ const ACTIVATION_MODES: ActivationMode[] = [
       'Move 5px while pressed, or double-click to pick up. On touch, move or double-tap and hold.',
     waitingMessage: 'Waiting for movement or a double-click…',
   },
+  {
+    id: 'distance-5',
+    label: 'Move 5px',
+    activation: { type: 'distance', distance: 5 },
+    readyMessage: 'Move 5px while pressed to activate.',
+    waitingMessage: 'Waiting for 5px of movement…',
+  },
+  {
+    id: 'press-hold',
+    label: 'Hold 250ms',
+    activation: { type: 'press-hold', delay: 250 },
+    readyMessage: 'Press and hold for 250ms to activate.',
+    waitingMessage: 'Waiting for the 250ms hold…',
+  },
 ];
 
-const PUCK_CLASS = 'size-14 rounded-full bg-neutral-950 dark:bg-white';
+const ACTIVATION_GROUPS = [
+  {
+    label: 'Single criterion',
+    description: 'One activation object.',
+    modes: ACTIVATION_MODES.filter((mode) => !Array.isArray(mode.activation)),
+  },
+  {
+    label: 'Multiple criteria',
+    description: 'An array of alternatives. The first match starts the drag.',
+    modes: ACTIVATION_MODES.filter((mode) => Array.isArray(mode.activation)),
+  },
+];
+
+const PUCK_CLASS =
+  'size-14 rounded-full bg-neutral-950 transition-opacity data-[dragging]:opacity-0 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] dark:bg-white';
 
 function hasDoubleClickActivation(activation: ActivationMode['activation']) {
   const criteria = Array.isArray(activation) ? activation : [activation];
@@ -81,7 +95,7 @@ function Puck({
 }) {
   return (
     <Draggable.Root
-      className={`${PUCK_CLASS} cursor-grab data-[dragging]:opacity-0`}
+      className={`${PUCK_CLASS} cursor-grab`}
       kind={puckKind}
       // @highlight-start @focus @padding 3
       activation={mode.activation}
@@ -109,7 +123,6 @@ function Puck({
 }
 
 export default function ActivationLab() {
-  const name = React.useId();
   const [modeId, setModeId] = React.useState('distance-5');
   const [phase, setPhase] = React.useState<Phase>('ready');
   const [dropped, setDropped] = React.useState(false);
@@ -137,56 +150,84 @@ export default function ActivationLab() {
 
   return (
     <Draggable.Provider>
-      <div className="flex w-full flex-col items-start gap-5 select-none">
-        <fieldset className="m-0 grid gap-1 border-0 p-0">
-          <legend className="mb-2 p-0 text-sm leading-5 font-medium text-neutral-950 dark:text-white">
-            Activation
-          </legend>
-          {ACTIVATION_MODES.map((item) => (
-            <label
-              key={item.id}
-              className="flex items-center gap-2 text-sm leading-5 text-neutral-950 dark:text-white"
+      <div className="flex w-full flex-col items-center select-none">
+        <div className="flex min-h-5 w-full max-w-md justify-end">
+          {dropped && (
+            <button
+              type="button"
+              className="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-sm leading-5 text-neutral-500 underline underline-offset-2 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 dark:text-neutral-400 dark:hover:text-white dark:focus-visible:outline-white"
+              onClick={reset}
             >
-              <input
-                type="radio"
-                className="m-0"
-                name={name}
-                checked={item.id === modeId}
-                onChange={() => selectMode(item.id)}
-              />
-              {item.label}
-            </label>
-          ))}
-        </fieldset>
-
-        <div className="flex w-full max-w-80 items-center justify-between">
-          <div className="grid size-20 place-items-center">
-            {!dropped && <Puck mode={mode} onPhaseChange={setPhase} />}
-          </div>
-          <Draggable.Target
-            className="grid size-20 place-items-center rounded-full border border-dashed border-neutral-400 text-xs leading-4 text-neutral-500 data-[accepting]:bg-neutral-100 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-200 dark:border-neutral-500 dark:text-neutral-400 dark:data-[accepting]:bg-neutral-800 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-700"
-            accept={puckKind}
-            onDraggableDrop={() => {
-              setDropped(true);
-              setPhase('dropped');
-            }}
-          >
-            {dropped ? <span className={PUCK_CLASS} aria-hidden="true" /> : 'Target'}
-          </Draggable.Target>
+              Reset
+            </button>
+          )}
         </div>
 
-        <p role="status" className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
-          {message}
-        </p>
-        {dropped && (
-          <button
-            type="button"
-            className="flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus-visible:outline-white"
-            onClick={reset}
-          >
-            Reset
-          </button>
-        )}
+        <div className="grid w-full max-w-md gap-5">
+          {ACTIVATION_GROUPS.map((group) => (
+            <fieldset key={group.label} className="m-0 min-w-0 border-0 p-0">
+              <legend className="p-0 text-sm leading-5 font-medium text-neutral-950 dark:text-white">
+                {group.label}
+              </legend>
+              <p className="mt-1 mb-2 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                {group.description}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {group.modes.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="cursor-pointer border border-neutral-200 bg-transparent px-2 py-1.5 font-[inherit] text-sm leading-5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 aria-pressed:bg-neutral-950 aria-pressed:text-white dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:focus-visible:outline-white dark:aria-pressed:bg-white dark:aria-pressed:text-neutral-950"
+                    aria-pressed={item.id === modeId}
+                    onClick={() => selectMode(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+
+        <div className="grid w-full max-w-md grid-cols-[5rem_1fr_5rem] items-center px-2 py-7 sm:grid-cols-[6rem_1fr_6rem]">
+          <div className="grid justify-items-center gap-2">
+            <div className="grid size-20 place-items-center">
+              {!dropped && <Puck mode={mode} onPhaseChange={setPhase} />}
+            </div>
+            <span className="text-xs font-medium leading-4 text-neutral-500 dark:text-neutral-400">
+              Start
+            </span>
+          </div>
+
+          <div
+            className="border-t border-dashed border-neutral-300 dark:border-neutral-600"
+            aria-hidden="true"
+          />
+
+          <div className="grid justify-items-center gap-2">
+            <Draggable.Target
+              className="grid size-20 place-items-center rounded-full border border-dashed border-neutral-400 transition-[border-color,background-color] data-[accepting]:bg-neutral-100 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-200 dark:border-neutral-500 dark:data-[accepting]:bg-neutral-800 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-700"
+              accept={puckKind}
+              onDraggableDrop={() => {
+                setDropped(true);
+                setPhase('dropped');
+              }}
+            >
+              {dropped && <span className={PUCK_CLASS} aria-hidden="true" />}
+            </Draggable.Target>
+            <span className="text-xs font-medium leading-4 text-neutral-500 dark:text-neutral-400">
+              Target
+            </span>
+          </div>
+        </div>
+
+        <div
+          className="flex w-full max-w-md items-baseline gap-3 border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700"
+          role="status"
+        >
+          <span className="shrink-0 font-medium text-neutral-950 dark:text-white">Status</span>
+          <span className="min-w-0 text-neutral-500 dark:text-neutral-400">{message}</span>
+        </div>
       </div>
     </Draggable.Provider>
   );

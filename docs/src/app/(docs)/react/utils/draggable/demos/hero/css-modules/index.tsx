@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 
 import styles from '../../hero.module.css';
 
@@ -46,30 +47,29 @@ export default function DraggableHero() {
             // @highlight-end
             className={styles.Card}
             style={{ left: position.x, top: position.y }}
+            tabIndex={0}
+            aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
+            onKeyDown={(event) => {
+              if (!event.altKey) {
+                return;
+              }
+              const direction = [
+                { key: 'ArrowLeft', x: -20, y: 0 },
+                { key: 'ArrowRight', x: 20, y: 0 },
+                { key: 'ArrowUp', x: 0, y: -20 },
+                { key: 'ArrowDown', x: 0, y: 20 },
+              ].find((entry) => entry.key === event.key);
+              if (direction) {
+                event.preventDefault();
+                placeCard(position.x + direction.x, position.y + direction.y);
+              }
+            }}
           >
             Drag me
           </Draggable.Root>
           {/* @focus-end */}
         </Draggable.Target>
-        <fieldset className={styles.Controls}>
-          <legend className={styles.Legend}>Move card</legend>
-          {[
-            { label: 'Left', x: -20, y: 0 },
-            { label: 'Right', x: 20, y: 0 },
-            { label: 'Up', x: 0, y: -20 },
-            { label: 'Down', x: 0, y: 20 },
-          ].map((direction) => (
-            <button
-              key={direction.label}
-              type="button"
-              className={styles.Button}
-              onClick={() => placeCard(position.x + direction.x, position.y + direction.y)}
-            >
-              {direction.label}
-            </button>
-          ))}
-        </fieldset>
-        <p role="status" className={styles.Status}>
+        <p role="status" style={visuallyHidden}>
           Card position: {Math.round(position.x)}, {Math.round(position.y)}
         </p>
       </div>

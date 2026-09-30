@@ -46,8 +46,8 @@ afterEach(() => vi.unstubAllGlobals());
 describe('draggable demos', () => {
   const { renderDnd } = createDndRenderer();
 
-  describe.each([HeroCss, HeroTailwind])('hero movement controls', (Demo) => {
-    it('moves by keyboard and click, clamps to the surface, and retains focus', async () => {
+  describe.each([HeroCss, HeroTailwind])('hero keyboard shortcut', (Demo) => {
+    it('moves the focused card, clamps to the surface, and retains focus', async () => {
       const { user } = await renderDnd(<Demo />);
       const card = screen.getByText('Drag me');
       const surface = card.parentElement!;
@@ -56,65 +56,99 @@ describe('draggable demos', () => {
         clientHeight: { value: 192 },
       });
       Object.defineProperties(card, { offsetWidth: { value: 128 }, offsetHeight: { value: 40 } });
-      const right = screen.getByRole('button', { name: 'Right' });
-      await user.click(right);
+      card.focus();
+      await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
       expect(card).toHaveStyle({ left: '44px', top: '24px' });
-      await user.keyboard('{Enter}');
+      await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
       expect(card).toHaveStyle({ left: '64px' });
-      expect(right).toHaveFocus();
-      await user.click(screen.getByRole('button', { name: 'Left' }));
-      await user.keyboard('{Enter}{Enter}{Enter}');
+      expect(card).toHaveFocus();
+      await user.keyboard('{Alt>}{ArrowLeft}{ArrowLeft}{ArrowLeft}{ArrowLeft}{/Alt}');
       expect(card).toHaveStyle({ left: '0px' });
       expect(screen.getByRole('status')).toHaveTextContent('Card position: 0, 24');
+      await user.keyboard('{Alt>}{ArrowUp}{ArrowUp}{/Alt}');
+      expect(card).toHaveStyle({ top: '0px' });
+      await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+      expect(card).toHaveStyle({ top: '20px' });
+      expect(card).toHaveFocus();
     });
   });
 
-  describe.each([NestingCss, NestingTailwind])('nested target controls', (Demo) => {
-    it('moves layers with persistent controls and excludes the frame for notes', async () => {
+  describe.each([NestingCss, NestingTailwind])('nested target keyboard shortcut', (Demo) => {
+    it('moves the focused layer, excludes the frame for notes, and restores focus', async () => {
       const { user } = await renderDnd(<Demo />);
-      const chartLocation = screen.getByRole('combobox', { name: 'Chart location' });
-      await user.selectOptions(chartLocation, 'frame');
-      expect(chartLocation).toHaveFocus();
-      expect(screen.getByText('Chart').parentElement?.parentElement).toHaveTextContent('Frame');
-      const noteLocation = screen.getByRole('combobox', { name: 'Note location' });
-      expect(within(noteLocation).queryByRole('option', { name: 'Frame' })).toBeNull();
-      await user.selectOptions(noteLocation, 'canvas');
+      screen.getByText('Chart', { exact: true }).focus();
+      await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
+      expect(screen.getByRole('status')).toHaveTextContent('Chart: canvas. Note: palette.');
+      expect(screen.getByText('Chart', { exact: true })).toHaveFocus();
+      await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
+      expect(screen.getByRole('status')).toHaveTextContent('Chart: frame. Note: palette.');
+      expect(screen.getByText('Chart', { exact: true })).toHaveFocus();
+      expect(
+        screen.getByText('Chart', { exact: true }).parentElement?.parentElement,
+      ).toHaveTextContent('Frame');
+      screen.getByText('Note', { exact: true }).focus();
+      await user.keyboard('{Alt>}{ArrowRight}{ArrowRight}{/Alt}');
       expect(screen.getByRole('status')).toHaveTextContent('Chart: frame. Note: canvas.');
-      await user.selectOptions(chartLocation, 'palette');
-      expect(screen.getByRole('status')).toHaveTextContent('Chart: palette.');
+      expect(screen.getByText('Note', { exact: true })).toHaveFocus();
+      await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
+      expect(screen.getByRole('status')).toHaveTextContent('Chart: frame. Note: palette.');
     });
   });
 
-  describe.each([CanvasCss, CanvasTailwind])('canvas controls', (Demo) => {
-    it('moves pins, archives them, and handles the final pin without losing button focus', async () => {
+  describe.each([CanvasCss, CanvasTailwind])('canvas movement', (Demo) => {
+    it('lands at the release position after activation and a change to the canvas bounds', async () => {
+      await renderDnd(<Demo />);
+      const pin = screen.getByText('Kickoff', { selector: 'div' });
+      const content = pin.parentElement!;
+      let contentLeft = 100;
+      let contentTop = 100;
+      content.getBoundingClientRect = () => new DOMRect(contentLeft, contentTop, 600, 260);
+      content.parentElement!.getBoundingClientRect = () => new DOMRect(100, 100, 600, 260);
+      pin.getBoundingClientRect = () => new DOMRect(140, 140, 80, 30);
+      fireDrag.dragStart(pin, { clientX: 160, clientY: 152 });
+      contentLeft = 60;
+      contentTop = 50;
+      firePointer.up(pin, {
+        pointerType: 'mouse',
+        pointerId: 1,
+        button: 0,
+        buttons: 0,
+        clientX: 200,
+        clientY: 172,
+        timeStamp: 300,
+      });
+      expect(pin).toHaveStyle({ left: '120px', top: '110px' });
+    });
+
+    it('moves and archives focused pins, then focuses the canvas after the final pin', async () => {
       const { user } = await renderDnd(<Demo />);
-      const pinSelector = screen.getByRole('combobox', { name: 'Pin' });
       const kickoff = screen.getByText('Kickoff', { selector: 'div' });
-      const right = screen.getByRole('button', { name: 'Right' });
-      await user.click(right);
-      await user.keyboard('{Enter}');
+      const content = kickoff.parentElement!;
+      kickoff.focus();
+      await user.keyboard('{Alt>}{ArrowRight}{ArrowRight}{/Alt}');
       expect(kickoff).toHaveStyle({ left: '80px', top: '40px' });
-      expect(right).toHaveFocus();
+      expect(kickoff).toHaveFocus();
       expect(screen.getByRole('status')).toHaveTextContent('Moved kickoff to 80, 40.');
-      await user.selectOptions(pinSelector, 'research');
-      await user.click(screen.getByRole('button', { name: 'Down' }));
-      expect(screen.getByText('Research', { selector: 'div' })).toHaveStyle({ top: '130px' });
-      const archive = screen.getByRole('button', { name: 'Archive selected pin' });
-      await user.click(archive);
-      expect(archive).toHaveFocus();
-      expect(pinSelector).toHaveValue('kickoff');
+      const research = screen.getByText('Research', { selector: 'div' });
+      research.focus();
+      await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+      expect(research).toHaveStyle({ top: '130px' });
+      await user.keyboard('{Delete}');
       expect(screen.queryByText('Research', { selector: 'div' })).toBeNull();
-      await user.keyboard('{Enter}');
+      expect(kickoff).toHaveFocus();
+      await user.keyboard('{Delete}');
       expect(screen.queryByText('Kickoff', { selector: 'div' })).toBeNull();
-      expect(pinSelector).toBeDisabled();
-      expect(archive).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Show archive' })).toHaveFocus();
+      expect(screen.getByRole('region', { name: 'Panning canvas' })).toHaveFocus();
       expect(screen.getByRole('status')).toHaveTextContent('Archived kickoff.');
+      await user.keyboard('{Home}');
+      expect(content).toHaveStyle({ transform: 'translate(0px, 0px)' });
+      await user.keyboard('{End}');
+      expect(content).toHaveStyle({ transform: 'translate(-20px, -480px)' });
     });
   });
 
-  describe.each([ScrollingCss, ScrollingTailwind])('scrolling board controls', (Demo) => {
-    it('adds the tray card to the chosen list and position without dragging', async () => {
+  describe.each([ScrollingCss, ScrollingTailwind])('scrolling board keyboard shortcuts', (Demo) => {
+    it('adds the tray card, reorders it, and moves it between lists without losing focus', async () => {
       const scrollIntoView = vi.fn();
       Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
         configurable: true,
@@ -122,20 +156,25 @@ describe('draggable demos', () => {
       });
       try {
         const { user } = await renderDnd(<Demo />);
-        await user.selectOptions(screen.getByRole('combobox', { name: 'List' }), 'slow');
-        await user.selectOptions(screen.getByRole('combobox', { name: 'Position' }), '2');
-        const add = screen.getByRole('button', { name: 'Add' });
-        await user.click(add);
+        screen.getByText('Renew passport', { exact: true }).focus();
+        await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
         const list = screen.getByText('maxSpeed={150}', { selector: 'span' }).nextElementSibling!;
+        expect(list.querySelector('[data-card]')).toHaveTextContent('Renew passport');
+        expect(screen.getByText('Renew passport', { exact: true })).toHaveFocus();
+        await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
         expect(
           Array.from(list.querySelectorAll('[data-card]'), (card) => card.textContent).slice(0, 3),
         ).toEqual(['Pay the rent', 'Renew passport', 'Update resume']);
-        expect(add).toHaveFocus();
-        expect(scrollIntoView).toHaveBeenCalledTimes(1);
         expect(screen.getByRole('status')).toHaveTextContent(
-          'Renew passport added to maxSpeed={150} at position 2.',
+          'Renew passport moved to maxSpeed={150} at position 2.',
         );
-        expect(screen.getByRole('group', { name: 'Add “Cancel the trial”' })).toBeVisible();
+        await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
+        const plain = screen.getByText('Default', { selector: 'span' }).nextElementSibling!;
+        expect(plain.querySelectorAll('[data-card]')[1]).toHaveTextContent('Renew passport');
+        expect(list).not.toHaveTextContent('Renew passport');
+        expect(screen.getByText('Renew passport', { exact: true })).toHaveFocus();
+        expect(screen.getByText('Cancel the trial', { exact: true })).toBeVisible();
+        expect(scrollIntoView).toHaveBeenCalled();
       } finally {
         Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
       }
@@ -143,17 +182,6 @@ describe('draggable demos', () => {
   });
 
   describe.each([AxisCss, AxisTailwind])('axis lane keyboard shortcut', (Demo) => {
-    it('moves a selected stop with click controls and keeps control focus', async () => {
-      const { user } = await renderDnd(<Demo />);
-      await user.selectOptions(screen.getByRole('combobox', { name: 'Stop' }), 'coffee');
-      const right = screen.getByRole('button', { name: 'Move right' });
-      await user.click(right);
-      const coffee = screen.getByRole('button', { name: 'Coffee' });
-      expect(within(coffee.parentElement!).getAllByRole('button')[2]).toBe(coffee);
-      expect(right).toHaveFocus();
-      expect(screen.getByRole('status')).toHaveTextContent('Coffee moved to position 3 of 12.');
-    });
-
     it('moves the focused stop, announces it, and keeps it focused', async () => {
       const { user } = await renderDnd(<Demo />);
       const coffee = screen.getByRole('button', { name: 'Coffee' });
@@ -227,21 +255,6 @@ describe('draggable demos', () => {
     ['CSS Modules', HandleCss],
     ['Tailwind', HandleTailwind],
   ] as const)('dashboard keyboard shortcut with %s', (_name, Demo) => {
-    it('moves a selected widget with click controls and keeps control focus', async () => {
-      const { user } = await renderDnd(<Demo />);
-      await user.selectOptions(screen.getByRole('combobox', { name: 'Widget' }), 'conversion');
-      await user.selectOptions(screen.getByRole('combobox', { name: 'Destination' }), 'right');
-      const move = screen.getByRole('button', { name: 'Move widget' });
-      await user.click(move);
-      expect(screen.getByRole('group', { name: 'Right dashboard slot' })).toHaveTextContent(
-        'Conversion',
-      );
-      expect(move).toHaveFocus();
-      expect(screen.getByRole('status')).toHaveTextContent(
-        'Conversion moved to Right dashboard slot.',
-      );
-    });
-
     it('moves the focused widget to the next empty slot and keeps it focused', async () => {
       const { user } = await renderDnd(<Demo />);
       const widget = screen.getByRole('group', { name: 'Center dashboard slot' })
@@ -351,7 +364,7 @@ describe('draggable demos', () => {
       ['Move 5px or double-click', 'pen'],
     ])('keeps the dragging status for %s on a %s double-tap', async (mode, pointerType) => {
       await renderDnd(<Demo />);
-      fireEvent.click(screen.getByRole('radio', { name: mode }));
+      fireEvent.click(screen.getByRole('button', { name: mode }));
       const source = screen.getByLabelText('Puck');
       source.getBoundingClientRect = () => new DOMRect(0, 0, 100, 100);
       const pointer = { pointerType, pointerId: 1, button: 0, clientX: 20, clientY: 20 };
@@ -395,22 +408,6 @@ describe('draggable demos', () => {
     ['live CSS Modules', SortableLiveCss],
     ['live Tailwind', SortableLiveTailwind],
   ] as const)('sorting announcements with %s', (_name, Demo) => {
-    it('reorders a selected task with click controls and keeps control focus', async () => {
-      vi.stubGlobal(
-        'matchMedia',
-        vi.fn(() => ({ matches: true })),
-      );
-      const { user } = await renderDnd(<Demo />);
-      const move = screen.getByRole('button', { name: 'Move down' });
-      await user.click(move);
-      const source = screen.getByRole('button', { name: 'Write the spec' });
-      expect(source.parentElement!.parentElement!.children[1]).toBe(source.parentElement);
-      expect(move).toHaveFocus();
-      expect(screen.getByRole('status')).toHaveTextContent(
-        'Write the spec moved to position 2 of 4.',
-      );
-    });
-
     it('announces accepted keyboard moves once and retains focus', async () => {
       vi.stubGlobal(
         'matchMedia',

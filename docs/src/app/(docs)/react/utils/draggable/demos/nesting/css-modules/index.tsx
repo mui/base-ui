@@ -2,6 +2,8 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 
 import styles from '../../nesting.module.css';
 
@@ -29,9 +31,23 @@ function NoteIcon() {
   );
 }
 
-function Layer({ id }: { id: LayerId }) {
+function Layer({
+  id,
+  onKeyDown,
+}: {
+  id: LayerId;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, id: LayerId) => void;
+}) {
   return (
-    <Draggable.Root kind={layerKind} payload={id} className={styles.Layer}>
+    <Draggable.Root
+      kind={layerKind}
+      payload={id}
+      className={styles.Layer}
+      data-layer-id={id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+      onKeyDown={(event) => onKeyDown(event, id)}
+    >
       {id === 'chart' ? <ChartIcon /> : <NoteIcon />}
       {id === 'chart' ? 'Chart' : 'Note'}
     </Draggable.Root>
@@ -43,6 +59,8 @@ export default function NestedDropTargets() {
     chart: 'palette',
     note: 'palette',
   });
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const focusLayerRef = React.useRef<LayerId | null>(null);
 
   function placeLayer(id: LayerId, location: Location) {
     if (id === 'note' && location === 'frame') {
@@ -51,32 +69,41 @@ export default function NestedDropTargets() {
     setLocations((current) => ({ ...current, [id]: location }));
   }
 
+  function onLayerKeyDown(event: React.KeyboardEvent<HTMLElement>, id: LayerId) {
+    if (!event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
+      return;
+    }
+    event.preventDefault();
+    const destinations: Location[] =
+      id === 'chart' ? ['palette', 'canvas', 'frame'] : ['palette', 'canvas'];
+    const index = destinations.indexOf(locations[id]);
+    const destination = destinations[index + (event.key === 'ArrowLeft' ? -1 : 1)];
+    if (destination) {
+      focusLayerRef.current = id;
+      placeLayer(id, destination);
+    }
+  }
+
+  useIsoLayoutEffect(() => {
+    const id = focusLayerRef.current;
+    if (id) {
+      focusLayerRef.current = null;
+      rootRef.current
+        ?.querySelector<HTMLElement>(`[data-layer-id="${id}"]:not([data-drag-preview])`)
+        ?.focus();
+    }
+  }, [locations]);
+
   function renderLayers(location: Location) {
     return (['chart', 'note'] as const)
       .filter((id) => locations[id] === location)
-      .map((id) => <Layer key={id} id={id} />);
+      .map((id) => <Layer key={id} id={id} onKeyDown={onLayerKeyDown} />);
   }
 
   return (
     <Draggable.Provider>
-      <div className={styles.Root}>
-        <div className={styles.Controls}>
-          {(['chart', 'note'] as const).map((id) => (
-            <label key={id} className={styles.Field}>
-              {id === 'chart' ? 'Chart location' : 'Note location'}
-              <select
-                className={styles.Select}
-                value={locations[id]}
-                onChange={(event) => placeLayer(id, event.target.value as Location)}
-              >
-                <option value="palette">Palette</option>
-                <option value="canvas">Canvas</option>
-                {id === 'chart' && <option value="frame">Frame</option>}
-              </select>
-            </label>
-          ))}
-        </div>
-        <p role="status" className={styles.Status}>
+      <div ref={rootRef} className={styles.Root}>
+        <p role="status" style={visuallyHidden}>
           Chart: {locations.chart}. Note: {locations.note}.
         </p>
         <div className={styles.Palette}>{renderLayers('palette')}</div>
@@ -98,7 +125,7 @@ export default function NestedDropTargets() {
             <span className={styles.Label}>Frame (charts only)</span>
             <div className={styles.FrameLayers}>
               {locations.chart === 'frame' ? (
-                <Layer id="chart" />
+                <Layer id="chart" onKeyDown={onLayerKeyDown} />
               ) : (
                 <span className={styles.Empty}>Drop the chart into the frame</span>
               )}

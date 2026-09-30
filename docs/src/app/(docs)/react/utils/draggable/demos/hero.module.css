@@ -50,6 +50,15 @@
     }
   }
 
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
   &[data-dragging] {
     opacity: 0;
   }
@@ -68,81 +77,4 @@
   flex-direction: column;
   gap: 0.75rem;
   width: 100%;
-}
-
-.Controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.Legend {
-  margin-bottom: 0.5rem;
-  padding: 0;
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.25rem;
-  color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: white;
-  }
-}
-
-.Button {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 2rem;
-  padding: 0 0.75rem;
-  margin: 0;
-  border: 1px solid oklch(14.5% 0 0deg);
-  background-color: white;
-  font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1;
-  white-space: nowrap;
-  color: oklch(14.5% 0 0deg);
-  -webkit-user-select: none;
-  user-select: none;
-
-  @media (prefers-color-scheme: dark) {
-    border-color: white;
-    background-color: oklch(14.5% 0 0deg);
-    color: white;
-  }
-
-  @media (hover: hover) {
-    &:hover {
-      background-color: oklch(97% 0 0deg);
-
-      @media (prefers-color-scheme: dark) {
-        background-color: oklch(26.9% 0 0deg);
-      }
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
-  }
-}
-
-.Status {
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(55.6% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
-  }
 }

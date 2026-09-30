@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
@@ -13,9 +12,6 @@ import {
   sameTaskDestination,
 } from '../../sortableTasks';
 import type { TaskDestination } from '../../sortableTasks';
-
-const CONTROL_CLASS =
-  'flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus-visible:outline-white';
 
 const taskKind = Draggable.createKind<string>('sortable-drop-task');
 
@@ -68,7 +64,6 @@ const Task = React.memo(function Task({
 
 export default function SortableOnDrop() {
   const [tasks, setTasks] = React.useState(INITIAL_TASKS);
-  const [selectedTask, setSelectedTask] = React.useState(INITIAL_TASKS[0]);
   const [announcement, setAnnouncement] = React.useState('');
   const [destination, setDestination] = React.useState<TaskDestination | null>(null);
   const trackCollision = useStableCallback(
@@ -114,29 +109,6 @@ export default function SortableOnDrop() {
           ))}
         </div>
       </Draggable.CollisionProvider>
-      <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0" style={{ marginTop: '0.75rem' }}>
-        <legend className="mb-2 p-0 text-sm leading-5 font-medium text-neutral-950 dark:text-white">
-          Move task
-        </legend>
-        <select
-          aria-label="Task"
-          className={CONTROL_CLASS}
-          value={selectedTask}
-          onChange={(event) => setSelectedTask(event.target.value)}
-        >
-          {tasks.map((task) => (
-            <option key={task} value={task}>
-              {task}
-            </option>
-          ))}
-        </select>
-        <button type="button" className={CONTROL_CLASS} onClick={() => swap(selectedTask, 'up')}>
-          Move up
-        </button>
-        <button type="button" className={CONTROL_CLASS} onClick={() => swap(selectedTask, 'down')}>
-          Move down
-        </button>
-      </fieldset>
       <span role="status" style={visuallyHidden}>
         {announcement}
       </span>

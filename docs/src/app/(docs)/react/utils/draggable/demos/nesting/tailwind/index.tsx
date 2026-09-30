@@ -2,6 +2,8 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 
 type Location = 'palette' | 'canvas' | 'frame';
 type LayerId = 'chart' | 'note';
@@ -30,11 +32,25 @@ function NoteIcon() {
 }
 
 const LAYER_CLASS =
-  'box-border inline-flex cursor-grab items-center gap-2 border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 text-neutral-950 transition-[background-color,opacity] data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none dark:hover:bg-neutral-800';
+  'box-border inline-flex cursor-grab items-center gap-2 border border-neutral-950 bg-white px-2.5 py-1.5 text-sm leading-5 text-neutral-950 transition-[background-color,opacity] focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] hover:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-[drag-preview]:shadow-none dark:hover:bg-neutral-800';
 
-function Layer({ id }: { id: LayerId }) {
+function Layer({
+  id,
+  onKeyDown,
+}: {
+  id: LayerId;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, id: LayerId) => void;
+}) {
   return (
-    <Draggable.Root kind={layerKind} payload={id} className={LAYER_CLASS}>
+    <Draggable.Root
+      kind={layerKind}
+      payload={id}
+      className={LAYER_CLASS}
+      data-layer-id={id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+      onKeyDown={(event) => onKeyDown(event, id)}
+    >
       {id === 'chart' ? <ChartIcon /> : <NoteIcon />}
       {id === 'chart' ? 'Chart' : 'Note'}
     </Draggable.Root>
@@ -46,6 +62,8 @@ export default function NestedDropTargets() {
     chart: 'palette',
     note: 'palette',
   });
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const focusLayerRef = React.useRef<LayerId | null>(null);
 
   function placeLayer(id: LayerId, location: Location) {
     if (id === 'note' && location === 'frame') {
@@ -54,35 +72,41 @@ export default function NestedDropTargets() {
     setLocations((current) => ({ ...current, [id]: location }));
   }
 
+  function onLayerKeyDown(event: React.KeyboardEvent<HTMLElement>, id: LayerId) {
+    if (!event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
+      return;
+    }
+    event.preventDefault();
+    const destinations: Location[] =
+      id === 'chart' ? ['palette', 'canvas', 'frame'] : ['palette', 'canvas'];
+    const index = destinations.indexOf(locations[id]);
+    const destination = destinations[index + (event.key === 'ArrowLeft' ? -1 : 1)];
+    if (destination) {
+      focusLayerRef.current = id;
+      placeLayer(id, destination);
+    }
+  }
+
+  useIsoLayoutEffect(() => {
+    const id = focusLayerRef.current;
+    if (id) {
+      focusLayerRef.current = null;
+      rootRef.current
+        ?.querySelector<HTMLElement>(`[data-layer-id="${id}"]:not([data-drag-preview])`)
+        ?.focus();
+    }
+  }, [locations]);
+
   function renderLayers(location: Location) {
     return (['chart', 'note'] as const)
       .filter((id) => locations[id] === location)
-      .map((id) => <Layer key={id} id={id} />);
+      .map((id) => <Layer key={id} id={id} onKeyDown={onLayerKeyDown} />);
   }
 
   return (
     <Draggable.Provider>
-      <div className="flex w-full flex-col gap-3 select-none">
-        <div className="flex flex-wrap gap-4">
-          {(['chart', 'note'] as const).map((id) => (
-            <label
-              key={id}
-              className="flex items-center gap-2 text-sm leading-5 text-neutral-950 dark:text-white"
-            >
-              {id === 'chart' ? 'Chart location' : 'Note location'}
-              <select
-                className="box-border h-8 border border-neutral-950 bg-white px-2 text-sm text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:focus-visible:outline-white"
-                value={locations[id]}
-                onChange={(event) => placeLayer(id, event.target.value as Location)}
-              >
-                <option value="palette">Palette</option>
-                <option value="canvas">Canvas</option>
-                {id === 'chart' && <option value="frame">Frame</option>}
-              </select>
-            </label>
-          ))}
-        </div>
-        <p role="status" className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+      <div ref={rootRef} className="flex w-full flex-col gap-3 select-none">
+        <p role="status" style={visuallyHidden}>
           Chart: {locations.chart}. Note: {locations.note}.
         </p>
         <div className="flex min-h-9 items-start gap-2">{renderLayers('palette')}</div>
@@ -110,7 +134,7 @@ export default function NestedDropTargets() {
             </span>
             <div className="flex flex-1 items-start">
               {locations.chart === 'frame' ? (
-                <Layer id="chart" />
+                <Layer id="chart" onKeyDown={onLayerKeyDown} />
               ) : (
                 <span className="text-sm leading-5 text-neutral-500 dark:text-neutral-400">
                   Drop the chart into the frame

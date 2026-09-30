@@ -2,6 +2,10 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import { DragPageAutoScroll } from '../../DragPageAutoScroll';
 
 interface Pin {
@@ -23,7 +27,7 @@ const INITIAL_PINS: Pin[] = [
 const ARCHIVE = { x: 60, y: 520 };
 
 const PIN_CLASS =
-  'absolute box-border cursor-grab border border-neutral-950 bg-white px-2.5 py-1.5 ' +
+  'absolute box-border cursor-grab focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-neutral-950 dark:focus-visible:outline-white border border-neutral-950 bg-white px-2.5 py-1.5 ' +
   'text-[0.875rem] leading-5 whitespace-nowrap text-neutral-950 transition-colors hover:bg-neutral-100 ' +
   'data-[dragging]:opacity-40 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0/12%)] ' +
   'dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 ' +
@@ -32,14 +36,11 @@ const PIN_CLASS =
 export default function CanvasPan() {
   const [pins, setPins] = React.useState(INITIAL_PINS);
   const [archived, setArchived] = React.useState<string[]>([]);
-  const [selectedId, setSelectedId] = React.useState(INITIAL_PINS[0].id);
   const [message, setMessage] = React.useState('');
-  const selectedPin = pins.find((pin) => pin.id === selectedId) ?? pins[0];
-  const showArchiveRef = React.useRef<HTMLButtonElement | null>(null);
+  const restoreFocusRef = React.useRef(false);
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const cameraRef = React.useRef({ x: 0, y: 0 });
-  const dragStartCameraRef = React.useRef({ x: 0, y: 0 });
 
   function movePin(id: string, dx: number, dy: number) {
     const movedPin = pins.find((pin) => pin.id === id);
@@ -58,104 +59,56 @@ export default function CanvasPan() {
     setMessage(`Archived ${id}.`);
   }
 
-  function moveCamera(x: number, y: number) {
+  const moveCamera = useStableCallback((x: number, y: number) => {
     cameraRef.current = { x, y };
     contentRef.current?.style.setProperty('transform', `translate(${-x}px, ${-y}px)`);
-  }
+  });
+
+  useIsoLayoutEffect(() => {
+    if (!restoreFocusRef.current) {
+      return;
+    }
+    restoreFocusRef.current = false;
+    const pin = pins[0];
+    if (pin) {
+      moveCamera(pin.x - 40, pin.y - 40);
+      contentRef.current
+        ?.querySelector<HTMLElement>(`[data-pin-id="${pin.id}"]:not([data-drag-preview])`)
+        ?.focus();
+    } else {
+      moveCamera(ARCHIVE.x - 40, ARCHIVE.y - 40);
+      viewportRef.current?.focus();
+    }
+  }, [pins, moveCamera]);
 
   return (
     <Draggable.Provider>
       <DragPageAutoScroll accept={pinKind} />
       <div className="flex w-full flex-col gap-4 select-none">
-        <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
-          Drag a pin to the bottom edge and hold still. The canvas has nothing to scroll, so it
-          moves its own camera, and the archive scrolls into reach.
-        </p>
-
-        <fieldset className="m-0 flex flex-wrap items-center gap-2 border-0 p-0">
-          <legend className="mb-2 p-0 text-sm leading-5 font-medium text-neutral-950 dark:text-white">
-            Move or archive a pin
-          </legend>
-          <label className="flex items-center gap-2 text-sm leading-5 text-neutral-950 dark:text-white">
-            Pin
-            <select
-              className="box-border h-8 border border-neutral-950 bg-white px-2 text-sm text-neutral-950 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:disabled:border-neutral-400 dark:disabled:text-neutral-400 dark:focus-visible:outline-white"
-              value={selectedPin?.id ?? ''}
-              disabled={!selectedPin}
-              onChange={(event) => setSelectedId(event.target.value)}
-            >
-              {pins.map((pin) => (
-                <option key={pin.id} value={pin.id}>
-                  {pin.label}
-                </option>
-              ))}
-              {pins.length === 0 && <option value="">No pins remaining</option>}
-            </select>
-          </label>
-          {[
-            { label: 'Left', x: -20, y: 0 },
-            { label: 'Right', x: 20, y: 0 },
-            { label: 'Up', x: 0, y: -20 },
-            { label: 'Down', x: 0, y: 20 },
-          ].map((direction) => (
-            <button
-              key={direction.label}
-              type="button"
-              className="flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:not-disabled:bg-neutral-100 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-disabled:bg-neutral-800 dark:disabled:border-neutral-400 dark:disabled:text-neutral-400 dark:focus-visible:outline-white"
-              disabled={!selectedPin}
-              onClick={() => {
-                if (selectedPin) {
-                  movePin(selectedPin.id, direction.x, direction.y);
-                  moveCamera(selectedPin.x + direction.x - 40, selectedPin.y + direction.y - 40);
-                }
-              }}
-            >
-              {direction.label}
-            </button>
-          ))}
-          <button
-            type="button"
-            className="flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:not-disabled:bg-neutral-100 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-disabled:bg-neutral-800 dark:disabled:border-neutral-400 dark:disabled:text-neutral-400 dark:focus-visible:outline-white"
-            disabled={!selectedPin}
-            onClick={() => {
-              if (selectedPin) {
-                archivePin(selectedPin.id);
-                if (pins.length === 1) {
-                  showArchiveRef.current?.focus();
-                }
-              }
-            }}
-          >
-            Archive selected pin
-          </button>
-          <button
-            type="button"
-            className="flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:not-disabled:bg-neutral-100 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-disabled:bg-neutral-800 dark:disabled:border-neutral-400 dark:disabled:text-neutral-400 dark:focus-visible:outline-white"
-            disabled={!selectedPin}
-            onClick={() => selectedPin && moveCamera(selectedPin.x - 40, selectedPin.y - 40)}
-          >
-            Show selected pin
-          </button>
-          <button
-            ref={showArchiveRef}
-            type="button"
-            className="flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:not-disabled:bg-neutral-100 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-disabled:bg-neutral-800 dark:disabled:border-neutral-400 dark:disabled:text-neutral-400 dark:focus-visible:outline-white"
-            onClick={() => moveCamera(ARCHIVE.x - 40, ARCHIVE.y - 40)}
-          >
-            Show archive
-          </button>
-        </fieldset>
-        <p
-          role="status"
-          className="m-0 min-h-5 text-sm leading-5 text-neutral-500 dark:text-neutral-400"
-        >
+        <p role="status" style={visuallyHidden}>
           {message}
         </p>
 
         <Draggable.Viewport
           ref={viewportRef}
+          tabIndex={0}
+          role="region"
+          aria-label="Panning canvas"
+          aria-keyshortcuts="Home End"
+          onKeyDown={(event) => {
+            if (getTarget(event.nativeEvent) !== event.currentTarget) {
+              return;
+            }
+            if (event.key === 'Home') {
+              event.preventDefault();
+              moveCamera(0, 0);
+            } else if (event.key === 'End') {
+              event.preventDefault();
+              moveCamera(ARCHIVE.x - 40, ARCHIVE.y - 40);
+            }
+          }}
           accept={pinKind}
-          className="relative box-border h-[260px] touch-none overflow-hidden border border-neutral-200 dark:border-neutral-700"
+          className="relative box-border h-[260px] touch-none overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-neutral-950 dark:focus-visible:outline-white border border-neutral-200 dark:border-neutral-700"
           // Write the camera straight to the DOM instead of state. Base UI looks for
           // drop targets again on the next frame, which can run before React re-renders.
           // @highlight-start @focus
@@ -183,26 +136,53 @@ export default function CanvasPan() {
                 key={pin.id}
                 kind={pinKind}
                 payload={pin.id}
+                data-pin-id={pin.id}
+                tabIndex={0}
+                aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown Delete"
+                onFocus={(event) => {
+                  if (event.currentTarget.matches(':focus-visible')) {
+                    moveCamera(pin.x - 40, pin.y - 40);
+                  }
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Delete') {
+                    event.preventDefault();
+                    restoreFocusRef.current = true;
+                    archivePin(pin.id);
+                    return;
+                  }
+                  if (!event.altKey) {
+                    return;
+                  }
+                  const direction = [
+                    { key: 'ArrowLeft', x: -20, y: 0 },
+                    { key: 'ArrowRight', x: 20, y: 0 },
+                    { key: 'ArrowUp', x: 0, y: -20 },
+                    { key: 'ArrowDown', x: 0, y: 20 },
+                  ].find((entry) => entry.key === event.key);
+                  if (direction) {
+                    event.preventDefault();
+                    movePin(pin.id, direction.x, direction.y);
+                    moveCamera(pin.x + direction.x - 40, pin.y + direction.y - 40);
+                  }
+                }}
                 className={PIN_CLASS}
                 style={{ left: pin.x, top: pin.y }}
-                onMoveStart={() => {
-                  dragStartCameraRef.current = { ...cameraRef.current };
-                }}
                 onMoveEnd={(eventDetails) => {
                   if (eventDetails.reason !== 'outside-release') {
                     return;
                   }
-                  // The canvas moved under the pointer during the drag. Add the
-                  // camera's delta to the pointer's so the pin lands under it.
-                  const dx =
-                    eventDetails.location.current.input.clientX -
-                    eventDetails.location.initial.input.clientX;
-                  const dy =
-                    eventDetails.location.current.input.clientY -
-                    eventDetails.location.initial.input.clientY;
-                  const panX = cameraRef.current.x - dragStartCameraRef.current.x;
-                  const panY = cameraRef.current.y - dragStartCameraRef.current.y;
-                  movePin(pin.id, dx + panX, dy + panY);
+                  const content = contentRef.current;
+                  if (content) {
+                    const rect = content.getBoundingClientRect();
+                    const { input } = eventDetails.location.current;
+                    const { grabOffset } = eventDetails.location;
+                    movePin(
+                      pin.id,
+                      input.clientX - grabOffset.x - rect.left - pin.x,
+                      input.clientY - grabOffset.y - rect.top - pin.y,
+                    );
+                  }
                 }}
               >
                 {pin.label}

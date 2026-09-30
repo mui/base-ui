@@ -2,6 +2,7 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 
 export default function DraggableHero() {
   const surfaceRef = React.useRef<HTMLDivElement | null>(null);
@@ -42,34 +43,31 @@ export default function DraggableHero() {
             ref={cardRef}
             modifiers={Draggable.restrictToElement(surfaceRef)}
             // @highlight-end
-            className="absolute box-border flex h-10 w-32 cursor-grab items-center justify-center border border-neutral-950 bg-white text-sm leading-5 text-neutral-950 transition-colors hover:bg-neutral-100 data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:data-[drag-preview]:shadow-none"
+            className="absolute box-border flex h-10 w-32 cursor-grab items-center justify-center border border-neutral-950 bg-white text-sm leading-5 text-neutral-950 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:data-[drag-preview]:shadow-none"
             style={{ left: position.x, top: position.y }}
+            tabIndex={0}
+            aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
+            onKeyDown={(event) => {
+              if (!event.altKey) {
+                return;
+              }
+              const direction = [
+                { key: 'ArrowLeft', x: -20, y: 0 },
+                { key: 'ArrowRight', x: 20, y: 0 },
+                { key: 'ArrowUp', x: 0, y: -20 },
+                { key: 'ArrowDown', x: 0, y: 20 },
+              ].find((entry) => entry.key === event.key);
+              if (direction) {
+                event.preventDefault();
+                placeCard(position.x + direction.x, position.y + direction.y);
+              }
+            }}
           >
             Drag me
           </Draggable.Root>
           {/* @focus-end */}
         </Draggable.Target>
-        <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0">
-          <legend className="mb-2 p-0 text-sm leading-5 font-medium text-neutral-950 dark:text-white">
-            Move card
-          </legend>
-          {[
-            { label: 'Left', x: -20, y: 0 },
-            { label: 'Right', x: 20, y: 0 },
-            { label: 'Up', x: 0, y: -20 },
-            { label: 'Down', x: 0, y: 20 },
-          ].map((direction) => (
-            <button
-              key={direction.label}
-              type="button"
-              className="flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus-visible:outline-white"
-              onClick={() => placeCard(position.x + direction.x, position.y + direction.y)}
-            >
-              {direction.label}
-            </button>
-          ))}
-        </fieldset>
-        <p role="status" className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+        <p role="status" style={visuallyHidden}>
           Card position: {Math.round(position.x)}, {Math.round(position.y)}
         </p>
       </div>

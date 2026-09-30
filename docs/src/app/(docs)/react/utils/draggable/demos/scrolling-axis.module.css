@@ -3,23 +3,16 @@
   flex-direction: column;
   gap: 1rem;
   width: 100%;
+  min-width: 0;
+  contain: inline-size;
   -webkit-user-select: none;
   user-select: none;
 }
 
-.Hint {
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(55.6% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
-  }
-}
-
 /* The scroll container the auto-scroller drives. */
 .Lane {
+  width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   padding: 0.75rem;
   border: 1px solid oklch(92.2% 0 0deg);

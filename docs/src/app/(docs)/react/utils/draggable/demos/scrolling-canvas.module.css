@@ -18,115 +18,6 @@
   }
 }
 
-.Controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.Legend {
-  margin-bottom: 0.5rem;
-  padding: 0;
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.25rem;
-  color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: white;
-  }
-}
-
-.Field {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: white;
-  }
-}
-
-.Select,
-.Button {
-  box-sizing: border-box;
-  height: 2rem;
-  margin: 0;
-  border: 1px solid oklch(14.5% 0 0deg);
-  border-radius: 0;
-  background-color: white;
-  font-family: inherit;
-  font-size: 0.875rem;
-  color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    border-color: white;
-    background-color: oklch(14.5% 0 0deg);
-    color: white;
-  }
-
-  &:disabled {
-    border-color: oklch(55.6% 0 0deg);
-    color: oklch(55.6% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      border-color: oklch(70.8% 0 0deg);
-      color: oklch(70.8% 0 0deg);
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
-  }
-}
-
-.Select {
-  padding: 0 0.5rem;
-}
-
-.Button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.75rem;
-  line-height: 1;
-  white-space: nowrap;
-
-  @media (hover: hover) {
-    &:hover:not(:disabled) {
-      background-color: oklch(97% 0 0deg);
-
-      @media (prefers-color-scheme: dark) {
-        background-color: oklch(26.9% 0 0deg);
-      }
-    }
-  }
-}
-
-.Status {
-  min-height: 1.25rem;
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(55.6% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
-  }
-}
-
 /*
  * The `Draggable.Viewport` element. It clips the canvas but can't scroll, so
  * `onDragScroll` moves the content instead.
@@ -138,6 +29,15 @@
   border: 1px solid oklch(92.2% 0 0deg);
   overflow: hidden;
   touch-action: none;
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 
   @media (prefers-color-scheme: dark) {
     border-color: oklch(37.1% 0 0deg);
@@ -163,6 +63,15 @@
   color: oklch(14.5% 0 0deg);
   cursor: grab;
   transition: background-color 0.15s;
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 
   @media (hover: hover) {
     &:hover {

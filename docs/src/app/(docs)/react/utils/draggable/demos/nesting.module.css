@@ -7,64 +7,6 @@
   user-select: none;
 }
 
-.Controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.Field {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: white;
-  }
-}
-
-.Select {
-  box-sizing: border-box;
-  height: 2rem;
-  padding: 0 0.5rem;
-  margin: 0;
-  border: 1px solid oklch(14.5% 0 0deg);
-  border-radius: 0;
-  background-color: white;
-  font-family: inherit;
-  font-size: 0.875rem;
-  color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    border-color: white;
-    background-color: oklch(14.5% 0 0deg);
-    color: white;
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
-  }
-}
-
-.Status {
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(55.6% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
-  }
-}
-
 .Palette {
   display: flex;
   align-items: flex-start;
@@ -193,6 +135,15 @@
   transition:
     background-color 0.15s,
     opacity 0.15s;
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 
   @media (prefers-color-scheme: dark) {
     border-color: white;

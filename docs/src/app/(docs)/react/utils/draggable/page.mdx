@@ -15,7 +15,7 @@ import { DemoDraggableHero } from './demos/hero';
 ## Usage guidelines
 
 - **Dragging is pointer-only**: Draggable responds only to mouse, touch, and pen input. Anything a user can do by dragging must also work with a keyboard and with clicks or taps that do not require dragging.
-- **Build the alternative yourself**: A "Move to" menu or move buttons can support both keyboard and click or tap input. You can also add a shortcut on the focused item such as <kbd>Alt</kbd>+<kbd>←</kbd> and <kbd>Alt</kbd>+<kbd>→</kbd> to support keyboard moves. Have the alternatives call the same function as the drop handler so both paths apply the same rules. After a keyboard move, keep focus on the moved item and announce the result in a live region, as the [sortable list](#sorting-a-list) demos do. Draggable doesn't announce moves itself. When a collection component already announces sorting outcomes, use its announcements instead of adding a second live region.
+- **Build the alternative yourself**: For keyboard moves, add shortcuts on the focused item such as <kbd>Alt</kbd>+<kbd>←</kbd> and <kbd>Alt</kbd>+<kbd>→</kbd>. Also provide a click or tap alternative, such as a "Move to" menu. Keyboard shortcuts alone don't meet the [WCAG requirement for an alternative to dragging](https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html). Have the alternatives call the same function as the drop handler so both paths apply the same rules. After a keyboard move, keep focus on the moved item and announce the result in a live region, as the [sortable list](#sorting-a-list) demos do. Draggable doesn't announce moves itself. When a collection component already announces sorting outcomes, use its announcements instead of adding a second live region.
 - **Drag handles are not controls**: `<Draggable.Handle>` isn't focusable and has no keyboard behavior. Mark a decorative icon inside it `aria-hidden="true"` rather than the handle itself, and give keyboard users another way to start a move.
 - **Drags stay within the page**: Draggable tracks pointer events rather than the browser's native drag and drop. It can't move data between browser windows or receive files from the operating system. See [Native file drops](#native-file-drops).
 - **Use it to move items**: Reordering lists, moving items between regions, and positioning items on a canvas are good fits. To pick a value from a list, use a component such as [Select](/react/components/select) instead.
@@ -169,19 +169,6 @@ Commit a successful drop in `onMoveEnd`. There, `eventDetails.target` is the tar
   }}
 />
 ```
-
-`eventDetails.reason` is one of the values below. Later versions may add cancel reasons, so handle values you don't recognize too:
-
-- `'drop'`: the user released the item over a drop target that accepted it, or over its own slot in a collision provider.
-- `'outside-release'`: the user released the item outside any accepting drop target.
-- `'escape-key'`, `'tab-key'`: the user pressed <kbd>Esc</kbd> or <kbd>Tab</kbd>.
-- `'imperative-action'`: the application called `cancelDrag()`.
-- `'window-blur'`, `'page-hidden'`: the window lost focus, or the page was hidden.
-- `'pointer-canceled'`: the browser or the operating system canceled the pointer.
-- `'capture-lost'`: another element captured the pointer during the drag.
-- `'missed-release'`: the user released the button, but Base UI never received the event.
-- `'handler-error'`: one of your handlers threw. Base UI cancels the drag and rethrows the error separately.
-- `'document-detached'`: the document was removed, for example when an iframe closed.
 
 Apart from `onBeforeMoveStart`, every handler's `eventDetails` also carry a `location` history:
 

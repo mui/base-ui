@@ -1,5 +1,4 @@
 'use client';
-
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
@@ -7,9 +6,6 @@ import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { GripIcon } from '../../GripIcon';
 import { SLOTS, useDashboardWidgets } from '../../dashboardWidgets';
 import type { SlotId, WidgetData } from '../../dashboardWidgets';
-
-const CONTROL_CLASS =
-  'flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap text-neutral-950 select-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus-visible:outline-white';
 
 const widgetKind = Draggable.createKind<string>('draggable/handle-widget');
 
@@ -91,9 +87,6 @@ export default function HandleDashboard() {
   const { dashboardRef, widgets, moveWidget, onWidgetKeyDown, announcement } =
     useDashboardWidgets();
 
-  const [selectedWidget, setSelectedWidget] = React.useState(widgets[0].id);
-  const [selectedSlot, setSelectedSlot] = React.useState<SlotId>('right');
-
   return (
     <Draggable.Provider>
       <div ref={dashboardRef} className="flex w-full flex-col gap-4 select-none">
@@ -112,48 +105,6 @@ export default function HandleDashboard() {
             />
           ))}
         </div>
-        <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0">
-          <legend className="mb-2 p-0 text-sm leading-5 font-medium text-neutral-950 dark:text-white">
-            Move widget
-          </legend>
-          <select
-            aria-label="Widget"
-            className={CONTROL_CLASS}
-            value={selectedWidget}
-            onChange={(event) => setSelectedWidget(event.target.value)}
-          >
-            {widgets.map((widget) => (
-              <option key={widget.id} value={widget.id}>
-                {widget.title}
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label="Destination"
-            className={CONTROL_CLASS}
-            value={selectedSlot}
-            onChange={(event) => setSelectedSlot(event.target.value as SlotId)}
-          >
-            {SLOTS.map((slot) => (
-              <option
-                key={slot.id}
-                value={slot.id}
-                disabled={widgets.some(
-                  (widget) => widget.slot === slot.id && widget.id !== selectedWidget,
-                )}
-              >
-                {slot.label}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className={CONTROL_CLASS}
-            onClick={() => moveWidget(selectedWidget, selectedSlot)}
-          >
-            Move widget
-          </button>
-        </fieldset>
       </div>
     </Draggable.Provider>
   );
