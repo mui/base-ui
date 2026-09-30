@@ -32,9 +32,9 @@ export class ReactStore<
   /**
    * Non-reactive values such as refs, callbacks, etc.
    */
-  readonly context: Context;
+  declare readonly context: Context;
 
-  private selectors: Selectors | undefined;
+  declare private selectors: Selectors | undefined;
 
   /**
    * Synchronizes a single external value into the store.
