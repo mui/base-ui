@@ -72,12 +72,18 @@ import {
   findScrollContainer,
   getScrollportPadding,
 } from './scrollport';
-import type { RowsInset } from './scrollport';
 import { useEngineMode } from './useEngineMode';
 import { useItemHeightEstimate } from './useItemHeightEstimate';
 import { useScrollGesture } from './useScrollGesture';
 import { useViewportRestore } from './useViewportRestore';
 import { useViewportController } from './useViewportController';
+import {
+  EMPTY_WINDOW_PLACEMENT,
+  getWindowHeight,
+  isWindowDisplaced,
+  placeWindow,
+} from './windowPlacement';
+import type { WindowPlacement, WindowPlacementInputs } from './windowPlacement';
 import type { MeasurableRow, RowHeightCache, RowHeightEntry } from './rowHeightLedger';
 import { useRowHeightLedger } from './useRowHeightLedger';
 import { VirtualizerCssVars } from './VirtualizerCssVars';
@@ -252,61 +258,6 @@ const VirtualRow = React.memo(VirtualRowImpl) as typeof VirtualRowImpl;
 const noScrollAnchoringStyle: React.CSSProperties = {
   overflowAnchor: 'none',
 };
-
-/**
- * Stands in for the rendered window before the first render has computed one, so the concerns
- * that read it from a ref never have to describe a state that cannot reach them.
- */
-
-/**
- * Where the window stands in the scroll container as of the latest commit, in scroll
- * coordinates: what tells a window held at the scrollport's edge from one standing where its
- * rows belong, without measuring either.
- */
-interface WindowPlacement {
-  /** Whether the rows are windowed at all; every row is in place otherwise. */
-  windowed: boolean;
-  /** Where the window's box begins when nothing holds it: the rows' inset plus its offset. */
-  top: number;
-  /** The height its insets were computed for. */
-  height: number;
-  insetTop: number;
-  insetBottom: number;
-  /** The block the window may not leave: its containing block. */
-  blockStart: number;
-  blockEnd: number;
-  /** Where the scrollport's content edge begins past `scrollTop`, and how tall the content box is. */
-  scrollportPaddingStart: number;
-  viewportHeight: number;
-}
-
-const EMPTY_WINDOW_PLACEMENT: WindowPlacement = {
-  windowed: false,
-  top: 0,
-  height: 0,
-  insetTop: 0,
-  insetBottom: 0,
-  blockStart: 0,
-  blockEnd: 0,
-  scrollportPaddingStart: 0,
-  viewportHeight: 0,
-};
-
-/**
- * Whether a sticky window is displaced from its normal position at the given scroll position.
- * A sticky box moves only while an inset asks it to and its containing block leaves room, which
- * is the rule the browser applies, here on the numbers the window was laid out with. Sticky
- * boxes are stuck against the scrollport's content edge, inside its padding.
- */
-function isWindowDisplaced(placement: WindowPlacement, scrollTop: number) {
-  const { top, height, insetTop, insetBottom, blockStart, blockEnd } = placement;
-  const contentTop = scrollTop + placement.scrollportPaddingStart;
-  const contentBottom = contentTop + placement.viewportHeight;
-  const bottom = top + height;
-  const pushedDown = top < contentTop + insetTop - 1 && bottom < blockEnd - 1;
-  const pushedUp = bottom > contentBottom - insetBottom + 1 && top > blockStart + 1;
-  return pushedDown || pushedUp;
-}
 
 /**
  * Index of the last row starting at or before the given virtual offset.
@@ -1314,68 +1265,30 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // them in view beyond, and the engine commits the next window from inside the scroll event,
   // before the browser paints the position that event reports.
   const windowRows = getWindowRows(renderContext, rows.length, validPinnedRowIndex);
-  const offsetTop = rowsMeta.positions[renderContext.firstRowIndex] ?? 0;
-  // `lastRowIndex` is exclusive: when it points past the last row, the window extends to the
-  // end of the content.
-  const windowEnd =
-    rowsMeta.positions[renderContext.lastRowIndex] ?? rowsMeta.currentPageTotalHeight;
-  const rowsTotalHeight = rowsMeta.currentPageTotalHeight;
-  // The window's height as far as it is known: the geometry's, but for the rows whose
-  // measurements a scrollbar drag is holding back, which are as tall as they measured. The two
-  // only differ during a drag, which is when the difference matters most: the geometry keeps
-  // the estimates for as long as the drag lasts, while the window is as tall as its real rows,
-  // and its insets and its place at the tail have to be worked out from that.
-  let windowHeight = Math.max(0, windowEnd - offsetTop);
-  if (rowsMeta.positions.length === rows.length) {
-    const lastRowIndex = Math.min(renderContext.lastRowIndex, rows.length);
-    let knownHeight = 0;
-    for (let rowIndex = renderContext.firstRowIndex; rowIndex < lastRowIndex; rowIndex += 1) {
-      const rowEnd = rowsMeta.positions[rowIndex + 1] ?? rowsTotalHeight;
-      knownHeight +=
-        ledger.getDeferredHeight(rows[rowIndex].id) ?? rowEnd - rowsMeta.positions[rowIndex];
-    }
-    windowHeight = knownHeight;
-  }
-  // When the window holds the final row, its rows end where the content does rather than where
-  // the estimates put its end: a scrollbar drag defers measurements, and the tail has to stay
-  // flush with the scrollport's end edge meanwhile. Off when the whole collection is rendered,
-  // whose first row's exact position, zero, is what to keep.
-  const tailAnchored = renderContext.firstRowIndex > 0 && renderContext.lastRowIndex >= rows.length;
-  // The space of the rows above the window, which places the window where its rows belong.
-  const spacerHeight = tailAnchored ? Math.max(0, rowsTotalHeight - windowHeight) : offsetTop;
-  // The space of the rows below the window, in the table layout, whose block is not sized on
-  // its own: what is left of the rows' space once the window's own height is taken out, so the
-  // table keeps the height the geometry gives the rows whatever the window's rows measure.
-  const endSpacerHeight = Math.max(0, rowsTotalHeight - spacerHeight - windowHeight);
   const viewportHeight = dimensions.viewportInnerSize.height;
-  // What the block the window is stuck within holds around the rows' space. A list's holds the
-  // rows' space alone. A table is the block its section is stuck within, and it holds more: what
-  // the scroll container holds around that space besides its own padding — the table's header,
-  // the rows after the reserved space — is what the section must not be pushed over at either
-  // end of the collection, so each inset is pulled out by what lies at the other end.
-  const surroundings: RowsInset = isTable
-    ? {
-        start: Math.max(0, rowsInset.start - scrollportPadding.start),
-        end: Math.max(0, rowsInset.end - scrollportPadding.end),
-      }
-    : EMPTY_SCROLLPORT_PADDING;
-  // Negative by however much taller than the scrollport the window is, so that native scrolling
-  // moves the rows within the window and the scrollport never leaves it. Clamped at zero: a
-  // window shorter than the scrollport, as a short collection's is, must not stick at all.
-  const stickyInset = Math.min(0, viewportHeight - windowHeight);
-  const insetTop = stickyInset - surroundings.end;
-  const insetBottom = stickyInset - surroundings.start;
-  const windowPlacement: WindowPlacement = {
+  const placementInputs: Omit<WindowPlacementInputs, 'windowHeight'> = {
     windowed: enabled,
-    top: rowsInset.start + spacerHeight,
-    height: windowHeight,
-    insetTop,
-    insetBottom,
-    blockStart: rowsInset.start - surroundings.start,
-    blockEnd: rowsInset.start + rowsTotalHeight + surroundings.end,
-    scrollportPaddingStart: scrollportPadding.start,
+    window: renderContext,
+    rowCount: rows.length,
+    geometry: rowsMeta,
     viewportHeight,
+    rowsInset,
+    scrollportPadding,
+    table: isTable,
   };
+  const windowPlacement: WindowPlacement = placeWindow({
+    ...placementInputs,
+    windowHeight: getWindowHeight(rowsMeta, renderContext, rows, (rowId) =>
+      ledger.getDeferredHeight(rowId),
+    ),
+  });
+  const {
+    endSpacerHeight,
+    height: windowHeight,
+    insetBottom,
+    insetTop,
+    spacerHeight,
+  } = windowPlacement;
   // Published at commit time, in the phase that precedes every layout effect of this commit —
   // the viewport's effects declared below read these — and that a render suspending inside a
   // transition never reaches.
@@ -1422,28 +1335,17 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       return;
     }
 
-    const sectionHeight = section.offsetHeight;
-    const sectionInset = Math.min(0, viewportHeight - sectionHeight);
-    const sectionInsetTop = sectionInset - surroundings.end;
-    const sectionInsetBottom = sectionInset - surroundings.start;
-    const sectionSpacerHeight = tailAnchored
-      ? Math.max(0, rowsTotalHeight - sectionHeight)
-      : offsetTop;
-    section.style.top = `${sectionInsetTop}px`;
-    section.style.bottom = `${sectionInsetBottom}px`;
+    // The section is placed from the height its committed rows give it.
+    const placement = placeWindow({ ...placementInputs, windowHeight: section.offsetHeight });
+    section.style.top = `${placement.insetTop}px`;
+    section.style.bottom = `${placement.insetBottom}px`;
     if (startSpacerRow != null) {
-      startSpacerRow.style.height = `${sectionSpacerHeight}px`;
+      startSpacerRow.style.height = `${placement.spacerHeight}px`;
     }
     if (endSpacerRow != null) {
-      endSpacerRow.style.height = `${Math.max(0, rowsTotalHeight - sectionSpacerHeight - sectionHeight)}px`;
+      endSpacerRow.style.height = `${placement.endSpacerHeight}px`;
     }
-    windowPlacementRef.current = {
-      ...windowPlacementRef.current,
-      top: rowsInset.start + sectionSpacerHeight,
-      height: sectionHeight,
-      insetTop: sectionInsetTop,
-      insetBottom: sectionInsetBottom,
-    };
+    windowPlacementRef.current = placement;
   });
 
   const resetScroll = useStableCallback(() => viewport.reset());
@@ -1746,8 +1648,9 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
               role="presentation"
               style={{
                 position: 'sticky',
-                top: stickyInset,
-                bottom: stickyInset,
+                // A list's window holds the rows' space alone, so its two insets are the same.
+                top: insetTop,
+                bottom: insetBottom,
                 // The window's own height rather than its content's: the box the rows render in
                 // carries an anchoring pad, which an automatic height would add to the window
                 // and throw its insets off. The box overflows the window by the pad, which is
