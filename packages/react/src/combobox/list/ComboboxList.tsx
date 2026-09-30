@@ -101,13 +101,17 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   const virtualizationListState = React.useMemo<VirtualizerHostState>(
     () => ({
-      activeIndex,
+      // The scroll decision travels with the index it belongs to: a highlight the pointer moved
+      // leaves the viewport alone.
+      activeIndex:
+        activeIndex == null
+          ? null
+          : { index: activeIndex, scroll: shouldScrollActiveIntoView(highlightType) },
       // The filtered collection's own shape decides, rather than the root's `isGrouped`: an
       // externally supplied `filteredItems` need not share the shape of `items`. The flat items
       // are derived from this same partition, so the two always agree.
       groups: isGroupedItems(filteredItems) ? filteredItems : undefined,
       items: flatFilteredItems,
-      scrollActiveIntoView: shouldScrollActiveIntoView(highlightType),
       // Combobox mounts the whole collection so autofill can read rendered labels; the virtualizer
       // only needs to know that windowing is off for the duration.
       windowingSuspended: renderAllRows,

@@ -188,15 +188,6 @@ export interface VirtualizerHostState {
    */
   items: ReadonlyArray<unknown>;
   /**
-   * Whether the active item should be scrolled into view.
-   *
-   * @deprecated Publish the decision on `activeIndex` instead — `{ index, scroll: false }` for an
-   * activation that must not move the viewport. This flag describes the host rather than the
-   * change, so flipping it back to `true` without moving `activeIndex` scrolls to whatever was
-   * pointed at last. It is read only for an `activeIndex` published as a bare index.
-   */
-  scrollActiveIntoView?: boolean | undefined;
-  /**
    * Whether the host currently needs every item mounted, which suspends windowing for as long as
    * it is `true`. A host that never needs this omits the field.
    *

@@ -362,14 +362,8 @@ export function useListBinding<Item>(
       ? (activation as VirtualizerActiveItem)
       : null;
   const activeIndex = activeItem ? activeItem.index : ((activation as number | null) ?? null);
-  // An activation says for itself whether it scrolls. A host publishing a bare index has only its
-  // deprecated flag to say it with, and the virtualizer's own prop scrolls by default.
-  let scrollActiveIntoView: boolean;
-  if (activeItem != null) {
-    scrollActiveIntoView = activeItem.scroll ?? true;
-  } else {
-    scrollActiveIntoView = hasOwnCollection ? true : hostState?.scrollActiveIntoView === true;
-  }
+  // An activation says for itself whether it scrolls; a bare index is one that does.
+  const scrollActiveIntoView = activeItem?.scroll ?? true;
   const scrollActiveAlignment = activeItem?.align ?? 'auto';
   const scrollActivePaddingStart = activeItem?.paddingStart;
   const scrollActivePaddingEnd = activeItem?.paddingEnd;
