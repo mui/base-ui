@@ -175,3 +175,33 @@ export function isWindowDisplaced(placement: WindowPlacement, scrollTop: number)
   const pushedUp = bottom > contentBottom - insetBottom + 1 && top > blockStart + 1;
   return pushedDown || pushedUp;
 }
+
+/**
+ * The insets that hold a sticky window where it stands at the given scroll position: where its
+ * own insets put it, stuck at both edges, so that any further scroll moves the scrollport and not
+ * the window. The rule is the browser's, as `isWindowDisplaced` applies it: a box moves only as
+ * far as its containing block leaves room, and its start inset wins over its end inset.
+ */
+export function getHeldInsets(placement: WindowPlacement, scrollTop: number) {
+  const { top, height, insetTop, insetBottom, blockStart, blockEnd } = placement;
+  const contentTop = scrollTop + placement.scrollportPaddingStart;
+  const contentBottom = contentTop + placement.viewportHeight;
+  const bottom = top + height;
+  let offset = 0;
+
+  const pushDown = contentTop + insetTop - top;
+  if (pushDown > 0) {
+    offset = Math.min(pushDown, Math.max(0, blockEnd - bottom));
+  }
+
+  const pushUp = bottom - (contentBottom - insetBottom);
+  if (offset === 0 && pushUp > 0) {
+    offset = -Math.min(pushUp, Math.max(0, top - blockStart));
+  }
+
+  const heldTop = top + offset;
+  return {
+    insetTop: heldTop - contentTop,
+    insetBottom: contentBottom - (heldTop + height),
+  };
+}

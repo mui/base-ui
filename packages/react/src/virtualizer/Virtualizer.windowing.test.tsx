@@ -698,6 +698,64 @@ describe('<Virtualizer /> windowing', () => {
   );
 
   it.skipIf(isJSDOM)(
+    'holds the window where it stands while a scrollbar drag outruns it',
+    async () => {
+      vi.restoreAllMocks();
+
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          items={createItems(500)}
+        >
+          {(item: TestItem) => <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>}
+        </TestVirtualizedList>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await screen.findByText('Item 1');
+      const scrollerRect = virtualizer.getBoundingClientRect();
+      const rowAtCenter = () =>
+        document
+          .elementFromPoint(scrollerRect.left + 10, scrollerRect.top + 50)
+          ?.closest('[data-row-index]');
+
+      // A native scrollbar drag: scroll bursts with a held mouse button and no wheel events.
+      fireEvent.mouseDown(virtualizer);
+      virtualizer.scrollTop = 2000;
+      fireEvent.scroll(virtualizer);
+      const row = rowAtCenter()!;
+      expect(row).toHaveTextContent('Item 103');
+      const rowTop = row.getBoundingClientRect().top;
+
+      // The drag moves the scrollport past the window's buffers before the scroll event reaches
+      // the page, which is what the compositor paints meanwhile: the window stays where it stood,
+      // rather than stuck at the scrollport's edge by rows that were never on screen.
+      virtualizer.scrollTop = 4000;
+      expect(rowAtCenter()).toBe(row);
+      expect(row.getBoundingClientRect().top).toBeCloseTo(rowTop, 0);
+
+      // The scroll event puts the rows where they belong.
+      fireEvent.scroll(virtualizer);
+      expect(rowAtCenter()).toHaveTextContent('Item 203');
+
+      // Once released, native scrolling moves the rows within the window again.
+      fireEvent.mouseUp(virtualizer);
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 50);
+          }),
+      );
+      const centerRow = rowAtCenter()!;
+      const centerRowTop = centerRow.getBoundingClientRect().top;
+      virtualizer.scrollTop += 40;
+      expect(centerRow.getBoundingClientRect().top).toBeCloseTo(centerRowTop - 40, 0);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'keeps geometry frozen when re-dragging through rows demoted by an estimate refresh',
     async () => {
       vi.restoreAllMocks();

@@ -79,6 +79,7 @@ import { useViewportRestore } from './useViewportRestore';
 import { useViewportController } from './useViewportController';
 import {
   EMPTY_WINDOW_PLACEMENT,
+  getHeldInsets,
   getWindowHeight,
   isWindowDisplaced,
   placeWindow,
@@ -595,6 +596,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const rootElementRef = React.useRef<HTMLElement | null>(null);
   /** The engine's window content, which the laid-out rows are children of while a list windows. */
   const windowContentRef = React.useRef<HTMLDivElement | null>(null);
+  /** The sticky window a list's rows are held in while it windows. */
+  const listWindowRef = React.useRef<HTMLDivElement | null>(null);
   /**
    * The row group holding the space of the rows above the window, in the table layout: a
    * sibling of the root in normal flow, from which the rows' place in the table is read.
@@ -617,6 +620,48 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     (): HTMLElement | null => windowContentRef.current ?? rootElementRef.current,
   );
   const windowPlacementRef = React.useRef<WindowPlacement>(EMPTY_WINDOW_PLACEMENT);
+  /** Whether a scrollbar drag holds the window where it stands, with insets of its own. */
+  const isWindowHeldRef = React.useRef(false);
+  /** The sticky box the rows are held in while windowing: the section itself in the table layout. */
+  const getStickyWindow = useStableCallback(() =>
+    isTable ? rootElementRef.current : listWindowRef.current,
+  );
+  /**
+   * Holds the window where it stands during a scrollbar drag, stuck at both edges of the
+   * scrollport. A drag moves the scrollport further in a frame than the window's buffers reach,
+   * and the compositor moves it without waiting for the main thread: a window stuck by its own
+   * insets would be held at the scrollport's edge by the far end of its buffer, which was never on
+   * screen and is not rasterized yet, and paints blank until the next window commits. Held where
+   * it stands, the frames the main thread misses show the rows the last one painted instead,
+   * while the next scroll event puts the rows where they belong. Written straight to the element,
+   * on every scroll event and every commit while the drag lasts, and undone when it releases.
+   */
+  const holdWindow = useStableCallback(() => {
+    const scrollElement = scrollElementRef.current;
+    const stickyWindow = getStickyWindow();
+    const placement = windowPlacementRef.current;
+
+    if (scrollElement == null || stickyWindow == null || !placement.windowed) {
+      return;
+    }
+
+    const held = getHeldInsets(placement, scrollElement.scrollTop);
+    stickyWindow.style.top = `${held.insetTop}px`;
+    stickyWindow.style.bottom = `${held.insetBottom}px`;
+    isWindowHeldRef.current = true;
+  });
+  const releaseWindow = useStableCallback(() => {
+    const stickyWindow = getStickyWindow();
+    const placement = windowPlacementRef.current;
+
+    if (!isWindowHeldRef.current || stickyWindow == null) {
+      return;
+    }
+
+    stickyWindow.style.top = `${placement.insetTop}px`;
+    stickyWindow.style.bottom = `${placement.insetBottom}px`;
+    isWindowHeldRef.current = false;
+  });
   /**
    * Whether the window stands where its rows belong, rather than held at the scrollport's edge
    * after a scroll outran it, until the engine places the next window from inside the scroll
@@ -677,10 +722,15 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const { ledger } = rowHeights;
   const hasDeferredRowHeights = useStableCallback(() => ledger.hasDeferredHeights());
   const handleGestureSettled = useStableCallback(() => ledger.noteSettled());
+  // A released drag gives the window its own insets back before the heights it deferred land.
+  const settleDrag = useStableCallback(() => {
+    releaseWindow();
+    settleGeometry();
+  });
   const gesture = useScrollGesture({
     hasDeferredRowHeights,
     onSettled: handleGestureSettled,
-    settleGeometry,
+    settleGeometry: settleDrag,
   });
 
   const isRowMeasured = heightCache.hasMeasurement;
@@ -766,6 +816,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       // User scrolling supersedes a pending scroll-to-row request: retrying the retained
       // destination after the user took over would yank the list away from where they scrolled.
       viewport.cancel();
+    }
+
+    // After the engine committed whatever window this position asked for, from inside the event.
+    if (gesture.isScrollbarDrag()) {
+      holdWindow();
     }
   });
 
@@ -1348,6 +1403,14 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     windowPlacementRef.current = placement;
   });
 
+  // A commit during a scrollbar drag writes the window's own insets, the list's through its style
+  // and the table's from the effect above: held again, from the placement just committed.
+  useIsoLayoutEffect(() => {
+    if (enabled && gesture.isScrollbarDrag()) {
+      holdWindow();
+    }
+  });
+
   const resetScroll = useStableCallback(() => viewport.reset());
 
   // Reported in scroll coordinates rather than the engine's: what the rows are laid out after is
@@ -1645,6 +1708,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
           >
             <div role="presentation" style={{ height: spacerHeight }} />
             <div
+              ref={listWindowRef}
               role="presentation"
               style={{
                 position: 'sticky',

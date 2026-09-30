@@ -387,6 +387,48 @@ describe('<Virtualizer /> table layout', () => {
       expect(getRow('Item 199').getBoundingClientRect().height).toBe(40);
     });
 
+    it('holds the section where it stands while a scrollbar drag outruns it', async () => {
+      await render(<TestTable items={createRows(500)} />);
+      const scroller = screen.getByTestId('scroller');
+      await screen.findByText('Item 1');
+      const scrollerRect = scroller.getBoundingClientRect();
+      const rowAtCenter = () =>
+        document.elementFromPoint(scrollerRect.left + 100, scrollerRect.top + 65)?.closest('tr');
+
+      // A native scrollbar drag: scroll bursts with a held mouse button and no wheel events.
+      fireEvent.mouseDown(scroller);
+      scroller.scrollTop = 2000;
+      fireEvent.scroll(scroller);
+      // Below the header, the rows begin 30px into the scroll container.
+      const row = rowAtCenter()!;
+      expect(row).toHaveTextContent('Item 102');
+      const rowTop = row.getBoundingClientRect().top;
+
+      // The drag moves the scrollport past the section's buffers before the scroll event reaches
+      // the page, which is what the compositor paints meanwhile: the section stays where it stood,
+      // rather than stuck at the scrollport's edge by rows that were never on screen.
+      scroller.scrollTop = 4000;
+      expect(rowAtCenter()).toBe(row);
+      expect(row.getBoundingClientRect().top).toBeCloseTo(rowTop, 0);
+
+      // The scroll event puts the rows where they belong.
+      fireEvent.scroll(scroller);
+      expect(rowAtCenter()).toHaveTextContent('Item 202');
+
+      // Once released, native scrolling moves the rows within the section again.
+      fireEvent.mouseUp(scroller);
+      await act(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 50);
+          }),
+      );
+      const centerRow = rowAtCenter()!;
+      const centerRowTop = centerRow.getBoundingClientRect().top;
+      scroller.scrollTop += 40;
+      expect(centerRow.getBoundingClientRect().top).toBeCloseTo(centerRowTop - 40, 0);
+    });
+
     it('scrolls a distant row into view by index', async () => {
       const actionsRef = React.createRef<Virtualizer.Actions>();
       await render(
