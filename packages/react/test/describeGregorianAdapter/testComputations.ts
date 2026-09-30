@@ -898,7 +898,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
       expect(adapter.isWeekend(adapter.setTimezone(friday, 'Pacific/Kiritimati'))).toBe(true);
     });
 
-    // The weekend days are cached per locale code,
+    // Some adapters cache the weekend days per locale,
     // so each of the tests below uses a locale that isn't used by any other test.
     it('should support engines that only expose the week info method', () => {
       onTestFinished(stubIntlWeekInfo('method'));

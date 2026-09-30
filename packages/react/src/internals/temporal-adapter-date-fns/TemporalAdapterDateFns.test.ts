@@ -1,4 +1,4 @@
-import { describe, afterEach, it, expect } from 'vitest';
+import { describe, afterEach, it, expect, onTestFinished } from 'vitest';
 import { arEG } from 'date-fns/locale/ar-EG';
 import { arSA } from 'date-fns/locale/ar-SA';
 import { enIN } from 'date-fns/locale/en-IN';
@@ -7,6 +7,10 @@ import { fr } from 'date-fns/locale/fr';
 import { he } from 'date-fns/locale/he';
 import { hi } from 'date-fns/locale/hi';
 import { describeGregorianAdapter } from '#test-utils';
+import {
+  getAdapterWeekendDays,
+  stubIntlWeekInfo,
+} from '../../../test/describeGregorianAdapter/describeGregorianAdapter.utils';
 import { TemporalAdapterDateFns } from './TemporalAdapterDateFns';
 
 describe('TemporalAdapterDateFns', () => {
@@ -79,6 +83,21 @@ describe('TemporalAdapterDateFns', () => {
       const friday = adapter.date('2018-11-02T12:00:00.000Z', 'UTC');
       expect(adapter.isWeekend(friday)).toBe(false);
       expect(adapter.isWeekend(adapter.addDays(friday, 1))).toBe(true);
+    });
+
+    it('should read the week info once the engine supports it', () => {
+      const adapter = new TemporalAdapterDateFns({ locale: { ...he } });
+
+      const restoreWeekInfo = stubIntlWeekInfo('none');
+      try {
+        expect(getAdapterWeekendDays(adapter)).toEqual([6, 7]);
+      } finally {
+        restoreWeekInfo();
+      }
+
+      // Simulates an Intl polyfill loaded after the first call.
+      onTestFinished(stubIntlWeekInfo('method'));
+      expect(getAdapterWeekendDays(adapter)).toEqual([2, 3]);
     });
   });
 });

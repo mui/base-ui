@@ -98,7 +98,7 @@ const FORMATS: TemporalAdapterFormats = {
 // Day numbers follow Intl.Locale week info: 1 is Monday, 7 is Sunday.
 const DEFAULT_WEEKEND_DAYS = [6, 7];
 
-const weekendDaysCache = new Map<string, number[]>();
+const weekendDaysCache = new WeakMap<DateFnsLocale, number[]>();
 
 interface LocaleWithWeekInfo {
   getWeekInfo?: (() => { weekend: number[] }) | undefined;
@@ -108,24 +108,28 @@ interface LocaleWithWeekInfo {
 
 // date-fns locales don't contain weekend data, so it's read from Intl.
 // Falls back to Saturday and Sunday when the locale code is invalid or the engine has no week info support.
-function getWeekendDays(localeCode: string): number[] {
-  const cachedWeekendDays = weekendDaysCache.get(localeCode);
+// The fallback isn't cached so that the week info is picked up if an Intl polyfill loads later.
+function getWeekendDays(locale: DateFnsLocale): number[] {
+  const cachedWeekendDays = weekendDaysCache.get(locale);
   if (cachedWeekendDays) {
     return cachedWeekendDays;
   }
 
-  let weekendDays = DEFAULT_WEEKEND_DAYS;
+  let weekInfo: { weekend: number[] } | undefined;
   try {
-    const locale = new Intl.Locale(localeCode) as Intl.Locale & LocaleWithWeekInfo;
-    const weekInfo =
-      typeof locale.getWeekInfo === 'function' ? locale.getWeekInfo() : locale.weekInfo;
-    weekendDays = weekInfo?.weekend ?? DEFAULT_WEEKEND_DAYS;
+    const intlLocale = new Intl.Locale(locale.code) as Intl.Locale & LocaleWithWeekInfo;
+    weekInfo =
+      typeof intlLocale.getWeekInfo === 'function' ? intlLocale.getWeekInfo() : intlLocale.weekInfo;
   } catch {
     // Invalid locale code
   }
 
-  weekendDaysCache.set(localeCode, weekendDays);
-  return weekendDays;
+  if (!weekInfo?.weekend) {
+    return DEFAULT_WEEKEND_DAYS;
+  }
+
+  weekendDaysCache.set(locale, weekInfo.weekend);
+  return weekInfo.weekend;
 }
 
 declare module '@base-ui/react/internals/temporal' {
@@ -498,7 +502,7 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
   };
 
   public isWeekend = (value: Date) => {
-    return getWeekendDays(this.locale.code).includes(getISODay(value));
+    return getWeekendDays(this.locale).includes(getISODay(value));
   };
 }
 
