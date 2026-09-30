@@ -930,6 +930,8 @@ describe('<Collapsible.Panel />', () => {
     });
 
     it('does not replay open transitions when revealing a panel opened by the user', async () => {
+      // Wait for the initial opening transition before checking for Activity replays.
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
       const Activity = getActivity();
 
       function App() {
@@ -985,6 +987,8 @@ describe('<Collapsible.Panel />', () => {
 
       await waitFor(() => {
         expect(panel).toHaveAttribute('data-open');
+      });
+      await waitFor(() => {
         expect(panel.style.getPropertyValue('--collapsible-panel-height')).toBe('auto');
       });
 

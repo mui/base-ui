@@ -11,7 +11,7 @@ import {
   reactMajor,
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
-import { Combobox } from '@base-ui/react/combobox';
+import { Combobox, ComboboxSeparatorDataAttributes } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Dialog } from '@base-ui/react/dialog';
@@ -150,6 +150,13 @@ describe('<Combobox.Root />', () => {
   });
 
   const { render, renderToString } = createRenderer();
+
+  it('exposes the orientation attribute rendered by Separator', async () => {
+    await render(<Combobox.Separator orientation="vertical" />);
+
+    const separator = screen.getByRole('presentation');
+    expect(separator).toHaveAttribute(ComboboxSeparatorDataAttributes.orientation, 'vertical');
+  });
 
   popupConformanceTests({
     createComponent: (props) => (
@@ -10890,6 +10897,134 @@ describe('<Combobox.Root />', () => {
   describe('dialog pattern', () => {
     const fruits = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
     const asyncFruits = ['apple', 'banana', 'cherry'];
+
+    it.each([
+      [false, ''],
+      [false, 'Ba'],
+      [true, ''],
+      [true, 'Ba'],
+    ] as const)(
+      'clears the highlight when a keepMounted dialog closes (multiple=%s, query="%s")',
+      async (multiple, query) => {
+        const onItemHighlighted = vi.fn();
+        const onValueChange = vi.fn();
+
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <Combobox.Root
+              inline
+              multiple={multiple}
+              items={['Apple', 'Banana']}
+              open={open}
+              onOpenChange={setOpen}
+              onItemHighlighted={onItemHighlighted}
+              onValueChange={(value) => {
+                onValueChange(value);
+                setOpen(false);
+              }}
+            >
+              <Dialog.Root open={open} onOpenChange={setOpen}>
+                <Dialog.Trigger>Choose fruit</Dialog.Trigger>
+                <Dialog.Portal keepMounted>
+                  <Dialog.Popup
+                    aria-label="Fruit chooser"
+                    style={{ opacity: open ? 1 : 0, transition: 'opacity 50ms' }}
+                  >
+                    <Combobox.Input />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                    <Dialog.Close>Done</Dialog.Close>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        const trigger = screen.getByRole('button', { name: 'Choose fruit' });
+        await user.click(trigger);
+        const input = screen.getByRole('combobox');
+        await waitFor(() => expect(input).toHaveFocus());
+        if (query) {
+          await user.type(input, query);
+        }
+        await user.keyboard(query ? '{ArrowDown}' : '{ArrowDown}{ArrowDown}');
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+        onItemHighlighted.mockClear();
+
+        await user.keyboard('{Enter}');
+        await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+        expect(onValueChange).toHaveBeenLastCalledWith(multiple ? ['Banana'] : 'Banana');
+        expect(onItemHighlighted.mock.calls.map(([value]) => value)).toEqual([undefined]);
+
+        async function reopenAndNavigate(closeWithEscape = false) {
+          await user.click(trigger);
+          await waitFor(() => expect(input).toHaveFocus());
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+          onValueChange.mockClear();
+          await user.keyboard('{Enter}');
+          expect(onValueChange).not.toHaveBeenCalled();
+          await user.keyboard('{ArrowDown}');
+          if (closeWithEscape) {
+            await user.keyboard('{Escape}');
+          } else {
+            await user.click(screen.getByRole('button', { name: 'Done' }));
+          }
+          await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+        }
+
+        await reopenAndNavigate(true);
+        await reopenAndNavigate();
+        await reopenAndNavigate();
+      },
+    );
+
+    it('clears the highlight when an inline list in an unbound dialog unmounts', async () => {
+      await render(
+        <Combobox.Root inline items={['Apple', 'Banana', 'Cherry']}>
+          <Dialog.Root>
+            <Dialog.Trigger>Choose fruit</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup aria-label="Fruit chooser">
+                <Combobox.Input />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Choose fruit' });
+      fireEvent.click(trigger);
+      let input = await screen.findByRole('combobox');
+      await waitFor(() => expect(input).toHaveFocus());
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+
+      fireEvent.keyDown(input, { key: 'Escape' });
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+
+      fireEvent.click(trigger);
+      input = await screen.findByRole('combobox');
+      await waitFor(() => expect(input).toHaveFocus());
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(screen.getByRole('option', { name: 'Apple' })).toHaveAttribute('data-highlighted');
+    });
 
     function AsyncDialogCombobox() {
       const [loading, setLoading] = React.useState(true);
