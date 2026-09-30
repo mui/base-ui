@@ -58,7 +58,12 @@ function getEventType(event: Event, lastInteractionType?: InteractionType): Inte
     return lastInteractionType || 'keyboard';
   }
   if ('pointerType' in event) {
-    return (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
+    // A trusted click without a pointerType is keyboard/AT; only synthesized
+    // clicks (e.g. a test harness) pair an empty pointerType with a click count.
+    return (
+      (event.pointerType as InteractionType) ||
+      (isVirtualClick(event as PointerEvent) ? 'keyboard' : lastInteractionType || 'mouse')
+    );
   }
   if ('touches' in event) {
     return 'touch';
