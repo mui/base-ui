@@ -4,15 +4,24 @@ import type { ViewportFrame, ViewportInputs } from './viewportController';
 import type { RowsGeometry } from './geometry';
 import type { VirtualizerRow } from '../internals/virtualization/types';
 
+/** A flat list's rows are its items. */
+const flat = (rowIndex: number) => rowIndex;
+
+/** Items before each row, from a grouped list's table, which ends with the total. */
+function fromTable(itemCountBeforeRow: number[]) {
+  return (rowIndex: number) =>
+    itemCountBeforeRow[Math.min(Math.max(rowIndex, 0), itemCountBeforeRow.length - 1)];
+}
+
 describe('isRowFarFromWindow', () => {
   const window = { firstRowIndex: 10, lastRowIndex: 20 };
 
   it('judges a flat list in rows', () => {
-    expect(isRowFarFromWindow(15, window, undefined)).toBe(false);
-    expect(isRowFarFromWindow(0, window, undefined)).toBe(false);
-    expect(isRowFarFromWindow(30, window, undefined)).toBe(false);
-    expect(isRowFarFromWindow(31, window, undefined)).toBe(true);
-    expect(isRowFarFromWindow(-1, window, undefined)).toBe(true);
+    expect(isRowFarFromWindow(15, window, flat)).toBe(false);
+    expect(isRowFarFromWindow(0, window, flat)).toBe(false);
+    expect(isRowFarFromWindow(30, window, flat)).toBe(false);
+    expect(isRowFarFromWindow(31, window, flat)).toBe(true);
+    expect(isRowFarFromWindow(-1, window, flat)).toBe(true);
   });
 
   it('judges a grouped list in items, so headers add no distance', () => {
@@ -21,10 +30,10 @@ describe('isRowFarFromWindow', () => {
     const itemCountBeforeRow = [0, 0, ...Array.from({ length: 50 }, () => 1), 1, 1, 2];
     expect(itemCountBeforeRow).toHaveLength(55);
 
-    expect(isRowFarFromWindow(53, { firstRowIndex: 0, lastRowIndex: 2 }, itemCountBeforeRow)).toBe(
-      false,
-    );
-    expect(isRowFarFromWindow(53, { firstRowIndex: 0, lastRowIndex: 2 }, undefined)).toBe(true);
+    expect(
+      isRowFarFromWindow(53, { firstRowIndex: 0, lastRowIndex: 2 }, fromTable(itemCountBeforeRow)),
+    ).toBe(false);
+    expect(isRowFarFromWindow(53, { firstRowIndex: 0, lastRowIndex: 2 }, flat)).toBe(true);
   });
 
   it('still finds a distant item in a grouped list', () => {
@@ -38,12 +47,12 @@ describe('isRowFarFromWindow', () => {
     itemCountBeforeRow.push(items);
 
     // Row 59 is item 38; a window over the first six rows ends at item 4.
-    expect(isRowFarFromWindow(59, { firstRowIndex: 0, lastRowIndex: 6 }, itemCountBeforeRow)).toBe(
-      true,
-    );
-    expect(isRowFarFromWindow(20, { firstRowIndex: 0, lastRowIndex: 6 }, itemCountBeforeRow)).toBe(
-      false,
-    );
+    expect(
+      isRowFarFromWindow(59, { firstRowIndex: 0, lastRowIndex: 6 }, fromTable(itemCountBeforeRow)),
+    ).toBe(true);
+    expect(
+      isRowFarFromWindow(20, { firstRowIndex: 0, lastRowIndex: 6 }, fromTable(itemCountBeforeRow)),
+    ).toBe(false);
   });
 });
 
@@ -174,7 +183,7 @@ function createViewport(initialHeights: number[], viewportHeight = 100) {
         },
         enabled: true,
         estimate: { enabled: false, hasEstimate: () => true, isSettled: () => true },
-        itemCountBeforeRow: undefined,
+        itemsBeforeRow: flat,
         resolveRowIndex: undefined,
         rows,
         rowsInset: { start: 0, end: 0 },

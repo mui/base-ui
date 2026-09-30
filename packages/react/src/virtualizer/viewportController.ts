@@ -101,12 +101,12 @@ export interface ViewportInputs<RowModel> {
    */
   resolveRowIndex: ((rowId: React.Key) => number | undefined) | undefined;
   /**
-   * Number of items strictly before each row, for a list whose rows include group headers, or
-   * `undefined` for a flat list. Distances between a request and the window are judged in items:
-   * the estimate a distant request waits for is an average of items, and headers between two
-   * items make them no further apart in that sense.
+   * How many items come before a row, which a list whose rows include group headers tells apart
+   * from the row's index. Distances between a request and the window are judged in items: the
+   * estimate a distant request waits for is an average of items, and headers between two items
+   * make them no further apart in that sense.
    */
-  itemCountBeforeRow: number[] | undefined;
+  itemsBeforeRow: (rowIndex: number) => number;
   /** The row the list's activation asks to be brought into view, and how. */
   activation: ViewportActivation;
   estimate: ViewportEstimate;
@@ -486,7 +486,7 @@ export class ViewportController<RowModel> {
    * new activation and must not move the viewport on its own.
    */
   private applyActivation() {
-    const { activation, enabled, estimate, rows, window, itemCountBeforeRow } = this.getInputs();
+    const { activation, enabled, estimate, rows, window, itemsBeforeRow } = this.getInputs();
     const rowIndex = activation.rowIndex;
     const rowId = rowIndex == null ? null : (rows[rowIndex]?.id ?? null);
     const previous = this.lastActivation;
@@ -526,7 +526,7 @@ export class ViewportController<RowModel> {
       this.requiresAdaptiveEstimate ||
       (estimate.enabled &&
         !estimate.hasEstimate() &&
-        isRowFarFromWindow(rowIndex, window, itemCountBeforeRow));
+        isRowFarFromWindow(rowIndex, window, itemsBeforeRow));
 
     // Try immediately with estimated metadata. If the destination is still unmeasured, the retry
     // corrects the position once ResizeObserver updates it.
@@ -1021,28 +1021,18 @@ export class ViewportController<RowModel> {
  * Whether a destination lies far enough outside the window that the rows between it and the
  * window could accumulate enough estimate error to justify waiting for the refined average.
  *
- * Judged in items when the rows include group headers (`itemCountBeforeRow` given): the average
- * describes items, and headers between two items make them no further apart in that sense.
+ * Judged in items: the average describes items, and group headers between two items make them no
+ * further apart in that sense.
  */
 export function isRowFarFromWindow(
   rowIndex: number,
   window: RowWindow,
-  itemCountBeforeRow: number[] | undefined,
+  itemsBeforeRow: (rowIndex: number) => number,
 ) {
-  if (itemCountBeforeRow == null) {
-    return (
-      rowIndex < window.firstRowIndex - ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE ||
-      rowIndex > window.lastRowIndex + ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE
-    );
-  }
-
-  const lastRowIndex = Math.min(window.lastRowIndex, itemCountBeforeRow.length - 1);
-  const itemIndex = itemCountBeforeRow[rowIndex] ?? 0;
-  const firstItemIndex = itemCountBeforeRow[window.firstRowIndex] ?? 0;
-  const lastItemIndex = itemCountBeforeRow[lastRowIndex] ?? firstItemIndex;
+  const itemIndex = itemsBeforeRow(rowIndex);
   return (
-    itemIndex < firstItemIndex - ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE ||
-    itemIndex > lastItemIndex + ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE
+    itemIndex < itemsBeforeRow(window.firstRowIndex) - ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE ||
+    itemIndex > itemsBeforeRow(window.lastRowIndex) + ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE
   );
 }
 

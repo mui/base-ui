@@ -5,6 +5,7 @@ import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { warn } from '@base-ui/utils/warn';
 import type { VirtualizerItemRowModel, VirtualizerRow, VirtualizerRowModel } from './types';
 import type { VirtualizerGetGroupKey, VirtualizerGroup } from '../../virtualizer/types';
+import type { RowWindow } from '../../virtualizer/geometry';
 
 type VirtualizerItemKey = string;
 
@@ -249,6 +250,98 @@ export function useGroupedRowModels<Item>(
     cacheRef.current = next;
     return next;
   }, [groups, hasGetGroupKey, itemRows, ordinalRegistry]);
+}
+
+/**
+ * The rows the engine windows, and how they relate to the collection's items. A grouped collection
+ * interleaves a header row before each group, so a row index and an item index differ; a flat one
+ * has no headers, and the two are the same. Callers translate through here either way, rather
+ * than asking which of the two they have.
+ */
+export interface RowProjection<Item> {
+  /** Every row, headers included. */
+  rows: VirtualizerRow<VirtualizerRowModel<Item>>[];
+  /** The grouped tables, for rendering each group's wrapper; `null` for a flat collection. */
+  grouped: GroupedRows<Item> | null;
+  /** The row of an item, or `-1` when the collection has no item at that index. */
+  toRow: (itemIndex: number) => number;
+  /** How many items come before a row, or before the end at `rows.length`. */
+  itemsBeforeRow: (rowIndex: number) => number;
+  /** The items a half-open window of rows holds, as a half-open window of items. */
+  toItemWindow: (window: RowWindow) => RowWindow;
+  /** The current index of a row, by id, or `undefined` when no row has it. */
+  indexOfRow: (rowId: React.Key) => number | undefined;
+  /**
+   * Whether a row id is an item's rather than a header's, or `undefined` for a flat collection,
+   * whose rows are all items.
+   */
+  isItemRowId: ((rowId: React.Key) => boolean) | undefined;
+}
+
+/**
+ * Relates the rows the engine windows to the collection's items: through the grouped tables when
+ * the collection is grouped, and as the identity when it is flat.
+ */
+export function useRowProjection<Item>(
+  parameters: UseGroupedRowModelsParameters<Item>,
+): RowProjection<Item> {
+  const { itemRows } = parameters;
+  const grouped = useGroupedRowModels(parameters);
+
+  return React.useMemo(() => createRowProjection(itemRows, grouped), [grouped, itemRows]);
+}
+
+export function createRowProjection<Item>(
+  itemRows: VirtualizerRow<VirtualizerItemRowModel<Item>>[],
+  grouped: GroupedRows<Item> | null,
+): RowProjection<Item> {
+  const rows: VirtualizerRow<VirtualizerRowModel<Item>>[] = grouped?.rows ?? itemRows;
+  const rowCount = rows.length;
+  let rowIndexById: Map<React.Key, number> | null = null;
+
+  // Built on first use: the engine asks for rows by id during hydration, a flat list without
+  // declared heights never does.
+  const indexOfRow = (rowId: React.Key) => {
+    if (rowIndexById == null) {
+      rowIndexById = new Map();
+      rows.forEach((row, rowIndex) => rowIndexById!.set(row.id, rowIndex));
+    }
+    return rowIndexById.get(rowId);
+  };
+
+  if (grouped == null) {
+    const clamp = (rowIndex: number) => Math.min(Math.max(rowIndex, 0), rowCount);
+    return {
+      rows,
+      grouped,
+      toRow: (itemIndex) => (itemIndex >= 0 && itemIndex < rowCount ? itemIndex : -1),
+      itemsBeforeRow: clamp,
+      toItemWindow: (window) => ({
+        firstRowIndex: clamp(window.firstRowIndex),
+        lastRowIndex: clamp(window.lastRowIndex),
+      }),
+      indexOfRow,
+      isItemRowId: undefined,
+    };
+  }
+
+  const { itemCountBeforeRow, itemToRowIndex } = grouped;
+  // The table carries a sentinel at `rows.length`: the items before the end are all of them.
+  const itemsBeforeRow = (rowIndex: number) =>
+    itemCountBeforeRow[Math.min(Math.max(rowIndex, 0), rowCount)];
+
+  return {
+    rows,
+    grouped,
+    toRow: (itemIndex) => itemToRowIndex[itemIndex] ?? -1,
+    itemsBeforeRow,
+    toItemWindow: (window) => ({
+      firstRowIndex: itemsBeforeRow(window.firstRowIndex),
+      lastRowIndex: itemsBeforeRow(window.lastRowIndex),
+    }),
+    indexOfRow,
+    isItemRowId: (rowId) => !isGroupHeaderRowId(rowId),
+  };
 }
 
 /**

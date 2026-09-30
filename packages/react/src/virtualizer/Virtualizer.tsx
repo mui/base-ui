@@ -26,12 +26,11 @@ import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useRenderElement } from '../internals/useRenderElement';
 import { useListBinding, useVirtualizerSources } from '../internals/virtualization/useListBinding';
 import {
-  isGroupHeaderRowId,
   isObjectValue,
-  useGroupedRowModels,
   useRowModels,
+  useRowProjection,
 } from '../internals/virtualization/useRowModels';
-import type { GroupedRows } from '../internals/virtualization/useRowModels';
+import type { GroupedRows, RowProjection } from '../internals/virtualization/useRowModels';
 import { isGroupHeaderRow } from '../internals/virtualization/types';
 import type {
   VirtualizerItemRowModel,
@@ -616,14 +615,13 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     scrollsActiveItem && (hasOwnCollection || enabled) ? pinnedItemIndex : undefined;
 
   // The item rows are the collection as the flat concerns know it — estimates, the adaptive
-  // average — and the engine windows either them or, for a grouped collection, the projection that
-  // interleaves the group headers. Everything public speaks item indexes; the projection's tables
-  // translate at the boundary, and a flat list has no projection to consult.
+  // average — and the engine windows the projection's rows: the item rows themselves, or for a
+  // grouped collection, those rows interleaved with the group headers. Everything public speaks
+  // item indexes, and the projection translates at the boundary whichever the collection is.
   const itemRows = useRowModels<Value>({ getItemKey, items: collection });
-  const grouped = useGroupedRowModels<Value>({ getGroupKey, groups, itemRows });
-  const rows: VirtualizerRow<VirtualizerRowModel<Value>>[] = grouped?.rows ?? itemRows;
-  const toRowIndex = (itemIndex: number) =>
-    grouped == null ? itemIndex : (grouped.itemToRowIndex[itemIndex] ?? -1);
+  const projection = useRowProjection<Value>({ getGroupKey, groups, itemRows });
+  const { grouped } = projection;
+  const rows: VirtualizerRow<VirtualizerRowModel<Value>>[] = projection.rows;
 
   const itemHeightEstimate = useItemHeightEstimate<Value>({
     // A declared height is also what an unmeasured row is worth: nothing is estimated then, but
@@ -766,7 +764,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const measureNewRows = useStableCallback(() => ledger.measureNewRows(getMeasurableRows()));
 
   const isDraggingScrollbar = useStableCallback(() => gesture.isScrollbarDrag());
-  const isItemRowId = useStableCallback((rowId: React.Key) => !isGroupHeaderRowId(rowId));
   const isGestureActive = useStableCallback(
     () => gesture.isScrolling() || gesture.isScrollbarDrag(),
   );
@@ -829,13 +826,15 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       }),
   ).current;
 
-  const pinnedRowIndex = pinnedItemIndex == null ? undefined : toRowIndex(pinnedItemIndex);
+  const pinnedRowIndex = pinnedItemIndex == null ? undefined : projection.toRow(pinnedItemIndex);
   const validPinnedRowIndex =
     pinnedRowIndex != null && pinnedRowIndex >= 0 && rows[pinnedRowIndex] != null
       ? pinnedRowIndex
       : undefined;
   const scrollToRowIndex =
-    scrollToItemIndex == null || scrollToItemIndex < 0 ? undefined : toRowIndex(scrollToItemIndex);
+    scrollToItemIndex == null || scrollToItemIndex < 0
+      ? undefined
+      : projection.toRow(scrollToItemIndex);
   const focusedVirtualCellRef = React.useRef<{
     columnIndex: number;
     id: React.Key;
@@ -889,11 +888,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
    * the engine rehydrates its whole geometry when that callback's identity changes, and a
    * collection that changed rehydrates it on its own anyway.
    */
-  const rowHeightLookupRef = React.useRef<{
-    grouped: GroupedRows<Value> | null;
-    rowIndexById: Map<React.Key, number>;
-    rows: VirtualizerRow<VirtualizerRowModel<Value>>[];
-  }>(null!);
+  const rowHeightLookupRef = React.useRef<RowProjection<Value>>(null!);
   const getRowHeight = React.useCallback(
     (row: RowEntry) => {
       if (fixedItemHeight == null) {
@@ -908,20 +903,13 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         return fixedItemHeight;
       }
 
-      const model = lookup.rows[lookup.rowIndexById.get(row.id as React.Key) ?? -1]?.model;
+      const model = lookup.rows[lookup.indexOfRow(row.id as React.Key) ?? -1]?.model;
       return model != null && isGroupHeaderRow(model) ? ('auto' as const) : fixedItemHeight;
     },
     [fixedItemHeight],
   );
-  const rowIndexById = React.useMemo(() => {
-    const map = new Map<React.Key, number>();
-    rows.forEach((row, rowIndex) => {
-      map.set(row.id, rowIndex);
-    });
-    return map;
-  }, [rows]);
-  rowHeightLookupRef.current = { grouped, rowIndexById, rows };
-  const resolveRowIndexById = useStableCallback((rowId: React.Key) => rowIndexById.get(rowId));
+  rowHeightLookupRef.current = projection;
+  const resolveRowIndexById = useStableCallback((rowId: React.Key) => projection.indexOfRow(rowId));
 
   // MUI Virtualizer rehydrates row metadata when these callback identities change. This intentionally uses
   // a dependency-sensitive callback so estimate changes invalidate cached geometry.
@@ -937,7 +925,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       // a grouped list looks the row up before the average: the engine asks for every unmeasured
       // row on every hydration, and a flat list has nothing to look for.
       if (hasGroupHeaders) {
-        model = rows[rowIndexById.get(row.id as React.Key) ?? -1]?.model;
+        model = rows[projection.indexOfRow(row.id as React.Key) ?? -1]?.model;
         if (model != null && isGroupHeaderRow(model)) {
           return getEstimatedGroupHeaderHeight(model.groupIndex);
         }
@@ -952,7 +940,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         return adaptiveEstimate;
       }
 
-      model ??= rows[rowIndexById.get(row.id as React.Key) ?? -1]?.model;
+      model ??= rows[projection.indexOfRow(row.id as React.Key) ?? -1]?.model;
       return model != null && !isGroupHeaderRow(model)
         ? getEstimatedItemHeight(model.itemIndex)
         : defaultEstimatedItemHeight;
@@ -964,8 +952,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       getEstimatedGroupHeaderHeight,
       getEstimatedItemHeight,
       hasGroupHeaders,
+      projection,
       readAdaptiveEstimate,
-      rowIndexById,
       rows,
     ],
   );
@@ -1402,8 +1390,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       },
       enabled,
       estimate: viewportEstimate,
-      // Number of items before each row, when headers make the two differ.
-      itemCountBeforeRow: grouped?.itemCountBeforeRow,
+      itemsBeforeRow: projection.itemsBeforeRow,
       // Headers move an item's row index without changing which item it is. A request keeps
       // following its row by id through such a change; a flat list has no such change to follow.
       resolveRowIndex: grouped == null ? undefined : resolveRowIndexById,
@@ -1464,8 +1451,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // Reported in scroll coordinates rather than the engine's: what the rows are laid out after is
   // the offset between the two, and a consumer holding a `scrollTop` has no way to know it.
   const getItemMetrics = useStableCallback((index: number) => {
-    const currentGrouped = grouped;
-    const rowIndex = currentGrouped == null ? index : (currentGrouped.itemToRowIndex[index] ?? -1);
+    const rowIndex = projection.toRow(index);
 
     if (rows[rowIndex] == null) {
       return null;
@@ -1537,11 +1523,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       if (!Number.isInteger(index) || index < 0 || index >= collection.length) {
         return;
       }
-      const currentGrouped = grouped;
-      viewport.scrollToIndex(
-        currentGrouped == null ? index : currentGrouped.itemToRowIndex[index],
-        options,
-      );
+      viewport.scrollToIndex(projection.toRow(index), options);
     },
   );
 
@@ -1633,10 +1615,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     // the collection length. The threshold counts items short of that.
     // Headers are rows but not items: in a grouped list the count of items before the window's
     // end is what the threshold is measured against.
-    const renderedItemCount =
-      grouped == null
-        ? windowRows.lastRowIndex
-        : grouped.itemCountBeforeRow[Math.min(windowRows.lastRowIndex, rows.length)];
+    const renderedItemCount = projection.itemsBeforeRow(windowRows.lastRowIndex);
     const reachedEnd = renderedItemCount >= collection.length - Math.max(0, endReachedThreshold);
 
     if (!reachedEnd) {
@@ -1653,35 +1632,26 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   }, [
     collection.length,
     endReachedThreshold,
-    grouped,
     handleEndReached,
     hasGetItemKey,
     itemRows,
     onEndReached,
+    projection,
     windowRows.lastRowIndex,
-    rows.length,
     windowingSuspended,
   ]);
 
   // The refresh samples the settled window and demotes every cached height it did not sample;
   // both must see items only, so a grouped list hands it the window in item space and tells it
   // which cached rows are items.
-  const itemRenderContext: RowWindow =
-    grouped == null
-      ? windowRows
-      : {
-          firstRowIndex: grouped.itemCountBeforeRow[windowRows.firstRowIndex] ?? 0,
-          lastRowIndex:
-            grouped.itemCountBeforeRow[Math.min(windowRows.lastRowIndex, rows.length)] ??
-            collection.length,
-        };
+  const itemRenderContext = projection.toItemWindow(windowRows);
 
   useInsertionEffect(() => {
     ledger.update({
       defaultEstimatedItemHeight,
       enabled: rowHeights.enabled,
       isGestureActive,
-      isItemRowId: grouped == null ? undefined : isItemRowId,
+      isItemRowId: projection.isItemRowId,
       revision: rowHeights.revision,
       rows: itemRows,
       rowsMeta,
