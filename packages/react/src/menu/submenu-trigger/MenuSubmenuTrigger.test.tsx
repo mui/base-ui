@@ -28,6 +28,82 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   afterEach(waitForAnimationFrame);
 
+  it.skipIf(isJSDOM).each(['Enter', 'Space'])(
+    'keeps a hover-opened submenu open when pressing %s',
+    async (key) => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup data-testid="parent-menu">
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu">
+                        <Menu.Item>Alpha</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+      const trigger = await screen.findByRole('menuitem', { name: 'More' });
+      await user.hover(trigger);
+      await screen.findByTestId('submenu');
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard(`[${key}]`);
+      await waitForAnimationFrame();
+
+      expect(screen.getByTestId('submenu')).not.toBe(null);
+      expect(screen.getByTestId('parent-menu')).not.toBe(null);
+    },
+  );
+
+  it.skipIf(isJSDOM)('closes a touch-opened submenu on a second tap', async () => {
+    const { user } = await render(
+      <Menu.Root defaultOpen>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup data-testid="parent-menu">
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu">
+                      <Menu.Item>Alpha</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const trigger = screen.getByRole('menuitem', { name: 'More' });
+    await user.pointer({ target: trigger, keys: '[TouchA]' });
+    await screen.findByTestId('submenu');
+    await waitForAnimationFrame();
+
+    await user.pointer({ target: trigger, keys: '[TouchA]' });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu')).toBe(null);
+    });
+    expect(screen.getByTestId('parent-menu')).not.toBe(null);
+  });
+
   it('keeps a submenu open on direct trigger focus but closes it on guard return', async () => {
     const { user } = await render(
       <Menu.Root>
