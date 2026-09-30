@@ -15,6 +15,7 @@ import {
   setElementScrollState,
   waitSingleFrame,
 } from '#test-utils';
+import { SCROLL_IDLE_MS } from './useScrollGesture';
 
 describe('<Virtualizer /> in Combobox', () => {
   const { render } = createRenderer();
@@ -466,35 +467,82 @@ describe('<Virtualizer /> in Combobox', () => {
 
       const { user, rerender } = await render(<Test rowHeight={33} />);
 
-      await user.click(screen.getByTestId('input'));
-      // The selection is first placed from the estimate and corrected once ResizeObserver
-      // measures the mounted rows, before that frame paints. The click can return before that
-      // frame, so wait for it to paint (its callbacks run on the next frame) and measure the
-      // alignment the user first sees.
-      await act(async () => {
-        await waitSingleFrame();
-        await waitSingleFrame();
+      // The restoration keeps re-aligning the selection until the adaptive estimate refines, an
+      // idle window after the last measurement, and from then on anchoring holds the topmost
+      // visible row instead. The rewrite below has to land while the restoration still retries,
+      // which a slow machine can miss by taking longer than the idle window to get there. Hold
+      // the idle timers until it has landed.
+      const heldIdleCallbacks = new Map<number, () => void>();
+      let nextHeldId = -1;
+      const realSetTimeout = setTimeout;
+      const realClearTimeout = clearTimeout;
+      const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout').mockImplementation(((
+        handler: TimerHandler,
+        delay?: number,
+        ...args: unknown[]
+      ) => {
+        if (delay !== SCROLL_IDLE_MS || typeof handler !== 'function') {
+          return realSetTimeout(handler, delay, ...args);
+        }
+        const id = nextHeldId;
+        nextHeldId -= 1;
+        heldIdleCallbacks.set(id, () => handler(...args));
+        return id;
+      }) as typeof setTimeout);
+      const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout').mockImplementation((id) => {
+        if (!heldIdleCallbacks.delete(id as number)) {
+          realClearTimeout(id);
+        }
       });
+      const releaseIdleTimers = () => {
+        setTimeoutSpy.mockRestore();
+        clearTimeoutSpy.mockRestore();
+        const callbacks = Array.from(heldIdleCallbacks.values());
+        heldIdleCallbacks.clear();
+        callbacks.forEach((callback) => callback());
+      };
 
-      const virtualizer = screen.getByTestId('virtualizer');
-      const selectedItem = screen.getByRole('option', { name: 'Item 4000' });
-      expect(selectedItem.closest<HTMLElement>('[data-row-index]')?.style.position).toBe('');
-      const viewport = virtualizer.getBoundingClientRect();
-      const selectedRect = selectedItem.getBoundingClientRect();
-      expect(selectedRect.bottom > viewport.top && selectedRect.top < viewport.bottom).toBe(true);
-      const initialBottomOffset = viewport.bottom - selectedRect.bottom;
+      try {
+        await user.click(screen.getByTestId('input'));
+        // The selection is first placed from the estimate and corrected once ResizeObserver
+        // measures the mounted rows, before that frame paints. The click can return before that
+        // frame, so wait for it to paint (its callbacks run on the next frame) and measure the
+        // alignment the user first sees.
+        await act(async () => {
+          await waitSingleFrame();
+          await waitSingleFrame();
+        });
 
-      await rerender(<Test rowHeight={32} />);
+        const virtualizer = screen.getByTestId('virtualizer');
+        const selectedItem = screen.getByRole('option', { name: 'Item 4000' });
+        expect(selectedItem.closest<HTMLElement>('[data-row-index]')?.style.position).toBe('');
+        const viewport = virtualizer.getBoundingClientRect();
+        const selectedRect = selectedItem.getBoundingClientRect();
+        expect(selectedRect.bottom > viewport.top && selectedRect.top < viewport.bottom).toBe(true);
+        const initialBottomOffset = viewport.bottom - selectedRect.bottom;
 
-      // Shrinking the rows to the estimate rewrites the geometry of every measured row, and the
-      // alignment has to survive that rewrite. The virtual total reaches exactly `rows × estimate`
-      // once the last of them is remeasured, so waiting for it observes the rewrite landing
-      // instead of racing the refresh window with a fixed delay.
-      await waitFor(() => expect(virtualizer.scrollHeight).toBe(10000 * 32));
+        await rerender(<Test rowHeight={32} />);
 
-      const settledViewport = virtualizer.getBoundingClientRect();
-      const settledRect = selectedItem.getBoundingClientRect();
-      expect(settledViewport.bottom - settledRect.bottom).toBeCloseTo(initialBottomOffset);
+        // Shrinking the rows to the estimate rewrites the geometry of every measured row, and the
+        // alignment has to survive that rewrite. The virtual total reaches exactly `rows × estimate`
+        // once the last of them is remeasured, so waiting for it observes the rewrite landing
+        // instead of racing the refresh window with a fixed delay.
+        await waitFor(() => expect(virtualizer.scrollHeight).toBe(10000 * 32));
+
+        // The refined estimate settles the restoration, which must not move the selection either.
+        await act(async () => {
+          releaseIdleTimers();
+          await waitSingleFrame();
+          await waitSingleFrame();
+        });
+
+        const settledViewport = virtualizer.getBoundingClientRect();
+        const settledRect = selectedItem.getBoundingClientRect();
+        expect(settledViewport.bottom - settledRect.bottom).toBeCloseTo(initialBottomOffset);
+      } finally {
+        setTimeoutSpy.mockRestore();
+        clearTimeoutSpy.mockRestore();
+      }
     },
   );
 

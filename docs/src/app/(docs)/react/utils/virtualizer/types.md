@@ -572,6 +572,32 @@ type ReturnValue = Virtualizer.GroupHeaderElement;
 
 ## Additional Types
 
+### VirtualizerCssVariables
+
+CSS variables of [Virtualizer](#virtualizer).
+
+```typescript
+declare namespace VirtualizerCssVariables {
+  /**
+   * The total height of the virtualized content, including the scrollport's block padding, or,
+   * in the table layout, everything the scroll container holds around the table section.
+   * @type number
+   */
+  const totalSize: '--total-size';
+}
+```
+
+### VirtualizerDataAttributes
+
+Data attributes of [Virtualizer](#virtualizer).
+
+```typescript
+declare namespace VirtualizerDataAttributes {
+  /** Present when the virtualized collection is empty. */
+  const empty: 'data-empty';
+}
+```
+
 ### VirtualizerHostProviderProps
 
 ```typescript

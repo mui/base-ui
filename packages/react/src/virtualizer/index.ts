@@ -36,3 +36,6 @@ export type {
   VirtualizerScrollAlignment,
   VirtualizerScrollToIndexOptions,
 } from './types';
+
+export * as VirtualizerCssVariables from './VirtualizerCssVars';
+export * as VirtualizerDataAttributes from './VirtualizerDataAttributes';

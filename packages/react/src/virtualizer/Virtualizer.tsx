@@ -76,7 +76,7 @@ import type { PendingScroll } from './usePendingScroll';
 import { useScrollAnchor } from './useScrollAnchor';
 import { useScrollGesture } from './useScrollGesture';
 import { useViewportRestore } from './useViewportRestore';
-import { VirtualizerCssVars } from './VirtualizerCssVars';
+import * as VirtualizerCssVars from './VirtualizerCssVars';
 
 interface VirtualRowProps<RowModel> {
   apiRef: React.RefObject<MuiVirtualizer['api'] | null>;
