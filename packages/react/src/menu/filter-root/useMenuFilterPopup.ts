@@ -30,6 +30,10 @@ export function useMenuFilterPopup(
   // on-screen keyboard.
   const pointerTypeRef = React.useRef('mouse');
 
+  function trackPointerType(event: React.PointerEvent) {
+    pointerTypeRef.current = event.pointerType || 'mouse';
+  }
+
   /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -101,12 +105,11 @@ export function useMenuFilterPopup(
         event.preventDefault();
       }
     },
-    onPointerDown(event) {
-      pointerTypeRef.current = event.pointerType || 'mouse';
-    },
-    onPointerMove(event) {
-      pointerTypeRef.current = event.pointerType || 'mouse';
-    },
+    onPointerDown: trackPointerType,
+    // `pointerover` precedes the compatibility `mouseover`, so a mouse entering right after a tap
+    // is recognized before the handoff below.
+    onPointerOver: trackPointerType,
+    onPointerMove: trackPointerType,
     onMouseMove(event) {
       if (pointerTypeRef.current === 'mouse') {
         restoreInputFocus(event, false);

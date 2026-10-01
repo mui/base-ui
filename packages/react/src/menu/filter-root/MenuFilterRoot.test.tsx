@@ -14,7 +14,13 @@ import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import type userEvent from '@testing-library/user-event';
-import { createRenderer, isJSDOM, resetBrowserPointer, waitSingleFrame } from '#test-utils';
+import {
+  createRenderer,
+  firePointer,
+  isJSDOM,
+  resetBrowserPointer,
+  waitSingleFrame,
+} from '#test-utils';
 
 // Mainline tests assert the non-WebKit path; MenuFilterRoot.webkit.test.tsx covers its compatibility state.
 vi.mock('@base-ui/utils/platform', async () => {
@@ -38,6 +44,8 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   const { render, renderToString } = createRenderer();
+  // Strict Mode's double render would hide an extra commit from a render count.
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   describe('opening with a query', () => {
     it('keeps the matching items mounted', async () => {
@@ -4092,6 +4100,44 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     );
   });
 
+  it('renders the trigger as often as a plain menu on mount', async () => {
+    let plainPasses = 0;
+    let filterPasses = 0;
+
+    await renderNonStrict(
+      <React.Fragment>
+        <Menu.Root>
+          <Menu.Trigger
+            render={(props) => {
+              plainPasses += 1;
+              return <button {...props} />;
+            }}
+          >
+            Plain
+          </Menu.Trigger>
+        </Menu.Root>
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger
+              render={(props) => {
+                filterPasses += 1;
+                return <button {...props} />;
+              }}
+            >
+              Filterable
+            </Menu.Trigger>
+          </Menu.Root>
+        </Menu.FilterProvider>
+      </React.Fragment>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Filterable' })).toHaveAttribute(
+      'aria-haspopup',
+      'dialog',
+    );
+    expect(filterPasses).toBe(plainPasses);
+  });
+
   it('prefers the label prop over rendered text for matching', async () => {
     const { user } = await render(
       <Menu.FilterProvider>
@@ -5069,6 +5115,62 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(submenuInput).not.toHaveAttribute('data-highlighted');
       expect(submenuInput).toBeVisible();
     });
+
+    it.skipIf(isJSDOM)(
+      'returns focus to the parent input when a mouse enters the trigger after a tap',
+      async () => {
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
+                            Move to folder
+                          </Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.Input aria-label="Filter folders" />
+                                <Menu.List>
+                                  <Menu.Item>Documents</Menu.Item>
+                                </Menu.List>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const rootInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+        await user.hover(submenuTrigger);
+        const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+
+        firePointer.down(submenuInput, { pointerType: 'touch', timeStamp: 10 });
+        await act(async () => {
+          submenuInput.focus();
+        });
+        expect(submenuInput).toHaveFocus();
+
+        // A mouse entering fires `pointerover` and `mouseover` before any `pointermove`.
+        fireEvent.pointerOver(submenuTrigger, { pointerType: 'mouse' });
+        fireEvent.mouseOver(submenuTrigger);
+
+        expect(rootInput).toHaveFocus();
+      },
+    );
 
     it('restores the parent input highlight when the pointer returns from a plain submenu', async () => {
       const { user } = await render(

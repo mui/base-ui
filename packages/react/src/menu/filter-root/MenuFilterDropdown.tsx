@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
@@ -72,6 +73,12 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   });
 
   const filterTriggerProps = useFilterTriggerProps(value !== '');
+  // Seeded before the triggers below render, like the root's inactive trigger props, so the sync
+  // effect doesn't render every trigger twice in the first commit.
+  useRefWithInit(() => {
+    store.set('filterTriggerProps', filterTriggerProps);
+    return null;
+  });
   store.useSyncedValue('filterTriggerProps', filterTriggerProps);
 
   // Only `setOpen` records a keyboard open, so a controlled close that bypasses it must not leave

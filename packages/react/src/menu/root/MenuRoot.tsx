@@ -580,8 +580,10 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   // Runs when `activeIndex` commits and again when the item registry settles, since an index
   // can come to point at a different element while its value stays the same.
   const syncHighlightedItem = useStableCallback(() => {
-    // Only virtual focus and `onItemHighlighted` read the committed item.
+    // Only virtual focus and `onItemHighlighted` read the committed item. Forget the last one
+    // reported, so a callback added later isn't compared against a stale highlight.
     if (!virtualFocus && !onItemHighlightedProp) {
+      lastHighlightIndexRef.current = -1;
       return;
     }
 
