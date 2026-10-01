@@ -94,12 +94,14 @@ function findAssociatedLabel(labelSource: HTMLElement) {
       childList: true,
       attributeFilter: ['for', 'id', 'type'],
     });
+
     const nextLabels = new Map<HTMLElement | null, HTMLLabelElement>();
     root.querySelectorAll('label').forEach((label) => {
       if (!nextLabels.has(label.control)) {
         nextLabels.set(label.control, label);
       }
     });
+
     labels = nextLabels;
     labelIndex.set(root, labels);
   }
