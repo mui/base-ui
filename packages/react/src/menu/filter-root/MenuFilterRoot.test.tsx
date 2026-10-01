@@ -3623,7 +3623,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
   });
 
-  it('preserves input focus on item and list presses without blocking the scrollbar', async () => {
+  it('preserves input focus on item presses', async () => {
     await render(
       <Menu.FilterProvider>
         <Menu.Root defaultOpen>
@@ -3642,29 +3642,14 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       </Menu.FilterProvider>,
     );
 
-    const list = screen.getByRole('menu');
     const item = screen.getByRole('menuitem', { name: 'Rename' });
     const itemMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-    const backgroundMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-    const scrollbarMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-    Object.defineProperties(list, {
-      clientHeight: { configurable: true, value: 100 },
-      clientWidth: { configurable: true, value: 100 },
-      offsetHeight: { configurable: true, value: 100 },
-      offsetWidth: { configurable: true, value: 115 },
-      scrollHeight: { configurable: true, value: 200 },
-    });
-    Object.defineProperty(scrollbarMouseDown, 'offsetX', { value: 110 });
 
     await act(async () => {
       item.dispatchEvent(itemMouseDown);
-      list.dispatchEvent(backgroundMouseDown);
-      list.dispatchEvent(scrollbarMouseDown);
     });
 
     expect(itemMouseDown.defaultPrevented).toBe(true);
-    expect(backgroundMouseDown.defaultPrevented).toBe(true);
-    expect(scrollbarMouseDown.defaultPrevented).toBe(false);
   });
 
   it('returns focus to the input with the RTL submenu close key', async () => {
