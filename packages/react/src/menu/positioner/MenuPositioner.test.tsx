@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, vi } from 'vitest';
+import { afterEach, beforeEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -59,6 +59,43 @@ describe('<Menu.Positioner />', () => {
     } finally {
       errorSpy.mockRestore();
     }
+  });
+
+  it('enables lazy flipping for a filter menu', async () => {
+    await render(
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter" />
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    // `'placement'` and not `true`: the filter menu locks the alignment as well as the side, so a
+    // popup that flipped once does not jitter back while typing resizes it. Combobox stays on
+    // `true` (side only), which is what it shipped with.
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe('placement');
+  });
+
+  it('leaves lazy flipping off for a plain menu', async () => {
+    await render(
+      <Menu.Root open>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup />
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(false);
   });
 
   describeConformance(<Menu.Positioner />, () => ({
@@ -381,6 +418,7 @@ describe('<Menu.Positioner />', () => {
       }
 
       await render(<TestComponent />);
+      expect(screen.getByTestId('positioner')).not.toBe(null);
     });
 
     it('should react to the anchor changing from a ref to undefined and back', async () => {

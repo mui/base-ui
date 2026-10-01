@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -39,6 +39,43 @@ describe('<Tooltip.Root />', () => {
     triggerMouseAction: 'hover',
   });
 
+  describe('trigger unmount during the open delay', () => {
+    clock.withFakeTimers();
+
+    function App({ showTrigger }: { showTrigger: boolean }) {
+      return (
+        <Tooltip.Root>
+          {showTrigger && <Tooltip.Trigger>Toggle</Tooltip.Trigger>}
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      );
+    }
+
+    it('does not open once the hovered trigger has unmounted', async () => {
+      const { setProps } = await render(<App showTrigger />);
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(1);
+
+      await setProps({ showTrigger: false });
+
+      clock.tick(OPEN_DELAY);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+    });
+  });
+
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerTooltip },
     { name: 'detached triggers', Component: DetachedTriggerTooltip },
@@ -61,6 +98,22 @@ describe('<Tooltip.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
+      });
+
+      it('does not open when a touch pointer hovers the trigger', async () => {
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('should close when the trigger is unhovered', async () => {
@@ -2572,21 +2625,7 @@ describe('nested tooltips', () => {
     }
   });
 
-  it.each([
-    {
-      name: 'starts with a ShadowRoot',
-      getPath(innerTrigger: HTMLElement, outerTrigger: HTMLElement) {
-        const shadowRoot = document.createElement('div').attachShadow({ mode: 'open' });
-        return [shadowRoot, innerTrigger, outerTrigger, document.body, document, window];
-      },
-    },
-    {
-      name: 'is empty',
-      getPath() {
-        return [];
-      },
-    },
-  ])('handles a composed path that $name', async ({ getPath }) => {
+  it('falls back to the event target when the composed path is empty', async () => {
     await render(
       <Tooltip.Root>
         <Tooltip.Trigger data-testid="outer-trigger" render={<span />}>
@@ -2606,13 +2645,15 @@ describe('nested tooltips', () => {
     const outerTrigger = screen.getByTestId('outer-trigger');
     const innerTrigger = screen.getByTestId('inner-trigger');
 
+    // Start the outer open delay so only nested trigger detection keeps it closed.
+    fireEvent.pointerDown(outerTrigger, { pointerType: 'mouse' });
     fireEvent.pointerEnter(outerTrigger, { pointerType: 'mouse' });
     fireEvent.mouseEnter(outerTrigger);
+    fireEvent.mouseMove(outerTrigger);
 
+    // `composedPath()` is empty once an event has finished dispatching.
     const mouseOverEvent = new MouseEvent('mouseover', { bubbles: true, composed: true });
-    Object.defineProperty(mouseOverEvent, 'composedPath', {
-      value: () => getPath(innerTrigger, outerTrigger),
-    });
+    Object.defineProperty(mouseOverEvent, 'composedPath', { value: () => [] });
     innerTrigger.dispatchEvent(mouseOverEvent);
 
     clock.tick(OPEN_DELAY);

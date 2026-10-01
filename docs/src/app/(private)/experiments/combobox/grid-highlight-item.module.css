@@ -1,0 +1,142 @@
+.Page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 40rem;
+}
+
+.Heading {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.Subheading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.Description {
+  margin: 0;
+  color: var(--color-gray-600);
+  line-height: 1.5;
+}
+
+.Toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.Input {
+  box-sizing: border-box;
+  height: 2.25rem;
+  width: 14rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--color-gray-900);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.Button {
+  height: 2.25rem;
+  padding: 0 0.625rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Empty {
+  padding: 0.5rem 0;
+  color: var(--color-gray-600);
+  font-size: 0.875rem;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.List {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+}
+
+.Row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: 0.25rem;
+}
+
+.Item {
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &[data-highlighted] {
+    background-color: var(--color-gray-900);
+    color: var(--color-gray-50);
+  }
+
+  &[data-selected] {
+    font-weight: 600;
+  }
+}
+
+.Log {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.LogEntry {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.LogValue {
+  min-width: 6rem;
+  font-weight: 600;
+}
+
+.LogMeta {
+  color: var(--color-gray-600);
+}

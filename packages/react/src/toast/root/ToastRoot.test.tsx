@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Toast } from '@base-ui/react/toast';
@@ -6,6 +6,7 @@ import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import type { ToastManagerAddOptions } from '../useToastManager';
 import { List, Button } from '../utils/test-utils';
+import { toastRootStateAttributesMapping } from './ToastRoot';
 
 const toast: Toast.Root.ToastObject = {
   id: 'test',
@@ -86,6 +87,27 @@ describe('<Toast.Root />', () => {
       );
     },
   }));
+
+  it('maps the active swipe direction to its data attribute', () => {
+    expect(toastRootStateAttributesMapping.swipeDirection!('left')).toEqual({
+      'data-swipe-direction': 'left',
+    });
+  });
+
+  it('sets the vertical offset CSS variable', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+
+    expect(screen.getByTestId('root').style.getPropertyValue('--toast-offset-y')).not.toBe('');
+  });
 
   it('keeps dynamic title and description ids synchronized with mounted label parts', async () => {
     function App() {

@@ -6,13 +6,13 @@ import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
-import {
-  useAnchorPositioning,
-  type Align,
-  type Side,
-  type UseAnchorPositioningSharedParameters,
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Align,
+  Side,
+  UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
@@ -20,7 +20,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../i
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { MenuOpenEventDetails } from '../utils/types';
+import type { MenuOpenEventDetails } from '../utils/types';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
@@ -54,8 +54,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store } = useMenuRootContext();
-
+  const { store, virtualFocus, syncHighlightedItem } = useMenuRootContext();
   const keepMounted = useMenuPortalContext();
   const contextMenuContext = useContextMenuRootContext(true);
 
@@ -129,6 +128,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       : undefined,
     externalTree: floatingTreeRoot,
     adaptiveOrigin,
+    lazyFlip: virtualFocus ? 'placement' : false,
   });
 
   React.useEffect(() => {
@@ -292,6 +292,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
+          onMapChange={syncHighlightedItem}
         >
           {element}
         </CompositeList>
@@ -328,7 +329,25 @@ export interface MenuPositionerState {
 }
 
 export interface MenuPositionerProps
-  extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', MenuPositionerState> {}
+  extends
+    Omit<UseAnchorPositioningSharedParameters, 'side' | 'align'>,
+    BaseUIComponentProps<'div', MenuPositionerState> {
+  /**
+   * How to align the popup relative to the specified side.
+   *
+   * Submenus and menubars default to `'start'`.
+   * @default 'center'
+   */
+  align?: UseAnchorPositioningSharedParameters['align'] | undefined;
+  /**
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
+   *
+   * Submenus and vertical menubars default to `'inline-end'`.
+   * @default 'bottom'
+   */
+  side?: UseAnchorPositioningSharedParameters['side'] | undefined;
+}
 
 export namespace MenuPositioner {
   export type State = MenuPositionerState;

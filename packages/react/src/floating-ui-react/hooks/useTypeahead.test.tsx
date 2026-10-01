@@ -1,10 +1,11 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, beforeEach, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { useTestInteractions } from '#test-utils';
-import { useClick, useFloating, useTypeahead } from '../index';
+import { useClick, useTypeahead } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import type { UseTypeaheadProps } from './useTypeahead';
 
 beforeEach(() => {
@@ -27,7 +28,7 @@ const useImpl = ({
     onOpenChange: props.onOpenChange ?? setOpen,
   });
   const listRef = React.useRef(props.list ?? ['one', 'two', 'three']);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     activeIndex,
     onMatch(index) {
@@ -36,7 +37,7 @@ const useImpl = ({
     },
     onTyping: props.onTyping,
   });
-  const click = useClick(context, {
+  const click = useClick(context.rootStore, {
     enabled: addUseClick,
   });
 
@@ -62,6 +63,7 @@ const useImpl = ({
 function Combobox(
   props: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
     list?: Array<string>;
+    open?: boolean;
   },
 ) {
   const { getReferenceProps, getFloatingProps } = useImpl(props);
@@ -87,7 +89,7 @@ function ComboboxWithElementsRef(
   });
   const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     elementsRef,
     activeIndex,
@@ -302,6 +304,26 @@ describe('useTypeahead', () => {
     vi.advanceTimersByTime(750);
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenCalledWith(false);
+  });
+
+  it('onTyping is called when the popup closes without moving focus', async () => {
+    const spy = vi.fn();
+    const { rerender } = render(<Combobox open onTyping={spy} />);
+
+    expect(spy).not.toHaveBeenCalled();
+
+    act(() => screen.getByRole('combobox').focus());
+    await userEvent.keyboard('t');
+    expect(spy.mock.calls).toEqual([[true]]);
+
+    rerender(<Combobox open={false} onTyping={spy} />);
+    expect(spy.mock.calls).toEqual([[true], [false]]);
+
+    vi.advanceTimersByTime(750);
+    expect(spy.mock.calls).toEqual([[true], [false]]);
+
+    rerender(<Combobox open onTyping={spy} />);
+    expect(spy.mock.calls).toEqual([[true], [false]]);
   });
 
   it('skips hidden items when matching with elementsRef', async () => {

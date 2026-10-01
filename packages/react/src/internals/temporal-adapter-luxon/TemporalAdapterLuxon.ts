@@ -4,7 +4,7 @@
 // @ts-nocheck
 'use client';
 import { DateTime, Info } from 'luxon';
-import {
+import type {
   TemporalAdapterFormats,
   DateBuilderReturnType,
   TemporalTimezone,
@@ -29,6 +29,7 @@ const FORMATS: TemporalAdapterFormats = {
   // Letter formats
   month3Letters: 'MMM',
   monthFullLetter: 'MMMM',
+  monthFullLetterStandalone: 'LLLL',
   weekday: 'cccc',
   weekday3Letters: 'ccc',
   weekday1Letter: 'ccccc',
@@ -52,7 +53,7 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
 
   public lib = 'luxon';
 
-  private locale: string;
+  declare private locale: string;
 
   public formats: TemporalAdapterFormats = FORMATS;
 

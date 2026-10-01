@@ -577,6 +577,88 @@ type ToastObject<Data extends {}> = {
 };
 ```
 
+### ToastActionDataAttributes
+
+Data attributes of [Action](#action).
+
+```typescript
+declare namespace ToastActionDataAttributes {
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+}
+```
+
+### ToastArrowDataAttributes
+
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace ToastArrowDataAttributes {
+  /**
+   * Indicates which side the toast is positioned relative to the anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the toast is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the toast arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
+```
+
+### ToastCloseDataAttributes
+
+Data attributes of [Close](#close).
+
+```typescript
+declare namespace ToastCloseDataAttributes {
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+}
+```
+
+### ToastContentDataAttributes
+
+Data attributes of [Content](#content).
+
+```typescript
+declare namespace ToastContentDataAttributes {
+  /**
+   * Present when the toast viewport is expanded.
+   * @type boolean
+   */
+  const expanded: 'data-expanded';
+  /**
+   * Present when the toast is behind the frontmost toast in the stack.
+   * @type boolean
+   */
+  const behind: 'data-behind';
+}
+```
+
+### ToastDescriptionDataAttributes
+
+Data attributes of [Description](#description).
+
+```typescript
+declare namespace ToastDescriptionDataAttributes {
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+}
+```
+
 ### ToastManager
 
 ```typescript
@@ -584,7 +666,11 @@ type ToastManager<Data extends {} = any> = {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (id?: string) => void;
-  update: <T extends Data = Data>(id: string, updates: ToastManagerUpdateOptions<T>) => void;
+  update: <T extends Data = Data>(
+    id: string,
+    updates:
+      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),
+  ) => void;
   promise: <Value, T extends Data = Data>(
     promiseValue: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,
@@ -658,8 +744,7 @@ type ToastManagerPositionerProps = {
    * returns a style object based on the component's state.
    */
   style?:
-    | React.CSSProperties
-    | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
+    React.CSSProperties | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.
@@ -823,8 +908,6 @@ type ToastManagerPromiseOptions<Value, Data extends {}> = {
 
 ```typescript
 type ToastManagerUpdateOptions<Data extends {}> = {
-  /** Custom data for the toast. */
-  data?: Partial<Data>;
   /** The title of the toast. */
   title?: React.ReactNode;
   /**
@@ -858,7 +941,178 @@ type ToastManagerUpdateOptions<Data extends {}> = {
   >;
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
+  /** Custom data for the toast. */
+  data?: Data;
 };
+```
+
+### ToastPositionerCssVariables
+
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace ToastPositionerCssVariables {
+  /**
+   * The available width between the anchor and the edge of the viewport.
+   * @type number
+   */
+  const availableWidth: '--available-width';
+  /**
+   * The available height between the anchor and the edge of the viewport.
+   * @type number
+   */
+  const availableHeight: '--available-height';
+  /**
+   * The anchor's width.
+   * @type number
+   */
+  const anchorWidth: '--anchor-width';
+  /**
+   * The anchor's height.
+   * @type number
+   */
+  const anchorHeight: '--anchor-height';
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
+  const transformOrigin: '--transform-origin';
+}
+```
+
+### ToastPositionerDataAttributes
+
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace ToastPositionerDataAttributes {
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /**
+   * Indicates which side the toast is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the toast is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+}
+```
+
+### ToastRootCssVariables
+
+CSS variables of [Root](#root).
+
+```typescript
+declare namespace ToastRootCssVariables {
+  /**
+   * Indicates the index of the toast in the list.
+   * @type number
+   */
+  const index: '--toast-index';
+  /**
+   * Indicates the vertical pixels offset of the toast in the list when expanded.
+   * @type number
+   */
+  const offsetY: '--toast-offset-y';
+  /**
+   * Indicates the measured natural height of the toast in pixels.
+   * @type number
+   */
+  const height: '--toast-height';
+  /**
+   * Indicates the horizontal swipe movement of the toast.
+   * @type number
+   */
+  const swipeMovementX: '--toast-swipe-movement-x';
+  /**
+   * Indicates the vertical swipe movement of the toast.
+   * @type number
+   */
+  const swipeMovementY: '--toast-swipe-movement-y';
+}
+```
+
+### ToastRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace ToastRootDataAttributes {
+  /**
+   * Present when the toast is expanded in the viewport.
+   * @type boolean
+   */
+  const expanded: 'data-expanded';
+  /**
+   * Present when the toast was limited because the toast limit was exceeded.
+   * @type boolean
+   */
+  const limited: 'data-limited';
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+  /**
+   * Present when the toast is being swiped.
+   * @type boolean
+   */
+  const swiping: 'data-swiping';
+  /**
+   * The direction the toast was swiped.
+   * @type 'up' | 'down' | 'left' | 'right'
+   */
+  const swipeDirection: 'data-swipe-direction';
+  /** Present when the toast begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the toast is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### ToastTitleDataAttributes
+
+Data attributes of [Title](#title).
+
+```typescript
+declare namespace ToastTitleDataAttributes {
+  /**
+   * The type of the toast.
+   * @type string
+   */
+  const type: 'data-type';
+}
+```
+
+### ToastViewportCssVariables
+
+CSS variables of [Viewport](#viewport).
+
+```typescript
+declare namespace ToastViewportCssVariables {
+  /**
+   * Indicates the height of the frontmost toast.
+   * @type number
+   */
+  const frontmostHeight: '--toast-frontmost-height';
+}
+```
+
+### ToastViewportDataAttributes
+
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace ToastViewportDataAttributes {
+  /**
+   * Indicates toasts are expanded in the viewport.
+   * @type boolean
+   */
+  const expanded: 'data-expanded';
+}
 ```
 
 ### UseToastManagerReturnValue
@@ -868,7 +1122,11 @@ type UseToastManagerReturnValue<Data extends {} = any> = {
   toasts: ToastObject<Data>[];
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId?: string) => void;
-  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  update: <T extends Data = Data>(
+    toastId: string,
+    options:
+      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),
+  ) => void;
   promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,
@@ -916,7 +1174,7 @@ type OffsetFunction = (data: {
 - `Toast.Arrow`: `Toast.Arrow`, `Toast.Arrow.State`, `Toast.Arrow.Props`
 - `Toast.useToastManager`
 - `Toast.createToastManager`
-- `Default`: `ToastRootToastObject`, `ToastRootState`, `ToastRootProps`, `ToastProviderState`, `ToastProviderProps`, `ToastViewportState`, `ToastViewportProps`, `ToastContentState`, `ToastContentProps`, `ToastDescriptionState`, `ToastDescriptionProps`, `ToastTitleState`, `ToastTitleProps`, `ToastCloseState`, `ToastCloseProps`, `ToastActionState`, `ToastActionProps`, `ToastPortalState`, `ToastPortalProps`, `ToastPositionerState`, `ToastPositionerProps`, `ToastArrowState`, `ToastArrowProps`, `ToastObject`, `ToastManagerPositionerProps`, `UseToastManagerReturnValue`, `ToastManagerAddOptions`, `ToastManagerUpdateOptions`, `ToastManagerPromiseOptions`, `ToastManager`, `ToastManagerEvent`
+- `Default`: `ToastViewportCssVariables`, `ToastViewportDataAttributes`, `ToastRootCssVariables`, `ToastRootDataAttributes`, `ToastContentDataAttributes`, `ToastDescriptionDataAttributes`, `ToastTitleDataAttributes`, `ToastCloseDataAttributes`, `ToastActionDataAttributes`, `ToastPositionerCssVariables`, `ToastPositionerDataAttributes`, `ToastArrowDataAttributes`, `ToastRootToastObject`, `ToastRootState`, `ToastRootProps`, `ToastProviderState`, `ToastProviderProps`, `ToastViewportState`, `ToastViewportProps`, `ToastContentState`, `ToastContentProps`, `ToastDescriptionState`, `ToastDescriptionProps`, `ToastTitleState`, `ToastTitleProps`, `ToastCloseState`, `ToastCloseProps`, `ToastActionState`, `ToastActionProps`, `ToastPortalState`, `ToastPortalProps`, `ToastPositionerState`, `ToastPositionerProps`, `ToastArrowState`, `ToastArrowProps`, `ToastObject`, `ToastManagerPositionerProps`, `UseToastManagerReturnValue`, `ToastManagerAddOptions`, `ToastManagerUpdateOptions`, `ToastManagerPromiseOptions`, `ToastManager`, `ToastManagerEvent`
 
 ## Canonical Types
 

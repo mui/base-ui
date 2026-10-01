@@ -27,6 +27,16 @@ async function main() {
         },
       },
       {
+        // `<Slider.Label>` associates with the input via `aria-labelledby` only
+        // after hydration, so the static export contains an unlabeled `<input>`.
+        path: '/react/components/slider',
+        config: {
+          rules: {
+            'input-missing-label': 'off',
+          },
+        },
+      },
+      {
         // The Forms handbook page renders multiple Combobox demos. During SSR the
         // Combobox emits its `React.useId()`-based id on both the trigger and the
         // hidden input, so the static export momentarily contains duplicate ids —

@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';

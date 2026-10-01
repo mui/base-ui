@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Progress } from '@base-ui/react/progress';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -206,7 +206,7 @@ describe('<Progress.Root />', () => {
 
         const progressbar = screen.getByRole('progressbar');
         expect(progressbar).toHaveAttribute('aria-valuenow', String(expectedValue));
-        expect(screen.getByTestId('value')).toHaveTextContent(expected);
+        expect(screen.getByTestId('value').textContent).toBe(expected);
         expect(getAriaValueText).toHaveBeenLastCalledWith(expected, value);
         expect(progressbar).toHaveAttribute('aria-valuetext', `${expected} (raw: ${value})`);
       },

@@ -9,10 +9,8 @@ import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import type { ToolbarRoot } from '../toolbar/root/ToolbarRoot';
 import { useButton } from '../internals/use-button/useButton';
 import { CompositeItem } from '../internals/composite/item/CompositeItem';
-import {
-  type BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
 
 /**
@@ -177,8 +175,7 @@ export interface ToggleProps<Value extends string>
    * Callback fired when the pressed state is changed.
    */
   onPressedChange?:
-    | ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)
-    | undefined;
+    ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void) | undefined;
   /**
    * A unique string that identifies the toggle when used
    * inside a toggle group.

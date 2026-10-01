@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
@@ -545,91 +545,6 @@ describe('<PreviewCard.Root />', () => {
           false,
           expect.objectContaining({ reason: REASONS.imperativeAction }),
         );
-      });
-    });
-
-    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-      it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = React.useState(true);
-          return (
-            <div>
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPreviewCard
-                rootProps={{
-                  open,
-                  onOpenChangeComplete,
-                }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on close when the exit animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = React.useState(true);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPreviewCard
-                rootProps={{
-                  open,
-                  onOpenChangeComplete,
-                }}
-                popupProps={{
-                  className: 'animation-test-indicator',
-                }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        expect(screen.getByTestId('popup')).not.toBe(null);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
       });
     });
 

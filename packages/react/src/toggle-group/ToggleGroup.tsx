@@ -10,7 +10,7 @@ import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../toolbar/group/ToolbarGroupContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
-import { REASONS } from '../internals/reasons';
+import type { REASONS } from '../internals/reasons';
 
 /**
  * Provides a shared state to a series of toggle buttons.
@@ -166,8 +166,7 @@ export interface ToggleGroupProps<Value extends string> extends BaseUIComponentP
    * Callback fired when the pressed states of the toggle group changes.
    */
   onValueChange?:
-    | ((groupValue: Value[], eventDetails: ToggleGroup.ChangeEventDetails) => void)
-    | undefined;
+    ((groupValue: Value[], eventDetails: ToggleGroup.ChangeEventDetails) => void) | undefined;
   /**
    * Whether the toggle group should ignore user interaction.
    * @default false

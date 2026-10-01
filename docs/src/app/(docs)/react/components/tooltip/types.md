@@ -11,20 +11,20 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop                  | Type                                                                       | Default  | Description                                                                                                                                                                                                                                                         |
-| :-------------------- | :------------------------------------------------------------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| defaultOpen           | `boolean`                                                                  | `false`  | Whether the tooltip is initially open. To render a controlled tooltip, use the `open` prop instead.                                                                                                                                                                 |
-| open                  | `boolean`                                                                  | -        | Whether the tooltip is currently open.                                                                                                                                                                                                                              |
-| onOpenChange          | `((open: boolean, eventDetails: Tooltip.Root.ChangeEventDetails) => void)` | -        | Event handler called when the tooltip is opened or closed.                                                                                                                                                                                                          |
-| actionsRef            | `React.RefObject<Tooltip.Root.Actions \| null>`                            | -        | A ref to imperative actions. `unmount`: Unmounts the tooltip popup.`close`: Closes the tooltip imperatively when called.                                                                                                                                            |
-| defaultTriggerId      | `string \| null`                                                           | -        | ID of the trigger that the tooltip is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open tooltip.                                                                                                           |
-| handle                | `Tooltip.Handle<Payload>`                                                  | -        | A handle to associate the tooltip with a trigger.&#xA;If specified, allows external triggers to control the tooltip's open state.&#xA;Can be created with the Tooltip.createHandle() method.                                                                        |
-| onOpenChangeComplete  | `((open: boolean) => void)`                                                | -        | Event handler called after any animations complete when the tooltip is opened or closed.                                                                                                                                                                            |
-| triggerId             | `string \| null`                                                           | -        | ID of the trigger that the tooltip is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled tooltip.&#xA;There's no need to specify this prop when the tooltip is uncontrolled (that is, when the `open` prop is not set). |
-| trackCursorAxis       | `'none' \| 'x' \| 'y' \| 'both'`                                           | `'none'` | Determines which axis the tooltip should track the cursor on.                                                                                                                                                                                                       |
-| disabled              | `boolean`                                                                  | `false`  | Whether the tooltip is disabled.                                                                                                                                                                                                                                    |
-| disableHoverablePopup | `boolean`                                                                  | `false`  | Whether the tooltip contents can be hovered without closing the tooltip.                                                                                                                                                                                            |
-| children              | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                   | -        | The content of the tooltip.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                            |
+| Prop                  | Type                                                                       | Default  | Description                                                                                                                                                                                                                                                                                                                                                                            |
+| :-------------------- | :------------------------------------------------------------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen           | `boolean`                                                                  | `false`  | Whether the tooltip is initially open. To render a controlled tooltip, use the `open` prop instead.                                                                                                                                                                                                                                                                                    |
+| open                  | `boolean`                                                                  | -        | Whether the tooltip is currently open.                                                                                                                                                                                                                                                                                                                                                 |
+| onOpenChange          | `((open: boolean, eventDetails: Tooltip.Root.ChangeEventDetails) => void)` | -        | Event handler called when the tooltip is opened or closed.                                                                                                                                                                                                                                                                                                                             |
+| actionsRef            | `React.RefObject<Tooltip.Root.Actions \| null>`                            | -        | A ref to imperative actions. `unmount`: Ends the closing phase of the tooltip after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the tooltip completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the tooltip imperatively when called. |
+| defaultTriggerId      | `string \| null`                                                           | -        | ID of the trigger that the tooltip is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open tooltip.                                                                                                                                                                                                                              |
+| handle                | `Tooltip.Handle<Payload>`                                                  | -        | A handle to associate the tooltip with a trigger.&#xA;If specified, allows external triggers to control the tooltip's open state.&#xA;Can be created with the Tooltip.createHandle() method.                                                                                                                                                                                           |
+| onOpenChangeComplete  | `((open: boolean) => void)`                                                | -        | Event handler called after any animations complete when the tooltip is opened or closed.                                                                                                                                                                                                                                                                                               |
+| triggerId             | `string \| null`                                                           | -        | ID of the trigger that the tooltip is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled tooltip.&#xA;There's no need to specify this prop when the tooltip is uncontrolled (that is, when the `open` prop is not set).                                                                                                                    |
+| trackCursorAxis       | `'none' \| 'x' \| 'y' \| 'both'`                                           | `'none'` | Determines which axis the tooltip should track the cursor on.                                                                                                                                                                                                                                                                                                                          |
+| disabled              | `boolean`                                                                  | `false`  | Whether the tooltip is disabled.                                                                                                                                                                                                                                                                                                                                                       |
+| disableHoverablePopup | `boolean`                                                                  | `false`  | Whether the tooltip contents can be hovered without closing the tooltip.                                                                                                                                                                                                                                                                                                               |
+| children              | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                   | -        | The content of the tooltip.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                                                                               |
 
 ### Root.Props
 
@@ -79,7 +79,8 @@ type TooltipRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -456,18 +457,208 @@ Closes the tooltip.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
+## Additional Types
+
+### TooltipArrowDataAttributes
+
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace TooltipArrowDataAttributes {
+  /** Present when the tooltip is open. */
+  const open: 'data-open';
+  /** Present when the tooltip is closed. */
+  const closed: 'data-closed';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the tooltip arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+  /**
+   * Present if animations should be instant.
+   * @type 'delay' | 'dismiss' | 'focus'
+   */
+  const instant: 'data-instant';
+}
+```
+
+### TooltipPopupDataAttributes
+
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace TooltipPopupDataAttributes {
+  /** Present when the tooltip is open. */
+  const open: 'data-open';
+  /** Present when the tooltip is closed. */
+  const closed: 'data-closed';
+  /** Present when the tooltip begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the tooltip is animating out. */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /**
+   * Present if animations should be instant.
+   * @type 'delay' | 'dismiss' | 'focus'
+   */
+  const instant: 'data-instant';
+}
+```
+
+### TooltipPositionerCssVariables
+
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace TooltipPositionerCssVariables {
+  /**
+   * The available width between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableWidth: '--available-width';
+  /**
+   * The available height between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableHeight: '--available-height';
+  /**
+   * The anchor's width.
+   * @type number
+   */
+  const anchorWidth: '--anchor-width';
+  /**
+   * The anchor's height.
+   * @type number
+   */
+  const anchorHeight: '--anchor-height';
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
+  const transformOrigin: '--transform-origin';
+  /**
+   * The width of the tooltip's positioner.
+   * It is important to set `width` to this value when using CSS to animate size changes.
+   * @type number
+   */
+  const positionerWidth: '--positioner-width';
+  /**
+   * The height of the tooltip's positioner.
+   * It is important to set `height` to this value when using CSS to animate size changes.
+   * @type number
+   */
+  const positionerHeight: '--positioner-height';
+}
+```
+
+### TooltipPositionerDataAttributes
+
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace TooltipPositionerDataAttributes {
+  /** Present when the tooltip is open. */
+  const open: 'data-open';
+  /** Present when the tooltip is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+}
+```
+
+### TooltipTriggerDataAttributes
+
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace TooltipTriggerDataAttributes {
+  /** Present when the corresponding tooltip is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the trigger is disabled, either by the `disabled` prop or by a parent `<Tooltip.Root>` component. */
+  const triggerDisabled: 'data-trigger-disabled';
+}
+```
+
+### TooltipViewportCssVariables
+
+CSS variables of [Viewport](#viewport).
+
+```typescript
+declare namespace TooltipViewportCssVariables {
+  /**
+   * The width of the parent popup.
+   * This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.
+   * It can be used to freeze the dimensions of the popup when animating between different content.
+   */
+  const popupWidth: '--popup-width';
+  /**
+   * The height of the parent popup.
+   * This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.
+   * It can be used to freeze the dimensions of the popup when animating between different content.
+   */
+  const popupHeight: '--popup-height';
+}
+```
+
+### TooltipViewportDataAttributes
+
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace TooltipViewportDataAttributes {
+  /** Applied to the direct child of the viewport when no transitions are present or the new content when it's entering. */
+  const current: 'data-current';
+  /** Applied to the direct child of the viewport that contains the exiting content when transitions are present. */
+  const previous: 'data-previous';
+  /**
+   * Indicates the direction from which the popup was activated.
+   * This can be used to create directional animations based on how the popup was triggered.
+   * Contains space-separated values for both horizontal and vertical axes.
+   * @type `${'left' | 'right' | ''} ${'down' | 'up' | ''}`
+   */
+  const activationDirection: 'data-activation-direction';
+  /** Indicates that the viewport is currently transitioning between old and new content. */
+  const transitioning: 'data-transitioning';
+  /**
+   * Present if animations should be instant.
+   * @type 'delay' | 'dismiss' | 'focus'
+   */
+  const instant: 'data-instant';
+}
+```
+
 ## External Types
 
 ### PayloadChildRenderFunction
 
 ```typescript
 type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
-```
-
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
 ```
 
 ### Side
@@ -505,7 +696,7 @@ type OffsetFunction = (data: {
 - `Tooltip.Viewport`: `Tooltip.Viewport`, `Tooltip.Viewport.Props`, `Tooltip.Viewport.State`
 - `Tooltip.createHandle`
 - `Tooltip.Handle`
-- `Default`: `TooltipProviderState`, `TooltipProviderProps`, `TooltipRootState`, `TooltipRootProps`, `TooltipRootActions`, `TooltipRootChangeEventReason`, `TooltipRootChangeEventDetails`, `TooltipTriggerState`, `TooltipTriggerProps`, `TooltipPortalState`, `TooltipPortalProps`, `TooltipPositionerState`, `TooltipPositionerProps`, `TooltipPopupState`, `TooltipPopupProps`, `TooltipViewportState`, `TooltipViewportProps`, `TooltipArrowState`, `TooltipArrowProps`
+- `Default`: `TooltipTriggerDataAttributes`, `TooltipPositionerCssVariables`, `TooltipPositionerDataAttributes`, `TooltipPopupDataAttributes`, `TooltipArrowDataAttributes`, `TooltipViewportCssVariables`, `TooltipViewportDataAttributes`, `TooltipProviderState`, `TooltipProviderProps`, `TooltipRootState`, `TooltipRootProps`, `TooltipRootActions`, `TooltipRootChangeEventReason`, `TooltipRootChangeEventDetails`, `TooltipTriggerState`, `TooltipTriggerProps`, `TooltipPortalState`, `TooltipPortalProps`, `TooltipPositionerState`, `TooltipPositionerProps`, `TooltipPopupState`, `TooltipPopupProps`, `TooltipViewportState`, `TooltipViewportProps`, `TooltipArrowState`, `TooltipArrowProps`
 
 ## Canonical Types
 

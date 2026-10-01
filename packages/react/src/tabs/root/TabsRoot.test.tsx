@@ -1,7 +1,8 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, flushMicrotasks, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
-import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import type { TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
 import { Tabs } from '@base-ui/react/tabs';
@@ -42,7 +43,8 @@ describe('<Tabs.Root />', () => {
     });
 
     it('should support empty children', async () => {
-      await render(<Tabs.Root value={1} />);
+      const { container } = await render(<Tabs.Root value={1} />);
+      expect(container.firstElementChild).not.toBe(null);
     });
 
     it('puts the selected child in tab order', async () => {
@@ -386,6 +388,8 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
 
+      // `toErrorDev` requires a callback, so the wrapper is not unneeded.
+      // eslint-disable-next-line vitest/no-unneeded-async-expect-function
       await expect(async () => {
         await setProps({ defaultValue: 1 });
       }).toErrorDev(
@@ -1282,7 +1286,7 @@ describe('<Tabs.Root />', () => {
       describe.skipIf(isJSDOM && direction === 'rtl')(
         `when focus is on a tab element in a ${orientation} ${direction ?? ''} tablist`,
         () => {
-          describe(previousItemKey ?? '', () => {
+          describe(`${previousItemKey}`, () => {
             describe('with `activateOnFocus = false`', () => {
               it('moves focus to the last tab without activating it if focus is on the first tab', async () => {
                 const handleChange = vi.fn();
@@ -1485,7 +1489,7 @@ describe('<Tabs.Root />', () => {
             });
           });
 
-          describe(nextItemKey ?? '', () => {
+          describe(`${nextItemKey}`, () => {
             describe('with `activateOnFocus = false`', () => {
               it('moves focus to the first tab without activating it if focus is on the last tab', async () => {
                 const handleChange = vi.fn();
@@ -2516,8 +2520,9 @@ describe('<Tabs.Root />', () => {
         await user.keyboard('{ArrowRight}');
         expect(thirdTab).toHaveFocus();
 
+        expect(onValueChange.mock.calls.length === 0).toBe(!activateOnFocus);
+
         if (!activateOnFocus) {
-          expect(onValueChange).not.toHaveBeenCalled();
           await user.keyboard('{Enter}');
         }
 

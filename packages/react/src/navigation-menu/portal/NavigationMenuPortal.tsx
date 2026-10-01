@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
-import { type BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { NavigationMenuPortalContext } from './NavigationMenuPortalContext';
 
@@ -47,11 +47,7 @@ export interface NavigationMenuPortalProps extends BaseUIComponentProps<
    * A parent element to render the portal element into.
    */
   container?:
-    | HTMLElement
-    | ShadowRoot
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | null
-    | undefined;
+    HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
 }
 
 export namespace NavigationMenuPortal {

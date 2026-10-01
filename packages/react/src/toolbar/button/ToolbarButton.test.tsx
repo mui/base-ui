@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { Switch } from '@base-ui/react/switch';
 import { Menu } from '@base-ui/react/menu';

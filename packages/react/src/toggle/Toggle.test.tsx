@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, screen } from '@mui/internal-test-utils';
 import { Toggle } from '@base-ui/react/toggle';

@@ -65,6 +65,7 @@ export interface ContextMenuRootProps extends Omit<
   | 'openOnHover'
   | 'delay'
   | 'closeDelay'
+  | 'closeParentOnEsc'
   | 'onOpenChange'
   // Context Menu opens from a pointer position rather than a registered trigger, so the
   // render-function form of `children` (which receives the active trigger's payload) is not applicable.
@@ -74,12 +75,30 @@ export interface ContextMenuRootProps extends Omit<
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void) | undefined;
+  /**
+   * @ignore
+   * @deprecated This prop has no effect on Context Menu.
+   */
+  closeParentOnEsc?: Menu.Root.Props['closeParentOnEsc'] | undefined;
   children?: React.ReactNode | undefined;
 }
 
-export type ContextMenuRootActions = MenuRoot.Actions;
+/**
+ * The item `highlightItem` moves the highlight to.
+ * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
+ *   the matching end when nothing is highlighted. They wrap around unless `loopFocus` is
+ *   disabled and never leave the list.
+ * - `'first'` and `'last'` jump to either end of the list.
+ * - `'none'` clears the highlight and hands focus back to the popup.
+ */
+export type ContextMenuRootHighlightItemTarget = MenuRoot.HighlightItemTarget;
+
+export interface ContextMenuRootActions {
+  unmount: () => void;
+  close: () => void;
+  highlightItem: (target: ContextMenuRootHighlightItemTarget) => void;
+}
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type ContextMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<ContextMenuRoot.ChangeEventReason>;
@@ -88,6 +107,7 @@ export namespace ContextMenuRoot {
   export type State = ContextMenuRootState;
   export type Props = ContextMenuRootProps;
   export type Actions = ContextMenuRootActions;
+  export type HighlightItemTarget = ContextMenuRootHighlightItemTarget;
   export type ChangeEventReason = ContextMenuRootChangeEventReason;
   export type ChangeEventDetails = ContextMenuRootChangeEventDetails;
 }

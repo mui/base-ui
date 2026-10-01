@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -28,8 +28,7 @@ describe('<Field.Validity />', () => {
         if (validationMode === 'onBlur') {
           fireEvent.blur(input);
         } else {
-          act(() => input.focus());
-          fireEvent.keyDown(input, { key: 'Enter' });
+          fireEvent.click(screen.getByText('submit'));
         }
       };
 
@@ -46,10 +45,12 @@ describe('<Field.Validity />', () => {
       fireEvent.change(input, { target: { value: '' } });
 
       expect(handleValidity.mock.lastCall?.[0].value).toBe('');
-      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(false);
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(
+        validationMode === 'onSubmit',
+      );
       expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
       expect(screen.getByText('Required')).toBeVisible();
-      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate).toHaveBeenCalledTimes(validationMode === 'onBlur' ? 1 : 2);
 
       if (validationMode === 'onBlur') {
         fireEvent.blur(input);

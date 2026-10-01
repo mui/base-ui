@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { screen, waitFor } from '@mui/internal-test-utils';

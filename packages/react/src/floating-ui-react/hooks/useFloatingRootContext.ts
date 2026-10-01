@@ -6,10 +6,8 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../../utils/popups';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-import {
-  FloatingRootStore,
-  type FloatingRootState as State,
-} from '../components/FloatingRootStore';
+import { FloatingRootStore } from '../components/FloatingRootStore';
+import type { FloatingRootState as State } from '../components/FloatingRootStore';
 import type { ReferenceType } from '../types';
 
 export interface UseFloatingRootContextOptions {

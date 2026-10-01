@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { areArraysEqual } from './areArraysEqual';
 
 describe('areArraysEqual', () => {

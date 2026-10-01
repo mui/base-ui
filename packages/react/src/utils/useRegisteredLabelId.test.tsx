@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { useRegisteredLabelId } from './useRegisteredLabelId';

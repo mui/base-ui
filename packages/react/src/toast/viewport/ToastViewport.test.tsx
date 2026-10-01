@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Toast } from '@base-ui/react/toast';
@@ -15,6 +15,25 @@ describe('<Toast.Viewport />', () => {
       return render(<Toast.Provider>{node}</Toast.Provider>);
     },
   }));
+
+  it.skipIf(isJSDOM)('sets the measured frontmost toast height CSS variable', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('viewport').style.getPropertyValue('--toast-frontmost-height'),
+      ).not.toBe(''),
+    );
+  });
 
   it.skipIf(!isJSDOM)(
     'rebinds owner-document listeners once across empty store cycles',

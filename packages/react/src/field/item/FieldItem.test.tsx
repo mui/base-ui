@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { Checkbox } from '@base-ui/react/checkbox';

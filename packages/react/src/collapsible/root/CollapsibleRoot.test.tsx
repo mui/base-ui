@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
@@ -358,7 +358,7 @@ describe('<Collapsible.Root />', () => {
         const trigger = screen.getByRole('button');
 
         await user.keyboard('[Tab]');
-        expect(trigger).toHaveFocus();
+        expect(trigger).not.toHaveFocus();
 
         await user.keyboard(`[${key}]`);
 

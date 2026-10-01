@@ -110,7 +110,11 @@ export interface UseToastManagerReturnValue<Data extends object = any> {
   toasts: ToastObject<Data>[];
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId?: string) => void;
-  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  update: <T extends Data = Data>(
+    toastId: string,
+    options:
+      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),
+  ) => void;
   promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,
@@ -129,16 +133,8 @@ export interface ToastManagerAddOptions<Data extends object> extends Omit<
 }
 
 export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
-  Omit<
-    ToastObject<Data>,
-    'id' | 'ref' | 'height' | 'transitionStatus' | 'limited' | 'updateKey' | 'data'
-  >
-> {
-  /**
-   * Custom data for the toast.
-   */
-  data?: Partial<Data> | undefined;
-}
+  Omit<ToastObject<Data>, 'id' | 'ref' | 'height' | 'transitionStatus' | 'limited' | 'updateKey'>
+> {}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {
   loading: string | ToastManagerUpdateOptions<Data>;

@@ -1,8 +1,7 @@
-import * as React from 'react';
-import type { ComponentRenderFn } from '../internals/types';
-import { HTMLProps } from '../internals/types';
+import type * as React from 'react';
+import type { ComponentRenderFn, HTMLProps } from '../internals/types';
 import { useRenderElement } from '../internals/useRenderElement';
-import { StateAttributesMapping } from '../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 
 /**
  * Renders a Base UI element.
@@ -20,8 +19,7 @@ export function useRender<
 }
 
 export type UseRenderRenderProp<State = Record<string, unknown>> =
-  | React.ReactElement
-  | ComponentRenderFn<React.HTMLAttributes<any>, State>;
+  React.ReactElement | ComponentRenderFn<React.HTMLAttributes<any>, State>;
 
 export type UseRenderElementProps<ElementType extends React.ElementType> =
   React.ComponentPropsWithRef<ElementType>;

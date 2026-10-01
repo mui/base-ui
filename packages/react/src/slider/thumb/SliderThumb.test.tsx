@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
@@ -28,6 +28,18 @@ describe('<Slider.Thumb />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('sets the thumb index data attribute', async () => {
+    await render(
+      <Slider.Root defaultValue={50}>
+        <Slider.Control>
+          <Slider.Thumb data-testid="thumb" />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    expect(screen.getByTestId('thumb')).toHaveAttribute('data-index', '0');
+  });
 
   it('settles when the rendered component recreates its merged ref', async () => {
     await render(

@@ -20,6 +20,7 @@ import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button/useButton';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -28,10 +29,8 @@ import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLab
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
-import {
-  BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../internals/useValueChanged';
 
@@ -76,7 +75,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     name: fieldName,
     setDirty,
     setFilled,
-    setFocused,
     setTouched,
     state: fieldState,
     validationMode,
@@ -126,6 +124,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const groupValue = groupContext?.value;
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
+  const setFocused = useSetFieldFocused(disabled, controlRef);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -168,16 +167,19 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     inputRef,
     !nativeButton,
     controlId,
+    elementProps['aria-label'],
   );
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
+      // Re-assert on `checked` changes too: clicking the input natively resets `indeterminate`.
       inputRef.current.indeterminate = computedIndeterminate;
-      if (checked) {
-        setFilled(true);
-      }
     }
-  }, [checked, computedIndeterminate, setFilled]);
+    // Inside a group, the group derives the filled state from its value.
+    if (!groupContext) {
+      setFilled(checked);
+    }
+  }, [checked, computedIndeterminate, groupContext, setFilled]);
 
   useValueChanged(checked, () => {
     if (groupContext) {
@@ -185,7 +187,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
 
     clearErrors(name);
-    setFilled(checked);
     setDirty(checked !== validityData.initialValue);
 
     validation.change(checked);
@@ -301,9 +302,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         'aria-labelledby': ariaLabelledBy,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
-          if (!disabled) {
-            setFocused(true);
-          }
+          setFocused(true);
         },
         onBlur() {
           const inputEl = inputRef.current;
@@ -470,8 +469,7 @@ export interface CheckboxRootProps
    * Event handler called when the checkbox is ticked or unticked.
    */
   onCheckedChange?:
-    | ((checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void)
-    | undefined;
+    ((checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void) | undefined;
   /**
    * Whether the user should be unable to tick or untick the checkbox.
    * @default false

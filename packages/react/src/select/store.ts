@@ -1,16 +1,22 @@
-import { ReactStore } from '@base-ui/utils/store';
-import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { ReactStore } from '@base-ui/utils/store';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
-import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
+import { hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
+import type { Group } from '../internals/resolveValueLabel';
+import type { SelectRoot } from './root/SelectRoot';
 
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
   modal: boolean;
   multiple: boolean;
+  disabled: boolean;
+  readOnly: boolean;
+  required: boolean;
+  highlightItemOnHover: boolean;
 
   items:
     | Record<string, React.ReactNode>
@@ -34,6 +40,7 @@ export type State = {
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
+  itemProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
@@ -45,12 +52,46 @@ export type State = {
   hasScrollArrows: boolean;
 };
 
-export type SelectStore = ReactStore<State>;
+/**
+ * Non-reactive values shared with the select parts. Nothing here is observable through
+ * `selectors`, so writing to a ref never notifies subscribers.
+ */
+export type SelectStoreContext = {
+  readonly listRef: React.RefObject<Array<HTMLElement | null>>;
+  readonly popupRef: React.RefObject<HTMLDivElement | null>;
+  readonly scrollHandlerRef: React.RefObject<((element: HTMLDivElement) => void) | null>;
+  readonly scrollArrowsMountedCountRef: React.RefObject<number>;
+  readonly valueRef: React.RefObject<HTMLSpanElement | null>;
+  readonly valuesRef: React.RefObject<Array<any>>;
+  readonly labelsRef: React.RefObject<Array<string | null>>;
+  readonly typingRef: React.RefObject<boolean>;
+  readonly selectionRef: React.RefObject<{
+    allowUnselectedMouseUp: boolean;
+    allowSelectedMouseUp: boolean;
+    dragY: number;
+  }>;
+  readonly firstItemTextRef: React.RefObject<HTMLElement | null>;
+  readonly selectedItemTextRef: React.RefObject<HTMLElement | null>;
+  readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
+  readonly initialValueRef: React.RefObject<any>;
+
+  // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
+  // first render, so they are not `readonly`.
+  setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  handleScrollArrowVisibility: (scroller: HTMLElement) => void;
+  onOpenChangeComplete: (open: boolean) => void;
+};
 
 export const selectors = {
   id: (state: State) => state.id,
   labelId: (state: State) => state.labelId,
   modal: (state: State) => state.modal,
+  multiple: (state: State) => state.multiple,
+  disabled: (state: State) => state.disabled,
+  readOnly: (state: State) => state.readOnly,
+  required: (state: State) => state.required,
+  highlightItemOnHover: (state: State) => state.highlightItemOnHover,
 
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
@@ -106,6 +147,7 @@ export const selectors = {
 
   popupProps: (state: State) => state.popupProps,
   triggerProps: (state: State) => state.triggerProps,
+  itemProps: (state: State) => state.itemProps,
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,
   listElement: (state: State) => state.listElement,
@@ -116,3 +158,5 @@ export const selectors = {
 
   hasScrollArrows: (state: State) => state.hasScrollArrows,
 };
+
+export type SelectStore = ReactStore<State, SelectStoreContext, typeof selectors>;
