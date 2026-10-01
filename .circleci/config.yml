@@ -311,6 +311,16 @@ workflows:
       - test_benchmark:
           <<: *default-context
           name: 'Benchmark tests'
+  # Nightly rather than per push: React Compiler and React 18 doubled the CI cost of every push.
+  react-compiler:
+    triggers:
+      - schedule:
+          cron: '0 0 * * *'
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
       - test_unit_compiler:
           <<: *default-context
           name: 'JSDOM tests (React Compiler)'
@@ -318,8 +328,13 @@ workflows:
           <<: *default-context
           name: 'Browser tests (React Compiler)'
   react-18:
-    when:
-      equal: [pipeline, << pipeline.parameters.workflow >>]
+    triggers:
+      - schedule:
+          cron: '0 0 * * *'
+          filters:
+            branches:
+              only:
+                - master
     jobs:
       - test_unit:
           <<: *default-context
