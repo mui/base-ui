@@ -57,27 +57,23 @@ describe('<Popover.Positioner />', () => {
       { activation: 'click', keepMounted: true },
       { activation: 'keyboard', keepMounted: true },
     ])(
-      'does not scroll an offset ancestor on $activation (keepMounted: $keepMounted)',
+      'is first shown at its final position on $activation (keepMounted: $keepMounted)',
       async ({ activation, keepMounted }) => {
-        const scrollPositions: number[] = [];
-
         function Test() {
-          const containerRef = React.useRef<HTMLDivElement>(null);
+          // A state-backed container is resolved before the portal mounts, including `keepMounted`.
+          const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
 
           return (
             <div
               data-testid="scroller"
-              style={{ marginLeft: 400, width: 300, height: 260, overflow: 'auto' }}
-              onScroll={(event) => scrollPositions.push(event.currentTarget.scrollLeft)}
-              onFocusCapture={(event) => scrollPositions.push(event.currentTarget.scrollLeft)}
+              style={{ marginLeft: 200, width: 180, height: 200, overflow: 'auto' }}
             >
-              <div ref={containerRef} style={{ position: 'relative', padding: '80px 24px' }}>
+              <div ref={setContainer} style={{ position: 'relative', padding: '80px 16px' }}>
                 <Popover.Root>
                   <Popover.Trigger>Trigger</Popover.Trigger>
-                  <Popover.Portal container={containerRef} keepMounted={keepMounted}>
-                    <Popover.Positioner side="top" sideOffset={8}>
-                      <Popover.Popup style={{ width: 220, padding: 12 }}>
-                        <Popover.Description>Information about the prompt.</Popover.Description>
+                  <Popover.Portal container={container} keepMounted={keepMounted}>
+                    <Popover.Positioner data-testid="positioner" side="top" sideOffset={8}>
+                      <Popover.Popup style={{ width: 140, padding: 12 }}>
                         <a href="#details">Learn more</a>
                       </Popover.Popup>
                     </Popover.Positioner>
@@ -90,8 +86,22 @@ describe('<Popover.Positioner />', () => {
 
         const { user } = await render(<Test />);
         const trigger = screen.getByRole('button', { name: 'Trigger' });
+        const scroller = screen.getByTestId('scroller');
+
+        // Coordinates measured against the wrong offset parent are briefly shown before correcting,
+        // which can scroll the ancestor when focus moves into the popup.
+        const visibleLefts = new Set<number>();
+        const observer = new MutationObserver(() => {
+          const positioner = screen.queryByTestId('positioner');
+          if (positioner && getComputedStyle(positioner).opacity !== '0') {
+            visibleLefts.add(positioner.getBoundingClientRect().left);
+          }
+        });
+        observer.observe(scroller, { attributes: true, childList: true, subtree: true });
 
         async function openAndClose() {
+          visibleLefts.clear();
+
           if (activation === 'keyboard') {
             await act(async () => trigger.focus());
             await user.keyboard('{Enter}');
@@ -103,8 +113,10 @@ describe('<Popover.Positioner />', () => {
             expect(screen.getByRole('link', { name: 'Learn more' })).toHaveFocus(),
           );
           await act(async () => waitSingleFrame());
-          expect(Math.max(...scrollPositions)).toBe(0);
-          expect(screen.getByTestId('scroller').scrollLeft).toBe(0);
+
+          const settledLeft = screen.getByTestId('positioner').getBoundingClientRect().left;
+          expect(visibleLefts).toEqual(new Set([settledLeft]));
+
           await user.keyboard('{Escape}');
           await waitFor(() => expect(trigger).toHaveFocus());
           await act(async () => waitSingleFrame());
@@ -112,6 +124,7 @@ describe('<Popover.Positioner />', () => {
 
         await openAndClose();
         await openAndClose();
+        observer.disconnect();
       },
     );
   });

@@ -502,8 +502,8 @@ export function useAnchorPositioningWithHook(
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
 
-  // Default to `fixed` when not positioned to prevent `autoFocus` scroll jumps.
-  // This ensures the popup is inside the viewport initially before it gets positioned.
+  // Render `fixed` until positioned so `autoFocus` during mount can't scroll to the unpositioned
+  // popup. `autoUpdate` switches the element to `positionMethod` before its first measurement.
   const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(() => {

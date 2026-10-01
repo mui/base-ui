@@ -30,24 +30,25 @@ describe('<Select.Positioner />', () => {
       'aligns the selected item with the trigger (initiallyOpen: %s)',
       async (initiallyOpen) => {
         function Test() {
-          const containerRef = React.useRef<HTMLDivElement>(null);
+          // A state-backed container is resolved before the portal mounts, including when initially open.
+          const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
 
           return (
             <div
-              ref={containerRef}
+              ref={setContainer}
               style={{
                 position: 'relative',
-                marginLeft: 200,
+                marginLeft: 100,
                 marginTop: 160,
-                width: 400,
-                height: 400,
+                width: 300,
+                height: 300,
               }}
             >
               <Select.Root defaultValue="banana" open={initiallyOpen || undefined}>
                 <Select.Trigger>
                   <Select.Value data-testid="value" />
                 </Select.Trigger>
-                <Select.Portal container={containerRef}>
+                <Select.Portal container={container}>
                   <Select.Positioner>
                     <Select.Popup style={{ minWidth: 160 }}>
                       <Select.List>
