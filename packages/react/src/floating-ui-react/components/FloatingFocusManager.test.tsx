@@ -1580,6 +1580,87 @@ describe('FloatingFocusManager', () => {
         }
       });
 
+      test.each<{
+        name: string;
+        pointerType: string | null;
+        detail: number;
+        expected: InteractionType;
+      }>([
+        {
+          name: 'zero detail after a mouse pointerdown',
+          pointerType: 'mouse',
+          detail: 0,
+          expected: 'keyboard',
+        },
+        {
+          name: 'nonzero detail after a touch pointerdown',
+          pointerType: 'touch',
+          detail: 1,
+          expected: 'touch',
+        },
+        {
+          name: 'nonzero detail after a pen pointerdown',
+          pointerType: 'pen',
+          detail: 1,
+          expected: 'pen',
+        },
+        {
+          name: 'nonzero detail without a pointerdown',
+          pointerType: null,
+          detail: 1,
+          expected: 'mouse',
+        },
+      ])(
+        'classifies a click with an empty pointerType: $name',
+        async ({ pointerType, detail, expected }) => {
+          const finalFocus = vi.fn((_closeType: InteractionType) => true);
+
+          function App() {
+            const [isOpen, setIsOpen] = React.useState(true);
+
+            const { refs, context } = useFloating({
+              open: isOpen,
+              onOpenChange: setIsOpen,
+            });
+
+            const click = useClick(context.rootStore);
+            const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
+
+            return (
+              <>
+                <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+                <FloatingPortal>
+                  {isOpen && (
+                    <FloatingFocusManager context={context.rootStore} returnFocus={finalFocus}>
+                      <div ref={refs.setFloating} {...getFloatingProps()}>
+                        <button data-testid="child" />
+                      </div>
+                    </FloatingFocusManager>
+                  )}
+                </FloatingPortal>
+              </>
+            );
+          }
+
+          render(<App />);
+
+          const reference = screen.getByTestId('reference');
+
+          if (pointerType) {
+            fireEvent.pointerDown(reference, { pointerType });
+          }
+          // Synthesized click shape: `PointerEvent` with an empty `pointerType`.
+          fireEvent(
+            reference,
+            new PointerEvent('click', { bubbles: true, cancelable: true, detail, pointerType: '' }),
+          );
+
+          await waitFor(() => {
+            expect(finalFocus).toHaveBeenCalledWith(expected);
+          });
+        },
+      );
+
       test('preserves keyboard close modality when reopening before focus restoration', async () => {
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);

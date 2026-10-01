@@ -1,7 +1,7 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Select } from '@base-ui/react/select';
+import { Select, SelectSeparatorDataAttributes } from '@base-ui/react/select';
 import { Popover } from '@base-ui/react/popover';
 import {
   act,
@@ -23,6 +23,13 @@ describe('<Select.Root />', () => {
   });
 
   const { render, renderToString } = createRenderer();
+
+  it('exposes the orientation attribute rendered by Separator', async () => {
+    await render(<Select.Separator orientation="vertical" />);
+
+    const separator = screen.getByRole('presentation');
+    expect(separator).toHaveAttribute(SelectSeparatorDataAttributes.orientation, 'vertical');
+  });
 
   describe('manual unmount lifecycle', () => {
     function Popup(
