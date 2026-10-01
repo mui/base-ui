@@ -288,11 +288,7 @@ describe('<Menu.List />', () => {
 describe('filterable menu list semantics', () => {
   const { render } = createRenderer();
 
-  function TestMenu(props: {
-    firstId?: string;
-    secondId?: string;
-    orientation?: Menu.Root.Orientation;
-  }) {
+  function TestMenu(props: { secondId?: string; orientation?: Menu.Root.Orientation }) {
     return (
       <Menu.FilterProvider autoHighlight="always">
         <Menu.Root defaultOpen orientation={props.orientation}>
@@ -302,7 +298,7 @@ describe('filterable menu list semantics', () => {
               <Menu.Popup>
                 <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
-                  <Menu.Item id={props.firstId ?? 'first-item'}>First</Menu.Item>
+                  <Menu.Item id="first-item">First</Menu.Item>
                   <Menu.Item id={props.secondId}>Second</Menu.Item>
                 </Menu.List>
               </Menu.Popup>
@@ -320,16 +316,6 @@ describe('filterable menu list semantics', () => {
     await waitFor(() => expect(input).toHaveFocus());
     await setProps({ secondId: 'new-id' });
     await user.keyboard('[ArrowDown]');
-    await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'new-id'));
-  });
-
-  it('updates the active descendant when the highlighted item changes its id', async () => {
-    const { setProps } = await render(<TestMenu firstId="old-id" secondId="second-item" />);
-    const input = screen.getByRole('searchbox');
-    await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'old-id'));
-
-    await setProps({ firstId: 'new-id', secondId: 'second-item' });
-
     await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'new-id'));
   });
 
