@@ -903,6 +903,11 @@ describe('<MenuRoot />', () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       const instantsWhileEnding: (string | undefined)[] = [];
+      // Renders between the close request and its late commit. The restoration
+      // has to land in this window, or the test isn't exercising the race.
+      const instantsWhileClosePending: (string | undefined)[] = [];
+      const openedTriggerIds: (string | undefined)[] = [];
+      let closeRequested = false;
       const switchDuration = 200;
       const commitDelay = 400;
 
@@ -942,11 +947,13 @@ describe('<MenuRoot />', () => {
               triggerId={activeTrigger}
               onOpenChange={(nextOpen, details) => {
                 if (nextOpen) {
+                  openedTriggerIds.push(details.trigger?.id);
                   setActiveTrigger(details.trigger?.id ?? null);
                   setOpen(true);
                   return;
                 }
 
+                closeRequested = true;
                 setTimeout(() => setOpen(false), commitDelay);
               }}
             >
@@ -975,6 +982,8 @@ describe('<MenuRoot />', () => {
                     render={(props, state) => {
                       if (state.transitionStatus === 'ending') {
                         instantsWhileEnding.push(state.instant);
+                      } else if (closeRequested) {
+                        instantsWhileClosePending.push(state.instant);
                       }
                       return <div {...props} />;
                     }}
@@ -1016,6 +1025,8 @@ describe('<MenuRoot />', () => {
         { timeout: 2000 },
       );
 
+      expect(openedTriggerIds).toEqual(['trigger-1', 'trigger-2']);
+      expect(instantsWhileClosePending).toContain('trigger-change');
       expect(instantsWhileEnding).not.toContain('trigger-change');
     });
 
