@@ -506,7 +506,7 @@ Set a pointer type to `false` to turn off pickup for it. Only do this if your ap
 
 #### Double-click pickup
 
-With `{ type: 'double-click' }`, a mouse double-click picks the item up. It then follows the pointer without a held button and drops on the next click. If that click is the first half of a double-click, Base UI swallows the second half, so the drop doesn't pick the item up again. With touch or pen, the second tap of a double-tap picks the item up while the pointer is still down, and releasing drops it. <kbd>Esc</kbd> or <kbd>Tab</kbd> cancels either gesture.
+With `{ type: 'double-click' }`, a mouse double-click picks the item up. It then follows the pointer without a held button and drops on the next click. If that click is the first half of a double-click, Base UI swallows the second half, so the drop doesn't pick the item up again. With touch or pen, the second tap of a double-tap picks the item up while the pointer is still down, and releasing drops it. <kbd>Esc</kbd> or <kbd>Tab</kbd> cancels either gesture.
 
 Combine it with another method to keep drag-to-pick-up as well, or use a per-pointer map to enable it for some pointer types only:
 
@@ -768,7 +768,7 @@ Base UI injects the cursor rule as a `<style>` element. See the [CSP guide](/re
 }
 ```
 
-With Tailwind CSS, use the `data-[drag-preview]:` variant, such as `data-[drag-preview]:shadow-md`. Content returned by a [`registerSource`](#registersource) `render` function gets the attribute on its root element, or on a `<div>` around it when it has several.
+With Tailwind CSS, use the `data-[drag-preview]:` variant, such as `data-[drag-preview]:shadow-md`. Content returned by a [`registerSource`](#registersource) `render` function gets the attribute on its root element, or on a `<div>` around it when it has several.
 
 Base UI prevents text selection on draggables and disables page scrolling during a drag. Avoid setting `touch-action` on the draggable or its handle, since it interferes with touch dragging. Set it on a wrapper instead.
 
