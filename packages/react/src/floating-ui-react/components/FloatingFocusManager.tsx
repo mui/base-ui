@@ -106,6 +106,12 @@ function getFirstTabbableElement(container: Element | null) {
   return tabbable(container)[0] || container;
 }
 
+// A guard redirect is queued for the next frame, so it must yield if a newer
+// focus (e.g. a hover highlight) has moved focus off the guard by then.
+function isFocusStillOn(guard: HTMLElement) {
+  return () => activeElement(ownerDocument(guard)) === guard;
+}
+
 function handleTabIndex(floatingFocusElement: HTMLElement) {
   if (
     floatingFocusElement.hasAttribute('tabindex') &&
@@ -967,7 +973,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             if (modal) {
               const els = getTabbableContent();
               // enqueueFocus returns a rAF-cancel function we don't need here.
-              void enqueueFocus(els[els.length - 1]);
+              void enqueueFocus(els[els.length - 1], {
+                shouldFocus: isFocusStillOn(event.currentTarget),
+              });
             } else if (portalContext?.portalNode) {
               preventReturnFocusRef.current = false;
               if (isOutsideEvent(event, portalContext.portalNode)) {
@@ -988,7 +996,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           onFocus={(event) => {
             if (modal) {
               // enqueueFocus returns a rAF-cancel function we don't need here.
-              void enqueueFocus(getTabbableContent()[0]);
+              void enqueueFocus(getTabbableContent()[0], {
+                shouldFocus: isFocusStillOn(event.currentTarget),
+              });
             } else if (portalContext?.portalNode) {
               if (closeOnFocusOut) {
                 preventReturnFocusRef.current = true;
