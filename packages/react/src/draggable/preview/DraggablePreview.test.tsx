@@ -518,8 +518,9 @@ describe('Draggable.Preview', () => {
       const preview = screen.getByTestId('body').lastElementChild!;
       expect(preview).toHaveAttribute('data-drag-preview');
       expect(preview.localName).toBe(render ? 'tr' : 'div');
+      // React 18 says "cannot appear as a child of", React 19 "cannot be a child of".
       const nestingErrors = errorSpy.mock.calls.filter((call) =>
-        call.join(' ').includes('cannot be a child of'),
+        /cannot (?:be|appear as) a child of/.test(call.join(' ')),
       );
       expect(nestingErrors.length > 0).toBe(invalid);
     } finally {
