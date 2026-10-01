@@ -25,7 +25,7 @@ export interface UseTypeaheadProps {
   /**
    * Callback invoked with the matching index if found as the user types.
    */
-  onMatch?: ((index: number) => void) | undefined;
+  onMatch?: ((index: number, event: React.KeyboardEvent) => void) | undefined;
   /**
    * Optional list of item elements that correspond to `listRef` indices.
    * When an element exists for an index, typeahead skips it if it is hidden by
@@ -195,7 +195,7 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
     const index = getMatchingIndex(listContent, stringRef.current, startIndex);
 
     if (index !== -1) {
-      onMatchProp?.(index);
+      onMatchProp?.(index, event);
       matchIndexRef.current = index;
     } else if (event.key !== ' ') {
       stringRef.current = '';

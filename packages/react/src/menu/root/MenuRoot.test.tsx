@@ -3320,6 +3320,115 @@ describe('<Menu.Root />', () => {
     });
   });
 
+  describe('prop: onItemHighlighted', () => {
+    function HighlightMenu(props: { onItemHighlighted: Menu.Root.Props['onItemHighlighted'] }) {
+      return (
+        <Menu.Root onItemHighlighted={props.onItemHighlighted}>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>One</Menu.Item>
+                <Menu.Item>Two</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger>Three</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>Nested</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('passes the keydown event for keyboard highlights', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus();
+      });
+
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe(REASONS.keyboard);
+      expect(details.event).toBeInstanceOf(KeyboardEvent);
+      expect(details.event.key).toBe('ArrowDown');
+    });
+
+    it('passes the keydown event for typeahead highlights', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+
+      await user.keyboard('t');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus();
+      });
+
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe(REASONS.keyboard);
+      expect(details.event).toBeInstanceOf(KeyboardEvent);
+      expect(details.event.key).toBe('t');
+    });
+
+    it('passes the mouse event for pointer highlights', async () => {
+      const onItemHighlighted = vi.fn();
+      await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      const item = await screen.findByRole('menuitem', { name: 'Two' });
+      fireEvent.mouseMove(item);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(item, expect.anything());
+      });
+
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe(REASONS.pointer);
+      expect(details.event).toBeInstanceOf(MouseEvent);
+      expect(details.event.type).toBe('mousemove');
+    });
+
+    it('passes the mouse event when a submenu trigger is hovered', async () => {
+      const onItemHighlighted = vi.fn();
+      await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'Three' });
+      fireEvent.mouseEnter(submenuTrigger);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(submenuTrigger, expect.anything());
+      });
+
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe(REASONS.pointer);
+      expect(details.event).toBeInstanceOf(MouseEvent);
+    });
+  });
+
   describe('actionsRef: highlightItem', () => {
     function TestHighlightMenu(props: { actionsRef: React.RefObject<Menu.Root.Actions | null> }) {
       return (

@@ -37,7 +37,8 @@ export function useVirtualFocusParentHandoff(
         (reason === REASONS.listNavigation || reason === REASONS.escapeKey) &&
         parentStore.state.activeIndex == null
       ) {
-        parentStore.highlightItem(trigger, REASONS.keyboard);
+        // The closing key is gone by this microtask, so there is no event to report it with.
+        parentStore.highlightItem(trigger, REASONS.none);
       }
     },
   );
