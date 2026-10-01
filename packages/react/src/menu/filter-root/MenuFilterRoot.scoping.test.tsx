@@ -742,6 +742,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(onItemHighlighted).toHaveBeenLastCalledWith(remove, {
         reason: 'keyboard',
         label: 'Remove',
+        event: expect.any(Event),
       });
     });
 
@@ -760,6 +761,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(onItemHighlighted).toHaveBeenLastCalledWith(item, {
         reason: 'imperative-action',
         label: 'Duplicate',
+        event: expect.any(Event),
       });
       expect(input).toHaveFocus();
 
@@ -768,13 +770,14 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
         reason: 'imperative-action',
         label: undefined,
+        event: expect.any(Event),
       });
       expect(input).toHaveFocus();
 
       await user.keyboard('[ArrowDown]');
       expect(onItemHighlighted).toHaveBeenLastCalledWith(
         screen.getByRole('menuitem', { name: 'Rename' }),
-        { reason: 'keyboard', label: 'Rename' },
+        { reason: 'keyboard', label: 'Rename', event: expect.any(Event) },
       );
     });
 
@@ -795,7 +798,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
       expect(onItemHighlighted).toHaveBeenCalledWith(
         screen.getByRole('menuitem', { name: 'Duplicate' }),
-        { reason: 'none', label: 'Duplicate' },
+        { reason: 'none', label: 'Duplicate', event: expect.any(Event) },
       );
 
       await user.type(input, 'zzz');
@@ -806,6 +809,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
         reason: 'none',
         label: undefined,
+        event: expect.any(Event),
       });
     });
 

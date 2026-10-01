@@ -36,8 +36,11 @@ describe('<FilterDropdown.Root />', () => {
     expect(input.tagName).toBe('INPUT');
     expect(input).toHaveAttribute('type', 'text');
     expect(input).toHaveAttribute('inputmode', 'search');
-    expect(input).toHaveAttribute('enterkeyhint', 'search');
+    expect(input).not.toHaveAttribute('enterkeyhint');
     expect(input).toHaveAttribute('autocomplete', 'off');
+    expect(input).toHaveAttribute('spellcheck', 'false');
+    expect(input).toHaveAttribute('autocorrect', 'off');
+    expect(input).toHaveAttribute('autocapitalize', 'none');
     expect(input).not.toHaveAttribute('role', 'combobox');
     expect(input).not.toHaveAttribute('aria-expanded');
     expect(list).toHaveAttribute('id');

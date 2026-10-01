@@ -90,6 +90,11 @@ const selectors = {
   },
   activeIndex: (state: State<unknown>) => state.activeIndex,
   listElement: (state: State<unknown>) => state.listElement,
+  /** The trigger's `aria-controls`: the list when one holds the `menu` role, else the popup. */
+  triggerControlsId: (state: State<unknown>, triggerId: string | undefined) => {
+    const popupId = popupStoreSelectors.triggerPopupId(state, triggerId);
+    return popupId ? state.listElement?.id || popupId : undefined;
+  },
   filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
   inputProps: (state: State<unknown>) => state.inputProps,
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,

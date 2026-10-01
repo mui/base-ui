@@ -40,15 +40,21 @@ export function MenuFilterProvider(props: MenuFilterProvider.Props): React.JSX.E
   );
 }
 
+export interface MenuFilterProviderState {}
+
 export interface MenuFilterProviderProps extends MenuFilterProviderOptions {
+  /**
+   * The `<Menu.Root>` or `<Menu.SubmenuRoot>` to make filterable.
+   */
   children?: React.ReactNode;
 }
 
-export type MenuFilterProviderValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
-export type MenuFilterProviderValueChangeEventDetails = FilterDropdownRoot.ChangeEventDetails;
+export type MenuFilterProviderChangeEventReason = FilterDropdownRoot.ChangeEventReason;
+export type MenuFilterProviderChangeEventDetails = FilterDropdownRoot.ChangeEventDetails;
 
 export namespace MenuFilterProvider {
+  export type State = MenuFilterProviderState;
   export type Props = MenuFilterProviderProps;
-  export type ValueChangeEventReason = MenuFilterProviderValueChangeEventReason;
-  export type ValueChangeEventDetails = MenuFilterProviderValueChangeEventDetails;
+  export type ChangeEventReason = MenuFilterProviderChangeEventReason;
+  export type ChangeEventDetails = MenuFilterProviderChangeEventDetails;
 }

@@ -1,5 +1,9 @@
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { getNextListIndex } from '../../floating-ui-react/utils/composite';
+import {
+  getMaxListIndex,
+  getMinListIndex,
+  getNextListIndex,
+} from '../../floating-ui-react/utils/composite';
 import { isMainOrientationToEndKey } from '../../floating-ui-react/hooks/useListNavigation';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -17,13 +21,16 @@ export function moveHighlightFrom(
   options: MoveHighlightOptions,
 ): HTMLElement | undefined {
   const { orientation, rtl, loopFocus, allowEscape } = options;
-  const items = store.context.itemDomElements.current;
+  const listRef = store.context.itemDomElements;
+  const items = listRef.current;
   const { index } = getNextListIndex(items, items.indexOf(item), {
     decrement: !isMainOrientationToEndKey(key, orientation, rtl),
     loopFocus,
     allowEscape,
     // Match the menu's list navigation: `aria-disabled` items stay reachable.
     disabledIndices: EMPTY_ARRAY,
+    minIndex: getMinListIndex(listRef, EMPTY_ARRAY),
+    maxIndex: getMaxListIndex(listRef, EMPTY_ARRAY),
   });
 
   const next = items[index];

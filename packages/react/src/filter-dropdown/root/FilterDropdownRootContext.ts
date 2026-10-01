@@ -18,7 +18,6 @@ export interface FilterDropdownRootContext {
   keyboardModality: boolean;
   setKeyboardModality: (keyboardModality: boolean) => void;
   autoHighlight: boolean | 'always';
-  store: FilterDropdownStore;
   triggerId: string | undefined;
   defaultListId: string | undefined;
   listId: string | undefined;

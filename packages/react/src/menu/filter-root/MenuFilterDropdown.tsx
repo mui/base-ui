@@ -51,7 +51,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   });
 
   const handleValueChange = useStableCallback(
-    (nextValue: string, eventDetails: MenuFilterProvider.ValueChangeEventDetails) => {
+    (nextValue: string, eventDetails: MenuFilterProvider.ChangeEventDetails) => {
       onValueChange?.(nextValue, eventDetails);
       if (!eventDetails.isCanceled) {
         setValue(nextValue);

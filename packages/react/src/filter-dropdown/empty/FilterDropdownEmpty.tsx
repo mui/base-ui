@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownItemContext } from '../root/FilterDropdownRootContext';
 import { selectors } from '../store';
 import { useInitialLiveRegionTextMutation } from '../../internals/useInitialLiveRegionTextMutation';
-import { useIsHydrating } from '../../utils/useIsHydrating';
 
 /**
  * @internal
@@ -21,11 +21,15 @@ export const FilterDropdownEmpty = React.forwardRef(function FilterDropdownEmpty
 
   const isEmpty = useStore(store, selectors.isEmpty);
 
-  // Items register in layout effects, which don't run on the server, so server markup would
-  // otherwise show every item and the empty message at the same time.
-  const hydrating = useIsHydrating();
+  // Items mounting in the same commit register in layout effects, after this first render, and
+  // don't register on the server at all. Deciding once they have keeps the children from
+  // mounting for a frame on every open, and the message out of server markup.
+  const [ready, setReady] = React.useState(false);
+  useIsoLayoutEffect(() => {
+    setReady(true);
+  }, []);
 
-  const visible = isEmpty && !hydrating;
+  const visible = ready && isEmpty;
 
   const emptyRef = useInitialLiveRegionTextMutation<HTMLDivElement>(visible);
 

@@ -47,7 +47,7 @@ export const MenuInput = React.forwardRef(function MenuInput(
 });
 
 export interface MenuInputState extends FilterDropdownInputState {}
-export type MenuInputProps = FilterDropdownInputProps;
+export interface MenuInputProps extends FilterDropdownInputProps {}
 
 export namespace MenuInput {
   export type State = MenuInputState;

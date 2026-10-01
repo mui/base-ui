@@ -6,6 +6,8 @@ import type { HTMLProps } from '../../internals/types';
 import type { MenuFilterPopup } from './MenuFilterPopup';
 import type { MenuFilterGroup, MenuFilterRadioGroup } from './MenuFilterGroup';
 import type { MenuFilterList } from './MenuFilterList';
+import type { MenuParent } from '../root/MenuRoot';
+import type { MenuStore } from '../store/MenuStore';
 
 export interface MenuFilterItemParams {
   label?: string | undefined;
@@ -37,6 +39,19 @@ export interface MenuFilterImpl {
   useItem: (params: MenuFilterItemParams) => MenuFilterItemResult;
   /** Like `useItem` for a submenu trigger, which is an item of the parent list. */
   useSubmenuTrigger: (params: MenuFilterItemParams) => MenuFilterItemResult;
+  /** Hands focus and the highlight back to a filterable parent when a plain submenu closes. */
+  useParentHandoff: (
+    store: MenuStore<unknown>,
+    parent: MenuParent,
+    open: boolean,
+    virtualFocus: boolean,
+  ) => MenuFilterParentHandoff;
+}
+
+export interface MenuFilterParentHandoff {
+  /** The filterable parent's input, which the closing submenu returns focus to. */
+  parentVirtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
+  handleFocus: (() => void) | undefined;
 }
 
 /** Static below a filter root: the implementation never changes, so subscribers never re-render. */

@@ -170,6 +170,34 @@ describe('filterable menu initial highlight', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'does not focus the input when an item is tapped after a touch open',
+    async () => {
+      const onInputFocus = vi.fn();
+      await render(<Test onInputFocus={onInputFocus} />);
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      const touch = { pointerType: 'touch' };
+      firePointer.down(trigger, { ...touch, timeStamp: 10 });
+      fireEvent.mouseDown(trigger, { detail: 1 });
+      firePointer.up(trigger, { ...touch, timeStamp: 20 });
+      fireEvent.mouseUp(trigger, { detail: 1 });
+      fireEvent.click(trigger, { detail: 1 });
+
+      const item = await screen.findByRole('menuitem', { name: 'Rename' });
+      await act(() => waitSingleFrame());
+
+      // A tap fires compatibility mouse events, including a `mousemove`, before its `mousedown`.
+      firePointer.down(item, { ...touch, timeStamp: 30 });
+      firePointer.up(item, { ...touch, timeStamp: 40 });
+      fireEvent.mouseOver(item);
+      fireEvent.mouseMove(item);
+      await act(() => waitSingleFrame());
+
+      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).not.toHaveFocus();
+      expect(onInputFocus).not.toHaveBeenCalled();
+    },
+  );
+
   it('does not focus the input when opened on hover', async () => {
     const onInputFocus = vi.fn();
     const { user } = await render(<Test openOnHover onInputFocus={onInputFocus} />);

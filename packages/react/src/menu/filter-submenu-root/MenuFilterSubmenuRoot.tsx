@@ -23,7 +23,6 @@ import { activeElement, contains, stopEvent } from '../../floating-ui-react/util
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { moveHighlightFrom } from '../filter-root/moveHighlightFrom';
-import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { MenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import type { MenuStore } from '../store/MenuStore';
 
@@ -41,8 +40,6 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
   const parentStore = parent.store;
 
   const parentDisabled = parentStore.useState('disabled');
-  // A filterable parent's filter root, which this submenu renders inside of.
-  const parentFilter = useFilterDropdownRootContext(true);
 
   const { rootProps, dropdownProps } = useMenuFilterRoot(props);
 
@@ -110,7 +107,7 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
       <MenuFilterSubmenuNavigation
         parentStore={parentStore}
         parentVirtualFocus={parent.virtualFocus}
-        parentAllowEscape={parent.virtualFocus && !parentFilter?.autoHighlight}
+        parentAllowEscape={parent.virtualFocus && parent.allowEscape}
         parentOrientation={parent.orientation}
         parentLoopFocus={parent.loopFocus}
         getReturnElement={() =>

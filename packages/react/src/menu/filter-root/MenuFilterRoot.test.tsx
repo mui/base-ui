@@ -1023,6 +1023,76 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
+    it('keeps the caret keys while a query is highlighted automatically', async () => {
+      const { user } = await render(
+        <Menu.FilterProvider autoHighlight>
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Remove</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+      await user.click(input);
+      await user.keyboard('rem');
+      const remove = screen.getByRole('menuitem', { name: 'Remove' });
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', remove.id);
+      });
+
+      await user.keyboard('[ArrowLeft]');
+      expect(input.selectionStart).toBe(2);
+      await user.keyboard('[Home]');
+      expect(input.selectionStart).toBe(0);
+      await user.keyboard('[ArrowRight]');
+      expect(input.selectionStart).toBe(1);
+      expect(input).toHaveAttribute('aria-activedescendant', remove.id);
+    });
+
+    it('keeps the caret keys after navigating to an item while the query is not empty', async () => {
+      const { user } = await render(
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Remove</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+      await user.click(input);
+      await user.keyboard('re[ArrowDown]');
+      const rename = screen.getByRole('menuitem', { name: 'Rename' });
+      expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+
+      await user.keyboard('[ArrowLeft]');
+      expect(input.selectionStart).toBe(1);
+      await user.keyboard('[End]');
+      expect(input.selectionStart).toBe(2);
+      expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+    });
+
     it('uses Home and End for list navigation after an item is highlighted', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
@@ -1934,63 +2004,66 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(parentInput).toHaveAttribute('aria-activedescendant', nextItem.id);
     });
 
-    it('keeps cross-axis keys as caret keys while the submenu query is not empty', async () => {
-      const { user } = await render(
-        <Menu.FilterProvider>
-          <Menu.Root defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Input aria-label="Filter actions" />
-                  <Menu.List>
-                    <Menu.FilterProvider>
-                      <Menu.SubmenuRoot>
-                        <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                        <Menu.Portal>
-                          <Menu.Positioner>
-                            <Menu.Popup>
-                              <Menu.Input aria-label="Filter folders" />
-                              <Menu.List>
-                                <Menu.Item>Documents</Menu.Item>
-                              </Menu.List>
-                            </Menu.Popup>
-                          </Menu.Positioner>
-                        </Menu.Portal>
-                      </Menu.SubmenuRoot>
-                    </Menu.FilterProvider>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </Menu.FilterProvider>,
-      );
+    it.each([false, true])(
+      'keeps cross-axis keys as caret keys while the submenu query is not empty (autoHighlight: %s)',
+      async (autoHighlight) => {
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.FilterProvider autoHighlight={autoHighlight}>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.Input aria-label="Filter folders" />
+                                <Menu.List>
+                                  <Menu.Item>Documents</Menu.Item>
+                                </Menu.List>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
 
-      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
-      await waitFor(() => {
-        expect(parentInput).toHaveFocus();
-      });
+        const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => {
+          expect(parentInput).toHaveFocus();
+        });
 
-      await user.keyboard('[ArrowDown][ArrowRight]');
+        await user.keyboard('[ArrowDown][ArrowRight]');
 
-      const submenuInput = await screen.findByRole<HTMLInputElement>('searchbox', {
-        name: 'Filter folders',
-      });
-      await waitFor(() => {
+        const submenuInput = await screen.findByRole<HTMLInputElement>('searchbox', {
+          name: 'Filter folders',
+        });
+        await waitFor(() => {
+          expect(submenuInput).toHaveFocus();
+        });
+
+        await user.keyboard('doc');
+        expect(submenuInput).toHaveValue('doc');
+
+        // Editing the query must not leave the submenu; the caret moves instead.
+        await user.keyboard('[ArrowLeft]');
+
         expect(submenuInput).toHaveFocus();
-      });
-
-      await user.keyboard('doc');
-      expect(submenuInput).toHaveValue('doc');
-
-      // Editing the query must not leave the submenu; the caret moves instead.
-      await user.keyboard('[ArrowLeft]');
-
-      expect(submenuInput).toHaveFocus();
-      expect(submenuInput.selectionStart).toBe(2);
-      expect(screen.getByRole('searchbox', { name: 'Filter folders' })).not.toBe(null);
-    });
+        expect(submenuInput.selectionStart).toBe(2);
+        expect(submenuInput).toHaveValue('doc');
+      },
+    );
 
     it('uses RTL cross-axis keys to enter and leave a filterable submenu', async () => {
       const { user } = await render(
@@ -4393,6 +4466,85 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
   });
 
+  it('never mounts the Empty children while items match', async () => {
+    const onEmptyMount = vi.fn();
+    function NoResults() {
+      React.useEffect(onEmptyMount, []);
+      return 'No results';
+    }
+
+    const { user } = await render(
+      <Menu.FilterProvider>
+        <Menu.Root>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.Empty>
+                  <NoResults />
+                </Menu.Empty>
+                <Menu.List>
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.Item>Delete</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await screen.findByRole('menuitem', { name: 'Rename' });
+
+    expect(onEmptyMount).not.toHaveBeenCalled();
+    expect(screen.queryByText('No results')).toBe(null);
+  });
+
+  describe('IME composition', () => {
+    it('filters on the committed text, not the composition in progress', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <Menu.FilterProvider onValueChange={onValueChange}>
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.Empty>No actions found.</Menu.Empty>
+                  <Menu.List>
+                    <Menu.Item>日本語</Menu.Item>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'にほ' } });
+
+      expect(input).toHaveValue('にほ');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+      expect(screen.queryByText('No actions found.')).toBe(null);
+
+      fireEvent.change(input, { target: { value: '日本' } });
+      fireEvent.compositionEnd(input);
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe('日本');
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+      });
+      expect(screen.getByRole('menuitem', { name: '日本語' })).toBeVisible();
+    });
+  });
+
   describe('input value change reasons', () => {
     async function renderReasonMenu(onValueChange: (value: string, reason: string) => void) {
       return render(
@@ -4732,9 +4884,9 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   describe('consumer props', () => {
-    // `Menu.Trigger`, `Menu.Input`, and `Menu.Popup` each render two nested
-    // layers. Consumer props must land on the inner one only, or every handler fires twice.
-    it('runs a consumer handler once per interaction on each two-layer part', async () => {
+    // `Menu.Input` and `Menu.Popup` wrap an inner part, and `Menu.Trigger` merges the props the
+    // filter publishes. Consumer props must be applied once, or every handler fires twice.
+    it('runs a consumer handler once per interaction on each composed part', async () => {
       const onTriggerClick = vi.fn();
       const onInputKeyDown = vi.fn();
       const onPopupKeyDown = vi.fn();

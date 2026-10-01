@@ -1,6 +1,6 @@
 import { Menu } from '@base-ui/react/menu';
 
-export default function FilterMenu() {
+export default function MenuFilter() {
   return (
     <Menu.FilterProvider>
       <Menu.Root>

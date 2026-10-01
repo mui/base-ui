@@ -75,9 +75,10 @@ const MenuLinkItemPlain = React.forwardRef(function MenuLinkItemPlain(
  */
 export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   props: MenuLinkItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const filterItem = useMenuFilterItem(props, forwardedRef);
+  // The public ref type stays `Element` as before; the rendered `<a>` is always an `HTMLElement`.
+  const filterItem = useMenuFilterItem(props, forwardedRef as React.ForwardedRef<HTMLElement>);
 
   if (!filterItem.visible) {
     return null;
@@ -99,8 +100,8 @@ export interface MenuLinkItemProps extends BaseUIComponentProps<
   React.ComponentPropsWithRef<'a'>
 > {
   /**
-   * Overrides the text used for keyboard text navigation and filtering inside
-   * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
+   * Overrides the text used for keyboard text navigation and filtering.
+   * Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

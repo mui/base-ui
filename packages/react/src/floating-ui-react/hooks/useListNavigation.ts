@@ -13,7 +13,6 @@ import { useFloatingParentNodeId, useFloatingTree } from '../components/Floating
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingRootContext } from '../types';
 import {
-  findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
   getNextListIndex,
@@ -769,24 +768,16 @@ export function useListNavigation(
     } else if (isIndexOutOfListBounds(list, currentIndex)) {
       // Nothing is highlighted yet, so both directions enter the list from their own end.
       nextIndex = decrement ? maxIndex : minIndex;
-    } else if (decrement) {
-      if (currentIndex <= minIndex) {
-        // Wrapping stays inside the list: unlike ArrowUp, this never escapes to the reference.
-        nextIndex = loopFocus ? maxIndex : minIndex;
-      } else {
-        nextIndex = findNonDisabledListIndex(list, {
-          startingIndex: currentIndex,
-          decrement: true,
-          disabledIndices: disabled,
-        });
-      }
-    } else if (currentIndex >= maxIndex) {
-      nextIndex = loopFocus ? minIndex : maxIndex;
     } else {
-      nextIndex = findNonDisabledListIndex(list, {
-        startingIndex: currentIndex,
+      // Unlike the arrow keys, this never escapes the list to the reference element.
+      nextIndex = getNextListIndex(list, currentIndex, {
+        decrement,
+        loopFocus,
+        allowEscape: false,
         disabledIndices: disabled,
-      });
+        minIndex,
+        maxIndex,
+      }).index;
     }
 
     // Every item can be disabled or hidden, in which case there is nothing to highlight.

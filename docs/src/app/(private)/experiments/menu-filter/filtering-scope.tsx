@@ -37,9 +37,7 @@ export default function MenuFilteringScopeExperiment() {
 
         <section className={classes.Example}>
           <h2>Root and submenu inputs</h2>
-          <p>
-            Every level filters. By default focus moves into a submenu once the pointer enters it.
-          </p>
+          <p>Every level filters.</p>
           <NestedFilters autoHighlight={autoHighlight} />
         </section>
       </div>

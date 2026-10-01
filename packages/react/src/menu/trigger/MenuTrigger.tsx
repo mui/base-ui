@@ -77,8 +77,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const popupId = store.useState('triggerPopupId', thisTriggerId);
-  const listElement = store.useState('listElement');
+  const controlsId = store.useState('triggerControlsId', thisTriggerId);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -239,9 +238,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     rootTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
-      // `popupId` is only set for the trigger that owns the open popup; the list id must not
-      // bypass that.
-      'aria-controls': popupId ? listElement?.id || popupId : undefined,
+      'aria-controls': controlsId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
         if (store.select('open')) {

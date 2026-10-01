@@ -17,41 +17,49 @@ Import the component and assemble its parts:
 ```jsx title="Anatomy"
 import { Menu } from '@base-ui/react/menu';
 
-<Menu.Root>
-  <Menu.Trigger />
-  <Menu.Portal>
-    <Menu.Backdrop />
-    <Menu.Positioner>
-      <Menu.Popup>
-        <Menu.Arrow />
-        <Menu.Item />
-        <Menu.LinkItem />
-        <Menu.Separator />
+<Menu.FilterProvider>
+  <Menu.Root>
+    <Menu.Trigger />
+    <Menu.Portal>
+      <Menu.Backdrop />
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.Arrow />
+          <Menu.Input />
+          <Menu.Clear />
+          <Menu.Empty />
 
-        <Menu.SubmenuRoot>
-          <Menu.SubmenuTrigger />
-        </Menu.SubmenuRoot>
+          <Menu.List>
+            <Menu.Item />
+            <Menu.LinkItem />
+            <Menu.Separator />
 
-        <Menu.Group>
-          <Menu.GroupLabel />
-        </Menu.Group>
+            <Menu.SubmenuRoot>
+              <Menu.SubmenuTrigger />
+            </Menu.SubmenuRoot>
 
-        <Menu.RadioGroup>
-          <Menu.GroupLabel />
-          <Menu.RadioItem>
-            <Menu.RadioItemIndicator />
-          </Menu.RadioItem>
-        </Menu.RadioGroup>
+            <Menu.Group>
+              <Menu.GroupLabel />
+            </Menu.Group>
 
-        <Menu.CheckboxItem>
-          <Menu.CheckboxItemIndicator />
-        </Menu.CheckboxItem>
+            <Menu.RadioGroup>
+              <Menu.GroupLabel />
+              <Menu.RadioItem>
+                <Menu.RadioItemIndicator />
+              </Menu.RadioItem>
+            </Menu.RadioGroup>
 
-        <Menu.Viewport />
-      </Menu.Popup>
-    </Menu.Positioner>
-  </Menu.Portal>
-</Menu.Root>;
+            <Menu.CheckboxItem>
+              <Menu.CheckboxItemIndicator />
+            </Menu.CheckboxItem>
+          </Menu.List>
+
+          <Menu.Viewport />
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+</Menu.FilterProvider>;
 ```
 
 ## Examples
@@ -394,17 +402,45 @@ Groups with no matching items get the `hidden` attribute and stay mounted. If yo
 
 `<Menu.Empty>` appears when no items match.
 
-Use `filter` to replace the default case-insensitive substring matching.
-It receives each item's text and the trimmed query, and keeps the item when it returns `true`.
+By default, an item matches when its text contains the query, ignoring case, accents, and punctuation.
+Use `filter` to replace the matching. It receives each item's text and the trimmed query, and keeps the item when it returns `true`.
+`Menu.useFilter` provides the same locale-aware comparisons.
 
 ```jsx title="Custom matching"
-<Menu.FilterProvider filter={(text, query) => text.startsWith(query)}>
+const { startsWith } = Menu.useFilter();
+
+<Menu.FilterProvider filter={startsWith}>
   <Menu.Root>{/* menu parts */}</Menu.Root>
-</Menu.FilterProvider>
+</Menu.FilterProvider>;
 ```
 
 For external filtering, pass `filter={null}` and render the results yourself, omitting empty groups.
-`Menu.useFilter` provides locale-aware string matching.
+
+```jsx title="External filtering"
+const { contains } = Menu.useFilter();
+const [query, setQuery] = React.useState('');
+const results = actions.filter((action) => contains(action.label, query));
+
+<Menu.FilterProvider filter={null} value={query} onValueChange={setQuery}>
+  <Menu.Root>{/* render `results` */}</Menu.Root>
+</Menu.FilterProvider>;
+```
+
+#### Controlling the query
+
+`value` and `onValueChange` on `<Menu.FilterProvider>` control the query.
+It resets to an empty string when the menu closes, reported with the `'popup-close'` reason. Cancel that change to keep the query.
+
+#### Highlighting
+
+Use `autoHighlight` to highlight the first match while filtering, or `autoHighlight="always"` to highlight it even when the query is empty.
+The highlighted item has the `data-highlighted` attribute, and `onItemHighlighted` on `<Menu.Root>` reports each change.
+
+#### Focus and keyboard
+
+Opening the menu with a click or the keyboard focuses the input. Opening it on hover, touch, or with a pen does not, so the on-screen keyboard stays hidden.
+The arrow keys move the highlight while the input keeps focus. <kbd>Tab</kbd> closes the menu, and <kbd>Shift</kbd>+<kbd>Tab</kbd> returns focus to the trigger.
+The popup is a `dialog` that holds the `searchbox` input and the `menu` list.
 
 #### Submenus
 

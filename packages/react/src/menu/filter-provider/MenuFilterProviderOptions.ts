@@ -1,34 +1,29 @@
 import type { MenuFilterProvider } from './MenuFilterProvider';
 
-/**
- * Determines whether an item matches the current filter query.
- *
- * @param text The item's `label`, or its rendered text when the prop is not set.
- * @param query The trimmed filter query.
- */
-export type MenuFilterFunction = (text: string, query: string) => boolean;
-
 /** The filtering props of `Menu.FilterProvider`, applied to the root directly inside it. */
 export interface MenuFilterProviderOptions {
   /**
-   * Replaces the default case-insensitive substring matching. Receives each item's label (or
-   * rendered text) and the trimmed query; return `true` to show the item.
+   * Filter function used to match items against the query. Receives each item's `label` (or its
+   * rendered text) and the trimmed query, and keeps the item when it returns `true`.
+   * By default, items match when they contain the query, ignoring case, accents, and punctuation.
    * Pass `null` when rendering filtered items yourself.
    */
-  filter?: MenuFilterFunction | null | undefined;
+  filter?: ((text: string, query: string) => boolean) | null | undefined;
   /**
    * Whether filtering highlights the first matching item automatically.
    * - `true`: highlight it while the query is not empty.
    * - `'always'`: highlight it even when the query is empty.
    *
    * Opening the menu from the keyboard highlights the first item either way, and the arrow keys
-   * can move the highlight to another item.
+   * can move the highlight to another item. With either value, the arrow keys wrap within the
+   * list rather than returning to the input, and with `'always'` a pointer highlight stays when
+   * the pointer leaves.
    * @default false
    */
   autoHighlight?: boolean | 'always' | undefined;
   /**
-   * Locale used when comparing an item against the query.
-   * Defaults to the runtime's default locale.
+   * The locale the default `filter` uses for string comparison.
+   * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**
@@ -46,5 +41,5 @@ export interface MenuFilterProviderOptions {
    * Event handler called when the filter query changes.
    */
   onValueChange?:
-    ((value: string, eventDetails: MenuFilterProvider.ValueChangeEventDetails) => void) | undefined;
+    ((value: string, eventDetails: MenuFilterProvider.ChangeEventDetails) => void) | undefined;
 }

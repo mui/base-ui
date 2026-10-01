@@ -4,7 +4,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 
-// Kept in a separate file so the module mock doesn't leak into `FilterMenuRoot.test.tsx`.
+// Kept in a separate file so the module mock doesn't leak into `MenuFilterRoot.test.tsx`.
 vi.mock('@base-ui/utils/platform', async () => {
   const actual =
     await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');

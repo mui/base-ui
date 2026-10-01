@@ -40,6 +40,8 @@ export interface MenuFilterKeyContext {
   rtl: boolean;
   /** Whether an item is highlighted. */
   hasActiveItem: boolean;
+  /** Whether the highlighted item opens a submenu. */
+  activeItemOpensSubmenu: boolean;
   /** Whether the input has text. */
   hasValue: boolean;
 }
@@ -51,7 +53,7 @@ export function getMenuFilterKeyAction(
   event: React.KeyboardEvent,
   context: MenuFilterKeyContext,
 ): MenuFilterKeyAction {
-  const { orientation, rtl, hasActiveItem, hasValue } = context;
+  const { orientation, rtl, hasActiveItem, activeItemOpensSubmenu, hasValue } = context;
   const { key } = event;
   // Enter that commits an IME composition belongs to the input, not the list.
   if (event.which === 229) {
@@ -76,9 +78,10 @@ export function getMenuFilterKeyAction(
   if (key.length === 1) {
     return 'edit';
   }
-  // Home and End move the caret unless an item is highlighted, even in an empty input.
+  // Home and End move the caret while the input has text, and jump to the ends of the list
+  // otherwise once an item is highlighted.
   if (isBoundary) {
-    return hasActiveItem ? 'navigate' : 'edit';
+    return hasActiveItem && !hasValue ? 'navigate' : 'edit';
   }
   if (!isArrow) {
     return 'navigate';
@@ -89,25 +92,28 @@ export function getMenuFilterKeyAction(
     return orientation === 'horizontal' && !hasActiveItem && hasValue ? 'edit' : 'navigate';
   }
 
-  if (hasActiveItem) {
-    return isCrossOrientationOpenKey(key, orientation, rtl) ||
-      isCrossOrientationCloseKey(key, orientation, rtl, false)
-      ? 'submenu'
-      : 'navigate';
+  // A highlighted submenu trigger takes the cross-axis keys to open or close its submenu.
+  if (
+    activeItemOpensSubmenu &&
+    (isCrossOrientationOpenKey(key, orientation, rtl) ||
+      isCrossOrientationCloseKey(key, orientation, rtl, false))
+  ) {
+    return 'submenu';
   }
-  if (orientation === 'horizontal') {
+  if (orientation === 'horizontal' && !hasActiveItem) {
     return 'enter-list';
   }
-  // With nothing highlighted, Left and Right move the caret. On an empty input they fall
-  // through so they can still close a submenu.
+  // Otherwise the cross-axis keys move the caret. On an empty input they fall through so they
+  // can still close a submenu.
   return hasValue ? 'edit' : 'navigate';
 }
 
 /**
  * Routes keys for a filterable menu's input, which holds real focus while the list is navigated
- * with `aria-activedescendant`. Every key that reaches the input, the trigger while the popup is
- * open, or an item that received real focus from assistive technology goes through here, and
- * navigation runs the menu's own `useListNavigation` handler directly.
+ * with `aria-activedescendant`. Keys reaching the input, and those an item that received real
+ * focus from assistive technology hands back, go through here; the trigger relays only the
+ * vertical arrows while the popup is open. Navigation runs the menu's own `useListNavigation`
+ * handler directly.
  */
 export function useMenuFilterKeyDown(hasValue: boolean) {
   const { orientation, store } = useMenuRootContext();
@@ -120,6 +126,7 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
       orientation,
       rtl: direction === 'rtl',
       hasActiveItem: activeItem != null,
+      activeItemOpensSubmenu: activeItem?.hasAttribute('aria-haspopup') ?? false,
       hasValue,
     });
 

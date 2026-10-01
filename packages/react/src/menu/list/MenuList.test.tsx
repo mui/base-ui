@@ -528,6 +528,50 @@ describe('<Menu.List /> in a plain menu', () => {
     expect(second).not.toHaveAttribute('aria-controls');
   });
 
+  it('does not re-render an inactive trigger when the list mounts', async () => {
+    let secondTriggerPasses = 0;
+    function TwoTriggers() {
+      const handle = useRefWithInit(() => Menu.createHandle()).current;
+      return (
+        <React.Fragment>
+          <Menu.Trigger handle={handle}>First</Menu.Trigger>
+          <Menu.Trigger
+            handle={handle}
+            render={(props) => {
+              secondTriggerPasses += 1;
+              return <button {...props} />;
+            }}
+          >
+            Second
+          </Menu.Trigger>
+          <Menu.Root handle={handle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.List data-testid="list">
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<TwoTriggers />);
+    const first = screen.getByRole('button', { name: 'First' });
+    const passesBeforeOpen = secondTriggerPasses;
+
+    await user.click(first);
+    const list = await screen.findByTestId('list');
+    await waitFor(() => {
+      expect(first).toHaveAttribute('aria-controls', list.id);
+    });
+
+    expect(secondTriggerPasses).toBe(passesBeforeOpen);
+  });
+
   it('enters the list from the end with ArrowUp after a pointer open without looping', async () => {
     const { user } = await render(
       <Menu.Root loopFocus={false}>

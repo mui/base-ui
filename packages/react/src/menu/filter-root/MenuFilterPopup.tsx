@@ -26,7 +26,7 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
   const interactionProps = useMenuFilterPopup(orientation);
 
   const openedByHover = open && lastOpenChangeReason === REASONS.triggerHover;
-  const shouldFocusPopup =
+  const mayFocusInput =
     parent.type !== 'menu' ||
     (open &&
       (openMethod === 'keyboard' ||
@@ -36,7 +36,7 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
 
   // The input holds real focus; the popup is never the focus target.
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = false;
-  if (shouldFocusPopup) {
+  if (mayFocusInput) {
     initialFocus = () => {
       // A tap would raise the on-screen keyboard, but a screen reader press (such as an iOS
       // VoiceOver double-tap) still reports a touch and needs the input focused.

@@ -41,9 +41,10 @@ export interface ListStepOptions {
   /** Whether stepping past either end leaves the list instead of wrapping. */
   allowEscape: boolean;
   disabledIndices?: DisabledIndices | undefined;
-  /** The first and last navigable indices, when the caller already computed them. */
-  minIndex?: number | undefined;
-  maxIndex?: number | undefined;
+  /** The first navigable index. */
+  minIndex: number;
+  /** The last navigable index. */
+  maxIndex: number;
 }
 
 /**
@@ -55,15 +56,7 @@ export function getNextListIndex(
   currentIndex: number,
   options: ListStepOptions,
 ): { index: number; wrapped: boolean } {
-  const { decrement, loopFocus, allowEscape, disabledIndices } = options;
-  const minIndex = options.minIndex ?? findNonDisabledListIndex(list, { disabledIndices });
-  const maxIndex =
-    options.maxIndex ??
-    findNonDisabledListIndex(list, {
-      decrement: true,
-      startingIndex: list.length,
-      disabledIndices,
-    });
+  const { decrement, loopFocus, allowEscape, disabledIndices, minIndex, maxIndex } = options;
   const step = () =>
     findNonDisabledListIndex(list, { startingIndex: currentIndex, decrement, disabledIndices });
 

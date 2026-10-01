@@ -101,8 +101,8 @@ export interface MenuItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Overrides the text used for keyboard text navigation and filtering inside
-   * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
+   * Overrides the text used for keyboard text navigation and filtering.
+   * Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

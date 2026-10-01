@@ -3040,6 +3040,7 @@ describe('<Menu.Root />', () => {
       expect(onItemHighlighted).toHaveBeenLastCalledWith(item2, {
         reason: REASONS.pointer,
         label: 'Item 2',
+        event: expect.any(Event),
       });
     });
 
@@ -3443,6 +3444,7 @@ describe('<Menu.Root />', () => {
       expect(onItemHighlighted).toHaveBeenLastCalledWith(firstItem, {
         reason: 'imperative-action',
         label: 'One',
+        event: expect.any(Event),
       });
 
       act(() => actionsRef.current!.highlightItem('none'));
@@ -3453,6 +3455,7 @@ describe('<Menu.Root />', () => {
       expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
         reason: 'imperative-action',
         label: undefined,
+        event: expect.any(Event),
       });
 
       await user.keyboard('{Enter}');

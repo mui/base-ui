@@ -158,8 +158,8 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
 
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
-        // A screen reader press has no pointer focus to wait for, and waiting a frame lets the
-        // reader re-sync focus to its cursor before the popup opens and moves it.
+        // A screen reader press opens synchronously, so the popup's focus lands before the reader
+        // re-syncs focus to its cursor, which would otherwise read as a stray move.
         const target = getTarget(nativeEvent);
         const isTypeable = isTypeableElement(target);
 

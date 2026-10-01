@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { warn } from '@base-ui/utils/warn';
 import {
   activeElement,
   contains,
@@ -25,15 +26,22 @@ export function useMenuFilterPopup(
   // pointer crosses the parent popup. Returning to a submenu trigger restores focus to the
   // parent input. Focus that merely followed the pointer in follows it back out.
   const nestedFocusRef = React.useRef<Element | null>(null);
+  // A tap fires compatibility mouse events, which must not focus the input and raise the
+  // on-screen keyboard.
+  const pointerTypeRef = React.useRef('mouse');
 
-  React.useEffect(() => {
-    if (process.env.NODE_ENV !== 'production' && context.open && focusOwnerRef.current === null) {
-      console.warn(
-        'Base UI: a filterable menu opened without a <Menu.Input>. Render the input ' +
-          'inside <Menu.Popup>, or drop <Menu.FilterProvider> for a menu that does not filter.',
-      );
-    }
-  }, [context.open, focusOwnerRef]);
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (context.open && focusOwnerRef.current === null) {
+        warn(
+          'A filterable menu opened without a <Menu.Input>. Render the input inside ' +
+            '<Menu.Popup>, or drop <Menu.FilterProvider> for a menu that does not filter.',
+        );
+      }
+    }, [context.open, focusOwnerRef]);
+  }
 
   function restoreInputFocus(event: React.MouseEvent<HTMLDivElement>, enteredTrigger: boolean) {
     const focusOwner = focusOwnerRef.current;
@@ -93,11 +101,19 @@ export function useMenuFilterPopup(
         event.preventDefault();
       }
     },
+    onPointerDown(event) {
+      pointerTypeRef.current = event.pointerType || 'mouse';
+    },
+    onPointerMove(event) {
+      pointerTypeRef.current = event.pointerType || 'mouse';
+    },
     onMouseMove(event) {
-      restoreInputFocus(event, false);
+      if (pointerTypeRef.current === 'mouse') {
+        restoreInputFocus(event, false);
+      }
     },
     onMouseOver(event) {
-      if (nestedFocusRef.current) {
+      if (pointerTypeRef.current === 'mouse' && nestedFocusRef.current) {
         restoreInputFocus(event, true);
       }
     },

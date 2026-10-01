@@ -7,7 +7,7 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 
-export const MenuListPlain = React.forwardRef(function MenuListPlain(
+const MenuListPlain = React.forwardRef(function MenuListPlain(
   componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {

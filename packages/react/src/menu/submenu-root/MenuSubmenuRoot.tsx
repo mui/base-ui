@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { MenuRootInternal } from '../root/MenuRoot';
 import type { MenuRoot } from '../root/MenuRoot';
+import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuSubmenuRootContext } from './MenuSubmenuRootContext';
 import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
 
@@ -16,6 +17,8 @@ const EMPTY_SUBMENU_ROOT_CONTEXT = {};
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props): React.JSX.Element {
+  // Throws when the submenu isn't inside a menu.
+  useMenuRootContext();
   const filterProvider = React.useContext(MenuFilterProviderContext);
 
   if (filterProvider !== null) {

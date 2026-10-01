@@ -45,7 +45,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   } = componentProps;
 
   const context = useMenuRootContext(true);
-  if (context?.type !== 'submenu' || context.parent.type !== 'menu') {
+  if (context?.parent.type !== 'menu') {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
@@ -307,8 +307,8 @@ export interface MenuSubmenuTriggerProps
   extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
   onClick?: BaseUIComponentProps<'div', MenuSubmenuTriggerState>['onClick'] | undefined;
   /**
-   * Overrides the text used for keyboard text navigation and filtering inside
-   * `Menu.FilterProvider`. Falls back to the rendered text when not provided.
+   * Overrides the text used for keyboard text navigation and filtering.
+   * Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

@@ -121,10 +121,10 @@ describe('<Menu.Popup />', () => {
 
     await user.click(screen.getByRole('button', { name: 'Open' }));
     const one = await screen.findByRole('menuitem', { name: 'One' });
-    const two = screen.getByRole('menuitem', { name: 'Two' });
-    await act(async () => two.focus());
+    await act(async () => one.focus());
     await user.keyboard('[ArrowDown]');
-    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Three' })).toHaveFocus());
+    // Mid-list, so continuing from the highlight would reach Three instead.
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
 
     await act(async () => screen.getByRole('button', { name: 'Custom' }).focus());
     await user.keyboard('[ArrowDown]');

@@ -22,8 +22,14 @@ import { useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { ContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
@@ -509,7 +515,8 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     loopFocus,
     // Filtered menus keep DOM focus on the input, while keyboard and virtual opens initially
-    // highlight an item as ordinary menus do. The input remains part of the arrow-key loop.
+    // highlight an item as ordinary menus do. The input stays in the arrow-key loop unless the
+    // filter highlights automatically.
     focusItemOnOpen: virtualFocus ? keyboardOpen : undefined,
     allowEscape: virtualFocus && loopFocus && allowEscape,
     orientation,
@@ -573,6 +580,11 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   // Runs when `activeIndex` commits and again when the item registry settles, since an index
   // can come to point at a different element while its value stays the same.
   const syncHighlightedItem = useStableCallback(() => {
+    // Only virtual focus and `onItemHighlighted` read the committed item.
+    if (!virtualFocus && !onItemHighlightedProp) {
+      return;
+    }
+
     const index = store.state.activeIndex;
     const item =
       index === null ? undefined : (store.context.itemDomElements.current[index] ?? undefined);
@@ -592,11 +604,15 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     // The tag left by the write that produced this committed value.
     const reason = store.context.highlightReason;
     store.context.highlightReason = REASONS.none;
-    onItemHighlighted(item, {
-      reason,
-      label:
-        item === undefined ? undefined : (store.context.itemLabels.current[itemIndex] ?? undefined),
-    });
+    onItemHighlighted(
+      item,
+      createGenericEventDetails(reason, undefined, {
+        label:
+          item === undefined
+            ? undefined
+            : (store.context.itemLabels.current[itemIndex] ?? undefined),
+      }),
+    );
   });
 
   useIsoLayoutEffect(() => {
@@ -705,10 +721,10 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const context: MenuRootContext<Payload> = React.useMemo(
     () => ({
       store,
-      type: isSubmenu ? 'submenu' : 'menu',
       parent: parentFromContext,
       orientation,
       loopFocus,
+      allowEscape,
       defaultFloatingId,
       setRenderedFloatingId,
       virtualFocus,
@@ -719,10 +735,10 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     }),
     [
       store,
-      isSubmenu,
       parentFromContext,
       orientation,
       loopFocus,
+      allowEscape,
       defaultFloatingId,
       virtualFocus,
       parentVirtualFocus,
@@ -859,13 +875,13 @@ export interface MenuRootProps<Payload = unknown> {
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item element (or `undefined` if no item is highlighted) and details
-   * containing the reason for the change and the item's text label.
+   * containing the reason for the change, the event, and the item's text label.
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering.
    * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
-   * - `'none'`: the highlight changed for another reason, such as `autoHighlight`, the item
-   *   list changing, or the popup opening or closing.
+   * - `'none'`: the highlight changed for another reason, such as automatic highlighting while
+   *   filtering, the item list changing, or the popup opening or closing.
    */
   onItemHighlighted?:
     | ((
@@ -975,16 +991,15 @@ export type MenuRootHighlightEventReason =
   | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 
-export interface MenuRootHighlightEventDetails {
-  /**
-   * The reason the highlight changed.
-   */
-  reason: MenuRoot.HighlightEventReason;
-  /**
-   * The highlighted item's `label` prop, or its text content when the prop is not set.
-   */
-  label: string | undefined;
-}
+export type MenuRootHighlightEventDetails = BaseUIGenericEventDetails<
+  MenuRoot.HighlightEventReason,
+  {
+    /**
+     * The highlighted item's `label` prop, or its text content when the prop is not set.
+     */
+    label: string | undefined;
+  }
+>;
 
 export type MenuRootOrientation = 'horizontal' | 'vertical';
 

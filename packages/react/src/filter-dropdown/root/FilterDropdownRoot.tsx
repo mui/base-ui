@@ -59,12 +59,23 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   const {
     items: registeredItems,
-    registerItem,
+    registerItem: registerInRegistry,
     liveItems,
   } = useItemRegistry<symbol, FilterDropdownItemRegistration>();
 
   const defaultId = useBaseUiId();
   const store = useRefWithInit(() => new FilterDropdownStore()).current;
+
+  // The count is published as items register, not with the next registry snapshot, so a
+  // `Menu.Empty` mounting alongside the items never reads a stale zero.
+  const registerItem = useStableCallback((id: symbol, item: FilterDropdownItemRegistration) => {
+    const unregister = registerInRegistry(id, item);
+    store.set('registeredItemCount', liveItems.size);
+    return () => {
+      unregister();
+      store.set('registeredItemCount', liveItems.size);
+    };
+  });
 
   const fallbackFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const lastFilterQueryRef = React.useRef<string | null>(null);
@@ -112,8 +123,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
     setActiveIndex(autoHighlightEnabled && items.length > 0 ? 0 : null);
   });
-
-  store.useSyncedValue('registeredItemCount', registeredItems.size);
 
   // Re-runs on the registry snapshot published once every item in the commit has registered,
   // and on the committed query, because a controlled consumer can reject a proposed change. It
@@ -194,7 +203,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       keyboardModality,
       setKeyboardModality,
       autoHighlight,
-      store,
       triggerId,
       defaultListId,
       listId,
@@ -210,7 +218,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       inputFocusVisible,
       keyboardModality,
       autoHighlight,
-      store,
       triggerId,
       defaultListId,
       listId,

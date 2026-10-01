@@ -31,9 +31,9 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { store, orientation, loopFocus } = useMenuRootContext();
+  const { store, orientation, loopFocus, allowEscape } = useMenuRootContext();
   const direction = useDirection();
-  const { onItemsChange, focusOwnerRef, triggerId, autoHighlight } = useFilterDropdownRootContext();
+  const { onItemsChange, focusOwnerRef, triggerId } = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
 
@@ -66,7 +66,7 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
             orientation,
             rtl: direction === 'rtl',
             loopFocus,
-            allowEscape: !autoHighlight,
+            allowEscape,
           });
         }
       }

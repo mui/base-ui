@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -25,6 +26,15 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const { listRef } = useFilterDropdownItemContext();
   const value = useFilterDropdownValueContext();
 
+  // IME text isn't committed until the composition ends, so filtering waits for it.
+  const [composingValue, setComposingValue] = React.useState<string | null>(null);
+  const isComposingRef = React.useRef(false);
+
+  function commitValue(nextValue: string, nativeEvent: Event) {
+    const reason = nextValue === '' ? REASONS.inputClear : REASONS.inputChange;
+    context.onValueChange(nextValue, createChangeEventDetails(reason, nativeEvent));
+  }
+
   const state: FilterDropdownInputState = {
     highlighted: context.inputFocusVisible && (!context.keyboardModality || activeItemId == null),
   };
@@ -40,19 +50,38 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         'aria-activedescendant': activeItemId,
         role: 'searchbox',
         inputMode: 'search',
-        enterKeyHint: 'search',
         autoComplete: 'off',
+        spellCheck: 'false',
+        autoCorrect: 'off',
+        autoCapitalize: 'none',
         // The aria-autocomplete 'list' value is only valid with `aria-haspopup` so we depend
         // on the searchbox role to communicate affordance, with an input label as fallback
         // https://w3c.github.io/aria/#aria-autocomplete
         'aria-autocomplete': undefined,
         'aria-controls': context.listId,
-        value,
+        value: composingValue ?? value,
+        onCompositionStart(event) {
+          // Some Android keyboards treat all typing as one composition.
+          if (platform.os.android) {
+            return;
+          }
+          isComposingRef.current = true;
+          setComposingValue(event.currentTarget.value);
+        },
+        onCompositionEnd(event) {
+          if (!isComposingRef.current) {
+            return;
+          }
+          isComposingRef.current = false;
+          setComposingValue(null);
+          commitValue(event.currentTarget.value, event.nativeEvent);
+        },
         onChange(event) {
-          const nextValue = event.currentTarget.value;
-          const reason = nextValue === '' ? REASONS.inputClear : REASONS.inputChange;
-          const eventDetails = createChangeEventDetails(reason, event.nativeEvent);
-          context.onValueChange(nextValue, eventDetails);
+          if (isComposingRef.current) {
+            setComposingValue(event.currentTarget.value);
+            return;
+          }
+          commitValue(event.currentTarget.value, event.nativeEvent);
         },
         onKeyDown() {
           context.setKeyboardModality(true);
