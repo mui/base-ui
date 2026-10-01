@@ -972,6 +972,37 @@ describe('Draggable.Target', () => {
     fireDrag.drop(target);
   });
 
+  it('lets canDrop accept only part of the target through its local point', async () => {
+    // Only the top half of the target takes the drop. The pointer lands on its
+    // element either way, so the local point is what tells the halves apart.
+    const { engine } = await renderDnd(
+      <Draggable.Target
+        accept={Draggable.anyKind}
+        data-testid="target"
+        snap={{ y: 4 }}
+        canDrop={(context) =>
+          context.getLocalPoint().y < 0.5 && context.getSnappedLocalPoint().y <= 0.5
+        }
+      />,
+    );
+    const source = createElement();
+    engine.registerSource(source, {});
+    const target = screen.getByTestId('target');
+    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+    fireDrag.dragStart(source);
+    fireDrag.dragEnter(target, { clientY: 20 });
+    fireDrag.dragOver(target, { clientY: 20 });
+    await flushRaf();
+    expect(target).toHaveAttribute('data-drag-over');
+
+    fireDrag.dragOver(target, { clientY: 80 });
+    await flushRaf();
+    expect(target).not.toHaveAttribute('data-drag-over');
+
+    fireDrag.drop(target, { clientY: 80 });
+  });
+
   it('reflects a rejecting canDrop as data-rejected while hovered, and clears it on leave', async () => {
     // A rejection leaves the stack empty before and after, so `data-rejected`
     // relies on the session publishing the flip on its own.

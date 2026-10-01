@@ -1361,13 +1361,12 @@ function dropActiveAtPointer(pointerEvent: PointerEvent | MouseEvent): void {
   const target = hitTestUnderPreview(active.element, active.preview, input.clientX, input.clientY);
   const controller = active.controller;
   const preview = active.preview;
-  // An engine clone settles into place after the drop, and the source keeps
-  // `[data-dragging]` until it has. Any other preview (custom content, or none)
-  // takes `[data-dragging]` with it when destroyed. Destroy that one only after
-  // the drop, so a rule that resizes or hides the source still applies while
-  // drop handlers measure local points against the layout under the pointer.
-  const previewElement = preview.getPreviewElement();
-  const destroyAfterDrop = previewElement === null || previewElement.isHost;
+  // A preview settles into place after the drop, and the source keeps
+  // `[data-dragging]` until it has. A drag without a preview element takes
+  // `[data-dragging]` with it when destroyed. Destroy that one only after the
+  // drop, so a rule that resizes or hides the source still applies while drop
+  // handlers measure local points against the layout under the pointer.
+  const destroyAfterDrop = preview.getPreviewElement() === null;
   // A clean release frees the contextmenu suppression (see `clearActive`). The
   // pointer is already up, so the drag's click is imminent. A double-click
   // session holds no pointer, so `clearActive` arms nothing for it. As in

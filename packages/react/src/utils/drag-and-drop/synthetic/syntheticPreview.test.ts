@@ -12,17 +12,22 @@ import type { DragPreviewElementHandle } from './cloneDragPreview';
 function createPreviewElement(
   width = 0,
   height = 0,
-  isHost = true,
+  isClone = false,
 ): DragPreviewElementHandle & { destroyed: boolean } {
   const element = document.createElement('div');
   element.getBoundingClientRect = () => new DOMRect(0, 0, width, height);
+  const sourceRect = new DOMRect(0, 0, width, height);
   return {
     element,
-    isHost,
-    sourceRect: new DOMRect(0, 0, width, height),
-    positionScale: { x: 1, y: 1 },
+    isClone,
+    anchor: { sourceRect, sourceScale: { x: 1, y: 1 }, hosts: [], inContainer: false, slot: null },
+    sourceRect,
     destroyed: false,
+    setPosition(x, y) {
+      element.style.translate = `${x}px ${y}px`;
+    },
     ensureConnected() {},
+    restoreEngineState() {},
     prepareForDrop() {},
     destroy() {
       this.destroyed = true;
@@ -136,8 +141,8 @@ describe('syntheticPreview', () => {
     });
 
     it('re-anchors the preview when the offset is resolved after its content renders', () => {
-      // A `Draggable.Preview` with an offset callback can only be measured once React has
-      // filled the host, which is after the engine placed it.
+      // A `Draggable.Preview` with an offset callback can only be measured once its
+      // content has been copied in, which is after the engine placed it.
       const handle = createHandle(document.body);
       const preview = createPreviewElement();
       handle.setPreviewElement(preview);
@@ -167,7 +172,10 @@ describe('syntheticPreview', () => {
       const source = createSource();
       source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
       const handle = createHandle(source);
-      const preview = createPreviewElement(120, 30, false);
+      const preview = createPreviewElement(120, 30, true);
+      // The authored ending transition that animates the move to the source.
+      preview.element.style.transitionProperty = 'translate';
+      preview.element.style.transitionDuration = '200ms';
       document.body.appendChild(preview.element);
       let finishAnimation: () => void;
       const finished = new Promise<void>((resolve) => {
@@ -186,12 +194,12 @@ describe('syntheticPreview', () => {
       handle.prepareForDrop();
       handle.destroy();
 
-      expect(preview.element).toHaveAttribute('data-ending-style');
       expect(source).toHaveAttribute('data-dragging');
       expect(source).toHaveAttribute('data-settling');
       expect(preview.destroyed).toBe(false);
 
       frames.shift()!(0);
+      expect(preview.element).toHaveAttribute('data-ending-style');
       expect(preview.element.style.translate).toBe('40px 50px');
       expect(preview.destroyed).toBe(false);
 
@@ -203,6 +211,106 @@ describe('syntheticPreview', () => {
       expect(source).not.toHaveAttribute('data-settling');
     });
 
+    it('ends in place when no translate transition animates the move', async () => {
+      // A fade-only ending would otherwise jump to the source on its first frame
+      // and fade there.
+      vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+      const frames: FrameRequestCallback[] = [];
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frames.push(callback);
+        return frames.length;
+      });
+      const source = createSource();
+      source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
+      const handle = createHandle(source);
+      const preview = createPreviewElement(120, 30, true);
+      preview.element.style.transitionProperty = 'opacity, translate';
+      preview.element.style.transitionDuration = '200ms, 0s';
+      document.body.appendChild(preview.element);
+      let finishAnimation: () => void;
+      const finished = new Promise<void>((resolve) => {
+        finishAnimation = resolve;
+      });
+      preview.element.getAnimations = () =>
+        [{ effect: { getTiming: () => ({ iterations: 1 }) }, finished }] as unknown as Animation[];
+
+      handle.setPreviewElement(preview);
+      handle.update(300, 400);
+      handle.markSourceDragging();
+      handle.prepareForDrop();
+      handle.destroy();
+      frames.shift()!(0);
+
+      expect(preview.element.style.translate).toBe('300px 400px');
+      expect(preview.destroyed).toBe(false);
+      finishAnimation!();
+      await finished;
+      await Promise.resolve();
+      expect(preview.destroyed).toBe(true);
+    });
+
+    it('runs the ending in place when the source is gone', async () => {
+      // A drop that remounts the item without a matching identity leaves nothing to
+      // move onto, but an ending fade still runs.
+      vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+      const frames: FrameRequestCallback[] = [];
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frames.push(callback);
+        return frames.length;
+      });
+      const source = createSource();
+      const handle = createHandle(source);
+      const preview = createPreviewElement(120, 30, true);
+      preview.element.style.transitionProperty = 'translate';
+      preview.element.style.transitionDuration = '200ms';
+      document.body.appendChild(preview.element);
+      const finished = new Promise<void>(() => {});
+      preview.element.getAnimations = () =>
+        [{ effect: { getTiming: () => ({ iterations: 1 }) }, finished }] as unknown as Animation[];
+
+      handle.setPreviewElement(preview);
+      handle.update(300, 400);
+      handle.markSourceDragging();
+      handle.prepareForDrop();
+      handle.destroy();
+      source.remove();
+      frames.shift()!(0);
+
+      expect(preview.element.style.translate).toBe('300px 400px');
+      expect(preview.destroyed).toBe(false);
+    });
+
+    it('marks the ending preview when the release dropped on a target', () => {
+      const frames: FrameRequestCallback[] = [];
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frames.push(callback);
+        return frames.length;
+      });
+      const outside = createHandle(createSource());
+      const returning = createPreviewElement(120, 30, true);
+      document.body.appendChild(returning.element);
+      outside.setPreviewElement(returning);
+      outside.prepareForDrop();
+      outside.destroy();
+      frames.shift()!(0);
+      expect(returning.element).toHaveAttribute('data-ending-style');
+      expect(returning.element).not.toHaveAttribute('data-dropped');
+
+      const onTarget = createHandle(createSource());
+      const dropped = createPreviewElement(120, 30, true);
+      document.body.appendChild(dropped.element);
+      onTarget.setPreviewElement(dropped);
+      onTarget.prepareForDrop();
+      onTarget.destroy();
+      // The lifecycle resolves the drop after the sensor released the preview, but
+      // before the ending's first frame, which applies both attributes together.
+      onTarget.markDropped();
+      expect(dropped.element).not.toHaveAttribute('data-ending-style');
+      frames.shift()!(0);
+      expect(dropped.element).toHaveAttribute('data-ending-style');
+      expect(dropped.element).toHaveAttribute('data-dropped');
+    });
+
     it.each(['duration', 'iterations'])('ignores animations with infinite %s', (property) => {
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
       const frames: FrameRequestCallback[] = [];
@@ -212,7 +320,7 @@ describe('syntheticPreview', () => {
       });
       const source = createSource();
       const handle = createHandle(source);
-      const preview = createPreviewElement(120, 30, false);
+      const preview = createPreviewElement(120, 30, true);
       document.body.appendChild(preview.element);
       preview.element.getAnimations = () =>
         [
@@ -241,7 +349,7 @@ describe('syntheticPreview', () => {
       const source = createSource();
       source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
       const handle = createHandle(source);
-      const preview = createPreviewElement(120, 30, false);
+      const preview = createPreviewElement(120, 30, true);
       document.body.appendChild(preview.element);
       preview.element.getAnimations = () =>
         [
@@ -285,7 +393,9 @@ describe('syntheticPreview', () => {
       const source = createSource();
       const handle = createSyntheticPreview(source, identity, null);
       activeHandles.push(handle);
-      const preview = createPreviewElement(120, 30, false);
+      const preview = createPreviewElement(120, 30, true);
+      preview.element.style.transitionProperty = 'translate';
+      preview.element.style.transitionDuration = '200ms';
       document.body.appendChild(preview.element);
       let finishAnimation: () => void;
       const finished = new Promise<void>((resolve) => {
@@ -344,7 +454,7 @@ describe('syntheticPreview', () => {
         null,
       );
       activeHandles.push(handle);
-      const preview = createPreviewElement(120, 30, false);
+      const preview = createPreviewElement(120, 30, true);
       document.body.appendChild(preview.element);
       preview.element.getAnimations = () => [];
 
@@ -367,13 +477,24 @@ describe('syntheticPreview', () => {
       expect(preview.destroyed).toBe(true);
     });
 
-    it('does not preserve a custom preview whose React content is ending', () => {
-      const handle = createHandle(createSource());
-      const preview = createPreviewElement(100, 25, true);
+    it('settles a copy of custom content like a clone', () => {
+      const frames: FrameRequestCallback[] = [];
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frames.push(callback);
+        return frames.length;
+      });
+      const source = createSource();
+      const handle = createHandle(source);
+      const preview = createPreviewElement(100, 25, false);
+      document.body.appendChild(preview.element);
       handle.setPreviewElement(preview);
       handle.prepareForDrop();
       handle.destroy();
 
+      expect(preview.destroyed).toBe(false);
+      expect(source).toHaveAttribute('data-settling');
+      frames.shift()!(0);
+      expect(preview.element).toHaveAttribute('data-ending-style');
       expect(preview.destroyed).toBe(true);
     });
   });

@@ -35,7 +35,7 @@ describe('sensor session startup', () => {
     const ids = Array.from(document.querySelectorAll('[id]'), (node) => node.id);
     expect(ids.length).toBe(new Set(ids).size);
     expect(child).not.toHaveAttribute('data-settling');
-    expect(parent.querySelector('[data-drag-preview-container]')).toBeNull();
+    expect(parent.querySelector('[data-drag-preview]')).toBeNull();
     act(() => engine.cancelDrag());
     penUp(150, 80);
   });
@@ -62,7 +62,7 @@ describe('sensor session startup', () => {
               source.updatePayload('updated');
               source.updateDragData({ offset });
               expect(dragSourceStore.state).toBeNull();
-              expect(document.querySelector('[data-drag-preview-container]')).toBeNull();
+              expect(document.querySelector('[data-drag-preview]')).toBeNull();
             }}
             onMoveStart={onMoveStart}
           >
@@ -382,7 +382,7 @@ describe('sensor session startup', () => {
     expect(onMoveStart).not.toHaveBeenCalled();
     expect(dragSessionStore.state).toBeNull();
     expect(dragPreviewStore.state).toBeNull();
-    expect(document.querySelector('[data-drag-preview-container]')).toBeNull();
+    expect(document.querySelector('[data-drag-preview]')).toBeNull();
     expect(source).not.toHaveAttribute('data-dragging');
   });
 });

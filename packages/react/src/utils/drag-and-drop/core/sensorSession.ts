@@ -194,6 +194,11 @@ export function createPreviewAndStartSession(
       grabOffset,
       hitTest: (clientX, clientY) => hitTestUnderPreview(element, sessionPreview, clientX, clientY),
       onForceCleanup,
+      onRelease: (dropped) => {
+        if (dropped) {
+          sessionPreview.markDropped();
+        }
+      },
     });
     if (!session) {
       // The lifecycle refused (a drag is already running or pickup was canceled).

@@ -924,8 +924,8 @@ describe('Draggable.Root', () => {
       const clone = document.querySelector('[data-drag-preview]') as HTMLElement;
       expect(clone).not.toBeNull();
       expect(clone).toHaveClass('Card');
-      // The clone sits in the engine's top-layer wrapper, placed so the cascade still applies.
-      expect(clone.parentElement!.parentElement).toBe(source.parentElement);
+      // The clone is a sibling of the source, with no wrapper, so the cascade still applies.
+      expect(clone.parentElement).toBe(source.parentElement);
     });
 
     it('marks the source with data-dragging, and never the clone', async () => {
@@ -939,6 +939,35 @@ describe('Draggable.Root', () => {
       // carried the attribute, the preview would fade too.
       expect(source).toHaveAttribute('data-dragging');
       expect(document.querySelector('[data-drag-preview]')).not.toHaveAttribute('data-dragging');
+    });
+
+    it('reports settling in its state while the preview settles after the drop', async () => {
+      // `[data-dragging]` stays on the source until the preview has settled. A
+      // component that renders it from React needs `dragging || settling`.
+      const states: Draggable.Root.State[] = [];
+      await renderDnd(
+        <Draggable.Root
+          kind={testDragKind}
+          data-testid="drag"
+          className={(state) => {
+            states.push(state);
+            return undefined;
+          }}
+        />,
+      );
+      const source = screen.getByTestId('drag');
+      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+      await lift(source);
+      expect(states.at(-1)).toMatchObject({ dragging: true, settling: false });
+
+      act(() => fireDrag.drop(source));
+      expect(source).toHaveAttribute('data-settling');
+      expect(states.at(-1)).toMatchObject({ dragging: false, settling: true });
+
+      await flushRaf();
+      expect(source).not.toHaveAttribute('data-settling');
+      expect(states.at(-1)).toMatchObject({ dragging: false, settling: false });
     });
 
     it('anchors the clone at the grab point and moves it with the pointer', async () => {
@@ -1016,7 +1045,7 @@ describe('Draggable.Root', () => {
         [{ effect: { getTiming: () => ({ iterations: 1 }) }, finished }] as unknown as Animation[];
 
       fireDrag.drop(target);
-      expect(clone).toHaveAttribute('data-ending-style');
+      expect(clone.isConnected).toBe(true);
       expect(first).toHaveAttribute('data-dragging');
 
       await rerender(<Card mountKey="b" payload={{ id: 'a' }} />);
@@ -1029,6 +1058,7 @@ describe('Draggable.Root', () => {
       expect(clone.isConnected).toBe(true);
 
       await flushRaf();
+      expect(clone).toHaveAttribute('data-ending-style');
       expect(clone.isConnected).toBe(true);
       finishAnimation();
       await finished;
@@ -1054,12 +1084,50 @@ describe('Draggable.Root', () => {
       await flushRaf();
       fireDrag.drop(target);
 
-      // A clone gets an ending-style frame so an authored transition can settle
-      // it into the source. With no transition, it is gone before that frame paints.
-      expect(document.querySelector('[data-drag-preview]')).toHaveAttribute('data-ending-style');
+      // A clone gets an ending frame so an authored transition can settle it into
+      // the source. With no transition, it is gone before that frame paints.
+      expect(document.querySelector('[data-drag-preview]')).not.toBeNull();
       await flushRaf();
       expect(document.querySelector('[data-drag-preview]')).toBeNull();
       expect(source).not.toHaveAttribute('data-dragging');
+    });
+
+    it.each([
+      ['a drop on a target', true],
+      ['a release outside every target', false],
+    ])('tells the ending preview whether it ends after %s', async (_name, onTarget) => {
+      vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+      registerCleanup(() => vi.unstubAllGlobals());
+      const { engine } = await renderDnd(<PlainDraggable />);
+      const source = screen.getByTestId('drag');
+      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      const target = createElement();
+      if (onTarget) {
+        engine.registerTarget(target, {});
+      }
+
+      fireDrag.dragStart(source);
+      await flushRaf();
+      fireDrag.dragEnter(target);
+      fireDrag.dragOver(target);
+      await flushRaf();
+      // An authored ending transition keeps the clone mounted to inspect it.
+      const clone = document.querySelector('[data-drag-preview]') as HTMLElement;
+      let finishAnimation!: () => void;
+      const finished = new Promise<void>((resolve) => {
+        finishAnimation = resolve;
+      });
+      registerCleanup(() => finishAnimation());
+      clone.getAnimations = () =>
+        [{ effect: { getTiming: () => ({ iterations: 1 }) }, finished }] as unknown as Animation[];
+      fireDrag.drop(target);
+      await flushRaf();
+
+      expect(clone).toHaveAttribute('data-ending-style');
+      expect(clone.hasAttribute('data-dropped')).toBe(onTarget);
+      finishAnimation();
+      await finished;
+      await flushRaf();
     });
   });
 
@@ -1176,13 +1244,12 @@ describe('Draggable.Root', () => {
 
       fireDrag.dragStart(source);
 
-      // The React layer reports only hosts as the active preview. A declared clone
-      // must not be mistaken for no preview and torn down.
+      // A declared clone must not be mistaken for custom content and wait for React.
       const clone = document.querySelector('.Card[data-drag-preview]') as HTMLElement;
       expect(clone).not.toBeNull();
       // The provider renders no element, so it moves nothing. The clone stays where
       // the app's contextual CSS still reaches it. Only `container` moves a preview.
-      expect(clone.parentElement!.parentElement).toBe(source.parentElement);
+      expect(clone.parentElement).toBe(source.parentElement);
     });
 
     it('warns rather than throwing when a draggable declares two previews', () => {
@@ -1376,6 +1443,8 @@ describe('Draggable.Root', () => {
       fireDrag.dragStart(source);
 
       const element = screen.getByTestId('preview').parentElement as HTMLElement;
+      // The content renders off-document, so its id doesn't collide with anything and
+      // the copy keeps it.
       expect(element).toHaveAttribute('id', 'chip');
       expect(element).toHaveAttribute('data-chip', 'yes');
       expect(element).toHaveAttribute('aria-label', 'Card chip');
@@ -1404,12 +1473,12 @@ describe('Draggable.Root', () => {
       expect(screen.getByTestId('preview')).toHaveTextContent('dark');
       // Both hold at once. The content reads the app's context, and the element
       // stays where contextual CSS such as `.dark .Card` still matches it.
-      expect(
-        screen.getByTestId('preview').closest('[data-drag-preview-container]')!.parentElement,
-      ).toBe(source.parentElement);
+      expect(screen.getByTestId('preview').closest('[data-drag-preview]')!.parentElement).toBe(
+        source.parentElement,
+      );
     });
 
-    it('applies className to its own element, inside the engine-owned host', async () => {
+    it('applies className to the preview element', async () => {
       rtlRender(
         <DraggableWithPreview
           preview={<span data-testid="preview">chip</span>}
@@ -1421,13 +1490,12 @@ describe('Draggable.Root', () => {
 
       fireDrag.dragStart(source);
 
-      // `className` styles the part, not the host the engine transforms. The engine
-      // positions the host, and the consumer styles the part, which also carries the
-      // public styling hook.
+      // The part's element is the preview the engine positions, with no host around
+      // it, and it carries the public styling hook.
       const element = screen.getByTestId('preview').parentElement as HTMLElement;
       expect(element).toHaveClass('Ghost');
       expect(element).toHaveAttribute('data-drag-preview', '');
-      expect(element.parentElement).not.toHaveAttribute('data-drag-preview');
+      expect(element).toHaveAttribute('data-base-ui-drag-preview', 'content');
     });
 
     it('renders the element the render prop returns, with no wrapper of its own', async () => {
@@ -1603,14 +1671,13 @@ describe('Draggable.Root', () => {
 
       fireDrag.dragStart(source);
 
-      // The content is portaled into an engine-owned host in the source's parent,
-      // where a cloned preview also goes. A provider supplies the React tree but
-      // moves nothing.
-      const host = screen
+      // The content is copied into the source's parent, where a cloned preview also
+      // goes. A provider supplies the React tree but moves nothing.
+      const preview = screen
         .getByTestId('preview')
         .closest('[data-base-ui-drag-preview]') as HTMLElement;
-      expect(host).not.toBeNull();
-      expect(host.parentElement!.parentElement).toBe(source.parentElement);
+      expect(preview).not.toBeNull();
+      expect(preview.parentElement).toBe(source.parentElement);
     });
 
     it('injects the preview into the part`s own container', async () => {
@@ -1637,7 +1704,7 @@ describe('Draggable.Root', () => {
       const host = screen
         .getByTestId('preview')
         .closest('[data-base-ui-drag-preview]') as HTMLElement;
-      expect(host.parentElement!.parentElement).toBe(screen.getByTestId('container'));
+      expect(host.parentElement).toBe(screen.getByTestId('container'));
     });
 
     it('resolves a container callback from the source element', async () => {
@@ -1664,7 +1731,7 @@ describe('Draggable.Root', () => {
       const host = screen
         .getByTestId('preview')
         .closest('[data-base-ui-drag-preview]') as HTMLElement;
-      expect(host.parentElement!.parentElement).toBe(screen.getByTestId('board'));
+      expect(host.parentElement).toBe(screen.getByTestId('board'));
     });
 
     it('relocates the default clone through a preview container', async () => {
@@ -1691,7 +1758,7 @@ describe('Draggable.Root', () => {
       // The preview part configures the engine-built clone without custom content.
       const clone = document.querySelector('.Card[data-drag-preview]') as HTMLElement;
       expect(clone).not.toBeNull();
-      expect(clone.parentElement!.parentElement).toBe(screen.getByTestId('container'));
+      expect(clone.parentElement).toBe(screen.getByTestId('container'));
     });
 
     it('resolves the preview container that arrives after mount, at drag start', async () => {
@@ -1716,7 +1783,7 @@ describe('Draggable.Root', () => {
       fireDrag.dragStart(source);
 
       const clone = document.querySelector('.Card[data-drag-preview]') as HTMLElement;
-      expect(clone.parentElement!.parentElement).toBe(screen.getByTestId('late-container'));
+      expect(clone.parentElement).toBe(screen.getByTestId('late-container'));
     });
 
     it('keeps the provider context stable when its parent renders', async () => {
@@ -1778,7 +1845,7 @@ describe('Draggable.Root', () => {
 
       expect(screen.getByTestId('preview')).toBeInTheDocument();
       // Exactly one preview. The declaration must replace the clone, not race it.
-      expect(document.querySelectorAll('[data-drag-preview-container]')).toHaveLength(1);
+      expect(document.querySelectorAll('[data-drag-preview]')).toHaveLength(1);
       expect(document.querySelector('.Card[data-drag-preview]')).toBeNull();
     });
 

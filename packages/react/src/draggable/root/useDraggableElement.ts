@@ -25,6 +25,7 @@ import {
   retargetDragSource,
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
+import { settlingSourcesStore } from '../../utils/drag-and-drop/settlingSources';
 
 // Reads the element from `ref` at selection time, so `dragging` follows the node
 // behind the ref when a virtualizer swaps it. Declared at module scope so its
@@ -32,6 +33,10 @@ import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef
 type ElementRef = { readonly current: Element | null };
 function selectIsDragging(source: DraggableRootRecord | null, r: ElementRef): boolean {
   return source?.element === r.current;
+}
+
+function selectIsSettling(sources: ReadonlySet<Element>, r: ElementRef): boolean {
+  return r.current !== null && sources.has(r.current);
 }
 
 /**
@@ -210,6 +215,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   }, [reconcileKey, collisionOptions?.context, collisionOptions?.enabled]);
 
   const dragging = useStore(dragSourceStore, selectIsDragging, elementRef);
+  const settling = useStore(settlingSourcesStore, selectIsSettling, elementRef);
 
   // Run a reconcile skipped mid-drag. `dragging` turning false re-renders this
   // hook, so the swapped handle gets the static setup as soon as the drag ends.
@@ -225,6 +231,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   return {
     ref,
     dragging,
+    settling,
     setHandleElement,
     previewHandle,
   };
@@ -235,6 +242,8 @@ export interface UseDraggableElementReturnValue<TPayload = undefined, TDragData 
   ref: React.RefCallback<HTMLElement>;
   /** Whether this element is the one currently being dragged. */
   dragging: boolean;
+  /** Whether this element's preview is settling into place after a drop. */
+  settling: boolean;
   /**
    * Attach or detach the child that is the drag handle. Pickup is then
    * restricted to it. Without a handle, the whole source is draggable. `token`

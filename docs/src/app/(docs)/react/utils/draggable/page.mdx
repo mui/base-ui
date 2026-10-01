@@ -236,7 +236,7 @@ You can nest targets. The innermost target under the pointer that accepts the dr
 
 ### Accepting drops
 
-`accept` filters by kind. For rules that depend on the item being dragged or on the target's current state, add `canDrop`. Base UI calls it every time it looks for a target under the pointer. Return `false` to skip this target and let an ancestor receive the drop, or `'reject'` to block the drop on this target, the targets inside it, and its ancestors:
+`accept` filters by kind. For rules that depend on the item being dragged, the target's current state, or [where the pointer is](#drop-position-within-a-target), add `canDrop`. Base UI calls it every time it looks for a target under the pointer. Return `false` to skip this target and let an ancestor receive the drop, or `'reject'` to block the drop on this target, the targets inside it, and its ancestors:
 
 ```tsx title="A column with a capacity"
 <Draggable.Target
@@ -448,7 +448,7 @@ const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
 />;
 ```
 
-To replace the payload itself, call `updatePayload`. Unlike drag data, the new payload stays after the drag ends, until the `payload` prop changes.
+To show drag data in a [custom preview](#custom-preview), call `source.renderPreview()` after updating it. To replace the payload itself, call `updatePayload`. Unlike drag data, the new payload stays after the drag ends, until the `payload` prop changes.
 
 ### Activation
 
@@ -600,7 +600,9 @@ const snapToAngle: Draggable.Root.Modifier = ({ point, shiftKey, initialPoint })
 
 During a drag, a copy of the source element follows the pointer. This clone keeps the element's classes, form values, canvas drawings, and scroll positions. Base UI renders it in the browser's top layer, so no scroll container clips it and nothing on the page paints over it.
 
-Base UI rewrites the clone's IDs to avoid duplicates in the document. Style it with classes or `[data-drag-preview]` instead of ID selectors. Styles that depend on `:hover` or `:focus` don't apply to it. The clone also leaves out content that lives outside the DOM, such as a WebGL canvas, a playing video, or a shadow DOM. Render a [custom preview](#custom-preview) in those cases, or when the source is large enough that cloning it causes a visible delay.
+The clone has the source's tag and goes at the end of the source's parent, with no wrapper. A dragged `<tr>` is previewed by a `<tr>` in the same `<tbody>`, and an `<li>` by an `<li>` in the same list, so the page stays valid HTML during the drag.
+
+Base UI rewrites the clone's IDs to avoid duplicates in the document. Style it with classes or `[data-drag-preview]` instead of ID selectors. Styles that depend on `:hover` or `:focus` don't apply to it. The clone also leaves out content that lives outside the DOM, such as a WebGL canvas, a playing video, or a shadow DOM. A [custom preview](#custom-preview) is copied the same way, except that it redraws a 2D canvas on every frame, so show a still image of other such content there instead. A custom preview also helps when the source is large enough that cloning it causes a visible delay.
 
 Render `<Draggable.Preview>` without children to configure where the clone appears. In that case it renders no element of its own:
 
@@ -638,7 +640,22 @@ import { DemoBadgePreview } from './demos/badge';
 
 <DemoBadgePreview />
 
-Pass a function as children to build the preview from the dragged item. It receives the drag `source` and runs once when the drag starts. Return `null` to show no preview for that drag.
+Base UI renders the children off-screen, then copies them into an element at the end of the source's parent, the same way it clones a source. The copy follows every later render of the children, so a component inside the preview can hold state or subscribe to the drag with [`useMonitor`](#usemonitor). Field values and 2D canvas drawings are copied on every frame. The copy keeps the children's IDs, unless the page already uses one, in which case it gets a suffix.
+
+Refs inside the preview point at the off-screen elements, which have no layout to measure. The copy has no event handlers, and custom elements in the preview are constructed again for it.
+
+The preview renders a `<div>` by default. Next to a table row or a list item, pass `render` so the preview is valid there. React warns about an invalid preview element in a table or a `<select>`, and Base UI warns in a list:
+
+```tsx title="Previewing a table row"
+<Draggable.Root kind={row} payload={id} render={<tr />}>
+  <td>{name}</td>
+  <Draggable.Preview render={<tr />} className="RowPreview">
+    <td>{name}</td>
+  </Draggable.Preview>
+</Draggable.Root>
+```
+
+Pass a function as children to build the preview from the dragged item. It receives the drag `source` and `location` when the drag starts. Return `null` to show no preview.
 
 ```tsx title="Building the preview from the payload"
 <Draggable.Preview kind={card}>
@@ -646,7 +663,31 @@ Pass a function as children to build the preview from the dragged item. It recei
 </Draggable.Preview>
 ```
 
-A custom preview stays mounted even if the source unmounts during the drag. It reads React context from above the nearest `<Draggable.Provider>`, so place that provider inside any contexts the preview needs.
+Call `source.renderPreview()` from a drag handler to run the function again with the current `source` and `location`. Store what the preview shows with [`updateDragData`](#storing-data-during-a-drag) first:
+
+```tsx title="Showing the drop time in the preview"
+const event = Draggable.createKind<string, { time: string }>('event');
+
+<Draggable.Root
+  kind={event}
+  payload={id}
+  onMove={(eventDetails) => {
+    eventDetails.source.updateDragData({ time: getTimeAt(eventDetails.location.current.input) });
+    eventDetails.source.renderPreview();
+  }}
+>
+  {title}
+  <Draggable.Preview kind={event}>
+    {({ source }) => <span className="Chip">{source.dragData?.time}</span>}
+  </Draggable.Preview>
+</Draggable.Root>;
+```
+
+Without custom children, `source.renderPreview()` clones the source again, which picks up content the source changed during the drag.
+
+The engine positions the preview through its `margin` and `translate`, so the preview's own `margin` and `translate` shift it from its [offset](#preview-position), the way they would shift it in place. Percentages in `translate` refer to the preview's own size.
+
+A custom preview stays mounted even if the source unmounts during the drag. If its `<Draggable.Provider>` unmounts, it keeps its last content until the drag ends. It reads React context from above the nearest `<Draggable.Provider>`, so place that provider inside any contexts the preview needs.
 
 The preview takes the size of its content. To match the source instead, use the `--drag-source-width` and `--drag-source-height` CSS variables:
 
@@ -684,10 +725,10 @@ Use the `offset` prop to position the preview relative to the pointer. It works 
 
 ### Preview container
 
-Base UI inserts the preview next to the source in the DOM, so descendant selectors that match the source also match the preview. The preview sits inside an element marked with `[data-drag-preview-container]`. This extra sibling has two side effects during the drag:
+Base UI inserts the preview at the end of the source's parent, so the selectors that match the source, including child combinators such as `.List > .Card`, also match the preview. The source's siblings keep their `:nth-child` positions, unless a live reorder moves one of them after the preview. This extra sibling has two side effects during the drag:
 
 - Selectors that count from the end, such as `:last-child` and `:nth-last-child`, shift by one.
-- DOM queries over the siblings include it. Exclude it with `:not([data-drag-preview-container])` when measuring. A query over descendants, such as `list.querySelectorAll('.Card')`, also matches the clone. Exclude the clone with `:not([data-drag-preview])`.
+- DOM queries over the source's parent include it, such as `list.children`, `tbody.rows`, or `list.querySelectorAll('.Card')`. Exclude the preview with `:not([data-drag-preview])` when measuring.
 
 Pass `container` to insert the preview somewhere else. It accepts an element, a ref, or a function that receives the source element:
 
@@ -727,13 +768,13 @@ Base UI injects the cursor rule as a `<style>` element. See the [CSP guide](/re
 }
 ```
 
-With Tailwind CSS, use the `data-[drag-preview]:` variant, such as `data-[drag-preview]:shadow-md`. Content returned by a [`registerSource`](#registersource) `render` function doesn't get the attribute, so style it with its own classes.
+With Tailwind CSS, use the `data-[drag-preview]:` variant, such as `data-[drag-preview]:shadow-md`. Content returned by a [`registerSource`](#registersource) `render` function gets the attribute on its root element, or on a `<div>` around it when it has several.
 
 Base UI prevents text selection on draggables and disables page scrolling during a drag. Avoid setting `touch-action` on the draggable or its handle, since it interferes with touch dragging. Set it on a wrapper instead.
 
 #### Animating a drop
 
-After a release, the clone moves to the source's final position and receives `[data-ending-style]`. A release outside any target moves it back to the source. Add a `translate` transition to animate this, and Base UI keeps the clone mounted until the transition ends:
+After a release, the preview receives `[data-ending-style]`, and Base UI keeps it mounted until the animations that state starts have finished. Add a `translate` transition that applies once `[data-ending-style]` is set to move the preview to the source's final position, or back to the source after a release outside every target. Without one, the preview ends where it was released, so an ending fade runs there. Before the release, Base UI holds off transitions on the preview's `translate`, so it never trails the pointer. A custom preview's own transition, such as a `transition: all` meant for hover effects, stays off for `translate` at the release too:
 
 ```css title="Settling into place"
 @media (prefers-reduced-motion: no-preference) {
@@ -743,13 +784,30 @@ After a release, the clone moves to the source's final position and receives `[d
 }
 ```
 
-The source receives `[data-settling]` while the clone settles, so you can show it as an empty placeholder until the clone arrives:
+The ending preview also has `[data-dropped]` after a drop on a target. Use it when a drop creates something rather than moving the source, such as an item dragged from a palette. The source stays where it was, so the preview should fade where it was dropped instead of flying back:
 
-```css title="Hiding the source until the clone arrives"
+```css title="Fading out on a drop, sliding back otherwise"
+@media (prefers-reduced-motion: no-preference) {
+  .PaletteItem[data-drag-preview][data-ending-style] {
+    transition: translate 200ms ease;
+  }
+
+  .PaletteItem[data-drag-preview][data-ending-style][data-dropped] {
+    opacity: 0;
+    transition: opacity 150ms;
+  }
+}
+```
+
+The source receives `[data-settling]` while the preview settles, so you can show it as an empty placeholder until the preview arrives. In a `className` or `render` callback, read `state.settling`. The source also keeps `[data-dragging]` until then, which `state.dragging || state.settling` matches:
+
+```css title="Hiding the source until the preview arrives"
 .Card[data-settling] {
   color: transparent;
 }
 ```
+
+A drop that moves an item to another list usually mounts a new source element there. Base UI finds it by its `payload`, so the preview moves onto it when the new element gets the same payload object. When the payload is rebuilt, such as an object that includes the item's list, pass the same `previewKey` to both elements. Without a match, the preview ends where it was released.
 
 Base UI adds no animation of its own. Keep your transitions inside a `prefers-reduced-motion: no-preference` media query, as above, so users who ask for reduced motion don't get them.
 
@@ -769,6 +827,19 @@ A target record's `getLocalPoint()` returns where the pointer is within that tar
 ```
 
 The value isn't clamped, because an outer target can have the pointer outside its own box while a nested target is under it. Clamp it yourself if your data needs it.
+
+`canDrop` receives `getLocalPoint()` and `getSnappedLocalPoint()` too, so a target can accept a drop on part of its box only. Returning `false` lets an ancestor receive the drop elsewhere. For example, a folder row can take files over its middle and leave its edges to the list behind it, which reorders:
+
+```tsx title="A folder that accepts files over its middle"
+<Draggable.Target
+  accept={file}
+  canDrop={(context) => {
+    const { y } = context.getLocalPoint();
+    return y > 0.25 && y < 0.75;
+  }}
+  onDraggableDrop={(eventDetails) => moveInto(eventDetails.source.payload, folder)}
+/>
+```
 
 When the target represents fixed intervals such as 15-minute slots or weekday columns, declare `snap` and read `getSnappedLocalPoint()` instead. It rounds the fraction to the nearest step and clamps it between `0` and `1`. `snap` sets a number of steps per axis, so you don't need the target's size in pixels.
 
@@ -1273,7 +1344,7 @@ The manager and its methods are stable, so you can list them as effect dependenc
 | Option                                                  | When it's read                                                                        |
 | :------------------------------------------------------ | :------------------------------------------------------------------------------------ |
 | Event handlers and predicates, such as `canDrop`        | Every time they're needed, so they see the latest closure.                            |
-| A source's `kind` and preview settings                  | Once when a drag starts.                                                              |
+| A source's `kind` and preview settings                  | Once when a drag starts. `preview.render` runs again on each `renderPreview()`.       |
 | A source's `payload`                                    | At pickup, and whenever it changes during the drag.                                   |
 | A target's `kind` and `payload`                         | Each time the target is evaluated, including on drop.                                 |
 | `disabled`, `handle`, and the styles applied while idle | At registration and on the next `pointerdown`. Re-register to apply a change at once. |

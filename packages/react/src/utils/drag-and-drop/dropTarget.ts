@@ -478,7 +478,7 @@ export function captureDropTargetCollision(
  */
 function resolveDropTargetOutcome(
   element: Element,
-  feedback: Omit<DraggableTargetResolutionContext, 'element'>,
+  feedback: DropTargetFeedback,
 ): DraggableTargetRecord | null | typeof DROP_REJECTED {
   const getRegistration = holds.getActive(element);
   if (!getRegistration) {
@@ -501,7 +501,12 @@ function resolveDropTargetOutcome(
   if (!matchesAccept(registration.accept, source)) {
     return null;
   }
-  const fullFeedback: DraggableTargetResolutionContext = { ...feedback, element };
+  // The point readers measure lazily, so building them before `canDrop` costs
+  // nothing unless it reads one. The record reuses them, so a point read here is
+  // not measured again.
+  const fullFeedback = { ...feedback, element } as DraggableTargetResolutionContext;
+  const pointReaders = createLocalPointReaders(element, fullFeedback, registration.snap);
+  Object.assign(fullFeedback, pointReaders);
 
   // Then `canDrop`. A throw costs only this target and doesn't abort the walk.
   const canDropVerdict = registration.canDrop
@@ -544,7 +549,7 @@ function resolveDropTargetOutcome(
         notifyDragTargetUpdated(source, element);
       }
     },
-    ...createLocalPointReaders(element, fullFeedback, registration.snap),
+    ...pointReaders,
   };
   state.recordRegistrations.set(record, {
     getParameters: getRegistration,
@@ -567,6 +572,9 @@ function snapAxis(value: number, steps: number | undefined): number {
   }
   return Math.round(clamped * steps) / steps;
 }
+
+/** What resolution knows before it reaches a target: the drag and the pointer. */
+type DropTargetFeedback = Pick<DraggableTargetResolutionContext, 'input' | 'source'>;
 
 /**
  * Build the record's `getLocalPoint` and `getSnappedLocalPoint`, deferring the
@@ -666,7 +674,7 @@ function createLocalPointReaders(
  */
 export function getDropTargetsOver(
   target: Element | null,
-  feedback: Omit<DraggableTargetResolutionContext, 'element'>,
+  feedback: DropTargetFeedback,
   onReject?: (element: Element) => void,
 ): DraggableTargetRecord[] {
   const result: DraggableTargetRecord[] = [];
@@ -949,6 +957,8 @@ export type RegisterTargetParameters<
    * Return `false` to skip this target and let an ancestor receive the drop.
    * Return `'reject'` to block the drop on this target, its nested targets, and its
    * ancestors, for example when a column is full. The target then has `[data-rejected]`.
+   *
+   * Its argument has `getLocalPoint()`, so a target can accept the drop on part of its box only.
    */
   canDrop?:
     | ((

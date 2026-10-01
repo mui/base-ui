@@ -3,7 +3,17 @@ import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, isJSDOM } from '#test-utils';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
-import { createDragPreviewElement, PREVIEW_ELEMENT_ATTRIBUTE } from './cloneDragPreview';
+import {
+  createDragPreviewElement,
+  measurePreviewAnchor,
+  PREVIEW_ELEMENT_ATTRIBUTE,
+} from './cloneDragPreview';
+
+/** Measure and clone `source`, the way a pickup does. */
+function clonePreview(source: HTMLElement, container: HTMLElement | null) {
+  const anchor = measurePreviewAnchor(source, container);
+  return anchor && createDragPreviewElement(source, anchor);
+}
 
 setupDragEngineTests();
 
@@ -35,7 +45,7 @@ function dispatchMouse(
 function findNeutralizerSheet(root: DocumentOrShadowRoot): CSSStyleSheet | undefined {
   return root.adoptedStyleSheets.find((sheet) =>
     Array.from(sheet.cssRules).some((rule) =>
-      rule.cssText.includes(`[${PREVIEW_ELEMENT_ATTRIBUTE}]`),
+      rule.cssText.includes(`[${PREVIEW_ELEMENT_ATTRIBUTE}=`),
     ),
   );
 }
@@ -78,7 +88,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     document.head.appendChild(sheet);
     list.className = 'List';
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
       expect(getComputedStyle(handle.element).transform).toBe('none');
@@ -101,7 +111,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.className = 'Card';
     source.style.removeProperty('background');
     source.innerHTML = '<span>Card</span>';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       const computed = getComputedStyle(handle.element);
       expect(computed.backgroundColor).toBe('rgb(255, 0, 0)');
@@ -134,7 +144,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       row.textContent = `Row ${i + 2}`;
       list.appendChild(row);
     }
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       const sourceStyle = getComputedStyle(source);
       const previewStyle = getComputedStyle(handle.element);
@@ -149,7 +159,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     }
   });
 
-  it('restores sibling-position styles the wrapper position drops', () => {
+  it('restores sibling-position styles the end position changes', () => {
     const sheet = document.createElement('style');
     sheet.textContent = `
       .List .Row { background: rgb(255, 255, 255); }
@@ -160,14 +170,14 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     list.className = 'List';
     source.className = 'Row';
     source.style.removeProperty('background');
-    // The source is the second and last row, so it is even and `:last-child`.
-    // Inside the wrapper the clone is the first and only child, so both rules stop
-    // matching.
+    // The source is the second and last row, so it is even and `:last-child`. The
+    // clone is appended after it as the third row, which is odd, so the
+    // `:nth-child(even)` rule stops matching it.
     const first = document.createElement('div');
     first.className = 'Row';
     first.textContent = 'Row 1';
     list.insertBefore(first, source);
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       const previewStyle = getComputedStyle(handle.element);
       expect(previewStyle.backgroundColor).toBe('rgb(0, 0, 255)');
@@ -187,7 +197,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     list.className = 'List';
     source.className = 'Card';
     const rect = source.getBoundingClientRect();
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       handle.element.style.translate = `${rect.left}px ${rect.top}px`;
       const previewRect = handle.element.getBoundingClientRect();
@@ -207,7 +217,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     document.head.appendChild(sheet);
     list.className = 'List';
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       const previewStyle = getComputedStyle(handle.element);
       expect(previewStyle.transform).toBe('none');
@@ -221,13 +231,14 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   it('does not insert the clone beside the source while building the preview', () => {
     const observer = new MutationObserver(() => {});
     observer.observe(list, { childList: true });
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       const records = observer.takeRecords();
       observer.disconnect();
-      // A single insertion, the wrapper. The clone itself never touches the list.
+      // A single insertion, the finished preview. Nothing is inserted next to the
+      // source while it is built.
       expect(records.map((record) => record.addedNodes.length)).toEqual([1]);
-      expect(records[0].addedNodes[0]).toBe(handle.element.parentElement);
+      expect(records[0].addedNodes[0]).toBe(handle.element);
     } finally {
       handle.destroy();
     }
@@ -239,7 +250,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       '.Card[data-drag-preview] { border-radius: calc(var(--drag-source-width) / 2); }';
     document.head.appendChild(sheet);
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element).borderTopLeftRadius).toBe('60px');
     } finally {
@@ -260,7 +271,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     list.className = 'List';
     source.className = 'Card';
     const beforeSheets = document.adoptedStyleSheets.length;
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element).color).toBe('rgb(4, 5, 6)');
       expect(getComputedStyle(handle.element, '::before').content).toBe('"Before"');
@@ -287,7 +298,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     const rules = vi.spyOn(sheet.sheet!, 'cssRules', 'get').mockImplementation(() => {
       throw new DOMException('Stylesheet is cross-origin', 'SecurityError');
     });
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
       expect(getComputedStyle(handle.element).padding).toBe('20px');
@@ -314,7 +325,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     list.className = 'List';
     source.className = 'Card';
     source.innerHTML = '<span class="Child">Card</span>';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element).color).toBe('rgb(255, 0, 0)');
       expect(getComputedStyle(handle.element.firstElementChild!).color).toBe('rgb(0, 128, 0)');
@@ -334,7 +345,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     document.head.appendChild(sheet);
     list.className = 'List';
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element).color).toBe('rgb(0, 0, 255)');
     } finally {
@@ -353,7 +364,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     list.className = 'List';
     source.className = 'Card';
     const query = vi.spyOn(source, 'querySelectorAll');
-    let handle = createDragPreviewElement(source, null, true)!;
+    let handle = clonePreview(source, null)!;
     try {
       // Includes cloning's descendant query. A rule-by-rule traversal needs 8193.
       expect(query.mock.calls.length).toBeLessThan(150);
@@ -361,7 +372,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       sheet.sheet!.insertRule('.Card { color: blue !important; }');
       sheet.sheet!.insertRule('.List > .Card { color: rgb(1, 2, 3) !important; }');
       sheet.sheet!.insertRule('.Card[data-drag-preview] { border: 3px solid green; }');
-      handle = createDragPreviewElement(source, null, true)!;
+      handle = clonePreview(source, null)!;
       expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
       expect(getComputedStyle(handle.element).borderTopWidth).toBe('3px');
     } finally {
@@ -378,7 +389,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     document.head.appendChild(sheet);
     list.className = 'List';
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
       handle.element.setAttribute('data-ending-style', '');
@@ -401,7 +412,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     }`;
     document.head.appendChild(sheet);
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element).transitionDuration).toBe('0s');
       handle.element.setAttribute('data-ending-style', '');
@@ -420,7 +431,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       @keyframes preview-pulse { from { opacity: 0.5; } }`;
     document.head.appendChild(sheet);
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       handle.element.setAttribute('data-ending-style', '');
       handle.prepareForDrop();
@@ -443,7 +454,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     document.head.appendChild(sheet);
     source.innerHTML = '<span class="Child">Item</span>'.repeat(5);
     const measure = vi.spyOn(window, 'getComputedStyle');
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       // The full snapshot reads every descendant. The scan reads none of these,
       // since no structural rule matches them.
@@ -467,7 +478,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     const rules = vi.spyOn(sheet.sheet!, 'cssRules', 'get').mockImplementation(() => {
       throw new DOMException('Stylesheet is cross-origin', 'SecurityError');
     });
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       const child = handle.element.firstElementChild as HTMLElement;
       const computed = getComputedStyle(child);
@@ -496,7 +507,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     list.className = 'List';
     source.className = 'Card';
     source.innerHTML = '<span class="Child">Item</span>';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       const child = handle.element.firstElementChild!;
       expect(getComputedStyle(child).color).toBe('rgb(255, 0, 0)');
@@ -507,22 +518,24 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     }
   });
 
-  it('keeps consumer sibling and popover rules off the engine wrapper', () => {
+  it('keeps consumer sibling and popover rules off the preview', () => {
     const sheet = document.createElement('style');
     sheet.textContent = `.List > * { animation: preview-fade-in 1s; }
       [popover] { opacity: 0; filter: blur(4px); transition: opacity 1s; translate: 10px 10px; }
       @keyframes preview-fade-in { from { opacity: 0; } }`;
     document.head.appendChild(sheet);
     list.className = 'List';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
-      const wrapper = handle.element.parentElement!;
-      const computed = getComputedStyle(wrapper);
+      // The preview is the popover now, so the app's `[popover]` rule reaches it. The
+      // values it changed are restored, and the sibling rule's entrance animation is
+      // neutralized like any source motion.
+      const computed = getComputedStyle(handle.element);
       expect(computed.opacity).toBe('1');
       expect(computed.filter).toBe('none');
       expect(computed.animationName).toBe('none');
       expect(computed.transitionDuration).toBe('0s');
-      expect(wrapper).toHaveAttribute('aria-hidden', 'true');
+      expect(handle.element).toHaveAttribute('aria-hidden', 'true');
       handle.element.style.translate = '300px 400px';
       const rect = handle.element.getBoundingClientRect();
       expect(Math.round(rect.left)).toBe(300);
@@ -541,7 +554,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     // direction, which is the root element's.
     document.documentElement.dir = 'rtl';
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       handle.element.style.translate = '50px 60px';
       const rect = handle.element.getBoundingClientRect();
@@ -566,8 +579,11 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       const row = table.querySelector('tr')!;
       const rowRect = row.getBoundingClientRect();
       const sourceCells = Array.from(row.children, (cell) => cell.getBoundingClientRect());
-      const handle = createDragPreviewElement(row, null, true)!;
+      const handle = clonePreview(row, null)!;
       try {
+        // The preview is a `<tr>` in the same `<tbody>`, so the document stays valid.
+        expect(handle.element.localName).toBe('tr');
+        expect(handle.element.parentElement).toBe(row.parentElement);
         handle.element.style.translate = `${rowRect.left}px ${rowRect.top}px`;
         const cloneCells = Array.from(handle.element.children, (cell) =>
           cell.getBoundingClientRect(),
@@ -587,7 +603,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.style.width = '120.5px';
     source.style.height = '30.25px';
     source.style.scale = '1.5';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       // `offsetWidth`/`offsetHeight` would round these to 121 and 30.
       expect(handle.sourceRect.width).toBeCloseTo(120.5, 2);
@@ -605,7 +621,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     scrollable.scrollTop = 120;
     // Set after scrolling the source, so the setup itself is instant.
     scrollable.style.scrollBehavior = 'smooth';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(handle.element.querySelector('div')!.scrollTop).toBe(120);
     } finally {
@@ -615,7 +631,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
   it('keeps a cloned named <details> open', () => {
     source.innerHTML = '<details name="faq" open><summary>Question</summary>Answer</details>';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       // Inserting an open `<details>` into an exclusive group whose other member
       // is open would close it.
@@ -633,9 +649,9 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.slot = 'item';
     host.append(source);
     list.append(host);
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
-      expect(handle.element.parentElement!.assignedSlot).toBe(root.querySelector('slot'));
+      expect(handle.element.assignedSlot).toBe(root.querySelector('slot'));
       expect(handle.element.getClientRects().length).toBeGreaterThan(0);
     } finally {
       handle.destroy();
@@ -647,7 +663,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.innerHTML =
       '<svg><defs><filter id="preview-blur"></filter></defs><rect style="filter: url(#preview-blur)"></rect></svg>';
     const setAttribute = vi.spyOn(Element.prototype, 'setAttribute');
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(setAttribute.mock.calls.filter(([name]) => name === 'style')).toHaveLength(0);
       const rect = handle.element.querySelector('rect')!;
@@ -659,7 +675,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   });
 
   it('re-homes without throwing when a polyfill leaves :popover-open unsupported', () => {
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     const originalMatches = Element.prototype.matches;
     const matches = vi
       .spyOn(Element.prototype, 'matches')
@@ -685,7 +701,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     root.append(sheet, source);
     list.append(host);
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element, '::before').content).toBe('"Icon"');
     } finally {
@@ -700,7 +716,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     host.append(source);
     list.append(host);
     source.className = 'Card';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       expect(getComputedStyle(handle.element).color).toBe('rgb(1, 2, 3)');
     } finally {
@@ -711,7 +727,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   it('does not measure every descendant when ordinary classes survive wrapping', () => {
     source.innerHTML = '<span class="Child">Item</span>'.repeat(100);
     const measure = vi.spyOn(window, 'getComputedStyle');
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       const descendants = new Set(handle.element.querySelectorAll('.Child'));
       expect(measure.mock.calls.filter(([node]) => descendants.has(node))).toHaveLength(0);
@@ -721,23 +737,19 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     }
   });
 
-  it('promotes the preview to the top layer through an engine-owned wrapper', () => {
-    const handle = createDragPreviewElement(source, null, true)!;
+  it('promotes the preview itself to the top layer, with no wrapper', () => {
+    const handle = clonePreview(source, null)!;
 
-    // The wrapper is the popover, not the preview, so the UA `[popover]` chrome
-    // lands on an element with no consumer styling.
-    const wrapper = handle.element.parentElement!;
-    expect(wrapper.matches(':popover-open')).toBe(true);
-    expect(wrapper.getAttribute('popover')).toBe('manual');
-    expect(handle.element.hasAttribute('popover')).toBe(false);
+    expect(handle.element.matches(':popover-open')).toBe(true);
+    expect(handle.element.getAttribute('popover')).toBe('manual');
     // Still in the source's own parent, which is what keeps the app's CSS on it.
-    expect(wrapper.parentElement).toBe(list);
+    expect(handle.element.parentElement).toBe(list);
 
     handle.destroy();
   });
 
   it('positions against the viewport, not the transformed ancestor', () => {
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     handle.element.style.translate = '300px 400px';
 
     // The ancestor translates its content by 40px. A trapped preview would land at
@@ -750,7 +762,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   });
 
   it('is not clipped by the scroll container it was injected into', () => {
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     // Outside the 200x100 clipping ancestor, but still inside the viewport.
     handle.element.style.translate = '260px 200px';
 
@@ -771,9 +783,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   });
 
   it('re-opens in the top layer after being re-homed mid-drag', () => {
-    const handle = createDragPreviewElement(source, null, true)!;
-    const wrapper = handle.element.parentElement!;
-    expect(wrapper.matches(':popover-open')).toBe(true);
+    const handle = clonePreview(source, null)!;
+    expect(handle.element.matches(':popover-open')).toBe(true);
 
     // A virtualizer recycles the row. Any DOM move closes an open popover, and the
     // UA `[popover]:not(:popover-open)` rule would leave it `display: none`.
@@ -781,8 +792,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     handle.ensureConnected();
 
     expect(handle.element.isConnected).toBe(true);
-    expect(wrapper.matches(':popover-open')).toBe(true);
-    expect(getComputedStyle(wrapper).display).not.toBe('none');
+    expect(handle.element.matches(':popover-open')).toBe(true);
+    expect(getComputedStyle(handle.element).display).not.toBe('none');
 
     handle.destroy();
   });
@@ -795,19 +806,18 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.scrollTop = 40;
     const sibling = document.createElement('div');
     scroller.appendChild(sibling);
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     try {
-      const wrapper = handle.element.parentElement!;
-      expect(wrapper.matches(':popover-open')).toBe(true);
+      expect(handle.element.matches(':popover-open')).toBe(true);
       expect(handle.element.scrollTop).toBe(40);
 
       scroller.appendChild(list);
       // Let the mutation observer repair the preview without a pointer move.
       await Promise.resolve();
 
-      expect(wrapper.parentElement).toBe(list);
-      expect(wrapper.matches(':popover-open')).toBe(true);
+      expect(handle.element.parentElement).toBe(list);
+      expect(handle.element.matches(':popover-open')).toBe(true);
       expect(handle.element.getBoundingClientRect().height).toBe(30);
       expect(handle.element.scrollTop).toBe(40);
     } finally {
@@ -816,7 +826,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   });
 
   it('keeps the source geometry rather than shrinking to fit', () => {
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     // Out of flow, the clone would otherwise collapse to its content width.
     expect(Math.round(handle.element.getBoundingClientRect().width)).toBe(120);
@@ -831,7 +841,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     // the untransformed layout box.
     source.style.transform = 'scale(2)';
 
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     expect(handle.element.style.width).toBe('120px');
     expect(handle.element.style.height).toBe('30px');
@@ -846,7 +856,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.style.transformOrigin = '0 0';
     source.style.scale = '2';
 
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     expect(handle.sourceRect.left).toBeCloseTo(baseline.left);
     expect(handle.sourceRect.top).toBeCloseTo(baseline.top);
@@ -861,7 +871,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.style.transformOrigin = '0 0';
     source.style.rotate = '90deg';
 
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     expect(handle.sourceRect.left).toBeCloseTo(baseline.left);
     expect(handle.sourceRect.top).toBeCloseTo(baseline.top);
@@ -877,7 +887,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     // untransformed unless each property is checked.
     source.style.scale = '1.5';
 
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     // `scale` is not neutralized. Unlike `transform`, it composes around the box's
     // center without moving the anchor, so the clone re-applies it and looks like
@@ -895,7 +905,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   it('preserves cloned dimensions under CSS zoom', () => {
     list.style.zoom = '0.5';
     source.style.scale = '1.2';
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     try {
       const sourceRect = source.getBoundingClientRect();
       const cloneRect = handle.element.getBoundingClientRect();
@@ -912,7 +922,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       list.style.transform = transform;
       source.innerHTML = '<span style="display:block;width:20px;height:10px">Text</span>';
       const sourceChild = source.firstElementChild!.getBoundingClientRect();
-      const handle = createDragPreviewElement(source, null, true)!;
+      const handle = clonePreview(source, null)!;
       try {
         const cloneChild = handle.element.firstElementChild!.getBoundingClientRect();
         expect(cloneChild.width).toBeCloseTo(sourceChild.width);
@@ -926,7 +936,11 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
   it.each(['0.5', '2'])('sizes a custom preview in CSS units under zoom %s', (zoom) => {
     list.style.zoom = zoom;
-    const handle = createDragPreviewElement(source, null, false)!;
+    const handle = createDragPreviewElement(
+      source,
+      measurePreviewAnchor(source, null)!,
+      document.createElement('div'),
+    )!;
     try {
       handle.element.style.width = 'var(--drag-source-width)';
       handle.element.style.height = 'var(--drag-source-height)';
@@ -945,7 +959,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.style.transition = 'transform 200ms ease';
     source.style.animation = 'spin 1s linear infinite';
 
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     // Assert the effect, not the serialization, because the `animation` shorthand
     // reads back as its longhands.
@@ -966,7 +980,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     document.head.appendChild(sheet);
     source.classList.add('Card');
 
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     const computed = getComputedStyle(handle.element);
     expect(computed.rotate).toBe('3deg');
@@ -987,7 +1001,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     source.classList.add('Card');
     expect(getComputedStyle(source).color).toBe('rgb(123, 45, 67)');
 
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     const computed = getComputedStyle(handle.element);
 
     expect(handle.element.id).not.toBe(source.id);
@@ -1002,8 +1016,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   it('lets cascade-layered consumer styles (Tailwind-style) style the preview', () => {
     // Tailwind v4 puts every utility in `@layer utilities`, and unlayered author
     // styles beat layered ones at any specificity. The engine must not ship an
-    // unlayered rule that competes with the preview's visual styling, so it resets
-    // the UA popover chrome inline on the engine-owned wrapper instead.
+    // unlayered rule that competes with the preview's visual styling, so it writes
+    // back inline only the values the UA popover chrome changed.
     const sheet = document.createElement('style');
     sheet.textContent =
       '@layer utilities { .Card { border: 2px solid rgb(1, 2, 3); } ' +
@@ -1011,7 +1025,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     document.head.appendChild(sheet);
     source.classList.add('Card');
 
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     const computed = getComputedStyle(handle.element);
     expect(computed.borderTopWidth).toBe('2px');
@@ -1031,7 +1045,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     context.fillRect(0, 0, 8, 8);
     source.appendChild(canvas);
 
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
 
     // `cloneNode` copies the element, not its bitmap. Without a copy, a chart or
     // signature pad would drag as a blank rectangle.
@@ -1056,7 +1070,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     // Scroll offsets are no-ops on a detached node, so they apply only once the
     // clone is inserted and shown. Writing to a `display: none` subtree clamps to
     // 0, which is why the top-layer promotion comes first.
-    const handle = createDragPreviewElement(source, null, true)!;
+    const handle = clonePreview(source, null)!;
     const cloneScrollable = handle.element.querySelector('div')!;
     expect(cloneScrollable.scrollTop).toBe(120);
 
@@ -1071,7 +1085,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
   it('re-adopts the neutralizer sheet after the document replaces its adopted sheets', () => {
     source.style.transition = 'transform 200ms ease';
-    const first = createDragPreviewElement(source, null, true)!;
+    const first = clonePreview(source, null)!;
     const sheet = findNeutralizerSheet(document);
     expect(sheet).toBeDefined();
     first.destroy();
@@ -1081,7 +1095,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     // or it would carry the source's transition.
     document.adoptedStyleSheets = [];
 
-    const second = createDragPreviewElement(source, null, true)!;
+    const second = clonePreview(source, null)!;
     expect(document.adoptedStyleSheets.filter((adopted) => adopted === sheet)).toHaveLength(1);
     expect(getComputedStyle(second.element).transitionDuration).toBe('0s');
     second.destroy();
@@ -1208,39 +1222,134 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       },
     );
 
-    it.each(['scale(0.5)', 'scale(2, 0.5)'])(
-      'preserves a rotated source under %s',
-      async (scale) => {
-        list.style.transform = `translateY(40px) ${scale}`;
-        source.style.rotate = '30deg';
-        source.style.transformOrigin = '20px 10px';
+    // A non-uniform ancestor scale with a rotated source isn't supported (see
+    // `applyAncestorScale`).
+    it.each(['scale(0.5)'])('preserves a rotated source under %s', async (scale) => {
+      list.style.transform = `translateY(40px) ${scale}`;
+      source.style.rotate = '30deg';
+      source.style.transformOrigin = '20px 10px';
 
-        const { sourceRect, cloneRect } = await liftAndMeasure();
+      const { sourceRect, cloneRect } = await liftAndMeasure();
 
-        expectSameBox(cloneRect, sourceRect);
-      },
-    );
+      expectSameBox(cloneRect, sourceRect);
+    });
   });
 
-  it('confines the popover UA chrome to the wrapper, away from the preview', () => {
-    const handle = createDragPreviewElement(source, null, true)!;
+  it('reads the transform origin again when ending styles change it', () => {
+    // The ancestor scale is re-applied around the preview's `transform-origin`, and
+    // the position offsets it. An ending rule that moves the origin must not shift
+    // the preview off its destination.
+    const sheet = document.createElement('style');
+    sheet.textContent = '.Card[data-ending-style] { transform-origin: 0 0; }';
+    document.head.appendChild(sheet);
+    const scaled = document.createElement('div');
+    scaled.style.cssText =
+      'position: absolute; inset: 0 auto auto 0; transform: scale(2); transform-origin: 0 0;';
+    const card = document.createElement('div');
+    card.className = 'Card';
+    card.style.cssText = 'width: 50px; height: 20px;';
+    scaled.appendChild(card);
+    document.body.appendChild(scaled);
+    const handle = clonePreview(card, null)!;
+    try {
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop();
+      handle.setPosition(100, 60);
 
-    // The `[popover]` UA rule gives the open popover `margin: auto` (hundreds of
-    // pixels here), a solid border, and an opaque `Canvas` background. All of it
-    // lands on the engine-owned wrapper, where the inline reset removes it without
-    // touching the preview's cascade.
-    const wrapper = getComputedStyle(handle.element.parentElement!);
-    expect(wrapper.marginTop).toBe('0px');
-    expect(wrapper.borderTopWidth).toBe('0px');
-    expect(wrapper.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+      const rect = handle.element.getBoundingClientRect();
+      expect(rect.left).toBeCloseTo(100);
+      expect(rect.top).toBeCloseTo(60);
+      expect(rect.width).toBeCloseTo(100);
+    } finally {
+      handle.destroy();
+      scaled.remove();
+      sheet.remove();
+    }
+  });
 
-    // The preview never carries the chrome and keeps looking like the element it
-    // was lifted from.
-    const styles = getComputedStyle(handle.element);
-    expect(styles.marginTop).toBe('0px');
-    expect(styles.borderTopWidth).toBe('0px');
-    expect(styles.backgroundColor).toBe('rgb(0, 128, 0)');
+  it('lets ending styles set what the popover corrections pinned', () => {
+    // An unstyled source gets the UA `Canvas` background corrected away inline. A
+    // drop animation that sets a background must still win.
+    const sheet = document.createElement('style');
+    sheet.textContent = '.Plain[data-ending-style] { background-color: rgb(255, 0, 0); }';
+    document.head.appendChild(sheet);
+    const plain = document.createElement('div');
+    plain.className = 'Plain';
+    plain.textContent = 'Plain';
+    list.appendChild(plain);
+    const handle = clonePreview(plain, null)!;
+    try {
+      expect(getComputedStyle(handle.element).backgroundColor).toBe('rgba(0, 0, 0, 0)');
 
-    handle.destroy();
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop();
+
+      expect(getComputedStyle(handle.element).backgroundColor).toBe('rgb(255, 0, 0)');
+      expect(handle.element.matches(':popover-open')).toBe(true);
+    } finally {
+      handle.destroy();
+      plain.remove();
+      sheet.remove();
+    }
+  });
+
+  it('runs an ending transition on properties other than translate', () => {
+    // A fade-out on the drop. Measuring the popover corrections again for the ending
+    // styles must not apply them without their transition.
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.Fade[data-drag-preview] { transition: opacity 200ms; } ' +
+      '.Fade[data-drag-preview][data-ending-style] { opacity: 0; }';
+    document.head.appendChild(sheet);
+    const fade = document.createElement('div');
+    fade.className = 'Fade';
+    fade.textContent = 'Fade';
+    list.appendChild(fade);
+    const handle = clonePreview(fade, null)!;
+    try {
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop();
+
+      const transitions = handle.element
+        .getAnimations()
+        .filter((animation): animation is CSSTransition => animation instanceof CSSTransition);
+      expect(transitions.map((transition) => transition.transitionProperty)).toContain('opacity');
+    } finally {
+      handle.destroy();
+      fade.remove();
+      sheet.remove();
+    }
+  });
+
+  it('keeps the popover UA chrome off the preview', () => {
+    // A source that sets none of the properties the `[popover]` UA rule sets: no
+    // border, padding, background, overflow or color of its own.
+    const plain = document.createElement('div');
+    plain.textContent = 'Plain';
+    list.style.color = 'rgb(1, 2, 3)';
+    list.appendChild(plain);
+    const handle = clonePreview(source, null)!;
+    const plainHandle = clonePreview(plain, null)!;
+    try {
+      // The `[popover]` UA rule gives the open popover `margin: auto` (hundreds of
+      // pixels here), a solid border, padding, `overflow: auto`, `CanvasText` and an
+      // opaque `Canvas` background. The preview keeps looking like the element it
+      // was lifted from.
+      const styles = getComputedStyle(handle.element);
+      expect(styles.marginTop).toBe('0px');
+      expect(styles.borderTopWidth).toBe('0px');
+      expect(styles.backgroundColor).toBe('rgb(0, 128, 0)');
+
+      const plainStyles = getComputedStyle(plainHandle.element);
+      expect(plainStyles.borderTopStyle).toBe('none');
+      expect(plainStyles.paddingTop).toBe('0px');
+      expect(plainStyles.overflow).toBe('visible');
+      expect(plainStyles.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+      expect(plainStyles.color).toBe('rgb(1, 2, 3)');
+    } finally {
+      handle.destroy();
+      plainHandle.destroy();
+      plain.remove();
+    }
   });
 });

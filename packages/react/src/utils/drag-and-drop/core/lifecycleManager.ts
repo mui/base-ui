@@ -59,6 +59,8 @@ interface LifecycleSession {
   scheduleRefresh: (element: Element | null, rehitTest: boolean) => void;
   /** Whether an element holds delivered hover state. See {@link isHoveredDropTarget}. */
   isHovered: (element: Element) => boolean;
+  /** See {@link getActiveDragLocation}. */
+  getLocation: () => DraggableLocationHistory;
   /**
    * Whether `cancel` may run. Set before the start dispatches and cleared when
    * the end sequence begins (see `disarmSessionHooks`).
@@ -80,6 +82,15 @@ function dropTargetRecordsEqual(a: DraggableTargetRecord, b: DraggableTargetReco
 
 export function isActive(): boolean {
   return state.session !== null;
+}
+
+/**
+ * A snapshot of the active drag's location, as the handler running now sees it, or
+ * `null` when no drag is active. The published session can lag behind it while a
+ * handler runs, since it is published after the handlers of each event.
+ */
+export function getActiveDragLocation(): DraggableLocationHistory | null {
+  return state.session?.getLocation() ?? null;
 }
 
 /**
@@ -156,6 +167,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     grabOffset,
     hitTest,
     onForceCleanup,
+    onRelease,
   } = parameters;
 
   // Runs before the initial stack resolves, because records capture the grab
@@ -305,6 +317,7 @@ export function start(parameters: StartParameters): DragSessionController | null
   const session: LifecycleSession = {
     tearDown,
     cancel: doCancel,
+    getLocation: snapshotLocation,
     refresh(rehitTest) {
       // Queue a refresh requested inside a consumer fan-out, or before
       // `onMoveStart` has gone out (see `dispatching` and `startDispatched`).
@@ -813,6 +826,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       // This path covers a drop on a target and a release over nothing. Neither is
       // a cancel, and the reason tells them apart. Only a drop fires `onDraggableDrop`.
       const endReason: DragEndReason = innermostDropTarget ? 'drop' : 'outside-release';
+      onRelease?.(innermostDropTarget !== null);
       const previousDropTargets = location.current.targets;
 
       location.previous = lastDispatched;
@@ -1129,4 +1143,9 @@ export interface StartParameters {
    * because the normal end path also runs it after the sensor cleared itself.
    */
   onForceCleanup: () => void;
+  /**
+   * Called when a release ends the drag, with whether it dropped on a target, before
+   * any end handler runs. The sensor marks the settling preview with it.
+   */
+  onRelease?: ((dropped: boolean) => void) | undefined;
 }

@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createDragPreviewElement } from './cloneDragPreview';
+import { createDragPreviewElement, measurePreviewAnchor } from './cloneDragPreview';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
+
+/** Measure and clone `source`, the way a pickup does. */
+function clonePreview(source: HTMLElement, container: HTMLElement | null) {
+  const anchor = measurePreviewAnchor(source, container);
+  return anchor && createDragPreviewElement(source, anchor);
+}
 
 describe('createDragPreviewElement (clone)', () => {
   let host: HTMLElement;
@@ -19,7 +25,7 @@ describe('createDragPreviewElement (clone)', () => {
       handles.pop()!.destroy();
     }
     host.remove();
-    const leaked = document.querySelectorAll('[data-drag-preview-container]').length;
+    const leaked = document.querySelectorAll('[data-drag-preview]').length;
     if (leaked > 0) {
       throw new Error(`${leaked} drag preview element(s) leaked into the document after cleanup.`);
     }
@@ -42,7 +48,7 @@ describe('createDragPreviewElement (clone)', () => {
   }
 
   function clone(source: HTMLElement, options?: { container?: HTMLElement }) {
-    const handle = track(createDragPreviewElement(source, options?.container ?? null, true));
+    const handle = track(clonePreview(source, options?.container ?? null));
     expect(handle).not.toBeNull();
     return handle!;
   }
@@ -60,14 +66,6 @@ describe('createDragPreviewElement (clone)', () => {
     );
     expect(completeTreeQueries).toHaveLength(2);
   });
-
-  /**
-   * The engine-owned top-layer wrapper the preview mounts inside. The placement
-   * tests assert on this element.
-   */
-  function wrapperOf(handle: DragPreviewElementHandle): HTMLElement {
-    return handle.element.parentElement!;
-  }
 
   it('keeps the source classes so consumers can style it with their own selector', () => {
     const handle = clone(createSource());
@@ -89,11 +87,9 @@ describe('createDragPreviewElement (clone)', () => {
 
     // Last child, not next sibling. Both come after the source in tree order, so
     // `getElementById` still resolves the real element, but the last position
-    // leaves every sibling's `:nth-child` index unchanged.
-    expect(host.lastElementChild).toBe(wrapperOf(handle));
-    expect(Array.from(host.children)).toEqual([source, sibling, wrapperOf(handle)]);
-    // The clone itself sits inside the engine-owned top-layer wrapper.
-    expect(wrapperOf(handle).firstElementChild).toBe(handle.element);
+    // leaves every sibling's `:nth-child` index unchanged. There is no wrapper, so
+    // the clone is a sibling with the source's own tag.
+    expect(Array.from(host.children)).toEqual([source, sibling, handle.element]);
   });
 
   it('injects into an explicit container when one is given', () => {
@@ -101,7 +97,7 @@ describe('createDragPreviewElement (clone)', () => {
     document.body.appendChild(container);
     try {
       const handle = clone(createSource(), { container });
-      expect(wrapperOf(handle).parentElement).toBe(container);
+      expect(handle.element.parentElement).toBe(container);
       handle.destroy();
     } finally {
       container.remove();
@@ -123,7 +119,7 @@ describe('createDragPreviewElement (clone)', () => {
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('belongs to a different document'),
       );
-      expect(wrapperOf(handle).parentElement).toBe(host);
+      expect(handle.element.parentElement).toBe(host);
     } finally {
       frame.remove();
       warnSpy.mockRestore();
@@ -137,17 +133,17 @@ describe('createDragPreviewElement (clone)', () => {
     const source = document.createElement('div');
     shadow.appendChild(source);
 
-    const handle = track(createDragPreviewElement(source, null, true))!;
+    const handle = track(clonePreview(source, null))!;
 
     // A direct child of a shadow root has no `parentElement`. The preview is
     // appended to the shadow root itself, so it stays under the same adopted styles.
-    expect(wrapperOf(handle).parentNode).toBe(shadow);
+    expect(handle.element.parentNode).toBe(shadow);
 
     // The captured ancestor chain crosses the shadow host, so tearing the host
     // out still re-homes the preview to a surviving outer ancestor.
     shadowHost.remove();
     handle.ensureConnected();
-    expect(wrapperOf(handle).parentElement).toBe(host);
+    expect(handle.element.parentElement).toBe(host);
   });
 
   it('writes only the geometry contract inline, parked off-screen', () => {
@@ -451,7 +447,7 @@ describe('createDragPreviewElement (clone)', () => {
 
   it('preserves live form state', () => {
     const source = createSource(
-      '<input type="text" /><input type="checkbox" /><select><option>a</option><option>b</option></select><textarea></textarea>',
+      '<input type="text" /><input type="checkbox" /><input type="checkbox" class="Mixed" /><select><option>a</option><option>b</option></select><textarea></textarea>',
     );
     const text = source.querySelector<HTMLInputElement>('input[type=text]')!;
     const checkbox = source.querySelector<HTMLInputElement>('input[type=checkbox]')!;
@@ -461,6 +457,8 @@ describe('createDragPreviewElement (clone)', () => {
     checkbox.checked = true;
     select.selectedIndex = 1;
     textarea.value = 'drafted';
+    // A property only. Cloning doesn't carry it.
+    source.querySelector<HTMLInputElement>('.Mixed')!.indeterminate = true;
 
     const handle = clone(source);
 
@@ -470,6 +468,7 @@ describe('createDragPreviewElement (clone)', () => {
     );
     expect(handle.element.querySelector('select')!.selectedIndex).toBe(1);
     expect(handle.element.querySelector('textarea')!.value).toBe('drafted');
+    expect(handle.element.querySelector<HTMLInputElement>('.Mixed')!.indeterminate).toBe(true);
   });
 
   it('does not assign a file input value programmatically', () => {
@@ -545,7 +544,7 @@ describe('createDragPreviewElement (clone)', () => {
     other.value = 'basic';
     host.appendChild(other);
 
-    const handle = track(createDragPreviewElement(source, null, true))!;
+    const handle = track(clonePreview(source, null))!;
 
     // A named clone joins the radio group. Inserting it unchecks the real source,
     // and removing it leaves the group with nothing checked.
@@ -562,15 +561,15 @@ describe('createDragPreviewElement (clone)', () => {
     const source = document.createElement('div');
     inner.appendChild(source);
 
-    const handle = track(createDragPreviewElement(source, null, true))!;
-    expect(wrapperOf(handle).parentElement).toBe(inner);
+    const handle = track(clonePreview(source, null))!;
+    expect(handle.element.parentElement).toBe(inner);
 
     // A React commit tears the host out after the callback that triggered it, so
     // nothing calls `ensureConnected`. The observer repairs it anyway.
     inner.remove();
     await Promise.resolve();
 
-    expect(wrapperOf(handle).parentElement).toBe(host);
+    expect(handle.element.parentElement).toBe(host);
   });
 
   it('re-homes the clone to the nearest surviving ancestor when its host is torn out', () => {
@@ -579,20 +578,47 @@ describe('createDragPreviewElement (clone)', () => {
     const source = document.createElement('div');
     inner.appendChild(source);
 
-    const handle = track(createDragPreviewElement(source, null, true))!;
-    expect(wrapperOf(handle).parentElement).toBe(inner);
+    const handle = track(clonePreview(source, null))!;
+    expect(handle.element.parentElement).toBe(inner);
 
     // A virtualizer recycling the row takes the clone's host with it.
     inner.remove();
     handle.ensureConnected();
 
-    expect(wrapperOf(handle).parentElement).toBe(host);
+    expect(handle.element.parentElement).toBe(host);
+  });
+
+  it('keeps the number of an ordered list item', () => {
+    // The clone joins the list after every item. Without its own `value`, the list
+    // would number it as its last item.
+    const list = document.createElement('ol');
+    list.start = 3;
+    list.innerHTML = '<li>a</li><li>b</li><li>c</li>';
+    host.appendChild(list);
+    const item = list.children[1] as HTMLElement;
+
+    const handle = track(clonePreview(item, null))!;
+
+    expect(handle.element.parentElement).toBe(list);
+    expect(handle.element.localName).toBe('li');
+    expect(handle.element.getAttribute('value')).toBe('4');
+  });
+
+  it('gives the clone its source number in a reversed list', () => {
+    const list = document.createElement('ol');
+    list.reversed = true;
+    list.innerHTML = '<li>a</li><li>b</li><li>c</li>';
+    host.appendChild(list);
+
+    const handle = track(clonePreview(list.children[0] as HTMLElement, null))!;
+
+    expect(handle.element.getAttribute('value')).toBe('3');
   });
 
   it('returns null when there is nothing to clone into', () => {
     const detached = document.createElement('div');
 
-    expect(createDragPreviewElement(detached, null, true)).toBeNull();
+    expect(clonePreview(detached, null)).toBeNull();
   });
 
   it('removes the clone on destroy, idempotently', () => {

@@ -20,6 +20,7 @@ import { getActiveDragPreviewSettings, getActivePreviewHandle } from './activePr
 import { retargetEndingPreviewSource } from './synthetic/syntheticPreview';
 import type { InternalDragEngine, InternalDraggableParameters } from './registrationTypes';
 import type { DragCleanupFn } from './types';
+import type { DraggablePreviewRenderParameters } from '../../draggable/preview/DraggablePreview';
 
 /**
  * Draggable registration shared by `Draggable.Root` and the imperative engine.
@@ -55,38 +56,43 @@ export class DragEngineBase {
 
     // Defined for every source, because whether a drag has React content to
     // publish is known only once the sensor resolves the preview at drag start.
+    const publishPreview = (payload: DraggablePreviewRenderParameters<TPayload, TDragData>) => {
+      // The sensor resolved these settings and set up the preview before starting
+      // this session. Only custom content needs React. The engine builds a clone
+      // without it.
+      const settings = getActiveDragPreviewSettings();
+      const handle = getActivePreviewHandle();
+      const container = handle?.getContentContainer() ?? null;
+      if (
+        settings == null ||
+        settings.render === null ||
+        settings.disabled ||
+        !handle ||
+        !container
+      ) {
+        return;
+      }
+      const node = settings.render(payload);
+      // The render function is consumer code and may have ended the drag.
+      if (!isActive() || getActivePreviewHandle() !== handle) {
+        return;
+      }
+      // Content that resolves to nothing declines the preview. The engine then has
+      // nothing to copy and shows no preview until a later render returns content.
+      publishDragPreview(this.getPreviewContext(), {
+        node: node === false ? null : node,
+        container,
+        sync: handle.syncContent,
+        freeze: handle.freezeContent,
+      });
+    };
     const onGenerateDragPreview: DraggableConfig<TPayload, TDragData>['onGenerateDragPreview'] = (
       payload,
     ) => {
-      // The sensor resolved these settings and built the preview element from
-      // them before starting this session.
-      const settings = getActiveDragPreviewSettings();
-      // Only a host preview has React content to publish. The engine builds and
-      // manages a clone preview without React.
-      if (settings == null || settings.render === null || settings.disabled) {
-        return;
-      }
-      const preview = getActivePreviewHandle()?.getPreviewElement() ?? null;
-      const previewNode = preview ? settings.render(payload) : null;
-      const handle = getActivePreviewHandle();
-      if (!isActive() || (handle?.getPreviewElement() ?? null) !== preview) {
-        return;
-      }
-      // Content that resolves to nothing declines the preview for this drag. Drop
-      // the host the sensor built, or an empty box would follow the pointer.
-      if (preview == null || previewNode == null || previewNode === false) {
-        handle?.removePreviewElement();
-        return;
-      }
-      publishDragPreview(this.getPreviewContext(), {
-        node: previewNode,
-        host: preview.element,
-        offset: settings.offset,
-        // The engine measured it before inserting the clone and marking the
-        // source. Measuring again here would force another reflow.
-        sourceRect: preview.sourceRect,
-        input: payload.location.initial.input,
-      });
+      publishPreview(payload);
+      getActivePreviewHandle()?.setContentRenderer(
+        publishPreview as (parameters: DraggablePreviewRenderParameters) => void,
+      );
     };
 
     // The spread passes most parameters through, and only the preview and CSP

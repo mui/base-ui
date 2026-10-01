@@ -1,8 +1,8 @@
 import type * as React from 'react';
-import { createDragPreviewElement } from './cloneDragPreview';
+import { createDragPreviewElement, measurePreviewAnchor } from './cloneDragPreview';
 import type { SyntheticPreviewHandle } from './syntheticPreview';
 import type { DraggableConfig } from '../draggable';
-import { resolveElementReference } from '../utils';
+import { containConsumerError, resolveElementReference } from '../utils';
 import type { DraggableInput, DraggablePosition } from '../../../draggable/DraggableProvider';
 import type {
   DraggablePreviewOffset,
@@ -22,7 +22,7 @@ export interface ResolvedDragPreview {
   /** Already resolved to an element. `null` inserts the preview beside the source. */
   container: HTMLElement | null;
   disabled: boolean;
-  /** React content for a host preview; `null` for a clone of the source. */
+  /** React content for a custom preview; `null` for a clone of the source. */
   render: ((parameters: DraggablePreviewRenderParameters<any>) => React.ReactNode) | null;
 }
 
@@ -81,11 +81,12 @@ export function resolveDragPreviewOffset(
 /**
  * Build the element that follows the pointer, unless the draggable opted out.
  *
- * A custom preview gets an empty host for React to render into. Otherwise the
- * source is cloned into a sanitized preview that keeps its classes and live state.
- *
- * Runs before `data-dragging` lands on the source, so the clone never inherits it
- * and the usual `[data-dragging] { opacity: .4 }` rule dims the source alone.
+ * Without custom content, the source is cloned into a sanitized preview that keeps
+ * its classes and live state. With custom content, the React layer renders it into
+ * a detached element, and the preview is a copy of it, built once it has rendered.
+ * Both are measured now, before `data-dragging` lands on the source, so the clone
+ * never inherits it and the usual `[data-dragging] { opacity: .4 }` rule dims the
+ * source alone.
  *
  * `pressInput` is the original press, and `input` is the pointer state the pickup
  * committed on. Distance activation commits on a later `pointermove`, so the
@@ -102,35 +103,54 @@ export function attachDragPreview(
   if (settings.disabled) {
     return;
   }
+  const anchor = measurePreviewAnchor(element, settings.container);
+  if (!anchor) {
+    return;
+  }
 
-  const previewElement = createDragPreviewElement(
-    element,
-    settings.container,
-    settings.render === null,
-  );
+  const isSourceOffset = settings.offset === undefined || settings.offset === 'source';
+  const resolveOffset = (container: HTMLElement) =>
+    resolveDragPreviewOffset(settings.offset, {
+      container,
+      // The rect the preview occupies. For a transformed source, this is the
+      // untransformed box the clone is anchored on (see `measurePreviewSource`), not
+      // the transformed one from `getBoundingClientRect`, so the clone lifts off
+      // where the source sits.
+      sourceRect: anchor.sourceRect,
+      input: isSourceOffset ? pressInput : input,
+    });
+
+  if (settings.render !== null) {
+    preview.attachContent({
+      anchor,
+      // An offset callback needs the preview's rendered size, so every form resolves
+      // once the first copy of the content is in place.
+      resolveOffset(container) {
+        if (typeof settings.offset !== 'function') {
+          return resolveOffset(container);
+        }
+        // Consumer code. Uncontained, a throw would end the drag from inside the
+        // React commit that rendered the content.
+        return (
+          containConsumerError(
+            'Base UI: a drag preview "offset" function threw, so the preview uses the "source" offset.',
+            container,
+            () => resolveOffset(container),
+            null,
+          ) ??
+          resolveDragPreviewOffset('source', { container, sourceRect: anchor.sourceRect, input })
+        );
+      },
+    });
+    return;
+  }
+
+  const previewElement = createDragPreviewElement(element, anchor);
   if (!previewElement) {
     return;
   }
 
   // Own the element before invoking consumer code so pickup cleanup can release it.
   preview.setPreviewElement(previewElement);
-
-  // An offset callback needs the preview's rendered size, which a host only has once
-  // React fills it. The renderer resolves it once, after the content lands. Every
-  // other form depends only on the source rect, so it resolves now, even for a host.
-  if (previewElement.isHost && typeof settings.offset === 'function') {
-    return;
-  }
-  const isSourceOffset = settings.offset === undefined || settings.offset === 'source';
-  preview.setPreviewOffset(
-    resolveDragPreviewOffset(settings.offset, {
-      container: previewElement.element,
-      // The rect the preview occupies. For a transformed source, this is the
-      // untransformed box the clone is anchored on (see `measurePreviewSource`), not
-      // the transformed one from `getBoundingClientRect`, so the clone lifts off
-      // where the source sits.
-      sourceRect: previewElement.sourceRect,
-      input: isSourceOffset ? pressInput : input,
-    }),
-  );
+  preview.setPreviewOffset(resolveOffset(previewElement.element));
 }

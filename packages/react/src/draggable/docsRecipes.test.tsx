@@ -112,7 +112,7 @@ describe('Draggable docs testing recipes', () => {
   // Runs after the recipes, so a preview they leaked would still be in the document.
   it('leaves no drag preview behind', async () => {
     await waitFor(() => {
-      expect(document.querySelector('[data-drag-preview-container]')).toBe(null);
+      expect(document.querySelector('[data-drag-preview]')).toBe(null);
     });
   });
 });

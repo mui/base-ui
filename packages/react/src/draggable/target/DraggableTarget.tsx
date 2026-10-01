@@ -401,6 +401,19 @@ export interface DraggableTargetResolutionContext<TSourcePayload = unknown, TDra
   source: DraggableRootRecord<TSourcePayload, TDragData>;
   /** The drop target's own DOM element. */
   element: Element;
+  /**
+   * Returns where the pointer is within the target, as in the target record's
+   * `getLocalPoint()`, so `canDrop` can accept only part of the target.
+   */
+  getLocalPoint: () => DraggableTargetLocalPoint;
+  /**
+   * Returns the local point rounded to the target's `snap` steps, as in the target
+   * record's `getSnappedLocalPoint()`. A `snap` callback that calls it gets the point
+   * without snapping.
+   */
+  getSnappedLocalPoint: (
+    options?: DraggableTargetSnappedLocalPointOptions,
+  ) => DraggableTargetLocalPoint;
 }
 
 export type DraggableTargetStartEventDetails<

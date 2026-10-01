@@ -778,6 +778,7 @@ describe('Draggable.CollisionProvider', () => {
         input: expect.objectContaining({ clientY: 180 }),
         element: b,
         payload: 'b',
+        getLocalPoint: expect.any(Function),
       }),
     );
     cancel();

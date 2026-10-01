@@ -2,6 +2,8 @@ import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import { getSharedSlot } from './sharedState';
 import { getRegistration } from './draggableRegistry';
 import { dragSessionStore, notifyDragSourceUpdated } from './dragSessionStore';
+import { getActivePreviewHandle } from './activePreview';
+import { getActiveDragLocation } from './core/lifecycleManager';
 import { getParticipantPayload } from './participantData';
 import type { ParticipantPayload } from './participantData';
 
@@ -54,6 +56,14 @@ export function createDragSource(
       if (!Object.is(dragData, nextDragData)) {
         dragData = nextDragData;
         notifyDragSourceUpdated(source);
+      }
+    },
+    renderPreview() {
+      // Only this record's own drag, once it has started. Before that, in
+      // `onBeforeMoveStart`, the preview is not built yet and renders anyway.
+      const location = getActiveDragLocation();
+      if (location !== null && dragSessionStore.state?.source === source) {
+        getActivePreviewHandle()?.renderPreview({ source, location });
       }
     },
   };

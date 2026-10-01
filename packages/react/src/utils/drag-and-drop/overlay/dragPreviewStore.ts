@@ -2,19 +2,18 @@ import { Store } from '@base-ui/utils/store';
 import type { ReadonlyStore } from '@base-ui/utils/store';
 import type * as React from 'react';
 import { getSharedSlot } from '../sharedState';
-import type { DraggableInput } from '../../../draggable/DraggableProvider';
-import type { DraggablePreviewOffset } from '../../../draggable/preview/DraggablePreview';
 import type { DraggableContextValue } from '../../../draggable/DraggableContext';
 
 /**
  * The active drag's custom preview content, published at drag start from
  * `onGenerateDragPreview` for a `Draggable.Preview` with children or a
- * `registerSource` `preview.render`.
+ * `registerSource` `preview.render`, and again on each `source.renderPreview()`.
  *
- * `host` is the element the engine inserted next to the source (or into the
- * configured container) and positions each frame. React only fills it. `sourceRect`
- * and `input` are captured at drag start so an offset callback can resolve once
- * the content has rendered and the host has a size.
+ * `container` is a detached element. React renders the content into it, and the
+ * engine copies what it renders into the preview element that follows the pointer.
+ * `sync` makes the engine copy the latest content right away, so a commit shows in
+ * the same frame. `freeze` stops copying before the content unmounts with its
+ * provider.
  *
  * A drag that uses the default clone publishes nothing here, because the engine
  * builds the clone without React.
@@ -22,10 +21,10 @@ import type { DraggableContextValue } from '../../../draggable/DraggableContext'
 export interface DragPreviewState {
   context: DraggableContextValue;
   node: React.ReactNode;
-  host: HTMLElement;
-  offset: DraggablePreviewOffset | undefined;
-  sourceRect: DOMRect;
-  input: DraggableInput;
+  container: HTMLElement;
+  sync: () => void;
+  /** Stop copying. The preview keeps its last content until the drag ends. */
+  freeze: () => void;
 }
 
 const store = getSharedSlot('dragPreview.store', () => new Store<DragPreviewState | null>(null));
@@ -42,7 +41,7 @@ export function publishDragPreview(
 }
 
 /**
- * Clear the React-rendered preview. The engine-owned clone or host is managed by
+ * Clear the React-rendered preview content. The preview element itself is managed by
  * the active preview handle instead.
  */
 export function clearPublishedDragPreview(): void {

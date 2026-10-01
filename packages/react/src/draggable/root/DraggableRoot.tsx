@@ -29,6 +29,8 @@ const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
   // The engine sets `data-dragging` after it builds and measures the preview, so the
   // clone never inherits it. Rendering it from React could land it before the clone.
   dragging: () => null,
+  // The engine sets `data-settling` too, in step with the preview it settles.
+  settling: () => null,
 };
 
 /**
@@ -113,7 +115,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
       }
     }, [enclosingCollisionContext, kind, collision]);
   }
-  const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<
+  const { ref, dragging, settling, setHandleElement, previewHandle } = useDraggableElement<
     TPayload,
     TDragData
   >(
@@ -131,6 +133,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
 
   const state: DraggableRoot.State = {
     dragging,
+    settling,
     disabled: disabled ?? false,
   };
 
@@ -169,6 +172,12 @@ export interface DraggableRootState {
    * Whether this element is being dragged.
    */
   dragging: boolean;
+  /**
+   * Whether this element's preview is still running its ending animation after the drop.
+   * The source keeps `[data-dragging]` until then, so `dragging || settling`
+   * matches that attribute.
+   */
+  settling: boolean;
   /**
    * Whether the draggable is disabled.
    */
@@ -254,6 +263,13 @@ export interface DraggableRootRecord<TPayload = unknown, TDragData = unknown> {
   readonly dragData: TDragData | undefined;
   /** Stores data for the rest of the current drag. */
   updateDragData(dragData: TDragData): void;
+  /**
+   * Renders the drag preview again. A custom preview runs its children function again,
+   * with the current `source` and `location`. The default preview clones the source again.
+   * Call it when the preview shows drag state, after `updateDragData` for example.
+   * It does nothing before the drag starts, as in `onBeforeMoveStart`, or after it ends.
+   */
+  renderPreview(): void;
 }
 
 /**

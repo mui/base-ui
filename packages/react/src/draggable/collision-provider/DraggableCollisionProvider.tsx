@@ -254,7 +254,8 @@ export interface DraggableCollisionProviderProps<TPayload = unknown, TDragData =
   kind: DraggableKind<TPayload, TDragData>;
   /**
    * Whether the dragged item can be dropped on a given item of this group.
-   * Receives the drag `source`, the pointer `input`, and the item's `payload` and `element`.
+   * Receives the drag `source`, the pointer `input`, the item's `payload` and `element`,
+   * and `getLocalPoint()` for where the pointer is within the item.
    * Return `false` to skip the item, or `'reject'` to block the drop.
    */
   canCollide?:

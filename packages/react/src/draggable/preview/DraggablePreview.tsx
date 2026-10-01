@@ -21,8 +21,8 @@ import * as DraggablePreviewDataAttributes from './DraggablePreviewDataAttribute
 /**
  * Configures what follows the pointer during a drag.
  * Without children, it configures the default clone of the source and renders nothing.
- * With children, it renders them in a `<div>` element inserted beside the source
- * while dragging. That element reads React context from above the nearest `<Draggable.Provider>`.
+ * With children, it renders them in a `<div>` element, which Base UI copies beside the
+ * source while dragging. The children read React context from above the nearest `<Draggable.Provider>`.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable)
  */
@@ -68,8 +68,8 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
         return null;
       }
       const resolved = typeof children === 'function' ? children(parameters) : children;
-      // Pass a declined preview to the engine unchanged. The engine then removes the
-      // host it already built, which an empty element would not do.
+      // Pass a declined preview to the engine unchanged. An empty element would still
+      // follow the pointer.
       if (resolved == null || resolved === false) {
         return resolved;
       }
@@ -104,14 +104,14 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
 }
 
 const EMPTY_STATE: DraggablePreviewState = EMPTY_OBJECT;
-// The styling hook a clone gets from the engine. Here it goes on the element the
-// consumer styles, not on the engine-owned host around it.
+// The styling hook the engine also sets on the preview. It is set here too, so the
+// content can be styled the same way before the engine copies it.
 const PREVIEW_ELEMENT_PROPS = { [DraggablePreviewDataAttributes.dragPreview as string]: '' };
 
 /**
- * The element a `Draggable.Preview` declares. The overlay renders it inside the
- * engine-owned host that follows the pointer, not where the `Draggable.Preview`
- * is written.
+ * The element a `Draggable.Preview` declares. The overlay renders it off-document,
+ * not where the `Draggable.Preview` is written, and the engine copies it into the
+ * element that follows the pointer.
  */
 function PreviewElement(props: PreviewElementProps): React.ReactNode {
   const { className, style, render, ...elementProps } = props;
@@ -137,16 +137,16 @@ export interface DraggablePreviewProps
     Omit<
       BaseUIComponentProps<'div', DraggablePreviewState>,
       // - `children` is widened below.
-      // - The engine creates the element at drag start, in the overlay rather than here,
-      // so there is no node for a ref to point at when this component renders.
+      // - The element is rendered at drag start, in the overlay rather than here, and
+      // the preview is a copy of it, so a ref would point at no visible node.
       'children' | 'ref'
     >,
     DraggablePreviewSettings {
   /**
    * The preview content. Omit it to clone the source instead.
-   * Pass a function to build the content from the drag source when the drag starts.
-   * It can return `null` to show no preview for that drag. Its `source.payload` is
-   * `unknown` unless a `kind` is passed.
+   * Pass a function to build the content from the drag source when the drag starts,
+   * and again on each `source.renderPreview()` call. It can return `null` to show no
+   * preview. Its `source.payload` is `unknown` unless a `kind` is passed.
    */
   children?:
     | React.ReactNode
@@ -170,7 +170,8 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
   kind: DraggableKind<TPayload, TDragData>;
   /**
    * The preview content. Pass a function to build the content from the drag source
-   * when the drag starts. It can return `null` to show no preview for that drag.
+   * when the drag starts, and again on each `source.renderPreview()` call. It can
+   * return `null` to show no preview.
    */
   children?:
     | React.ReactNode
@@ -180,12 +181,12 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
 
 /**
  * The argument of `<Draggable.Preview>`'s children function and of `registerSource`'s
- * `preview.render`, called when the drag starts.
+ * `preview.render`, called when the drag starts and on each `source.renderPreview()`.
  */
 export interface DraggablePreviewRenderParameters<TSourcePayload = unknown, TDragData = unknown> {
   /** The item being dragged. */
   source: DraggableRootRecord<TSourcePayload, TDragData>;
-  /** The pointer position and drop targets when the drag started. */
+  /** The pointer position and drop targets when the preview renders. */
   location: DraggableLocationHistory;
 }
 
@@ -247,9 +248,9 @@ export interface DraggablePreviewSettings {
    */
   disabled?: boolean | undefined;
   /**
-   * Where to insert the preview element in the DOM. Defaults to beside the source,
-   * so the same CSS applies to it. Pass a container to keep selectors such as
-   * `:last-child` on the source's siblings unchanged during the drag.
+   * Where to insert the preview element in the DOM. Defaults to the end of the
+   * source's parent, so the same CSS applies to it. Pass a container to keep
+   * selectors such as `:last-child` on the source's siblings unchanged during the drag.
    */
   container?: DraggablePreviewContainer | undefined;
 }
@@ -263,9 +264,11 @@ export interface DraggablePreviewParameters<
   TDragData = unknown,
 > extends DraggablePreviewSettings {
   /**
-   * Renders the preview content instead of cloning the source.
-   * Return `null` to show no preview for this drag. It plays the role of
-   * `<Draggable.Preview>`'s children function, not of its `render` prop.
+   * Renders the preview content instead of cloning the source, when the drag starts
+   * and on each `source.renderPreview()` call. Return `null` to show no preview. It
+   * plays the role of `<Draggable.Preview>`'s children function, not of its `render`
+   * prop. A single root element becomes the preview element. Other content is wrapped
+   * in a `<div>`.
    */
   render?:
     | ((parameters: DraggablePreviewRenderParameters<TSourcePayload, TDragData>) => React.ReactNode)

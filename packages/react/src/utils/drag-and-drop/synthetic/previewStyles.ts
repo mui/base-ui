@@ -21,7 +21,7 @@ const PREVIEW_ROOT_PROPERTIES = new Set([
   'z-index',
 ]);
 
-function isPreviewRootProperty(name: string): boolean {
+export function isPreviewRootProperty(name: string): boolean {
   return (
     PREVIEW_ROOT_PROPERTIES.has(name) ||
     /^(?:margin|inset)(?:-|$)/.test(name) ||
@@ -36,7 +36,7 @@ function isPreviewRootProperty(name: string): boolean {
  * and copying the source's `auto` onto a descendant would make it hit-testable
  * and focusable again.
  */
-function isEngineOwnedProperty(name: string): boolean {
+export function isEngineOwnedProperty(name: string): boolean {
   return (
     name.startsWith('transition') ||
     name.startsWith('animation') ||
@@ -61,13 +61,14 @@ const RULES_PER_SOURCE_NODE = 512;
 
 /**
  * Snapshot only declarations whose selectors may stop matching once the clone sits
- * in the preview wrapper. Ordinary class rules still match and need no copying.
+ * at the end of the source's parent, or in the preview `container`. Ordinary class
+ * rules still match and need no copying.
  *
  * Selectors are matched against the source tree, and values are read from the
- * source nodes. The clone is not in the DOM yet. Once inserted, it is the first
- * child of the wrapper rather than at the source's sibling position, so
- * `:nth-child`, `:first-child`, `:last-child` and combinator rules would resolve
- * to the wrong value. `sourceNodes` and `cloneNodes` list both trees in the same
+ * source nodes. The clone is not in the DOM yet. Once inserted, it is the last
+ * child of its parent rather than at the source's sibling position, so
+ * `:nth-child`, `:first-child`, `:last-child` and sibling combinators would resolve
+ * to the wrong value. In a `container`, child combinators can stop matching too. `sourceNodes` and `cloneNodes` list both trees in the same
  * order, rooted at the source and its clone, so each snapshot is keyed by the
  * clone node it is restored onto.
  */
@@ -93,6 +94,11 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
     names: Iterable<string>,
     declaration?: CSSStyleDeclaration,
   ) {
+    // A selector can match source nodes the clone left out, such as an earlier
+    // preview inside the source. They have nothing to restore onto.
+    if (!clonesBySource.has(sourceNode)) {
+      return;
+    }
     let byPseudo = properties.get(sourceNode);
     if (!byPseudo) {
       byPseudo = new Map();
@@ -220,8 +226,8 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
         // reports all of them. A custom property equal to the parent's is
         // inherited. The clone's parent ends up with that same value, restored if
         // needed, so the clone inherits it too and it needs no copy. Only the root
-        // copies every token, since the wrapper and container above it are not
-        // the source's ancestors.
+        // copies every token, since a `container` above it may not be one of the
+        // source's ancestors.
         const value = computed.getPropertyValue(name);
         custom.set(name, value);
         if (parentCustom?.get(name) !== value) {
@@ -302,8 +308,8 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
 
   /**
    * A restored value is a style change on a node that is already rendered, so a
-   * descendant whose own `transition` covers it would fade in from the value the
-   * wrapper position gave it. The preview must look settled on its first frame.
+   * descendant whose own `transition` covers it would fade in from the value its
+   * position at the end of the parent gave it. The preview must look settled on its first frame.
    * Only transitions are finished. A running `@keyframes` inside the source, such
    * as a spinner, keeps playing on the clone.
    */
@@ -319,7 +325,7 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
   }
 
   return {
-    /** Call once the clone is in its wrapper, so the diff sees its final cascade. */
+    /** Call once the clone is inserted, so the diff sees its final cascade. */
     restore() {
       // Finish all reads before writing styles, avoiding a layout per node.
       const changed = snapshots.map(({ node, pseudo, values }) => {
