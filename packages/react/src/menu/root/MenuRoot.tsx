@@ -444,6 +444,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     };
   }, [floatingEvents, setOpen]);
 
+  useIsoLayoutEffect(() => store.subscribeToParentMenu(), [store]);
+
   const handleImperativeClose = React.useCallback(() => {
     store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }, [store]);
