@@ -69,12 +69,6 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
     if (store.state.instantType === 'trigger-change') {
       store.set('instantType', undefined);
     }
-
-    // `trigger-change` belongs to the open cycle that scheduled it. The selector
-    // stops a closed popup from rendering it, but the value has to be dropped
-    // too: a controlled reopen changes only `openProp`, so neither this effect
-    // nor `setOpen` would run again to replace it, and the selector would start
-    // exposing the old value against the new cycle.
   }, [open, store]);
 
   useIsoLayoutEffect(() => {
