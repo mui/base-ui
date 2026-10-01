@@ -73,10 +73,13 @@ function findAssociatedLabel(labelSource: HTMLElement) {
     labelObserver = new MutationObserver(NOOP);
     queueMicrotask(clearLabelIndex);
   } else if (labelObserver.takeRecords().length) {
-    // Something else changed the DOM since the index was built. Read `labels` this once and rebuild
-    // lazily, so mutations between every pair of lookups cost no more than reading `labels` always.
+    // The DOM changed since the index was built (React 19 rewrites `input.type` on every update).
+    // Read `labels` this once and rebuild lazily, so mutations between every pair of lookups cost no
+    // more than reading `labels` always. Chromium and WebKit leave it empty when disconnected.
     labelIndex.clear();
-    return (labelSource as HTMLInputElement).labels?.[0];
+    if (labelSource.isConnected) {
+      return (labelSource as HTMLInputElement).labels?.[0];
+    }
   }
 
   // A detached tree's root can be the label itself, which `querySelectorAll` skips.
