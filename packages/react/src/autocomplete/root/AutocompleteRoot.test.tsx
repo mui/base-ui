@@ -1136,6 +1136,32 @@ describe('<Autocomplete.Root />', () => {
         expect(input).toHaveValue('32');
       });
 
+      it('highlights asynchronous results while an inline input stays focused', async () => {
+        function Test({ items = [] }: { items?: string[] }) {
+          return (
+            <Autocomplete.Root inline defaultOpen autoHighlight items={items}>
+              <Autocomplete.Input />
+              <Autocomplete.List>
+                {(item: string) => (
+                  <Autocomplete.Item key={item} value={item}>
+                    {item}
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </Autocomplete.Root>
+          );
+        }
+
+        const { user, setProps } = await render(<Test />);
+        const input = screen.getByRole('combobox');
+        await user.type(input, '32');
+        await setProps({ items: ['32'] });
+
+        const option = screen.getByRole('option');
+        expect(option).toHaveAttribute('data-highlighted');
+        expect(input).toHaveAttribute('aria-activedescendant', option.id);
+      });
+
       it.each([true, 'always'] as const)(
         'handles asynchronous results after an inline input blurs with autoHighlight=%s',
         async (autoHighlight) => {

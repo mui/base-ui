@@ -9157,6 +9157,54 @@ describe('<Combobox.Root />', () => {
         expect(option).toHaveAttribute('data-highlighted');
       });
 
+      it('highlights the first result when typing filters out individually rendered items', async () => {
+        function FilteredCombobox() {
+          const [query, setQuery] = React.useState('');
+          const fruits = ['apple', 'banana', 'blackberry', 'blueberry'].filter((fruit) =>
+            fruit.includes(query),
+          );
+          return (
+            <Combobox.Root autoHighlight onInputValueChange={setQuery}>
+              <Combobox.Input />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {fruits.map((fruit) => (
+                        <Combobox.Item key={fruit} value={fruit}>
+                          {fruit}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<FilteredCombobox />);
+        const input = screen.getByRole('combobox');
+        await user.type(input, 'b');
+        await user.keyboard('{ArrowDown}');
+        expect(screen.getByRole('option', { name: 'blackberry' })).toHaveAttribute(
+          'data-highlighted',
+        );
+
+        await user.type(input, 'l');
+        const option = screen.getByRole('option', { name: 'blackberry' });
+        expect(option).toHaveAttribute('data-highlighted');
+        expect(input).toHaveAttribute('aria-activedescendant', option.id);
+      });
+
+      it('discards the request when an ignored typed open is followed by another open', async () => {
+        const { user, setProps } = await render(<AsyncCombobox items={['32']} open={false} />);
+        await user.type(screen.getByRole('combobox'), '32');
+        await user.click(screen.getByTestId('trigger'));
+        await setProps({ open: true });
+        expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+      });
+
       it.each(['Trigger', 'ArrowDown'] as const)(
         'discards the request when a rejected typed open is followed by opening with %s',
         async (method) => {

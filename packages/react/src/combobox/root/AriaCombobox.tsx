@@ -1096,14 +1096,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             (!input || activeElement(input.ownerDocument) !== input))
         ) {
           pendingQueryHighlightRef.current = null;
-        } else if (listIsNavigable) {
-          if (candidateItems[0] !== undefined) {
-            store.set('activeIndex', 0);
-            pendingQueryHighlightRef.current = null;
-          } else if (!hasItems && !hasFilteredItemsProp) {
-            // Individually rendered items register without re-running this effect.
-            pendingQueryHighlightRef.current = null;
-          }
+        } else if (
+          listIsNavigable &&
+          // Individually rendered items register without re-running this effect, and their
+          // registry has holes mid-reindex, so resolve their request immediately.
+          (candidateItems[0] !== undefined || (!hasItems && !hasFilteredItemsProp))
+        ) {
+          store.set('activeIndex', 0);
+          pendingQueryHighlightRef.current = null;
         }
       } else if (String(inputValue).trim() === '') {
         // Only handle the clear once it has committed (a controlled input may reject it),
