@@ -25,6 +25,63 @@ describe('<Select.Positioner />', () => {
     },
   }));
 
+  describe.skipIf(isJSDOM)('local portal positioning', () => {
+    it.each([false, true])(
+      'aligns the selected item with the trigger (defaultOpen: %s)',
+      async (defaultOpen) => {
+        function Test() {
+          const containerRef = React.useRef<HTMLDivElement>(null);
+
+          return (
+            <div
+              ref={containerRef}
+              style={{
+                position: 'relative',
+                marginLeft: 200,
+                marginTop: 160,
+                width: 400,
+                height: 400,
+              }}
+            >
+              <Select.Root defaultValue="banana" defaultOpen={defaultOpen}>
+                <Select.Trigger>
+                  <Select.Value data-testid="value" />
+                </Select.Trigger>
+                <Select.Portal container={containerRef}>
+                  <Select.Positioner>
+                    <Select.Popup style={{ minWidth: 160 }}>
+                      <Select.List>
+                        {['apple', 'banana', 'cherry'].map((value) => (
+                          <Select.Item key={value} value={value} style={{ height: 32 }}>
+                            <Select.ItemText data-testid={value}>{value}</Select.ItemText>
+                          </Select.Item>
+                        ))}
+                      </Select.List>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        if (!defaultOpen) {
+          await user.click(screen.getByRole('combobox'));
+        }
+
+        await waitFor(() => expect(screen.getByRole('option', { name: 'banana' })).toHaveFocus());
+
+        const valueRect = screen.getByTestId('value').getBoundingClientRect();
+        const selectedRect = screen.getByTestId('banana').getBoundingClientRect();
+        expect(Math.abs(selectedRect.x - valueRect.x)).toBeLessThan(2);
+        expect(
+          Math.abs(selectedRect.y + selectedRect.height / 2 - (valueRect.y + valueRect.height / 2)),
+        ).toBeLessThan(2);
+      },
+    );
+  });
+
   const baselineX = 10;
   const baselineY = 36;
   const popupWidth = 52;
