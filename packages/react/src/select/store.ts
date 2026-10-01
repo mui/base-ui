@@ -6,6 +6,7 @@ import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 import type { Group } from '../internals/resolveValueLabel';
+import type { VirtualizerRegistry } from '../virtualizer/host';
 import type { SelectRoot } from './root/SelectRoot';
 
 export type State = {
@@ -22,9 +23,11 @@ export type State = {
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
     | ReadonlyArray<Group<any>>
+    | ReadonlyArray<unknown>
     | undefined;
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
+  isItemDisabled: ((itemValue: any, index: number) => boolean) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
   value: any;
@@ -36,6 +39,11 @@ export type State = {
   openMethod: InteractionType | null;
 
   activeIndex: number | null;
+  /**
+   * What moved the highlight to `activeIndex`. A pointer highlight must not scroll the list: the
+   * cursor is already on the item, and scrolling would slide a different one under it.
+   */
+  highlightType: 'keyboard' | 'pointer' | 'none';
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
@@ -57,6 +65,19 @@ export type State = {
  * `selectors`, so writing to a ref never notifies subscribers.
  */
 export type SelectStoreContext = {
+  /**
+   * Part namespace of the public component, so diagnostics name the parts the reader has.
+   */
+  readonly componentName: string;
+  /**
+   * Coordinates the built-in virtualizer with the rest of the list.
+   */
+  readonly virtualizationRegistry: VirtualizerRegistry;
+  /**
+   * Whether the last interaction with the list came from the keyboard. Read when the highlight
+   * moves, to tell a keypress apart from the pointer passing over an item.
+   */
+  readonly keyboardActiveRef: React.RefObject<boolean>;
   readonly listRef: React.RefObject<Array<HTMLElement | null>>;
   readonly popupRef: React.RefObject<HTMLDivElement | null>;
   readonly scrollHandlerRef: React.RefObject<((element: HTMLDivElement) => void) | null>;
@@ -79,6 +100,13 @@ export type SelectStoreContext = {
   // first render, so they are not `readonly`.
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  /**
+   * Moves the highlight and records what moved it, in a single update.
+   *
+   * Writing the two separately would briefly expose the new index against the previous reason,
+   * which is exactly the disagreement the reason exists to prevent.
+   */
+  setActiveIndex: (activeIndex: number | null, highlightType: State['highlightType']) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
   onOpenChangeComplete: (open: boolean) => void;
 };
@@ -95,6 +123,7 @@ export const selectors = {
 
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
+  isItemDisabled: (state: State) => state.isItemDisabled,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
 
   value: (state: State) => state.value,
@@ -122,6 +151,7 @@ export const selectors = {
   openMethod: (state: State) => state.openMethod,
 
   activeIndex: (state: State) => state.activeIndex,
+  highlightType: (state: State) => state.highlightType,
   selectedIndex: (state: State) => state.selectedIndex,
   isActive: (state: State, index: number) => state.activeIndex === index,
 

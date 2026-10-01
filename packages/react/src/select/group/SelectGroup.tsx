@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
+import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { SelectGroupContext } from './SelectGroupContext';
+import { useVirtualizerGroupHeader, VirtualizerItemContext } from '../../virtualizer/host';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -15,6 +17,23 @@ export const SelectGroup = React.forwardRef(function SelectGroup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, ...elementProps } = componentProps;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // The build-time environment never changes during a component's lifetime.
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const virtualGroup = useVirtualizerGroupHeader();
+    // Read without `useVirtualizerItem`, which would count a group as an item part.
+    const virtualItem = React.useContext(VirtualizerItemContext);
+    React.useEffect(() => {
+      if (virtualGroup != null || virtualItem != null) {
+        warn(
+          '<Select.Group> was rendered inside <Virtualizer>, which wraps each group in its own ' +
+            '`role="group"` element. Return only <Select.GroupLabel> from `renderGroupHeader`.',
+        );
+      }
+    }, [virtualGroup, virtualItem]);
+    /* eslint-enable react-hooks/rules-of-hooks */
+  }
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 

@@ -5,6 +5,13 @@ import type { Side, UseAnchorPositioningReturnValue } from '../../internals/useA
 export interface SelectPositionerContext extends Omit<UseAnchorPositioningReturnValue, 'side'> {
   side: 'none' | Side;
   alignItemWithTriggerActive: boolean;
+  /**
+   * Whether `alignItemWithTrigger` was passed as `true` rather than left at its default.
+   *
+   * A virtualizer turns the mode off, which is silent for the default but worth reporting when it
+   * contradicts something the application asked for.
+   */
+  alignItemWithTriggerExplicit: boolean;
   setControlledAlignItemWithTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   scrollUpArrowRef: React.RefObject<HTMLDivElement | null>;
   scrollDownArrowRef: React.RefObject<HTMLDivElement | null>;
