@@ -109,4 +109,23 @@
     /* Adjust to visually match the sans-serif font */
     font-size: 1.06em;
   }
+
+  .MdHeadingBadge {
+    /* inline-block keeps the badge out of the heading link's hover underline */
+    display: inline-block;
+    vertical-align: middle;
+    margin-inline-start: 0.35em;
+    color: var(--poppy-t1);
+    line-height: inherit;
+    -webkit-user-select: none;
+    user-select: none;
+    text-transform: uppercase;
+    font-size: 0.625rem;
+    font-weight: var(--font-weight-700);
+    letter-spacing: 0.035em;
+    padding-inline: 2px;
+    translate: 0 -0.15em;
+    word-break: keep-all;
+    white-space: nowrap;
+  }
 }

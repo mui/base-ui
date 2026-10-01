@@ -19,6 +19,8 @@ const localPlugin = (relativePath) => path.join(baseDir, relativePath);
 const withMdx = nextMdx({
   options: {
     remarkPlugins: [
+      // Before transformMarkdownMetadata, so a stripped badge stays out of outline text too.
+      localPlugin('src/mdx/remarkHeadingTags.mjs'),
       'remark-gfm',
       [
         '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
@@ -159,6 +161,7 @@ const nextConfig = {
   },
   ...(process.env.NODE_ENV === 'production' && { distDir: 'export', output: 'export' }),
   devIndicators: false,
+  agentRules: false,
   experimental: {
     globalNotFound: true,
     turbopackFileSystemCacheForBuild: true,
