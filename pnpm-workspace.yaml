@@ -57,6 +57,7 @@ overrides:
   ws: '^8.21.3'
 engineStrict: true
 updateNotifier: false
+autoDedupe: true
 blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
