@@ -9109,6 +9109,54 @@ describe('<Combobox.Root />', () => {
         expect(screen.getByRole('option')).toHaveAttribute('data-highlighted');
       });
 
+      it('discards the request when a rejected typed open is followed by a controlled open', async () => {
+        const { user, setProps } = await render(
+          <AsyncCombobox
+            items={['32']}
+            open={false}
+            onOpenChange={(nextOpen, details) => {
+              if (nextOpen && details.reason === 'input-change') {
+                details.cancel();
+              }
+            }}
+          />,
+        );
+        await user.type(screen.getByRole('combobox'), '32');
+        await setProps({ open: true });
+        expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+      });
+
+      it('keeps a hovered item highlighted when individually rendered items arrive', async () => {
+        function ChildrenCombobox({ results }: { results: string[] }) {
+          return (
+            <Combobox.Root autoHighlight>
+              <Combobox.Input />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {results.map((item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user, setProps } = await render(<ChildrenCombobox results={[]} />);
+        await user.type(screen.getByRole('combobox'), 'a');
+        await setProps({ results: ['a1', 'a2', 'a3'] });
+
+        const option = screen.getByRole('option', { name: 'a3' });
+        await user.hover(option);
+        expect(option).toHaveAttribute('data-highlighted');
+      });
+
       it.each(['Trigger', 'ArrowDown'] as const)(
         'discards the request when a rejected typed open is followed by opening with %s',
         async (method) => {

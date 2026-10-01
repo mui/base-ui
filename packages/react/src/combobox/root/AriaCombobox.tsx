@@ -772,16 +772,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
       props.onOpenChange?.(nextOpen, openEventDetails);
 
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      // A request left by a rejected typed open must not highlight a later open.
+      // A typed request must not highlight a later open: discard it when its own open is
+      // rejected, or when any other open change goes through.
       if (
-        eventDetails.reason !== REASONS.inputChange &&
-        pendingQueryHighlightRef.current?.hasQuery
+        pendingQueryHighlightRef.current?.hasQuery &&
+        (eventDetails.reason === REASONS.inputChange) === eventDetails.isCanceled
       ) {
         pendingQueryHighlightRef.current = null;
+      }
+
+      if (eventDetails.isCanceled) {
+        return;
       }
 
       if (nextOpen && closeQuery !== null) {
@@ -1095,9 +1096,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             (!input || activeElement(input.ownerDocument) !== input))
         ) {
           pendingQueryHighlightRef.current = null;
-        } else if (candidateItems[0] !== undefined && listIsNavigable) {
-          store.set('activeIndex', 0);
-          pendingQueryHighlightRef.current = null;
+        } else if (listIsNavigable) {
+          if (candidateItems[0] !== undefined) {
+            store.set('activeIndex', 0);
+            pendingQueryHighlightRef.current = null;
+          } else if (!hasItems && !hasFilteredItemsProp) {
+            // Individually rendered items register without re-running this effect.
+            pendingQueryHighlightRef.current = null;
+          }
         }
       } else if (String(inputValue).trim() === '') {
         // Only handle the clear once it has committed (a controlled input may reject it),
