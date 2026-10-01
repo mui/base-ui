@@ -127,10 +127,18 @@ export function useFilterDropdownItem(
         registeredTextRef.current = text;
       }
       return registerItem(itemId, {
-        getText: () => registeredTextRef.current,
+        getText() {
+          // A mounted item reports what it renders now, since a descendant can change its text
+          // without the item re-rendering. A filtered-out item falls back to the cached text.
+          const renderedText = label == null ? ref.current?.textContent : undefined;
+          if (renderedText) {
+            registeredTextRef.current = renderedText;
+          }
+          return registeredTextRef.current;
+        },
       });
     },
-    [itemId, registerItem, resolveText],
+    [itemId, label, registerItem, resolveText],
   );
 
   useIsoLayoutEffect(() => {

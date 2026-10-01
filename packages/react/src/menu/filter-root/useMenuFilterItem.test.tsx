@@ -1,5 +1,6 @@
+import * as React from 'react';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 
@@ -56,6 +57,45 @@ describe('filtered Menu items', () => {
   });
 
   describe('item text resolution', () => {
+    it('matches text that a descendant rendered after the item registered', async () => {
+      let setLabel: (label: string) => void = () => {};
+      function AsyncLabel() {
+        const [label, setLabelState] = React.useState('Loading');
+        setLabel = setLabelState;
+        return label;
+      }
+
+      const { user } = await render(
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>
+                      <AsyncLabel />
+                    </Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      await act(async () => setLabel('Rename'));
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+
+      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'rename');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Delete' })).toBe(null);
+      });
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+    });
+
     it('matches an item whose children are an array while it is filtered out', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
