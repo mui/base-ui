@@ -102,6 +102,36 @@ describe('<Menu.Popup />', () => {
     expect(onParentKeyDown.mock.calls.every(([event]) => event.key === 'F1')).toBe(true);
   });
 
+  it('enters the items at the list boundary when an arrow key leaves custom popup content', async () => {
+    const { user } = await render(
+      <Menu.Root>
+        <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <button type="button">Custom</button>
+              <Menu.Item>One</Menu.Item>
+              <Menu.Item>Two</Menu.Item>
+              <Menu.Item>Three</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open' }));
+    const one = await screen.findByRole('menuitem', { name: 'One' });
+    const two = screen.getByRole('menuitem', { name: 'Two' });
+    await act(async () => two.focus());
+    await user.keyboard('[ArrowDown]');
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Three' })).toHaveFocus());
+
+    await act(async () => screen.getByRole('button', { name: 'Custom' }).focus());
+    await user.keyboard('[ArrowDown]');
+
+    await waitFor(() => expect(one).toHaveFocus());
+  });
+
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
       await render(

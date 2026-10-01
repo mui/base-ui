@@ -696,6 +696,8 @@ export function useListNavigation(
         loopFocus,
         allowEscape,
         disabledIndices,
+        minIndex,
+        maxIndex,
       });
       if (wrapped) {
         // Give time for virtualizers to update the listRef.
