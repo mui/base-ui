@@ -27,8 +27,8 @@ describe('<Select.Positioner />', () => {
 
   describe.skipIf(isJSDOM)('local portal positioning', () => {
     it.each([false, true])(
-      'aligns the selected item with the trigger (defaultOpen: %s)',
-      async (defaultOpen) => {
+      'aligns the selected item with the trigger (initiallyOpen: %s)',
+      async (initiallyOpen) => {
         function Test() {
           const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -43,7 +43,7 @@ describe('<Select.Positioner />', () => {
                 height: 400,
               }}
             >
-              <Select.Root defaultValue="banana" defaultOpen={defaultOpen}>
+              <Select.Root defaultValue="banana" open={initiallyOpen || undefined}>
                 <Select.Trigger>
                   <Select.Value data-testid="value" />
                 </Select.Trigger>
@@ -66,7 +66,7 @@ describe('<Select.Positioner />', () => {
         }
 
         const { user } = await render(<Test />);
-        if (!defaultOpen) {
+        if (!initiallyOpen) {
           await user.click(screen.getByRole('combobox'));
         }
 
