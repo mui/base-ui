@@ -6,7 +6,7 @@ import { createRenderer, mergeRefs } from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeList, useCompositeList } from './CompositeList';
-import { CompositeListContext } from './CompositeListContext';
+import { CompositeListContext, useCompositeListContext } from './CompositeListContext';
 import { CompositeListRegistry } from './CompositeListRegistry';
 import { useCompositeListItem } from './useCompositeListItem';
 
@@ -1268,6 +1268,48 @@ describe('<CompositeList />', () => {
 
       unmount();
       expect(elementsRef.current).toHaveLength(0);
+    });
+  });
+
+  describe('subscribeMapChange', () => {
+    it('notifies subscribers before onMapChange', async () => {
+      const calls: string[] = [];
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      function Subscriber() {
+        const { subscribeMapChange } = useCompositeListContext();
+        React.useLayoutEffect(
+          () =>
+            subscribeMapChange((map) => {
+              calls.push(`subscriber:${map.size}`);
+            }),
+          [subscribeMapChange],
+        );
+        return null;
+      }
+
+      function Item() {
+        const { ref } = useCompositeListItem();
+        return <div ref={ref} />;
+      }
+
+      await render(
+        <CompositeList
+          elementsRef={elementsRef}
+          onMapChange={(map) => {
+            calls.push(`onMapChange:${map.size}`);
+          }}
+        >
+          <Subscriber />
+          <Item />
+          <Item />
+        </CompositeList>,
+        { strict: false },
+      );
+
+      expect(calls).toEqual(['subscriber:2', 'onMapChange:2']);
     });
   });
 

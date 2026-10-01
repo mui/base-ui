@@ -56,6 +56,9 @@ export class CompositeListRegistry<Metadata> {
 
   private registrations: Map<Element, CompositeListRegistration<Metadata>> | null = null;
 
+  /** Allocated by the first subscription. */
+  private listeners: Set<(map: Map<Element, CompositeMetadata<Metadata>>) => void> | null = null;
+
   /** The last flushed snapshot, or `null` before the first flush. */
   private items: readonly CompositeListItem<Metadata>[] | null = null;
 
@@ -88,6 +91,14 @@ export class CompositeListRegistry<Metadata> {
         if (this.registrations?.delete(node)) {
           this.markDirty();
         }
+      },
+      subscribeMapChange: (fn) => {
+        this.listeners ??= new Set();
+        const listeners = this.listeners;
+        listeners.add(fn);
+        return () => {
+          listeners.delete(fn);
+        };
       },
       guessIndex: () => {
         const index = this.nextIndex;
@@ -140,7 +151,7 @@ export class CompositeListRegistry<Metadata> {
       }
     });
 
-    this.onMapChange?.(createMetadataMap(items));
+    this.publish(items);
   }
 
   /**
@@ -169,7 +180,17 @@ export class CompositeListRegistry<Metadata> {
     if (this.labelsRef) {
       this.labelsRef.current.length = 0;
     }
-    this.onMapChange?.(new Map());
+    this.publish(EMPTY_ARRAY);
+  }
+
+  private publish(items: readonly CompositeListItem<Metadata>[]) {
+    if (!this.listeners?.size && !this.onMapChange) {
+      return;
+    }
+
+    const map = createMetadataMap(items);
+    this.listeners?.forEach((listener) => listener(map));
+    this.onMapChange?.(map);
   }
 
   // Item refs can attach without the owner rendering. Request one commit for the whole batch.

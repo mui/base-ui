@@ -15,6 +15,8 @@ export interface CompositeListRegistration<Metadata> {
 export interface CompositeListContextValue<Metadata> {
   register: (node: Element, registration: CompositeListRegistration<Metadata>) => void;
   unregister: (node: Element) => void;
+  /** Called with each published map, before the list's own `onMapChange`. */
+  subscribeMapChange: (fn: (map: Map<Element, Metadata>) => void) => () => void;
   /** Reserves the next render-order index for an item rendering before the list resolves it. */
   guessIndex: () => number;
 }
@@ -24,6 +26,7 @@ export interface CompositeListContextValue<Metadata> {
 export const CompositeListContext = React.createContext<CompositeListContextValue<any>>({
   register: NOOP,
   unregister: NOOP,
+  subscribeMapChange: () => NOOP,
   guessIndex: () => -1,
 });
 
