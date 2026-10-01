@@ -41,18 +41,20 @@ export interface CompositeListRegistryParameters<Metadata> {
  * components that have none of their own.
  */
 export class CompositeListRegistry<Metadata> {
-  elementsRef: React.RefObject<Array<HTMLElement | null>>;
+  // Fields assigned in the constructor are declared rather than initialized, so they are not
+  // defined twice: data grids construct one registry per cell while rendering.
+  declare elementsRef: React.RefObject<Array<HTMLElement | null>>;
 
-  labelsRef: React.RefObject<Array<string | null>> | undefined;
+  declare labelsRef: React.RefObject<Array<string | null>> | undefined;
 
-  onMapChange: CompositeListRegistryParameters<Metadata>['onMapChange'];
+  declare onMapChange: CompositeListRegistryParameters<Metadata>['onMapChange'];
+
+  declare private readonly requestFlush: () => void;
 
   /** Starts dirty so the mount commit flushes the registrations collected while mounting. */
   dirty = true;
 
-  readonly context: CompositeListContextValue<Metadata>;
-
-  private readonly requestFlush: () => void;
+  private contextValue: CompositeListContextValue<Metadata> | null = null;
 
   private registrations: Map<Element, CompositeListRegistration<Metadata>> | null = null;
 
@@ -75,7 +77,11 @@ export class CompositeListRegistry<Metadata> {
     this.labelsRef = params.labelsRef;
     this.onMapChange = params.onMapChange;
     this.requestFlush = params.requestFlush;
-    this.context = {
+  }
+
+  /** The value items register through. Created on first access, as many lists never hold one. */
+  get context(): CompositeListContextValue<Metadata> {
+    this.contextValue ??= {
       register: (node, registration) => {
         this.registrations ??= new Map();
         const shadowed = this.registrations.get(node);
@@ -106,6 +112,7 @@ export class CompositeListRegistry<Metadata> {
         return index;
       },
     };
+    return this.contextValue;
   }
 
   /** Moves the items to new refs on the next flush, emptying the previous ones. */
