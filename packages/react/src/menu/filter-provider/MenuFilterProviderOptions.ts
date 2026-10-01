@@ -17,9 +17,12 @@ export interface MenuFilterProviderOptions {
    */
   filter?: MenuFilterFunction | null | undefined;
   /**
-   * Whether the first matching item is highlighted automatically.
-   * - `true`: highlight after the user types and keep the highlight while the query changes.
-   * - `'always'`: always highlight the first item.
+   * Whether filtering highlights the first matching item automatically.
+   * - `true`: highlight it while the query is not empty.
+   * - `'always'`: highlight it even when the query is empty.
+   *
+   * Opening the menu from the keyboard highlights the first item either way, and the arrow keys
+   * can move the highlight to another item.
    * @default false
    */
   autoHighlight?: boolean | 'always' | undefined;

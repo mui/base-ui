@@ -380,7 +380,19 @@ Items match their text by default. Use `label` to override it.
 <Menu.Item label="Move to folder">Move</Menu.Item>
 ```
 
-Empty groups are hidden. `<Menu.Empty>` appears when no items match.
+Groups with no matching items get the `hidden` attribute and stay mounted. If your styles set `display` on a group, add a `[hidden]` rule so it still hides.
+
+```css title="Hiding styled groups"
+.Group {
+  display: flex;
+}
+
+.Group[hidden] {
+  display: none;
+}
+```
+
+`<Menu.Empty>` appears when no items match.
 
 Use `filter` to replace the default case-insensitive substring matching.
 It receives each item's text and the trimmed query, and keeps the item when it returns `true`.
