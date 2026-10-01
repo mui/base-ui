@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -20,6 +21,16 @@ const MenuListPlain = React.forwardRef(function MenuListPlain(
   const setListElement = store.useStateSetter('listElement');
 
   const id = useBaseUiId(idProp);
+
+  // The trigger reads `aria-controls` off the stored element, which an id change alone leaves in
+  // place, so subscribers are told to read it again. Mounting publishes the element itself.
+  const renderedIdRef = React.useRef(id);
+  useIsoLayoutEffect(() => {
+    if (renderedIdRef.current !== id) {
+      renderedIdRef.current = id;
+      store.notifyAll();
+    }
+  }, [id, store]);
 
   const ariaLabelledBy = resolvePopupLabel(componentProps, activeTriggerElement, activeTriggerId);
 

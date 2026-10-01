@@ -34,7 +34,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   filterTriggerProps: HTMLProps;
   /** List navigation props for the element that holds real focus under virtual focus. */
   inputProps: HTMLProps;
-  /** The element at `activeIndex` once the item list settles. */
+  /** The element at `activeIndex` once the item list settles. Only virtual focus publishes it. */
   highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
@@ -56,6 +56,8 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly itemLabels: React.RefObject<(string | null)[]>;
   /** Why the next `activeIndex` write happens, consumed by `onItemHighlighted` on commit. */
   highlightReason: MenuRoot.HighlightEventReason;
+  /** The item last committed as highlighted, kept in every menu so reasons compare against it. */
+  reportedItem: HTMLElement | undefined;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   /** The element that holds real focus while virtual list navigation is active. */
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
@@ -208,7 +210,7 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     if (this.state.activeIndex !== activeIndex) {
       const item =
         activeIndex === null ? undefined : this.context.itemDomElements.current[activeIndex];
-      this.context.highlightReason = item === this.state.highlightedItem ? 'none' : reason;
+      this.context.highlightReason = item === this.context.reportedItem ? 'none' : reason;
     }
     this.set('activeIndex', activeIndex);
   }
@@ -246,6 +248,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
     highlightReason: 'none',
+    reportedItem: undefined,
     allowMouseUpTriggerRef: { current: false },
     virtualFocusRef: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),

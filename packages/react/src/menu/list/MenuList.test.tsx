@@ -288,7 +288,11 @@ describe('<Menu.List />', () => {
 describe('filterable menu list semantics', () => {
   const { render } = createRenderer();
 
-  function TestMenu(props: { secondId?: string; orientation?: Menu.Root.Orientation }) {
+  function TestMenu(props: {
+    firstId?: string;
+    secondId?: string;
+    orientation?: Menu.Root.Orientation;
+  }) {
     return (
       <Menu.FilterProvider autoHighlight="always">
         <Menu.Root defaultOpen orientation={props.orientation}>
@@ -298,7 +302,7 @@ describe('filterable menu list semantics', () => {
               <Menu.Popup>
                 <Menu.Input aria-label="Filter actions" />
                 <Menu.List>
-                  <Menu.Item id="first-item">First</Menu.Item>
+                  <Menu.Item id={props.firstId ?? 'first-item'}>First</Menu.Item>
                   <Menu.Item id={props.secondId}>Second</Menu.Item>
                 </Menu.List>
               </Menu.Popup>
@@ -316,6 +320,16 @@ describe('filterable menu list semantics', () => {
     await waitFor(() => expect(input).toHaveFocus());
     await setProps({ secondId: 'new-id' });
     await user.keyboard('[ArrowDown]');
+    await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'new-id'));
+  });
+
+  it('updates the active descendant when the highlighted item changes its id', async () => {
+    const { setProps } = await render(<TestMenu firstId="old-id" secondId="second-item" />);
+    const input = screen.getByRole('searchbox');
+    await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'old-id'));
+
+    await setProps({ firstId: 'new-id', secondId: 'second-item' });
+
     await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'new-id'));
   });
 
@@ -399,7 +413,7 @@ describe('filterable menu list semantics', () => {
 describe('<Menu.List /> in a plain menu', () => {
   const { render } = createRenderer();
 
-  function PlainMenu(props: { orientation?: Menu.Root.Props['orientation'] }) {
+  function PlainMenu(props: { orientation?: Menu.Root.Props['orientation']; listId?: string }) {
     return (
       <Menu.Root orientation={props.orientation}>
         <Menu.Trigger>Actions</Menu.Trigger>
@@ -407,7 +421,7 @@ describe('<Menu.List /> in a plain menu', () => {
           <Menu.Positioner>
             <Menu.Popup data-testid="popup">
               <div>Header</div>
-              <Menu.List data-testid="list">
+              <Menu.List data-testid="list" id={props.listId}>
                 <Menu.Item data-testid="item-1">Rename</Menu.Item>
                 <Menu.Item data-testid="item-2">Delete</Menu.Item>
               </Menu.List>
@@ -444,6 +458,20 @@ describe('<Menu.List /> in a plain menu', () => {
     expect(screen.getByTestId('popup')).toHaveAttribute('role', 'presentation');
     expect(screen.getByTestId('popup')).not.toHaveAttribute('aria-labelledby');
     expect(trigger).toHaveAttribute('aria-controls', list.id);
+  });
+
+  it('updates the trigger when the open list changes its id', async () => {
+    const { user, setProps } = await render(<PlainMenu listId="old-list" />);
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+
+    await user.click(trigger);
+    await screen.findByTestId('list');
+    expect(trigger).toHaveAttribute('aria-controls', 'old-list');
+
+    await setProps({ listId: 'new-list' });
+    await waitFor(() => {
+      expect(trigger).toHaveAttribute('aria-controls', 'new-list');
+    });
   });
 
   it('renders the orientation on the list', async () => {

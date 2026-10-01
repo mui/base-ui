@@ -96,6 +96,42 @@ describe('filtered Menu items', () => {
       expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
     });
 
+    it('stops matching text that a descendant no longer renders', async () => {
+      let setLabel: (label: string) => void = () => {};
+      function AsyncLabel() {
+        const [label, setLabelState] = React.useState('Rename');
+        setLabel = setLabelState;
+        return label;
+      }
+
+      const { user } = await render(
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item data-testid="async-item">
+                      <AsyncLabel />
+                    </Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      await act(async () => setLabel(''));
+      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'rename');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('async-item')).toBe(null);
+      });
+    });
+
     it('matches an item whose children are an array while it is filtered out', async () => {
       const { user } = await render(
         <Menu.FilterProvider>

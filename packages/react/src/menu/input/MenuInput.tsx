@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FilterDropdownInput } from '../../filter-dropdown/input/FilterDropdownInput';
 import type {
   FilterDropdownInputProps,
@@ -28,6 +29,18 @@ export const MenuInput = React.forwardRef(function MenuInput(
 
   const { onKeyDown, ...navigationProps } = store.useState('inputProps');
   const activeItemId = store.useState('highlightedItemId');
+
+  // The store holds the highlighted element, so an id changed in place would otherwise leave
+  // `aria-activedescendant` pointing at an id that no longer exists.
+  useIsoLayoutEffect(() => {
+    const item = store.state.highlightedItem;
+    if (!item) {
+      return undefined;
+    }
+    const observer = new MutationObserver(() => store.notifyAll());
+    observer.observe(item, { attributeFilter: ['id'] });
+    return () => observer.disconnect();
+  }, [activeItemId, store]);
 
   const handleKeyDown = useMenuFilterKeyDown(value !== '');
 

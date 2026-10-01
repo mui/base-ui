@@ -128,11 +128,11 @@ export function useFilterDropdownItem(
       }
       return registerItem(itemId, {
         getText() {
-          // A mounted item reports what it renders now, since a descendant can change its text
-          // without the item re-rendering. A filtered-out item falls back to the cached text.
-          const renderedText = label == null ? ref.current?.textContent : undefined;
-          if (renderedText) {
-            registeredTextRef.current = renderedText;
+          // A mounted item reports what it renders now, even nothing, since a descendant can change
+          // its text without the item re-rendering. A filtered-out item falls back to the cached
+          // text.
+          if (label == null && ref.current) {
+            registeredTextRef.current = ref.current.textContent ?? '';
           }
           return registeredTextRef.current;
         },

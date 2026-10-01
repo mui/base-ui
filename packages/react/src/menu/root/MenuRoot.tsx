@@ -590,16 +590,20 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     }
 
     const itemIndex = item === undefined ? -1 : index!;
-    if (lastHighlightIndexRef.current === itemIndex && store.state.highlightedItem === item) {
+    if (lastHighlightIndexRef.current === itemIndex && store.context.reportedItem === item) {
       return;
     }
 
     lastHighlightIndexRef.current = itemIndex;
-    store.set('highlightedItem', item);
+    store.context.reportedItem = item;
+    // Only virtual focus renders from the highlighted element. Publishing it in every menu would
+    // notify each item's subscription on every highlight change.
+    if (virtualFocus) {
+      store.set('highlightedItem', item);
+    }
     // The tag left by the write that produced this committed value.
     const reason = store.context.highlightReason;
     store.context.highlightReason = REASONS.none;
-    // The item above stays in sync without a callback: `setActiveIndex` compares against it.
     if (!onItemHighlightedProp) {
       return;
     }
