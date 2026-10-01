@@ -58,7 +58,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
     );
   }
 
-  describe('prop: inputValue', () => {
+  describe('prop: value', () => {
     it('renders the controlled query and reports changes', async () => {
       const onValueChange = vi.fn();
 
@@ -257,6 +257,57 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
         expect(input).toHaveFocus();
       });
       expect(screen.getByTestId('submenu-list')).not.toBe(null);
+    });
+
+    it('keeps the automatic highlight when the keyboard enters a hover-opened submenu', async () => {
+      const { user } = await render(
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Rename</Menu.Item>
+                <Menu.FilterProvider autoHighlight="always">
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger delay={0} data-testid="submenu-trigger">
+                      Move to
+                    </Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Input aria-label="Filter folders" />
+                          <Menu.List>
+                            <Menu.Item>Projects</Menu.Item>
+                            <Menu.Item>Archive</Menu.Item>
+                          </Menu.List>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.FilterProvider>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByTestId('submenu-trigger');
+      await user.hover(trigger);
+      const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      const projects = screen.getByRole('menuitem', { name: 'Projects' });
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', projects.id);
+      });
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowRight}');
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      expect(input).toHaveAttribute('aria-activedescendant', projects.id);
     });
 
     it('moves along the parent list with the main-axis keys', async () => {

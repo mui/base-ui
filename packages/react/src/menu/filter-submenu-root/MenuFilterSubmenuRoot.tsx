@@ -262,9 +262,9 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
 
     if (open) {
       // Re-entering an already-open submenu hands the cursor to its own focus owner. The submenu
-      // is always virtually focused, so there is no roving-focus branch here.
+      // is always virtually focused, so there is no roving-focus branch here. The highlight is
+      // kept, so an automatic highlight or an earlier keyboard position survives re-entry.
       onSubmenuEnter(event.currentTarget);
-      store.setActiveIndex(null, REASONS.keyboard);
       store.context.virtualFocusRef?.current?.focus({ preventScroll: true });
       return;
     }
