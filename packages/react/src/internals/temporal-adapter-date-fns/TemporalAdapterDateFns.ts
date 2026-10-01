@@ -105,7 +105,7 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
 
   public lib = 'date-fns';
 
-  private locale: DateFnsLocale;
+  declare private locale: DateFnsLocale;
 
   public formats = FORMATS;
 

@@ -140,6 +140,30 @@ function RadioApp() {
   );
 }
 
+function MouseDownApp() {
+  const [open, setOpen] = React.useState(false);
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
+    useClick(context.rootStore, { event: 'mousedown' }),
+  ]);
+
+  return (
+    <>
+      <button data-testid="reference" {...getReferenceProps({ ref: refs.setReference })} />
+      {open && (
+        <FloatingFocusManager context={context.rootStore}>
+          <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })}>
+            <button data-testid="one">close</button>
+          </div>
+        </FloatingFocusManager>
+      )}
+    </>
+  );
+}
+
 interface DialogProps {
   open?: boolean;
   render: (props: { close: () => void }) => React.ReactNode;
@@ -220,6 +244,29 @@ describe('FloatingFocusManager', () => {
         fireEvent.click(screen.getByTestId('reference'));
         await flushMicrotasks();
         expect(screen.getByTestId('input')).toHaveFocus();
+      });
+
+      test('focuses without a frame delay when a screen reader press opens it', async () => {
+        render(<MouseDownApp />);
+
+        // A screen reader press is a `mousedown` with `detail: 0`.
+        fireEvent.mouseDown(screen.getByTestId('reference'), { detail: 0 });
+
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('one')).toHaveFocus();
+      });
+
+      test('keeps the frame delay for a real mouse press', async () => {
+        render(<MouseDownApp />);
+
+        fireEvent.mouseDown(screen.getByTestId('reference'), { detail: 1 });
+
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('one')).not.toHaveFocus();
       });
     });
 
@@ -657,6 +704,59 @@ describe('FloatingFocusManager', () => {
         } finally {
           focusSpy.mockRestore();
         }
+      });
+
+      test('does not return focus while open when the reference changes', async () => {
+        function App(props: { useSecond?: boolean }) {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+          const click = useClick(context.rootStore);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
+
+          return (
+            <>
+              <button
+                data-testid="first"
+                ref={props.useSecond ? undefined : refs.setReference}
+                {...getReferenceProps()}
+              />
+              <button data-testid="second" ref={props.useSecond ? refs.setReference : undefined} />
+              {isOpen && (
+                <FloatingFocusManager context={context.rootStore}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="child" />
+                    <button data-testid="close" onClick={() => setIsOpen(false)} />
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </>
+          );
+        }
+
+        const { rerender } = render(<App />);
+
+        await userEvent.click(screen.getByTestId('first'));
+        await flushMicrotasks();
+
+        const child = screen.getByTestId('child');
+        await act(async () => {
+          child.focus();
+        });
+
+        // The return-focus effect re-arms for the new reference while the popup stays open, so
+        // the cleanup's queued return focus must be cancelled rather than yank focus mid-open.
+        rerender(<App useSecond />);
+        await flushMicrotasks();
+
+        expect(child).toHaveFocus();
+
+        await userEvent.click(screen.getByTestId('close'));
+        await flushMicrotasks();
+
+        // The cancelled job must not have left return focus suppressed for the real close.
+        expect(screen.getByTestId('second')).toHaveFocus();
       });
 
       test('does not insert fallback element when return element is falsy', async () => {
@@ -1467,6 +1567,87 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('reference')).toHaveFocus();
       });
 
+      test('treats a returnFocus resolver returning true as explicit', async () => {
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+          return (
+            <React.Fragment>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setIsOpen(true)}
+              />
+              <button data-testid="close" onClick={() => setIsOpen(false)} />
+              {isOpen && (
+                <FloatingFocusManager context={context.rootStore} returnFocus={() => true}>
+                  <div ref={refs.setFloating}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await waitFor(() => {
+          expect(screen.getByTestId('child')).toHaveFocus();
+        });
+
+        await userEvent.click(screen.getByTestId('close'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('reference')).toHaveFocus();
+        });
+      });
+
+      test('uses the latest explicitReturnFocus value without moving focus while open', async () => {
+        function App(props: { explicitReturnFocus: boolean }) {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+          return (
+            <React.Fragment>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setIsOpen(true)}
+              />
+              <button data-testid="close" onClick={() => setIsOpen(false)} />
+              {isOpen && (
+                <FloatingFocusManager
+                  context={context.rootStore}
+                  explicitReturnFocus={props.explicitReturnFocus}
+                  modal={false}
+                >
+                  <div ref={refs.setFloating}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        const { rerender } = render(<App explicitReturnFocus />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await waitFor(() => {
+          expect(screen.getByTestId('child')).toHaveFocus();
+        });
+
+        rerender(<App explicitReturnFocus={false} />);
+        expect(screen.getByTestId('child')).toHaveFocus();
+
+        const close = screen.getByTestId('close');
+        await userEvent.click(close);
+        expect(close).toHaveFocus();
+      });
+
       test('resets close modality between keep-mounted open sessions', async () => {
         const finalFocus = vi.fn((_closeType: InteractionType) => true);
 
@@ -1579,6 +1760,87 @@ describe('FloatingFocusManager', () => {
           focusSpy.mockRestore();
         }
       });
+
+      test.each<{
+        name: string;
+        pointerType: string | null;
+        detail: number;
+        expected: InteractionType;
+      }>([
+        {
+          name: 'zero detail after a mouse pointerdown',
+          pointerType: 'mouse',
+          detail: 0,
+          expected: 'keyboard',
+        },
+        {
+          name: 'nonzero detail after a touch pointerdown',
+          pointerType: 'touch',
+          detail: 1,
+          expected: 'touch',
+        },
+        {
+          name: 'nonzero detail after a pen pointerdown',
+          pointerType: 'pen',
+          detail: 1,
+          expected: 'pen',
+        },
+        {
+          name: 'nonzero detail without a pointerdown',
+          pointerType: null,
+          detail: 1,
+          expected: 'mouse',
+        },
+      ])(
+        'classifies a click with an empty pointerType: $name',
+        async ({ pointerType, detail, expected }) => {
+          const finalFocus = vi.fn((_closeType: InteractionType) => true);
+
+          function App() {
+            const [isOpen, setIsOpen] = React.useState(true);
+
+            const { refs, context } = useFloating({
+              open: isOpen,
+              onOpenChange: setIsOpen,
+            });
+
+            const click = useClick(context.rootStore);
+            const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
+
+            return (
+              <>
+                <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+                <FloatingPortal>
+                  {isOpen && (
+                    <FloatingFocusManager context={context.rootStore} returnFocus={finalFocus}>
+                      <div ref={refs.setFloating} {...getFloatingProps()}>
+                        <button data-testid="child" />
+                      </div>
+                    </FloatingFocusManager>
+                  )}
+                </FloatingPortal>
+              </>
+            );
+          }
+
+          render(<App />);
+
+          const reference = screen.getByTestId('reference');
+
+          if (pointerType) {
+            fireEvent.pointerDown(reference, { pointerType });
+          }
+          // Synthesized click shape: `PointerEvent` with an empty `pointerType`.
+          fireEvent(
+            reference,
+            new PointerEvent('click', { bubbles: true, cancelable: true, detail, pointerType: '' }),
+          );
+
+          await waitFor(() => {
+            expect(finalFocus).toHaveBeenCalledWith(expected);
+          });
+        },
+      );
 
       test('preserves keyboard close modality when reopening before focus restoration', async () => {
         function App() {

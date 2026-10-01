@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -10,13 +11,7 @@ import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
 
-/**
- * A link in the menu that can be used to navigate to a different page or section.
- * Renders an `<a>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
+const MenuLinkItemPlain = React.forwardRef(function MenuLinkItemPlain(
   componentProps: MenuLinkItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -30,15 +25,17 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     ...elementProps
   } = componentProps;
 
+  const { store } = useMenuRootContext();
+
   const linkRef = React.useRef<HTMLAnchorElement | null>(null);
 
   const listItem = useCompositeListItem({ guess: true, label });
   const id = useBaseUiId(idProp);
 
-  const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
   const nodeId = store.useState('floatingNodeId');
   const itemProps = store.useState('itemProps');
+
   const typingRef = store.context.typingRef;
 
   const { getButtonProps, buttonRef } = useButton({
@@ -70,6 +67,26 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   });
 });
 
+/**
+ * A link in the menu that can be used to navigate to a different page or section.
+ * Renders an `<a>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
+  props: MenuLinkItem.Props,
+  forwardedRef: React.ForwardedRef<Element>,
+) {
+  // The public ref type stays `Element` as before; the rendered `<a>` is always an `HTMLElement`.
+  const filterItem = useMenuFilterItem(props, forwardedRef as React.ForwardedRef<HTMLElement>);
+
+  if (!filterItem.visible) {
+    return null;
+  }
+
+  return <MenuLinkItemPlain {...props} ref={filterItem.ref} />;
+});
+
 export interface MenuLinkItemState {
   /**
    * Whether the item is highlighted.
@@ -83,7 +100,8 @@ export interface MenuLinkItemProps extends BaseUIComponentProps<
   React.ComponentPropsWithRef<'a'>
 > {
   /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation.
+   * Overrides the text used for keyboard text navigation and filtering.
+   * Falls back to the rendered text when not provided.
    */
   label?: string | undefined;
   /**

@@ -21,7 +21,7 @@ import {
 } from '../../floating-ui-react';
 import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
 import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
-import { closest, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -772,6 +772,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
       props.onOpenChange?.(nextOpen, openEventDetails);
 
+      // A typed request must not highlight a later open: discard it when its own open is
+      // rejected, or when any other open change goes through.
+      if (
+        pendingQueryHighlightRef.current?.hasQuery &&
+        (eventDetails.reason === REASONS.inputChange) === eventDetails.isCanceled
+      ) {
+        pendingQueryHighlightRef.current = null;
+      }
+
       if (eventDetails.isCanceled) {
         return;
       }
@@ -1054,16 +1063,48 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [items, flatFilteredValues]);
 
   useIsoLayoutEffect(() => {
+    // Controlled closes can bypass `setOpen`, and their exit animation may be interrupted.
+    if (!open && pendingQueryHighlightRef.current?.hasQuery) {
+      pendingQueryHighlightRef.current = null;
+    }
+  }, [open]);
+
+  useIsoLayoutEffect(() => {
+    // A kept-mounted dialog hides its inline list on close. Discard query-clear restoration
+    // before it can overwrite the cleared highlight or report an item from the unfiltered list.
+    if (!open && inline && resolvedPopupRef.current) {
+      pendingQueryHighlightRef.current = null;
+      return;
+    }
+
+    const candidateItems =
+      hasItems || hasFilteredItemsProp ? flatFilteredValues : valuesRef.current;
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       // A directly rendered list remains visible when the popup state is closed, while a
       // kept-mounted Positioner is hidden and should stay inert.
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
-        if (autoHighlightMode && listIsNavigable) {
+        const input = inputRef.current;
+        // Keep the request while results or a controlled popup opening are pending,
+        // but do not restore an inline highlight after focus has left the input.
+        if (
+          !autoHighlightMode ||
+          String(inputValue).trim() === '' ||
+          (inline &&
+            autoHighlightMode !== 'always' &&
+            (!input || activeElement(input.ownerDocument) !== input))
+        ) {
+          pendingQueryHighlightRef.current = null;
+        } else if (
+          listIsNavigable &&
+          // Individually rendered items register without re-running this effect, and their
+          // registry has holes mid-reindex, so resolve their request immediately.
+          (candidateItems[0] !== undefined || (!hasItems && !hasFilteredItemsProp))
+        ) {
           store.set('activeIndex', 0);
+          pendingQueryHighlightRef.current = null;
         }
-        pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
         // Only handle the clear once it has committed (a controlled input may reject it),
         // so a restore cannot fire while a query is still active.
@@ -1084,7 +1125,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           // commit, so the item registries are mid-update here. Defer past React's cascade.
           queueMicrotask(() => {
             if (
-              (!store.state.open && !store.state.inline) ||
+              (!store.state.open && (!store.state.inline || resolvedPopupRef.current)) ||
               (inputRef.current && inputRef.current.value.trim() !== '')
             ) {
               return;
@@ -1139,8 +1180,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return;
     }
 
-    const shouldUseFlatFilteredValues = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredValues ? flatFilteredValues : valuesRef.current;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -1180,6 +1219,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     flatFilteredValues,
     inline,
     open,
+    resolvedPopupRef,
     store,
     // Reruns the effect when the query changes without affecting the deps above, such as
     // clearing the input when no items are filtered out (individually rendered items).
@@ -1376,12 +1416,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     disabledIndices: EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event, source) {
-      // Retain the highlight only while actually transitioning out or closed. `inline` lists are
-      // navigable while `open` is false, and the floating store is told they are open (see the
-      // `useFloatingRootContext` call above), so they must not be vetoed here either: doing so
-      // would discard programmatic navigation while `useListNavigation` had already advanced its
-      // internal cursor, leaving the two permanently out of sync.
-      if ((!event && !open && !inline) || transitionStatus === 'ending') {
+      // Ignore automatic navigation while closed, including selected-index sync for inline lists.
+      // Inline lists remain navigable while `open` is false, so still allow imperative navigation
+      // (keeping the highlight in sync with the cursor advanced by `highlightItem()`) and resets
+      // (clearing the highlight when an unbound inline list unmounts, e.g. in a closed dialog).
+      if (
+        (!event && !open && source !== 'imperative' && !(inline && nextActiveIndex === null)) ||
+        transitionStatus === 'ending'
+      ) {
         return;
       }
 
