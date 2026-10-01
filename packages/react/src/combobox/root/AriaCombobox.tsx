@@ -21,7 +21,7 @@ import {
 } from '../../floating-ui-react';
 import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
 import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
-import { closest, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -772,6 +772,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
       props.onOpenChange?.(nextOpen, openEventDetails);
 
+      // A typed request must not highlight a later open: discard it when its own open is
+      // rejected, or when any other open change goes through.
+      if (
+        pendingQueryHighlightRef.current?.hasQuery &&
+        (eventDetails.reason === REASONS.inputChange) === eventDetails.isCanceled
+      ) {
+        pendingQueryHighlightRef.current = null;
+      }
+
       if (eventDetails.isCanceled) {
         return;
       }
@@ -1054,6 +1063,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [items, flatFilteredValues]);
 
   useIsoLayoutEffect(() => {
+    // Controlled closes can bypass `setOpen`, and their exit animation may be interrupted.
+    if (!open && pendingQueryHighlightRef.current?.hasQuery) {
+      pendingQueryHighlightRef.current = null;
+    }
+  }, [open]);
+
+  useIsoLayoutEffect(() => {
     // A kept-mounted dialog hides its inline list on close. Discard query-clear restoration
     // before it can overwrite the cleared highlight or report an item from the unfiltered list.
     if (!open && inline && resolvedPopupRef.current) {
@@ -1061,16 +1077,34 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return;
     }
 
+    const candidateItems =
+      hasItems || hasFilteredItemsProp ? flatFilteredValues : valuesRef.current;
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       // A directly rendered list remains visible when the popup state is closed, while a
       // kept-mounted Positioner is hidden and should stay inert.
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
-        if (autoHighlightMode && listIsNavigable) {
+        const input = inputRef.current;
+        // Keep the request while results or a controlled popup opening are pending,
+        // but do not restore an inline highlight after focus has left the input.
+        if (
+          !autoHighlightMode ||
+          String(inputValue).trim() === '' ||
+          (inline &&
+            autoHighlightMode !== 'always' &&
+            (!input || activeElement(input.ownerDocument) !== input))
+        ) {
+          pendingQueryHighlightRef.current = null;
+        } else if (
+          listIsNavigable &&
+          // Individually rendered items register without re-running this effect, and their
+          // registry has holes mid-reindex, so resolve their request immediately.
+          (candidateItems[0] !== undefined || (!hasItems && !hasFilteredItemsProp))
+        ) {
           store.set('activeIndex', 0);
+          pendingQueryHighlightRef.current = null;
         }
-        pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
         // Only handle the clear once it has committed (a controlled input may reject it),
         // so a restore cannot fire while a query is still active.
@@ -1146,8 +1180,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return;
     }
 
-    const shouldUseFlatFilteredValues = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredValues ? flatFilteredValues : valuesRef.current;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
