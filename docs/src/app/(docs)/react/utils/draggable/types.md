@@ -2184,6 +2184,20 @@ A 2D coordinate in CSS pixels.
 type DraggablePosition = { x: number; y: number };
 ```
 
+### DraggableHandleDataAttributes
+
+Data attributes of [Handle](#handle).
+
+```typescript
+declare namespace DraggableHandleDataAttributes {
+  /**
+   * Present while the handle's `Draggable.Root` is disabled. A handle follows
+   * the disabled state of its root.
+   */
+  const disabled: 'data-disabled';
+}
+```
+
 ### DraggableManagerRegisterMonitorParameters
 
 The options of `registerMonitor`, which are those of `Draggable.useMonitor`.
@@ -2426,6 +2440,121 @@ type DraggableManagerRegisterViewportParameters<
 > = RegisterViewportParameters<TSourcePayload, TDragData>;
 ```
 
+### DraggablePreviewCssVariables
+
+CSS variables of [Preview](#preview).
+
+```typescript
+declare namespace DraggablePreviewCssVariables {
+  /**
+   * The width of the element the drag was lifted from.
+   * @type number
+   */
+  const dragSourceWidth: '--drag-source-width';
+  /**
+   * The height of the element the drag was lifted from.
+   * @type number
+   */
+  const dragSourceHeight: '--drag-source-height';
+}
+```
+
+### DraggablePreviewDataAttributes
+
+Data attributes of [Preview](#preview).
+
+```typescript
+declare namespace DraggablePreviewDataAttributes {
+  /**
+   * Present on the drag preview: the clone of the source, or the `Draggable.Preview`
+   * element that renders custom children. A clone keeps the source's classes, so use
+   * this attribute to distinguish them in CSS, and to exclude the preview from DOM
+   * queries over the source's siblings, such as `:scope > :not([data-drag-preview])`.
+   */
+  const dragPreview: 'data-drag-preview';
+  /**
+   * Present on the preview after a deliberate release while it ends. A `translate`
+   * transition that applies then moves it to the source's final position, or back to
+   * the source after a release outside every target. Without one, the preview ends
+   * where it was released. It remains mounted until animations started by this state
+   * finish.
+   */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Present on the preview while it ends after a drop on a target. Absent when it ends
+   * after a release outside every target.
+   */
+  const dropped: 'data-dropped';
+}
+```
+
+### DraggableRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace DraggableRootDataAttributes {
+  /**
+   * Present on the source element while it is being dragged, and until its preview
+   * has settled after the drop. A preview never carries this attribute, so a
+   * `[data-dragging]` rule that dims or hides the source leaves the preview fully visible.
+   */
+  const dragging: 'data-dragging';
+  /**
+   * Present on the source after a deliberate release, on a target or outside every
+   * target, until its preview's ending animation finishes. Use it to keep the source
+   * styled as a placeholder until then.
+   */
+  const settling: 'data-settling';
+  /** Present while the draggable is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### DraggableTargetDataAttributes
+
+Data attributes of [Target](#target).
+
+```typescript
+declare namespace DraggableTargetDataAttributes {
+  /**
+   * Present while a matching drag source is over the target or a nested descendant.
+   * Absent when `trackDragOver` is `false`.
+   */
+  const dragOver: 'data-drag-over';
+  /**
+   * Present while the target is the innermost one under the source.
+   * Absent when `trackDragOver` is `false`.
+   */
+  const dragOverInnermost: 'data-drag-over-innermost';
+  /**
+   * Present while a drag this target accepts is active, regardless of pointer
+   * position. Use it to highlight every compatible drop target.
+   * Absent when `trackDragOver` is `false`.
+   */
+  const accepting: 'data-accepting';
+  /**
+   * Present while `canDrop` returns `'reject'` for the current position. Use it
+   * to display feedback such as a full column. Absent when `trackDragOver` is
+   * `false`.
+   */
+  const rejected: 'data-rejected';
+  /** Present while the drop target is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### DraggableViewportDataAttributes
+
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace DraggableViewportDataAttributes {
+  /** Present while auto-scrolling is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
 ### UseActiveDragReturnValue
 
 ```typescript
@@ -2630,7 +2759,7 @@ type matches =
 - `Draggable.useManager`: `Draggable.useManager`, `Draggable.useManager.ReturnValue`, `Draggable.useManager.RegisterSourceParameters`, `Draggable.useManager.RegisterTargetParameters`, `Draggable.useManager.RegisterViewportParameters`, `Draggable.useManager.RegisterMonitorParameters`
 - `Draggable.createKind`
 - `Draggable.createGlobalKind`
-- `Default`: `Draggable.anyKind`, `Draggable.Accept`, `Draggable.AcceptedKind`, `Draggable.Input`, `Draggable.Kind`, `Draggable.Location`, `Draggable.LocationHistory`, `Draggable.PointerType`, `Draggable.Position`, `DraggableProviderProps`, `DraggablePointerType`, `DraggableInput`, `DraggablePosition`, `DraggableLocation`, `DraggableLocationHistory`, `DraggableKind`, `DraggableAccept`, `DraggableAcceptedKind`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootRecord`, `DraggableRootElementReference`, `DraggableRootModifierContext`, `DraggableRootModifier`, `DraggableRootModifiers`, `DraggableRootBeforeMoveStartEventDetails`, `DraggableRootBeforeMoveStartEventReason`, `DraggableRootMoveStartEventDetails`, `DraggableRootMoveStartEventReason`, `DraggableRootMoveEventDetails`, `DraggableRootMoveEventReason`, `DraggableRootTargetChangeEventDetails`, `DraggableRootTargetChangeEventReason`, `DraggableRootMoveEndEventDetails`, `DraggableRootMoveEndEventReason`, `DraggableRootActivation`, `DraggableRootActivationConfig`, `DraggableHandleState`, `DraggableHandleProps`, `DraggableHandleReference`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewRenderParameters`, `DraggablePreviewOffsetParameters`, `DraggablePreviewOffset`, `DraggablePreviewContainer`, `DraggablePreviewSettings`, `DraggablePreviewParameters`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetLocalPoint`, `DraggableTargetSnapSteps`, `DraggableTargetSnappedLocalPointOptions`, `DraggableTargetRecord`, `DraggableTargetResolutionContext`, `DraggableTargetStartEventDetails`, `DraggableTargetStartEventReason`, `DraggableTargetMoveEventDetails`, `DraggableTargetMoveEventReason`, `DraggableTargetEnterEventDetails`, `DraggableTargetEnterEventReason`, `DraggableTargetLeaveEventDetails`, `DraggableTargetLeaveEventReason`, `DraggableTargetDropEventDetails`, `DraggableTargetDropEventReason`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableViewportOverflowMargin`, `DraggableViewportMaxSpeedContext`, `DraggableViewportDragScrollDirection`, `DraggableViewportDragScrollEventDetails`, `DraggableViewportDragScrollEventReason`, `DraggableCollisionProviderProps`, `DraggableCollisionProviderMoveStartEventDetails`, `DraggableCollisionProviderMoveStartEventReason`, `DraggableCollisionProviderCollisionChangeEventDetails`, `DraggableCollisionProviderCollisionChangeEventReason`, `DraggableCollisionProviderMoveEndEventDetails`, `DraggableCollisionProviderMoveEndEventReason`, `UseActiveDragReturnValue`, `UseDraggableMonitorParameters`, `UseDraggableManagerReturnValue`, `DraggableManagerRegisterSourceParameters`, `DraggableManagerRegisterTargetParameters`, `DraggableManagerRegisterViewportParameters`, `DraggableManagerRegisterMonitorParameters`
+- `Default`: `Draggable.anyKind`, `Draggable.Accept`, `Draggable.AcceptedKind`, `Draggable.Input`, `Draggable.Kind`, `Draggable.Location`, `Draggable.LocationHistory`, `Draggable.PointerType`, `Draggable.Position`, `DraggableRootDataAttributes`, `DraggableHandleDataAttributes`, `DraggablePreviewCssVariables`, `DraggablePreviewDataAttributes`, `DraggableTargetDataAttributes`, `DraggableViewportDataAttributes`, `DraggableProviderProps`, `DraggablePointerType`, `DraggableInput`, `DraggablePosition`, `DraggableLocation`, `DraggableLocationHistory`, `DraggableKind`, `DraggableAccept`, `DraggableAcceptedKind`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootRecord`, `DraggableRootElementReference`, `DraggableRootModifierContext`, `DraggableRootModifier`, `DraggableRootModifiers`, `DraggableRootBeforeMoveStartEventDetails`, `DraggableRootBeforeMoveStartEventReason`, `DraggableRootMoveStartEventDetails`, `DraggableRootMoveStartEventReason`, `DraggableRootMoveEventDetails`, `DraggableRootMoveEventReason`, `DraggableRootTargetChangeEventDetails`, `DraggableRootTargetChangeEventReason`, `DraggableRootMoveEndEventDetails`, `DraggableRootMoveEndEventReason`, `DraggableRootActivation`, `DraggableRootActivationConfig`, `DraggableHandleState`, `DraggableHandleProps`, `DraggableHandleReference`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewRenderParameters`, `DraggablePreviewOffsetParameters`, `DraggablePreviewOffset`, `DraggablePreviewContainer`, `DraggablePreviewSettings`, `DraggablePreviewParameters`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetLocalPoint`, `DraggableTargetSnapSteps`, `DraggableTargetSnappedLocalPointOptions`, `DraggableTargetRecord`, `DraggableTargetResolutionContext`, `DraggableTargetStartEventDetails`, `DraggableTargetStartEventReason`, `DraggableTargetMoveEventDetails`, `DraggableTargetMoveEventReason`, `DraggableTargetEnterEventDetails`, `DraggableTargetEnterEventReason`, `DraggableTargetLeaveEventDetails`, `DraggableTargetLeaveEventReason`, `DraggableTargetDropEventDetails`, `DraggableTargetDropEventReason`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableViewportOverflowMargin`, `DraggableViewportMaxSpeedContext`, `DraggableViewportDragScrollDirection`, `DraggableViewportDragScrollEventDetails`, `DraggableViewportDragScrollEventReason`, `DraggableCollisionProviderProps`, `DraggableCollisionProviderMoveStartEventDetails`, `DraggableCollisionProviderMoveStartEventReason`, `DraggableCollisionProviderCollisionChangeEventDetails`, `DraggableCollisionProviderCollisionChangeEventReason`, `DraggableCollisionProviderMoveEndEventDetails`, `DraggableCollisionProviderMoveEndEventReason`, `UseActiveDragReturnValue`, `UseDraggableMonitorParameters`, `UseDraggableManagerReturnValue`, `DraggableManagerRegisterSourceParameters`, `DraggableManagerRegisterTargetParameters`, `DraggableManagerRegisterViewportParameters`, `DraggableManagerRegisterMonitorParameters`
 - `Draggable.restrictToVerticalAxis`
 - `Draggable.restrictToHorizontalAxis`
 - `Draggable.restrictToWindowEdges`
