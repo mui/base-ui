@@ -34,6 +34,7 @@ describe('<FilterDropdown.Root />', () => {
     expect(popup.tagName).toBe('DIV');
     expect(popup).toHaveAttribute('aria-labelledby', 'host-trigger');
     expect(input.tagName).toBe('INPUT');
+    expect(input).toHaveAttribute('id');
     expect(input).toHaveAttribute('type', 'text');
     expect(input).toHaveAttribute('inputmode', 'search');
     expect(input).not.toHaveAttribute('enterkeyhint');

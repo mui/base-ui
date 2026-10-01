@@ -4138,6 +4138,32 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     expect(filterPasses).toBe(plainPasses);
   });
 
+  it('uses the id passed to Menu.Input', async () => {
+    await render(
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <label htmlFor="action-filter">Filter actions</label>
+                <Menu.Input id="action-filter" />
+                <Menu.List>
+                  <Menu.Item>Rename</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveAttribute(
+      'id',
+      'action-filter',
+    );
+  });
+
   it('prefers the label prop over rendered text for matching', async () => {
     const { user } = await render(
       <Menu.FilterProvider>

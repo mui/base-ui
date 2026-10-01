@@ -3,6 +3,7 @@ import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -19,8 +20,19 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   componentProps: FilterDropdownInputHostProps,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, style, disabled, activeItemId, navigationProps, ...elementProps } =
-    componentProps;
+  const {
+    render,
+    className,
+    style,
+    id: idProp,
+    disabled,
+    activeItemId,
+    navigationProps,
+    ...elementProps
+  } = componentProps;
+
+  // Browsers flag a form field with neither an id nor a name.
+  const id = useBaseUiId(idProp);
 
   const context = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
@@ -45,6 +57,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
     props: [
       navigationProps,
       {
+        id,
         type: 'text',
         disabled: context.disabled || disabled,
         'aria-activedescendant': activeItemId,
