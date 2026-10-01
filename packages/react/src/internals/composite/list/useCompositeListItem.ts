@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useCompositeListContext } from './CompositeListContext';
+import type { CompositeListContextValue } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
   /**
@@ -19,6 +20,8 @@ export interface UseCompositeListItemParameters<Metadata> {
   metadata?: Metadata | undefined;
   /** Keep the ref object stable to avoid unnecessarily reattaching the item. */
   textRef?: React.RefObject<HTMLElement | null> | undefined;
+  /** The list to register with, in place of the one provided through `CompositeListContext`. */
+  list?: CompositeListContextValue<Metadata> | undefined;
 }
 
 interface UseCompositeListItemReturnValue {
@@ -39,9 +42,10 @@ interface CompositeListItemHandle {
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { guess, label, metadata, textRef, index: externalIndex } = params;
+  const { guess, label, metadata, textRef, index: externalIndex, list } = params;
 
-  const { register, unregister, guessIndex } = useCompositeListContext();
+  const contextList = useCompositeListContext();
+  const { register, unregister, guessIndex } = list ?? contextList;
 
   // Guess the index from the render order. This avoids a re-render after mount for
   // flat lists rendered in DOM order; when the guess is wrong (grouped or out-of-order

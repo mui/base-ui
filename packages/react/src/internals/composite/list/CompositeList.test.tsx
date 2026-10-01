@@ -3,8 +3,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, mergeRefs } from '#test-utils';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeList, useCompositeList } from './CompositeList';
 import { CompositeListContext } from './CompositeListContext';
+import { CompositeListRegistry } from './CompositeListRegistry';
 import { useCompositeListItem } from './useCompositeListItem';
 
 describe('<CompositeList />', () => {
@@ -1265,6 +1268,58 @@ describe('<CompositeList />', () => {
 
       unmount();
       expect(elementsRef.current).toHaveLength(0);
+    });
+  });
+
+  describe('CompositeListRegistry', () => {
+    it('lets an owner drive the list and items register without a provider', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const ListContext = React.createContext<CompositeListRegistry<unknown> | null>(null);
+
+      function Item(props: { label: string }) {
+        const list = React.useContext(ListContext)!;
+        const { ref, index } = useCompositeListItem({ guess: true, list: list.context });
+        return <div ref={ref} data-testid={props.label} data-index={index} />;
+      }
+
+      function Owner(props: { children: React.ReactNode }) {
+        const [, requestFlush] = React.useReducer((count: number) => count + 1, 0);
+        const list = useRefWithInit(
+          () => new CompositeListRegistry<unknown>({ elementsRef, requestFlush }),
+        ).current;
+
+        useIsoLayoutEffect(() => {
+          if (list.dirty) {
+            list.flush();
+          }
+        });
+
+        return <ListContext.Provider value={list}>{props.children}</ListContext.Provider>;
+      }
+
+      function App(props: { items: string[] }) {
+        return (
+          <Owner>
+            {props.items.map((item) => (
+              <Item key={item} label={item} />
+            ))}
+          </Owner>
+        );
+      }
+
+      const { setProps } = await render(<App items={['a', 'c']} />);
+      expect(elementsRef.current).toEqual([screen.getByTestId('a'), screen.getByTestId('c')]);
+
+      await setProps({ items: ['a', 'b', 'c'] });
+
+      expect(elementsRef.current).toEqual([
+        screen.getByTestId('a'),
+        screen.getByTestId('b'),
+        screen.getByTestId('c'),
+      ]);
+      expect(screen.getByTestId('c')).toHaveAttribute('data-index', '2');
     });
   });
 
