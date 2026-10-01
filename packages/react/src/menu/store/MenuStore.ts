@@ -145,43 +145,50 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
 
     super(state, createInitialContext(triggerElements), selectors);
 
-    // Set up propagation of state from parent menu if applicable.
-    this.unsubscribeParentListener = this.observe('parent', (parent) => {
-      this.unsubscribeParentListener?.();
-
+    // Share the mouse-up trigger ref of the parent menu, if any. This observes the store's own
+    // state, so the subscription lives exactly as long as the store and needs no cleanup.
+    void this.observe('parent', (parent) => {
       if (parent.type === 'menu') {
-        let rootId = parent.store.select('rootId');
-        let floatingTreeRoot = parent.store.select('floatingTreeRoot');
-        let keyboardEventRelay = parent.store.select('keyboardEventRelay');
-
-        this.unsubscribeParentListener = parent.store.subscribe(() => {
-          const nextRootId = parent.store.select('rootId');
-          const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
-          const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
-
-          if (
-            rootId === nextRootId &&
-            floatingTreeRoot === nextFloatingTreeRoot &&
-            keyboardEventRelay === nextKeyboardEventRelay
-          ) {
-            return;
-          }
-
-          rootId = nextRootId;
-          floatingTreeRoot = nextFloatingTreeRoot;
-          keyboardEventRelay = nextKeyboardEventRelay;
-          this.notifyAll();
-        });
-
         this.context.allowMouseUpTriggerRef = parent.store.context.allowMouseUpTriggerRef;
+      } else if (parent.type !== undefined) {
+        this.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
+      }
+    });
+  }
+
+  /**
+   * Propagates changes of the parent menu's shared tree state to this store's subscribers.
+   * The owning `Menu.Root` calls it from an effect so the parent store subscription is released
+   * when the submenu unmounts.
+   * @returns A function that removes the parent store subscription.
+   */
+  subscribeToParentMenu() {
+    const parent = this.state.parent;
+    if (parent.type !== 'menu') {
+      return undefined;
+    }
+
+    let rootId = parent.store.select('rootId');
+    let floatingTreeRoot = parent.store.select('floatingTreeRoot');
+    let keyboardEventRelay = parent.store.select('keyboardEventRelay');
+
+    return parent.store.subscribe(() => {
+      const nextRootId = parent.store.select('rootId');
+      const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
+      const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
+
+      if (
+        rootId === nextRootId &&
+        floatingTreeRoot === nextFloatingTreeRoot &&
+        keyboardEventRelay === nextKeyboardEventRelay
+      ) {
         return;
       }
 
-      if (parent.type !== undefined) {
-        this.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
-      }
-
-      this.unsubscribeParentListener = null;
+      rootId = nextRootId;
+      floatingTreeRoot = nextFloatingTreeRoot;
+      keyboardEventRelay = nextKeyboardEventRelay;
+      this.notifyAll();
     });
   }
 
@@ -207,8 +214,6 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
       this.setActiveIndex(index, reason);
     }
   }
-
-  private unsubscribeParentListener: (() => void) | null = null;
 }
 
 /**

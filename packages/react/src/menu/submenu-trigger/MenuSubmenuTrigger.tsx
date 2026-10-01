@@ -192,9 +192,14 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const click = useClick(floatingRootContext, {
     enabled: !disabled,
     event: 'mousedown',
-    toggle: !openOnHover,
+    // Without toggling, TalkBack users cannot close the submenu to reach the next parent menu
+    // item: moving the virtual cursor outside does not close it, and moving forward again
+    // re-enters the still-open submenu. Keep toggling enabled so activating its trigger closes it.
+    // Toggling applies to touch and keyboard activation. In hover mode, mouse presses are
+    // ignored and the first activation after hover-opening keeps the submenu open.
+    toggle: true,
     ignoreMouse: openOnHover,
-    stickIfOpen: false,
+    stickIfOpen: openOnHover,
   });
 
   const localInteractionProps = click.reference ?? EMPTY_OBJECT;

@@ -27,6 +27,8 @@ import {
 } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
+import type { MenuStore } from '../store/MenuStore';
+import { useMenuRootContext } from './MenuRootContext';
 
 describe('<Menu.Root />', () => {
   beforeEach(resetBrowserPointer);
@@ -3578,6 +3580,125 @@ describe('<Menu.Root />', () => {
       expect(screen.getByRole('menuitem', { name: 'Three' })).not.toHaveAttribute(
         'data-highlighted',
       );
+    });
+  });
+
+  describe('submenu parent store subscription', () => {
+    function trackSubscriptions(store: MenuStore<unknown>) {
+      const subscribe = store.subscribe;
+      let active = 0;
+      store.subscribe = (listener) => {
+        const unsubscribe = subscribe(listener);
+        active += 1;
+        let subscribed = true;
+        return () => {
+          if (subscribed) {
+            subscribed = false;
+            active -= 1;
+          }
+          unsubscribe();
+        };
+      };
+      return () => active;
+    }
+
+    function StoreCapture(props: { onStore: (store: MenuStore<unknown>) => void }) {
+      props.onStore(useMenuRootContext().store);
+      return null;
+    }
+
+    function TestMenu(props: {
+      showSubmenu: boolean;
+      onParentStore: (store: MenuStore<unknown>) => void;
+      onSubmenuStore?: (store: MenuStore<unknown>) => void;
+    }) {
+      return (
+        <Menu.Root open>
+          <StoreCapture onStore={props.onParentStore} />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {props.showSubmenu && (
+                  <Menu.SubmenuRoot>
+                    {props.onSubmenuStore && <StoreCapture onStore={props.onSubmenuStore} />}
+                    <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                  </Menu.SubmenuRoot>
+                )}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    async function leakedSubscriptionsAfterSubmenuUnmount(strict: boolean) {
+      const Wrapper = strict ? React.StrictMode : React.Fragment;
+      let parentStore: MenuStore<unknown> | undefined;
+      const onParentStore = (store: MenuStore<unknown>) => {
+        parentStore = store;
+      };
+      const { rerender } = await render(
+        <Wrapper>
+          <TestMenu showSubmenu={false} onParentStore={onParentStore} />
+        </Wrapper>,
+      );
+      const activeSubscriptions = trackSubscriptions(parentStore!);
+      // Replacing `subscribe` makes the parent's own store hooks resubscribe through the wrapper.
+      await rerender(
+        <Wrapper>
+          <TestMenu showSubmenu={false} onParentStore={onParentStore} />
+        </Wrapper>,
+      );
+      const baseline = activeSubscriptions();
+
+      await rerender(
+        <Wrapper>
+          <TestMenu showSubmenu onParentStore={onParentStore} />
+        </Wrapper>,
+      );
+      expect(activeSubscriptions()).toBeGreaterThan(baseline);
+
+      await rerender(
+        <Wrapper>
+          <TestMenu showSubmenu={false} onParentStore={onParentStore} />
+        </Wrapper>,
+      );
+      return activeSubscriptions() - baseline;
+    }
+
+    it('releases the subscriptions a submenu adds to its parent store when it unmounts', async () => {
+      expect(await leakedSubscriptionsAfterSubmenuUnmount(false)).toBe(0);
+    });
+
+    it('releases them under StrictMode', async () => {
+      expect(await leakedSubscriptionsAfterSubmenuUnmount(true)).toBe(0);
+    });
+
+    it('notifies submenu subscribers when shared parent state changes under StrictMode', async () => {
+      let parentStore: MenuStore<unknown> | undefined;
+      let submenuStore: MenuStore<unknown> | undefined;
+      await render(
+        <React.StrictMode>
+          <TestMenu
+            showSubmenu
+            onParentStore={(store) => {
+              parentStore = store;
+            }}
+            onSubmenuStore={(store) => {
+              submenuStore = store;
+            }}
+          />
+        </React.StrictMode>,
+      );
+
+      const submenuListener = vi.fn();
+      const unsubscribe = submenuStore!.subscribe(submenuListener);
+      await act(async () => {
+        parentStore!.set('rootId', 'next-root-id');
+      });
+      unsubscribe();
+
+      expect(submenuListener).toHaveBeenCalled();
     });
   });
 });
