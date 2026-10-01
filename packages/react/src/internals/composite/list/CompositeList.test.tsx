@@ -1321,6 +1321,42 @@ describe('<CompositeList />', () => {
       ]);
       expect(screen.getByTestId('c')).toHaveAttribute('data-index', '2');
     });
+
+    it('publishes an empty list once and settles it on later flushes', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const onMapChange = vi.fn();
+
+      function Item() {
+        const { ref } = useCompositeListItem();
+        return <div ref={ref} data-testid="item" />;
+      }
+
+      function App(props: { revision: number; withItem: boolean }) {
+        return (
+          <CompositeList elementsRef={elementsRef} onMapChange={onMapChange}>
+            <span data-revision={props.revision} />
+            {props.withItem && <Item />}
+          </CompositeList>
+        );
+      }
+
+      const { setProps } = await render(<App revision={0} withItem={false} />, { strict: false });
+      expect(onMapChange).toHaveBeenCalledTimes(1);
+      expect(onMapChange.mock.lastCall?.[0].size).toBe(0);
+
+      await setProps({ revision: 1, withItem: false });
+      expect(onMapChange).toHaveBeenCalledTimes(1);
+
+      await setProps({ revision: 2, withItem: true });
+      expect(elementsRef.current).toEqual([screen.getByTestId('item')]);
+
+      await setProps({ revision: 3, withItem: false });
+      expect(elementsRef.current).toEqual([]);
+      expect(onMapChange.mock.lastCall?.[0].size).toBe(0);
+      expect(onMapChange).toHaveBeenCalledTimes(3);
+    });
   });
 
   describe('without a parent list', () => {

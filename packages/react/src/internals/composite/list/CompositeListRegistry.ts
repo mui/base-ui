@@ -115,6 +115,11 @@ export class CompositeListRegistry<Metadata> {
   flush() {
     this.dirty = false;
 
+    if (!this.registrations?.size) {
+      this.flushEmpty();
+      return;
+    }
+
     const previousItems = this.items;
     const [items, automaticNodes] = getCompositeListSnapshot(this.registrations);
     this.items = items;
@@ -147,6 +152,24 @@ export class CompositeListRegistry<Metadata> {
     this.disconnectObserver();
     this.clearRefs();
     this.dirty = true;
+  }
+
+  // Many lists, such as data grid cells, hold no item most of the time. Settling an empty list
+  // without sorting or observing keeps them nearly free.
+  private flushEmpty() {
+    this.nextIndex = 0;
+
+    if (this.items?.length === 0) {
+      return;
+    }
+
+    this.items = EMPTY_ARRAY;
+    this.disconnectObserver();
+    this.elementsRef.current.length = 0;
+    if (this.labelsRef) {
+      this.labelsRef.current.length = 0;
+    }
+    this.onMapChange?.(new Map());
   }
 
   // Item refs can attach without the owner rendering. Request one commit for the whole batch.
