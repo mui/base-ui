@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Checkbox } from '@base-ui/react/checkbox';
@@ -80,6 +80,41 @@ describe('useAriaLabelledBy', () => {
         'aria-labelledby',
         screen.getByText(`Label ${ids[index]}`).id,
       );
+    });
+  });
+
+  it('builds the label index only when several controls look up in one task', async () => {
+    function Test({ count, tick }: { count: number; tick: number }) {
+      return (
+        <div>
+          {Array.from({ length: count }, (_, index) => (
+            <label key={index}>
+              <Checkbox.Root data-tick={tick} />
+              Label {index}
+            </label>
+          ))}
+        </div>
+      );
+    }
+
+    const { setProps } = await render(<Test count={1} tick={0} />);
+    const querySelectorAll = vi.spyOn(document, 'querySelectorAll');
+    const labelQueries = () =>
+      querySelectorAll.mock.calls.filter(([selector]) => selector === 'label');
+
+    await setProps({ count: 1, tick: 1 });
+    expect(labelQueries()).toHaveLength(0);
+    expect(screen.getByRole('checkbox')).toHaveAttribute(
+      'aria-labelledby',
+      screen.getByText('Label 0').id,
+    );
+
+    await setProps({ count: 3, tick: 2 });
+    querySelectorAll.mockClear();
+    await setProps({ count: 3, tick: 3 });
+    expect(labelQueries()).toHaveLength(1);
+    screen.getAllByRole('checkbox').forEach((checkbox, index) => {
+      expect(checkbox).toHaveAttribute('aria-labelledby', screen.getByText(`Label ${index}`).id);
     });
   });
 
@@ -165,6 +200,7 @@ describe('useAriaLabelledBy', () => {
 
       await render(
         <div>
+          <Checkbox.Root id="zero" />
           <Checkbox.Root id="first" />
           <Mutate />
           <Checkbox.Root id="target" data-testid="target" />
@@ -183,8 +219,10 @@ describe('useAriaLabelledBy', () => {
       return null;
     }
 
+    // The first lookup reads `labels`, so the index is built by the second one before the mutation.
     await render(
       <div>
+        <Checkbox.Root id="zero" />
         <Checkbox.Root id="first" />
         <Retarget />
         <Checkbox.Root id="second" />
@@ -208,6 +246,7 @@ describe('useAriaLabelledBy', () => {
 
     await render(
       <div>
+        <Checkbox.Root id="zero" />
         <Checkbox.Root id="first" />
         <label>
           <input id="before" />

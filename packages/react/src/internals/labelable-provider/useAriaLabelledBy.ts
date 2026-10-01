@@ -68,15 +68,15 @@ function getAriaLabelledBy(labelSource: HTMLElement | null, generatedLabelId?: s
 function findAssociatedLabel(labelSource: HTMLElement) {
   const root = labelSource.getRootNode() as ParentNode;
 
-  if (!labelIndex) {
+  // Read `labels` once for the first lookup of a task (a single control committing) and for the first
+  // lookup after a DOM change (React 19 rewrites `input.type` on every update), and leave building the
+  // index to the next lookup. Chromium and WebKit leave `labels` empty when disconnected.
+  if (!labelIndex || labelObserver.takeRecords().length) {
+    if (!labelIndex) {
+      labelObserver = new MutationObserver(NOOP);
+      queueMicrotask(clearLabelIndex);
+    }
     labelIndex = new Map();
-    labelObserver = new MutationObserver(NOOP);
-    queueMicrotask(clearLabelIndex);
-  } else if (labelObserver.takeRecords().length) {
-    // The DOM changed since the index was built (React 19 rewrites `input.type` on every update).
-    // Read `labels` this once and rebuild lazily, so mutations between every pair of lookups cost no
-    // more than reading `labels` always. Chromium and WebKit leave it empty when disconnected.
-    labelIndex.clear();
     if (labelSource.isConnected) {
       return (labelSource as HTMLInputElement).labels?.[0];
     }
