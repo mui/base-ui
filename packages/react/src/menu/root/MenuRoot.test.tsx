@@ -3415,7 +3415,7 @@ describe('<Menu.Root />', () => {
       expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe('none');
     });
 
-    it('reports a highlight after onItemHighlighted is removed and added back', async () => {
+    it('reports highlights correctly after onItemHighlighted is removed and added back', async () => {
       const onItemHighlighted = vi.fn();
       const actionsRef = React.createRef<Menu.Root.Actions>();
 
@@ -3438,24 +3438,67 @@ describe('<Menu.Root />', () => {
         );
       }
 
-      const { setProps } = await render(<Test observed />);
+      const { setProps, user } = await render(<Test observed />);
       const one = screen.getByRole('menuitem', { name: 'One' });
+      const two = screen.getByRole('menuitem', { name: 'Two' });
       act(() => actionsRef.current!.highlightItem('first'));
       await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenLastCalledWith(one, expect.anything());
+        expect(one).toHaveFocus();
       });
 
+      // Moving while unobserved, then back once observed again, reports the keyboard move.
       await setProps({ observed: false });
-      act(() => actionsRef.current!.highlightItem('next'));
+      await user.keyboard('[ArrowDown]');
       await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus();
+        expect(two).toHaveFocus();
+      });
+      await setProps({ observed: true });
+      onItemHighlighted.mockClear();
+      await user.keyboard('[ArrowUp]');
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          one,
+          expect.objectContaining({ reason: REASONS.keyboard }),
+        );
+      });
+    });
+
+    it('reports clearing a highlight made before onItemHighlighted was added', async () => {
+      const onItemHighlighted = vi.fn();
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+
+      function Test(props: { observed: boolean }) {
+        return (
+          <Menu.Root
+            open
+            actionsRef={actionsRef}
+            onItemHighlighted={props.observed ? onItemHighlighted : undefined}
+          >
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.Item>Two</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { setProps } = await render(<Test observed={false} />);
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
       });
 
       await setProps({ observed: true });
-      onItemHighlighted.mockClear();
-      act(() => actionsRef.current!.highlightItem('previous'));
+      act(() => actionsRef.current!.highlightItem('none'));
       await waitFor(() => {
-        expect(onItemHighlighted).toHaveBeenLastCalledWith(one, expect.anything());
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ reason: REASONS.imperativeAction }),
+        );
       });
     });
 
