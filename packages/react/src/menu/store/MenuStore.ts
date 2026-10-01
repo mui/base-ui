@@ -139,44 +139,33 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
    * @returns A function that removes the parent store subscription.
    */
   subscribeToParentMenu() {
-    let unsubscribeParentStore: (() => void) | undefined;
+    const parent = this.state.parent;
+    if (parent.type !== 'menu') {
+      return undefined;
+    }
 
-    const unsubscribeParent = this.observe('parent', (parent) => {
-      unsubscribeParentStore?.();
-      unsubscribeParentStore = undefined;
+    let rootId = parent.store.select('rootId');
+    let floatingTreeRoot = parent.store.select('floatingTreeRoot');
+    let keyboardEventRelay = parent.store.select('keyboardEventRelay');
 
-      if (parent.type !== 'menu') {
+    return parent.store.subscribe(() => {
+      const nextRootId = parent.store.select('rootId');
+      const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
+      const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
+
+      if (
+        rootId === nextRootId &&
+        floatingTreeRoot === nextFloatingTreeRoot &&
+        keyboardEventRelay === nextKeyboardEventRelay
+      ) {
         return;
       }
 
-      let rootId = parent.store.select('rootId');
-      let floatingTreeRoot = parent.store.select('floatingTreeRoot');
-      let keyboardEventRelay = parent.store.select('keyboardEventRelay');
-
-      unsubscribeParentStore = parent.store.subscribe(() => {
-        const nextRootId = parent.store.select('rootId');
-        const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
-        const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
-
-        if (
-          rootId === nextRootId &&
-          floatingTreeRoot === nextFloatingTreeRoot &&
-          keyboardEventRelay === nextKeyboardEventRelay
-        ) {
-          return;
-        }
-
-        rootId = nextRootId;
-        floatingTreeRoot = nextFloatingTreeRoot;
-        keyboardEventRelay = nextKeyboardEventRelay;
-        this.notifyAll();
-      });
+      rootId = nextRootId;
+      floatingTreeRoot = nextFloatingTreeRoot;
+      keyboardEventRelay = nextKeyboardEventRelay;
+      this.notifyAll();
     });
-
-    return () => {
-      unsubscribeParent();
-      unsubscribeParentStore?.();
-    };
   }
 
   setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {

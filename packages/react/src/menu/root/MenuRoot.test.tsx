@@ -3524,7 +3524,7 @@ describe('<Menu.Root />', () => {
           <TestMenu showSubmenu onParentStore={onParentStore} />
         </Wrapper>,
       );
-      expect(activeSubscriptions()).to.be.greaterThan(baseline);
+      expect(activeSubscriptions()).toBeGreaterThan(baseline);
 
       await rerender(
         <Wrapper>
@@ -3535,11 +3535,11 @@ describe('<Menu.Root />', () => {
     }
 
     it('releases the subscriptions a submenu adds to its parent store when it unmounts', async () => {
-      expect(await leakedSubscriptionsAfterSubmenuUnmount(false)).to.equal(0);
+      expect(await leakedSubscriptionsAfterSubmenuUnmount(false)).toBe(0);
     });
 
     it('releases them under StrictMode', async () => {
-      expect(await leakedSubscriptionsAfterSubmenuUnmount(true)).to.equal(0);
+      expect(await leakedSubscriptionsAfterSubmenuUnmount(true)).toBe(0);
     });
 
     it('notifies submenu subscribers when shared parent state changes under StrictMode', async () => {
@@ -3566,7 +3566,7 @@ describe('<Menu.Root />', () => {
       });
       unsubscribe();
 
-      expect(submenuListener.mock.calls.length).to.be.greaterThan(0);
+      expect(submenuListener).toHaveBeenCalled();
     });
   });
 });
