@@ -576,7 +576,9 @@ export function useAnchorPositioningWithHook(
     }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
-  React.useEffect(() => {
+  // A layout effect, like `whileElementsMounted`, so the strategy is applied before an initial
+  // `update()` from Floating UI measures, regardless of when React flushes passive effects.
+  useIsoLayoutEffect(() => {
     if (keepMounted && mounted && elements.reference && elements.floating) {
       elements.floating.style.position = positionMethod;
       return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);

@@ -56,6 +56,8 @@ describe('<Popover.Positioner />', () => {
       { activation: 'keyboard', keepMounted: false },
       { activation: 'click', keepMounted: true },
       { activation: 'keyboard', keepMounted: true },
+      { activation: 'initial', keepMounted: false },
+      { activation: 'initial', keepMounted: true },
     ])(
       'is first shown at its final position on $activation (keepMounted: $keepMounted)',
       async ({ activation, keepMounted }) => {
@@ -69,7 +71,7 @@ describe('<Popover.Positioner />', () => {
               style={{ marginLeft: 200, width: 180, height: 200, overflow: 'auto' }}
             >
               <div ref={setContainer} style={{ position: 'relative', padding: '80px 16px' }}>
-                <Popover.Root>
+                <Popover.Root defaultOpen={activation === 'initial'}>
                   <Popover.Trigger>Trigger</Popover.Trigger>
                   <Popover.Portal container={container} keepMounted={keepMounted}>
                     <Popover.Positioner data-testid="positioner" side="top" sideOffset={8}>
@@ -84,10 +86,6 @@ describe('<Popover.Positioner />', () => {
           );
         }
 
-        const { user } = await render(<Test />);
-        const trigger = screen.getByRole('button', { name: 'Trigger' });
-        const scroller = screen.getByTestId('scroller');
-
         // Coordinates measured against the wrong offset parent are briefly shown before correcting,
         // which can scroll the ancestor when focus moves into the popup.
         const visibleLefts = new Set<number>();
@@ -97,33 +95,42 @@ describe('<Popover.Positioner />', () => {
             visibleLefts.add(positioner.getBoundingClientRect().left);
           }
         });
-        observer.observe(scroller, { attributes: true, childList: true, subtree: true });
+        observer.observe(document.body, { attributes: true, childList: true, subtree: true });
 
-        async function openAndClose() {
+        const { user } = await render(<Test />);
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        async function expectFirstShownAtSettledPosition() {
+          const positioner = screen.getByTestId('positioner');
+          await waitForPositioned(positioner);
+          await act(async () => waitSingleFrame());
+          expect(visibleLefts).toEqual(new Set([positioner.getBoundingClientRect().left]));
+        }
+
+        async function open() {
           visibleLefts.clear();
-
           if (activation === 'keyboard') {
             await act(async () => trigger.focus());
             await user.keyboard('{Enter}');
           } else {
             await user.click(trigger);
           }
-
           await waitFor(() =>
             expect(screen.getByRole('link', { name: 'Learn more' })).toHaveFocus(),
           );
-          await act(async () => waitSingleFrame());
-
-          const settledLeft = screen.getByTestId('positioner').getBoundingClientRect().left;
-          expect(visibleLefts).toEqual(new Set([settledLeft]));
-
-          await user.keyboard('{Escape}');
-          await waitFor(() => expect(trigger).toHaveFocus());
-          await act(async () => waitSingleFrame());
+          await expectFirstShownAtSettledPosition();
         }
 
-        await openAndClose();
-        await openAndClose();
+        if (activation === 'initial') {
+          await expectFirstShownAtSettledPosition();
+        } else {
+          await open();
+        }
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+        await act(async () => waitSingleFrame());
+        await open();
         observer.disconnect();
       },
     );
