@@ -28,10 +28,13 @@ export function useFocusableWhenDisabled(
     } as FocusableWhenDisabledProps;
 
     if (!composite) {
-      additionalProps.tabIndex = tabIndexProp;
-
-      if (!isNativeButton && disabled) {
-        additionalProps.tabIndex = focusableWhenDisabled ? tabIndexProp : -1;
+      // A disabled non-native button is kept out of the tab order by not being focusable at all,
+      // the way a disabled `<button>` is, rather than by `tabIndex: -1`. `-1` leaves the element
+      // focusable by a click, and the only way to suppress that is canceling `pointerdown` — one
+      // default action that also covers text selection and dragging, so the label of a disabled
+      // control could not be selected or copied. `focusableWhenDisabled` still opts back in.
+      if (isNativeButton || !disabled || focusableWhenDisabled) {
+        additionalProps.tabIndex = tabIndexProp;
       }
     }
 
@@ -64,7 +67,7 @@ interface FocusableWhenDisabledProps {
   'aria-disabled'?: boolean | undefined;
   disabled?: boolean | undefined;
   onKeyDown: (event: React.KeyboardEvent) => void;
-  tabIndex: number;
+  tabIndex?: number | undefined;
 }
 
 export interface UseFocusableWhenDisabledParameters {

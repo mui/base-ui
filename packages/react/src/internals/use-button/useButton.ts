@@ -217,7 +217,10 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
           },
           onPointerDown(event: React.PointerEvent) {
             if (disabled) {
-              event.preventDefault();
+              // Deliberately not canceled: focus, text selection and dragging are a single
+              // default action, so canceling it to keep focus off a disabled non-native button
+              // also made its label impossible to select with the mouse. A disabled button is
+              // kept unfocusable by `useFocusableWhenDisabled` instead.
               return;
             }
             externalOnPointerDown?.(event);
