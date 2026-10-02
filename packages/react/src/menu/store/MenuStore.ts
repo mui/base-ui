@@ -103,7 +103,8 @@ const selectors = {
   },
   filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
   inputProps: (state: State<unknown>) => state.inputProps,
-  inputFocused: (state: State<unknown>) => state.inputFocused,
+  ariaSelected: (state: State<unknown>, highlighted: boolean) =>
+    state.inputFocused && highlighted ? true : undefined,
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
