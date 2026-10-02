@@ -22,13 +22,17 @@ function findLastTextNode(root: HTMLElement): Text | null {
   return lastTextNode;
 }
 
-export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
+/**
+ * @param present Whether the live region element is currently rendered. Lets a conditionally
+ * rendered region re-run the marker each time its element (re)appears with text.
+ */
+export function useInitialLiveRegionTextMutation<T extends HTMLElement>(present = true) {
   const timeout = useTimeout();
   const rootRef = React.useRef<T | null>(null);
 
   // Only the initial mounted announcement needs the marker; later text updates announce naturally.
   React.useEffect(() => {
-    if (platform.os.ios) {
+    if (!present || platform.os.ios) {
       return undefined;
     }
 
@@ -59,7 +63,7 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
         textNode.nodeValue = originalValue;
       }
     };
-  }, [rootRef, timeout]);
+  }, [present, rootRef, timeout]);
 
   return rootRef;
 }

@@ -2,7 +2,7 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { Autocomplete } from '@base-ui/react/autocomplete';
+import { Autocomplete, AutocompleteSeparatorDataAttributes } from '@base-ui/react/autocomplete';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
@@ -15,6 +15,13 @@ describe('<Autocomplete.Root />', () => {
   });
 
   const { render, renderToString } = createRenderer();
+
+  it('exposes the orientation attribute rendered by Separator', async () => {
+    await render(<Autocomplete.Separator orientation="vertical" />);
+
+    const separator = screen.getByRole('presentation');
+    expect(separator).toHaveAttribute(AutocompleteSeparatorDataAttributes.orientation, 'vertical');
+  });
 
   describe('manual unmount lifecycle', () => {
     function Popup(
@@ -1082,6 +1089,156 @@ describe('<Autocomplete.Root />', () => {
       });
 
       expect(screen.getByRole('option', { name: 'apple' })).not.toHaveAttribute('data-highlighted');
+    });
+
+    describe('asynchronous items', () => {
+      function AsyncAutocomplete({
+        items = [],
+        keepMounted = false,
+        ...props
+      }: Omit<Autocomplete.Root.Props<string>, 'items'> & {
+        items?: string[];
+        keepMounted?: boolean;
+      }) {
+        return (
+          <Autocomplete.Root items={items} autoHighlight filter={null} {...props}>
+            <Autocomplete.Input />
+            <Autocomplete.Trigger data-testid="trigger" />
+            <Autocomplete.Clear data-testid="clear" />
+            <Autocomplete.Portal keepMounted={keepMounted}>
+              <Autocomplete.Positioner>
+                <Autocomplete.Popup>
+                  <Autocomplete.List>
+                    {(item: string) => (
+                      <Autocomplete.Item key={item} value={item}>
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Popup>
+              </Autocomplete.Positioner>
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
+        );
+      }
+
+      it('highlights a candidate arriving after typing', async () => {
+        const { user, setProps } = await render(<AsyncAutocomplete />);
+        const input = screen.getByRole('combobox');
+        await user.type(input, '32');
+        await setProps({ items: ['32', '320'] });
+
+        const option = screen.getByRole('option', { name: '32' });
+        expect(option).toHaveAttribute('data-highlighted');
+        expect(input).toHaveAttribute('aria-activedescendant', option.id);
+
+        await user.keyboard('{Enter}');
+        expect(input).toHaveValue('32');
+      });
+
+      it('highlights asynchronous results while an inline input stays focused', async () => {
+        function Test({ items = [] }: { items?: string[] }) {
+          return (
+            <Autocomplete.Root inline defaultOpen autoHighlight items={items}>
+              <Autocomplete.Input />
+              <Autocomplete.List>
+                {(item: string) => (
+                  <Autocomplete.Item key={item} value={item}>
+                    {item}
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </Autocomplete.Root>
+          );
+        }
+
+        const { user, setProps } = await render(<Test />);
+        const input = screen.getByRole('combobox');
+        await user.type(input, '32');
+        await setProps({ items: ['32'] });
+
+        const option = screen.getByRole('option');
+        expect(option).toHaveAttribute('data-highlighted');
+        expect(input).toHaveAttribute('aria-activedescendant', option.id);
+      });
+
+      it.each([true, 'always'] as const)(
+        'handles asynchronous results after an inline input blurs with autoHighlight=%s',
+        async (autoHighlight) => {
+          function Test({ items = [] }: { items?: string[] }) {
+            return (
+              <React.Fragment>
+                <Autocomplete.Root inline defaultOpen autoHighlight={autoHighlight} items={items}>
+                  <Autocomplete.Input />
+                  <Autocomplete.List>
+                    {(item: string) => (
+                      <Autocomplete.Item key={item} value={item}>
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Root>
+                <button type="button">Blur target</button>
+              </React.Fragment>
+            );
+          }
+
+          const { user, setProps } = await render(<Test />);
+          const input = screen.getByRole('combobox');
+          await user.type(input, '32');
+          await user.click(screen.getByRole('button', { name: 'Blur target' }));
+          await setProps({ items: ['32'] });
+
+          const option = screen.getByRole('option');
+          expect(option.hasAttribute('data-highlighted')).toBe(autoHighlight === 'always');
+          expect(input.getAttribute('aria-activedescendant')).toBe(
+            autoHighlight === 'always' ? option.id : null,
+          );
+        },
+      );
+
+      it('discards the request when the clear button clears the query', async () => {
+        const { user, setProps } = await render(<AsyncAutocomplete />);
+        const input = screen.getByRole('combobox');
+        await user.type(input, '32');
+        await user.click(screen.getByTestId('clear'));
+        await setProps({ items: ['32'] });
+
+        expect(input).toHaveValue('');
+        expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      it.each([false, true])(
+        'discards the request when closing with keepMounted=%s',
+        async (keepMounted) => {
+          const { user, setProps } = await render(<AsyncAutocomplete keepMounted={keepMounted} />);
+          const input = screen.getByRole('combobox');
+          await user.type(input, '32');
+          await user.keyboard('{Escape}');
+          await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
+          await user.click(screen.getByTestId('trigger'));
+          await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'true'));
+          await setProps({ items: ['32'] });
+
+          expect(input).toHaveValue('32');
+          expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+        },
+      );
+
+      it('discards the request when a controlled popup closes', async () => {
+        const { user, setProps } = await render(<AsyncAutocomplete open />);
+        const input = screen.getByRole('combobox');
+        await user.type(input, '32');
+        await setProps({ open: false });
+        await setProps({ open: true });
+        await setProps({ open: true, items: ['32'] });
+
+        expect(input).toHaveValue('32');
+        expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
     });
   });
 
