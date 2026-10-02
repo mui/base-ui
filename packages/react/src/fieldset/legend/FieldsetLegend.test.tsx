@@ -78,14 +78,20 @@ describe('<Fieldset.Legend />', () => {
     }
   });
 
-  it.skipIf(isJSDOM)('does not set `aria-labelledby` during SSR when legend is absent', () => {
-    renderToString(<Fieldset.Root data-testid="fieldset" />);
+  // The root reserves the legend's id up front so server markup is already labelled. Without a
+  // legend that reservation is dropped once registration settles on the client.
+  it.skipIf(isJSDOM)('drops `aria-labelledby` after hydration when legend is absent', async () => {
+    const { hydrate } = renderToString(<Fieldset.Root data-testid="fieldset" />);
 
-    expect(screen.getByTestId('fieldset')).not.toHaveAttribute('aria-labelledby');
+    hydrate();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fieldset')).not.toHaveAttribute('aria-labelledby');
+    });
   });
 
   it.skipIf(isJSDOM)(
-    'sets `aria-labelledby` after hydration without a custom legend id',
+    'keeps `aria-labelledby` associated during SSR without a custom legend id',
     async () => {
       const { hydrate } = renderToString(
         <Fieldset.Root data-testid="fieldset">
@@ -97,13 +103,45 @@ describe('<Fieldset.Legend />', () => {
       const legend = screen.getByTestId('legend');
 
       expect(legend.id).not.toBe('');
-      expect(fieldset).not.toHaveAttribute('aria-labelledby');
+      expect(fieldset).toHaveAttribute('aria-labelledby', legend.id);
 
       hydrate();
 
       await waitFor(() => {
-        expect(screen.getByTestId('fieldset')).toHaveAttribute('aria-labelledby', legend.id);
+        expect(screen.getByTestId('fieldset')).toHaveAttribute(
+          'aria-labelledby',
+          screen.getByTestId('legend').id,
+        );
       });
+      expect(screen.getByTestId('legend').id).toBe(legend.id);
+    },
+  );
+
+  // An explicit `id` only reaches the DOM once registration runs, so the server markup carries
+  // the root's reserved id on both the fieldset and the legend. Rendering `id` right away would
+  // instead leave `aria-labelledby` pointing at nothing until hydration.
+  it.skipIf(isJSDOM)(
+    'defers an explicit legend id until hydration but keeps the fieldset associated during SSR',
+    async () => {
+      const { hydrate } = renderToString(
+        <Fieldset.Root data-testid="fieldset">
+          <Fieldset.Legend id="explicit" data-testid="legend">
+            Legend
+          </Fieldset.Legend>
+        </Fieldset.Root>,
+      );
+
+      const legend = screen.getByTestId('legend');
+      expect(legend.id).not.toBe('');
+      expect(legend).not.toHaveAttribute('id', 'explicit');
+      expect(screen.getByTestId('fieldset')).toHaveAttribute('aria-labelledby', legend.id);
+
+      hydrate();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('legend')).toHaveAttribute('id', 'explicit');
+      });
+      expect(screen.getByTestId('fieldset')).toHaveAttribute('aria-labelledby', 'explicit');
     },
   );
 });
