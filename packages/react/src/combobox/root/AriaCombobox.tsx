@@ -501,7 +501,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         listProps: {},
         inputProps: {},
         triggerProps: {},
-        itemProps: EMPTY_OBJECT,
+        itemRoot: {
+          props: EMPTY_OBJECT,
+          id,
+          selectionMode,
+          disabled,
+          readOnly,
+          isItemEqualToValue,
+        },
         positionerElement: null,
         listElement: null,
         popupId: undefined,
@@ -1497,16 +1504,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     [listNavigation.floating, role.floating],
   );
 
-  const itemProps = React.useMemo<HTMLProps>(() => {
+  const itemRoot = React.useMemo(() => {
     const listNavigationItemProps = listNavigation.item as HTMLProps | undefined;
-    if (!listNavigationItemProps) {
-      return EMPTY_OBJECT;
-    }
-
-    // Combobox keeps focus on the input; item focus would incorrectly sync
-    // list navigation state from DOM focus.
-    return { ...listNavigationItemProps, onFocus: undefined };
-  }, [listNavigation.item]);
+    return {
+      // Combobox keeps focus on the input; item focus would incorrectly sync
+      // list navigation state from DOM focus.
+      props: listNavigationItemProps
+        ? { ...listNavigationItemProps, onFocus: undefined }
+        : EMPTY_OBJECT,
+      id,
+      selectionMode,
+      disabled,
+      readOnly,
+      isItemEqualToValue,
+    };
+  }, [listNavigation.item, id, selectionMode, disabled, readOnly, isItemEqualToValue]);
 
   store.useContextCallback('setOpen', setOpen);
   store.useContextCallback('setInputValue', setInputValue);
@@ -1526,7 +1538,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       listProps,
       inputProps,
       triggerProps,
-      itemProps,
+      itemRoot,
     });
   });
 
@@ -1542,7 +1554,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     listProps,
     inputProps,
     triggerProps,
-    itemProps,
+    itemRoot,
     openMethod,
     selectionMode,
     name,
