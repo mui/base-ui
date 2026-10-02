@@ -6,10 +6,8 @@ import styles from './index.module.css';
 export default function ExampleSelectGrouped() {
   return (
     <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
-        Produce
-      </Field.Label>
       <Select.Root items={groupedProduce}>
+        <Select.Label className={styles.Label}>Produce</Select.Label>
         <Select.Trigger className={styles.Select}>
           <Select.Value className={styles.Value} placeholder="Select produce" />
           <Select.Icon>
