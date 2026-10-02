@@ -46,11 +46,6 @@ interface FloatingRootStoreOptions {
   floatingElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
   floatingId: string | undefined;
-  /**
-   * When true, `setOpen` only forwards to `onOpenChange`.
-   * The popup store owns `dispatchOpenChange(...)` in this mode.
-   */
-  syncOnly: boolean;
   nested: boolean;
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
@@ -61,13 +56,11 @@ export class FloatingRootStore extends ReactStore<
   FloatingRootStoreContext,
   typeof selectors
 > {
-  declare private readonly syncOnly: boolean;
-
   /** Read and written only through the close request functions below. */
   declare closeRequest: CloseRequest | undefined;
 
   constructor(options: FloatingRootStoreOptions) {
-    const { syncOnly, nested, onOpenChange, triggerElements, ...initialState } = options;
+    const { nested, onOpenChange, triggerElements, ...initialState } = options;
 
     super(
       {
@@ -84,8 +77,6 @@ export class FloatingRootStore extends ReactStore<
       },
       selectors,
     );
-
-    this.syncOnly = syncOnly;
   }
 
   /**
@@ -135,19 +126,13 @@ export class FloatingRootStore extends ReactStore<
   };
 
   /**
-   * Emits the `openchange` event through the internal event emitter and calls the `onOpenChange` handler with the provided arguments.
+   * Requests an open state change from the owner of the open state through `onOpenChange`. The
+   * owner decides whether to accept it, and calls `dispatchOpenChange` when it does.
    *
    * @param newOpen The new open state.
    * @param eventDetails Details about the event that triggered the open state change.
    */
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    if (this.syncOnly) {
-      this.context.onOpenChange?.(newOpen, eventDetails);
-      return;
-    }
-
-    this.dispatchOpenChange(newOpen, eventDetails);
-
     this.context.onOpenChange?.(newOpen, eventDetails);
   };
 }

@@ -427,11 +427,24 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     transitionStatus,
   ]);
 
+  const context = useFloatingRootContext({
+    open,
+    onOpenChange: handleOpenChange,
+    elements: {
+      reference: triggerElement,
+      floating: hoverFloatingElement,
+    },
+  });
+
   function handleOpenChange(
     nextOpen: boolean,
     eventDetails: Omit<NavigationMenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) {
     const isHover = eventDetails.reason === REASONS.triggerHover;
+
+    // An item has no open-change transaction, so every request reaches the floating interactions,
+    // including the ones it ignores below.
+    context.dispatchOpenChange(nextOpen, eventDetails);
 
     if (!interactionsEnabled) {
       return;
@@ -470,15 +483,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       changeState();
     }
   }
-
-  const context = useFloatingRootContext({
-    open,
-    onOpenChange: handleOpenChange,
-    elements: {
-      reference: triggerElement,
-      floating: hoverFloatingElement,
-    },
-  });
 
   const hoverInteractionState = useHoverInteractionSharedState(context);
   const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';

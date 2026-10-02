@@ -31,7 +31,8 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { REASONS } from '../../internals/reasons';
-import { useComboboxRootContext } from './ComboboxRootContext';
+import { useComboboxFloatingContext, useComboboxRootContext } from './ComboboxRootContext';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 
 function AsyncItemsCombobox() {
   const [items, setItems] = React.useState(['Apple', 'Banana', 'Cherry']);
@@ -10917,6 +10918,86 @@ describe('<Combobox.Root />', () => {
       await user.click(document.body);
       await waitFor(() => {
         expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+      });
+    });
+
+    describe('internal openchange', () => {
+      function OpenChangeSpy(props: {
+        onOpenChange: (details: FloatingUIOpenChangeDetails) => void;
+      }) {
+        const { onOpenChange } = props;
+        const floatingRootContext = useComboboxFloatingContext();
+
+        React.useEffect(() => {
+          floatingRootContext.context.events.on('openchange', onOpenChange);
+          return () => {
+            floatingRootContext.context.events.off('openchange', onOpenChange);
+          };
+        }, [floatingRootContext, onOpenChange]);
+
+        return null;
+      }
+
+      function TestCombobox(props: {
+        onOpenChange?: Combobox.Root.Props<string>['onOpenChange'];
+        onInternalOpenChange: (details: FloatingUIOpenChangeDetails) => void;
+      }) {
+        return (
+          <Combobox.Root defaultOpen onOpenChange={props.onOpenChange}>
+            <OpenChangeSpy onOpenChange={props.onInternalOpenChange} />
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                    <Combobox.Item value="b">b</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      it('is not emitted for a canceled close', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestCombobox
+            onInternalOpenChange={handleInternalOpenChange}
+            onOpenChange={(nextOpen, eventDetails) => {
+              if (!nextOpen) {
+                eventDetails.cancel();
+              }
+            }}
+          />,
+        );
+
+        await act(async () => {
+          screen.getByRole('combobox').focus();
+        });
+        await user.keyboard('{Escape}');
+
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+        expect(handleInternalOpenChange.mock.calls.length).toBe(0);
+      });
+
+      it('is emitted when selecting an item closes the combobox', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestCombobox onInternalOpenChange={handleInternalOpenChange} />,
+        );
+
+        await user.click(screen.getByRole('option', { name: 'b' }));
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        expect(handleInternalOpenChange.mock.calls.length).toBe(1);
+        expect(handleInternalOpenChange.mock.calls[0][0]).toMatchObject({
+          open: false,
+          reason: REASONS.itemPress,
+        });
       });
     });
   });

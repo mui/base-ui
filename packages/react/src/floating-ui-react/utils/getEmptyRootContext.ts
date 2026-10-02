@@ -10,7 +10,6 @@ export function getEmptyRootContext(): FloatingRootContext {
     referenceElement: null,
     triggerElements: new PopupTriggerMap(),
     floatingId: undefined,
-    syncOnly: false,
     nested: false,
     onOpenChange: undefined,
   });

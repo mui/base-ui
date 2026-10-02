@@ -41,7 +41,7 @@ import {
 } from './ComboboxRootContext';
 import { selectors } from '../store';
 import type { ComboboxStoreContext, State as StoreState } from '../store';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
+import { runOpenChange } from '../../utils/popups/openChangeTransaction';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -757,100 +757,115 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   const [preventUnmountOnClose, setPreventUnmountOnClose] = React.useState(false);
 
-  const setOpen = useStableCallback(
-    (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
-      if (open === nextOpen) {
-        return;
-      }
+  const setOpen = useStableCallback(handleOpenChange);
 
-      // If the `Empty` component is not used, the positioner or popup should be hidden
-      // with CSS. In this case, allow the Escape key to bubble to close a parent popup
-      // if there are no items to show.
-      if (
-        eventDetails.reason === REASONS.escapeKey &&
-        hasItems &&
-        flatFilteredValues.length === 0 &&
-        !emptyRef.current
-      ) {
-        eventDetails.allowPropagation();
-      }
-
-      const openEventDetails = eventDetails as AriaCombobox.OpenChangeEventDetails;
-      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
-      props.onOpenChange?.(nextOpen, openEventDetails);
-
-      // A typed request must not highlight a later open: discard it when its own open is
-      // rejected, or when any other open change goes through.
-      if (
-        pendingQueryHighlightRef.current?.hasQuery &&
-        (eventDetails.reason === REASONS.inputChange) === eventDetails.isCanceled
-      ) {
-        pendingQueryHighlightRef.current = null;
-      }
-
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      if (nextOpen && closeQuery !== null) {
-        // `ComboboxInput` calls `setInputValue` before `setOpen`, so on an input-change reopen
-        // `inputValue` is still the pre-keystroke value and the typed filter always survives.
-        handleInterruptedReopen(eventDetails.reason === REASONS.inputChange);
-      }
-
-      if (!nextOpen && queryChangedAfterOpen) {
-        if (single) {
-          if (!inline) {
-            setCloseQuery(query);
-          }
-          // Avoid a flicker when closing the popup with an empty query.
-          if (query === '') {
-            setQueryChangedAfterOpen(false);
-          }
-        } else if (multiple) {
-          if (!inline) {
-            // Freeze the current query so filtering remains stable while exiting.
-            setCloseQuery(query);
-          }
-
-          if (inputInsidePopup) {
-            setIndices({ activeIndex: null });
-          }
-
-          // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
-          // if the input is outside the popup. When the input is inside the popup, defer the clear until
-          // unmount so the filtered list doesn't flash to unfiltered during the exit animation.
-          if (!inputInsidePopup || inline) {
-            setInputValue(
-              '',
-              createChangeEventDetails(REASONS.inputClear, eventDetails.event, undefined, {
-                isItemPress: eventDetails.reason === REASONS.itemPress,
-              }),
-            );
-          }
-        }
-      }
-
-      if (!nextOpen) {
-        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
-      }
-      setOpenUnwrapped(nextOpen);
-
-      if (
-        !nextOpen &&
-        inputInsidePopup &&
-        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
-      ) {
-        setTouched(true);
-        setFocused(false);
-
-        if (validationMode === 'onBlur') {
-          const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
-          validation.commit(valueToValidate);
-        }
-      }
+  const floatingRootContext = useFloatingRootContext({
+    open: inline ? true : open,
+    onOpenChange: setOpen,
+    elements: {
+      reference: inputInsidePopup ? triggerElement : inputElement,
+      floating: positionerElement,
     },
-  );
+  });
+
+  function handleOpenChange(nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) {
+    if (open === nextOpen) {
+      return;
+    }
+
+    // If the `Empty` component is not used, the positioner or popup should be hidden
+    // with CSS. In this case, allow the Escape key to bubble to close a parent popup
+    // if there are no items to show.
+    if (
+      eventDetails.reason === REASONS.escapeKey &&
+      hasItems &&
+      flatFilteredValues.length === 0 &&
+      !emptyRef.current
+    ) {
+      eventDetails.allowPropagation();
+    }
+
+    runOpenChange(
+      floatingRootContext,
+      nextOpen,
+      eventDetails as AriaCombobox.OpenChangeEventDetails,
+      {
+        open,
+        onOpenChange(isOpen, openEventDetails) {
+          props.onOpenChange?.(isOpen, openEventDetails);
+
+          // A typed request must not highlight a later open: discard it when its own open is
+          // rejected, or when any other open change goes through.
+          if (
+            pendingQueryHighlightRef.current?.hasQuery &&
+            (eventDetails.reason === REASONS.inputChange) === eventDetails.isCanceled
+          ) {
+            pendingQueryHighlightRef.current = null;
+          }
+        },
+        commit(preventUnmount) {
+          if (nextOpen && closeQuery !== null) {
+            // `ComboboxInput` calls `setInputValue` before `setOpen`, so on an input-change reopen
+            // `inputValue` is still the pre-keystroke value and the typed filter always survives.
+            handleInterruptedReopen(eventDetails.reason === REASONS.inputChange);
+          }
+
+          if (!nextOpen && queryChangedAfterOpen) {
+            if (single) {
+              if (!inline) {
+                setCloseQuery(query);
+              }
+              // Avoid a flicker when closing the popup with an empty query.
+              if (query === '') {
+                setQueryChangedAfterOpen(false);
+              }
+            } else if (multiple) {
+              if (!inline) {
+                // Freeze the current query so filtering remains stable while exiting.
+                setCloseQuery(query);
+              }
+
+              if (inputInsidePopup) {
+                setIndices({ activeIndex: null });
+              }
+
+              // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
+              // if the input is outside the popup. When the input is inside the popup, defer the clear until
+              // unmount so the filtered list doesn't flash to unfiltered during the exit animation.
+              if (!inputInsidePopup || inline) {
+                setInputValue(
+                  '',
+                  createChangeEventDetails(REASONS.inputClear, eventDetails.event, undefined, {
+                    isItemPress: eventDetails.reason === REASONS.itemPress,
+                  }),
+                );
+              }
+            }
+          }
+
+          if (!nextOpen) {
+            setPreventUnmountOnClose(preventUnmount);
+          }
+          setOpenUnwrapped(nextOpen);
+
+          if (
+            !nextOpen &&
+            inputInsidePopup &&
+            (eventDetails.reason === REASONS.focusOut ||
+              eventDetails.reason === REASONS.outsidePress)
+          ) {
+            setTouched(true);
+            setFocused(false);
+
+            if (validationMode === 'onBlur') {
+              const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
+              validation.commit(valueToValidate);
+            }
+          }
+        },
+      },
+    );
+  }
 
   const setSelectedValue = useStableCallback(
     (nextValue: Value | Value[] | null, eventDetails: AriaCombobox.ChangeEventDetails) => {
@@ -1321,15 +1336,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useValueChanged(selectedLabelString, syncInputAfterItemsOrLabelChange);
   useValueChanged(items, syncInputAfterItemsOrLabelChange);
   useValueChanged(inputValue, handleInputValueChanged);
-
-  const floatingRootContext = useFloatingRootContext({
-    open: inline ? true : open,
-    onOpenChange: setOpen,
-    elements: {
-      reference: inputInsidePopup ? triggerElement : inputElement,
-      floating: positionerElement,
-    },
-  });
 
   const ariaHasPopup = grid ? 'grid' : 'listbox';
   // An inline list isn't gated on `open`: it renders for as long as it's in the tree, so the
