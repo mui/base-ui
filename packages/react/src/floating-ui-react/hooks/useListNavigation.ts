@@ -687,6 +687,11 @@ export function useListNavigation(
           ? minIndex
           : maxIndex;
         onNavigate(event);
+        // The boundary item may already be highlighted, so `activeIndex` won't change and the
+        // effect that moves focus to the highlighted item won't run.
+        if (activeIndex === indexRef.current) {
+          focusItem();
+        }
         return;
       }
 
