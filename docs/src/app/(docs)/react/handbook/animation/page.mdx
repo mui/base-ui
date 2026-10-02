@@ -236,6 +236,25 @@ function App() {
 }
 ```
 
+## Behavior while animating out
+
+A popup that is playing its exit animation is already closed, even though it's still rendered.
+While it animates out:
+
+- It's [inert](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inert): hidden from assistive technology and out of reach of the keyboard.
+- Pointer events pass through it to whatever is underneath.
+- Focus has already moved back to the trigger, or to the element set by the popup's `finalFocus` prop, without waiting for the animation to end.
+  If the user closed the popup by moving focus somewhere else, for example by pressing <kbd>Tab</kbd> or clicking another control, focus stays there.
+  A popup that closes because the pointer left it, such as one opened on hover, doesn't move focus.
+
+Because focus leaves right away, an input inside a closing popup can't be typed into during the exit animation.
+This applies to a [Combobox](/react/components/combobox#input-inside-popup) or Autocomplete with the input inside the popup, and to a [filterable Menu](/react/components/menu#filtering).
+On touch devices, closing a [Drawer](/react/components/drawer) while one of its inputs has focus hides the on-screen keyboard as soon as the drawer starts animating out.
+
+The closing popup stays visible but no longer responds to the user, so keep exit animations short.
+
+Navigation Menu, Tooltip, and Toast aren't made inert. They stay in the accessibility tree until their exit animation ends.
+
 export const metadata = {
   keywords: [
     'Base UI Animation',

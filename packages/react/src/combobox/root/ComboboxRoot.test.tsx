@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeAll, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
@@ -929,7 +929,7 @@ describe('<Combobox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'preserves a typed query when input reopens single-select during the close animation',
+      'keeps the popup input out of reach during the close animation until the trigger reopens the popup',
       async ({ onTestFinished }) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -937,6 +937,7 @@ describe('<Combobox.Root />', () => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
         });
 
+        // Outlasts every step, so the reopen always interrupts the close animation.
         const style = `
           @keyframes combobox-close-test {
             to {
@@ -956,7 +957,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Root items={['Apple', 'Banana']}>
               <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
               <Combobox.Portal>
-                <Combobox.Positioner>
+                <Combobox.Positioner data-testid="positioner">
                   <Combobox.Popup data-testid="popup" className="animation-test-popup">
                     <Combobox.Input data-testid="input" />
                     <Combobox.Empty>No matches</Combobox.Empty>
@@ -974,21 +975,34 @@ describe('<Combobox.Root />', () => {
           </React.Fragment>,
         );
 
-        await user.click(screen.getByTestId('trigger'));
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
         const input = await screen.findByTestId('input');
+        await waitFor(() => expect(input).toHaveFocus());
         await user.type(input, 'ap');
         await user.keyboard('{Escape}');
 
         const popup = screen.getByTestId('popup');
+        const positioner = screen.getByTestId('positioner');
         await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+        await waitFor(() => expect(trigger).toHaveFocus());
+        expect(positioner).toHaveAttribute('inert');
 
-        input.focus();
-        await user.type(input, 'b', { skipClick: true });
+        // The closing input cannot take focus back, so typing cannot reopen the popup from it.
+        await act(async () => input.focus());
+        expect(trigger).toHaveFocus();
+
+        await user.click(trigger);
 
         await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
-        expect(input).toHaveValue('apb');
-        expect(screen.getByRole('status')).toHaveTextContent('No matches');
-        expect(screen.queryByRole('option')).toBe(null);
+        expect(positioner).not.toHaveAttribute('inert');
+        await waitFor(() => expect(input).toHaveFocus());
+
+        await user.keyboard('b');
+
+        expect(input).toHaveValue('b');
+        expect(screen.getByRole('option', { name: 'Banana' })).not.toBe(null);
+        expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
       },
     );
   });
@@ -6757,6 +6771,186 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('while closing', () => {
+    // Native key presses: only the browser's own Tab skips `inert` subtrees.
+    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
+
+    beforeAll(async () => {
+      ({ userEvent: user } = await import('vitest/browser'));
+    });
+
+    beforeEach(() => {
+      // Native events are dispatched outside `act()`.
+      ignoreActWarnings();
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    // The exit animation outlasts every step, so each assertion observes the closing popup.
+    const style = `
+      @keyframes combobox-closing-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .closing-test-popup[data-ending-style] {
+        animation: combobox-closing-test 10s linear;
+      }
+    `;
+
+    async function finishClosing(popup: HTMLElement) {
+      popup.getAnimations().forEach((animation) => animation.finish());
+      await waitFor(() => expect(screen.queryByTestId('popup')).toBe(null));
+    }
+
+    describe('input inside popup', () => {
+      function TestCombobox() {
+        const containerRef = React.useRef<HTMLDivElement>(null);
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Combobox.Root items={['apple', 'banana']}>
+              <Combobox.Trigger data-testid="trigger">
+                <Combobox.Value placeholder="Pick" />
+              </Combobox.Trigger>
+              {/* Portaled between the trigger and the next button, so Tab would reach it first. */}
+              <div ref={containerRef} />
+              <Combobox.Portal container={containerRef}>
+                <Combobox.Positioner data-testid="positioner">
+                  <Combobox.Popup
+                    data-testid="popup"
+                    className="closing-test-popup"
+                    aria-label="Fruits"
+                  >
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+            <button data-testid="after">After</button>
+          </div>
+        );
+      }
+
+      async function openCombobox() {
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
+        const input = await screen.findByTestId('input');
+        await waitFor(() => expect(input).toHaveFocus());
+        return { trigger, input, popup: screen.getByTestId('popup') };
+      }
+
+      it('returns focus to the trigger and takes the popup out of the tab order on Escape', async () => {
+        await render(<TestCombobox />);
+        const { trigger, popup } = await openCombobox();
+        const focusSpy = vi.spyOn(trigger, 'focus');
+
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => expect(trigger).toHaveFocus());
+        expect(focusSpy).toHaveBeenCalledWith(expect.objectContaining({ focusVisible: true }));
+        expect(popup).toHaveAttribute('data-ending-style');
+        expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
+        expect(document.querySelectorAll('[data-base-ui-focus-guard]')).toHaveLength(0);
+
+        await user.tab();
+
+        expect(screen.getByTestId('after')).toHaveFocus();
+        expect(popup).toHaveAttribute('data-ending-style');
+
+        await finishClosing(popup);
+        expect(screen.getByTestId('after')).toHaveFocus();
+      });
+
+      it.each([
+        {
+          modality: 'keyboard',
+          async select(option: HTMLElement) {
+            await user.keyboard('{ArrowDown}');
+            await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
+            await user.keyboard('{Enter}');
+          },
+        },
+        {
+          modality: 'pointer',
+          async select(option: HTMLElement) {
+            await user.click(option);
+          },
+        },
+      ])(
+        'returns focus to the trigger when an item is selected with the $modality',
+        async ({ select }) => {
+          await render(<TestCombobox />);
+          const { trigger, popup } = await openCombobox();
+
+          await select(screen.getByRole('option', { name: 'apple' }));
+
+          await waitFor(() => expect(trigger).toHaveFocus());
+          expect(trigger).toHaveTextContent('apple');
+          expect(popup).toHaveAttribute('data-ending-style');
+          expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
+
+          await finishClosing(popup);
+          expect(trigger).toHaveFocus();
+        },
+      );
+    });
+
+    it('keeps focus and the typed query in an input outside the popup, and reopens when typing', async () => {
+      await render(
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Combobox.Root items={['apple', 'apricot', 'banana']}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner data-testid="positioner">
+                <Combobox.Popup data-testid="popup" className="closing-test-popup">
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </div>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.keyboard('ap');
+      const popup = await screen.findByTestId('popup');
+      const positioner = screen.getByTestId('positioner');
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+      expect(positioner).toHaveAttribute('inert');
+      expect(input).toHaveFocus();
+
+      await user.keyboard('p');
+
+      await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
+      expect(positioner).not.toHaveAttribute('inert');
+      expect(input).toHaveFocus();
+      expect(input).toHaveValue('app');
+      await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(1));
+      expect(screen.getByRole('option', { name: 'apple' })).not.toBe(null);
+    });
+  });
+
   it('does not render aria-orientation on the listbox role', async () => {
     await render(
       <Combobox.Root defaultOpen>
@@ -8011,7 +8205,7 @@ describe('<Combobox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'keeps filtered popup content stable when input changes during the close animation',
+      'keeps filtered popup content stable during the close animation while keystrokes miss the inert input',
       async ({ onTestFinished }) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -8019,6 +8213,7 @@ describe('<Combobox.Root />', () => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
         });
 
+        // Outlasts every step, so the reopen always interrupts the close animation.
         const style = `
           @keyframes combobox-close-test {
             to {
@@ -8055,19 +8250,37 @@ describe('<Combobox.Root />', () => {
           </React.Fragment>,
         );
 
-        await user.click(screen.getByTestId('trigger'));
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
         const input = await screen.findByTestId('input');
+        await waitFor(() => expect(input).toHaveFocus());
         await user.type(input, 'ap');
         await user.keyboard('{Escape}');
 
         const popup = screen.getByTestId('popup');
         await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+        await waitFor(() => expect(trigger).toHaveFocus());
 
-        await user.clear(input);
+        // The closing input cannot take focus back, so the keystrokes land on the trigger.
+        await act(async () => input.focus());
+        await user.keyboard('{Backspace}{Backspace}');
 
+        expect(trigger).toHaveFocus();
+        expect(input).toHaveValue('ap');
         expect(screen.getByText('apple')).not.toBe(null);
         expect(screen.getByText('apricot')).not.toBe(null);
         expect(screen.queryByText('banana')).toBe(null);
+
+        await user.click(trigger);
+
+        await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
+        await waitFor(() => expect(input).toHaveFocus());
+
+        await user.keyboard('ban');
+
+        expect(input).toHaveValue('ban');
+        await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(1));
+        expect(screen.getByRole('option', { name: 'banana' })).not.toBe(null);
       },
     );
 

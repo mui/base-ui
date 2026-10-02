@@ -247,7 +247,6 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 
   return (
     <React.Fragment>
-      {portalSubtree}
       <PortalContext.Provider value={portalContextValue}>
         {shouldRenderGuards && portalNode && (
           <FocusGuard
@@ -291,6 +290,9 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           />
         )}
       </PortalContext.Provider>
+      {/* After the children: on unmount, React runs the children's layout cleanups before it
+          detaches the portal node, so they can still read focus inside it. */}
+      {portalSubtree}
     </React.Fragment>
   );
 });

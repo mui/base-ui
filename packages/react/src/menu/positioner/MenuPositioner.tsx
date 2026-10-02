@@ -258,7 +258,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     props: elementProps,
     refs: [forwardedRef, store.useStateSetter('positionerElement')],
     hidden: !mounted,
-    inert: !open,
+    closed: !open,
   });
 
   const shouldRenderBackdrop =

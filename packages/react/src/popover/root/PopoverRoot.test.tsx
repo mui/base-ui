@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, afterEach, beforeAll, it } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { Combobox } from '@base-ui/react/combobox';
@@ -2245,6 +2245,128 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByTestId('parent-popup')).not.toBe(null);
         expect(screen.queryByTestId('child-popup')).toBe(null);
       });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('while closing', () => {
+    // The exit animation outlasts every test, so each assertion sees the popup mid-exit.
+    // It is finished in cleanup instead of being waited out.
+    const style = `
+      @keyframes closing-popup-exit { to { opacity: 0; } }
+      .closing-popup[data-ending-style] { animation: closing-popup-exit 10s linear; }
+    `;
+
+    // Native Tab runs a microtask checkpoint between the trigger's blur and the next focus,
+    // which `@testing-library`'s synthetic events skip.
+    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
+    beforeAll(async () => {
+      ({ userEvent: user } = await import('vitest/browser'));
+    });
+
+    beforeEach(() => {
+      ignoreActWarnings();
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    afterEach(() => {
+      document.getAnimations().forEach((animation) => animation.finish());
+    });
+
+    function getTabbableFocusGuards() {
+      return Array.from(
+        document.querySelectorAll<HTMLElement>('[data-base-ui-focus-guard]'),
+      ).filter((guard) => guard.tabIndex >= 0 && guard.closest('[inert]') === null);
+    }
+
+    /** Renders a popover with a long exit animation and opens it. */
+    async function openPopover() {
+      await render(
+        <div>
+          <style>{style}</style>
+          <input data-testid="before" />
+          <ContainedTriggerPopover
+            afterTrigger={<input data-testid="after" />}
+            popupProps={{
+              className: 'closing-popup',
+              children: <button data-testid="inside">Inside</button>,
+            }}
+          />
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByTestId('inside')).toHaveFocus();
+      });
+
+      return trigger;
+    }
+
+    async function closeWithEscape() {
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+      });
+    }
+
+    it('makes the positioner inert until the popover reopens', async () => {
+      const trigger = await openPopover();
+      const positioner = screen.getByTestId('positioner');
+      expect(positioner).not.toHaveAttribute('inert');
+
+      await closeWithEscape();
+      expect(positioner).toHaveAttribute('inert');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-open');
+      });
+      expect(positioner).not.toHaveAttribute('inert');
+    });
+
+    it('leaves no focus guard tabbable', async () => {
+      await openPopover();
+      expect(getTabbableFocusGuards()).not.toEqual([]);
+
+      await closeWithEscape();
+
+      expect(getTabbableFocusGuards()).toEqual([]);
+    });
+
+    it('returns focus to the trigger when Escape closes it', async () => {
+      const trigger = await openPopover();
+
+      await closeWithEscape();
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+      expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+    });
+
+    it('skips the closing popup when tabbing forward from the trigger', async () => {
+      const trigger = await openPopover();
+      await closeWithEscape();
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.tab();
+
+      expect(screen.getByTestId('after')).toHaveFocus();
+    });
+
+    it('moves focus before the trigger when tabbing backward from the trigger', async () => {
+      const trigger = await openPopover();
+      await closeWithEscape();
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.tab({ shift: true });
+
+      expect(screen.getByTestId('before')).toHaveFocus();
     });
   });
 

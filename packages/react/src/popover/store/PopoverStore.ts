@@ -26,6 +26,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   focusManagerModal: boolean;
   openMethod: InteractionType | null;
   openChangeReason: PopoverRoot.ChangeEventReason | null;
+  openedByHover: boolean;
   stickIfOpen: boolean;
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
@@ -56,6 +57,7 @@ const selectors = {
       : state.instantType,
   openMethod: (state: State<unknown>) => state.openMethod,
   openChangeReason: (state: State<unknown>) => state.openChangeReason,
+  openedByHover: (state: State<unknown>) => state.openedByHover,
   modal: (state: State<unknown>) => state.modal,
   focusManagerModal: (state: State<unknown>) => state.focusManagerModal,
   stickIfOpen: (state: State<unknown>) => state.stickIfOpen,
@@ -144,9 +146,13 @@ export class PopoverStore<Payload> extends ReactStore<
         shouldPreventUnmountOnClose(),
       ) as ReturnType<typeof createPopupOpenState> & {
         openChangeReason: PopoverRoot.ChangeEventReason;
+        openedByHover: boolean;
       };
 
       popupOpenState.openChangeReason = eventDetails.reason;
+      // Latched per open cycle: only accepted open requests (including a hover-to-click upgrade)
+      // write it, so the close reason can't flip the focus manager on mid-exit.
+      popupOpenState.openedByHover = nextOpen ? isHover : this.state.openedByHover;
       this.update(popupOpenState);
     };
 
@@ -207,6 +213,7 @@ function createInitialState<Payload>(
     instantType: undefined,
     openMethod: null,
     openChangeReason: null,
+    openedByHover: false,
     titleElementId: undefined,
     descriptionElementId: undefined,
     stickIfOpen: true,

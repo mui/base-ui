@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
@@ -6,7 +6,7 @@ import { Drawer } from '@base-ui/react/drawer';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, firePointer, isJSDOM } from '#test-utils';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 
@@ -916,4 +916,164 @@ describe('<Drawer.Popup />', () => {
       }
     },
   );
+
+  describe.skipIf(isJSDOM)('during the exit animation', () => {
+    beforeEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    // The exit is long enough that it never ends on its own during a test.
+    const style = `
+      @keyframes drawer-exit-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .drawer-exit-test-popup {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 150px;
+      }
+
+      .drawer-exit-test-popup[data-ending-style] {
+        animation: drawer-exit-test 60s linear;
+      }
+    `;
+
+    function TestDrawer({ open }: { open?: boolean }) {
+      return (
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Drawer.Root open={open}>
+            <Drawer.Trigger data-testid="trigger">Open</Drawer.Trigger>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup data-testid="popup" className="drawer-exit-test-popup">
+                  <Drawer.Close>Close</Drawer.Close>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>
+        </React.Fragment>
+      );
+    }
+
+    async function finishExit(popup: HTMLElement) {
+      popup.getAnimations().forEach((animation) => animation.finish());
+      await waitFor(() => expect(popup).not.toBeInTheDocument());
+    }
+
+    it('makes the popup inert and returns focus to the trigger once closed', async () => {
+      const { user } = await render(<TestDrawer />);
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      const popup = screen.getByTestId('popup');
+      // Wait for the initial focus, which lands a frame after opening.
+      await waitFor(() => expect(popup).toHaveFocus());
+      expect(popup).not.toHaveAttribute('inert');
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(trigger).toHaveFocus());
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).toHaveAttribute('inert');
+
+      await finishExit(popup);
+      expect(trigger).toHaveFocus();
+    });
+
+    it('makes the popup inert and returns focus to the trigger after a swipe dismiss', async () => {
+      const { user } = await render(<TestDrawer />);
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => expect(popup).toHaveFocus());
+
+      const rect = popup.getBoundingClientRect();
+      const pointer = {
+        pointerId: 1,
+        pointerType: 'mouse',
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + 20,
+      };
+      firePointer.down(popup, { ...pointer, button: 0, buttons: 1, timeStamp: 1000 });
+      firePointer.move(popup, {
+        ...pointer,
+        buttons: 1,
+        clientY: pointer.clientY + 60,
+        timeStamp: 1030,
+      });
+      firePointer.move(popup, {
+        ...pointer,
+        buttons: 1,
+        clientY: pointer.clientY + 120,
+        timeStamp: 1060,
+      });
+      firePointer.up(popup, { ...pointer, clientY: pointer.clientY + 120, timeStamp: 1070 });
+
+      await waitFor(() => expect(trigger).toHaveFocus());
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).toHaveAttribute('inert');
+
+      await finishExit(popup);
+      expect(trigger).toHaveFocus();
+    });
+
+    it('makes the popup inert once closed by the open prop', async () => {
+      const { setProps } = await render(<TestDrawer open />);
+      const popup = screen.getByTestId('popup');
+      expect(popup).not.toHaveAttribute('inert');
+
+      await setProps({ open: false });
+
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).toHaveAttribute('inert');
+
+      await finishExit(popup);
+    });
+
+    // The swipe handlers capture the pointer on the popup, so it must not go inert under a drag
+    // the user is still performing.
+    it('stays interactive while a swipe is in progress after closing, and becomes inert on release', async () => {
+      const { setProps } = await render(<TestDrawer open />);
+      const popup = screen.getByTestId('popup');
+      const rect = popup.getBoundingClientRect();
+      const pointer = {
+        pointerId: 1,
+        pointerType: 'mouse',
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + 20,
+      };
+
+      firePointer.down(popup, { ...pointer, button: 0, buttons: 1, timeStamp: 1000 });
+      firePointer.move(popup, {
+        ...pointer,
+        buttons: 1,
+        clientY: pointer.clientY + 20,
+        timeStamp: 1050,
+      });
+      expect(popup).toHaveAttribute('data-swiping', '');
+
+      await setProps({ open: false });
+
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).toHaveAttribute('data-swiping', '');
+      expect(popup).not.toHaveAttribute('inert');
+
+      firePointer.up(popup, { ...pointer, clientY: pointer.clientY + 20, timeStamp: 1100 });
+
+      // The release commits synchronously; under load the exit can finish and unmount the popup
+      // before a `waitFor` poll would see it, so assert right away.
+      expect(popup).not.toHaveAttribute('data-swiping');
+      expect(popup).toHaveAttribute('inert');
+
+      await waitFor(() => expect(popup).not.toBeInTheDocument());
+    });
+  });
 });

@@ -1,6 +1,6 @@
-import { afterEach, expect, vi, describe, beforeEach, it } from 'vitest';
+import { afterEach, beforeAll, expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import {
   createRenderer,
   describeConformance,
@@ -1273,6 +1273,111 @@ describe('<Menubar />', () => {
 
       await user.click(item);
       expect(handleClick).not.toHaveBeenCalled();
+    });
+  });
+
+  describe.skipIf(isJSDOM)('while a menu is closing', () => {
+    // The exit animation outlasts every test, so each assertion sees the previous menu mid-exit.
+    // It is finished in cleanup instead of being waited out.
+    const style = `
+      @keyframes closing-menu-exit { to { opacity: 0; } }
+      .closing-popup[data-ending-style] { animation: closing-menu-exit 10s linear; }
+    `;
+
+    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
+    beforeAll(async () => {
+      ({ userEvent: user } = await import('vitest/browser'));
+    });
+
+    beforeEach(() => {
+      ignoreActWarnings();
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    afterEach(() => {
+      document.getAnimations().forEach((animation) => animation.finish());
+    });
+
+    function ClosingMenubar() {
+      return (
+        <React.Fragment>
+          <style>{style}</style>
+          <Menubar>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-positioner">
+                  <Menu.Popup className="closing-popup" data-testid="file-popup">
+                    <Menu.Item data-testid="file-item">Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root>
+              <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="edit-positioner">
+                  <Menu.Popup className="closing-popup" data-testid="edit-popup">
+                    <Menu.Item>Copy</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>
+        </React.Fragment>
+      );
+    }
+
+    function getActiveElement() {
+      return document.activeElement as HTMLElement | null;
+    }
+
+    async function expectFileMenuToStayClosed() {
+      await waitFor(() => {
+        expect(screen.getByTestId('file-popup')).toHaveAttribute('data-ending-style');
+      });
+      expect(screen.getByTestId('file-positioner')).toHaveAttribute('inert');
+      // Give a stray focus return to the File trigger the chance to reopen its menu.
+      await wait(100);
+      expect(screen.getByTestId('file-trigger')).not.toHaveAttribute('data-popup-open');
+      expect(screen.getByTestId('file-positioner')).toHaveAttribute('inert');
+    }
+
+    it('keeps the previous menu closed when hovering another trigger', async () => {
+      await render(<ClosingMenubar />);
+
+      await user.click(screen.getByTestId('file-trigger'));
+      await waitFor(() => {
+        expect(screen.getByTestId('file-popup')).toHaveFocus();
+      });
+
+      await user.hover(screen.getByTestId('edit-trigger'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('edit-popup')).toContainElement(getActiveElement());
+      });
+      await expectFileMenuToStayClosed();
+      expect(screen.getByTestId('edit-popup')).toContainElement(getActiveElement());
+    });
+
+    it('keeps the previous menu closed when ArrowRight opens the next one', async () => {
+      await render(<ClosingMenubar />);
+
+      await act(async () => {
+        screen.getByTestId('file-trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByTestId('file-item')).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowRight}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('edit-popup')).toContainElement(getActiveElement());
+      });
+      await expectFileMenuToStayClosed();
+      expect(screen.getByTestId('edit-popup')).toContainElement(getActiveElement());
     });
   });
 });

@@ -114,6 +114,13 @@ export class FloatingRootStore extends ReactStore<
       triggerElement: eventDetails.trigger,
     };
 
+    // The single writer of close requests. The store outlives the focus manager, so a consumer
+    // that unmounts the popup inside `onOpenChange` can't lose the request. An open request
+    // doesn't clear it: a reopen can be dispatched before the focus manager sees the close.
+    if (!newOpen) {
+      this.context.dataRef.current.closeRequest = details;
+    }
+
     this.context.events.emit('openchange', details);
   };
 

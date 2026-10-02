@@ -6,6 +6,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -366,6 +367,8 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
         role,
         ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
+        // A controlled close mid-drag must not cut the live gesture's pointer capture.
+        inert: inertValue(!open && !swiping),
         onKeyDown(event: React.KeyboardEvent) {
           if (COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();

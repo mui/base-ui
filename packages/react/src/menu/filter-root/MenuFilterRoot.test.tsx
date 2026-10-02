@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   act,
   fireEvent,
@@ -146,9 +147,12 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         await waitFor(() => expect(input).toHaveFocus());
         await user.keyboard('[Escape]');
         expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
-        expect(input).toHaveFocus();
+        // Focus returns to the trigger when the menu closes, so the key goes to the input directly.
+        await waitFor(() => expect(trigger).toHaveFocus());
 
-        await user.keyboard(`[${key}]`);
+        await act(async () => {
+          input.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+        });
 
         expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -1651,8 +1655,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           expect(input).toHaveValue('ap');
         });
         await act(async () => {
-          closeSubmenu();
+          ReactDOM.flushSync(() => closeSubmenu());
+          // Focus returns to the submenu trigger at the logical close.
+          await Promise.resolve();
         });
+        expect(screen.getByRole('menuitem', { name: 'Fruit' })).toHaveFocus();
 
         const popup = screen.getByTestId('popup');
         await waitFor(() => {

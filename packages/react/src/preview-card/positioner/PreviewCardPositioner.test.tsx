@@ -1,7 +1,7 @@
-import { afterEach, expect, vi, describe, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import {
   createRenderer,
   describeConformance,
@@ -835,6 +835,94 @@ describe('<PreviewCard.Positioner />', () => {
       await waitFor(() => {
         expectWithin(positioner.getBoundingClientRect().y, expectedY);
       });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('while closing', () => {
+    // The exit animation outlasts every test, so each assertion sees the card mid-exit.
+    // It is finished in cleanup instead of being waited out.
+    const style = `
+      @keyframes closing-card-exit { to { opacity: 0; } }
+      .closing-popup[data-ending-style] { animation: closing-card-exit 10s linear; }
+    `;
+
+    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
+    beforeAll(async () => {
+      ({ userEvent: user } = await import('vitest/browser'));
+    });
+
+    beforeEach(() => {
+      ignoreActWarnings();
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    afterEach(() => {
+      document.getAnimations().forEach((animation) => animation.finish());
+    });
+
+    /** Renders a preview card with a long exit animation and opens it. */
+    async function openPreviewCard() {
+      await render(
+        <div>
+          <style>{style}</style>
+          <PreviewCard.Root>
+            <PreviewCard.Trigger href="#" delay={0} closeDelay={0} data-testid="trigger">
+              Link
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="positioner">
+                <PreviewCard.Popup className="closing-popup" data-testid="popup">
+                  <button>Inside</button>
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+          <div data-testid="away" style={{ width: 100, height: 100, marginTop: 300 }} />
+        </div>,
+      );
+
+      await user.hover(screen.getByTestId('trigger'));
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-open');
+      });
+
+      return positioner;
+    }
+
+    it('makes the positioner inert until the preview card reopens', async () => {
+      const positioner = await openPreviewCard();
+      expect(positioner).not.toHaveAttribute('inert');
+
+      await user.hover(screen.getByTestId('away'));
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      });
+      expect(positioner).toHaveAttribute('inert');
+
+      await user.hover(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-open');
+      });
+      expect(positioner).not.toHaveAttribute('inert');
+    });
+
+    it('does not keep focus inside the closing card', async () => {
+      const positioner = await openPreviewCard();
+      const button = screen.getByRole('button', { name: 'Inside' });
+      await user.click(button);
+      expect(button).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      });
+      expect(positioner).toHaveAttribute('inert');
+
+      await waitFor(() => {
+        expect(button).not.toHaveFocus();
+      });
+      expect(positioner).not.toContainElement(document.activeElement as HTMLElement | null);
     });
   });
 });
