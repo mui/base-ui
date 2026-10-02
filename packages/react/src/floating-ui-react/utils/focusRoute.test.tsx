@@ -17,6 +17,9 @@ import {
   BEFORE_TRIGGER,
   FIRST,
   FORWARD,
+  FROM_CONTENT,
+  FROM_OUTSIDE,
+  FROM_TRIGGER,
   LAST,
   NEXT,
   PREVIOUS,
@@ -25,26 +28,35 @@ import {
   getFocusRoute,
   getFocusRouteDecision,
 } from './focusRoute';
-import type { FocusRouteFacts, FocusRouteSlot, FocusRouteTarget } from './focusRoute';
+import type { FocusRouteOrigin, FocusRouteSlot, FocusRouteTarget } from './focusRoute';
 
 describe('getFocusRouteDecision', () => {
+  // An open, non-modal popover: the content follows its trigger, and every guard is rendered.
+  const popover = {
+    open: true,
+    modal: false,
+    contentGuards: true,
+    triggerGuards: true,
+    followsTrigger: true,
+    closeOnFocusOut: true,
+  };
+
   function route(
     slot: FocusRouteSlot,
-    from: FocusRouteFacts['from'],
-    facts: Partial<FocusRouteFacts> = {},
+    from: FocusRouteOrigin,
+    overrides: Partial<typeof popover> = {},
   ) {
-    const [target, close = false] = getFocusRouteDecision({
-      // An open, non-modal popover: the content follows its trigger, and every guard is rendered.
-      open: true,
-      modal: false,
-      contentGuards: true,
-      triggerGuards: true,
-      followsTrigger: true,
-      closeOnFocusOut: true,
-      ...facts,
+    const facts = { ...popover, ...overrides };
+    const [target, close = false] = getFocusRouteDecision(
       slot,
       from,
-    });
+      facts.open,
+      facts.modal,
+      facts.contentGuards,
+      facts.triggerGuards,
+      facts.followsTrigger,
+      facts.closeOnFocusOut,
+    );
     return { target, close };
   }
 
@@ -54,79 +66,83 @@ describe('getFocusRouteDecision', () => {
 
   describe('around the trigger', () => {
     it('Shift+Tab from the trigger leaves and closes', () => {
-      expect(route(BEFORE_TRIGGER, 'trigger')).toEqual(to(BACKWARD, true));
-      expect(route(BEFORE_TRIGGER, 'trigger', { open: false })).toEqual(to(BACKWARD));
+      expect(route(BEFORE_TRIGGER, FROM_TRIGGER)).toEqual(to(BACKWARD, true));
+      expect(route(BEFORE_TRIGGER, FROM_TRIGGER, { open: false })).toEqual(to(BACKWARD));
     });
 
     it('Tab from before the trigger reaches it', () => {
-      expect(route(BEFORE_TRIGGER, 'outside')).toEqual(to(TRIGGER));
+      expect(route(BEFORE_TRIGGER, FROM_OUTSIDE)).toEqual(to(TRIGGER));
     });
 
     it('Tab from the trigger enters the content', () => {
-      expect(route(AFTER_TRIGGER, 'trigger')).toEqual(to(BEFORE_CONTENT));
+      expect(route(AFTER_TRIGGER, FROM_TRIGGER)).toEqual(to(BEFORE_CONTENT));
     });
 
     it('Tab from the trigger leaves past content without guards and closes', () => {
-      expect(route(AFTER_TRIGGER, 'trigger', { contentGuards: false })).toEqual(to(FORWARD, true));
-      expect(route(AFTER_TRIGGER, 'trigger', { open: false })).toEqual(to(FORWARD));
+      expect(route(AFTER_TRIGGER, FROM_TRIGGER, { contentGuards: false })).toEqual(
+        to(FORWARD, true),
+      );
+      expect(route(AFTER_TRIGGER, FROM_TRIGGER, { open: false })).toEqual(to(FORWARD));
     });
 
     it('Tab out of the content leaves past the trigger and closes', () => {
-      expect(route(AFTER_TRIGGER, 'content')).toEqual(to(FORWARD, true));
+      expect(route(AFTER_TRIGGER, FROM_CONTENT)).toEqual(to(FORWARD, true));
     });
 
     it('Shift+Tab from after the trigger reaches it', () => {
-      expect(route(AFTER_TRIGGER, 'outside')).toEqual(to(TRIGGER));
+      expect(route(AFTER_TRIGGER, FROM_OUTSIDE)).toEqual(to(TRIGGER));
     });
   });
 
   describe('around the portal placeholder', () => {
     it('Tab into the portal enters the content', () => {
-      expect(route(BEFORE_PORTAL, 'outside')).toEqual(to(BEFORE_CONTENT));
-      expect(route(BEFORE_PORTAL, 'trigger')).toEqual(to(BEFORE_CONTENT));
-      expect(route(BEFORE_PORTAL, 'outside', { contentGuards: false })).toEqual(to(FORWARD));
+      expect(route(BEFORE_PORTAL, FROM_OUTSIDE)).toEqual(to(BEFORE_CONTENT));
+      expect(route(BEFORE_PORTAL, FROM_TRIGGER)).toEqual(to(BEFORE_CONTENT));
+      expect(route(BEFORE_PORTAL, FROM_OUTSIDE, { contentGuards: false })).toEqual(to(FORWARD));
     });
 
     it('Shift+Tab out of the portal leaves without closing', () => {
-      expect(route(BEFORE_PORTAL, 'content')).toEqual(to(BACKWARD));
+      expect(route(BEFORE_PORTAL, FROM_CONTENT)).toEqual(to(BACKWARD));
     });
 
     it('Shift+Tab into the portal enters the end of the content', () => {
-      expect(route(AFTER_PORTAL, 'outside')).toEqual(to(AFTER_CONTENT));
-      expect(route(AFTER_PORTAL, 'outside', { open: false })).toEqual(to(BACKWARD));
+      expect(route(AFTER_PORTAL, FROM_OUTSIDE)).toEqual(to(AFTER_CONTENT));
+      expect(route(AFTER_PORTAL, FROM_OUTSIDE, { open: false })).toEqual(to(BACKWARD));
     });
 
     it('Tab out of the portal leaves and closes unless closeOnFocusOut is off', () => {
-      expect(route(AFTER_PORTAL, 'content')).toEqual(to(FORWARD, true));
-      expect(route(AFTER_PORTAL, 'content', { closeOnFocusOut: false })).toEqual(to(FORWARD));
+      expect(route(AFTER_PORTAL, FROM_CONTENT)).toEqual(to(FORWARD, true));
+      expect(route(AFTER_PORTAL, FROM_CONTENT, { closeOnFocusOut: false })).toEqual(to(FORWARD));
     });
   });
 
   describe('around the content', () => {
     it('Tab into the content focuses its first tabbable element', () => {
-      expect(route(BEFORE_CONTENT, 'outside')).toEqual(to(NEXT));
-      expect(route(BEFORE_CONTENT, 'trigger')).toEqual(to(NEXT));
+      expect(route(BEFORE_CONTENT, FROM_OUTSIDE)).toEqual(to(NEXT));
+      expect(route(BEFORE_CONTENT, FROM_TRIGGER)).toEqual(to(NEXT));
     });
 
     it('Shift+Tab into the content focuses its last tabbable element', () => {
-      expect(route(AFTER_CONTENT, 'outside')).toEqual(to(PREVIOUS));
+      expect(route(AFTER_CONTENT, FROM_OUTSIDE)).toEqual(to(PREVIOUS));
     });
 
     it('Shift+Tab out of the content returns to the trigger it follows', () => {
-      expect(route(BEFORE_CONTENT, 'content')).toEqual(to(TRIGGER));
-      expect(route(BEFORE_CONTENT, 'content', { followsTrigger: false })).toEqual(
+      expect(route(BEFORE_CONTENT, FROM_CONTENT)).toEqual(to(TRIGGER));
+      expect(route(BEFORE_CONTENT, FROM_CONTENT, { followsTrigger: false })).toEqual(
         to(BEFORE_PORTAL),
       );
     });
 
     it('Tab out of the content leaves through the trigger guard if there is one', () => {
-      expect(route(AFTER_CONTENT, 'content')).toEqual(to(AFTER_TRIGGER));
-      expect(route(AFTER_CONTENT, 'content', { triggerGuards: false })).toEqual(to(AFTER_PORTAL));
+      expect(route(AFTER_CONTENT, FROM_CONTENT)).toEqual(to(AFTER_TRIGGER));
+      expect(route(AFTER_CONTENT, FROM_CONTENT, { triggerGuards: false })).toEqual(
+        to(AFTER_PORTAL),
+      );
     });
 
     it('wraps around the content when modal', () => {
-      expect(route(BEFORE_CONTENT, 'content', { modal: true })).toEqual(to(LAST));
-      expect(route(AFTER_CONTENT, 'content', { modal: true })).toEqual(to(FIRST));
+      expect(route(BEFORE_CONTENT, FROM_CONTENT, { modal: true })).toEqual(to(LAST));
+      expect(route(AFTER_CONTENT, FROM_CONTENT, { modal: true })).toEqual(to(FIRST));
     });
   });
 });

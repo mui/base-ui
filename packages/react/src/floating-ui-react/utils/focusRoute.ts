@@ -19,7 +19,8 @@ export const AFTER_PORTAL = 3;
 export const BEFORE_CONTENT = 4;
 export const AFTER_CONTENT = 5;
 
-// The other places focus can go.
+// The other places focus can go, numbered after the slots in forward/backward pairs. `focusRoute`
+// relies on this order.
 /** The trigger. */
 export const TRIGGER = 6;
 /** The tabbable element after (or before) the guard: into the content. */
@@ -35,53 +36,60 @@ export const LAST = 12;
 export type FocusRouteSlot = 0 | 1 | 2 | 3 | 4 | 5;
 export type FocusRouteTarget = FocusRouteSlot | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
+// Where focus came from: elsewhere, the trigger, or the content (including its guards).
+export const FROM_OUTSIDE = 0;
+export const FROM_TRIGGER = 1;
+export const FROM_CONTENT = 2;
+
+export type FocusRouteOrigin = 0 | 1 | 2;
+
 /**
  * The guard rendered in each slot. Every guard registers here, so the route knows which guards
  * exist and which elements are its own.
  */
 export type FocusRoute = React.RefObject<HTMLElement | null>[];
 
-export interface FocusRouteFacts {
-  slot: FocusRouteSlot;
-  /** Where focus came from: the content (including its guards), the trigger, or elsewhere. */
-  from: 'content' | 'trigger' | 'outside';
-  open: boolean;
-  /** Whether the focus manager traps focus in the content. */
-  modal: boolean;
-  /** Whether the content guards are rendered, that is, whether the focus manager is active. */
-  contentGuards: boolean;
-  /** Whether the trigger guards are rendered. */
-  triggerGuards: boolean;
-  /**
-   * Whether the content follows its trigger in the tab order (Popover, Menu) rather than the
-   * portal placeholder.
-   */
-  followsTrigger: boolean;
-  closeOnFocusOut: boolean;
-}
-
 /** Where focus goes, and whether leaving closes the popup. */
 export type FocusRouteDecision = [target: FocusRouteTarget, close?: boolean];
 
 /**
  * The routing table. The trigger and portal guards hand focus into the content only while the popup
- * is open, and only an open popup closes.
+ * is open, and only an open popup closes. The facts are positional to keep the call cheap.
+ *
+ * @param slot The guard that focus reached.
+ * @param from Where focus came from.
+ * @param open Whether the popup is open.
+ * @param modal Whether the focus manager traps focus in the content.
+ * @param contentGuards Whether the content guards are rendered, that is, whether the focus manager
+ *   is active.
+ * @param triggerGuards Whether the trigger guards are rendered.
+ * @param followsTrigger Whether the content follows its trigger in the tab order (Popover, Menu)
+ *   rather than the portal placeholder.
+ * @param closeOnFocusOut Whether leaving the content through the portal closes the popup.
  */
-export function getFocusRouteDecision(facts: FocusRouteFacts): FocusRouteDecision {
-  const { slot, from, open, contentGuards } = facts;
-  const fromContent = from === 'content';
+export function getFocusRouteDecision(
+  slot: FocusRouteSlot,
+  from: FocusRouteOrigin,
+  open: boolean,
+  modal: boolean,
+  contentGuards: boolean,
+  triggerGuards: boolean,
+  followsTrigger: boolean,
+  closeOnFocusOut: boolean,
+): FocusRouteDecision {
+  const fromContent = from === FROM_CONTENT;
 
   switch (slot) {
     case BEFORE_TRIGGER:
       // Tab from before the trigger continues to it; Shift+Tab from the trigger leaves.
-      return from === 'outside' ? [TRIGGER] : [BACKWARD, open];
+      return from === FROM_OUTSIDE ? [TRIGGER] : [BACKWARD, open];
     case AFTER_TRIGGER:
       // Shift+Tab from after the trigger, with no portal guards in between, reaches it.
-      if (from === 'outside') {
+      if (from === FROM_OUTSIDE) {
         return [TRIGGER];
       }
       // Tab from the trigger enters the content if the focus manager can take it from there.
-      return from === 'trigger' && open && contentGuards ? [BEFORE_CONTENT] : [FORWARD, open];
+      return from === FROM_TRIGGER && open && contentGuards ? [BEFORE_CONTENT] : [FORWARD, open];
     case BEFORE_PORTAL:
       // The content sits at the placeholder: Tab enters it, Shift+Tab out of it continues before.
       if (fromContent) {
@@ -90,86 +98,83 @@ export function getFocusRouteDecision(facts: FocusRouteFacts): FocusRouteDecisio
       return [open && contentGuards ? BEFORE_CONTENT : FORWARD];
     case AFTER_PORTAL:
       if (fromContent) {
-        return [FORWARD, open && facts.closeOnFocusOut];
+        return [FORWARD, open && closeOnFocusOut];
       }
       return [open && contentGuards ? AFTER_CONTENT : BACKWARD];
     case BEFORE_CONTENT:
-      if (facts.modal) {
+      if (modal) {
         return [LAST];
       }
       // Shift+Tab out of the content returns to the trigger it follows, or to the placeholder.
       if (fromContent) {
-        return [facts.followsTrigger ? TRIGGER : BEFORE_PORTAL];
+        return [followsTrigger ? TRIGGER : BEFORE_PORTAL];
       }
       return [NEXT];
     default:
-      if (facts.modal) {
+      if (modal) {
         return [FIRST];
       }
       // Tab out of the content leaves past the trigger if it has guards, else past the placeholder.
       if (fromContent) {
-        return [facts.triggerGuards ? AFTER_TRIGGER : AFTER_PORTAL];
+        return [triggerGuards ? AFTER_TRIGGER : AFTER_PORTAL];
       }
       return [PREVIOUS];
   }
 }
-
-const routes = new WeakMap<FloatingRootStore, FocusRoute>();
 
 /**
  * Returns the route of the popup that owns `store`. The trigger and the focus manager share the
  * root store; the focus manager hands the route to its portal.
  */
 export function getFocusRoute(store: FloatingRootStore): FocusRoute {
-  let route = routes.get(store);
-  if (!route) {
-    route = Array.from({ length: 6 }, () => ({ current: null }));
-    routes.set(store, route);
-  }
-  return route;
-}
-
-export interface FocusRouteOptions {
-  /** The popup's subtree: the portal node if known. Defaults to the floating element. */
-  container?: Element | null | undefined;
-  modal?: boolean | undefined;
-  followsTrigger?: boolean | undefined;
-  closeOnFocusOut?: boolean | undefined;
+  store.focusRoute ??= Array.from({ length: 6 }, () => ({ current: null }));
+  return store.focusRoute;
 }
 
 /**
- * Moves focus that reached one of the route's guards. Each guard's owner passes the facts it owns.
+ * Moves focus that reached one of the route's guards. Each guard's owner passes the facts it owns:
+ * a trigger passes none, and the focus manager passes the rest, which apply to the content and
+ * portal guards.
+ *
+ * @param container The popup's subtree: the portal node if known. Defaults to the floating
+ *   element.
+ * @param modal Whether the focus manager traps focus in the content.
+ * @param followsTrigger Whether the content follows its trigger in the tab order.
+ * @param closeOnFocusOut Whether leaving the content through the portal closes the popup.
  */
 export function focusRoute(
   store: FloatingRootStore,
   event: React.FocusEvent<HTMLElement>,
-  options: FocusRouteOptions = {},
+  container?: Element | null,
+  modal?: boolean,
+  followsTrigger?: boolean,
+  closeOnFocusOut?: boolean,
 ) {
   const route = getFocusRoute(store);
   const guard = event.currentTarget;
   const relatedTarget = event.relatedTarget as Element | null;
   const trigger = store.state.domReferenceElement as FocusableElement | null;
-  const container = options.container ?? store.state.floatingElement;
+  container ??= store.state.floatingElement;
   const slot = route.findIndex((ref) => ref.current === guard) as FocusRouteSlot;
   const atTrigger = slot <= AFTER_TRIGGER;
 
-  let from: FocusRouteFacts['from'] = 'outside';
+  let from: FocusRouteOrigin = FROM_OUTSIDE;
   if (contains(container, relatedTarget)) {
-    from = 'content';
+    from = FROM_CONTENT;
   } else if (contains(trigger, relatedTarget)) {
-    from = 'trigger';
+    from = FROM_TRIGGER;
   }
 
-  const [target, close] = getFocusRouteDecision({
+  const [target, close] = getFocusRouteDecision(
     slot,
     from,
-    open: store.state.open,
-    modal: !!options.modal,
-    contentGuards: !!route[BEFORE_CONTENT].current,
-    triggerGuards: !!route[AFTER_TRIGGER].current,
-    followsTrigger: !!options.followsTrigger && !!trigger,
-    closeOnFocusOut: options.closeOnFocusOut !== false,
-  });
+    store.state.open,
+    !!modal,
+    !!route[BEFORE_CONTENT].current,
+    !!route[AFTER_TRIGGER].current,
+    !!followsTrigger && !!trigger,
+    closeOnFocusOut !== false,
+  );
 
   function requestClose() {
     store.setOpen(
@@ -185,11 +190,13 @@ export function focusRoute(
   }
 
   let element: FocusableElement | null | undefined;
-  if (target === TRIGGER) {
+  if (target < TRIGGER) {
+    element = route[target].current;
+  } else if (target === TRIGGER) {
     element = trigger;
-  } else if (target === NEXT || target === PREVIOUS) {
+  } else if (target < FORWARD) {
     element = getTabbableNearElement(guard, target === NEXT ? 1 : -1);
-  } else if (target === FORWARD || target === BACKWARD) {
+  } else if (target < FIRST) {
     // Continue from the guard, or from the trigger if the close unmounted the guard, skipping the
     // popup and the rest of the route. At the end of the document, a trigger guard wraps around
     // like the browser's tab cycle, and a portal guard goes back to the trigger.
@@ -200,13 +207,11 @@ export function focusRoute(
         [container, ...route.map((ref) => ref.current)],
         atTrigger,
       ) ?? trigger;
-  } else if (target === FIRST || target === LAST) {
+  } else {
     const focusElement = getFloatingFocusElement(store.state.floatingElement);
     const content = focusElement ? tabbable(focusElement) : [];
     // enqueueFocus returns a rAF-cancel function we don't need here.
     void enqueueFocus(content[target === FIRST ? 0 : content.length - 1]);
-  } else {
-    element = route[target].current;
   }
   element?.focus();
 

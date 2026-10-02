@@ -7,6 +7,7 @@ import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import type { PopupTriggerMap } from '../../utils/popups';
 import { isClickLikeEvent } from '../utils';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { FocusRoute } from '../utils/focusRoute';
 
 export interface FloatingRootState {
   open: boolean;
@@ -58,6 +59,9 @@ export class FloatingRootStore extends ReactStore<
 > {
   /** Read and written only through the close request functions below. */
   declare closeRequest: CloseRequest | undefined;
+
+  /** The popup's focus route, created by `getFocusRoute`. */
+  declare focusRoute: FocusRoute | undefined;
 
   constructor(options: FloatingRootStoreOptions) {
     const { nested, onOpenChange, triggerElements, ...initialState } = options;
