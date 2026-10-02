@@ -52,6 +52,54 @@ describe('<Drawer.Viewport />', () => {
     return touchMove;
   }
 
+  it('registers the non-passive document touchmove listener only while open', async () => {
+    const activeListeners = new Set<EventListenerOrEventListenerObject>();
+    const addSpy = vi
+      .spyOn(document, 'addEventListener')
+      .mockImplementation(function addEventListener(this: Document, type, listener, options) {
+        if (type === 'touchmove' && typeof options === 'object' && options.passive === false) {
+          activeListeners.add(listener);
+        }
+        return EventTarget.prototype.addEventListener.call(this, type, listener, options);
+      });
+    const removeSpy = vi
+      .spyOn(document, 'removeEventListener')
+      .mockImplementation(function removeEventListener(this: Document, type, listener, options) {
+        if (type === 'touchmove') {
+          activeListeners.delete(listener);
+        }
+        return EventTarget.prototype.removeEventListener.call(this, type, listener, options);
+      });
+
+    function TestCase({ open }: { open: boolean }) {
+      return (
+        <Drawer.Root open={open}>
+          <Drawer.Portal keepMounted>
+            <Drawer.Viewport>
+              <Drawer.Popup>Drawer</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    try {
+      const { setProps } = await render(<TestCase open={false} />);
+      expect(activeListeners.size).toBe(0);
+
+      await setProps({ open: true });
+      expect(activeListeners.size).toBe(1);
+
+      await setProps({ open: false });
+      await waitFor(() => {
+        expect(activeListeners.size).toBe(0);
+      });
+    } finally {
+      addSpy.mockRestore();
+      removeSpy.mockRestore();
+    }
+  });
+
   it('clears text selection on swipe start', async () => {
     await render(
       <Drawer.Root open>
