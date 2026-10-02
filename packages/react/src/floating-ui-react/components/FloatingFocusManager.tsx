@@ -31,7 +31,7 @@ import {
 import type { FocusableElement } from '../utils/tabbable';
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
 import { isElementVisible } from '../utils/composite';
-import type { ContextData, FloatingRootContext } from '../types';
+import type { FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
@@ -46,7 +46,15 @@ import {
   getReturnFocusAction,
   isPreventScrollSupported,
 } from '../utils/returnFocus';
-import type { CloseRequest, ReturnFocusSession } from '../utils/returnFocus';
+import type { ReturnFocusSession } from '../utils/returnFocus';
+import {
+  hasCloseRequestSince,
+  invalidateCloseRequest,
+  markCloseRequest,
+  noteFocusMove,
+  takeCloseRequest,
+} from './FloatingRootStore';
+import type { CloseRequestMark } from './FloatingRootStore';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
@@ -280,8 +288,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const lastFocusedTabbableRef = React.useRef<FocusableElement | null>(null);
   // Whether a pointer is pressed, on any target. Used to let an outside press settle.
   const pointerPressedRef = React.useRef(false);
-  // The close request that was pending when focus last moved (`focusin`).
-  const focusMovedAfterRequestRef = React.useRef<ContextData['closeRequest']>(undefined);
   const lastInteractionTypeRef = React.useRef<InteractionType>('');
 
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
@@ -353,15 +359,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       clearPointerDownOutside();
     }
 
-    // The next input invalidates a close request it didn't make (e.g. a refused one).
-    function invalidateCloseRequest(event: Event) {
-      if (dataRef.current.closeRequest?.nativeEvent !== event) {
-        dataRef.current.closeRequest = undefined;
-      }
-    }
-
     function onPointerDown(event: PointerEvent) {
-      invalidateCloseRequest(event);
+      invalidateCloseRequest(store, event);
       pointerPressedRef.current = true;
       const target = getTarget(event) as Element | null;
       const insideElements = getResolvedInsideElements();
@@ -385,7 +384,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     function onKeyDown(event: KeyboardEvent) {
-      invalidateCloseRequest(event);
+      invalidateCloseRequest(store, event);
       lastInteractionTypeRef.current = 'keyboard';
     }
 
@@ -394,14 +393,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       addEventListener(doc, 'pointerup', onPointerUp, true),
       addEventListener(doc, 'pointercancel', onPointerUp, true),
       addEventListener(doc, 'keydown', onKeyDown, true),
-      addEventListener(
-        doc,
-        'focusin',
-        () => {
-          focusMovedAfterRequestRef.current = dataRef.current.closeRequest;
-        },
-        true,
-      ),
+      addEventListener(doc, 'focusin', () => noteFocusMove(store), true),
       // Avoid a stale `true` leaking into the next open (e.g. keep-mounted popups)
       // if the popup dismissed between pointerdown and pointerup.
       clearPointerDownOutside,
@@ -414,7 +406,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     portalContext,
     pointerDownTimeout,
     getResolvedInsideElements,
-    dataRef,
+    store,
   ]);
 
   // Close on focus out and restore focus within the floating tree when needed.
@@ -726,7 +718,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       elToFocus = elToFocus || getDefaultFocusElement();
 
       const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
-      const closeRequestAtSchedule = dataRef.current.closeRequest;
+      const closeRequestMark = markCloseRequest(store);
 
       // Screen readers re-sync focus to their cursor right after a synthesized press. A focus
       // that lands a frame later reads as a stray move and gets pulled back to the reference.
@@ -747,8 +739,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           }
 
           // A close requested since this was scheduled owns focus now, even before it commits.
-          const closeRequest = dataRef.current.closeRequest;
-          if (closeRequest && closeRequest !== closeRequestAtSchedule) {
+          if (hasCloseRequestSince(store, closeRequestMark)) {
             return false;
           }
 
@@ -774,11 +765,15 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     openInteractionTypeRef,
     openRef,
     dataRef,
+    store,
   ]);
 
   // A return-focus queued by the effect cleanup. If the effect re-arms in the same commit, a
   // dependency changed while the popup stayed open, so the cleanup was not a close.
-  const pendingReturnFocusRef = React.useRef<{ cancelled: boolean } | null>(null);
+  const pendingReturnFocusRef = React.useRef<{
+    cancelled: boolean;
+    since: CloseRequestMark;
+  } | null>(null);
 
   // Track return focus targets and restore focus when the floating element closes. The policy
   // lives in `returnFocus.ts`; this effect samples its facts, schedules it and moves focus.
@@ -788,14 +783,15 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return undefined;
     }
 
-    if (pendingReturnFocusRef.current) {
-      pendingReturnFocusRef.current.cancelled = true;
-      pendingReturnFocusRef.current = null;
-    } else {
-      // A new session: a request made before it belongs to an earlier one (its job keeps a
-      // snapshot).
-      dataRef.current.closeRequest = undefined;
+    const pending = pendingReturnFocusRef.current;
+    if (pending) {
+      pending.cancelled = true;
     }
+    pendingReturnFocusRef.current = null;
+    // A re-arm continues the session. A new one takes only the close requests made from now on:
+    // earlier ones belong to an earlier session, whose job may not have run yet (a reopen in the
+    // close commit).
+    const since = pending ? pending.since : markCloseRequest(store);
 
     const doc = ownerDocument(floatingFocusElement);
     const session: ReturnFocusSession = {
@@ -825,16 +821,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       );
     }
 
-    // Read when the job runs: a consumer's `flushSync` inside `onOpenChange` commits the close
-    // before the store records the request. Fall back to the cleanup's snapshot: a reopen
-    // committed since then (e.g. `handle.open()` in a layout effect) started a new session, which
-    // cleared it.
-    function takeCloseRequest(fallback: ContextData['closeRequest']): CloseRequest | undefined {
-      const details = dataRef.current.closeRequest ?? fallback;
-      dataRef.current.closeRequest = undefined;
-      return details && { details, moved: focusMovedAfterRequestRef.current === details };
-    }
-
     return () => {
       // Before a same-commit deletion removes the DOM (`FloatingPortal` renders its node last).
       const ownedFocusAtClose = isOwnFocus(activeElement(doc));
@@ -842,21 +828,19 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const pressed = pointerPressedRef.current;
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValue = returnFocusRef.current;
-      // This close's request, unless it is dispatched after the commit (consumer `flushSync`).
-      // Read in the cleanup on purpose: it's the request at the moment the popup closed.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      const requestAtCleanup = dataRef.current.closeRequest;
       closedReturnTargetRef.current = () => getDefaultReturnTarget(session);
 
-      const job = { cancelled: false };
+      const job = { cancelled: false, since };
       pendingReturnFocusRef.current = job;
 
       queueMicrotask(() => {
         if (job.cancelled) {
           return;
         }
+        // Taken when the job runs: a consumer's `flushSync` inside `onOpenChange` commits the
+        // close before the store records the request.
         const intent = getCloseIntent(
-          takeCloseRequest(requestAtCleanup),
+          takeCloseRequest(store, since),
           lastInteractionTypeRef.current,
           pressed,
           () => isPreventScrollSupported(doc),
@@ -915,7 +899,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getResolvedInsideElements,
     store,
     parentClosedReturnTargetRef,
-    dataRef,
   ]);
 
   // Synchronize the focus manager state (modal, closeOnFocusOut, open, etc.) to the

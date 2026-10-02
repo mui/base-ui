@@ -8,7 +8,8 @@ import {
   getReturnFocusAction,
   getReturnTarget,
 } from './returnFocus';
-import type { CloseRequest, ReturnFocusSession } from './returnFocus';
+import type { ReturnFocusSession } from './returnFocus';
+import type { CloseRequest } from '../components/FloatingRootStore';
 
 type ElementName =
   'trigger' | 'inside' | 'insideInput' | 'outside' | 'outsideInput' | 'final' | 'body';
