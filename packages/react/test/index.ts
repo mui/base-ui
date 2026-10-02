@@ -3,6 +3,8 @@ export { advanceReactClock } from './advanceReactClock';
 export { pasteText } from './clipboard';
 export { createFormDataSpy } from './formData';
 export { createRenderer } from './createRenderer';
+export { holdExit } from './holdExit';
+export type { ExitHold, HoldExitOptions } from './holdExit';
 export { mergeRefs } from './mergeRefs';
 export { enterWithMouse, firePointer, moveMouse, pressWithTouch } from './pointer';
 export { resetBrowserPointer } from './resetBrowserPointer';
