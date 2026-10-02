@@ -140,14 +140,6 @@ import { DemoAutocompleteAutoHighlight } from './demos/auto-highlight';
 
 <DemoAutocompleteAutoHighlight />
 
-### Command palette
-
-Use the autocomplete input to filter a list of command items that perform an action when clicked.
-
-import { DemoAutocompleteCommandPalette } from './demos/command-palette';
-
-<DemoAutocompleteCommandPalette />
-
 ### Custom keyboard shortcuts
 
 Use `actionsRef.highlightItem()` to navigate the open list with custom keyboard shortcuts. This example binds <kbd>Ctrl</kbd>+<kbd>N</kbd> to the next item and <kbd>Ctrl</kbd>+<kbd>P</kbd> to the previous item.
@@ -157,14 +149,6 @@ import { DemoAutocompleteKeyboardShortcuts } from './demos/keyboard-shortcuts';
 <DemoAutocompleteKeyboardShortcuts />
 
 Navigation wraps between the first and last items unless `loopFocus` is disabled. Unlike arrow-key navigation, these shortcuts do not return the highlight to the input.
-
-### Grid layout
-
-Display items in a grid layout, wrapping each row in `<Autocomplete.Row>` components.
-
-import { DemoAutocompleteGrid } from './demos/grid';
-
-<DemoAutocompleteGrid />
 
 ### Virtualized
 

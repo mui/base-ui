@@ -132,46 +132,6 @@ import { DemoSliderVertical } from './demos/vertical';
 
 <DemoSliderVertical />
 
-### Form integration
-
-To use a slider in a form, pass the slider `name` to `<Slider.Root>`:
-
-```tsx title="Using Slider in a form"
-<Form>
-  {/* @highlight */}
-  <Slider.Root name="volume">
-    <Slider.Label>Volume</Slider.Label>
-    <Slider.Control>
-      <Slider.Track>
-        <Slider.Indicator />
-        <Slider.Thumb />
-      </Slider.Track>
-    </Slider.Control>
-  </Slider.Root>
-</Form>
-```
-
-For grouped multi-thumb range sliders in forms, [Fieldset](/react/components/fieldset) can provide the shared visible label while each thumb keeps its own `aria-label`:
-
-```tsx title="Using Fieldset with a multi-thumb slider"
-<Field.Root>
-  {/* @highlight-start */}
-  <Fieldset.Root render={<Slider.Root defaultValue={[25, 75]} />}>
-    <Fieldset.Legend>Price range</Fieldset.Legend>
-    {/* @highlight-end */}
-    <Slider.Control>
-      <Slider.Track>
-        <Slider.Indicator />
-        {/* @highlight-start */}
-        <Slider.Thumb index={0} aria-label="Minimum price" />
-        <Slider.Thumb index={1} aria-label="Maximum price" />
-        {/* @highlight-end */}
-      </Slider.Track>
-    </Slider.Control>
-  </Fieldset.Root>
-</Field.Root>
-```
-
 ## API reference
 
 import { TypesSlider } from './types';

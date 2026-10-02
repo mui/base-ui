@@ -93,14 +93,10 @@
 .Viewport {
   position: fixed;
   inset: 0;
-}
-
-.ScrollViewport {
-  box-sizing: border-box;
-  height: 100%;
+  overflow-y: auto;
   overscroll-behavior: contain;
 
-  [data-ending-style] & {
+  &[data-ending-style] {
     pointer-events: none;
   }
 }
@@ -110,42 +106,6 @@
   align-items: center;
   justify-content: center;
   min-height: 100%;
-}
-
-.Scrollbar {
-  display: flex;
-  justify-content: center;
-  background-color: rgb(0 0 0 / 12%);
-  width: 1rem;
-  opacity: 0;
-  transition: opacity 250ms;
-  pointer-events: none;
-
-  @media (prefers-color-scheme: dark) {
-    background-color: rgb(255 255 255 / 12%);
-  }
-
-  &:hover,
-  &[data-scrolling] {
-    opacity: 1;
-    transition-duration: 75ms;
-    transition-delay: 0ms;
-    pointer-events: auto;
-  }
-
-  [data-ending-style] & {
-    transition-duration: 250ms;
-    opacity: 0;
-  }
-}
-
-.ScrollbarThumb {
-  width: 100%;
-  background-color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    background-color: white;
-  }
 }
 
 .Popup {
