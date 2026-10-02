@@ -73,6 +73,56 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
     expect(banana).toHaveAttribute('aria-selected', 'true');
   });
 
+  it('does not restore selection after a focused input unmounts and the menu reopens on hover', async () => {
+    function ControlledTest(props: { close: boolean }) {
+      const [open, setOpen] = React.useState(true);
+
+      React.useEffect(() => {
+        if (props.close) {
+          setOpen(false);
+        }
+      }, [props.close]);
+
+      return (
+        <Menu.FilterProvider autoHighlight="always">
+          <Menu.Root open={open} onOpenChange={setOpen}>
+            <Menu.Trigger openOnHover delay={0}>
+              Actions
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>Apple</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
+      );
+    }
+
+    const { user, setProps } = await render(<ControlledTest close={false} />);
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+
+    await setProps({ close: true });
+    await waitFor(() =>
+      expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null),
+    );
+
+    await user.hover(screen.getByRole('button', { name: 'Actions' }));
+    const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    expect(reopenedInput).not.toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).not.toHaveAttribute('aria-selected');
+  });
+
   it('preserves checked state on checkbox and radio items in WebKit', async () => {
     const { user } = await render(
       <Menu.FilterProvider>

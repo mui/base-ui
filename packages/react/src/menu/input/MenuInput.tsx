@@ -31,6 +31,8 @@ export const MenuInput = React.forwardRef(function MenuInput(
 
   const handleKeyDown = useMenuFilterKeyDown(value !== '');
 
+  React.useEffect(() => () => store.set('inputFocused', false), [store]);
+
   const inputProps = mergeProps<typeof FilterDropdownInput>(
     {
       onKeyDown: handleKeyDown,
