@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { ScrollArea } from '@base-ui/react/scroll-area';
 
 export default function InsideScrollDialog() {
   return (
@@ -18,21 +17,20 @@ export default function InsideScrollDialog() {
                 This layout keeps the popup fully on screen while allowing its content to scroll.
               </Dialog.Description>
             </div>
-            <ScrollArea.Root className="relative flex min-h-0 flex-auto overflow-hidden has-[>_:first-child:focus-visible]:outline-2 has-[>_:first-child:focus-visible]:outline-offset-0 has-[>_:first-child:focus-visible]:outline-neutral-950 dark:has-[>_:first-child:focus-visible]:outline-white">
-              <ScrollArea.Viewport className="flex-auto min-h-0 overflow-y-auto overscroll-contain outline-none">
-                <ScrollArea.Content className="flex flex-col">
-                  {CONTENT_SECTIONS.map((item) => (
-                    <section className="flex flex-col gap-1 p-4" key={item.title}>
-                      <h3 className="text-sm font-bold">{item.title}</h3>
-                      <p className="text-sm text-neutral-700 dark:text-neutral-300">{item.body}</p>
-                    </section>
-                  ))}
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar className="pointer-events-none flex w-4 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-150 data-hovering:pointer-events-auto data-hovering:opacity-100 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0">
-                <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
-              </ScrollArea.Scrollbar>
-            </ScrollArea.Root>
+            <div
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- lets keyboard users scroll the content
+              tabIndex={0}
+              className="flex-auto min-h-0 overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+            >
+              <div className="flex flex-col">
+                {CONTENT_SECTIONS.map((item) => (
+                  <section className="flex flex-col gap-1 p-4" key={item.title}>
+                    <h3 className="text-sm font-bold">{item.title}</h3>
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300">{item.body}</p>
+                  </section>
+                ))}
+              </div>
+            </div>
             <div className="flex justify-end gap-3 p-4 border-t border-neutral-950 dark:border-white">
               <Dialog.Close className="flex h-8 items-center justify-center gap-2 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
                 Close
