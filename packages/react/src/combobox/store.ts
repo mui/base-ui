@@ -81,7 +81,6 @@ export type ComboboxStoreContext = {
   readonly startDismissRef: React.RefObject<HTMLSpanElement | null>;
   /** Internal dismiss button rendered after the popup content. */
   readonly endDismissRef: React.RefObject<HTMLSpanElement | null>;
-  /** Whether the last interaction came from the keyboard. */
   /** Container holding the selection chips. */
   readonly chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   /** The clear button. */

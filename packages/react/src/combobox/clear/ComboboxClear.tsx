@@ -12,7 +12,7 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getHighlightReason } from '../../internals/getHighlightReason';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxClearState> = {

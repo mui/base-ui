@@ -31,7 +31,7 @@ import type {
   BaseUIHighlightEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getHighlightReason } from '../../internals/getHighlightReason';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,

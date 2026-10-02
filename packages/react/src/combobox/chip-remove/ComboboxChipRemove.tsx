@@ -8,7 +8,7 @@ import { useButton } from '../../internals/use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getHighlightReason } from '../../internals/getHighlightReason';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import { findItemIndex } from '../../internals/itemEquality';
 
 /**

@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { REASONS } from './reasons';
+import { REASONS } from '../internals/reasons';
 
 /**
  * The `onItemHighlighted` reason for a list navigation event, matching the event type that the
