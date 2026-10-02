@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Combobox } from '@base-ui/react/combobox';
+import { expectType } from '#test-utils';
 
 const objectItems = [
   { value: 'a', label: 'apple' },
@@ -129,3 +130,21 @@ function App2() {
     />
   );
 }
+
+<Autocomplete.Root
+  onItemHighlighted={(_item, details) => {
+    if (details.reason === 'pointer') {
+      expectType<MouseEvent | PointerEvent, typeof details.event>(details.event);
+      // @ts-expect-error Hover can report a MouseEvent without pointer-specific methods.
+      details.event.getCoalescedEvents();
+      if (details.event instanceof PointerEvent) {
+        expectType<PointerEvent, typeof details.event>(details.event);
+        details.event.getCoalescedEvents();
+      }
+    } else if (details.reason === 'keyboard') {
+      expectType<KeyboardEvent, typeof details.event>(details.event);
+    } else {
+      expectType<Event, typeof details.event>(details.event);
+    }
+  }}
+/>;

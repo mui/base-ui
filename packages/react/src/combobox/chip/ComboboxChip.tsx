@@ -62,6 +62,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
         activeIndex: null,
         selectedIndex: null,
         type: REASONS.keyboard,
+        event: event.nativeEvent,
       });
       store.context.setSelectedValue(
         selectedValue.filter((_: any, i: number) => i !== index),

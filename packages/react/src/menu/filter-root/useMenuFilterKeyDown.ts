@@ -157,7 +157,7 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
             : getMaxListIndex(listRef, EMPTY_ARRAY);
         if (listRef.current[index]) {
           event.preventDefault();
-          store.setActiveIndex(index, REASONS.keyboard);
+          store.setActiveIndex(index, REASONS.keyboard, event.nativeEvent);
         }
         break;
       }
