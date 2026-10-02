@@ -65,12 +65,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     isSubmenuTrigger && rootContext.parent.type === 'menu'
       ? rootContext.parent.store
       : rootContext.store;
-  // `aria-selected` is invalid on `menuitem`, but Safari VoiceOver needs it for arrow-key
-  // navigation. Only WebKit may select the highlighted item, and only while its input has focus.
-  const ariaSelected = selectionStore.useState(
-    'ariaSelected',
-    platform.engine.webkit && highlighted,
-  );
+  const ariaSelected = selectionStore.useState('webkitAriaSelected', highlighted);
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const open = store.useState('open');

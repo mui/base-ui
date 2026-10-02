@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
+import { platform } from '@base-ui/utils/platform';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
@@ -103,8 +104,10 @@ const selectors = {
   },
   filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
   inputProps: (state: State<unknown>) => state.inputProps,
-  ariaSelected: (state: State<unknown>, highlighted: boolean) =>
-    state.inputFocused && highlighted ? true : undefined,
+  // `aria-selected` is invalid on `menuitem`, but Safari VoiceOver needs it for arrow-key
+  // navigation. Only WebKit may select the highlighted item, and only while its input has focus.
+  webkitAriaSelected: (state: State<unknown>, highlighted: boolean) =>
+    platform.engine.webkit && state.inputFocused && highlighted ? true : undefined,
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
