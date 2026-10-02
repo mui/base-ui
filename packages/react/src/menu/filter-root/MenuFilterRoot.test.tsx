@@ -5168,6 +5168,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
         await user.hover(submenuTrigger);
         const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        // The root popup's initial focus runs a frame after mounting. Let it land so it can't
+        // steal focus from the tap below.
+        await act(async () => {
+          await waitSingleFrame();
+        });
 
         firePointer.down(submenuInput, { pointerType: 'touch', timeStamp: 10 });
         await act(async () => {

@@ -420,13 +420,16 @@ describe('<Collapsible.Panel />', () => {
     });
 
     it('keeps exit transitions working after a close is interrupted by reopening', async () => {
+      // Keep the close running long enough for a slow run to interrupt it. Without animations,
+      // `data-ending-style` only lasts a frame and `waitFor` can miss it.
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
       const { user } = await render(
         <React.Fragment>
           <style>{`
             .interruptible-panel {
               overflow: hidden;
               height: var(--collapsible-panel-height);
-              transition: height 100ms linear;
+              transition: height 10s linear;
             }
 
             .interruptible-panel[data-starting-style],
