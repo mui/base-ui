@@ -9198,9 +9198,19 @@ describe('<Combobox.Root />', () => {
       });
 
       it('discards the request when an ignored typed open is followed by another open', async () => {
-        const { user, setProps } = await render(<AsyncCombobox items={['32']} open={false} />);
+        const onOpenChange = vi.fn();
+        const { user, setProps } = await render(
+          <AsyncCombobox items={['32']} open={false} onOpenChange={onOpenChange} />,
+        );
         await user.type(screen.getByRole('combobox'), '32');
         await user.click(screen.getByTestId('trigger'));
+        // A trigger press opens on the frame after `mousedown`, which `user.click` can beat.
+        await waitFor(() => {
+          expect(onOpenChange).toHaveBeenLastCalledWith(
+            true,
+            expect.objectContaining({ reason: REASONS.triggerPress }),
+          );
+        });
         await setProps({ open: true });
         expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
       });
@@ -9229,9 +9239,9 @@ describe('<Combobox.Root />', () => {
             await user.keyboard('{ArrowDown}');
           }
 
-          expect(screen.getByRole('option', { name: '32' })).not.toHaveAttribute(
-            'data-highlighted',
-          );
+          // A trigger press opens on the frame after `mousedown`, which `user.click` can beat.
+          const option = await screen.findByRole('option', { name: '32' });
+          expect(option).not.toHaveAttribute('data-highlighted');
           expect(input).not.toHaveAttribute('aria-activedescendant');
         },
       );
