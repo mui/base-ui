@@ -135,7 +135,7 @@ type AutocompleteRootHighlightEventDetails =
   | { reason: 'imperative-action'; event: Event; index: number }
   | { reason: 'none'; event: Event; index: number }
   | { reason: 'keyboard'; event: KeyboardEvent; index: number }
-  | { reason: 'pointer'; event: PointerEvent; index: number };
+  | { reason: 'pointer'; event: MouseEvent | PointerEvent; index: number };
 ```
 
 ### Root.HighlightItemTarget

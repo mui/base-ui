@@ -115,7 +115,7 @@ type MenuRootHighlightEventDetails =
   | { reason: 'none'; event: Event; label: string | undefined }
   | { reason: 'keyboard'; event: KeyboardEvent; label: string | undefined }
   | { reason: 'imperative-action'; event: Event; label: string | undefined }
-  | { reason: 'pointer'; event: PointerEvent; label: string | undefined };
+  | { reason: 'pointer'; event: MouseEvent | PointerEvent; label: string | undefined };
 ```
 
 ### Root.Orientation

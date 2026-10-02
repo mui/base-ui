@@ -28,7 +28,7 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import type {
   BaseUIChangeEventDetails,
-  BaseUIGenericEventDetails,
+  BaseUIHighlightEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { getHighlightReason } from '../../internals/getHighlightReason';
@@ -2032,7 +2032,7 @@ export namespace AriaCombobox {
     | typeof REASONS.pointer
     | typeof REASONS.imperativeAction
     | typeof REASONS.none;
-  export type HighlightEventDetails = BaseUIGenericEventDetails<
+  export type HighlightEventDetails = BaseUIHighlightEventDetails<
     HighlightEventReason,
     { index: number }
   >;

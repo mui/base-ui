@@ -28,7 +28,7 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import type {
   BaseUIChangeEventDetails,
-  BaseUIGenericEventDetails,
+  BaseUIHighlightEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { getHighlightReason } from '../../internals/getHighlightReason';
@@ -983,7 +983,7 @@ export type MenuRootHighlightEventReason =
   | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 
-export type MenuRootHighlightEventDetails = BaseUIGenericEventDetails<
+export type MenuRootHighlightEventDetails = BaseUIHighlightEventDetails<
   MenuRoot.HighlightEventReason,
   {
     /**

@@ -10154,7 +10154,7 @@ describe('<Combobox.Root />', () => {
       expect(eventDetails.event.key).toBe('ArrowDown');
     });
 
-    it('passes the mouse event for pointer highlights', async () => {
+    it('passes native mouse and pointer events for pointer highlights', async () => {
       const items = ['a', 'b', 'c'];
       const onItemHighlighted = vi.fn();
 
@@ -10179,7 +10179,8 @@ describe('<Combobox.Root />', () => {
 
       await user.click(screen.getByTestId('input'));
       const option = await screen.findByRole('option', { name: 'b' });
-      fireEvent.mouseMove(option);
+      const hoverEvent = new MouseEvent('mousemove', { bubbles: true });
+      fireEvent(option, hoverEvent);
 
       await waitFor(() => {
         expect(onItemHighlighted).toHaveBeenLastCalledWith('b', expect.anything());
@@ -10187,7 +10188,21 @@ describe('<Combobox.Root />', () => {
       const eventDetails = onItemHighlighted.mock.lastCall?.[1];
       expect(eventDetails.reason).toBe('pointer');
       expect(eventDetails.event).toBeInstanceOf(MouseEvent);
-      expect(eventDetails.event.type).toBe('mousemove');
+      expect(eventDetails.event).toBe(hoverEvent);
+      expect(eventDetails.event).not.toBeInstanceOf(PointerEvent);
+
+      const leaveEvent = new PointerEvent('pointerout', {
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent(option, leaveEvent);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ reason: 'pointer', event: leaveEvent }),
+        );
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].event).toBe(leaveEvent);
     });
 
     function HighlightCombobox(props: {

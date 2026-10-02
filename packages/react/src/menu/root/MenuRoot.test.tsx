@@ -3395,13 +3395,14 @@ describe('<Menu.Root />', () => {
       expect(details.event.key).toBe('t');
     });
 
-    it('passes the mouse event for pointer highlights', async () => {
+    it('passes native mouse and pointer events for pointer highlights', async () => {
       const onItemHighlighted = vi.fn();
       await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
 
       fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
       const item = await screen.findByRole('menuitem', { name: 'Two' });
-      fireEvent.mouseMove(item);
+      const hoverEvent = new MouseEvent('mousemove', { bubbles: true });
+      fireEvent(item, hoverEvent);
       await waitFor(() => {
         expect(onItemHighlighted).toHaveBeenLastCalledWith(item, expect.anything());
       });
@@ -3409,7 +3410,21 @@ describe('<Menu.Root />', () => {
       const details = onItemHighlighted.mock.lastCall?.[1];
       expect(details.reason).toBe(REASONS.pointer);
       expect(details.event).toBeInstanceOf(MouseEvent);
-      expect(details.event.type).toBe('mousemove');
+      expect(details.event).toBe(hoverEvent);
+      expect(details.event).not.toBeInstanceOf(PointerEvent);
+
+      const leaveEvent = new PointerEvent('pointerout', {
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent(item, leaveEvent);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ reason: 'pointer', event: leaveEvent }),
+        );
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].event).toBe(leaveEvent);
     });
 
     it('passes the mouse event when a submenu trigger is hovered', async () => {
