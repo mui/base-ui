@@ -741,7 +741,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                 beforeInsideRef.current?.focus();
               } else {
                 (
-                  getTabbableNearElement(event.currentTarget, -1, null, false) ?? triggerElement
+                  getTabbableNearElement(event.currentTarget, -1, [], false) ?? triggerElement
                 )?.focus();
               }
             }}
@@ -763,7 +763,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                     1,
                     // A nested menu without a positioner renders its viewport inline after the
                     // trigger. Skip the content that focus is leaving.
-                    nested && !positionerElement ? referenceElement : null,
+                    nested && !positionerElement ? [referenceElement] : [],
                     false,
                   ) ?? triggerElement;
                 nextTabbable?.focus();

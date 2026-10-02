@@ -69,9 +69,6 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
   /** Whether a filterable menu's trigger was last pressed by a screen reader. */
   virtualPress?: boolean | undefined;
-  readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
-  readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
-  readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
 
 const selectors = {
@@ -281,9 +278,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     reportedItem: undefined,
     allowMouseUpTriggerRef: { current: false },
     virtualFocusRef: undefined,
-    triggerFocusTargetRef: React.createRef<HTMLElement>(),
-    beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
-    beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
     triggerElements,
   };
