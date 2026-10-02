@@ -191,17 +191,23 @@ describe('focusRoute', () => {
       route[slot].current = guard;
     });
 
-    function reach(slot: FocusRouteSlot, relatedTarget: Element) {
+    function reach(slot: FocusRouteSlot, relatedTarget: Element, followsTrigger?: boolean) {
       const guard = guards[slot];
       guard.focus();
-      focusRoute(store, {
-        currentTarget: guard,
-        relatedTarget,
-        nativeEvent: new FocusEvent('focus', { relatedTarget }),
-      } as unknown as React.FocusEvent<HTMLElement>);
+      focusRoute(
+        store,
+        {
+          currentTarget: guard,
+          relatedTarget,
+          nativeEvent: new FocusEvent('focus', { relatedTarget }),
+        } as unknown as React.FocusEvent<HTMLElement>,
+        undefined,
+        false,
+        followsTrigger,
+      );
     }
 
-    return { guards, after, inside, route, onOpenChange, reach };
+    return { store, trigger, guards, after, inside, route, onOpenChange, reach };
   }
 
   it('leaves past the portal guards when the consumer refuses the close', () => {
@@ -224,6 +230,31 @@ describe('focusRoute', () => {
     reach(AFTER_CONTENT, inside);
 
     expect(guards[AFTER_PORTAL]).toHaveFocus();
+  });
+
+  it('leaves past the placeholder when the trigger is no longer in the document', () => {
+    const { trigger, guards, inside, reach } = setup();
+    trigger.remove();
+
+    reach(BEFORE_CONTENT, inside, true);
+
+    expect(guards[BEFORE_PORTAL]).toHaveFocus();
+  });
+
+  it('continues from the trigger that replaced the closed one', () => {
+    const { store, trigger, guards, after, route, onOpenChange, reach } = setup();
+    // The close unmounts the trigger guard, and the consumer renders a new trigger element.
+    onOpenChange.mockImplementation(() => {
+      const nextTrigger = document.createElement('button');
+      trigger.replaceWith(nextTrigger);
+      guards[AFTER_TRIGGER].remove();
+      route[AFTER_TRIGGER].current = null;
+      store.update({ domReferenceElement: nextTrigger });
+    });
+
+    reach(AFTER_TRIGGER, guards[AFTER_CONTENT]);
+
+    expect(after).toHaveFocus();
   });
 });
 

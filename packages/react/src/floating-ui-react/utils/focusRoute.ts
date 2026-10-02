@@ -153,7 +153,13 @@ export function focusRoute(
   const route = getFocusRoute(store);
   const guard = event.currentTarget;
   const relatedTarget = event.relatedTarget as Element | null;
-  const trigger = store.state.domReferenceElement as FocusableElement | null;
+  // The floating root keeps a removed trigger as its reference, and a consumer may replace the
+  // trigger's element when the popup closes, so only a trigger in the document counts.
+  const getTrigger = () => {
+    const reference = store.state.domReferenceElement as FocusableElement | null;
+    return reference?.isConnected ? reference : null;
+  };
+  let trigger = getTrigger();
   container ??= store.state.floatingElement;
   const slot = route.findIndex((ref) => ref.current === guard) as FocusRouteSlot;
   const atTrigger = slot <= AFTER_TRIGGER;
@@ -187,6 +193,9 @@ export function focusRoute(
   // so a trigger guard looks for the destination once the close has committed.
   if (close && atTrigger) {
     ReactDOM.flushSync(requestClose);
+    if (!trigger?.isConnected) {
+      trigger = getTrigger();
+    }
   }
 
   let element: FocusableElement | null | undefined;
