@@ -14,6 +14,7 @@ export * from './wait';
 export { waitForPositioned } from './waitForPositioned';
 
 // Shared suites
+export { closingPopupConformanceTests } from './closingPopupConformanceTests';
 export { describeConformance } from './describeConformance';
 export { detachedTriggersConformanceTests } from './detachedTriggersConformanceTests';
 export { dialogRootSharedTests } from './dialogRootSharedTests';

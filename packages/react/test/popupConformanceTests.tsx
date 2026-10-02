@@ -5,6 +5,8 @@ import { flushMicrotasks, randomStringValue, screen, waitFor } from '@mui/intern
 import type { createRenderer } from '#test-utils';
 import { enterWithMouse, isJSDOM } from '#test-utils';
 import { REASONS } from '../src/internals/reasons';
+import { closingPopupConformanceTests } from './closingPopupConformanceTests';
+import type { ClosingPopupConfig } from './closingPopupConformanceTests';
 
 // StrictMode replays effects in development, which reports an instant open completion twice.
 // These tests render without it so they assert the real contract: one call per transition.
@@ -416,6 +418,10 @@ export function popupConformanceTests(config: PopupTestConfig) {
         },
       );
     });
+
+    if (config.closing) {
+      closingPopupConformanceTests({ ...config, closing: config.closing });
+    }
   });
 }
 
@@ -467,6 +473,11 @@ export interface PopupTestConfig {
    * @default 'trigger-press' for click triggers, 'trigger-hover' for hover triggers
    */
   openReason?: string;
+  /**
+   * How the popup behaves while its exit animation plays. Enables the closing-popup tests, which
+   * need the positioner's props wired up too.
+   */
+  closing?: ClosingPopupConfig;
 }
 
 interface OpenChangeEventDetails {
@@ -486,19 +497,28 @@ interface TriggerProps {
   delay?: number;
 }
 
+interface PositionerProps {
+  'data-testid'?: string;
+}
+
 interface PopupProps {
   className?: string;
   id?: string;
   'data-testid'?: string;
+  render?: (
+    props: React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<any> },
+  ) => React.ReactElement;
 }
 
 interface PortalProps {
+  container?: React.RefObject<HTMLElement | null>;
   keepMounted?: boolean;
 }
 
-interface TestedComponentProps {
+export interface TestedComponentProps {
   root?: RootProps;
   popup?: PopupProps;
   trigger?: TriggerProps;
   portal?: PortalProps;
+  positioner?: PositionerProps;
 }
