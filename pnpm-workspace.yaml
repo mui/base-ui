@@ -47,16 +47,17 @@ overrides:
   # next pins 8.4.31 (GHSA-6g55-p6wh-862q, -r28c-9q8g-f849, -fxqj-rqcc-2cmp)
   postcss: '^8.5.28'
   # optional dependency of next; unused because the docs site is a static export with no next/image
-  sharp: '^0.35.4'
+  sharp: '^0.35.5'
   # via lerna -> pacote/libnpmpublish; also picks up the fixed @sigstore/core and @sigstore/verify.
   # Capped below 5, whose engines.node excludes the Node 24.14 line CI runs on.
   sigstore: '^5.0.0'
   # lerna pins 7.5.11 (GHSA-23hp-3jrh-7fpw, -vmf3-w455-68vh, -w8wr-v893-vjvp)
   tar: '^7.5.22'
   # via @vitest/browser (GHSA-96hv-2xvq-fx4p)
-  ws: '^8.21.3'
+  ws: '^8.22.0'
 engineStrict: true
 updateNotifier: false
+autoDedupe: true
 blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
