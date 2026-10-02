@@ -115,6 +115,248 @@ describe('<Combobox.Positioner />', () => {
     },
   );
 
+  describe.skipIf(isJSDOM)('animated anchors', () => {
+    function waitForFrame() {
+      return new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      });
+    }
+
+    // Resolves in a task after the next frame's paint, once this frame's observers have run.
+    function waitForPaint() {
+      return new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          const channel = new MessageChannel();
+          channel.port1.onmessage = () => resolve();
+          channel.port2.postMessage(null);
+        });
+      });
+    }
+
+    async function waitForIdleFrames() {
+      // Lets the per-frame polling started by the open settle and stop.
+      for (let frame = 0; frame < 10; frame += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await waitForFrame();
+      }
+    }
+
+    function captureResizeObserverErrors() {
+      const errors: string[] = [];
+      const handleError = (event: ErrorEvent) => {
+        if (event.message.includes('ResizeObserver loop')) {
+          errors.push(event.message);
+        }
+      };
+      window.addEventListener('error', handleError);
+      return {
+        errors,
+        dispose: () => window.removeEventListener('error', handleError),
+      };
+    }
+
+    it('tracks the anchor on each frame while its ancestor transform animates', async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+      const animatedContainerRef = React.createRef<HTMLDivElement>();
+      const positionerRef = React.createRef<HTMLDivElement>();
+      const resizeObserverErrors = captureResizeObserverErrors();
+      let animation: Animation | undefined;
+      let unmount: (() => void) | undefined;
+
+      try {
+        const view = await render(
+          <div ref={animatedContainerRef} style={{ position: 'fixed', top: 20, left: 20 }}>
+            <Combobox.Root open>
+              <Combobox.Input ref={inputRef} style={{ width: 100 }} />
+              <Combobox.Portal>
+                <Combobox.Positioner
+                  ref={positionerRef}
+                  align="start"
+                  collisionAvoidance={{
+                    side: 'none',
+                    align: 'none',
+                    fallbackAxisSide: 'none',
+                  }}
+                >
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="One">One</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </div>,
+        );
+        unmount = view.unmount;
+
+        await waitFor(() => {
+          expect(positionerRef.current!.getBoundingClientRect().left).toBeCloseTo(
+            inputRef.current!.getBoundingClientRect().left,
+            0,
+          );
+        });
+
+        await React.act(async () => {
+          await waitForIdleFrames();
+
+          const initialLeft = inputRef.current!.getBoundingClientRect().left;
+          // An ancestor transform changes the visual anchor rect without changing its layout size.
+          animation = animatedContainerRef.current!.animate(
+            [{ transform: 'translateX(0px)' }, { transform: 'translateX(120px)' }],
+            { duration: 500, easing: 'linear', fill: 'both' },
+          );
+
+          const movedFrames: Array<{ anchorLeft: number; positionerLeft: number }> = [];
+          for (let frame = 0; frame < 20; frame += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await waitForPaint();
+
+            const anchorLeft = inputRef.current!.getBoundingClientRect().left;
+            if (anchorLeft !== initialLeft) {
+              movedFrames.push({
+                anchorLeft,
+                positionerLeft: positionerRef.current!.getBoundingClientRect().left,
+              });
+            }
+          }
+
+          // The first moved frame may lag: polling restarts from the observers after idling.
+          const trackedFrames = movedFrames.slice(1);
+          expect(trackedFrames.length).toBeGreaterThan(4);
+          trackedFrames.forEach(({ anchorLeft, positionerLeft }) => {
+            expect(positionerLeft).toBeCloseTo(anchorLeft, 0);
+          });
+        });
+
+        expect(resizeObserverErrors.errors).toEqual([]);
+      } finally {
+        await React.act(async () => {
+          animation?.cancel();
+          unmount?.();
+        });
+        resizeObserverErrors.dispose();
+      }
+    });
+
+    it('does not loop the ResizeObserver when an ancestor scale animates with width: var(--anchor-width)', async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+      const animatedContainerRef = React.createRef<HTMLDivElement>();
+      const popupRef = React.createRef<HTMLDivElement>();
+      const resizeObserverErrors = captureResizeObserverErrors();
+      let animation: Animation | undefined;
+      let unmount: (() => void) | undefined;
+
+      try {
+        const view = await render(
+          <div
+            ref={animatedContainerRef}
+            style={{ position: 'fixed', top: 20, left: 20, transformOrigin: '0 0' }}
+          >
+            <Combobox.Root open>
+              <Combobox.Input ref={inputRef} style={{ width: 100, boxSizing: 'border-box' }} />
+              <Combobox.Portal>
+                <Combobox.Positioner align="start">
+                  <Combobox.Popup ref={popupRef} style={{ width: 'var(--anchor-width)' }}>
+                    <Combobox.List>
+                      <Combobox.Item value="One">One</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </div>,
+        );
+        unmount = view.unmount;
+
+        await waitFor(() => {
+          expect(popupRef.current!.getBoundingClientRect().width).toBeCloseTo(100, 0);
+        });
+
+        await React.act(async () => {
+          animation = animatedContainerRef.current!.animate(
+            [{ transform: 'scale(1)' }, { transform: 'scale(2)' }],
+            { duration: 400, easing: 'linear', fill: 'both' },
+          );
+          await animation.finished;
+          await waitForPaint();
+        });
+
+        const anchorWidth = inputRef.current!.getBoundingClientRect().width;
+        expect(anchorWidth).toBeCloseTo(200, 0);
+        expect(popupRef.current!.getBoundingClientRect().width).toBeCloseTo(anchorWidth, 0);
+        expect(resizeObserverErrors.errors).toEqual([]);
+      } finally {
+        await React.act(async () => {
+          animation?.cancel();
+          unmount?.();
+        });
+        resizeObserverErrors.dispose();
+      }
+    });
+
+    it('follows an anchor whose width animates with width: var(--anchor-width)', async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+      const popupRef = React.createRef<HTMLDivElement>();
+      const resizeObserverErrors = captureResizeObserverErrors();
+      let animation: Animation | undefined;
+      let unmount: (() => void) | undefined;
+
+      try {
+        const view = await render(
+          <div style={{ position: 'fixed', top: 20, left: 20 }}>
+            <Combobox.Root open>
+              <Combobox.Input ref={inputRef} style={{ width: 100, boxSizing: 'border-box' }} />
+              <Combobox.Portal>
+                <Combobox.Positioner align="start">
+                  <Combobox.Popup ref={popupRef} style={{ width: 'var(--anchor-width)' }}>
+                    <Combobox.List>
+                      <Combobox.Item value="One">One</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </div>,
+        );
+        unmount = view.unmount;
+
+        await waitFor(() => {
+          expect(popupRef.current!.getBoundingClientRect().width).toBeCloseTo(100, 0);
+        });
+
+        await React.act(async () => {
+          animation = inputRef.current!.animate([{ width: '100px' }, { width: '300px' }], {
+            duration: 500,
+            easing: 'linear',
+            fill: 'both',
+          });
+
+          let anchorWidth = 100;
+          for (let frame = 0; frame < 10; frame += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await waitForFrame();
+
+            anchorWidth = inputRef.current!.getBoundingClientRect().width;
+            // Measured inside the frame callback, before this frame's observers run: with
+            // observers alone, the popup only catches up after this point.
+            expect(popupRef.current!.getBoundingClientRect().width).toBeCloseTo(anchorWidth, 0);
+          }
+
+          expect(anchorWidth).toBeGreaterThan(110);
+        });
+
+        expect(resizeObserverErrors.errors).toEqual([]);
+      } finally {
+        await React.act(async () => {
+          animation?.cancel();
+          unmount?.();
+        });
+        resizeObserverErrors.dispose();
+      }
+    });
+  });
+
   describe.skipIf(isJSDOM)('default anchor', () => {
     it('uses the input when input group is absent', async () => {
       const inputWidth = 120;
