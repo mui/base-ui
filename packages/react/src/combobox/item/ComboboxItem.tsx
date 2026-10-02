@@ -107,6 +107,18 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   }, [hasRegistered, hasItems, index, itemValue, store]);
 
   useIsoLayoutEffect(() => {
+    if (!hasRegistered) {
+      return undefined;
+    }
+
+    store.context.disabledIndicesRef.current[index] = disabled;
+
+    return () => {
+      delete store.context.disabledIndicesRef.current[index];
+    };
+  }, [hasRegistered, disabled, store, index]);
+
+  useIsoLayoutEffect(() => {
     if (!hasRegistered || hasItems) {
       return;
     }

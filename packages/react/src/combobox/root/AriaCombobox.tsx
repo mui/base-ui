@@ -248,6 +248,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
+  const disabledIndicesRef = React.useRef<Array<boolean>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const startDismissRef = React.useRef<HTMLSpanElement | null>(null);
@@ -527,6 +528,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         requestSubmit: NOOP,
         listRef,
         labelsRef,
+        disabledIndicesRef,
         popupRef,
         emptyRef,
         inputRef,
