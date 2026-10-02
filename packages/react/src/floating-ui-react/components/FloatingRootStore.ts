@@ -104,9 +104,17 @@ export class FloatingRootStore extends ReactStore<
   };
 
   /**
-   * Runs the root-owned side effects for an open state change.
+   * Runs the root-owned side effects for an open state change: records a close request and emits
+   * `openchange`. The owner of the open state calls it once it accepts the change.
+   *
+   * @param record Whether a close is recorded as a close request. A change that clears a pending
+   *   open without closing anything isn't one.
    */
-  dispatchOpenChange = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
+  dispatchOpenChange = (
+    newOpen: boolean,
+    eventDetails: BaseUIChangeEventDetails<string>,
+    record = true,
+  ) => {
     this.syncOpenEvent(newOpen, eventDetails.event);
 
     const details: FloatingUIOpenChangeDetails = {
@@ -119,7 +127,9 @@ export class FloatingRootStore extends ReactStore<
 
     // The store outlives the focus manager, so a consumer that unmounts the popup inside
     // `onOpenChange` can't lose the request.
-    recordCloseRequest(this, details);
+    if (record) {
+      recordCloseRequest(this, details);
+    }
 
     this.context.events.emit('openchange', details);
   };

@@ -16,6 +16,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from './MenubarContext';
+import { useMenuRootContext } from '../menu/root/MenuRootContext';
 
 describe('<Menubar />', () => {
   beforeEach(async () => {
@@ -88,6 +89,74 @@ describe('<Menubar />', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('edit-menu')).toBe(null);
     });
+  });
+
+  it('does not report an ignored touch click as an internal close', async () => {
+    const handleInternalOpenChange = vi.fn();
+
+    function OpenChangeSpy() {
+      const floatingRootContext = useMenuRootContext().store.useState('floatingRootContext');
+
+      React.useEffect(() => {
+        floatingRootContext.context.events.on('openchange', handleInternalOpenChange);
+        return () => {
+          floatingRootContext.context.events.off('openchange', handleInternalOpenChange);
+        };
+      }, [floatingRootContext]);
+
+      return null;
+    }
+
+    const { user } = await render(
+      <Menubar>
+        <Menu.Root>
+          <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="file-menu">
+              <Menu.Popup>
+                <Menu.Item>Open</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+        <Menu.Root>
+          <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+          <OpenChangeSpy />
+          <Menu.Portal>
+            <Menu.Positioner data-testid="edit-menu">
+              <Menu.Popup>
+                <Menu.Item>Copy</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menubar>,
+    );
+
+    await user.click(screen.getByTestId('file-trigger'));
+    await screen.findByTestId('file-menu');
+
+    const editTrigger = screen.getByTestId('edit-trigger');
+
+    // Freeze timers so the 300ms touch-click cooldown started by the focus-open is still active.
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        editTrigger.focus();
+      });
+      screen.getByTestId('edit-menu');
+      handleInternalOpenChange.mockClear();
+
+      fireEvent(
+        editTrigger,
+        new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+    expect(handleInternalOpenChange.mock.calls.length).toBe(0);
   });
 
   it('closes on a touch item click immediately after focus opens another menu', async () => {
