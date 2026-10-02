@@ -704,7 +704,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
   React.useEffect(() => {
     const rootElement = viewportElement ?? popupElementState;
-    if (!rootElement) {
+    // A non-passive document listener makes every page scroll wait on the main thread.
+    if (!rootElement || !open || !mounted) {
       return undefined;
     }
 
@@ -723,7 +724,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
       const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
 
-      if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
+      if (allowTouchMove || nestedDrawerOpen) {
         return;
       }
 
