@@ -54,7 +54,7 @@ overrides:
   # lerna pins 7.5.11 (GHSA-23hp-3jrh-7fpw, -vmf3-w455-68vh, -w8wr-v893-vjvp)
   tar: '^7.5.22'
   # via @vitest/browser (GHSA-96hv-2xvq-fx4p)
-  ws: '^8.21.3'
+  ws: '^8.22.0'
 engineStrict: true
 updateNotifier: false
 autoDedupe: true
