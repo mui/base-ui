@@ -150,9 +150,9 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const itemMetadata = React.useMemo(
     () => ({
       type: 'submenu-trigger' as const,
-      setActive() {
+      setActive(event: MouseEvent) {
         if (parentMenuStore.select('highlightItemOnHover')) {
-          parentMenuStore.setActiveIndex(listItem.index, REASONS.pointer);
+          parentMenuStore.setActiveIndex(listItem.index, REASONS.pointer, event);
         }
       },
     }),

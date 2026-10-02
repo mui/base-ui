@@ -45,29 +45,29 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
 
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
 
-  function handleSubmenuEnter(trigger: HTMLElement) {
+  function handleSubmenuEnter(trigger: HTMLElement, event: KeyboardEvent | undefined) {
     const focusedElement = parent.virtualFocus
       ? parentStore.context.virtualFocusRef?.current
       : activeElement(ownerDocument(trigger));
 
     if (isHTMLElement(focusedElement)) {
       parentReferenceRef.current = { reference: focusedElement, trigger };
-      parentStore.setActiveIndex(null, REASONS.keyboard);
+      parentStore.setActiveIndex(null, event ? REASONS.keyboard : REASONS.none, event);
     }
   }
 
-  function highlightTrigger(trigger: HTMLElement) {
-    parentStore.highlightItem(trigger, REASONS.keyboard);
+  function highlightTrigger(trigger: HTMLElement, event: KeyboardEvent) {
+    parentStore.highlightItem(trigger, REASONS.keyboard, event);
   }
 
-  function handleSubmenuExit() {
+  function handleSubmenuExit(event: KeyboardEvent) {
     const parentReference = parentReferenceRef.current;
     if (!parentReference) {
       return;
     }
 
     parentReference.reference.focus({ preventScroll: true });
-    highlightTrigger(parentReference.trigger);
+    highlightTrigger(parentReference.trigger, event);
   }
 
   function handleOpenChange(nextOpen: boolean, details: MenuSubmenuRoot.ChangeEventDetails) {
@@ -78,7 +78,7 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
 
     if (!nextOpen) {
       if (details.reason === REASONS.escapeKey && isHTMLElement(details.trigger)) {
-        highlightTrigger(details.trigger);
+        highlightTrigger(details.trigger, details.event);
         // `MenuPopup` returns focus through `getReturnElement`, so point it at the element that
         // can hold real focus: the parent's input, not its untabbable trigger.
         parentReferenceRef.current = {
@@ -93,7 +93,11 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRootProps): React.
 
     parentReferenceRef.current = null;
     if (isHTMLElement(details.trigger) && isKeyboardOpen(details.reason, details.event)) {
-      handleSubmenuEnter(details.trigger);
+      // A keyboard click reports its click, which isn't the key that opened the submenu.
+      handleSubmenuEnter(
+        details.trigger,
+        details.reason === REASONS.listNavigation ? details.event : undefined,
+      );
     }
   }
 
@@ -131,8 +135,8 @@ interface MenuFilterSubmenuNavigationProps {
   parentAllowEscape: boolean;
   parentOrientation: MenuRoot.Orientation;
   parentLoopFocus: boolean;
-  onSubmenuEnter(trigger: HTMLElement): void;
-  onSubmenuExit(): void;
+  onSubmenuEnter(trigger: HTMLElement, event: KeyboardEvent): void;
+  onSubmenuExit(event: KeyboardEvent): void;
   getReturnElement(): HTMLElement | null;
 }
 
@@ -185,8 +189,8 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     }
   }, [mounted, store, parentStore, handleReturnFocus]);
 
-  function moveInParent(from: HTMLElement, key: string) {
-    const item = moveHighlightFrom(parentStore, from, key, {
+  function moveInParent(from: HTMLElement, event: React.KeyboardEvent) {
+    const item = moveHighlightFrom(parentStore, from, event, {
       orientation: parentOrientation,
       rtl: direction === 'rtl',
       loopFocus: parentLoopFocus,
@@ -211,7 +215,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
     store.setOpen(false, eventDetails);
 
     if (!eventDetails.isCanceled) {
-      onSubmenuExit();
+      onSubmenuExit(event.nativeEvent);
     }
 
     // `onSubmenuExit` bails when the submenu was opened by pointer, so return focus here.
@@ -229,13 +233,13 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
       isHTMLElement(trigger) &&
       isMainOrientationKey(event.key, parentOrientation)
     ) {
-      moveInParent(trigger, event.key);
+      moveInParent(trigger, event);
     }
   }
 
   const handleTriggerKeyDown = useStableCallback((event: TriggerKeyDownEvent) => {
     if (isMainOrientationKey(event.key, parentOrientation)) {
-      moveInParent(event.currentTarget, event.key);
+      moveInParent(event.currentTarget, event);
       event.preventBaseUIHandler();
       stopEvent(event);
       return;
@@ -261,7 +265,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
       // Re-entering an already-open submenu hands the cursor to its own focus owner. The submenu
       // is always virtually focused, so there is no roving-focus branch here. The highlight is
       // kept, so an automatic highlight or an earlier keyboard position survives re-entry.
-      onSubmenuEnter(event.currentTarget);
+      onSubmenuEnter(event.currentTarget, event.nativeEvent);
       store.context.virtualFocusRef?.current?.focus({ preventScroll: true });
       return;
     }

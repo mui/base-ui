@@ -49,12 +49,12 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
       return mergeProps<'div'>(
         commonProps,
         {
-          onMouseEnter() {
+          onMouseEnter(event) {
             if (itemMetadata.type !== 'submenu-trigger') {
               return;
             }
 
-            itemMetadata.setActive();
+            itemMetadata.setActive(event.nativeEvent);
           },
         },
         externalProps,
@@ -122,7 +122,7 @@ export type UseMenuItemMetadata =
   | typeof REGULAR_ITEM
   | {
       type: 'submenu-trigger';
-      setActive: () => void;
+      setActive: (event: MouseEvent) => void;
     };
 
 export interface UseMenuItemReturnValue {

@@ -197,6 +197,13 @@ describe('<Menu.List />', () => {
       );
     }
 
+    // Focus the list takes from the input goes straight back to it, so start from focus that
+    // reached the list another way, such as a screen reader or a touch press.
+    function focusList(list: HTMLElement) {
+      screen.getByRole('searchbox', { name: 'Filter fruit' }).blur();
+      list.focus();
+    }
+
     it('replays navigation keys on the input instead of scrolling', async () => {
       await render(<App />);
 
@@ -207,9 +214,7 @@ describe('<Menu.List />', () => {
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
-      await act(async () => {
-        list.focus();
-      });
+      await act(async () => focusList(list));
       expect(list).toHaveFocus();
 
       const scrolls = fireEvent.keyDown(list, { key: 'ArrowDown' });
@@ -237,9 +242,7 @@ describe('<Menu.List />', () => {
         expect(input).toHaveAttribute('aria-activedescendant', apple.id);
       });
 
-      await act(async () => {
-        list.focus();
-      });
+      await act(async () => focusList(list));
       fireEvent.keyDown(list, { key: 'Enter' });
 
       expect(onPress).toHaveBeenCalledTimes(1);
@@ -253,9 +256,7 @@ describe('<Menu.List />', () => {
       await waitFor(() => {
         expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toHaveFocus();
       });
-      await act(async () => {
-        list.focus();
-      });
+      await act(async () => focusList(list));
       fireEvent.keyDown(list, { key: 'Escape' });
 
       await waitFor(() => {
@@ -272,9 +273,7 @@ describe('<Menu.List />', () => {
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
-      await act(async () => {
-        list.focus();
-      });
+      await act(async () => focusList(list));
 
       const types = fireEvent.keyDown(list, { key: 'z' });
 

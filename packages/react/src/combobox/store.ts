@@ -81,8 +81,6 @@ export type ComboboxStoreContext = {
   readonly startDismissRef: React.RefObject<HTMLSpanElement | null>;
   /** Internal dismiss button rendered after the popup content. */
   readonly endDismissRef: React.RefObject<HTMLSpanElement | null>;
-  /** Whether the last interaction came from the keyboard. */
-  readonly keyboardActiveRef: React.RefObject<boolean>;
   /** Container holding the selection chips. */
   readonly chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   /** The clear button. */
@@ -108,6 +106,7 @@ export type ComboboxStoreContext = {
     activeIndex?: number | null | undefined;
     selectedIndex?: number | null | undefined;
     type?: AriaCombobox.HighlightEventReason | undefined;
+    event?: Event | undefined;
   }) => void;
   /** Mounts the popup subtree without opening it, to resolve derived item labels. */
   forceMount: () => void;
