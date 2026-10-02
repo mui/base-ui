@@ -13,6 +13,46 @@ describe('<Dialog.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
+  it('does not re-render inactive triggers when the popup opens and closes', async () => {
+    const handle = Dialog.createHandle();
+    let inactiveTriggerRenders = 0;
+
+    const { user } = await render(
+      <div>
+        <Dialog.Trigger handle={handle} id="trigger-1">
+          Trigger 1
+        </Dialog.Trigger>
+        <Dialog.Trigger
+          handle={handle}
+          id="trigger-2"
+          render={(props) => {
+            inactiveTriggerRenders += 1;
+            return <button {...props} />;
+          }}
+        >
+          Trigger 2
+        </Dialog.Trigger>
+        <Dialog.Root handle={handle}>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="popup">Content</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </div>,
+    );
+
+    inactiveTriggerRenders = 0;
+
+    await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+    expect(await screen.findByTestId('popup')).not.toBe(null);
+    expect(inactiveTriggerRenders).toBe(0);
+
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+    expect(inactiveTriggerRenders).toBe(0);
+  });
+
   describe('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 

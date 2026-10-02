@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
@@ -94,11 +95,10 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
 
   const dismiss = useDismiss(floatingRootContext);
 
-  // `useDismiss` is not given an `enabled` option, so all three prop bags are always defined.
-  // `dismiss.trigger` is the same object as `dismiss.reference`.
+  // `useDismiss` is not given an `enabled` option, so its prop bags are always defined.
   usePopupInteractionProps(store, {
     activeTriggerProps: dismiss.reference!,
-    inactiveTriggerProps: dismiss.trigger!,
+    inactiveTriggerProps: EMPTY_OBJECT,
     popupProps: dismiss.floating!,
   });
 

@@ -174,6 +174,48 @@ describe('<Tooltip.Root />', () => {
     },
   );
 
+  it('does not re-render inactive triggers when the popup opens and closes', async () => {
+    const handle = Tooltip.createHandle();
+    let inactiveTriggerRenders = 0;
+
+    await render(
+      <div>
+        <Tooltip.Trigger handle={handle} id="trigger-1">
+          Trigger 1
+        </Tooltip.Trigger>
+        <Tooltip.Trigger
+          handle={handle}
+          id="trigger-2"
+          render={(props) => {
+            inactiveTriggerRenders += 1;
+            return <button {...props} />;
+          }}
+        >
+          Trigger 2
+        </Tooltip.Trigger>
+        <Tooltip.Root handle={handle}>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup data-testid="popup">Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </div>,
+    );
+
+    inactiveTriggerRenders = 0;
+
+    await act(() => handle.open('trigger-1'));
+    expect(await screen.findByTestId('popup')).not.toBe(null);
+    expect(inactiveTriggerRenders).toBe(0);
+
+    await act(() => handle.close());
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+    expect(inactiveTriggerRenders).toBe(0);
+  });
+
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 

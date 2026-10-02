@@ -27,6 +27,48 @@ describe('<PreviewCard.Root />', () => {
 
   const { render, clock } = createRenderer();
 
+  it('does not re-render inactive triggers when the popup opens and closes', async () => {
+    const handle = PreviewCard.createHandle();
+    let inactiveTriggerRenders = 0;
+
+    await render(
+      <div>
+        <PreviewCard.Trigger handle={handle} id="trigger-1">
+          Trigger 1
+        </PreviewCard.Trigger>
+        <PreviewCard.Trigger
+          handle={handle}
+          id="trigger-2"
+          render={(props) => {
+            inactiveTriggerRenders += 1;
+            return <a {...props} />;
+          }}
+        >
+          Trigger 2
+        </PreviewCard.Trigger>
+        <PreviewCard.Root handle={handle}>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup data-testid="popup">Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>
+      </div>,
+    );
+
+    inactiveTriggerRenders = 0;
+
+    await act(() => handle.open('trigger-1'));
+    expect(await screen.findByTestId('popup')).not.toBe(null);
+    expect(inactiveTriggerRenders).toBe(0);
+
+    await act(() => handle.close());
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+    expect(inactiveTriggerRenders).toBe(0);
+  });
+
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 

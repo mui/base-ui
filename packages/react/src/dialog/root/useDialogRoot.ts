@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useDismiss } from '../../floating-ui-react';
@@ -112,10 +113,9 @@ export function DialogInteractions({
   }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
   usePopupInteractionProps(store, {
-    // `enabled` is not passed to `useDismiss`, so its props are always defined,
-    // and `trigger` is the same object as `reference`.
+    // `enabled` is not passed to `useDismiss`, so its props are always defined.
     activeTriggerProps: dismiss.reference!,
-    inactiveTriggerProps: dismiss.trigger!,
+    inactiveTriggerProps: EMPTY_OBJECT,
     // DialogPopup and DrawerPopup spread `FOCUSABLE_POPUP_PROPS` directly, so
     // this only needs to carry the dismiss handlers.
     popupProps: dismiss.floating!,
