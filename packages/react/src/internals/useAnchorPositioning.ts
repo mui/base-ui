@@ -497,15 +497,19 @@ export function useAnchorPositioningWithHook(
     strategy: positionMethod,
     whileElementsMounted: keepMounted
       ? undefined
-      : (...args) => autoUpdate(...args, autoUpdateOptions),
+      : (reference, floating, onUpdate) => {
+          // Measure with the requested strategy's offset parent, not the initial fixed one.
+          floating.style.position = positionMethod;
+          return autoUpdate(reference, floating, onUpdate, autoUpdateOptions);
+        },
     nodeId,
     externalTree,
   });
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
 
-  // Default to `fixed` when not positioned to prevent `autoFocus` scroll jumps.
-  // This ensures the popup is inside the viewport initially before it gets positioned.
+  // Render `fixed` until positioned so `autoFocus` during mount can't scroll to the unpositioned
+  // popup. `autoUpdate` switches the element to `positionMethod` before its first measurement.
   const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(() => {
@@ -578,12 +582,15 @@ export function useAnchorPositioningWithHook(
     }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
-  React.useEffect(() => {
+  // A layout effect, like `whileElementsMounted`, so the strategy is applied before an initial
+  // `update()` from Floating UI measures, regardless of when React flushes passive effects.
+  useIsoLayoutEffect(() => {
     if (keepMounted && mounted && elements.reference && elements.floating) {
+      elements.floating.style.position = positionMethod;
       return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
     }
     return undefined;
-  }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
+  }, [keepMounted, mounted, elements, update, autoUpdateOptions, positionMethod]);
 
   const renderedSide = getSide(renderedPlacement);
   const logicalRenderedSide = getLogicalSide(sideParam, renderedSide, isRtl);
