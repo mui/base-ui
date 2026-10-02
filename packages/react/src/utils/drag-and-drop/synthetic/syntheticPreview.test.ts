@@ -27,7 +27,7 @@ function createPreviewElement(
       element.style.translate = `${x}px ${y}px`;
     },
     ensureConnected() {},
-    restoreEngineState() {},
+    updateContentStyle() {},
     prepareForDrop() {},
     destroy() {
       this.destroyed = true;

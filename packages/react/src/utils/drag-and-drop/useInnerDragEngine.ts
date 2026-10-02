@@ -62,16 +62,17 @@ export class DragEngineBase {
       // without it.
       const settings = getActiveDragPreviewSettings();
       const handle = getActivePreviewHandle();
-      const container = handle?.getContentContainer() ?? null;
+      const content = handle?.getContent();
       if (
         settings == null ||
         settings.render === null ||
         settings.disabled ||
         !handle ||
-        !container
+        !content
       ) {
         return;
       }
+      content.render = publishPreview as (parameters: DraggablePreviewRenderParameters) => void;
       const node = settings.render(payload);
       // The render function is consumer code and may have ended the drag.
       if (!isActive() || getActivePreviewHandle() !== handle) {
@@ -81,18 +82,9 @@ export class DragEngineBase {
       // nothing to copy and shows no preview until a later render returns content.
       publishDragPreview(this.getPreviewContext(), {
         node: node === false ? null : node,
-        container,
+        container: content.container,
         sync: handle.syncContent,
-        freeze: handle.freezeContent,
       });
-    };
-    const onGenerateDragPreview: DraggableConfig<TPayload, TDragData>['onGenerateDragPreview'] = (
-      payload,
-    ) => {
-      publishPreview(payload);
-      getActivePreviewHandle()?.setContentRenderer(
-        publishPreview as (parameters: DraggablePreviewRenderParameters) => void,
-      );
     };
 
     // The spread passes most parameters through, and only the preview and CSP
@@ -122,7 +114,7 @@ export class DragEngineBase {
         element,
         styleNonce: cspContext.nonce,
         disableStyleElements: cspContext.disableStyleElements,
-        onGenerateDragPreview,
+        onGenerateDragPreview: publishPreview,
       } as DraggableConfig<TPayload, TDragData>;
       return normalized;
     };

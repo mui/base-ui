@@ -11,7 +11,6 @@ function sourceOfKind(kind: symbol): DraggableRootRecord<unknown> {
     dragData: undefined,
     updatePayload() {},
     updateDragData() {},
-    renderPreview() {},
     payload: undefined,
   };
 }

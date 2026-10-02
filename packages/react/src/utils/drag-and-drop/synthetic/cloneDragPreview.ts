@@ -165,12 +165,16 @@ export interface DragPreviewElementHandle {
    */
   ensureConnected(): void;
   /**
-   * Write back what the engine owns on the preview element: its attributes, inline
-   * geometry, position and top-layer state, on top of `ownStyle`, the inline style
-   * the content itself has. The copy of custom content calls it after React updated
-   * the root's attributes.
+   * Reset content transition state and let the updater write the root's own style,
+   * then the engine's attributes and declarations. Refresh geometry and motion
+   * after the write, using the new cascade.
    */
-  restoreEngineState(ownStyle: string): void;
+  updateContentStyle(
+    write: (
+      styles: Map<string, [value: string, priority: string]>,
+      applyAttributes: () => void,
+    ) => void,
+  ): void;
   destroy(): void;
   /** Restore motion rules before the ending-style transition is measured. */
   prepareForDrop(): void;
@@ -720,7 +724,7 @@ function prepareDragPreviewClone(
     cloneNodes = [element, ...Array.from(element.querySelectorAll('*'))];
   }
   // A preview inside the source, in a `container` the source holds, would be copied
-  // into the next one. `source.renderPreview()` would then nest previews.
+  // into the next one. `Draggable.updatePreview()` would then nest previews.
   const previewNodes = new Set<Element>();
   for (const node of cloneNodes) {
     if (node !== element && node.hasAttribute(PREVIEW_ELEMENT_ATTRIBUTE)) {
@@ -1607,7 +1611,7 @@ export function createDragPreviewElement(
       writePosition();
     },
     ensureConnected: reconnect,
-    restoreEngineState(ownStyle) {
+    updateContentStyle(write) {
       if (destroyed) {
         return;
       }
@@ -1618,11 +1622,7 @@ export function createDragPreviewElement(
       dragTransition = null;
       engineStyles.delete('transition-duration');
       engineStyles.delete('transition-delay');
-      element.style.cssText = ownStyle;
-      applyEngineAttributes();
-      for (const [name, [value, priority]] of engineStyles) {
-        element.style.setProperty(name, value, priority);
-      }
+      write(engineStyles, applyEngineAttributes);
       updatePositionScale();
       refreshPopoverCorrections(false);
       neutralizeTranslateTransition();

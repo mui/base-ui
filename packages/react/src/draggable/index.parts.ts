@@ -16,6 +16,8 @@ export {
   anyDragKind as anyKind,
 } from '../utils/drag-and-drop/dragKind';
 
+export { updatePreview } from '../utils/drag-and-drop/synthetic/updatePreview';
+
 export {
   restrictToVerticalAxis,
   restrictToHorizontalAxis,

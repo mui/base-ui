@@ -376,21 +376,25 @@ describe('Draggable.Preview', () => {
     expect(screen.getByText('Preview B')).toBeInTheDocument();
   });
   describe('content updates', () => {
-    it('shows state changes from inside the content', async () => {
-      // The preview is a copy of the content, which stays a live React tree. A
-      // component that subscribes to the drag re-renders there, and the copy follows.
-      function TargetStatus() {
-        const [over, setOver] = React.useState(false);
-        Draggable.useMonitor({
-          onTargetChange: (eventDetails) => setOver(eventDetails.target !== null),
-        });
-        return <span data-testid="preview">{over ? 'Over a target' : 'Outside'}</span>;
-      }
+    function TargetStatus(props: { update?: boolean }) {
+      const [over, setOver] = React.useState(false);
+      Draggable.useMonitor({
+        onTargetChange: (eventDetails) => setOver(eventDetails.target !== null),
+      });
+      React.useEffect(() => {
+        if (props.update) {
+          Draggable.updatePreview();
+        }
+      }, [over, props.update]);
+      return <span data-testid="preview">{over ? 'Over a target' : 'Outside'}</span>;
+    }
+
+    async function hoverTarget(update: boolean) {
       rtlRender(
         <DraggableProvider>
           <Draggable.Root kind={testDragKind} data-testid="drag">
             <Draggable.Preview>
-              <TargetStatus />
+              <TargetStatus update={update} />
             </Draggable.Preview>
           </Draggable.Root>
           <Draggable.Target accept={Draggable.anyKind} data-testid="target" />
@@ -405,6 +409,20 @@ describe('Draggable.Preview', () => {
       await dragEnter(screen.getByTestId('target'));
       await dragOver(screen.getByTestId('target'));
       await flushRaf();
+    }
+
+    it('copies the content once, when the drag starts', async () => {
+      // The content stays a live React tree, but its later renders don't reach the
+      // copy on screen without `Draggable.updatePreview()`.
+      await hoverTarget(false);
+      expect(screen.getByTestId('preview')).toHaveTextContent('Outside');
+
+      cancel();
+      await flushRaf();
+    });
+
+    it('shows state changes from inside the content on Draggable.updatePreview()', async () => {
+      await hoverTarget(true);
       expect(screen.getByTestId('preview')).toHaveTextContent('Over a target');
       // Only the copy is in the document, and it is still the one element that follows
       // the pointer.
@@ -414,7 +432,7 @@ describe('Draggable.Preview', () => {
       await flushRaf();
     });
 
-    it('runs the children function again on source.renderPreview()', async () => {
+    it('runs the children function again on Draggable.updatePreview()', async () => {
       const renderContent = vi.fn((parameters: Draggable.Preview.RenderParameters) => (
         <span data-testid="preview">{String(parameters.source.dragData ?? 'start')}</span>
       ));
@@ -425,7 +443,7 @@ describe('Draggable.Preview', () => {
             data-testid="drag"
             onMove={(eventDetails) => {
               eventDetails.source.updateDragData(eventDetails.location.current.input.clientX);
-              eventDetails.source.renderPreview();
+              Draggable.updatePreview();
             }}
           >
             <Draggable.Preview>{renderContent}</Draggable.Preview>
@@ -437,6 +455,7 @@ describe('Draggable.Preview', () => {
 
       await lift(source, { clientX: 10, clientY: 10 });
       await dragOver(source, { clientX: 150, clientY: 10 });
+      await flushRaf();
 
       expect(screen.getByTestId('preview')).toHaveTextContent('150');
       // Called with the current location, not the one from the drag start.
@@ -447,19 +466,52 @@ describe('Draggable.Preview', () => {
       await flushRaf();
     });
 
-    it('clones the source again on source.renderPreview()', async () => {
-      let record: Draggable.Root.Record | null = null;
+    it('updates once for every call in the same frame', async () => {
+      const renderContent = vi.fn(() => <span>Preview</span>);
+      rtlRender(
+        <DraggableProvider>
+          <Draggable.Root kind={testDragKind} data-testid="drag">
+            <Draggable.Preview>{renderContent}</Draggable.Preview>
+          </Draggable.Root>
+        </DraggableProvider>,
+      );
+      const source = screen.getByTestId('drag');
+      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      await lift(source);
+      const calls = renderContent.mock.calls.length;
+
+      Draggable.updatePreview();
+      Draggable.updatePreview();
+      await flushRaf();
+
+      expect(renderContent).toHaveBeenCalledTimes(calls + 1);
+
+      cancel();
+      await flushRaf();
+    });
+
+    it('does nothing without a drag in progress', async () => {
+      const renderContent = vi.fn(() => <span>Preview</span>);
+      rtlRender(
+        <DraggableProvider>
+          <Draggable.Root kind={testDragKind} data-testid="drag">
+            <Draggable.Preview>{renderContent}</Draggable.Preview>
+          </Draggable.Root>
+        </DraggableProvider>,
+      );
+
+      Draggable.updatePreview();
+      await flushRaf();
+
+      expect(renderContent).not.toHaveBeenCalled();
+      expect(document.querySelector('[data-drag-preview]')).toBeNull();
+    });
+
+    it('clones the source again on Draggable.updatePreview()', async () => {
       function Fixture(props: { label: string }) {
         return (
           <DraggableProvider>
-            <Draggable.Root
-              kind={testDragKind}
-              data-testid="drag"
-              className="Card"
-              onMoveStart={(eventDetails) => {
-                record = eventDetails.source;
-              }}
-            >
+            <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
               {props.label}
             </Draggable.Root>
           </DraggableProvider>
@@ -474,7 +526,8 @@ describe('Draggable.Preview', () => {
       // The clone is a snapshot until asked for a new one.
       expect(document.querySelector('[data-drag-preview]')).toHaveTextContent('3 issues');
 
-      act(() => record!.renderPreview());
+      Draggable.updatePreview();
+      await flushRaf();
 
       const previews = document.querySelectorAll('[data-drag-preview]');
       expect(previews).toHaveLength(1);

@@ -263,13 +263,6 @@ export interface DraggableRootRecord<TPayload = unknown, TDragData = unknown> {
   readonly dragData: TDragData | undefined;
   /** Stores data for the rest of the current drag. */
   updateDragData(dragData: TDragData): void;
-  /**
-   * Renders the drag preview again. A custom preview runs its children function again,
-   * with the current `source` and `location`. The default preview clones the source again.
-   * Call it when the preview shows drag state, after `updateDragData` for example.
-   * It does nothing before the drag starts, as in `onBeforeMoveStart`, or after it ends.
-   */
-  renderPreview(): void;
 }
 
 /**

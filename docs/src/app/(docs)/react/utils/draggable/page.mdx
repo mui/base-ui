@@ -448,7 +448,7 @@ const card = Draggable.createKind<string, { grabOffsetX: number }>('card');
 />;
 ```
 
-To show drag data in a [custom preview](#custom-preview), call `source.renderPreview()` after updating it. To replace the payload itself, call `updatePayload`. Unlike drag data, the new payload stays after the drag ends, until the `payload` prop changes.
+To show drag data in a [custom preview](#custom-preview), call [`Draggable.updatePreview()`](#updatepreview) after updating it. To replace the payload itself, call `updatePayload`. Unlike drag data, the new payload stays after the drag ends, until the `payload` prop changes.
 
 ### Activation
 
@@ -640,7 +640,7 @@ import { DemoBadgePreview } from './demos/badge';
 
 <DemoBadgePreview />
 
-Base UI renders the children off-screen, then copies them into an element at the end of the source's parent, the same way it clones a source. The copy follows every later render of the children, so a component inside the preview can hold state or subscribe to the drag with [`useMonitor`](#usemonitor). Field values and 2D canvas drawings are copied on every frame. The copy keeps the children's IDs, unless the page already uses one, in which case it gets a suffix.
+Base UI renders the children off-screen, then copies them once into an element at the end of the source's parent, the same way it clones a source. The copy keeps the children's IDs, unless the page already uses one, in which case it gets a suffix.
 
 Refs inside the preview point at the off-screen elements, which have no layout to measure. The copy has no event handlers, and custom elements in the preview are constructed again for it.
 
@@ -663,7 +663,7 @@ Pass a function as children to build the preview from the dragged item. It recei
 </Draggable.Preview>
 ```
 
-Call `source.renderPreview()` from a drag handler to run the function again with the current `source` and `location`. Store what the preview shows with [`updateDragData`](#storing-data-during-a-drag) first:
+The preview shows what the children rendered when the drag started. To show something that changes during the drag, call [`Draggable.updatePreview()`](#updatepreview). It runs the function again with the current `source` and `location`, and the copy takes what changed. Store what the preview shows with [`updateDragData`](#storing-data-during-a-drag) first:
 
 ```tsx title="Showing the drop time in the preview"
 const event = Draggable.createKind<string, { time: string }>('event');
@@ -672,8 +672,11 @@ const event = Draggable.createKind<string, { time: string }>('event');
   kind={event}
   payload={id}
   onMove={(eventDetails) => {
-    eventDetails.source.updateDragData({ time: getTimeAt(eventDetails.location.current.input) });
-    eventDetails.source.renderPreview();
+    const time = getTimeAt(eventDetails.location.current.input);
+    if (time !== eventDetails.source.dragData?.time) {
+      eventDetails.source.updateDragData({ time });
+      Draggable.updatePreview();
+    }
   }}
 >
   {title}
@@ -683,7 +686,23 @@ const event = Draggable.createKind<string, { time: string }>('event');
 </Draggable.Root>;
 ```
 
-Without custom children, `source.renderPreview()` clones the source again, which picks up content the source changed during the drag.
+A component inside the preview, such as one that holds state or subscribes to the drag with [`useMonitor`](#usemonitor), still re-renders off-screen. Call `Draggable.updatePreview()` when what it shows changes, from an effect for example:
+
+```tsx title="A preview component that keeps its copy up to date"
+function TargetName() {
+  const [name, setName] = React.useState<string | null>(null);
+  Draggable.useMonitor({
+    onTargetChange: (eventDetails) =>
+      setName(eventDetails.target?.element.getAttribute('aria-label') ?? null),
+  });
+  React.useEffect(() => {
+    Draggable.updatePreview();
+  }, [name]);
+  return <span className="Chip">{name ? `Move to ${name}` : 'Moving'}</span>;
+}
+```
+
+Without custom children, `Draggable.updatePreview()` clones the source again, which picks up content the source changed during the drag.
 
 The engine positions the preview through its `margin` and `translate`, so the preview's own `margin` and `translate` shift it from its [offset](#preview-position), the way they would shift it in place. Percentages in `translate` refer to the preview's own size.
 
@@ -1250,6 +1269,14 @@ A kind that matches every drag. Pass it to a target's `accept` prop to accept ev
 />
 ```
 
+## updatePreview
+
+Updates the preview of the drag in progress. A [custom preview](#custom-preview) renders its children again with the current `source` and `location`, and the copy on screen takes what changed. The default preview clones the source again. It does nothing when no drag is in progress.
+
+The update runs before the next paint, after React has rendered the updates already scheduled, so state set right before the call shows. Calls in the same frame share one update.
+
+<TypesDraggable.updatePreview hideDescription />
+
 ## Modifiers
 
 These are the built-in [movement modifiers](#constraining-movement). Pass them to the `modifiers` prop of `<Draggable.Root>` or `<Draggable.Preview>`. To write your own, type it as `Draggable.Root.Modifier`, as shown in [Custom modifiers](#custom-modifiers).
@@ -1341,13 +1368,13 @@ React.useEffect(() => {
 
 The manager and its methods are stable, so you can list them as effect dependencies. Base UI reads each option at these times:
 
-| Option                                                  | When it's read                                                                        |
-| :------------------------------------------------------ | :------------------------------------------------------------------------------------ |
-| Event handlers and predicates, such as `canDrop`        | Every time they're needed, so they see the latest closure.                            |
-| A source's `kind` and preview settings                  | Once when a drag starts. `preview.render` runs again on each `renderPreview()`.       |
-| A source's `payload`                                    | At pickup, and whenever it changes during the drag.                                   |
-| A target's `kind` and `payload`                         | Each time the target is evaluated, including on drop.                                 |
-| `disabled`, `handle`, and the styles applied while idle | At registration and on the next `pointerdown`. Re-register to apply a change at once. |
+| Option                                                  | When it's read                                                                            |
+| :------------------------------------------------------ | :---------------------------------------------------------------------------------------- |
+| Event handlers and predicates, such as `canDrop`        | Every time they're needed, so they see the latest closure.                                |
+| A source's `kind` and preview settings                  | Once when a drag starts. `preview.render` runs again on each `Draggable.updatePreview()`. |
+| A source's `payload`                                    | At pickup, and whenever it changes during the drag.                                       |
+| A target's `kind` and `payload`                         | Each time the target is evaluated, including on drop.                                     |
+| `disabled`, `handle`, and the styles applied while idle | At registration and on the next `pointerdown`. Re-register to apply a change at once.     |
 
 ### registerSource
 

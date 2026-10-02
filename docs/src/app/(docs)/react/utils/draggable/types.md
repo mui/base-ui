@@ -314,13 +314,6 @@ type DraggableRootRecord<TPayload = unknown, TDragData = unknown> = {
   dragData: TDragData | undefined;
   /** Stores data for the rest of the current drag. */
   updateDragData: updateDragData;
-  /**
-   * Renders the drag preview again. A custom preview runs its children function again,
-   * with the current `source` and `location`. The default preview clones the source again.
-   * Call it when the preview shows drag state, after `updateDragData` for example.
-   * It does nothing before the drag starts, as in `onBeforeMoveStart`, or after it ends.
-   */
-  renderPreview: renderPreview;
 };
 ```
 
@@ -853,7 +846,7 @@ source while dragging. The children read React context from above the nearest `<
 | offset    | `Draggable.Preview.Offset`                                                                                                                                                               | `'source'` | Where the preview sits relative to the pointer.                                                                                                                                                                                                 |
 | container | `Draggable.Preview.Container`                                                                                                                                                            | -          | Where to insert the preview element in the DOM. Defaults to the end of the&#xA;source's parent, so the same CSS applies to it. Pass a container to keep&#xA;selectors such as `:last-child` on the source's siblings unchanged during the drag. |
 | disabled  | `boolean`                                                                                                                                                                                | `false`    | Whether to show no preview. The drag still runs.                                                                                                                                                                                                |
-| children  | `React.ReactNode \| ((parameters: Draggable.Preview.RenderParameters<TPayload, TDragData>) => React.ReactNode) \| ((parameters: Draggable.Preview.RenderParameters) => React.ReactNode)` | -          | The preview content. Pass a function to build the content from the drag source&#xA;when the drag starts, and again on each `source.renderPreview()` call. It can&#xA;return `null` to show no preview.                                          |
+| children  | `React.ReactNode \| ((parameters: Draggable.Preview.RenderParameters<TPayload, TDragData>) => React.ReactNode) \| ((parameters: Draggable.Preview.RenderParameters) => React.ReactNode)` | -          | The preview content. Pass a function to build the content from the drag source&#xA;when the drag starts, and again on each `Draggable.updatePreview()` call. It can&#xA;return `null` to show no preview.                                       |
 | className | `string \| ((state: Draggable.Preview.State) => string \| undefined)`                                                                                                                    | -          | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                        |
 | style     | `React.CSSProperties \| ((state: Draggable.Preview.State) => React.CSSProperties \| undefined)`                                                                                          | -          | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                     |
 | render    | `ReactElement \| ((props: HTMLProps, state: Draggable.Preview.State) => ReactElement)`                                                                                                   | -          | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                   |
@@ -921,7 +914,7 @@ type DraggablePreviewOffsetParameters = {
 type DraggablePreviewParameters<TSourcePayload = unknown, TDragData = unknown> = {
   /**
    * Renders the preview content instead of cloning the source, when the drag starts
-   * and on each `source.renderPreview()` call. Return `null` to show no preview. It
+   * and on each `Draggable.updatePreview()` call. Return `null` to show no preview. It
    * plays the role of `<Draggable.Preview>`'s children function, not of its `render`
    * prop. A single root element becomes the preview element. Other content is wrapped
    * in a `<div>`.
@@ -1494,6 +1487,22 @@ type DraggableTargetStartEventDetails<
 
 ```typescript
 type DraggableTargetStartEventReason = 'double-click' | 'pointer';
+```
+
+### updatePreview
+
+Updates the preview of the drag in progress. A custom preview renders again with the
+current `source` and `location`, and the copy on screen takes what changed. Without
+custom content, the source is cloned again. Does nothing when no drag is in progress.
+
+The update runs before the next paint, after React has rendered the updates already
+scheduled, so state set right before the call shows. Calls in the same frame share
+one update.
+
+**Return Value:**
+
+```tsx
+type ReturnValue = void;
 ```
 
 ### useActiveDrag
@@ -2713,12 +2722,6 @@ type updatePayload = (payload: unknown) => void;
 type updateDragData = (dragData: unknown) => void;
 ```
 
-### renderPreview
-
-```typescript
-type renderPreview = () => void;
-```
-
 ### matches
 
 ```typescript
@@ -2731,7 +2734,6 @@ type matches =
       updatePayload: unknown;
       dragData: unknown;
       updateDragData: unknown;
-      renderPreview: unknown;
     }) => boolean)
   | ((target: {
       element: Element;
@@ -2760,6 +2762,7 @@ type matches =
 - `Draggable.createKind`
 - `Draggable.createGlobalKind`
 - `Default`: `Draggable.anyKind`, `Draggable.Accept`, `Draggable.AcceptedKind`, `Draggable.Input`, `Draggable.Kind`, `Draggable.Location`, `Draggable.LocationHistory`, `Draggable.PointerType`, `Draggable.Position`, `DraggableRootDataAttributes`, `DraggableHandleDataAttributes`, `DraggablePreviewCssVariables`, `DraggablePreviewDataAttributes`, `DraggableTargetDataAttributes`, `DraggableViewportDataAttributes`, `DraggableProviderProps`, `DraggablePointerType`, `DraggableInput`, `DraggablePosition`, `DraggableLocation`, `DraggableLocationHistory`, `DraggableKind`, `DraggableAccept`, `DraggableAcceptedKind`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootRecord`, `DraggableRootElementReference`, `DraggableRootModifierContext`, `DraggableRootModifier`, `DraggableRootModifiers`, `DraggableRootBeforeMoveStartEventDetails`, `DraggableRootBeforeMoveStartEventReason`, `DraggableRootMoveStartEventDetails`, `DraggableRootMoveStartEventReason`, `DraggableRootMoveEventDetails`, `DraggableRootMoveEventReason`, `DraggableRootTargetChangeEventDetails`, `DraggableRootTargetChangeEventReason`, `DraggableRootMoveEndEventDetails`, `DraggableRootMoveEndEventReason`, `DraggableRootActivation`, `DraggableRootActivationConfig`, `DraggableHandleState`, `DraggableHandleProps`, `DraggableHandleReference`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewRenderParameters`, `DraggablePreviewOffsetParameters`, `DraggablePreviewOffset`, `DraggablePreviewContainer`, `DraggablePreviewSettings`, `DraggablePreviewParameters`, `DraggableTargetState`, `DraggableTargetProps`, `DraggableTargetLocalPoint`, `DraggableTargetSnapSteps`, `DraggableTargetSnappedLocalPointOptions`, `DraggableTargetRecord`, `DraggableTargetResolutionContext`, `DraggableTargetStartEventDetails`, `DraggableTargetStartEventReason`, `DraggableTargetMoveEventDetails`, `DraggableTargetMoveEventReason`, `DraggableTargetEnterEventDetails`, `DraggableTargetEnterEventReason`, `DraggableTargetLeaveEventDetails`, `DraggableTargetLeaveEventReason`, `DraggableTargetDropEventDetails`, `DraggableTargetDropEventReason`, `DraggableViewportState`, `DraggableViewportProps`, `DraggableViewportOverflowMargin`, `DraggableViewportMaxSpeedContext`, `DraggableViewportDragScrollDirection`, `DraggableViewportDragScrollEventDetails`, `DraggableViewportDragScrollEventReason`, `DraggableCollisionProviderProps`, `DraggableCollisionProviderMoveStartEventDetails`, `DraggableCollisionProviderMoveStartEventReason`, `DraggableCollisionProviderCollisionChangeEventDetails`, `DraggableCollisionProviderCollisionChangeEventReason`, `DraggableCollisionProviderMoveEndEventDetails`, `DraggableCollisionProviderMoveEndEventReason`, `UseActiveDragReturnValue`, `UseDraggableMonitorParameters`, `UseDraggableManagerReturnValue`, `DraggableManagerRegisterSourceParameters`, `DraggableManagerRegisterTargetParameters`, `DraggableManagerRegisterViewportParameters`, `DraggableManagerRegisterMonitorParameters`
+- `Draggable.updatePreview`
 - `Draggable.restrictToVerticalAxis`
 - `Draggable.restrictToHorizontalAxis`
 - `Draggable.restrictToWindowEdges`

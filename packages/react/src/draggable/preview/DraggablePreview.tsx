@@ -145,7 +145,7 @@ export interface DraggablePreviewProps
   /**
    * The preview content. Omit it to clone the source instead.
    * Pass a function to build the content from the drag source when the drag starts,
-   * and again on each `source.renderPreview()` call. It can return `null` to show no
+   * and again on each `Draggable.updatePreview()` call. It can return `null` to show no
    * preview. Its `source.payload` is `unknown` unless a `kind` is passed.
    */
   children?:
@@ -170,7 +170,7 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
   kind: DraggableKind<TPayload, TDragData>;
   /**
    * The preview content. Pass a function to build the content from the drag source
-   * when the drag starts, and again on each `source.renderPreview()` call. It can
+   * when the drag starts, and again on each `Draggable.updatePreview()` call. It can
    * return `null` to show no preview.
    */
   children?:
@@ -181,7 +181,7 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
 
 /**
  * The argument of `<Draggable.Preview>`'s children function and of `registerSource`'s
- * `preview.render`, called when the drag starts and on each `source.renderPreview()`.
+ * `preview.render`, called when the drag starts and on each `Draggable.updatePreview()`.
  */
 export interface DraggablePreviewRenderParameters<TSourcePayload = unknown, TDragData = unknown> {
   /** The item being dragged. */
@@ -265,7 +265,7 @@ export interface DraggablePreviewParameters<
 > extends DraggablePreviewSettings {
   /**
    * Renders the preview content instead of cloning the source, when the drag starts
-   * and on each `source.renderPreview()` call. Return `null` to show no preview. It
+   * and on each `Draggable.updatePreview()` call. Return `null` to show no preview. It
    * plays the role of `<Draggable.Preview>`'s children function, not of its `render`
    * prop. A single root element becomes the preview element. Other content is wrapped
    * in a `<div>`.

@@ -23,6 +23,7 @@ describe('Draggable namespace', () => {
         'restrictToVerticalAxis',
         'restrictToWindowEdges',
         'snapToGrid',
+        'updatePreview',
         'useActiveDrag',
         'useManager',
         'useMonitor',

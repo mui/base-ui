@@ -22,11 +22,11 @@ function selectPreviewState(
  * Renders the content a `Draggable.Preview` declared for the active drag.
  *
  * The content renders into a detached element, never into the document. The engine
- * copies it into the preview element it inserted beside the drag source (or into
- * the configured `container`), the same way it clones a source. It keeps that copy
- * in step with every later commit, so components in the content can keep state and
- * subscribe to the drag. The copy is engine-owned, which lets the preview outlive
- * a source that a virtualizer unmounts mid-drag.
+ * copies it once into the preview element it inserted beside the drag source (or into
+ * the configured `container`), the same way it clones a source. Later renders reach
+ * the copy through `Draggable.updatePreview()`. The copy is engine-owned, which lets
+ * the preview outlive a source that a virtualizer unmounts mid-drag, or the provider
+ * itself.
  *
  * Renders only previews published through its own `Draggable.Provider`, so the
  * content stays in that React tree while the drag itself is global.
@@ -35,19 +35,10 @@ export function PreviewOverlayRenderer(): React.ReactNode {
   const previewContext = useDraggableContext();
   const preview = useStore(dragPreviewStore, selectPreviewState, previewContext);
 
-  // Copy the content as soon as it is committed. The engine would otherwise pick it
-  // up in a microtask, which is still before paint but after the commit returns.
+  // Copy the content once it is committed, before paint.
   useIsoLayoutEffect(() => {
     preview?.sync();
   });
-
-  // A provider that unmounts mid-drag takes the content with it. This cleanup runs
-  // before React removes the portal's children, so the preview keeps its last
-  // content until the drag ends instead of emptying. The container is the same
-  // for every render of one drag, so a `renderPreview()` doesn't trigger it.
-  const container = preview?.container;
-  const freeze = preview?.freeze;
-  useIsoLayoutEffect(() => () => freeze?.(), [container, freeze]);
 
   if (!preview) {
     return null;

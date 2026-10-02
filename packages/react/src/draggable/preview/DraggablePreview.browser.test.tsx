@@ -4,7 +4,7 @@ import { screen, render as rtlRender } from '@testing-library/react';
 import { isJSDOM, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { act } from '@mui/internal-test-utils';
-import { setupDragEngineTests, fireDrag } from '../../../test/dnd';
+import { setupDragEngineTests, fireDrag, flushRaf } from '../../../test/dnd';
 import { DraggableProvider } from '../DraggableProvider';
 
 setupDragEngineTests();
@@ -164,13 +164,15 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     },
   );
 
-  it('copies what the content draws on a canvas after the copy is made', async () => {
+  it('copies what the content draws on a canvas on Draggable.updatePreview()', async () => {
     function Drawing() {
       const ref = React.useRef<HTMLCanvasElement>(null);
       React.useEffect(() => {
         const context = ref.current!.getContext('2d')!;
         context.fillStyle = 'rgb(0, 128, 0)';
         context.fillRect(0, 0, 4, 4);
+        // The drawing happens after the copy was made.
+        Draggable.updatePreview();
       }, []);
       return <canvas ref={ref} width={4} height={4} />;
     }
@@ -246,21 +248,14 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     );
   });
 
-  it('measures the popover corrections again when the content restyles its root', () => {
+  it('measures the popover corrections again when the content restyles its root', async () => {
     // The UA `[popover]` rule gives an unstyled root an opaque `Canvas` background,
     // which the engine corrects. A later style from the content must still apply.
     style.textContent = '.Green { background-color: rgb(0, 128, 0); }';
-    let record: Draggable.Root.Record | null = null;
     function Fixture(props: { tone: string }) {
       return (
         <DraggableProvider>
-          <Draggable.Root
-            kind={testDragKind}
-            data-testid="drag"
-            onMoveStart={(eventDetails) => {
-              record = eventDetails.source;
-            }}
-          >
+          <Draggable.Root kind={testDragKind} data-testid="drag">
             <Draggable.Preview className={props.tone}>
               <span data-testid="preview">Preview</span>
             </Draggable.Preview>
@@ -274,26 +269,19 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     expect(getComputedStyle(preview()).backgroundColor).toBe('rgba(0, 0, 0, 0)');
 
     rerender(<Fixture tone="Green" />);
-    act(() => record!.renderPreview());
+    Draggable.updatePreview();
+    await flushRaf();
 
     expect(getComputedStyle(preview()).backgroundColor).toBe('rgb(0, 128, 0)');
   });
-  it('does not copy its previous preview when it clones the source again', () => {
+  it('does not copy its previous preview when it clones the source again', async () => {
     // A `container` inside the source holds the preview, so a second clone of the
     // source would include the first preview. A child combinator matches inside
     // that preview too, and its snapshot has no counterpart in the new clone.
     style.textContent = '.Card > span { color: rgb(255, 0, 0); }';
-    let record: Draggable.Root.Record | null = null;
     rtlRender(
       <DraggableProvider>
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="drag"
-          className="Card"
-          onMoveStart={(eventDetails) => {
-            record = eventDetails.source;
-          }}
-        >
+        <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
           <span>Source</span>
           <div className="Slot" />
           <Draggable.Preview container={(source) => source.querySelector<HTMLElement>('.Slot')} />
@@ -304,8 +292,10 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
     fireDrag.dragStart(source);
-    act(() => record!.renderPreview());
-    act(() => record!.renderPreview());
+    Draggable.updatePreview();
+    await flushRaf();
+    Draggable.updatePreview();
+    await flushRaf();
 
     expect(document.querySelectorAll('[data-drag-preview]')).toHaveLength(1);
   });
