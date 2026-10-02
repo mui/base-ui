@@ -4,6 +4,7 @@ import type { UserEvent } from '@testing-library/user-event';
 import { act, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Dialog } from '@base-ui/react/dialog';
+import { Popover } from '@base-ui/react/popover';
 import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Dialog.Root />', () => {
@@ -11,6 +12,84 @@ describe('<Dialog.Root />', () => {
 
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
+  it('does not re-render inactive triggers when the popup reopens', async () => {
+    const handle = Dialog.createHandle();
+    let inactiveTriggerRenders = 0;
+
+    const { user } = await render(
+      <div>
+        <Dialog.Trigger handle={handle} id="trigger-1">
+          Trigger 1
+        </Dialog.Trigger>
+        <Dialog.Trigger
+          handle={handle}
+          id="trigger-2"
+          render={(props) => {
+            inactiveTriggerRenders += 1;
+            return <button {...props} />;
+          }}
+        >
+          Trigger 2
+        </Dialog.Trigger>
+        <Dialog.Root handle={handle}>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="popup">Content</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </div>,
+    );
+
+    async function openAndClose() {
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      expect(await screen.findByTestId('popup')).not.toBe(null);
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    }
+
+    // The first open publishes the inactive trigger handlers once.
+    await openAndClose();
+    inactiveTriggerRenders = 0;
+
+    await openAndClose();
+    expect(inactiveTriggerRenders).toBe(0);
+  });
+
+  it('closes a nonmodal dialog on Escape from an inactive trigger inside a popover', async () => {
+    const { user } = await render(
+      <Popover.Root defaultOpen>
+        <Popover.Trigger>Popover trigger</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup data-testid="popover">
+              <Dialog.Root modal={false}>
+                <Dialog.Trigger>Dialog trigger 1</Dialog.Trigger>
+                <Dialog.Trigger>Dialog trigger 2</Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="dialog">Dialog</Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Dialog trigger 1' }));
+    expect(await screen.findByTestId('dialog')).not.toBe(null);
+
+    await act(async () => {
+      screen.getByRole('button', { name: 'Dialog trigger 2' }).focus();
+    });
+    await user.keyboard('[Escape]');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('dialog')).toBe(null);
+    });
+    expect(screen.queryByTestId('popover')).not.toBe(null);
   });
 
   describe('handle-backed root ownership', () => {

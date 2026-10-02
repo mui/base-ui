@@ -196,6 +196,52 @@ describe('<Popover.Root />', () => {
     expect(refCalls).toEqual([screen.getByRole('button', { name: 'Trigger' })]);
   });
 
+  it('does not re-render inactive triggers when the popup reopens', async () => {
+    const handle = Popover.createHandle();
+    let inactiveTriggerRenders = 0;
+
+    const { user } = await render(
+      <div>
+        <Popover.Trigger handle={handle} id="trigger-1">
+          Trigger 1
+        </Popover.Trigger>
+        <Popover.Trigger
+          handle={handle}
+          id="trigger-2"
+          render={(props) => {
+            inactiveTriggerRenders += 1;
+            return <button {...props} />;
+          }}
+        >
+          Trigger 2
+        </Popover.Trigger>
+        <Popover.Root handle={handle}>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup">Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      </div>,
+    );
+
+    async function openAndClose() {
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      expect(await screen.findByTestId('popup')).not.toBe(null);
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    }
+
+    // The first open publishes the inactive trigger handlers once.
+    await openAndClose();
+    inactiveTriggerRenders = 0;
+
+    await openAndClose();
+    expect(inactiveTriggerRenders).toBe(0);
+  });
+
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
 

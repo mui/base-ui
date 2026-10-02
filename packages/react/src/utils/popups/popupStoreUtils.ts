@@ -609,20 +609,77 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
 
 type PopupInteractionPropKey = 'activeTriggerProps' | 'inactiveTriggerProps' | 'popupProps';
 
+type InactiveTriggerPropsForwarder = {
+  keys: string;
+  props: HTMLProps;
+  target: { current: HTMLProps };
+};
+
+const inactiveTriggerPropsForwarders = new WeakMap<object, InactiveTriggerPropsForwarder>();
+
+// Reuses the store's forwarder while the handler names match, so remounting the interactions
+// publishes the same object.
+function getInactiveTriggerPropsForwarder(store: object, handlers: HTMLProps) {
+  const keys = Object.keys(handlers).join();
+  let forwarder = inactiveTriggerPropsForwarders.get(store);
+
+  if (forwarder?.keys !== keys) {
+    const target = { current: handlers };
+    const props: Record<string, (event: unknown) => void> = {};
+    Object.keys(handlers).forEach((key) => {
+      props[key] = (event) =>
+        (target.current as Record<string, ((event: unknown) => void) | undefined>)[key]?.(event);
+    });
+    forwarder = { keys, props, target };
+    inactiveTriggerPropsForwarders.set(store, forwarder);
+  }
+
+  return forwarder;
+}
+
 export function usePopupInteractionProps<
   State extends PopupStoreState<unknown>,
   const Key extends keyof State,
 >(
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
   statePart: Pick<State, Key | PopupInteractionPropKey>,
+  options: {
+    /**
+     * Publishes `inactiveTriggerProps` (event handlers only) through a stable object that forwards
+     * to them while mounted. Popups that mount their interactions only while open use this so
+     * opening and closing doesn't re-render every inactive trigger.
+     */
+    forwardInactiveTriggerProps?: boolean | undefined;
+  } = EMPTY_OBJECT,
 ) {
-  store.useSyncedValues(statePart);
+  const inactiveTriggerProps = statePart.inactiveTriggerProps;
+  const forwarder = options.forwardInactiveTriggerProps
+    ? getInactiveTriggerPropsForwarder(store, inactiveTriggerProps)
+    : undefined;
+
+  store.useSyncedValues(
+    forwarder ? { ...statePart, inactiveTriggerProps: forwarder.props } : statePart,
+  );
+
+  useIsoLayoutEffect(() => {
+    if (!forwarder) {
+      return undefined;
+    }
+
+    forwarder.target.current = inactiveTriggerProps;
+    return () => {
+      forwarder.target.current = EMPTY_OBJECT;
+    };
+  }, [forwarder, inactiveTriggerProps]);
 
   useIsoLayoutEffect(
     () => () => {
+      const forwardedProps = inactiveTriggerPropsForwarders.get(store)?.props;
       store.update({
         activeTriggerProps: EMPTY_OBJECT,
-        inactiveTriggerProps: EMPTY_OBJECT,
+        // An unmounted forwarder is inert, so leave it published for the next mount to reuse.
+        inactiveTriggerProps:
+          store.state.inactiveTriggerProps === forwardedProps ? forwardedProps : EMPTY_OBJECT,
         popupProps: EMPTY_OBJECT,
       });
     },

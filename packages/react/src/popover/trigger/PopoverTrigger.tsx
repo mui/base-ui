@@ -16,7 +16,6 @@ import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { REASONS } from '../../internals/reasons';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
@@ -75,14 +74,13 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     },
   );
 
-  const openReason = store.useState('openChangeReason');
+  const isPressOpenedByThisTrigger = store.useState('isPressOpenedByTrigger', thisTriggerId);
+  const isTouchPressOpen = store.useState('isTouchPressOpen');
   const stickIfOpen = store.useState('stickIfOpen');
-  const openMethod = store.useState('openMethod');
   const focusManagerModal = store.useState('focusManagerModal');
 
   const hoverProps = useHoverReferenceInteraction(floatingContext, {
-    enabled:
-      !disabled && openOnHover && (openMethod !== 'touch' || openReason !== REASONS.triggerPress),
+    enabled: !disabled && openOnHover && !isTouchPressOpen,
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
@@ -112,7 +110,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
 
   const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = {
     open(value) {
-      if (value && openReason === REASONS.triggerPress) {
+      if (value && isPressOpenedByThisTrigger) {
         return pressableTriggerOpenStateMapping.open(value);
       }
 

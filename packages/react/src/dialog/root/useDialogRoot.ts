@@ -111,17 +111,21 @@ export function DialogInteractions({
     };
   }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
-  usePopupInteractionProps(store, {
-    // `enabled` is not passed to `useDismiss`, so its props are always defined,
-    // and `trigger` is the same object as `reference`.
-    activeTriggerProps: dismiss.reference!,
-    inactiveTriggerProps: dismiss.trigger!,
-    // DialogPopup and DrawerPopup spread `FOCUSABLE_POPUP_PROPS` directly, so
-    // this only needs to carry the dismiss handlers.
-    popupProps: dismiss.floating!,
-    nestedOpenDialogCount: ownNestedOpenDialogs,
-    nestedOpenDrawerCount: ownNestedOpenDrawers,
-  });
+  usePopupInteractionProps(
+    store,
+    {
+      // `enabled` is not passed to `useDismiss`, so its props are always defined,
+      // and `trigger` is the same object as `reference`.
+      activeTriggerProps: dismiss.reference!,
+      inactiveTriggerProps: dismiss.trigger!,
+      // DialogPopup and DrawerPopup spread `FOCUSABLE_POPUP_PROPS` directly, so
+      // this only needs to carry the dismiss handlers.
+      popupProps: dismiss.floating!,
+      nestedOpenDialogCount: ownNestedOpenDialogs,
+      nestedOpenDrawerCount: ownNestedOpenDrawers,
+    },
+    { forwardInactiveTriggerProps: true },
+  );
 
   return null;
 }

@@ -251,11 +251,15 @@ function PopoverInteractions({
   // props only need to carry the dismiss handlers.
   const popupProps = dismiss.floating!;
 
-  usePopupInteractionProps(store, {
-    activeTriggerProps: triggerProps,
-    inactiveTriggerProps: triggerProps,
-    popupProps,
-  });
+  usePopupInteractionProps(
+    store,
+    {
+      activeTriggerProps: triggerProps,
+      inactiveTriggerProps: triggerProps,
+      popupProps,
+    },
+    { forwardInactiveTriggerProps: true },
+  );
 
   return null;
 }

@@ -272,11 +272,17 @@ function TooltipInteractions<Payload>({
     () => mergeProps(clientPoint.reference, dismiss.reference),
     [clientPoint.reference, dismiss.reference],
   );
-  usePopupInteractionProps(store, {
-    activeTriggerProps: triggerProps,
-    inactiveTriggerProps: triggerProps,
-    popupProps: dismiss.floating ?? EMPTY_OBJECT,
-  });
+  // TooltipTrigger only applies root props to inactive triggers while tracking the cursor.
+  const tracksCursor = trackCursorAxis !== 'none';
+  usePopupInteractionProps(
+    store,
+    {
+      activeTriggerProps: triggerProps,
+      inactiveTriggerProps: tracksCursor ? triggerProps : EMPTY_OBJECT,
+      popupProps: dismiss.floating ?? EMPTY_OBJECT,
+    },
+    { forwardInactiveTriggerProps: tracksCursor },
+  );
 
   return null;
 }

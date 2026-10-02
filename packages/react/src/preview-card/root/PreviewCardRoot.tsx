@@ -96,11 +96,15 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
 
   // `useDismiss` is not given an `enabled` option, so all three prop bags are always defined.
   // `dismiss.trigger` is the same object as `dismiss.reference`.
-  usePopupInteractionProps(store, {
-    activeTriggerProps: dismiss.reference!,
-    inactiveTriggerProps: dismiss.trigger!,
-    popupProps: dismiss.floating!,
-  });
+  usePopupInteractionProps(
+    store,
+    {
+      activeTriggerProps: dismiss.reference!,
+      inactiveTriggerProps: dismiss.trigger!,
+      popupProps: dismiss.floating!,
+    },
+    { forwardInactiveTriggerProps: true },
+  );
 
   return null;
 }
