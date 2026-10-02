@@ -48,6 +48,34 @@ Working with Tooltip is a common example.
 </Dialog.Root>
 ```
 
+## How props are merged
+
+When the `render` prop receives an element, the part's props and the element's props are merged onto a single element:
+
+- Props set on the render element take precedence over the part's props.
+- `className` strings are combined, and `style` objects are merged.
+- Event handlers from both are called, starting with the render element's handler.
+- Refs from both are kept.
+
+This lets two Base UI parts share one element and keep the behavior of both.
+For example, `<Tabs.List>` can render `<ScrollArea.Viewport>` directly when the tab list itself needs the viewport overflow values for a mask fade.
+This keeps the mask logic on the same element that receives the scroll state:
+
+```tsx title="index.tsx"
+<Tabs.Root defaultValue="overview">
+  <ScrollArea.Root>
+    {/* @highlight */}
+    <Tabs.List render={<ScrollArea.Viewport />}>
+      <Tabs.Tab value="overview">Overview</Tabs.Tab>
+      <Tabs.Indicator />
+    </Tabs.List>
+  </ScrollArea.Root>
+  <Tabs.Panel value="overview">...</Tabs.Panel>
+</Tabs.Root>
+```
+
+See [`mergeProps`](/react/utils/merge-props) for the complete merging rules.
+
 ## Changing the default rendered element
 
 You can also use the `render` prop to override the rendered element of the component.
