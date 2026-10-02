@@ -8269,6 +8269,49 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: filter', () => {
+    it.each([
+      { filtering: 'filter', value: null },
+      { filtering: 'filteredItems', value: null },
+      { filtering: 'filter', value: '' },
+      { filtering: 'filteredItems', value: '' },
+    ])(
+      'honors $filtering for a punctuation query when the selected value is $value',
+      async ({ filtering, value }) => {
+        const items = value === null ? ['#tag', 'Banana'] : ['', '#tag', 'Banana'];
+        await render(
+          <Combobox.Root
+            items={items}
+            defaultValue={value}
+            defaultInputValue="#"
+            defaultOpen
+            locale="en"
+            filter={filtering === 'filter' ? (item, query) => item.startsWith(query) : undefined}
+            filteredItems={filtering === 'filteredItems' ? ['#tag'] : undefined}
+          >
+            <Combobox.Input aria-label="Search" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        expect(await screen.findByRole('option', { name: '#tag' })).toBeVisible();
+        expect(screen.queryByRole('option', { name: 'Banana' })).toBeNull();
+        expect(screen.getAllByRole('option')).toHaveLength(1);
+        expect(screen.getByRole('combobox')).toHaveValue('#');
+      },
+    );
+
     it('uses custom filter to narrow results', async () => {
       const items = ['alpha', 'beta', 'alphabet', 'alpine'];
       const startsWith = (item: string, q: string) => item.toLowerCase().startsWith(q);

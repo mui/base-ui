@@ -346,6 +346,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     single &&
     !queryChangedAfterOpen &&
     query !== '' &&
+    selectedLabelString !== '' &&
     textMatcher.equals(selectedLabelString, query);
 
   const filterQuery = shouldBypassFiltering ? '' : (filterQueryProp ?? query);
