@@ -115,7 +115,7 @@
     "vitest": "5.0.2"
   },
   "config": {
-    "valeVersion": "3.22.0"
+    "valeVersion": "3.24.0"
   },
   "packageManager": "pnpm@12.6.0",
   "engines": {
