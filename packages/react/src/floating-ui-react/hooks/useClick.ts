@@ -158,10 +158,19 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
 
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
+        // A screen reader press opens synchronously, so the popup's focus lands before the reader
+        // re-syncs focus to its cursor, which would otherwise read as a stray move.
         const target = getTarget(nativeEvent);
+        const isTypeable = isTypeableElement(target);
 
-        if (isTypeableElement(target)) {
-          setOpenWithTouchDelay(nextOpen, nativeEvent, target as HTMLElement, pointerType);
+        if (isTypeable || pointerType === 'virtual') {
+          // A virtual press may target a descendant of the trigger; the trigger is what opened.
+          setOpenWithTouchDelay(
+            nextOpen,
+            nativeEvent,
+            (isTypeable ? target : event.currentTarget) as HTMLElement,
+            pointerType,
+          );
           return;
         }
 

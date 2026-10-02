@@ -297,6 +297,15 @@ function hasMovedNode(entries: MutationRecord[]) {
 }
 
 function sortByDocumentPosition(a: Element, b: Element) {
+  // Adjacent siblings are the common case for lists that are already in order, and
+  // `compareDocumentPosition` scans siblings from the parent's first child, so sorting
+  // a long flat list would otherwise be quadratic.
+  if (a.nextElementSibling === b) {
+    return -1;
+  }
+  if (b.nextElementSibling === a) {
+    return 1;
+  }
   // `DOCUMENT_POSITION_CONTAINED_BY` is always reported alongside `FOLLOWING`, and `CONTAINS`
   // alongside `PRECEDING`, so testing `FOLLOWING` alone orders siblings and nested items alike.
   return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;

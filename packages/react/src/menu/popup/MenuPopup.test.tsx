@@ -1,7 +1,7 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, wait } from '#test-utils';
 import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { ToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 
@@ -39,6 +39,40 @@ describe('<Menu.Popup />', () => {
     }
   });
 
+  it('uses an aria-label instead of the trigger label', async () => {
+    await render(
+      <Menu.Root open>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup aria-label="Commands" />
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const popup = screen.getByRole('menu', { name: 'Commands' });
+    expect(popup).not.toHaveAttribute('aria-labelledby');
+  });
+
+  it('uses aria-labelledby from a render element', async () => {
+    await render(
+      <Menu.Root open>
+        <span id="commands-label">Commands</span>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup render={<section aria-labelledby="commands-label" />} />
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    expect(screen.getByRole('menu', { name: 'Commands' })).toHaveAttribute(
+      'aria-labelledby',
+      'commands-label',
+    );
+  });
+
   it('stops toolbar navigation keys without blocking ordinary key events', async () => {
     const onParentKeyDown = vi.fn();
 
@@ -66,6 +100,36 @@ describe('<Menu.Popup />', () => {
     fireEvent(popup, new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'F1' }));
     expect(onParentKeyDown).toHaveBeenCalled();
     expect(onParentKeyDown.mock.calls.every(([event]) => event.key === 'F1')).toBe(true);
+  });
+
+  it('enters the items at the list boundary when an arrow key leaves custom popup content', async () => {
+    const { user } = await render(
+      <Menu.Root>
+        <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <button type="button">Custom</button>
+              <Menu.Item>One</Menu.Item>
+              <Menu.Item>Two</Menu.Item>
+              <Menu.Item>Three</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open' }));
+    const one = await screen.findByRole('menuitem', { name: 'One' });
+    await act(async () => one.focus());
+    await user.keyboard('[ArrowDown]');
+    // Mid-list, so continuing from the highlight would reach Three instead.
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
+
+    await act(async () => screen.getByRole('button', { name: 'Custom' }).focus());
+    await user.keyboard('[ArrowDown]');
+
+    await waitFor(() => expect(one).toHaveFocus());
   });
 
   describe('prop: finalFocus', () => {
@@ -230,6 +294,72 @@ describe('<Menu.Popup />', () => {
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
+    });
+
+    it('receives the interaction type of the item press that closed the menu', async () => {
+      const finalFocus = vi.fn(() => true);
+
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup finalFocus={finalFocus}>
+                <Menu.Item>Close</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+
+      await user.click(trigger);
+      const item = await screen.findByText('Close');
+      fireEvent.pointerDown(item, { pointerType: 'mouse' });
+      fireEvent.click(item, { detail: 1 });
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+      expect(finalFocus).toHaveBeenLastCalledWith('mouse');
+
+      await user.keyboard('{Enter}');
+      await screen.findByText('Close');
+      await user.keyboard('{Enter}');
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+      expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
+    });
+
+    it('receives the mouse interaction type after a drag-release item selection', async () => {
+      const finalFocus = vi.fn(() => true);
+
+      await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup finalFocus={finalFocus}>
+                <Menu.Item>Close</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      fireEvent.mouseDown(trigger);
+      const item = await screen.findByText('Close');
+
+      // Drag-release selection is only armed 200ms after the trigger press.
+      await act(() => wait(200));
+      fireEvent.mouseUp(item);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Close')).toBe(null);
+      });
+      expect(finalFocus).toHaveBeenLastCalledWith('mouse');
     });
 
     it('uses default behavior when finalFocus returns null', async () => {
