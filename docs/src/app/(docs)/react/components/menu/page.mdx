@@ -17,41 +17,49 @@ Import the component and assemble its parts:
 ```jsx title="Anatomy"
 import { Menu } from '@base-ui/react/menu';
 
-<Menu.Root>
-  <Menu.Trigger />
-  <Menu.Portal>
-    <Menu.Backdrop />
-    <Menu.Positioner>
-      <Menu.Popup>
-        <Menu.Arrow />
-        <Menu.Item />
-        <Menu.LinkItem />
-        <Menu.Separator />
+<Menu.FilterProvider>
+  <Menu.Root>
+    <Menu.Trigger />
+    <Menu.Portal>
+      <Menu.Backdrop />
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.Arrow />
+          <Menu.Input />
+          <Menu.Clear />
+          <Menu.Empty />
 
-        <Menu.SubmenuRoot>
-          <Menu.SubmenuTrigger />
-        </Menu.SubmenuRoot>
+          <Menu.List>
+            <Menu.Item />
+            <Menu.LinkItem />
+            <Menu.Separator />
 
-        <Menu.Group>
-          <Menu.GroupLabel />
-        </Menu.Group>
+            <Menu.SubmenuRoot>
+              <Menu.SubmenuTrigger />
+            </Menu.SubmenuRoot>
 
-        <Menu.RadioGroup>
-          <Menu.GroupLabel />
-          <Menu.RadioItem>
-            <Menu.RadioItemIndicator />
-          </Menu.RadioItem>
-        </Menu.RadioGroup>
+            <Menu.Group>
+              <Menu.GroupLabel />
+            </Menu.Group>
 
-        <Menu.CheckboxItem>
-          <Menu.CheckboxItemIndicator />
-        </Menu.CheckboxItem>
+            <Menu.RadioGroup>
+              <Menu.GroupLabel />
+              <Menu.RadioItem>
+                <Menu.RadioItemIndicator />
+              </Menu.RadioItem>
+            </Menu.RadioGroup>
 
-        <Menu.Viewport />
-      </Menu.Popup>
-    </Menu.Positioner>
-  </Menu.Portal>
-</Menu.Root>;
+            <Menu.CheckboxItem>
+              <Menu.CheckboxItemIndicator />
+            </Menu.CheckboxItem>
+          </Menu.List>
+
+          <Menu.Viewport />
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+</Menu.FilterProvider>;
 ```
 
 ## Examples
@@ -340,6 +348,118 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 
 <DemoMenuDetachedTriggersFull />
 
+### Filtering [Preview]
+
+Wrap `<Menu.Root>` in `<Menu.FilterProvider>`, add `<Menu.Input>` to the popup, and put the items inside `<Menu.List>`.
+
+```jsx title="Filterable menu"
+<Menu.FilterProvider>
+  <Menu.Root>
+    <Menu.Trigger>Actions</Menu.Trigger>
+    <Menu.Portal>
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.Input aria-label="Filter actions" />
+          <Menu.Clear>Clear</Menu.Clear>
+          <Menu.Empty>No results.</Menu.Empty>
+          <Menu.List>
+            <Menu.Item>Rename</Menu.Item>
+            <Menu.Item>Delete</Menu.Item>
+          </Menu.List>
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+</Menu.FilterProvider>
+```
+
+Label the input with `aria-label`, `aria-labelledby`, or a visible `<label>`.
+Type to narrow the actions, then use the arrow keys to move through matching items.
+
+import { DemoMenuFilter } from './demos/filter';
+
+<DemoMenuFilter />
+
+#### Matching items
+
+Items match their text by default. Use `label` to override it.
+
+```jsx title="Labels"
+<Menu.Item label="Move to folder">Move</Menu.Item>
+```
+
+Groups with no matching items get the `hidden` attribute and stay mounted. If your styles set `display` on a group, add a `[hidden]` rule so it still hides.
+
+```css title="Hiding styled groups"
+.Group {
+  display: flex;
+}
+
+.Group[hidden] {
+  display: none;
+}
+```
+
+`<Menu.Empty>` appears when no items match.
+
+By default, an item matches when its text contains the query, ignoring case, accents, and punctuation.
+Use `filter` to replace the matching. It receives each item's text and the trimmed query, and keeps the item when it returns `true`.
+`Menu.useFilter` provides the same locale-aware comparisons.
+
+```jsx title="Custom matching"
+const { startsWith } = Menu.useFilter();
+
+<Menu.FilterProvider filter={startsWith}>
+  <Menu.Root>{/* menu parts */}</Menu.Root>
+</Menu.FilterProvider>;
+```
+
+For external filtering, pass `filter={null}` and render the results yourself, omitting empty groups.
+
+```jsx title="External filtering"
+const { contains } = Menu.useFilter();
+const [query, setQuery] = React.useState('');
+const results = actions.filter((action) => contains(action.label, query));
+
+<Menu.FilterProvider filter={null} value={query} onValueChange={setQuery}>
+  <Menu.Root>{/* render `results` */}</Menu.Root>
+</Menu.FilterProvider>;
+```
+
+#### Controlling the query
+
+`value` and `onValueChange` on `<Menu.FilterProvider>` control the query.
+It resets to an empty string when the menu closes, reported with the `'popup-close'` reason. Cancel that change to keep the query.
+
+#### Highlighting
+
+Use `autoHighlight` to highlight the first match while filtering, or `autoHighlight="always"` to highlight it even when the query is empty.
+The highlighted item has the `data-highlighted` attribute, and `onItemHighlighted` on `<Menu.Root>` reports each change.
+
+#### Focus and keyboard
+
+Opening the menu with a click or the keyboard focuses the input. Opening it on hover, touch, or with a pen does not, so the on-screen keyboard stays hidden.
+The arrow keys move the highlight while the input keeps focus. <kbd>Tab</kbd> closes the menu, and <kbd>Shift</kbd>+<kbd>Tab</kbd> returns focus to the trigger.
+The popup is a `dialog` that holds the `searchbox` input and the `menu` list.
+
+#### Submenus
+
+Wrap each searchable `<Menu.SubmenuRoot>` in its own `<Menu.FilterProvider>`.
+Submenus without a provider remain unfiltered.
+
+#### Filtering with detached triggers
+
+Use the same `Menu.createHandle()` handle for the root and its detached trigger:
+
+```jsx title="Detached trigger"
+const handle = Menu.createHandle();
+
+<Menu.Trigger handle={handle}>Actions</Menu.Trigger>
+<Menu.FilterProvider>
+  <Menu.Root handle={handle}>{/* menu parts */}</Menu.Root>
+</Menu.FilterProvider>
+```
+
 ### Custom keyboard shortcuts
 
 `<Menu.Root>` accepts an `actionsRef` whose `highlightItem()` action moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'` item, or clears it with `'none'`. Use it to bind shortcuts beyond the built-in arrow keys. Menu items receive real DOM focus, so the action moves focus along with the highlight, and `'none'` hands focus back to the popup. It wraps around at the ends unless `loopFocus` is disabled, and does nothing while the menu is closed.
@@ -368,9 +488,15 @@ const actionsRef = React.useRef<Menu.Root.Actions>(null);
 </Menu.Root>;
 ```
 
+In a filterable menu, `<Menu.Input>` keeps focus while the action moves the highlight, and it treats modified character keys as text editing, so attach the handler to `<Menu.Input>` instead.
+
 ## API reference
 
 import { TypesMenu } from './types';
+
+### FilterProvider [Preview]
+
+<TypesMenu.FilterProvider />
 
 ### Root
 
@@ -405,6 +531,22 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 ### Arrow
 
 <TypesMenu.Arrow />
+
+### Input
+
+<TypesMenu.Input />
+
+### Clear
+
+<TypesMenu.Clear />
+
+### Empty
+
+<TypesMenu.Empty />
+
+### List
+
+<TypesMenu.List />
 
 ### Item
 
@@ -453,6 +595,12 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 ### Separator
 
 <TypesMenu.Separator />
+
+## useFilter
+
+When filtering items yourself, `Menu.useFilter` matches text according to the user's locale.
+
+<TypesMenu.useFilter hideDescription />
 
 ## createHandle
 

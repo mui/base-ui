@@ -763,6 +763,24 @@ describe('useListNavigation', () => {
     });
   });
 
+  describe('reference focus', () => {
+    it('clears ordinary item focus when the open reference receives focus', async () => {
+      render(<App />);
+      const reference = screen.getByRole('button');
+
+      fireEvent.keyDown(reference, { key: 'ArrowDown' });
+      await waitFor(() => {
+        expect(screen.getByTestId('item-0')).toHaveFocus();
+      });
+
+      await act(async () => {
+        reference.focus();
+      });
+
+      expect(screen.getByTestId('item-0')).toHaveAttribute('aria-selected', 'false');
+    });
+  });
+
   describe('highlightItem', () => {
     interface HighlightItemActions {
       highlightItem: (target: HighlightItemTarget) => void;

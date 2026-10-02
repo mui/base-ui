@@ -514,6 +514,56 @@ describe('<Toast.Viewport />', () => {
       expect(screen.queryByTestId('root')).not.toBe(null);
     });
 
+    it.each(['hovering', 'focused'] as const)(
+      'keeps timers paused while still %s after the other interaction ends',
+      async (remainingInteraction) => {
+        await renderFakeTimers(
+          <Toast.Provider>
+            <Toast.Viewport data-testid="viewport">
+              <List />
+            </Toast.Viewport>
+            <Button />
+          </Toast.Provider>,
+        );
+
+        const addButton = screen.getByRole('button', { name: 'add' });
+        await act(async () => addButton.focus());
+        fireEvent.click(addButton);
+        clock.tick(1000);
+
+        fireEvent.keyDown(addButton, { key: 'F6' });
+
+        const action = screen.getByRole('button', { name: 'action' });
+        const viewport = screen.getByTestId('viewport');
+        await act(async () => action.focus());
+        expect(action).toHaveFocus();
+        fireEvent.mouseEnter(viewport);
+
+        if (remainingInteraction === 'hovering') {
+          await act(async () => addButton.focus());
+        } else {
+          fireEvent.mouseLeave(viewport);
+        }
+        expect(remainingInteraction === 'hovering' ? addButton : action).toHaveFocus();
+
+        clock.tick(5001);
+        expect(screen.getByTestId('root')).toBeInTheDocument();
+
+        if (remainingInteraction === 'hovering') {
+          fireEvent.mouseLeave(viewport);
+        } else {
+          await act(async () => addButton.focus());
+        }
+        expect(addButton).toHaveFocus();
+
+        clock.tick(3999);
+        expect(screen.getByTestId('root')).toBeInTheDocument();
+
+        clock.tick(2);
+        expect(screen.queryByTestId('root')).not.toBeInTheDocument();
+      },
+    );
+
     it('restores focus and resumes timers on shift+Tab out of the focused viewport', async () => {
       await renderFakeTimers(
         <Toast.Provider>

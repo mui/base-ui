@@ -325,6 +325,22 @@ describe('<Menu.SubmenuTrigger />', () => {
     }
   });
 
+  it('throws when Menu.SubmenuRoot is rendered outside a menu', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.SubmenuRoot>
+            <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+          </Menu.SubmenuRoot>,
+        ),
+      ).rejects.toThrow('Base UI: MenuRootContext is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   function TestComponent({ direction = 'ltr' }: { direction: TextDirection }) {
     return (
       <DirectionProvider direction={direction}>

@@ -5,8 +5,13 @@ import type { HTMLProps } from '../../internals/types';
 import type { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { useMenuRootContext } from '../root/MenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
+
+function preventMouseDownDefault(event: React.MouseEvent) {
+  event.preventDefault();
+}
 
 export interface UseMenuItemCommonPropsParameters {
   /**
@@ -45,22 +50,40 @@ export interface UseMenuItemCommonPropsParameters {
 
 /**
  * Returns common props shared by all menu item types.
- * This hook extracts the shared logic for id, role, tabIndex, onKeyDown,
- * onMouseMove, onClick, and onMouseUp handlers.
+ * This hook extracts the shared logic for id, role, tabIndex, and interaction handlers.
  */
 export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters): HTMLProps {
   const { closeOnClick, highlighted, id, nodeId, store, typingRef, itemRef, itemMetadata } = params;
 
+  const rootContext = useMenuRootContext();
+  const contextMenuContext = useContextMenuRootContext(true);
+
+  // A submenu trigger is an item of the parent menu's list, so it follows that list's focus model.
+  const isSubmenuTrigger = itemMetadata.type === 'submenu-trigger';
+  const virtualFocus = isSubmenuTrigger ? rootContext.parentVirtualFocus : rootContext.virtualFocus;
+  const webkitItemSelected = isSubmenuTrigger
+    ? rootContext.parentWebkitItemSelected
+    : rootContext.webkitItemSelected;
+
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const open = store.useState('open');
-  const contextMenuContext = useContextMenuRootContext(true);
+
   const isContextMenu = contextMenuContext !== undefined;
+  // `-1` rather than omitting it, which leaves links and buttons in the tab order.
+  const tabIndex = !virtualFocus && open && highlighted ? 0 : -1;
+
+  // `aria-selected` is not valid on `menuitem`, so it is scoped to the engine whose VoiceOver
+  // support needs it. See `webkitItemSelected` on `MenuRootContext`.
+  const ariaSelected = virtualFocus && webkitItemSelected ? highlighted : undefined;
 
   return React.useMemo(
     () => ({
       id,
       role: 'menuitem' as const,
-      tabIndex: open && highlighted ? 0 : -1,
+      tabIndex,
+      'aria-selected': ariaSelected,
+      // Real focus stays on the input or list that owns virtual navigation.
+      onMouseDown: virtualFocus ? preventMouseDownDefault : undefined,
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -123,17 +146,18 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     }),
     [
       closeOnClick,
-      highlighted,
+      tabIndex,
       id,
       menuEvents,
       nodeId,
-      open,
-      store,
+      store.context.allowMouseUpTriggerRef,
       typingRef,
       itemRef,
       contextMenuContext,
       isContextMenu,
-      itemMetadata,
+      itemMetadata.type,
+      ariaSelected,
+      virtualFocus,
     ],
   );
 }
