@@ -57,7 +57,7 @@ When the `render` prop receives an element, the part's props and the element's p
 - Event handlers from both are called, starting with the render element's handler.
 - Refs from both are kept.
 
-This lets two Base UI parts share one element and keep the behavior of both.
+This lets two Base UI parts share one element and keep the behavior of both.
 For example, `<Tabs.List>` can render `<ScrollArea.Viewport>` directly when the tab list itself needs the viewport overflow values for a mask fade.
 This keeps the mask logic on the same element that receives the scroll state:
 
