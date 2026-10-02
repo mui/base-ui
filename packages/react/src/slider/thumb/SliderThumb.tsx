@@ -426,6 +426,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         if (newValue !== null) {
           const input = event.currentTarget as HTMLInputElement;
 
+          // Update aria-valuenow before the blur/focus cycle so that VoiceOver
+          // reads the new value at the blur event rather than the stale one.
+          // See: https://github.com/mui/base-ui/issues/5296
+          handleInputChange(newValue, index, event);
+
           if (!matchesFocusVisible(input)) {
             restoringFocusVisibleRef.current = true;
             input.blur();
@@ -437,7 +442,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             });
           }
 
-          handleInputChange(newValue, index, event);
           event.preventDefault();
         }
       },
