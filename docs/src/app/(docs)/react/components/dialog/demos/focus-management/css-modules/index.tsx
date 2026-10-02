@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { Field } from '@base-ui/react/field';
-import { Fieldset } from '@base-ui/react/fieldset';
 import styles from './index.module.css';
 
 export default function ExampleDialog() {
   const initialFocusRef = React.useRef<HTMLInputElement | null>(null);
   const finalFocusRef = React.useRef<HTMLButtonElement | null>(null);
+  const nameId = React.useId();
+  const feedbackId = React.useId();
 
   return (
     <div className={styles.Container}>
@@ -26,21 +26,26 @@ export default function ExampleDialog() {
                 Your feedback means a lot to us.
               </Dialog.Description>
             </div>
-            <Fieldset.Root className={styles.Fieldset}>
-              <Field.Root className={styles.Field}>
-                <Field.Label className={styles.Label}>Full name</Field.Label>
-                <Field.Control placeholder="Enter your name" className={styles.Input} />
-              </Field.Root>
-              <Field.Root className={styles.Field}>
-                <Field.Label className={styles.Label}>Feedback</Field.Label>
-                <Field.Control
+            <div className={styles.Fields}>
+              <div className={styles.Field}>
+                <label htmlFor={nameId} className={styles.Label}>
+                  Full name
+                </label>
+                <input id={nameId} placeholder="Enter your name" className={styles.Input} />
+              </div>
+              <div className={styles.Field}>
+                <label htmlFor={feedbackId} className={styles.Label}>
+                  Feedback
+                </label>
+                <input
+                  id={feedbackId}
                   ref={initialFocusRef}
                   required
                   placeholder="Enter your feedback"
                   className={styles.Input}
                 />
-              </Field.Root>
-            </Fieldset.Root>
+              </div>
+            </div>
             <div className={styles.Actions}>
               <Dialog.Close className={styles.Button}>Close</Dialog.Close>
             </div>
