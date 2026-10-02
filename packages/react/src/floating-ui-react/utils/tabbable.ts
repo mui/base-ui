@@ -1,30 +1,13 @@
-import { getComputedStyle, getNodeName, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
+import { getComputedStyle, getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from './element';
 import { isElementVisible } from './composite';
+import { getParentElement } from '../../utils/getParentElement';
 
 export type FocusableElement = HTMLElement | SVGElement;
 
 const CANDIDATE_SELECTOR =
   'a[href],button,input,select,textarea,summary,details,iframe,object,embed,[tabindex],[contenteditable]:not([contenteditable="false"]),audio[controls],video[controls]';
-
-function getParentElement(element: Element) {
-  const assignedSlot = (
-    element as Element & {
-      assignedSlot?: HTMLSlotElement | null | undefined;
-    }
-  ).assignedSlot;
-  if (assignedSlot) {
-    return assignedSlot;
-  }
-
-  if (element.parentElement) {
-    return element.parentElement;
-  }
-
-  const rootNode = element.getRootNode();
-  return isShadowRoot(rootNode) ? rootNode.host : null;
-}
 
 function getDetailsSummary(details: Element) {
   for (const child of Array.from(details.children)) {
