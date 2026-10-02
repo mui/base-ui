@@ -26,6 +26,8 @@ import {
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { REASONS } from '../../internals/reasons';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
+import { useSelectFloatingContext } from './SelectRootContext';
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -964,6 +966,85 @@ describe('<Select.Root />', () => {
 
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).toBe(null);
+      });
+    });
+  });
+
+  describe('prop: onOpenChange', () => {
+    describe('internal openchange', () => {
+      function OpenChangeSpy(props: {
+        onOpenChange: (details: FloatingUIOpenChangeDetails) => void;
+      }) {
+        const { onOpenChange } = props;
+        const floatingRootContext = useSelectFloatingContext();
+
+        React.useEffect(() => {
+          floatingRootContext.context.events.on('openchange', onOpenChange);
+          return () => {
+            floatingRootContext.context.events.off('openchange', onOpenChange);
+          };
+        }, [floatingRootContext, onOpenChange]);
+
+        return null;
+      }
+
+      function TestSelect(props: {
+        onOpenChange?: Select.Root.Props<string>['onOpenChange'];
+        onInternalOpenChange: (details: FloatingUIOpenChangeDetails) => void;
+      }) {
+        return (
+          <Select.Root defaultOpen onOpenChange={props.onOpenChange}>
+            <OpenChangeSpy onOpenChange={props.onInternalOpenChange} />
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      it('is not emitted for a canceled close', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestSelect
+            onInternalOpenChange={handleInternalOpenChange}
+            onOpenChange={(nextOpen, eventDetails) => {
+              if (!nextOpen) {
+                eventDetails.cancel();
+              }
+            }}
+          />,
+        );
+
+        await user.keyboard('{Escape}');
+
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+        expect(handleInternalOpenChange.mock.calls.length).toBe(0);
+      });
+
+      it('is emitted when selecting an item closes the select', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestSelect onInternalOpenChange={handleInternalOpenChange} />,
+        );
+
+        await user.click(screen.getByRole('option', { name: 'b' }));
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        expect(handleInternalOpenChange.mock.calls.length).toBe(1);
+        expect(handleInternalOpenChange.mock.calls[0][0]).toMatchObject({
+          open: false,
+          reason: REASONS.itemPress,
+        });
       });
     });
   });

@@ -18,7 +18,6 @@ function setup(adapter: Partial<OpenChangeAdapter<Details>> = {}) {
     floatingElement: null,
     triggerElements: new PopupTriggerMap(),
     floatingId: undefined,
-    syncOnly: true,
     nested: false,
     onOpenChange: undefined,
   });

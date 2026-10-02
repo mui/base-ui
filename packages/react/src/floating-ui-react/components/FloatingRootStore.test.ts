@@ -19,7 +19,6 @@ function createStore() {
     floatingElement: null,
     triggerElements: new PopupTriggerMap(),
     floatingId: undefined,
-    syncOnly: false,
     nested: false,
     onOpenChange: undefined,
   });

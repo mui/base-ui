@@ -113,7 +113,6 @@ export function createInitialPopupStoreState<Payload>(
       referenceElement: null,
       triggerElements,
       floatingId,
-      syncOnly: true,
       nested,
       onOpenChange: undefined,
     }),

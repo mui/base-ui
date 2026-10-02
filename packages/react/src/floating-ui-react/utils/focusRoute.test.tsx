@@ -167,7 +167,6 @@ describe('focusRoute', () => {
       floatingElement: positioner,
       triggerElements: new PopupTriggerMap(),
       floatingId: undefined,
-      syncOnly: false,
       nested: false,
       onOpenChange,
     });
