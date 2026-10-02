@@ -5,7 +5,6 @@ import type {
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
-import type { FloatingUIOpenChangeDetails } from '../internals/types';
 
 import type { FloatingTreeStore } from './components/FloatingTreeStore';
 import type { FloatingRootStore } from './components/FloatingRootStore';
@@ -115,12 +114,6 @@ export interface FloatingEvents {
 
 export interface ContextData {
   openEvent?: Event | undefined;
-  /**
-   * The latest close request that hasn't been used yet. Written by `dispatchOpenChange`, read and
-   * cleared by `FloatingFocusManager` when it returns focus, and cleared when its next session
-   * starts or by user input while open.
-   */
-  closeRequest?: FloatingUIOpenChangeDetails | undefined;
   floatingContext?: FloatingContext | undefined;
   [key: string]: any;
 }

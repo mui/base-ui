@@ -2,10 +2,10 @@ import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { REASONS } from '../../internals/reasons';
 import { resolveRef } from '../../utils/resolveRef';
 import type { FloatingFocusManagerProps } from '../components/FloatingFocusManager';
+import type { CloseRequest } from '../components/FloatingRootStore';
 import { closest, getTarget, isTypeableElement } from './element';
 import { isVirtualClick, isVirtualPointerEvent } from './event';
 import { isTabbable, tabbable } from './tabbable';
@@ -21,13 +21,6 @@ import { isTabbable, tabbable } from './tabbable';
  * - the close's facts are snapshotted in the layout cleanup, before passive cleanups remove the
  *   listeners that track them.
  */
-
-/** A close request, as taken from the root store once the close has committed. */
-export interface CloseRequest {
-  details: FloatingUIOpenChangeDetails;
-  /** Focus moved (`focusin`) while the request was pending. */
-  moved: boolean;
-}
 
 export interface CloseIntent {
   /** `focusVisible` on return iff 'keyboard'. */
@@ -150,7 +143,7 @@ export function getCloseIntent(
     // FFM's own focusout, a trigger guard, the portal's outside guard, or a submenu trigger:
     // focus already moved, and its destination wins even over an explicit `finalFocus`.
     handoff: reason === REASONS.focusOut && isFocusEvent(event),
-    moved: request.moved,
+    moved: !!request.moved,
     suppress:
       (reason === REASONS.triggerHover && event.type === 'mouseleave') ||
       // A sibling menu opened and its initial focus owns focus.
