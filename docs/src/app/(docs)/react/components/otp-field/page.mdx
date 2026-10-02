@@ -53,26 +53,7 @@ Optionally, add `aria-describedby` when supporting text should be announced with
 </div>
 ```
 
-### Form integration
-
-Use [Field](/react/components/field) to handle label associations and form integration:
-
-```tsx title="Using OTP Field in a form" {2}
-<Form>
-  <Field.Root name="verificationCode">
-    <Field.Label>Verification code</Field.Label>
-    <Field.Description>Enter the 6-character code we sent to your device.</Field.Description>
-    <OTPField.Root length={6}>
-      <OTPField.Input />
-      <OTPField.Input aria-label="Character 2 of 6" />
-      <OTPField.Input aria-label="Character 3 of 6" />
-      <OTPField.Input aria-label="Character 4 of 6" />
-      <OTPField.Input aria-label="Character 5 of 6" />
-      <OTPField.Input aria-label="Character 6 of 6" />
-    </OTPField.Root>
-  </Field.Root>
-</Form>
-```
+### Submitting on completion
 
 Pass `autoSubmit` to submit the owning form automatically when all slots are filled, or use
 `onValueComplete` to react to completion without submitting.
