@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, beforeAll, it, afterEach } from 'vitest';
+import { expect, vi, describe, beforeAll, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -20,6 +20,7 @@ import userEvent from '@testing-library/user-event';
 import {
   createRenderer,
   enterWithMouse,
+  holdExit,
   isJSDOM,
   isScrollLocked,
   moveMouse,
@@ -129,7 +130,7 @@ describe('<Menu.Root />', () => {
       <Menu.Root {...props.root}>
         <Menu.Trigger {...props.trigger}>Open menu</Menu.Trigger>
         <Menu.Portal {...props.portal}>
-          <Menu.Positioner>
+          <Menu.Positioner {...props.positioner}>
             <Menu.Popup {...props.popup}>
               <Menu.Item>Item</Menu.Item>
             </Menu.Popup>
@@ -140,6 +141,7 @@ describe('<Menu.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'menu',
+    closing: { inert: 'positioner', returnFocus: true, focusGuards: true },
   });
 
   describe.skipIf(isJSDOM)('hover opening', () => {
@@ -2957,147 +2959,27 @@ describe('<Menu.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('while closing', () => {
-    // The exit animation outlasts every test, so each assertion sees the menu mid-exit.
-    // It is finished in cleanup instead of being waited out.
-    const style = `
-      @keyframes closing-menu-exit { to { opacity: 0; } }
-      .closing-popup[data-ending-style] { animation: closing-menu-exit 10s linear; }
-    `;
-
-    // Native Tab runs a microtask checkpoint between the trigger's blur and the next focus,
-    // which `@testing-library`'s synthetic events skip.
-    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
-    beforeAll(async () => {
-      ({ userEvent: user } = await import('vitest/browser'));
-    });
-
-    beforeEach(() => {
-      ignoreActWarnings();
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-    });
-
-    afterEach(() => {
-      document.getAnimations().forEach((animation) => animation.finish());
-    });
-
-    function getTabbableFocusGuards() {
-      return Array.from(
-        document.querySelectorAll<HTMLElement>('[data-base-ui-focus-guard]'),
-      ).filter((guard) => guard.tabIndex >= 0 && guard.closest('[inert]') === null);
-    }
-
-    /** Renders a menu with a long exit animation and opens it. */
-    async function openMenu() {
-      await render(
-        <div>
-          <style>{style}</style>
-          <input data-testid="before" />
+  describe('while closing', () => {
+    // Native pointer moves: the submenu opens on hover and its safe polygon blocks pointer events
+    // on the parent, which synthetic pointer events refuse to pass through.
+    it.skipIf(isJSDOM)(
+      'returns focus to the root trigger when a submenu item closes the menu tree',
+      async () => {
+        const { userEvent: user } = await import('vitest/browser');
+        ignoreActWarnings();
+        holdExit();
+        await render(
           <Menu.Root>
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner data-testid="positioner">
-                <Menu.Popup className="closing-popup" data-testid="popup">
-                  <Menu.Item>Item 1</Menu.Item>
-                  <Menu.Item>Item 2</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-          <input data-testid="after" />
-        </div>,
-      );
-
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      await user.click(trigger);
-      await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveFocus();
-      });
-
-      return trigger;
-    }
-
-    async function closeWithEscape() {
-      await user.keyboard('{Escape}');
-      await waitFor(() => {
-        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
-      });
-    }
-
-    it('makes the positioner inert until the menu reopens', async () => {
-      const trigger = await openMenu();
-      const positioner = screen.getByTestId('positioner');
-      expect(positioner).not.toHaveAttribute('inert');
-
-      await closeWithEscape();
-      expect(positioner).toHaveAttribute('inert');
-
-      await user.click(trigger);
-      await waitFor(() => {
-        expect(positioner).toHaveAttribute('data-open');
-      });
-      expect(positioner).not.toHaveAttribute('inert');
-    });
-
-    it('leaves no focus guard tabbable', async () => {
-      await openMenu();
-      expect(getTabbableFocusGuards()).not.toEqual([]);
-
-      await closeWithEscape();
-
-      expect(getTabbableFocusGuards()).toEqual([]);
-    });
-
-    it('returns focus to the trigger when Escape closes it', async () => {
-      const trigger = await openMenu();
-
-      await closeWithEscape();
-
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
-    });
-
-    it('skips the closing menu when tabbing forward from the trigger', async () => {
-      const trigger = await openMenu();
-      await closeWithEscape();
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
-
-      await user.tab();
-
-      expect(screen.getByTestId('after')).toHaveFocus();
-    });
-
-    it('moves focus before the trigger when tabbing backward from the trigger', async () => {
-      const trigger = await openMenu();
-      await closeWithEscape();
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
-
-      await user.tab({ shift: true });
-
-      expect(screen.getByTestId('before')).toHaveFocus();
-    });
-
-    it('returns focus to the root trigger when a submenu item closes the menu tree', async () => {
-      await render(
-        <div>
-          <style>{style}</style>
-          <Menu.Root>
-            <Menu.Trigger>Toggle</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner data-testid="positioner">
-                <Menu.Popup className="closing-popup" data-testid="popup">
+                <Menu.Popup data-testid="popup">
                   <Menu.Item>Item 1</Menu.Item>
                   <Menu.SubmenuRoot>
                     <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
                     <Menu.Portal>
                       <Menu.Positioner data-testid="submenu-positioner">
-                        <Menu.Popup className="closing-popup" data-testid="submenu-popup">
+                        <Menu.Popup data-testid="submenu-popup">
                           <Menu.Item>Submenu item</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
@@ -3106,28 +2988,28 @@ describe('<Menu.Root />', () => {
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
-          </Menu.Root>
-        </div>,
-      );
+          </Menu.Root>,
+        );
 
-      const trigger = screen.getByRole('button', { name: 'Toggle' });
-      await user.click(trigger);
-      await user.click(await screen.findByRole('menuitem', { name: 'More' }));
-      const submenuItem = await screen.findByRole('menuitem', { name: 'Submenu item' });
-      await waitFor(() => {
-        expect(submenuItem).toBeVisible();
-      });
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+        await user.click(await screen.findByRole('menuitem', { name: 'More' }));
+        const submenuItem = await screen.findByRole('menuitem', { name: 'Submenu item' });
+        await waitFor(() => {
+          expect(submenuItem).toBeVisible();
+        });
 
-      await user.click(submenuItem);
+        await user.click(submenuItem);
 
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
-      expect(screen.getByTestId('submenu-popup')).toHaveAttribute('data-ending-style');
-      expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
-      expect(screen.getByTestId('submenu-positioner')).toHaveAttribute('inert');
-    });
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        expect(screen.getByTestId('submenu-popup')).toHaveAttribute('data-ending-style');
+        expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
+        expect(screen.getByTestId('submenu-positioner')).toHaveAttribute('inert');
+      },
+    );
 
     it.each(['pointer', 'keyboard'] as const)(
       'moves focus into a dialog opened from an item with the %s, without focusing the trigger',
@@ -3137,12 +3019,11 @@ describe('<Menu.Root />', () => {
 
           return (
             <div>
-              <style>{style}</style>
               <Menu.Root>
                 <Menu.Trigger>Toggle</Menu.Trigger>
                 <Menu.Portal>
                   <Menu.Positioner>
-                    <Menu.Popup className="closing-popup" data-testid="popup">
+                    <Menu.Popup data-testid="popup">
                       <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
                     </Menu.Popup>
                   </Menu.Positioner>
@@ -3159,7 +3040,8 @@ describe('<Menu.Root />', () => {
           );
         }
 
-        await render(<App />);
+        const exit = holdExit();
+        const { user } = await render(<App />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         const handleTriggerFocus = vi.fn();
@@ -3188,13 +3070,8 @@ describe('<Menu.Root />', () => {
         expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
 
         // Focus stays in the dialog once the menu finishes closing and unmounts.
-        screen
-          .getByTestId('popup')
-          .getAnimations()
-          .forEach((animation) => animation.finish());
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
+        await exit.release();
+        expect(screen.queryByTestId('popup')).toBe(null);
         expect(dialogButton).toHaveFocus();
         // The dialog owns focus as soon as it opens; the closing menu doesn't hand it to the
         // trigger first (which would flash a focus-triggered tooltip over the dialog).
@@ -3202,30 +3079,42 @@ describe('<Menu.Root />', () => {
       },
     );
 
-    describe('after a hover open', () => {
-      /** Renders a modal menu with a long exit animation and opens it by hovering. */
+    // Native pointer moves: hovering the trigger opens the menu.
+    describe.skipIf(isJSDOM)('after a hover open', () => {
+      let user: Awaited<typeof import('vitest/browser')>['userEvent'];
+      beforeAll(async () => {
+        ({ userEvent: user } = await import('vitest/browser'));
+      });
+
+      /** Renders a modal menu, holds its exit and opens it by hovering. */
       async function hoverOpenMenu(backdrop?: React.ReactNode) {
+        ignoreActWarnings();
+        holdExit();
         await render(
-          <div>
-            <style>{style}</style>
-            <Menu.Root>
-              <Menu.Trigger openOnHover delay={0} closeDelay={0}>
-                Toggle
-              </Menu.Trigger>
-              <Menu.Portal>
-                {backdrop}
-                <Menu.Positioner data-testid="positioner">
-                  <Menu.Popup className="closing-popup" data-testid="popup">
-                    <Menu.Item>Item 1</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>,
+          <Menu.Root>
+            <Menu.Trigger openOnHover delay={0} closeDelay={0}>
+              Toggle
+            </Menu.Trigger>
+            <Menu.Portal>
+              {backdrop}
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup data-testid="popup">
+                  <Menu.Item>Item 1</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
         );
 
         await user.hover(screen.getByRole('button', { name: 'Toggle' }));
         await screen.findByTestId('popup');
+      }
+
+      async function closeWithEscape() {
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
       }
 
       it('does not render the internal backdrop', async () => {

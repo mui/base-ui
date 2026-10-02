@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeAll, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Select, SelectSeparatorDataAttributes } from '@base-ui/react/select';
@@ -14,6 +14,7 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  holdExit,
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
@@ -371,7 +372,7 @@ describe('<Select.Root />', () => {
             <Select.Value />
           </Select.Trigger>
           <Select.Portal {...props.portal}>
-            <Select.Positioner>
+            <Select.Positioner {...props.positioner}>
               <Select.Popup {...props.popup}>
                 <Select.Item>Item</Select.Item>
               </Select.Popup>
@@ -383,6 +384,7 @@ describe('<Select.Root />', () => {
       triggerMouseAction: 'click',
       expectedPopupRole: 'listbox',
       alwaysMounted: 'only-after-open',
+      closing: { inert: 'positioner', returnFocus: true, focusGuards: true },
     });
 
     // The suite owns the scroller geometry, which item-aligned positioning would override.
@@ -2854,99 +2856,31 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('while closing', () => {
-    // Native key presses: only the browser's own Tab skips `inert` subtrees.
-    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
-
-    beforeAll(async () => {
-      ({ userEvent: user } = await import('vitest/browser'));
-    });
-
-    beforeEach(() => {
-      // Native events are dispatched outside `act()`.
-      ignoreActWarnings();
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-    });
-
-    // The exit animation outlasts every step, so each assertion observes the closing popup.
-    const style = `
-      @keyframes select-closing-test {
-        to {
-          opacity: 0;
-        }
-      }
-
-      .closing-test-popup[data-ending-style] {
-        animation: select-closing-test 10s linear;
-      }
-    `;
+  describe('while closing', () => {
+    type User = Awaited<ReturnType<typeof render>>['user'];
 
     function TestSelect() {
-      const containerRef = React.useRef<HTMLDivElement>(null);
       return (
-        <div>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: style }} />
-          <Select.Root>
-            <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="Pick" />
-            </Select.Trigger>
-            {/* Portaled between the trigger and the next button, so Tab would reach it first. */}
-            <div ref={containerRef} />
-            <Select.Portal container={containerRef}>
-              <Select.Positioner data-testid="positioner">
-                <Select.Popup data-testid="popup" className="closing-test-popup">
-                  <Select.Item value="a">a</Select.Item>
-                  <Select.Item value="b">b</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-          <button data-testid="after">After</button>
-        </div>
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value placeholder="Pick" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner data-testid="positioner">
+              <Select.Popup data-testid="popup">
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
       );
     }
-
-    async function openSelect() {
-      const trigger = screen.getByTestId('trigger');
-      await user.click(trigger);
-      const popup = await screen.findByTestId('popup');
-      await waitFor(() => expect(popup.contains(document.activeElement)).toBe(true));
-      return { trigger, popup };
-    }
-
-    async function finishClosing(popup: HTMLElement) {
-      popup.getAnimations().forEach((animation) => animation.finish());
-      // Select keeps its popup mounted, hidden, once it has opened.
-      await waitFor(() => expect(screen.getByTestId('positioner')).toHaveAttribute('hidden'));
-    }
-
-    it('returns focus to the trigger and takes the popup out of the tab order on Escape', async () => {
-      await render(<TestSelect />);
-      const { trigger, popup } = await openSelect();
-      const focusSpy = vi.spyOn(trigger, 'focus');
-
-      await user.keyboard('{Escape}');
-
-      await waitFor(() => expect(trigger).toHaveFocus());
-      expect(focusSpy).toHaveBeenCalledWith(expect.objectContaining({ focusVisible: true }));
-      expect(popup).toHaveAttribute('data-ending-style');
-      expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
-      expect(document.querySelectorAll('[data-base-ui-focus-guard]')).toHaveLength(0);
-
-      await user.tab();
-
-      expect(screen.getByTestId('after')).toHaveFocus();
-      expect(popup).toHaveAttribute('data-ending-style');
-
-      await finishClosing(popup);
-      expect(screen.getByTestId('after')).toHaveFocus();
-    });
 
     it.each([
       {
         modality: 'keyboard',
-        async select(option: HTMLElement) {
+        async select(user: User, option: HTMLElement) {
           await user.keyboard('{ArrowDown}');
           await waitFor(() => expect(option).toHaveFocus());
           await user.keyboard('{Enter}');
@@ -2954,24 +2888,30 @@ describe('<Select.Root />', () => {
       },
       {
         modality: 'pointer',
-        async select(option: HTMLElement) {
+        async select(user: User, option: HTMLElement) {
           await user.click(option);
         },
       },
     ])(
       'returns focus to the trigger when an item is selected with the $modality',
       async ({ select }) => {
-        await render(<TestSelect />);
-        const { trigger, popup } = await openSelect();
+        const exit = holdExit();
+        const { user } = await render(<TestSelect />);
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
+        const popup = await screen.findByTestId('popup');
+        await waitFor(() => expect(popup.contains(document.activeElement)).toBe(true));
 
-        await select(screen.getByRole('option', { name: 'a' }));
+        await select(user, screen.getByRole('option', { name: 'a' }));
 
         await waitFor(() => expect(trigger).toHaveFocus());
         expect(trigger).toHaveTextContent('a');
         expect(popup).toHaveAttribute('data-ending-style');
         expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
 
-        await finishClosing(popup);
+        await exit.release();
+        // Select keeps its popup mounted, hidden, once it has opened.
+        expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
         expect(trigger).toHaveFocus();
       },
     );

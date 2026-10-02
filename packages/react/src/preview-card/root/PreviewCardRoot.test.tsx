@@ -35,7 +35,7 @@ describe('<PreviewCard.Root />', () => {
           Link
         </PreviewCard.Trigger>
         <PreviewCard.Portal {...props.portal}>
-          <PreviewCard.Positioner>
+          <PreviewCard.Positioner {...props.positioner}>
             <PreviewCard.Popup {...props.popup}>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
         </PreviewCard.Portal>
@@ -43,6 +43,7 @@ describe('<PreviewCard.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
+    closing: { inert: 'positioner', returnFocus: false, focusGuards: false },
   });
 
   describe.for([

@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, afterEach, beforeAll, it } from 'vitest';
+import { expect, vi, describe, beforeAll, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { Combobox } from '@base-ui/react/combobox';
@@ -12,7 +12,14 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, isScrollLocked, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  holdExit,
+  isJSDOM,
+  isScrollLocked,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
@@ -29,7 +36,7 @@ describe('<Popover.Root />', () => {
       <Popover.Root {...props.root}>
         <Popover.Trigger {...props.trigger}>Open menu</Popover.Trigger>
         <Popover.Portal {...props.portal}>
-          <Popover.Positioner>
+          <Popover.Positioner {...props.positioner}>
             <Popover.Popup {...props.popup}>Content</Popover.Popup>
           </Popover.Positioner>
         </Popover.Portal>
@@ -38,6 +45,7 @@ describe('<Popover.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'dialog',
+    closing: { inert: 'positioner', returnFocus: true, focusGuards: true },
   });
 
   describe.for([
@@ -2248,59 +2256,27 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('while closing', () => {
-    // The exit animation outlasts every test, so each assertion sees the popup mid-exit.
-    // It is finished in cleanup instead of being waited out.
-    const style = `
-      @keyframes closing-popup-exit { to { opacity: 0; } }
-      .closing-popup[data-ending-style] { animation: closing-popup-exit 10s linear; }
-    `;
-
-    // Native Tab runs a microtask checkpoint between the trigger's blur and the next focus,
-    // which `@testing-library`'s synthetic events skip.
+  // Native pointer moves: hovering the trigger opens the popover.
+  describe.skipIf(isJSDOM)('while closing after a hover open', () => {
     let user: Awaited<typeof import('vitest/browser')>['userEvent'];
     beforeAll(async () => {
       ({ userEvent: user } = await import('vitest/browser'));
     });
 
-    beforeEach(() => {
+    /** Renders a modal popover, holds its exit and opens it by hovering. */
+    async function hoverOpenPopover(backdrop?: React.ReactNode) {
       ignoreActWarnings();
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-    });
-
-    afterEach(() => {
-      document.getAnimations().forEach((animation) => animation.finish());
-    });
-
-    function getTabbableFocusGuards() {
-      return Array.from(
-        document.querySelectorAll<HTMLElement>('[data-base-ui-focus-guard]'),
-      ).filter((guard) => guard.tabIndex >= 0 && guard.closest('[inert]') === null);
-    }
-
-    /** Renders a popover with a long exit animation and opens it. */
-    async function openPopover() {
+      holdExit();
       await render(
-        <div>
-          <style>{style}</style>
-          <input data-testid="before" />
-          <ContainedTriggerPopover
-            afterTrigger={<input data-testid="after" />}
-            popupProps={{
-              className: 'closing-popup',
-              children: <button data-testid="inside">Inside</button>,
-            }}
-          />
-        </div>,
+        <ContainedTriggerPopover
+          rootProps={{ modal: true }}
+          triggerProps={{ openOnHover: true, delay: 0, closeDelay: 0 }}
+          portalProps={{ children: backdrop }}
+        />,
       );
 
-      const trigger = screen.getByTestId('trigger');
-      await user.click(trigger);
-      await waitFor(() => {
-        expect(screen.getByTestId('inside')).toHaveFocus();
-      });
-
-      return trigger;
+      await user.hover(screen.getByTestId('trigger'));
+      await screen.findByTestId('popover-popup');
     }
 
     async function closeWithEscape() {
@@ -2310,103 +2286,24 @@ describe('<Popover.Root />', () => {
       });
     }
 
-    it('makes the positioner inert until the popover reopens', async () => {
-      const trigger = await openPopover();
+    it('does not render the internal backdrop', async () => {
+      await hoverOpenPopover();
       const positioner = screen.getByTestId('positioner');
-      expect(positioner).not.toHaveAttribute('inert');
-
-      await closeWithEscape();
-      expect(positioner).toHaveAttribute('inert');
-
-      await user.click(trigger);
-      await waitFor(() => {
-        expect(positioner).toHaveAttribute('data-open');
-      });
-      expect(positioner).not.toHaveAttribute('inert');
-    });
-
-    it('leaves no focus guard tabbable', async () => {
-      await openPopover();
-      expect(getTabbableFocusGuards()).not.toEqual([]);
+      expect(positioner.previousElementSibling).toBe(null);
 
       await closeWithEscape();
 
-      expect(getTabbableFocusGuards()).toEqual([]);
+      expect(positioner.previousElementSibling).toBe(null);
     });
 
-    it('returns focus to the trigger when Escape closes it', async () => {
-      const trigger = await openPopover();
+    it('keeps the backdrop click-through', async () => {
+      await hoverOpenPopover(<Popover.Backdrop data-testid="backdrop" />);
+      const backdrop = screen.getByTestId('backdrop');
+      expect(backdrop.style.pointerEvents).toBe('none');
 
       await closeWithEscape();
 
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
-      expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
-    });
-
-    it('skips the closing popup when tabbing forward from the trigger', async () => {
-      const trigger = await openPopover();
-      await closeWithEscape();
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
-
-      await user.tab();
-
-      expect(screen.getByTestId('after')).toHaveFocus();
-    });
-
-    it('moves focus before the trigger when tabbing backward from the trigger', async () => {
-      const trigger = await openPopover();
-      await closeWithEscape();
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
-
-      await user.tab({ shift: true });
-
-      expect(screen.getByTestId('before')).toHaveFocus();
-    });
-
-    describe('after a hover open', () => {
-      /** Renders a modal popover with a long exit animation and opens it by hovering. */
-      async function hoverOpenPopover(backdrop?: React.ReactNode) {
-        await render(
-          <div>
-            <style>{style}</style>
-            <ContainedTriggerPopover
-              rootProps={{ modal: true }}
-              triggerProps={{ openOnHover: true, delay: 0, closeDelay: 0 }}
-              portalProps={{ children: backdrop }}
-              popupProps={{ className: 'closing-popup' }}
-            />
-          </div>,
-        );
-
-        await user.hover(screen.getByTestId('trigger'));
-        await screen.findByTestId('popover-popup');
-      }
-
-      it('does not render the internal backdrop', async () => {
-        await hoverOpenPopover();
-        const positioner = screen.getByTestId('positioner');
-        expect(positioner.previousElementSibling).toBe(null);
-
-        await closeWithEscape();
-
-        expect(positioner.previousElementSibling).toBe(null);
-      });
-
-      it('keeps the backdrop click-through', async () => {
-        await hoverOpenPopover(<Popover.Backdrop data-testid="backdrop" />);
-        const backdrop = screen.getByTestId('backdrop');
-        expect(backdrop.style.pointerEvents).toBe('none');
-
-        await closeWithEscape();
-
-        expect(backdrop.style.pointerEvents).toBe('none');
-      });
+      expect(backdrop.style.pointerEvents).toBe('none');
     });
   });
 

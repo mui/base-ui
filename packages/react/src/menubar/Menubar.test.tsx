@@ -4,6 +4,7 @@ import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/interna
 import {
   createRenderer,
   describeConformance,
+  holdExit,
   isJSDOM,
   isScrollLocked,
   pressWithTouch,
@@ -1277,13 +1278,6 @@ describe('<Menubar />', () => {
   });
 
   describe.skipIf(isJSDOM)('while a menu is closing', () => {
-    // The exit animation outlasts every test, so each assertion sees the previous menu mid-exit.
-    // It is finished in cleanup instead of being waited out.
-    const style = `
-      @keyframes closing-menu-exit { to { opacity: 0; } }
-      .closing-popup[data-ending-style] { animation: closing-menu-exit 10s linear; }
-    `;
-
     let user: Awaited<typeof import('vitest/browser')>['userEvent'];
     beforeAll(async () => {
       ({ userEvent: user } = await import('vitest/browser'));
@@ -1291,40 +1285,34 @@ describe('<Menubar />', () => {
 
     beforeEach(() => {
       ignoreActWarnings();
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-    });
-
-    afterEach(() => {
-      document.getAnimations().forEach((animation) => animation.finish());
+      // Each assertion sees the previous menu mid-exit.
+      holdExit();
     });
 
     function ClosingMenubar() {
       return (
-        <React.Fragment>
-          <style>{style}</style>
-          <Menubar>
-            <Menu.Root>
-              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner data-testid="file-positioner">
-                  <Menu.Popup className="closing-popup" data-testid="file-popup">
-                    <Menu.Item data-testid="file-item">Open</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-            <Menu.Root>
-              <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner data-testid="edit-positioner">
-                  <Menu.Popup className="closing-popup" data-testid="edit-popup">
-                    <Menu.Item>Copy</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </Menubar>
-        </React.Fragment>
+        <Menubar>
+          <Menu.Root>
+            <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="file-positioner">
+                <Menu.Popup data-testid="file-popup">
+                  <Menu.Item data-testid="file-item">Open</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Root>
+            <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="edit-positioner">
+                <Menu.Popup data-testid="edit-popup">
+                  <Menu.Item>Copy</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>
       );
     }
 

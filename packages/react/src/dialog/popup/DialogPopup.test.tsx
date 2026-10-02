@@ -1,14 +1,15 @@
-import { expect, vi, describe, it, beforeAll, beforeEach } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
-import { fireEvent, ignoreActWarnings, waitFor, screen } from '@mui/internal-test-utils';
+import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import {
+  closingPopupConformanceTests,
   describeConformance,
   createRenderer,
+  holdExit,
   isJSDOM,
   popupFocusPropsTests,
-  waitSingleFrame,
 } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
@@ -531,156 +532,57 @@ describe('<Dialog.Popup />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('during the exit animation', () => {
-    // Native Tab follows the browser's own sequential focus navigation, which is what `inert`
-    // and the focus guards affect. Synthetic keyboard events skip both.
-    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
-    beforeAll(async () => {
-      ({ userEvent: user } = await import('vitest/browser'));
+  describe('during the exit animation', () => {
+    describe('non-modal', () => {
+      closingPopupConformanceTests({
+        createComponent: (props) => (
+          <Dialog.Root modal={false} {...props.root}>
+            <Dialog.Trigger {...props.trigger}>Open dialog</Dialog.Trigger>
+            <Dialog.Portal {...props.portal}>
+              <Dialog.Popup {...props.popup}>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+        render,
+        triggerMouseAction: 'click',
+        closing: { inert: 'popup', returnFocus: true, focusGuards: true },
+      });
     });
 
-    beforeEach(() => {
-      ignoreActWarnings();
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-    });
-
-    // The exit is long enough that it never ends on its own during a test. The popup is
-    // positioned so it stacks above the modal dialog's internal backdrop.
-    const style = `
-      @keyframes dialog-exit-test {
-        to {
-          opacity: 0;
-        }
-      }
-
-      .dialog-exit-test-popup {
-        position: relative;
-      }
-
-      .dialog-exit-test-popup[data-ending-style] {
-        animation: dialog-exit-test 60s linear;
-      }
-    `;
-
-    function getFocusGuards() {
-      return document.querySelectorAll('[data-base-ui-focus-guard]');
-    }
-
-    async function finishExit(popup: HTMLElement) {
-      popup.getAnimations().forEach((animation) => animation.finish());
-      await waitFor(() => expect(popup).not.toBeInTheDocument());
-    }
-
-    describe.each([
+    it.each([
       { name: 'modal', modal: true },
       { name: 'non-modal', modal: false },
-    ])('$name', ({ modal }) => {
-      function TestDialog() {
-        const containerRef = React.useRef<HTMLDivElement>(null);
-        return (
-          <React.Fragment>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <Dialog.Root modal={modal}>
-              <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
-              {/* The popup is portaled right after the trigger, so a closing popup that was
-                  still tabbable would be next in the tab order. */}
-              <div ref={containerRef} />
-              <Dialog.Portal container={containerRef}>
-                <Dialog.Popup data-testid="popup" className="dialog-exit-test-popup">
-                  <button data-testid="inside">Inside</button>
-                  <Dialog.Close data-testid="close">Close</Dialog.Close>
-                </Dialog.Popup>
-              </Dialog.Portal>
-            </Dialog.Root>
-            <button data-testid="after">After</button>
-          </React.Fragment>
+    ])(
+      'returns focus to the trigger when closed with the Close button, before the popup unmounts ($name)',
+      async ({ modal }) => {
+        const exit = holdExit();
+        const { user } = await render(
+          <Dialog.Root modal={modal}>
+            <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup">
+                <button data-testid="inside">Inside</button>
+                <Dialog.Close data-testid="close">Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
         );
-      }
-
-      async function openDialog() {
-        await render(<TestDialog />);
-        await user.click(screen.getByTestId('trigger'));
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
         // Wait for the initial focus, which lands a frame after opening.
         await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
-        return screen.getByTestId('popup');
-      }
-
-      it('makes the popup inert and removes the focus guards', async () => {
-        const popup = await openDialog();
-        expect(popup).not.toHaveAttribute('inert');
-        expect(getFocusGuards().length).toBeGreaterThan(0);
-
-        await user.keyboard('{Escape}');
-
-        await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
-        expect(popup).toHaveAttribute('inert');
-        expect(getFocusGuards()).toHaveLength(0);
-
-        await finishExit(popup);
-      });
-
-      it('returns focus to the trigger when closed with Escape, before the popup unmounts', async () => {
-        const popup = await openDialog();
-        const trigger = screen.getByTestId('trigger');
-
-        await user.keyboard('{Escape}');
-
-        await waitFor(() => expect(trigger).toHaveFocus());
-        expect(popup).toHaveAttribute('data-ending-style');
-
-        // Nothing moves focus away again later in the exit or when the popup unmounts.
-        await waitSingleFrame();
-        expect(trigger).toHaveFocus();
-
-        await finishExit(popup);
-        expect(trigger).toHaveFocus();
-      });
-
-      it('returns focus to the trigger when closed with the Close button, before the popup unmounts', async () => {
-        const popup = await openDialog();
-        const trigger = screen.getByTestId('trigger');
+        const popup = screen.getByTestId('popup');
 
         await user.click(screen.getByTestId('close'));
 
         await waitFor(() => expect(trigger).toHaveFocus());
         expect(popup).toHaveAttribute('data-ending-style');
-
-        await finishExit(popup);
-        expect(trigger).toHaveFocus();
-      });
-
-      it('skips the closing popup when tabbing from the trigger', async () => {
-        const popup = await openDialog();
-        const trigger = screen.getByTestId('trigger');
-
-        await user.keyboard('{Escape}');
-        await waitFor(() => expect(trigger).toHaveFocus());
-
-        await user.tab();
-
-        expect(screen.getByTestId('after')).toHaveFocus();
-        expect(popup).toHaveAttribute('data-ending-style');
-
-        await finishExit(popup);
-      });
-
-      it('removes inert when reopened during the exit', async () => {
-        const popup = await openDialog();
-        const trigger = screen.getByTestId('trigger');
-
-        await user.keyboard('{Escape}');
-        await waitFor(() => expect(trigger).toHaveFocus());
         expect(popup).toHaveAttribute('inert');
 
-        await user.click(trigger);
-
-        await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
-        expect(screen.getByTestId('popup')).toBe(popup);
-        expect(popup).not.toHaveAttribute('data-ending-style');
-        expect(popup).not.toHaveAttribute('inert');
-        expect(getFocusGuards().length).toBeGreaterThan(0);
-      });
-    });
+        await exit.release();
+        expect(popup).not.toBeInTheDocument();
+        expect(trigger).toHaveFocus();
+      },
+    );
   });
 });

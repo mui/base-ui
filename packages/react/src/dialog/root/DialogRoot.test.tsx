@@ -44,6 +44,7 @@ describe('<Dialog.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'dialog',
+    closing: { inert: 'popup', returnFocus: true, focusGuards: true },
   });
 
   it.skipIf(isJSDOM || !platform.engine.blink)(

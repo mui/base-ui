@@ -29,7 +29,7 @@ describe('<Tooltip.Root />', () => {
       <Tooltip.Root {...props.root}>
         <Tooltip.Trigger {...props.trigger}>Open menu</Tooltip.Trigger>
         <Tooltip.Portal {...props.portal}>
-          <Tooltip.Positioner>
+          <Tooltip.Positioner {...props.positioner}>
             <Tooltip.Popup {...props.popup}>Content</Tooltip.Popup>
           </Tooltip.Positioner>
         </Tooltip.Portal>
@@ -37,6 +37,7 @@ describe('<Tooltip.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
+    closing: { inert: false, returnFocus: false, focusGuards: false },
   });
 
   describe('trigger unmount during the open delay', () => {
