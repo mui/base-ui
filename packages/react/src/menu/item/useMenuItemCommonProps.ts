@@ -61,9 +61,11 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   // A submenu trigger is an item of the parent menu's list, so it follows that list's focus model.
   const isSubmenuTrigger = itemMetadata.type === 'submenu-trigger';
   const virtualFocus = isSubmenuTrigger ? rootContext.parentVirtualFocus : rootContext.virtualFocus;
-  const webkitItemSelected = isSubmenuTrigger
-    ? rootContext.parentWebkitItemSelected
-    : rootContext.webkitItemSelected;
+  const selectionStore =
+    isSubmenuTrigger && rootContext.parent.type === 'menu'
+      ? rootContext.parent.store
+      : rootContext.store;
+  const webkitInputFocused = selectionStore.useState('webkitInputFocused');
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const open = store.useState('open');
@@ -71,10 +73,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
   const tabIndex = !virtualFocus && open && highlighted ? 0 : -1;
-
-  // `aria-selected` is not valid on `menuitem`, so it is scoped to the engine whose VoiceOver
-  // support needs it. See `webkitItemSelected` on `MenuRootContext`.
-  const ariaSelected = virtualFocus && webkitItemSelected ? highlighted : undefined;
+  const ariaSelected = webkitInputFocused && highlighted ? true : undefined;
 
   return React.useMemo(
     () => ({

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -43,7 +43,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
   const { render } = createRenderer();
 
-  it('marks the active descendant selected for the WebKit compatibility path', async () => {
+  it('marks only the highlighted item while its input is focused in WebKit', async () => {
     const { user } = await render(<Test />);
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -53,21 +53,27 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
     const apple = screen.getByRole('menuitem', { name: 'Apple' });
     const banana = screen.getByRole('menuitem', { name: 'Banana' });
-    expect(apple).toHaveAttribute('aria-selected', 'false');
+    expect(apple).not.toHaveAttribute('aria-selected');
 
     await user.keyboard('[ArrowDown]');
 
     expect(apple).toHaveAttribute('aria-selected', 'true');
-    expect(banana).toHaveAttribute('aria-selected', 'false');
+    expect(banana).not.toHaveAttribute('aria-selected');
     expect(input).toHaveAttribute('aria-activedescendant', apple.id);
 
     await user.keyboard('[ArrowDown]');
 
-    expect(apple).toHaveAttribute('aria-selected', 'false');
+    expect(apple).not.toHaveAttribute('aria-selected');
+    expect(banana).toHaveAttribute('aria-selected', 'true');
+
+    await act(async () => input.blur());
+    expect(banana).not.toHaveAttribute('aria-selected');
+
+    await act(async () => input.focus());
     expect(banana).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('preserves checked state on checkbox and radio items in the WebKit compatibility path', async () => {
+  it('preserves checked state on checkbox and radio items in WebKit', async () => {
     const { user } = await render(
       <Menu.FilterProvider>
         <Menu.Root defaultOpen>
@@ -104,7 +110,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
     expect(radio).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('marks link items and submenu triggers selected for the WebKit compatibility path', async () => {
+  it('marks highlighted links and submenu triggers while their input is focused in WebKit', async () => {
     const { user } = await render(
       <Menu.FilterProvider>
         <Menu.Root defaultOpen>
@@ -157,23 +163,23 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
     await user.keyboard('[ArrowDown]');
     expect(link).toHaveAttribute('aria-selected', 'true');
-    expect(submenuTrigger).toHaveAttribute('aria-selected', 'false');
+    expect(submenuTrigger).not.toHaveAttribute('aria-selected');
     expect(input).toHaveAttribute('aria-activedescendant', link.id);
 
     await user.keyboard('[ArrowDown]');
-    expect(link).toHaveAttribute('aria-selected', 'false');
+    expect(link).not.toHaveAttribute('aria-selected');
     expect(submenuTrigger).toHaveAttribute('aria-selected', 'true');
     expect(input).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
 
-    expect(plainSubmenuTrigger).toHaveAttribute('aria-selected', 'false');
+    expect(plainSubmenuTrigger).not.toHaveAttribute('aria-selected');
     await user.keyboard('[ArrowDown]');
 
-    expect(submenuTrigger).toHaveAttribute('aria-selected', 'false');
+    expect(submenuTrigger).not.toHaveAttribute('aria-selected');
     expect(plainSubmenuTrigger).toHaveAttribute('aria-selected', 'true');
     expect(input).toHaveAttribute('aria-activedescendant', plainSubmenuTrigger.id);
   });
 
-  it('marks items inside an opened submenu selected', async () => {
+  it('marks items inside an opened submenu while its input is focused', async () => {
     const { user } = await render(
       <Menu.FilterProvider>
         <Menu.Root defaultOpen>
@@ -217,10 +223,12 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
     });
 
     const shareItem = screen.getByRole('menuitem', { name: 'Share' });
+    const submenuTrigger = screen.getByRole('menuitem', { name: 'More actions' });
+    expect(submenuTrigger).not.toHaveAttribute('aria-selected');
     expect(shareItem).toHaveAttribute('aria-selected', 'true');
 
     await user.keyboard('[ArrowUp]');
-    expect(shareItem).toHaveAttribute('aria-selected', 'false');
+    expect(shareItem).not.toHaveAttribute('aria-selected');
 
     await user.keyboard('[ArrowDown]');
 

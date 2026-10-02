@@ -34,6 +34,8 @@ export type State<Payload> = PopupStoreState<Payload> & {
   filterTriggerProps: HTMLProps;
   /** List navigation props for the element that holds real focus under virtual focus. */
   inputProps: HTMLProps;
+  /** Whether WebKit currently focuses this menu's filter input. */
+  webkitInputFocused: boolean;
   /** The element at `activeIndex` once the item list settles. Only virtual focus publishes it. */
   highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
@@ -101,6 +103,7 @@ const selectors = {
   },
   filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
   inputProps: (state: State<unknown>) => state.inputProps,
+  webkitInputFocused: (state: State<unknown>) => state.webkitInputFocused,
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
@@ -302,6 +305,7 @@ function createInitialState<Payload>(
     listElement: null,
     filterTriggerProps: EMPTY_OBJECT,
     inputProps: EMPTY_OBJECT,
+    webkitInputFocused: false,
     highlightedItem: undefined,
     hoverEnabled: true,
     instantType: undefined,

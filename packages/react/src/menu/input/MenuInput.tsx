@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
 import { FilterDropdownInput } from '../../filter-dropdown/input/FilterDropdownInput';
 import type {
   FilterDropdownInputProps,
@@ -32,7 +33,17 @@ export const MenuInput = React.forwardRef(function MenuInput(
   const handleKeyDown = useMenuFilterKeyDown(value !== '');
 
   const inputProps = mergeProps<typeof FilterDropdownInput>(
-    { onKeyDown: handleKeyDown },
+    {
+      onKeyDown: handleKeyDown,
+      onFocus() {
+        if (platform.engine.webkit) {
+          store.set('webkitInputFocused', true);
+        }
+      },
+      onBlur() {
+        store.set('webkitInputFocused', false);
+      },
+    },
     componentProps,
   );
 
