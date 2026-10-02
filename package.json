@@ -77,7 +77,7 @@
     "@mui/internal-netlify-cache": "0.1.1-canary.0",
     "@mui/internal-test-utils": "2.1.1-canary.0",
     "@netlify/types": "3.0.0",
-    "@next/eslint-plugin-next": "16.3.5",
+    "@next/eslint-plugin-next": "16.3.6",
     "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@testing-library/jest-dom": "7.0.1",
