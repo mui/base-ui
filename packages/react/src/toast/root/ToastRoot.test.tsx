@@ -109,6 +109,84 @@ describe('<Toast.Root />', () => {
     expect(screen.getByTestId('root').style.getPropertyValue('--toast-offset-y')).not.toBe('');
   });
 
+  describe('high priority', () => {
+    function HighPriorityToasts() {
+      const { add, toasts } = Toast.useToastManager();
+      return (
+        <React.Fragment>
+          <Toast.Viewport data-testid="viewport">
+            {toasts.map((toastItem) => (
+              <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
+                <Toast.Title />
+                <Toast.Close data-testid="close" aria-label="close" />
+                <Toast.Action data-testid="action">undo</Toast.Action>
+                <button type="button" data-testid="custom">
+                  custom
+                </button>
+              </Toast.Root>
+            ))}
+          </Toast.Viewport>
+          <button type="button" onClick={() => add({ title: 'Urgent', priority: 'high' })}>
+            add
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    it('is not in the tab order while aria-hidden', async () => {
+      await render(
+        <Toast.Provider>
+          <HighPriorityToasts />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('aria-hidden', 'true');
+      expect(root).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('close')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('action')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('custom')).toHaveAttribute('tabindex', '-1');
+      expect(screen.queryByRole('alertdialog')).toBe(null);
+    });
+
+    it('returns to the tab order when the viewport is focused', async () => {
+      const { user } = await render(
+        <Toast.Provider>
+          <HighPriorityToasts />
+        </Toast.Provider>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'add' }));
+      await user.keyboard('{F6}');
+
+      const root = screen.getByTestId('root');
+      expect(root).not.toHaveAttribute('aria-hidden');
+      expect(root).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('close').tabIndex).toBe(0);
+      expect(screen.getByTestId('action').tabIndex).toBe(0);
+      expect(screen.getByTestId('custom').tabIndex).toBe(0);
+      expect(screen.getByRole('alertdialog')).toBe(root);
+
+      await user.keyboard('{Tab}');
+      expect(root).toHaveFocus();
+    });
+
+    it('can still be dismissed with a pointer while aria-hidden', async () => {
+      await render(
+        <Toast.Provider>
+          <HighPriorityToasts />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      fireEvent.click(screen.getByTestId('close'));
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+  });
+
   it('keeps dynamic title and description ids synchronized with mounted label parts', async () => {
     function App() {
       const [mode, setMode] = React.useState<'fallback' | 'explicit' | 'none' | 'restored'>(
