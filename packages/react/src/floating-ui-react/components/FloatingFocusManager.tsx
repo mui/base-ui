@@ -7,7 +7,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
 import { platform } from '@base-ui/utils/platform';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
@@ -34,7 +34,7 @@ import {
 import type { FocusableElement } from '../utils/tabbable';
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
 import { isElementVisible } from '../utils/composite';
-import type { FloatingRootContext } from '../types';
+import type { ContextData, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
@@ -44,15 +44,68 @@ import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
-import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { resolveRef } from '../../utils/resolveRef';
+
+interface CloseIntent {
+  /** The request's event. */
+  event: Event;
+  /** `focusVisible` on return iff 'keyboard'. */
+  type: InteractionType;
+  /**
+   * Focus was moved away by the user or a guard. Applies while focus is outside, or hasn't moved
+   * since the request.
+   */
+  handoff: boolean;
+  /** Focus moved (`focusin`) after the request was made. */
+  moved: boolean;
+  /** Hover-leave, sibling open, or an outside press without `preventScroll`: never return. */
+  suppress: boolean;
+  /** An outside press: decide after the press settles. */
+  outsidePress: boolean;
+}
+
+function isFocusEvent(event: Event) {
+  return event instanceof ownerWindow(getTarget(event)).FocusEvent;
+}
+
+// Calls `callback` once the press in progress is released. The next press, key or window blur
+// also resolve it, so a lost `pointerup` can't strand the return.
+function waitForPointerRelease(doc: Document, callback: () => void) {
+  const cleanup = mergeCleanups(
+    addEventListener(doc, 'pointerup', resolve, true),
+    addEventListener(doc, 'pointercancel', resolve, true),
+    addEventListener(doc, 'pointerdown', resolve, true),
+    addEventListener(doc, 'keydown', resolve, true),
+    addEventListener(ownerWindow(doc), 'blur', resolve),
+  );
+  function resolve() {
+    cleanup();
+    callback();
+  }
+}
+
+// On outside press, only return focus to the reference when the browser supports the
+// `focus({ preventScroll })` option; without it, restoring focus scrolls the page.
+// Chrome on Android and Samsung Internet still don't support `preventScroll`
+// (https://issues.chromium.org/issues/41453122).
+// Not cached: tests stub `HTMLElement.prototype.focus` per test to toggle support.
+function isPreventScrollSupported(doc: Document) {
+  let supported = false;
+  doc.createElement('div').focus({
+    get preventScroll() {
+      supported = true;
+      return false;
+    },
+  });
+  return supported;
+}
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
   const win = ownerWindow(getTarget(event));
   if (event instanceof win.KeyboardEvent) {
     return 'keyboard';
   }
-  if (event instanceof win.FocusEvent) {
+  if (isFocusEvent(event)) {
     // Focus events can be caused by a preceding pointer interaction (e.g., focusout on outside press).
     // Prefer the last known pointer type if provided, else treat as keyboard.
     return lastInteractionType || 'keyboard';
@@ -94,9 +147,20 @@ function addPreviouslyFocusedElement(element: Element | null | undefined) {
   }
 }
 
-function getPreviouslyFocusedElement() {
+// A return target must be focusable now: connected, and not inside a closing (inert) popup.
+function isUsableReturnElement(element: Element | null | undefined): element is Element {
+  return !!element?.isConnected && !closest(element, '[inert]');
+}
+
+function getPreviouslyFocusedElement(usableOnly?: boolean) {
   clearDisconnectedPreviouslyFocusedElements();
-  return previouslyFocusedElements[previouslyFocusedElements.length - 1]?.deref();
+  for (let i = previouslyFocusedElements.length - 1; i >= 0; i -= 1) {
+    const element = previouslyFocusedElements[i].deref();
+    if (!usableOnly || isUsableReturnElement(element)) {
+      return element;
+    }
+  }
+  return undefined;
 }
 
 function getFirstTabbableElement(container: Element | null) {
@@ -110,6 +174,15 @@ function getFirstTabbableElement(container: Element | null) {
 
   return tabbable(container)[0] || container;
 }
+
+/**
+ * An ancestor focus manager's return target once its popup has closed. A nested popup falls back
+ * to it when its own targets sit inside the closing ancestor (inert) or are gone, so focus follows
+ * the popup hierarchy rather than the global focus history.
+ */
+const ClosedReturnTargetContext = React.createContext<React.RefObject<
+  (() => Element | null) | null
+> | null>(null);
 
 function handleTabIndex(floatingFocusElement: HTMLElement) {
   if (
@@ -283,7 +356,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const domReference = store.useState('domReferenceElement');
   const floating = store.useState('floatingElement');
 
-  const { events, dataRef } = store.context;
+  const { dataRef } = store.context;
 
   const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
 
@@ -304,12 +377,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
+  const parentClosedReturnTargetRef = React.useContext(ClosedReturnTargetContext);
+  // This popup's default target once it has closed (set by the close), for descendants.
+  const closedReturnTargetRef = React.useRef<(() => Element | null) | null>(null);
 
-  const preventReturnFocusRef = React.useRef(false);
   const isPointerDownRef = React.useRef(false);
   const pointerDownOutsideRef = React.useRef(false);
   const lastFocusedTabbableRef = React.useRef<FocusableElement | null>(null);
-  const closeTypeRef = React.useRef<InteractionType>('');
+  // Whether a pointer is pressed, on any target. Used to let an outside press settle.
+  const pointerPressedRef = React.useRef(false);
+  // The close request that was pending when focus last moved (`focusin`).
+  const focusMovedAfterRequestRef = React.useRef<ContextData['closeRequest']>(undefined);
   const lastInteractionTypeRef = React.useRef<InteractionType>('');
 
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
@@ -327,6 +405,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const restoreFocusFrame = useAnimationFrame();
 
   const isInsidePortal = portalContext != null;
+  const active = open && !disabled;
   const floatingFocusElement = getFloatingFocusElement(floating);
 
   const getTabbableContent = useStableCallback(
@@ -341,7 +420,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   // Prevent Tab from escaping the modal when there are no tabbable elements.
   React.useEffect(() => {
-    if (disabled || !modal) {
+    if (!active || !modal) {
       return undefined;
     }
 
@@ -360,11 +439,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     const doc = ownerDocument(floatingFocusElement);
     return addEventListener(doc, 'keydown', onKeyDown);
-  }, [disabled, floatingFocusElement, modal, isUntrappedTypeableCombobox, getTabbableContent]);
+  }, [active, floatingFocusElement, modal, isUntrappedTypeableCombobox, getTabbableContent]);
 
-  // Track pointer/keyboard interactions to disambiguate focus and outside presses.
+  // Track pointer/keyboard interactions to disambiguate focus and outside presses, and expire a
+  // close intent on the next input. Gated on `open` only so passive sessions are covered too.
   React.useEffect(() => {
-    if (disabled || !open) {
+    if (!open) {
       return undefined;
     }
 
@@ -374,7 +454,21 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       pointerDownOutsideRef.current = false;
     }
 
+    function onPointerUp() {
+      pointerPressedRef.current = false;
+      clearPointerDownOutside();
+    }
+
+    // The next input invalidates a close request it didn't make (e.g. a refused one).
+    function invalidateCloseRequest(event: Event) {
+      if (dataRef.current.closeRequest?.nativeEvent !== event) {
+        dataRef.current.closeRequest = undefined;
+      }
+    }
+
     function onPointerDown(event: PointerEvent) {
+      invalidateCloseRequest(event);
+      pointerPressedRef.current = true;
       const target = getTarget(event) as Element | null;
       const insideElements = getResolvedInsideElements();
       const pointerTargetInside =
@@ -396,21 +490,29 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
     }
 
-    function onKeyDown() {
+    function onKeyDown(event: KeyboardEvent) {
+      invalidateCloseRequest(event);
       lastInteractionTypeRef.current = 'keyboard';
     }
 
     return mergeCleanups(
       addEventListener(doc, 'pointerdown', onPointerDown, true),
-      addEventListener(doc, 'pointerup', clearPointerDownOutside, true),
-      addEventListener(doc, 'pointercancel', clearPointerDownOutside, true),
+      addEventListener(doc, 'pointerup', onPointerUp, true),
+      addEventListener(doc, 'pointercancel', onPointerUp, true),
       addEventListener(doc, 'keydown', onKeyDown, true),
+      addEventListener(
+        doc,
+        'focusin',
+        () => {
+          focusMovedAfterRequestRef.current = dataRef.current.closeRequest;
+        },
+        true,
+      ),
       // Avoid a stale `true` leaking into the next open (e.g. keep-mounted popups)
       // if the popup dismissed between pointerdown and pointerup.
       clearPointerDownOutside,
     );
   }, [
-    disabled,
     floating,
     domReference,
     floatingFocusElement,
@@ -418,11 +520,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     portalContext,
     pointerDownTimeout,
     getResolvedInsideElements,
+    dataRef,
   ]);
 
   // Close on focus out and restore focus within the floating tree when needed.
   React.useEffect(() => {
-    if (disabled || !closeOnFocusOut) {
+    if (!active || !closeOnFocusOut) {
       return undefined;
     }
 
@@ -456,6 +559,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
 
       queueMicrotask(() => {
+        // A focusout queued before the close commit (e.g. React 17 deferred passive cleanup, or
+        // the focusout caused by the return itself) must not act on a closed popup.
+        if (!store.select('open')) {
+          return;
+        }
         const nodeId = getNodeId();
         const triggers = store.context.triggerElements;
         const insideElements = getResolvedInsideElements();
@@ -562,7 +670,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // Allow closing when `isUntrappedTypeableCombobox` regardless of the previously focused element.
           (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
-          preventReturnFocusRef.current = true;
           store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
         }
       });
@@ -594,7 +701,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         addEventListener(floating, 'focusout', markInsideReactTree, true),
     );
   }, [
-    disabled,
+    active,
     domReference,
     floating,
     floatingFocusElement,
@@ -617,7 +724,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   ]);
 
   // Hide everything outside the floating tree from assistive tech while open.
-  React.useEffect(() => {
+  // A layout effect so the cleanup at close runs in the commit, before the return-focus job.
+  useIsoLayoutEffect(() => {
     if (disabled || !floating || !open) {
       return undefined;
     }
@@ -682,7 +790,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return;
     }
 
-    closeTypeRef.current = '';
     lastInteractionTypeRef.current = '';
 
     const doc = ownerDocument(floatingFocusElement);
@@ -725,6 +832,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       elToFocus = elToFocus || getDefaultFocusElement();
 
       const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
+      const closeRequestAtSchedule = dataRef.current.closeRequest;
 
       // Screen readers re-sync focus to their cursor right after a synthesized press. A focus
       // that lands a frame later reads as a stray move and gets pulled back to the reference.
@@ -741,6 +849,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // kept-mounted popup — don't pull focus back onto the initial element after it has
           // legitimately moved elsewhere.
           if (!openRef.current) {
+            return false;
+          }
+
+          // A close requested since this was scheduled owns focus now, even before it commits.
+          const closeRequest = dataRef.current.closeRequest;
+          if (closeRequest && closeRequest !== closeRequestAtSchedule) {
             return false;
           }
 
@@ -768,13 +882,47 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     dataRef,
   ]);
 
+  // Derives the close intent from the store's close request (or the close's own snapshot of it),
+  // and consumes the request.
+  const takeCloseIntent = useStableCallback(
+    (doc: Document, fallback: ContextData['closeRequest']): CloseIntent | null => {
+      const details = dataRef.current.closeRequest ?? fallback;
+      dataRef.current.closeRequest = undefined;
+      if (!details) {
+        return null;
+      }
+      const event = details.nativeEvent;
+      const reason = details.reason;
+      return {
+        event,
+        type: getEventType(event, lastInteractionTypeRef.current),
+        // FFM's own focusout, a trigger guard, the portal's outside guard, or a submenu trigger:
+        // focus already moved, and its destination wins even over an explicit `finalFocus`.
+        handoff: reason === REASONS.focusOut && isFocusEvent(event),
+        moved: focusMovedAfterRequestRef.current === details,
+        suppress:
+          (reason === REASONS.triggerHover && event.type === 'mouseleave') ||
+          // A sibling menu opened and its initial focus owns focus.
+          reason === REASONS.siblingOpen ||
+          (reason === REASONS.outsidePress &&
+            !details.nested &&
+            !isVirtualClick(event as MouseEvent) &&
+            !isVirtualPointerEvent(event as PointerEvent) &&
+            !isPreventScrollSupported(doc)),
+        // An outside press closes before the press is done moving focus: a sloppy press before
+        // its default focus, an intentional one before the pressed element's own click handlers.
+        outsidePress: reason === REASONS.outsidePress,
+      };
+    },
+  );
+
   // A return-focus queued by the effect cleanup. If the effect re-arms in the same commit, a
   // dependency changed while the popup stayed open, so the cleanup was not a close.
   const pendingReturnFocusRef = React.useRef<{ cancelled: boolean } | null>(null);
 
-  // Track return focus targets and restore focus on unmount/close.
+  // Track return focus targets and restore focus when the floating element closes.
   useIsoLayoutEffect(() => {
-    if (disabled || !floatingFocusElement) {
+    if (!open || !floatingFocusElement) {
       pendingReturnFocusRef.current = null;
       return undefined;
     }
@@ -782,70 +930,48 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     if (pendingReturnFocusRef.current) {
       pendingReturnFocusRef.current.cancelled = true;
       pendingReturnFocusRef.current = null;
+    } else {
+      // A new session: a request made before it belongs to an earlier one (its job keeps a
+      // snapshot).
+      dataRef.current.closeRequest = undefined;
     }
 
     const doc = ownerDocument(floatingFocusElement);
     const elementFocusedBeforeOpen = activeElement(doc);
+    pointerPressedRef.current = false;
     // Only an explicit `null` interaction type represents a programmatic open.
     // `undefined` is normalized to `''` by the prop default, so it never reaches
     // here as nullish and is intentionally not treated as programmatic.
     const preferPreviousFocus = openInteractionTypeRef.current == null;
+    // False only while the manager is disabled for this open cycle (Popover hover-open).
+    const managed = !disabled;
 
     addPreviouslyFocusedElement(elementFocusedBeforeOpen);
 
-    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
-      if (!details.open) {
-        closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
-      }
+    // Usable targets only: the reference or the element focused before open, else a closed
+    // ancestor's target.
+    function getDefaultReturnElement() {
+      const referenceReturnElement = isUsableReturnElement(domReference) ? domReference : null;
+      const previousReturnElement =
+        isUsableReturnElement(elementFocusedBeforeOpen) &&
+        getNodeName(elementFocusedBeforeOpen) !== 'body'
+          ? elementFocusedBeforeOpen
+          : null;
 
-      // Focus guards transfer focus themselves; other close handlers may still need return focus.
-      if (
-        (details.reason === REASONS.focusOut &&
-          details.triggerElement?.hasAttribute(createAttribute('focus-guard'))) ||
-        (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave')
-      ) {
-        preventReturnFocusRef.current = true;
-      }
-
-      if (details.reason !== REASONS.outsidePress) {
-        return;
-      }
-
-      if (details.nested) {
-        preventReturnFocusRef.current = false;
-      } else if (
-        isVirtualClick(details.nativeEvent as MouseEvent) ||
-        isVirtualPointerEvent(details.nativeEvent as PointerEvent)
-      ) {
-        preventReturnFocusRef.current = false;
-      } else {
-        // On outside press, only return focus to the reference when the browser supports the
-        // `focus({ preventScroll })` option; without it, restoring focus scrolls the page.
-        // Chrome on Android and Samsung Internet still don't support `preventScroll`
-        // (https://issues.chromium.org/issues/41453122), so the runtime check keeps return
-        // focus disabled there to avoid the scroll jump.
-        let isPreventScrollSupported = false;
-        ownerDocument(floatingFocusElement)
-          .createElement('div')
-          .focus({
-            get preventScroll() {
-              isPreventScrollSupported = true;
-              return false;
-            },
-          });
-
-        if (isPreventScrollSupported) {
-          preventReturnFocusRef.current = false;
-        } else {
-          preventReturnFocusRef.current = true;
-        }
-      }
+      return (
+        (preferPreviousFocus
+          ? previousReturnElement || referenceReturnElement
+          : referenceReturnElement || previousReturnElement) ||
+        parentClosedReturnTargetRef?.current?.() ||
+        null
+      );
     }
+    closedReturnTargetRef.current = null;
 
-    events.on('openchange', onOpenChangeLocal);
-
-    function getReturnElement(closeType: InteractionType) {
-      const returnFocusValueOrFn = returnFocusRef.current;
+    function getReturnElement(
+      returnFocusValueOrFn: FloatingFocusManagerProps['returnFocus'],
+      closeType: InteractionType,
+    ) {
       let resolvedReturnFocusValue =
         typeof returnFocusValueOrFn === 'function'
           ? returnFocusValueOrFn(closeType)
@@ -860,114 +986,156 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         resolvedReturnFocusValue = true;
       }
 
-      const referenceReturnElement = domReference?.isConnected ? domReference : null;
-      const previousReturnElement =
-        elementFocusedBeforeOpen?.isConnected && getNodeName(elementFocusedBeforeOpen) !== 'body'
-          ? elementFocusedBeforeOpen
-          : null;
-
-      let defaultReturnElement = preferPreviousFocus
-        ? previousReturnElement || referenceReturnElement
-        : referenceReturnElement || previousReturnElement;
-
-      if (!defaultReturnElement) {
-        defaultReturnElement = getPreviouslyFocusedElement() || null;
-      }
+      const defaultReturnElement =
+        getDefaultReturnElement() || getPreviouslyFocusedElement(true) || null;
 
       if (typeof resolvedReturnFocusValue === 'boolean') {
         return defaultReturnElement;
       }
 
-      return resolveRef(resolvedReturnFocusValue) || defaultReturnElement || null;
+      const explicitReturnElement = resolveRef(resolvedReturnFocusValue);
+      return (
+        (isUsableReturnElement(explicitReturnElement) ? explicitReturnElement : null) ||
+        defaultReturnElement ||
+        null
+      );
     }
 
-    return () => {
-      events.off('openchange', onOpenChangeLocal);
-
-      const activeEl = activeElement(doc);
+    function isOwnFocus(activeEl: Element | null) {
       const insideElements = getResolvedInsideElements();
-      const isFocusInsideFloatingTree =
+      return (
         contains(floating, activeEl) ||
         insideElements.some((element) => element === activeEl || contains(element, activeEl)) ||
         (tree &&
           getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
             contains(node.context?.elements.floating, activeEl),
-          ));
+          ))
+      );
+    }
 
+    function runReturn(
+      intent: CloseIntent | null,
+      returnFocusValueOrFn: FloatingFocusManagerProps['returnFocus'],
+      insideAtCleanup: boolean | null,
+    ) {
+      const activeEl = activeElement(doc);
+      // A same-commit removal drops focus on body; the cleanup's snapshot still knows it was ours.
+      const inside = isOwnFocus(activeEl) || (activeEl === doc.body && insideAtCleanup);
+      const closeType = intent?.type ?? '';
+      // The return element if it is tabbable, otherwise its first tabbable child,
+      // otherwise the return element itself (which may not be tabbable at all).
+      const tabbableReturnElement = getFirstTabbableElement(
+        getReturnElement(returnFocusValueOrFn, closeType),
+      );
+      const hasExplicitReturnFocus =
+        explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
+
+      if (
+        returnFocusValueOrFn &&
+        isHTMLElement(tabbableReturnElement) &&
+        !intent?.suppress &&
+        // The user or a guard moved focus away; respect it unless focus has come back inside.
+        !(intent?.handoff && (!inside || !intent.moved)) &&
+        (managed || inside) &&
+        // If the focus moved somewhere else after mount, avoid returning focus
+        // since it likely entered a different element which should be
+        // respected: https://github.com/floating-ui/floating-ui/issues/2607
+        (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
+          ? inside
+          : true) &&
+        // Another modal popup opened in the same interaction (e.g. a menu item opening a dialog)
+        // has hidden the target from assistive tech; its initial focus owns focus now. Not when
+        // this popup reopened: its own outside hiding mustn't cancel the close's return.
+        (hasExplicitReturnFocus ||
+          store.select('open') ||
+          !closest(tabbableReturnElement, '[aria-hidden="true"]'))
+      ) {
+        const focusOptions: FocusOptions = { preventScroll: true };
+        if (closeType === 'keyboard') {
+          focusOptions.focusVisible = true;
+        }
+        tabbableReturnElement.focus(focusOptions);
+      } else if (
+        platform.engine.webkit &&
+        inside &&
+        !store.select('open') &&
+        isHTMLElement(activeEl) &&
+        isTypeableElement(activeEl)
+      ) {
+        // Safari may randomly scroll to the bottom of the page if an input inside a popup has
+        // focus when the popup unmounts from the DOM.
+        activeEl.blur();
+      }
+    }
+
+    return () => {
+      // Before a same-commit deletion removes the DOM.
+      const insideAtCleanup = isOwnFocus(activeElement(doc));
+      // E2 removes its listeners in its passive cleanup, which runs after this layout cleanup.
+      const pressed = pointerPressedRef.current;
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
-      const closeType = closeTypeRef.current;
-      const returnElement = getReturnElement(closeType);
+      // This close's request, unless it is dispatched after the commit (consumer `flushSync`).
+      // Read in the cleanup on purpose: it's the request at the moment the popup closed.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const requestAtCleanup = dataRef.current.closeRequest;
+      closedReturnTargetRef.current = getDefaultReturnElement;
 
       const job = { cancelled: false };
       pendingReturnFocusRef.current = job;
 
       queueMicrotask(() => {
-        if (pendingReturnFocusRef.current === job) {
-          pendingReturnFocusRef.current = null;
+        if (job.cancelled) {
+          return;
         }
-        // `returnElement` if it is tabbable, otherwise its first tabbable child,
-        // otherwise `returnElement` itself (which may not be tabbable at all).
-        const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        // Read in the cleanup on purpose: the latest `explicitReturnFocus` decides.
-        const hasExplicitReturnFocus =
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
+        // Read when the job runs: a consumer's `flushSync` inside `onOpenChange` commits the
+        // close before the store records the request. Fall back to the cleanup's snapshot: a
+        // reopen committed since then (e.g. `handle.open()` in a layout effect) started a new
+        // session, which cleared it.
+        const intent = takeCloseIntent(doc, requestAtCleanup);
+        const run = () => runReturn(intent, returnFocusValueOrFn, insideAtCleanup);
 
-        if (
-          !job.cancelled &&
-          returnFocusValueOrFn &&
-          !preventReturnFocusRef.current &&
-          isHTMLElement(tabbableReturnElement) &&
-          // If the focus moved somewhere else after mount, avoid returning focus
-          // since it likely entered a different element which should be
-          // respected: https://github.com/floating-ui/floating-ui/issues/2607
-          (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
-            ? isFocusInsideFloatingTree
-            : true)
-        ) {
-          const focusOptions: FocusOptions = { preventScroll: true };
-          if (closeType === 'keyboard') {
-            focusOptions.focusVisible = true;
-          }
-          tabbableReturnElement.focus(focusOptions);
+        if (!intent?.outsidePress) {
+          run();
+          return;
         }
 
-        // A cancelled return must also clear suppression before the next close.
-        preventReturnFocusRef.current = false;
+        // Let the press land first: mousedown's default focus, then a `<label>`/onclick focus on
+        // click. The next press or key may reopen the popup first; the new session owns focus then.
+        // Not `useTimeout`: the deferred return must survive this component unmounting, which a
+        // non-animated popup does in the same flush as its close.
+        const settle = () =>
+          Timeout.create().start(0, () => {
+            if (!store.select('open')) {
+              run();
+            }
+          });
+        // Only a close made by the press itself (sloppy mouse `pointerdown`) has a release to wait
+        // for. Touch closes on `touchend`/compatibility `mousedown`, after `pointerup`.
+        if (pressed && intent.event.type === 'pointerdown') {
+          waitForPointerRelease(doc, settle);
+        } else {
+          settle();
+        }
       });
     };
   }, [
+    open,
     disabled,
     floating,
     floatingFocusElement,
     returnFocusRef,
     explicitReturnFocusRef,
     openInteractionTypeRef,
-    events,
     tree,
     domReference,
     getNodeId,
     getResolvedInsideElements,
+    store,
+    takeCloseIntent,
+    parentClosedReturnTargetRef,
+    dataRef,
   ]);
-
-  // Safari may randomly scroll to the bottom of the page if an input inside a popup has focus
-  // when the popup unmounts from the DOM.
-  // By blurring it before the popup unmounts, we can prevent this behavior.
-  useIsoLayoutEffect(() => {
-    if (!platform.engine.webkit || open || !floating) {
-      return;
-    }
-
-    const activeEl = activeElement(ownerDocument(floating));
-    if (!isHTMLElement(activeEl) || !isTypeableElement(activeEl)) {
-      return;
-    }
-
-    if (contains(floating, activeEl)) {
-      activeEl.blur();
-    }
-  }, [open, floating]);
 
   // Synchronize the focus manager state (modal, closeOnFocusOut, open, etc.) to the
   // FloatingPortal context, which uses it to decide whether to render its own guards.
@@ -1001,10 +1169,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   }, [disabled, floatingFocusElement]);
 
   const shouldRenderGuards =
-    !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
+    active && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
 
   return (
-    <React.Fragment>
+    <ClosedReturnTargetContext.Provider value={closedReturnTargetRef}>
       {shouldRenderGuards && (
         <FocusGuard
           data-type="inside"
@@ -1015,7 +1183,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
               // enqueueFocus returns a rAF-cancel function we don't need here.
               void enqueueFocus(els[els.length - 1]);
             } else if (portalContext?.portalNode) {
-              preventReturnFocusRef.current = false;
               if (isOutsideEvent(event, portalContext.portalNode)) {
                 const nextTabbable = getNextTabbable(domReference);
                 nextTabbable?.focus();
@@ -1036,10 +1203,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
               // enqueueFocus returns a rAF-cancel function we don't need here.
               void enqueueFocus(getTabbableContent()[0]);
             } else if (portalContext?.portalNode) {
-              if (closeOnFocusOut) {
-                preventReturnFocusRef.current = true;
-              }
-
               if (isOutsideEvent(event, portalContext.portalNode)) {
                 const prevTabbable = getPreviousTabbable(domReference);
                 prevTabbable?.focus();
@@ -1050,6 +1213,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           }}
         />
       )}
-    </React.Fragment>
+    </ClosedReturnTargetContext.Provider>
   );
 }

@@ -117,7 +117,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
-    inert: !open,
+    closed: !open,
   });
 
   return (

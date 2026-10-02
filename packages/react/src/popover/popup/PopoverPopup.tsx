@@ -11,7 +11,6 @@ import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { REASONS } from '../../internals/reasons';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
@@ -45,7 +44,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const descriptionId = store.useState('descriptionElementId');
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
-  const openReason = store.useState('openChangeReason');
+  const openedByHover = store.useState('openedByHover');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
   const floatingId = floatingContext.useState('floatingId');
@@ -109,7 +108,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       context={floatingContext}
       openInteractionType={openMethod}
       modal={focusManagerModal}
-      disabled={!mounted || openReason === REASONS.triggerHover}
+      disabled={!mounted || openedByHover}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"
