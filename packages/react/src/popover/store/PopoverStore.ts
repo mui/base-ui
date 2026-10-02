@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { NOOP } from '@base-ui/utils/empty';
@@ -10,11 +9,11 @@ import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
-  attachPreventUnmountOnClose,
   createInitialPopupStoreState,
   popupStoreSelectors,
   PopupTriggerMap,
   createPopupOpenState,
+  runOpenChange,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
@@ -98,67 +97,49 @@ export class PopoverStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    const isHover = eventDetails.reason === REASONS.triggerHover;
-    const isKeyboardClick =
-      eventDetails.reason === REASONS.triggerPress &&
-      (eventDetails.event as MouseEvent).detail === 0;
-    const isDismissClose =
-      !nextOpen && (eventDetails.reason === REASONS.escapeKey || eventDetails.reason == null);
-
-    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
-      eventDetails as PopoverRoot.ChangeEventDetails,
-    );
-
+    const reason = eventDetails.reason;
     const activeTriggerId = this.select('activeTriggerId');
 
-    if (
-      !nextOpen &&
-      eventDetails.reason === REASONS.closePress &&
-      eventDetails.trigger == null &&
-      activeTriggerId != null
-    ) {
-      eventDetails.trigger =
-        this.context.triggerElements.getById(activeTriggerId) ??
-        this.select('activeTriggerElement') ??
-        undefined;
-    }
+    runOpenChange(
+      this.state.floatingRootContext,
+      nextOpen,
+      eventDetails as PopoverRoot.ChangeEventDetails,
+      {
+        open: this.select('open'),
+        onOpenChange: this.context.onOpenChange,
+        // Only a close button reports the trigger the popover closes from.
+        trigger:
+          reason === REASONS.closePress && activeTriggerId != null
+            ? (this.context.triggerElements.getById(activeTriggerId) ??
+              this.select('activeTriggerElement'))
+            : undefined,
+        flushHover: true,
+        commit: (preventUnmountOnClose) => {
+          if (reason === REASONS.triggerHover) {
+            // Only allow "patient" clicks to close the popover if it's open.
+            // If they clicked within 500ms of the popover opening, keep it open.
+            this.set('stickIfOpen', true);
+            this.context.stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+              this.set('stickIfOpen', false);
+            });
+          }
 
-    this.context.onOpenChange?.(nextOpen, eventDetails as PopoverRoot.ChangeEventDetails);
+          let instantType: State<Payload>['instantType'];
+          if (reason === REASONS.triggerPress && (eventDetails.event as MouseEvent).detail === 0) {
+            instantType = 'click';
+          } else if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
+            instantType = 'dismiss';
+          } else if (reason === REASONS.focusOut) {
+            instantType = 'focus';
+          }
 
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-    const changeState = () => {
-      this.update(
-        createPopupOpenState(this.state, nextOpen, eventDetails, shouldPreventUnmountOnClose()),
-      );
-    };
-
-    if (isHover) {
-      // Only allow "patient" clicks to close the popover if it's open.
-      // If they clicked within 500ms of the popover opening, keep it open.
-      this.set('stickIfOpen', true);
-      this.context.stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-        this.set('stickIfOpen', false);
-      });
-
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
-
-    let instantType: State<Payload>['instantType'];
-    if (isKeyboardClick) {
-      instantType = 'click';
-    } else if (isDismissClose) {
-      instantType = 'dismiss';
-    } else if (eventDetails.reason === REASONS.focusOut) {
-      instantType = 'focus';
-    }
-    this.set('instantType', instantType);
+          this.update({
+            ...createPopupOpenState(this.state, nextOpen, eventDetails, preventUnmountOnClose),
+            instantType,
+          });
+        },
+      },
+    );
   };
 }
 

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import type { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
@@ -17,12 +16,9 @@ import type { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type {
-  PopupStoreState,
-  PopupStoreContext,
-  popupStoreSelectors,
-  PopupTriggerDataStore,
-} from './store';
+import { popupStoreSelectors } from './store';
+import type { PopupStoreState, PopupStoreContext, PopupTriggerDataStore } from './store';
+import { runOpenChange } from './openChangeTransaction';
 
 export const FOCUSABLE_POPUP_PROPS = {
   tabIndex: -1,
@@ -248,12 +244,11 @@ export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClos
 }
 
 /**
- * Runs the shared open-change sequence for a popup store: notifies `onOpenChange`,
- * honors cancellation, dispatches the floating root change, maps the reason to an
- * `instantType`, and commits the state update (synchronously for hover so
- * `getAnimations()` observes it). Stores supply their own differences via
- * `extraState` (e.g. the last change reason) and `onBeforeDispatch` (e.g. updating
- * inline-rect coordinates).
+ * The open-change adapter Tooltip and PreviewCard share. It commits through `createPopupOpenState`
+ * plus `extraState`, synchronously for hover, and maps the reason to an `instantType`: a focus
+ * open and a trigger press or Escape close are instant, a hover change is not.
+ *
+ * @param options.beforeCommit Runs once the change is accepted, before the store updates.
  */
 export function applyPopupOpenChange<
   State extends PopupStoreState<unknown> & {
@@ -268,60 +263,37 @@ export function applyPopupOpenChange<
     update<const Key extends keyof State>(state: Pick<State, Key>): void;
   },
   nextOpen: boolean,
-  eventDetails: EventDetails & { preventUnmountOnClose(): void },
+  eventDetails: EventDetails,
   options: {
-    onBeforeDispatch?: (() => void) | undefined;
+    beforeCommit?: (() => void) | undefined;
     extraState?: Pick<State, ExtraKey> | undefined;
   } = {},
 ): void {
   const reason = eventDetails.reason;
-  const isHover = reason === REASONS.triggerHover;
-  const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
-  const isDismissClose =
-    !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
 
-  const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(eventDetails);
+  runOpenChange(store.state.floatingRootContext, nextOpen, eventDetails, {
+    open: popupStoreSelectors.open(store.state),
+    onOpenChange: store.context.onOpenChange,
+    flushHover: true,
+    commit(preventUnmountOnClose) {
+      options.beforeCommit?.();
 
-  store.context.onOpenChange?.(nextOpen, eventDetails);
+      const updatedState = {
+        ...options.extraState,
+        ...createPopupOpenState(store.state, nextOpen, eventDetails, preventUnmountOnClose),
+      } as Pick<State, keyof PopupOpenState | ExtraKey | 'instantType'>;
 
-  if (eventDetails.isCanceled) {
-    return;
-  }
+      if (nextOpen && reason === REASONS.triggerFocus) {
+        updatedState.instantType = 'focus';
+      } else if (!nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey)) {
+        updatedState.instantType = 'dismiss';
+      } else if (reason === REASONS.triggerHover) {
+        updatedState.instantType = undefined;
+      }
 
-  options.onBeforeDispatch?.();
-
-  store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-  const changeState = () => {
-    const popupOpenState = createPopupOpenState(
-      store.state,
-      nextOpen,
-      eventDetails,
-      shouldPreventUnmountOnClose(),
-    );
-
-    const updatedState = { ...options.extraState, ...popupOpenState } as Pick<
-      State,
-      keyof PopupOpenState | ExtraKey | 'instantType'
-    >;
-
-    if (isFocusOpen) {
-      updatedState.instantType = 'focus';
-    } else if (isDismissClose) {
-      updatedState.instantType = 'dismiss';
-    } else if (isHover) {
-      updatedState.instantType = undefined;
-    }
-
-    store.update(updatedState);
-  };
-
-  if (isHover) {
-    // Flush synchronously for hover so `node.getAnimations()` sees the new state.
-    ReactDOM.flushSync(changeState);
-  } else {
-    changeState();
-  }
+      store.update(updatedState);
+    },
+  });
 }
 
 /**

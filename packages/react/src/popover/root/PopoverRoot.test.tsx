@@ -2307,6 +2307,25 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  it('does not report a second close while closing', async () => {
+    holdExit();
+    const actionsRef = React.createRef<Popover.Root.Actions>();
+    const onOpenChange = vi.fn();
+
+    await render(
+      <ContainedTriggerPopover rootProps={{ defaultOpen: true, actionsRef, onOpenChange }} />,
+    );
+
+    await act(async () => actionsRef.current!.close());
+    await waitFor(() => {
+      expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+    });
+
+    await act(async () => actionsRef.current!.close());
+
+    expect(onOpenChange.mock.calls.length).toBe(1);
+  });
+
   describe('preventUnmountOnClose()', () => {
     it('does not leak from a canceled close into a synchronous second close', async () => {
       const popover = Popover.createHandle();

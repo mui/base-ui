@@ -1066,10 +1066,11 @@ describe('applyPopupOpenChange', () => {
   };
   type OpenChangeDetails = BaseUIChangeEventDetails<string> & { preventUnmountOnClose(): void };
 
-  function createOpenChangeStore() {
+  function createOpenChangeStore(open = false) {
     const order: string[] = [];
     const state: OpenChangeState = {
       ...createInitialPopupStoreState(new PopupTriggerMap()),
+      open,
       instantType: undefined,
       openChangeReason: undefined,
     };
@@ -1101,34 +1102,42 @@ describe('applyPopupOpenChange', () => {
     return createChangeEventDetails(reason) as OpenChangeDetails;
   }
 
-  it('runs the full sequence in order when the change is not canceled', () => {
+  it('commits after the consumer and the dispatch', () => {
     const { store, order, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
     const details = createDetails(REASONS.triggerFocus);
-    const onBeforeDispatch = vi.fn(() => {
-      order.push('onBeforeDispatch');
+    const beforeCommit = vi.fn(() => {
+      order.push('beforeCommit');
     });
 
-    applyPopupOpenChange(store, true, details, {
-      onBeforeDispatch,
-    });
+    applyPopupOpenChange(store, true, details, { beforeCommit });
 
     expect(onOpenChange).toHaveBeenCalledWith(true, details);
     expect(dispatchOpenChange).toHaveBeenCalledWith(true, details);
     expect(update).toHaveBeenCalledTimes(1);
-    expect(order).toEqual(['onOpenChange', 'onBeforeDispatch', 'dispatchOpenChange', 'update']);
+    expect(order).toEqual(['onOpenChange', 'dispatchOpenChange', 'beforeCommit', 'update']);
   });
 
-  it('notifies onOpenChange but short-circuits before dispatch when canceled', () => {
+  it('does not commit a canceled change', () => {
     const { store, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
     onOpenChange.mockImplementation((_open, details) => {
       details.cancel();
     });
-    const onBeforeDispatch = vi.fn();
+    const beforeCommit = vi.fn();
 
-    applyPopupOpenChange(store, true, createDetails(REASONS.triggerPress), { onBeforeDispatch });
+    applyPopupOpenChange(store, true, createDetails(REASONS.triggerPress), { beforeCommit });
 
     expect(onOpenChange).toHaveBeenCalledTimes(1);
-    expect(onBeforeDispatch).not.toHaveBeenCalled();
+    expect(beforeCommit).not.toHaveBeenCalled();
+    expect(dispatchOpenChange).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('ignores a close while closed', () => {
+    const { store, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
+
+    applyPopupOpenChange(store, false, createDetails(REASONS.triggerHover));
+
+    expect(onOpenChange).not.toHaveBeenCalled();
     expect(dispatchOpenChange).not.toHaveBeenCalled();
     expect(update).not.toHaveBeenCalled();
   });
@@ -1151,11 +1160,11 @@ describe('applyPopupOpenChange', () => {
     applyPopupOpenChange(focusStore.store, true, createDetails(REASONS.triggerFocus));
     expect(focusStore.update.mock.calls[0][0].instantType).toBe('focus');
 
-    const pressStore = createOpenChangeStore();
+    const pressStore = createOpenChangeStore(true);
     applyPopupOpenChange(pressStore.store, false, createDetails(REASONS.triggerPress));
     expect(pressStore.update.mock.calls[0][0].instantType).toBe('dismiss');
 
-    const escapeStore = createOpenChangeStore();
+    const escapeStore = createOpenChangeStore(true);
     applyPopupOpenChange(escapeStore.store, false, createDetails(REASONS.escapeKey));
     expect(escapeStore.update.mock.calls[0][0].instantType).toBe('dismiss');
 

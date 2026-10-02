@@ -82,16 +82,27 @@ export class TooltipStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
+    const reason = eventDetails.reason;
+
+    // A provider closes the previous tooltip when another one opens. One that is already closing
+    // has nothing to close, but its exit must end at once (see `TooltipRoot`).
+    if (!nextOpen && reason === REASONS.none && !this.select('open')) {
+      this.set('openChangeReason', reason);
+      return;
+    }
+
     applyPopupOpenChange(this, nextOpen, eventDetails as TooltipRoot.ChangeEventDetails, {
-      extraState: { openChangeReason: eventDetails.reason },
+      extraState: { openChangeReason: reason },
     });
   };
 
-  // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
+  // Used by trigger clicks to clear a delayed hover open. It closes nothing, so it's neither
+  // reported to `onOpenChange` nor recorded as a close request.
   cancelPendingOpen(event: MouseEvent | PointerEvent) {
     this.state.floatingRootContext.dispatchOpenChange(
       false,
       createChangeEventDetails(REASONS.triggerPress, event),
+      false,
     );
   }
 }
