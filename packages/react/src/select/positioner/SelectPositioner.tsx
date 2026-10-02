@@ -50,7 +50,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding,
     sticky,
     disableAnchorTracking,
-    alignItemWithTrigger = true,
+    alignItemWithTrigger: alignItemWithTriggerProp = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style,
     ...elementProps
@@ -58,6 +58,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const store = useSelectRootContext();
   const floatingRootContext = useSelectFloatingContext();
+
+  // A filterable popup holds an input above the list, so it never overlaps the trigger.
+  const { virtualFocus } = store.context;
+  const alignItemWithTrigger = !virtualFocus && alignItemWithTriggerProp;
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -146,6 +150,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
       const prevSize = prevMapSizeRef.current;
       prevMapSizeRef.current = map.size;
+
+      // Filtering unmounts options without removing them from the select: the value stays, and
+      // `Select.Value` resolves its label from `items` rather than from a mounted option.
+      if (virtualFocus) {
+        return;
+      }
 
       const eventDetails = createChangeEventDetails(REASONS.none);
 
