@@ -1,5 +1,5 @@
 import { stringifyAsLabel } from '../../../internals/resolveValueLabel';
-import type { Filter } from './useFilter';
+import type { Filter, TextMatcher } from '../../../internals/filter';
 
 export type FilterItemToString = ((item: any) => string) & {
   selected?: ((value: any) => string) | undefined;
@@ -38,7 +38,7 @@ export function createCollatorItemFilter(
  * when query is empty or matches the current selection, making it easier to browse options.
  */
 export function createSingleSelectionCollatorFilter(
-  collatorFilter: Filter,
+  matcher: TextMatcher,
   itemToStringLabel?: FilterItemToString,
   selectedValue?: any,
 ) {
@@ -54,15 +54,10 @@ export function createSingleSelectionCollatorFilter(
     const selectedString =
       selectedValue != null ? stringifyAsLabel(selectedValue, selectedValueToString) : '';
 
-    // Handle case-insensitive matching consistently
-    if (
-      selectedString &&
-      collatorFilter.contains(selectedString, query) &&
-      selectedString.length === query.length
-    ) {
+    if (selectedString && matcher.equals(selectedString, query)) {
       return true;
     }
 
-    return collatorFilter.contains(item, query, itemToStringLabel);
+    return matcher.filter.contains(item, query, itemToStringLabel);
   };
 }

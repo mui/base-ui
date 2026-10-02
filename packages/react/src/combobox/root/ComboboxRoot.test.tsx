@@ -1456,6 +1456,46 @@ describe('<Combobox.Root />', () => {
         expect(await screen.findByText('cherry')).not.toBe(null);
       });
 
+      it.each([
+        { value: 'Sign-in', query: 'signin', showAll: true },
+        { value: 'Résumé', query: 'Re\u0301sume\u0301', showAll: true },
+        { value: 'foobar', query: 'foo---', showAll: false },
+        { value: 'abcabc', query: 'abc', showAll: false },
+      ])(
+        'compares the entire selection $value with $query when opening',
+        async ({ value, query, showAll }) => {
+          const items = [value, 'Banana'];
+          const { user } = await render(
+            <Combobox.Root items={items} defaultValue={value} inputValue={query} locale="en">
+              <Combobox.Input aria-label="Search" />
+              <Combobox.Trigger>Open</Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>,
+          );
+
+          await act(async () => screen.getByRole('button', { name: 'Open' }).focus());
+          await user.keyboard('[ArrowDown]');
+
+          expect(await screen.findByRole('option', { name: value })).toHaveAttribute(
+            'data-selected',
+          );
+          expect(screen.getAllByRole('option')).toHaveLength(showAll ? 2 : 1);
+          expect(screen.getByRole('combobox')).toHaveValue(query);
+        },
+      );
+
       it('should reset input value to selected value when popup closes without selection', async () => {
         const items = ['apple', 'banana', 'cherry'];
         const onInputValueChange = vi.fn();

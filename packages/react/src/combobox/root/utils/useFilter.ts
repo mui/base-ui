@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './index';
-import { getFilter } from '../../../internals/filter';
+import { getFilter, getTextMatcher } from '../../../internals/filter';
 import type { Filter, GetFilterParameters as UseFilterOptions } from '../../../internals/filter';
 
 export type { Filter, UseFilterOptions };
@@ -30,17 +30,17 @@ export interface UseComboboxFilterOptions extends UseFilterOptions {
 export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filter {
   const { multiple = false, value, ...collatorOptions } = options;
 
-  const coreFilter = getFilter(collatorOptions);
+  const matcher = getTextMatcher(collatorOptions);
 
   const contains: Filter['contains'] = React.useCallback(
     (item: any, query: string, itemToString?: (item: any) => string) => {
       if (multiple) {
-        return createCollatorItemFilter(coreFilter, itemToString)(item, query);
+        return createCollatorItemFilter(matcher.filter, itemToString)(item, query);
       }
-      return createSingleSelectionCollatorFilter(coreFilter, itemToString, value)(item, query);
+      return createSingleSelectionCollatorFilter(matcher, itemToString, value)(item, query);
     },
-    [coreFilter, value, multiple],
+    [matcher, value, multiple],
   );
 
-  return React.useMemo(() => ({ ...coreFilter, contains }), [contains, coreFilter]);
+  return React.useMemo(() => ({ ...matcher.filter, contains }), [contains, matcher]);
 }
