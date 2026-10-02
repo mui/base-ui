@@ -38,6 +38,7 @@ import {
   getPreviouslyFocusedElement,
   getReturnFocusAction,
   isPreventScrollSupported,
+  SETTLE_RELEASE,
 } from '../utils/returnFocus';
 import type { ReturnFocusSession } from '../utils/returnFocus';
 import { AFTER_CONTENT, BEFORE_CONTENT, focusRoute, getFocusRoute } from '../utils/focusRoute';
@@ -301,12 +302,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   // Routes focus that reaches the content guards, or the portal's guards around them.
   const handleGuardFocus = useStableCallback((event: React.FocusEvent<HTMLElement>) =>
-    focusRoute(store, event, {
-      container: portalContext?.portalNode,
-      modal,
-      followsTrigger,
-      closeOnFocusOut,
-    }),
+    focusRoute(store, event, portalContext?.portalNode, modal, followsTrigger, closeOnFocusOut),
   );
 
   // Prevent Tab from escaping the modal when there are no tabbable elements.
@@ -844,7 +840,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         // Not `useTimeout`: the deferred return must survive this component unmounting, which a
         // non-animated popup does in the same flush as its close.
         const settle = () => Timeout.create().start(0, run);
-        if (intent.settle === 'release') {
+        if (intent.settle === SETTLE_RELEASE) {
           waitForPointerRelease(doc, settle);
         } else {
           settle();

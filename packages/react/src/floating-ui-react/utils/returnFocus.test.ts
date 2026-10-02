@@ -7,6 +7,8 @@ import {
   getCloseIntent,
   getReturnFocusAction,
   getReturnTarget,
+  SETTLE_RELEASE,
+  SETTLE_TASK,
 } from './returnFocus';
 import type { ReturnFocusSession } from './returnFocus';
 import type { CloseRequest } from '../components/FloatingRootStore';
@@ -97,7 +99,7 @@ interface Row {
   webkit?: boolean;
   /** Another modal popup has hidden the page (the trigger) from assistive tech. */
   pageHidden?: boolean;
-  settle?: 'release' | 'task';
+  settle?: typeof SETTLE_RELEASE | typeof SETTLE_TASK;
   expected: { focus: ElementName; focusVisible?: true } | { blur: ElementName } | null;
 }
 
@@ -153,7 +155,7 @@ const rows: Row[] = [
     pressed: true,
     focus: 'body',
     ownedFocusAtClose: true,
-    settle: 'release',
+    settle: SETTLE_RELEASE,
     expected: { focus: 'trigger' },
   },
   {
@@ -162,7 +164,7 @@ const rows: Row[] = [
     pressed: true,
     focus: 'outsideInput',
     ownedFocusAtClose: true,
-    settle: 'release',
+    settle: SETTLE_RELEASE,
     expected: null,
   },
   {
@@ -172,7 +174,7 @@ const rows: Row[] = [
     focus: 'body',
     ownedFocusAtClose: true,
     returnFocus: 'final',
-    settle: 'release',
+    settle: SETTLE_RELEASE,
     expected: { focus: 'final' },
   },
   {
@@ -182,7 +184,7 @@ const rows: Row[] = [
     focus: 'outsideInput',
     ownedFocusAtClose: true,
     returnFocus: 'final',
-    settle: 'release',
+    settle: SETTLE_RELEASE,
     expected: { focus: 'final' },
   },
   {
@@ -190,7 +192,7 @@ const rows: Row[] = [
     request: () => request(REASONS.outsidePress, pointerdown()),
     focus: 'body',
     ownedFocusAtClose: true,
-    settle: 'task',
+    settle: SETTLE_TASK,
     expected: { focus: 'trigger' },
   },
   {
@@ -198,7 +200,7 @@ const rows: Row[] = [
     request: () => request(REASONS.outsidePress, touchend()),
     focus: 'body',
     ownedFocusAtClose: true,
-    settle: 'task',
+    settle: SETTLE_TASK,
     expected: { focus: 'trigger' },
   },
   {
@@ -206,14 +208,14 @@ const rows: Row[] = [
     request: () => request(REASONS.outsidePress, touchend()),
     focus: 'outside',
     ownedFocusAtClose: true,
-    settle: 'task',
+    settle: SETTLE_TASK,
     expected: null,
   },
   {
     name: 'an intentional outside click on an input',
     request: () => request(REASONS.outsidePress, click()),
     focus: 'outsideInput',
-    settle: 'task',
+    settle: SETTLE_TASK,
     expected: null,
   },
   {
@@ -223,7 +225,7 @@ const rows: Row[] = [
     noPreventScroll: true,
     focus: 'body',
     ownedFocusAtClose: true,
-    settle: 'release',
+    settle: SETTLE_RELEASE,
     expected: null,
   },
   {
@@ -233,7 +235,7 @@ const rows: Row[] = [
     noPreventScroll: true,
     focus: 'body',
     ownedFocusAtClose: true,
-    settle: 'release',
+    settle: SETTLE_RELEASE,
     expected: { focus: 'trigger' },
   },
   {
@@ -243,7 +245,7 @@ const rows: Row[] = [
     focus: 'body',
     ownedFocusAtClose: true,
     reopened: true,
-    settle: 'release',
+    settle: SETTLE_RELEASE,
     expected: null,
   },
 

@@ -22,6 +22,12 @@ import { isTabbable, tabbable } from './tabbable';
  *   listeners that track them.
  */
 
+// How long the return waits after an outside press (`CloseIntent['settle']`).
+/** One task. */
+export const SETTLE_TASK = 1;
+/** Until the press is released, then one task. */
+export const SETTLE_RELEASE = 2;
+
 export interface CloseIntent {
   /** `focusVisible` on return iff 'keyboard'. */
   type: InteractionType;
@@ -36,9 +42,9 @@ export interface CloseIntent {
   suppress: boolean;
   /**
    * An outside press closes before the press is done moving focus, so the return waits one task:
-   * after the press is released (`'release'`) or right away (`'task'`).
+   * after the press is released (`SETTLE_RELEASE`) or right away (`SETTLE_TASK`).
    */
-  settle: 'release' | 'task' | undefined;
+  settle: typeof SETTLE_TASK | typeof SETTLE_RELEASE | undefined;
 }
 
 /** What the manager knew when its popup opened. */
@@ -136,7 +142,7 @@ export function getCloseIntent(
     // default focus, an intentional one before the pressed element's own click handlers. Only a
     // close made by the press itself (sloppy mouse `pointerdown`) has a release to wait for.
     // Touch closes on `touchend`/compatibility `mousedown`, after `pointerup`.
-    settle = pressed && event.type === 'pointerdown' ? 'release' : 'task';
+    settle = pressed && event.type === 'pointerdown' ? SETTLE_RELEASE : SETTLE_TASK;
   }
   return {
     type: getEventType(event, interactionType),
@@ -230,26 +236,20 @@ export function getReturnTarget(
   returnFocus: FloatingFocusManagerProps['returnFocus'],
   closeType: InteractionType,
 ): Element | null {
-  let resolved = typeof returnFocus === 'function' ? returnFocus(closeType) : returnFocus;
+  const resolved = typeof returnFocus === 'function' ? returnFocus(closeType) : returnFocus;
 
-  // `null` should fallback to default behavior in case of an empty ref.
   if (resolved === undefined || resolved === false) {
     return null;
   }
 
-  if (resolved === null) {
-    resolved = true;
-  }
-
-  const defaultTarget =
-    getDefaultReturnTarget(session) || getPreviouslyFocusedElement(true) || null;
-
-  if (typeof resolved === 'boolean') {
-    return defaultTarget;
-  }
-
-  const explicitTarget = resolveRef(resolved);
-  return (isUsableReturnElement(explicitTarget) ? explicitTarget : null) || defaultTarget;
+  // `true`, or `null` and an empty ref, use the default target.
+  const explicitTarget = resolved === true ? null : resolveRef(resolved);
+  return (
+    (isUsableReturnElement(explicitTarget) ? explicitTarget : null) ||
+    getDefaultReturnTarget(session) ||
+    getPreviouslyFocusedElement(true) ||
+    null
+  );
 }
 
 /**
@@ -304,7 +304,7 @@ export function getReturnFocusAction(
     // If the focus moved somewhere else after mount, avoid returning focus
     // since it likely entered a different element which should be
     // respected: https://github.com/floating-ui/floating-ui/issues/2607
-    (!isExplicit && target !== activeEl && !atBody ? inside : true) &&
+    (isExplicit || target === activeEl || atBody || inside) &&
     // Another modal popup opened in the same interaction (e.g. a menu item opening a dialog)
     // has hidden the target from assistive tech; its initial focus owns focus now. Not when
     // this popup reopened: its own outside hiding mustn't cancel the close's return.
