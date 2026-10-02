@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { Field } from '@base-ui/react/field';
-import { Fieldset } from '@base-ui/react/fieldset';
 
 export default function ExampleDialog() {
   const initialFocusRef = React.useRef<HTMLInputElement | null>(null);
   const finalFocusRef = React.useRef<HTMLButtonElement | null>(null);
+  const nameId = React.useId();
+  const feedbackId = React.useId();
 
   return (
     <div className="flex flex-wrap justify-center gap-3">
@@ -27,24 +27,30 @@ export default function ExampleDialog() {
                 Your feedback means a lot to us.
               </Dialog.Description>
             </div>
-            <Fieldset.Root className="flex flex-col gap-3 border-0 p-0 m-0">
-              <Field.Root className="flex flex-col items-start gap-1">
-                <Field.Label className="text-sm font-normal">Full name</Field.Label>
-                <Field.Control
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col items-start gap-1">
+                <label htmlFor={nameId} className="text-sm font-normal">
+                  Full name
+                </label>
+                <input
+                  id={nameId}
                   placeholder="Enter your name"
                   className="h-8 w-full border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white"
                 />
-              </Field.Root>
-              <Field.Root className="flex flex-col items-start gap-1">
-                <Field.Label className="text-sm font-normal">Feedback</Field.Label>
-                <Field.Control
+              </div>
+              <div className="flex flex-col items-start gap-1">
+                <label htmlFor={feedbackId} className="text-sm font-normal">
+                  Feedback
+                </label>
+                <input
+                  id={feedbackId}
                   ref={initialFocusRef}
                   required
                   placeholder="Enter your feedback"
                   className="h-8 w-full border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white"
                 />
-              </Field.Root>
-            </Fieldset.Root>
+              </div>
+            </div>
             <div className="flex justify-end gap-3">
               <Dialog.Close className="flex h-8 items-center justify-center gap-2 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
                 Close
