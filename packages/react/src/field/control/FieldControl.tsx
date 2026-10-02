@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
@@ -101,6 +102,25 @@ export const FieldControl = React.forwardRef(function FieldControl(
       setFilled(currentValue !== '');
     }
   }, [serializedValue, validation.inputRef, setFilled]);
+
+  const formResetTimeout = useTimeout();
+
+  useIsoLayoutEffect(() => {
+    const form = validation.inputRef.current?.form;
+    if (!form || isControlled) {
+      return undefined;
+    }
+
+    return addEventListener(form, 'reset', () => {
+      // The reset event precedes the browser restoring the input's default value.
+      formResetTimeout.start(0, () => {
+        const input = validation.inputRef.current;
+        if (input?.form === form) {
+          setFilled(input.value !== '');
+        }
+      });
+    });
+  }, [elementProps.form, formResetTimeout, isControlled, setFilled, validation.inputRef]);
 
   useValueChanged(serializedValue, () => {
     if (serializedValue === undefined) {
