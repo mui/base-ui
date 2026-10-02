@@ -589,6 +589,210 @@ describe('<Drawer.Viewport />', () => {
     expect(handleOpenChange).not.toHaveBeenCalled();
   });
 
+  describe('data-base-ui-swipe-ignore axis values', () => {
+    type Point = { clientX: number; clientY: number };
+
+    async function renderAxisDrawer(
+      swipeDirection: 'down' | 'right',
+      children: React.ReactNode,
+      handleOpenChange: Drawer.Root.Props['onOpenChange'],
+    ) {
+      await render(
+        <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection={swipeDirection}>
+          <Drawer.Portal>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup">{children}</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+    }
+
+    function swipe(target: HTMLElement, points: Point[]) {
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => target;
+
+      try {
+        fireEvent.touchStart(target, {
+          touches: [createTouch(target, { clientX: 100, clientY: 100 })],
+        });
+        return points.map((point) =>
+          fireEvent.touchMove(target, { touches: [createTouch(target, point)] }),
+        );
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+    }
+
+    function endSwipe(target: HTMLElement, point: Point) {
+      fireEvent.touchEnd(target, { changedTouches: [createTouch(target, point)] });
+    }
+
+    it.each([
+      ['down', 'y', { clientX: 100, clientY: 140 }],
+      ['right', 'x', { clientX: 140, clientY: 100 }],
+    ] as const)(
+      'ignores %s touch swipes from elements with the drawer axis value "%s"',
+      async (swipeDirection, axis, end) => {
+        const handleOpenChange = vi.fn();
+        await renderAxisDrawer(
+          swipeDirection,
+          <div data-testid="target" data-base-ui-swipe-ignore={axis}>
+            Carousel
+          </div>,
+          handleOpenChange,
+        );
+
+        const target = screen.getByTestId('target');
+        expect(swipe(target, [end])).toEqual([true]);
+        expect(screen.getByTestId('backdrop')).not.toHaveAttribute('data-swiping');
+
+        endSwipe(target, end);
+        await flushMicrotasks();
+
+        expect(handleOpenChange).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      ['down', 'x', { clientX: 103, clientY: 101 }, { clientX: 140, clientY: 104 }],
+      ['right', 'y', { clientX: 101, clientY: 103 }, { clientX: 104, clientY: 140 }],
+    ] as const)(
+      'hands cross-axis drags in %s drawers to elements with the value "%s"',
+      async (swipeDirection, axis, ambiguous, crossAxis) => {
+        const handleOpenChange = vi.fn();
+        await renderAxisDrawer(
+          swipeDirection,
+          <div data-testid="target" data-base-ui-swipe-ignore={axis}>
+            Carousel
+          </div>,
+          handleOpenChange,
+        );
+
+        const target = screen.getByTestId('target');
+        const popup = screen.getByTestId('popup');
+        const handleTargetTouchMove = vi.fn();
+        target.addEventListener('touchmove', handleTargetTouchMove);
+        expect(swipe(target, [ambiguous, crossAxis])).toEqual([true, true]);
+        expect(handleTargetTouchMove).toHaveBeenCalledTimes(2);
+        expect(popup.style.getPropertyValue('--drawer-swipe-movement-x')).toBe('0px');
+        expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
+
+        endSwipe(target, crossAxis);
+        await flushMicrotasks();
+
+        expect(handleOpenChange).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each(['marked', 'scrollable'] as const)(
+      'does not swipe or settle snap points while a %s cross-axis target handles the drag',
+      async (kind) => {
+        const handleSnapPointChange = vi.fn();
+        await render(
+          <Drawer.Root open snapPoints={[200, 360]} onSnapPointChange={handleSnapPointChange}>
+            <Drawer.Portal>
+              <Drawer.Backdrop data-testid="backdrop" />
+              <Drawer.Viewport>
+                <Drawer.Popup data-testid="popup">
+                  <div
+                    data-testid="target"
+                    data-base-ui-swipe-ignore={kind === 'marked' ? 'x' : undefined}
+                    style={kind === 'scrollable' ? { overflowX: 'auto' } : undefined}
+                  >
+                    Carousel
+                  </div>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>,
+        );
+
+        const target = screen.getByTestId('target');
+        if (kind === 'scrollable') {
+          Object.defineProperty(target, 'scrollWidth', { value: 400, configurable: true });
+          Object.defineProperty(target, 'clientWidth', { value: 100, configurable: true });
+        }
+
+        const crossAxis = { clientX: 140, clientY: 104 };
+        expect(swipe(target, [{ clientX: 103, clientY: 101 }, crossAxis])).toEqual([true, true]);
+        expect(screen.getByTestId('backdrop')).not.toHaveAttribute('data-swiping');
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-swiping');
+
+        endSwipe(target, crossAxis);
+        await flushMicrotasks();
+
+        expect(handleSnapPointChange).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      [
+        'down',
+        'x',
+        [
+          { clientX: 101, clientY: 103 },
+          { clientX: 102, clientY: 140 },
+          { clientX: 102, clientY: 200 },
+        ],
+      ],
+      [
+        'right',
+        'y',
+        [
+          { clientX: 103, clientY: 101 },
+          { clientX: 140, clientY: 102 },
+          { clientX: 200, clientY: 102 },
+        ],
+      ],
+    ] as const)(
+      'still swipes %s drawers from elements with the cross-axis value "%s"',
+      async (swipeDirection, axis, points) => {
+        const handleOpenChange = vi.fn();
+        await renderAxisDrawer(
+          swipeDirection,
+          <div data-testid="target" data-base-ui-swipe-ignore={axis}>
+            Carousel
+          </div>,
+          handleOpenChange,
+        );
+
+        const target = screen.getByTestId('target');
+        expect(swipe(target, [...points])).toEqual([true, false, false]);
+
+        endSwipe(target, points[2]);
+        await flushMicrotasks();
+
+        expect(handleOpenChange).toHaveBeenCalledTimes(1);
+        expect(handleOpenChange.mock.calls[0][0]).toBe(false);
+        expect(handleOpenChange.mock.calls[0][1].reason).toBe('swipe');
+      },
+    );
+
+    it('keeps an ancestor that ignores all directions in effect over a nested axis value', async () => {
+      const handleOpenChange = vi.fn();
+      await renderAxisDrawer(
+        'down',
+        <div data-base-ui-swipe-ignore>
+          <div data-testid="target" data-base-ui-swipe-ignore="x">
+            Carousel
+          </div>
+        </div>,
+        handleOpenChange,
+      );
+
+      const target = screen.getByTestId('target');
+      const end = { clientX: 100, clientY: 140 };
+      expect(swipe(target, [end])).toEqual([true]);
+
+      endSwipe(target, end);
+      await flushMicrotasks();
+
+      expect(handleOpenChange).not.toHaveBeenCalled();
+    });
+  });
+
   it('does not prevent native touch scrolling in portaled descendants', async () => {
     const portalContainer = document.createElement('div');
     document.body.append(portalContainer);
