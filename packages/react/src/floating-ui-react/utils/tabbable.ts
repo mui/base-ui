@@ -198,7 +198,7 @@ export function tabbable(container: Element) {
 /**
  * Finds the tabbable element that sequential navigation reaches from `referenceElement`. The
  * anchor doesn't need to be tabbable itself, so a focus guard inside an `inert` subtree or with
- * `tabindex="-1"` still finds its neighbours. Elements inside `exclude` are skipped.
+ * `tabindex="-1"` still finds its neighbours. Elements inside any of `exclude` are skipped.
  *
  * At the end of the document, the search wraps around like the browser's tab cycle and returns
  * the anchor if nothing else is tabbable. With `wrap` set to `false`, it returns `null` instead so
@@ -207,7 +207,7 @@ export function tabbable(container: Element) {
 export function getTabbableNearElement(
   referenceElement: Element | null,
   direction: 1 | -1,
-  exclude?: Element | null,
+  exclude: Array<Element | null> = [],
   wrap = true,
 ): FocusableElement | null {
   if (!referenceElement) {
@@ -230,7 +230,7 @@ export function getTabbableNearElement(
       return null;
     }
     if (
-      !contains(exclude, element) &&
+      !exclude.some((node) => contains(node, element)) &&
       isTabbable(element) &&
       isTabbableRadio(element, candidates)
     ) {

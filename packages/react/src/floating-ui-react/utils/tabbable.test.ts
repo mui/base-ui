@@ -446,7 +446,7 @@ it.each([1, -1] as const)(
     document.body.append(...(direction === 1 ? [far, near, anchor] : [anchor, near, far]));
 
     expect(getTabbableNearElement(anchor, direction)).toBe(far);
-    expect(getTabbableNearElement(anchor, direction, null, false)).toBe(null);
+    expect(getTabbableNearElement(anchor, direction, [], false)).toBe(null);
   },
 );
 
@@ -457,8 +457,8 @@ it('falls back to the anchor only when wrapping finds nothing else tabbable', ()
   excluded.append(document.createElement('button'));
   document.body.append(excluded, anchor);
 
-  expect(getTabbableNearElement(anchor, 1, excluded)).toBe(anchor);
-  expect(getTabbableNearElement(anchor, -1, excluded, false)).toBe(null);
+  expect(getTabbableNearElement(anchor, 1, [excluded])).toBe(anchor);
+  expect(getTabbableNearElement(anchor, -1, [excluded], false)).toBe(null);
 });
 
 it('does not choose a destination when the anchor is absent from the composed tree', () => {

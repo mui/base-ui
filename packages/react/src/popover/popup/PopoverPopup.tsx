@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { isHTMLElement } from '@floating-ui/utils/dom';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
@@ -46,7 +45,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
   const openReason = store.useState('openReason');
-  const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
   const floatingId = floatingContext.useState('floatingId');
   const disabled = store.useState('disabled');
@@ -113,12 +111,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"
-      getInsideElements={() => [store.context.beforeTriggerFocusGuardRef.current]}
-      previousFocusableElement={
-        isHTMLElement(activeTriggerElement) ? activeTriggerElement : undefined
-      }
-      nextFocusableElement={store.context.triggerFocusTargetRef}
-      beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
+      followsTrigger
     >
       <ClosePartContext.Provider value={closePartContext}>{element}</ClosePartContext.Provider>
     </FloatingFocusManager>

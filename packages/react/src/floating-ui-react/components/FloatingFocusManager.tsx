@@ -3,7 +3,6 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -21,13 +20,7 @@ import {
   getFloatingFocusElement,
 } from '../utils/element';
 import { isVirtualClick, stopEvent } from '../utils/event';
-import {
-  tabbable,
-  focusable,
-  isOutsideEvent,
-  isTabbable,
-  getTabbableNearElement,
-} from '../utils/tabbable';
+import { tabbable, focusable, isTabbable } from '../utils/tabbable';
 import type { FocusableElement } from '../utils/tabbable';
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
 import { isElementVisible } from '../utils/composite';
@@ -47,6 +40,7 @@ import {
   isPreventScrollSupported,
 } from '../utils/returnFocus';
 import type { ReturnFocusSession } from '../utils/returnFocus';
+import { AFTER_CONTENT, BEFORE_CONTENT, focusRoute, getFocusRoute } from '../utils/focusRoute';
 import {
   hasCloseRequestSince,
   invalidateCloseRequest,
@@ -207,18 +201,13 @@ export interface FloatingFocusManagerProps {
    */
   closeOnFocusOut?: boolean | undefined;
   /**
-   * Overrides the element to focus when tabbing forward out of the floating element.
+   * Whether the floating element follows its trigger (the reference) in the tab order, as in
+   * Popover and Menu, rather than the place where `FloatingPortal` renders. Tabbing backward out of
+   * it then focuses the trigger, which also stays exposed to assistive technology while focus is
+   * modal.
+   * @default false
    */
-  nextFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null | undefined;
-  /**
-   * Overrides the element to focus when tabbing backward out of the floating element.
-   */
-  previousFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null | undefined;
-  /**
-   * Ref to the focus guard preceding the floating element content.
-   * Can be useful to focus the popup programmatically.
-   */
-  beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null> | undefined;
+  followsTrigger?: boolean | undefined;
   /**
    * External FloatingTree to use when the one provided by context can't be used.
    */
@@ -247,9 +236,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     modal = true,
     closeOnFocusOut = true,
     openInteractionType = '',
-    nextFocusableElement,
-    previousFocusableElement,
-    beforeContentFocusGuardRef,
+    followsTrigger = false,
     externalTree,
     getInsideElements,
   } = props;
@@ -290,16 +277,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const pointerPressedRef = React.useRef(false);
   const lastInteractionTypeRef = React.useRef<InteractionType>('');
 
-  const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
-  const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
-
-  const mergedBeforeGuardRef = useMergedRefs(
-    beforeGuardRef,
-    beforeContentFocusGuardRef,
-    portalContext?.beforeInsideRef,
-  );
-  const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
-
   const blurTimeout = useTimeout();
   const pointerDownTimeout = useTimeout();
   const restoreFocusFrame = useAnimationFrame();
@@ -314,8 +291,22 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     },
   );
 
-  const getResolvedInsideElements = useStableCallback(
-    () => getInsideElements?.().filter((element): element is Element => element != null) ?? [],
+  // Elements outside the floating element that are still part of it, including the guards of its
+  // focus route.
+  const getResolvedInsideElements = useStableCallback(() =>
+    [...(getInsideElements?.() ?? []), ...getFocusRoute(store).map((ref) => ref.current)].filter(
+      (element): element is Element => element != null,
+    ),
+  );
+
+  // Routes focus that reaches the content guards, or the portal's guards around them.
+  const handleGuardFocus = useStableCallback((event: React.FocusEvent<HTMLElement>) =>
+    focusRoute(store, event, {
+      container: portalContext?.portalNode,
+      modal,
+      followsTrigger,
+      closeOnFocusOut,
+    }),
   );
 
   // Prevent Tab from escaping the modal when there are no tabbable elements.
@@ -453,18 +444,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         const nodeId = getNodeId();
         const triggers = store.context.triggerElements;
         const insideElements = getResolvedInsideElements();
-        const isRelatedFocusGuard =
-          relatedTarget?.hasAttribute(createAttribute('focus-guard')) &&
-          [
-            beforeGuardRef.current,
-            afterGuardRef.current,
-            portalContext?.beforeInsideRef.current,
-            portalContext?.afterInsideRef.current,
-            portalContext?.beforeOutsideRef.current,
-            portalContext?.afterOutsideRef.current,
-            resolveRef(previousFocusableElement),
-            resolveRef(nextFocusableElement),
-          ].includes(relatedTarget);
 
         const movedToUnrelatedNode = !(
           contains(domReference, relatedTarget) ||
@@ -475,7 +454,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             (element) => element === relatedTarget || contains(element, relatedTarget),
           ) ||
           triggers.hasMatchingElement((trigger) => contains(trigger, relatedTarget)) ||
-          isRelatedFocusGuard ||
           (tree &&
             (getNodeChildren(tree.nodesRef.current, nodeId).find(
               (node) =>
@@ -604,8 +582,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     blurTimeout,
     pointerDownTimeout,
     restoreFocusFrame,
-    nextFocusableElement,
-    previousFocusableElement,
     getResolvedInsideElements,
   ]);
 
@@ -626,21 +602,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       isTypeableCombobox(node.context?.elements.domReference || null),
     )?.context?.elements.domReference;
 
-    const controlInsideElements = [
+    const insideElements = [
       floating,
       ...portalNodes,
-      beforeGuardRef.current,
-      afterGuardRef.current,
-      portalContext?.beforeOutsideRef.current,
-      portalContext?.afterOutsideRef.current,
       ...getResolvedInsideElements(),
-    ];
-    const insideElements = [
-      ...controlInsideElements,
       rootAncestorComboboxDomReference,
-      resolveRef(previousFocusableElement),
-      resolveRef(nextFocusableElement),
-      isUntrappedTypeableCombobox ? domReference : null,
+      followsTrigger || isUntrappedTypeableCombobox ? domReference : null,
     ].filter((x): x is Element => x != null);
 
     const ariaHiddenCleanup = markOthers(insideElements, {
@@ -665,8 +632,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     isUntrappedTypeableCombobox,
     tree,
     getNodeId,
-    nextFocusableElement,
-    previousFocusableElement,
+    followsTrigger,
     getResolvedInsideElements,
   ]);
 
@@ -910,16 +876,15 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     portalContext.setFocusManagerState({
       modal,
-      closeOnFocusOut,
       open,
-      onOpenChange: store.setOpen,
-      domReference,
+      route: getFocusRoute(store),
+      onGuardFocus: handleGuardFocus,
     });
 
     return () => {
       portalContext.setFocusManagerState(null);
     };
-  }, [disabled, portalContext, modal, open, store, closeOnFocusOut, domReference]);
+  }, [disabled, portalContext, modal, open, store, handleGuardFocus]);
 
   // Keep the floating element tabIndex in sync and clear stale focus records.
   useIsoLayoutEffect(() => {
@@ -935,45 +900,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const shouldRenderGuards =
     active && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
 
+  const route = getFocusRoute(store);
+
   return (
     <ClosedReturnTargetContext.Provider value={closedReturnTargetRef}>
       {shouldRenderGuards && (
-        <FocusGuard
-          data-type="inside"
-          ref={mergedBeforeGuardRef}
-          onFocus={(event) => {
-            if (modal) {
-              const els = getTabbableContent();
-              // enqueueFocus returns a rAF-cancel function we don't need here.
-              void enqueueFocus(els[els.length - 1]);
-            } else if (portalContext?.portalNode) {
-              if (isOutsideEvent(event, portalContext.portalNode)) {
-                getTabbableNearElement(event.currentTarget, 1)?.focus();
-              } else {
-                resolveRef(previousFocusableElement ?? portalContext.beforeOutsideRef)?.focus();
-              }
-            }
-          }}
-        />
+        <FocusGuard data-type="inside" ref={route[BEFORE_CONTENT]} onFocus={handleGuardFocus} />
       )}
       {children}
       {shouldRenderGuards && (
-        <FocusGuard
-          data-type="inside"
-          ref={mergedAfterGuardRef}
-          onFocus={(event) => {
-            if (modal) {
-              // enqueueFocus returns a rAF-cancel function we don't need here.
-              void enqueueFocus(getTabbableContent()[0]);
-            } else if (portalContext?.portalNode) {
-              if (isOutsideEvent(event, portalContext.portalNode)) {
-                getTabbableNearElement(event.currentTarget, -1)?.focus();
-              } else {
-                resolveRef(nextFocusableElement ?? portalContext.afterOutsideRef)?.focus();
-              }
-            }
-          }}
-        />
+        <FocusGuard data-type="inside" ref={route[AFTER_CONTENT]} onFocus={handleGuardFocus} />
       )}
     </ClosedReturnTargetContext.Provider>
   );

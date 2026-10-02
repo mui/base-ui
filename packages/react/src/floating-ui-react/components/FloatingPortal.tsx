@@ -9,39 +9,27 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FocusGuard } from '../../utils/FocusGuard';
-import {
-  enableFocusInside,
-  disableFocusInside,
-  getTabbableNearElement,
-  isOutsideEvent,
-} from '../utils/tabbable';
-import type { FocusableElement } from '../utils/tabbable';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import { enableFocusInside, disableFocusInside, isOutsideEvent } from '../utils/tabbable';
+import { AFTER_PORTAL, BEFORE_PORTAL } from '../utils/focusRoute';
+import type { FocusRoute } from '../utils/focusRoute';
 import { createAttribute } from '../utils/createAttribute';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { UseRenderElementComponentProps } from '../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
 
+// Reported by the focus manager inside, which owns the popup's focus route. The portal renders the
+// route's guards around its placeholder.
 type FocusManagerState = null | {
   modal: boolean;
   open: boolean;
-  onOpenChange(
-    open: boolean,
-    data?: { reason?: string | undefined; event?: Event | undefined },
-  ): void;
-  domReference: Element | null;
-  closeOnFocusOut: boolean;
+  route: FocusRoute;
+  onGuardFocus: React.FocusEventHandler<HTMLElement>;
 };
 
 const PortalContext = React.createContext<null | {
   portalNode: HTMLElement | null;
   setFocusManagerState: React.Dispatch<React.SetStateAction<FocusManagerState>>;
-  beforeInsideRef: React.RefObject<HTMLSpanElement | null>;
-  afterInsideRef: React.RefObject<HTMLSpanElement | null>;
-  beforeOutsideRef: React.RefObject<HTMLSpanElement | null>;
-  afterOutsideRef: React.RefObject<HTMLSpanElement | null>;
 }>(null);
 
 export const usePortalContext = () => React.useContext(PortalContext);
@@ -178,19 +166,13 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     elementProps,
   });
 
-  const beforeOutsideRef = React.useRef<HTMLSpanElement>(null);
-  const afterOutsideRef = React.useRef<HTMLSpanElement>(null);
-  const beforeInsideRef = React.useRef<HTMLSpanElement>(null);
-  const afterInsideRef = React.useRef<HTMLSpanElement>(null);
-
   const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
   const focusInsideDisabledRef = React.useRef(false);
 
   const modal = focusManagerState?.modal;
   const open = focusManagerState?.open;
 
-  const shouldRenderGuards =
-    !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
+  const routeState = !modal && open && portalNode ? focusManagerState : null;
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
@@ -233,65 +215,30 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     focusInsideDisabledRef.current = false;
   }, [open, portalNode]);
 
-  // Focus is leaving the portal content through an outside guard. Continue from the guard's
-  // place in the tab order. At the end of the document, go back to the reference instead.
-  function focusPastOutsideGuard(guard: Element, direction: 1 | -1) {
-    (
-      getTabbableNearElement(guard, direction, null, false) ??
-      (focusManagerState?.domReference as FocusableElement | null | undefined)
-    )?.focus();
-  }
-
   const portalContextValue = React.useMemo(
-    () => ({
-      beforeOutsideRef,
-      afterOutsideRef,
-      beforeInsideRef,
-      afterInsideRef,
-      portalNode,
-      setFocusManagerState,
-    }),
+    () => ({ portalNode, setFocusManagerState }),
     [portalNode],
   );
 
   return (
     <React.Fragment>
       <PortalContext.Provider value={portalContextValue}>
-        {shouldRenderGuards && portalNode && (
+        {routeState && (
           <FocusGuard
             data-type="outside"
-            ref={beforeOutsideRef}
-            onFocus={(event) => {
-              if (isOutsideEvent(event, portalNode)) {
-                beforeInsideRef.current?.focus();
-              } else {
-                focusPastOutsideGuard(event.currentTarget, -1);
-              }
-            }}
+            ref={routeState.route[BEFORE_PORTAL]}
+            onFocus={routeState.onGuardFocus}
           />
         )}
-        {shouldRenderGuards && portalNode && (
+        {routeState && (
           <span role={portalOwnerRole} aria-owns={portalNodeId} style={ownerVisuallyHidden} />
         )}
         {portalNode && ReactDOM.createPortal(children, portalNode)}
-        {shouldRenderGuards && portalNode && (
+        {routeState && (
           <FocusGuard
             data-type="outside"
-            ref={afterOutsideRef}
-            onFocus={(event) => {
-              if (isOutsideEvent(event, portalNode)) {
-                afterInsideRef.current?.focus();
-              } else {
-                focusPastOutsideGuard(event.currentTarget, 1);
-
-                if (focusManagerState?.closeOnFocusOut) {
-                  focusManagerState?.onOpenChange(
-                    false,
-                    createChangeEventDetails(REASONS.focusOut, event.nativeEvent),
-                  );
-                }
-              }
-            }}
+            ref={routeState.route[AFTER_PORTAL]}
+            onFocus={routeState.onGuardFocus}
           />
         )}
       </PortalContext.Provider>
