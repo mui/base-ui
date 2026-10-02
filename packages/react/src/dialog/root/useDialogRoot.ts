@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useDismiss } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
@@ -21,6 +22,8 @@ export function DialogInteractions({
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
   const floatingRootContext = store.useState('floatingRootContext');
+
+  const nestedDialogKey = useRefWithInit(() => Symbol('nestedDialog')).current;
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const [ownNestedOpenDrawers, setOwnNestedOpenDrawers] = React.useState(0);
@@ -86,30 +89,50 @@ export function DialogInteractions({
   useScrollLock(open && modal === true, popupElement);
 
   // Listen for nested open/close events on this store to maintain the counts.
-  // A close notification is an open notification with zeroed counts.
-  store.useContextCallback('onNestedDialogOpen', (dialogCount, drawerCount) => {
+  // Each child reports under its own key so sibling nested dialogs accumulate
+  // instead of overwriting each other. A `null` payload removes the child.
+  store.useContextCallback('onNestedDialogOpen', (childKey, counts) => {
+    const nestedDialogs = store.context.nestedDialogs;
+
+    if (counts === null) {
+      if (!nestedDialogs.delete(childKey)) {
+        return;
+      }
+    } else {
+      nestedDialogs.set(childKey, counts);
+    }
+
+    let dialogCount = 0;
+    let drawerCount = 0;
+    nestedDialogs.forEach((entry) => {
+      dialogCount += entry.dialogCount;
+      drawerCount += entry.drawerCount;
+    });
+
     setOwnNestedOpenDialogs(dialogCount);
     setOwnNestedOpenDrawers(drawerCount);
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
   useIsoLayoutEffect(() => {
-    if (parentContext?.onNestedDialogOpen) {
-      if (open) {
-        parentContext.onNestedDialogOpen(
-          ownNestedOpenDialogs + 1,
-          ownNestedOpenDrawers + (isDrawer ? 1 : 0),
-        );
-      } else {
-        parentContext.onNestedDialogOpen(0, 0);
-      }
+    const notifyParent = parentContext?.onNestedDialogOpen;
+    if (!notifyParent) {
+      return undefined;
     }
+
+    if (open) {
+      notifyParent(nestedDialogKey, {
+        dialogCount: ownNestedOpenDialogs + 1,
+        drawerCount: ownNestedOpenDrawers + (isDrawer ? 1 : 0),
+      });
+    } else {
+      notifyParent(nestedDialogKey, null);
+    }
+
     return () => {
-      if (parentContext?.onNestedDialogOpen && open) {
-        parentContext.onNestedDialogOpen(0, 0);
-      }
+      notifyParent(nestedDialogKey, null);
     };
-  }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
+  }, [isDrawer, nestedDialogKey, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
   usePopupInteractionProps(store, {
     // `enabled` is not passed to `useDismiss`, so its props are always defined,
