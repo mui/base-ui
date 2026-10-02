@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import type { HTMLProps } from '../../internals/types';
 import type { FilteredSelectPopup } from './FilteredSelectPopup';
 import type { FilteredSelectList } from './FilteredSelectList';
@@ -46,4 +47,24 @@ const UNFILTERED: SelectFilterItemResult = { visible: true, ref: null };
 /** The hook a plain select's items call in place of the injected one. */
 export function useUnfilteredItem(): SelectFilterItemResult {
   return UNFILTERED;
+}
+
+export interface SelectFilterNavigationContext {
+  /** The select's list navigation props for the input, which holds real focus. */
+  navigationProps: HTMLProps;
+  /** The id of the highlighted option, which the input points `aria-activedescendant` at. */
+  activeItemId: string | undefined;
+  /** Re-reads the highlighted option once the list's items settle. */
+  syncActiveItem: () => void;
+}
+
+// The engine's own context check fires first when a part renders outside the provider.
+export const SelectFilterNavigationContext = React.createContext<SelectFilterNavigationContext>({
+  navigationProps: EMPTY_OBJECT,
+  activeItemId: undefined,
+  syncActiveItem: NOOP,
+});
+
+export function useSelectFilterNavigationContext(): SelectFilterNavigationContext {
+  return React.useContext(SelectFilterNavigationContext);
 }

@@ -160,7 +160,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(screen.queryAllByRole('option')).toHaveLength(0);
       expect(await screen.findByText('No matches')).not.toBe(null);
 
-      await user.click(screen.getByRole('button', { name: 'Clear filter' }));
+      await user.click(screen.getByLabelText('Clear filter'));
       expect(input).toHaveValue('');
       expect(screen.getAllByRole('option')).toHaveLength(4);
       expect(input).toHaveFocus();
@@ -531,7 +531,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         <Test root={{ defaultOpen: true, disabled: true }} provider={{ defaultInputValue: 'a' }} />,
       );
       expect(screen.getByRole('searchbox', { name: 'Filter countries' })).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Clear filter' })).toBeDisabled();
+      expect(screen.getByLabelText('Clear filter')).toBeDisabled();
     });
   });
 
@@ -551,11 +551,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         expect(input).toHaveFocus();
       });
 
-      const clear = screen.getByRole('button', { name: 'Clear filter' });
-      await user.tab();
-      await waitFor(() => {
-        expect(clear).toHaveFocus();
-      });
+      // The clear button stays out of the tab order, so Tab wraps straight back to the input.
       // Wrapping goes through the focus guards, which redirect focus after the key lands.
       await user.tab();
       await waitFor(() => {

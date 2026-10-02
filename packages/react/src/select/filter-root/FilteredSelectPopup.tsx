@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { useMenuFilterPopup } from '../../menu/filter-root/useMenuFilterPopup';
 import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
-import { SelectPopupPlain, type SelectPopupProps } from '../popup/SelectPopup';
+import { SelectPopupPlain } from '../popup/SelectPopup';
+import type { SelectPopupProps } from '../popup/SelectPopup';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';

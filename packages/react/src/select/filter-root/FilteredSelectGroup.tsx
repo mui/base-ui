@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { useFilterDropdownGroup } from '../../filter-dropdown/group/useFilterDropdownGroup';
 import { FilterDropdownGroupContext } from '../../filter-dropdown/group/FilterDropdownGroupContext';
-import { SelectGroupPlain, type SelectGroupProps } from '../group/SelectGroup';
+import { SelectGroupPlain } from '../group/SelectGroup';
+import type { SelectGroupProps } from '../group/SelectGroup';
 
 /**
  * Groups related filterable select items with the corresponding label.
