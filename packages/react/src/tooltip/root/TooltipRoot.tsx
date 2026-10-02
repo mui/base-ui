@@ -266,17 +266,23 @@ function TooltipInteractions<Payload>({
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
-  // `useClientPoint` has no floating-side props.
+  // Both hooks return `trigger: reference` (same object identity), so the active and
+  // inactive trigger props can never differ. `useClientPoint` has no floating-side props.
   const triggerProps = React.useMemo(
     () => mergeProps(clientPoint.reference, dismiss.reference),
     [clientPoint.reference, dismiss.reference],
   );
-  usePopupInteractionProps(store, {
-    activeTriggerProps: triggerProps,
-    // Inactive triggers only need cursor tracking; `useDismiss` listens at the document level.
-    inactiveTriggerProps: trackCursorAxis === 'none' ? EMPTY_OBJECT : clientPoint.reference!,
-    popupProps: dismiss.floating ?? EMPTY_OBJECT,
-  });
+  // TooltipTrigger only applies root props to inactive triggers while tracking the cursor.
+  const tracksCursor = trackCursorAxis !== 'none';
+  usePopupInteractionProps(
+    store,
+    {
+      activeTriggerProps: triggerProps,
+      inactiveTriggerProps: tracksCursor ? triggerProps : EMPTY_OBJECT,
+      popupProps: dismiss.floating ?? EMPTY_OBJECT,
+    },
+    { forwardInactiveTriggerProps: tracksCursor },
+  );
 
   return null;
 }

@@ -196,7 +196,7 @@ describe('<Popover.Root />', () => {
     expect(refCalls).toEqual([screen.getByRole('button', { name: 'Trigger' })]);
   });
 
-  it('does not re-render inactive triggers when the popup opens and closes', async () => {
+  it('does not re-render inactive triggers when the popup reopens', async () => {
     const handle = Popover.createHandle();
     let inactiveTriggerRenders = 0;
 
@@ -225,16 +225,20 @@ describe('<Popover.Root />', () => {
       </div>,
     );
 
+    async function openAndClose() {
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      expect(await screen.findByTestId('popup')).not.toBe(null);
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    }
+
+    // The first open publishes the inactive trigger handlers once.
+    await openAndClose();
     inactiveTriggerRenders = 0;
 
-    await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
-    expect(await screen.findByTestId('popup')).not.toBe(null);
-    expect(inactiveTriggerRenders).toBe(0);
-
-    await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
-    await waitFor(() => {
-      expect(screen.queryByTestId('popup')).toBe(null);
-    });
+    await openAndClose();
     expect(inactiveTriggerRenders).toBe(0);
   });
 

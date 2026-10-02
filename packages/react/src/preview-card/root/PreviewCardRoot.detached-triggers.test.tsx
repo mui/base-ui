@@ -27,7 +27,7 @@ describe('<PreviewCard.Root />', () => {
 
   const { render, clock } = createRenderer();
 
-  it('does not re-render inactive triggers when the popup opens and closes', async () => {
+  it('does not re-render inactive triggers when the popup reopens', async () => {
     const handle = PreviewCard.createHandle();
     let inactiveTriggerRenders = 0;
 
@@ -56,16 +56,20 @@ describe('<PreviewCard.Root />', () => {
       </div>,
     );
 
+    async function openAndClose() {
+      await act(() => handle.open('trigger-1'));
+      expect(await screen.findByTestId('popup')).not.toBe(null);
+      await act(() => handle.close());
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    }
+
+    // The first open publishes the inactive trigger handlers once.
+    await openAndClose();
     inactiveTriggerRenders = 0;
 
-    await act(() => handle.open('trigger-1'));
-    expect(await screen.findByTestId('popup')).not.toBe(null);
-    expect(inactiveTriggerRenders).toBe(0);
-
-    await act(() => handle.close());
-    await waitFor(() => {
-      expect(screen.queryByTestId('popup')).toBe(null);
-    });
+    await openAndClose();
     expect(inactiveTriggerRenders).toBe(0);
   });
 

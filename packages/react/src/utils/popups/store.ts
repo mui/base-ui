@@ -79,7 +79,6 @@ export type PopupStoreState<Payload> = {
   activeTriggerProps: HTMLProps;
   /**
    * Props to spread onto inactive trigger elements.
-   * Every inactive trigger re-renders when this changes, so keep it stable across open and close.
    */
   inactiveTriggerProps: HTMLProps;
   /**
