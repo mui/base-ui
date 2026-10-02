@@ -3201,6 +3201,53 @@ describe('<Menu.Root />', () => {
         expect(handleTriggerFocus).not.toHaveBeenCalled();
       },
     );
+
+    describe('after a hover open', () => {
+      /** Renders a modal menu with a long exit animation and opens it by hovering. */
+      async function hoverOpenMenu(backdrop?: React.ReactNode) {
+        await render(
+          <div>
+            <style>{style}</style>
+            <Menu.Root>
+              <Menu.Trigger openOnHover delay={0} closeDelay={0}>
+                Toggle
+              </Menu.Trigger>
+              <Menu.Portal>
+                {backdrop}
+                <Menu.Positioner data-testid="positioner">
+                  <Menu.Popup className="closing-popup" data-testid="popup">
+                    <Menu.Item>Item 1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>,
+        );
+
+        await user.hover(screen.getByRole('button', { name: 'Toggle' }));
+        await screen.findByTestId('popup');
+      }
+
+      it('does not render the internal backdrop', async () => {
+        await hoverOpenMenu();
+        const positioner = screen.getByTestId('positioner');
+        expect(positioner.previousElementSibling).toBe(null);
+
+        await closeWithEscape();
+
+        expect(positioner.previousElementSibling).toBe(null);
+      });
+
+      it('keeps the backdrop click-through', async () => {
+        await hoverOpenMenu(<Menu.Backdrop data-testid="backdrop" />);
+        const backdrop = screen.getByTestId('backdrop');
+        expect(backdrop.style.pointerEvents).toBe('none');
+
+        await closeWithEscape();
+
+        expect(backdrop.style.pointerEvents).toBe('none');
+      });
+    });
   });
 
   describe('prop: highlightItemOnHover', () => {

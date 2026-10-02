@@ -91,7 +91,7 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
-    this.update(createPopupOpenState(this.state, nextOpen, eventDetails.trigger));
+    this.update(createPopupOpenState(this.state, nextOpen, eventDetails));
   };
 }
 

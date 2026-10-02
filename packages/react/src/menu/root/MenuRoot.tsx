@@ -406,7 +406,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       const popupOpenState = createPopupOpenState(
         store.state,
         nextOpen,
-        eventDetails.trigger,
+        eventDetails,
         shouldPreventUnmountOnClose(),
       ) as ReturnType<typeof createPopupOpenState> & {
         openChangeReason: MenuRoot.ChangeEventReason;

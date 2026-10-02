@@ -159,7 +159,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   React.useEffect(() => {
     const doc = ownerDocument(triggerRef.current);
 
-    if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
+    if (isOpenedByThisTrigger && store.select('openReason') === REASONS.triggerHover) {
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
 
       return () => {
@@ -190,9 +190,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   });
 
   // Whether to ignore clicks to open the menu.
-  // `lastOpenChangeReason` doesn't need to be reactive here, as we need to run this
+  // `openReason` doesn't need to be reactive here, as we need to run this
   // only when `isOpenedByThisTrigger` changes.
-  const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
+  const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('openReason'));
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled,

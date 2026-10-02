@@ -75,7 +75,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     },
   );
 
-  const openReason = store.useState('openChangeReason');
+  const openReason = store.useState('openReason');
   const stickIfOpen = store.useState('stickIfOpen');
   const openMethod = store.useState('openMethod');
   const focusManagerModal = store.useState('focusManagerModal');

@@ -12,6 +12,7 @@ import {
   PopupTriggerMap,
   popupStoreSelectors,
   useImplicitActiveTrigger,
+  useOpenStateTransitions,
   usePopupInteractionProps,
   useTriggerDataForwarding,
   useTriggerRegistration,
@@ -427,7 +428,7 @@ describe('useTriggerRegistration', () => {
     );
 
     act(() => {
-      store.update(createPopupOpenState(store.state, true, undefined));
+      store.update(createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.none)));
     });
 
     expect(store.state.triggerCount).toBe(1);
@@ -448,7 +449,7 @@ describe('useTriggerRegistration', () => {
     );
 
     act(() => {
-      store.update(createPopupOpenState(store.state, true, undefined));
+      store.update(createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.none)));
     });
     expect(store.state.activeTriggerId).toBe(null);
 
@@ -469,7 +470,7 @@ describe('useTriggerRegistration', () => {
     const store = createStore();
     const element = document.createElement('button');
     store.set('payload', 'programmatic');
-    store.update(createPopupOpenState(store.state, true, undefined));
+    store.update(createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.none)));
 
     render(
       <TestForwardedTrigger id="trigger" store={store} element={element} payload="from trigger" />,
@@ -918,12 +919,16 @@ describe('usePopupInteractionProps', () => {
   });
 });
 
-describe('getPopupOpenState', () => {
+describe('createPopupOpenState', () => {
+  function request(reason: string, trigger?: Element) {
+    return createChangeEventDetails(reason, undefined, trigger);
+  }
+
   it('clears a previous unmount-prevention request when opening', () => {
     const state = createInitialPopupStoreState(new PopupTriggerMap());
     state.preventUnmountingOnClose = true;
 
-    const nextState = createPopupOpenState(state, true, undefined);
+    const nextState = createPopupOpenState(state, true, request(REASONS.none));
 
     expect(nextState.preventUnmountingOnClose).toBe(false);
     expect(state.preventUnmountingOnClose).toBe(true);
@@ -932,7 +937,7 @@ describe('getPopupOpenState', () => {
   it('sets the unmount-prevention request when closing', () => {
     const state = createInitialPopupStoreState(new PopupTriggerMap());
 
-    const nextState = createPopupOpenState(state, false, undefined, true);
+    const nextState = createPopupOpenState(state, false, request(REASONS.none), true);
 
     expect(nextState.preventUnmountingOnClose).toBe(true);
   });
@@ -943,7 +948,7 @@ describe('getPopupOpenState', () => {
     state.activeTriggerId = 'trigger-id';
     state.activeTriggerElement = trigger;
 
-    const nextState = createPopupOpenState(state, false, undefined);
+    const nextState = createPopupOpenState(state, false, request(REASONS.none));
 
     expect(nextState.activeTriggerId).toBe('trigger-id');
     expect(nextState.activeTriggerElement).toBe(trigger);
@@ -954,8 +959,12 @@ describe('getPopupOpenState', () => {
     const trigger = document.createElement('button');
     trigger.id = 'trigger-id';
 
-    expect(createPopupOpenState(state, true, undefined).openedWithoutTrigger).toBe(true);
-    expect(createPopupOpenState(state, true, trigger).openedWithoutTrigger).toBe(false);
+    expect(createPopupOpenState(state, true, request(REASONS.none)).openedWithoutTrigger).toBe(
+      true,
+    );
+    expect(
+      createPopupOpenState(state, true, request(REASONS.none, trigger)).openedWithoutTrigger,
+    ).toBe(false);
   });
 
   it('keeps the trigger-less open flag through a close request', () => {
@@ -964,7 +973,89 @@ describe('getPopupOpenState', () => {
     const state = createInitialPopupStoreState(new PopupTriggerMap());
     state.openedWithoutTrigger = true;
 
-    expect(createPopupOpenState(state, false, undefined).openedWithoutTrigger).toBe(true);
+    expect(createPopupOpenState(state, false, request(REASONS.none)).openedWithoutTrigger).toBe(
+      true,
+    );
+  });
+
+  it('records the reason of an open request', () => {
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+
+    expect(createPopupOpenState(state, true, request(REASONS.triggerHover)).openReason).toBe(
+      REASONS.triggerHover,
+    );
+  });
+
+  it('keeps the open reason through a close request', () => {
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    state.open = true;
+    state.openReason = REASONS.triggerHover;
+
+    expect(createPopupOpenState(state, false, request(REASONS.escapeKey)).openReason).toBe(
+      REASONS.triggerHover,
+    );
+  });
+
+  it('replaces the open reason when an open popup is opened again', () => {
+    // A click on the trigger of a hover-opened popup upgrades it to a click-opened one.
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    state.open = true;
+    state.openReason = REASONS.triggerHover;
+
+    expect(createPopupOpenState(state, true, request(REASONS.triggerPress)).openReason).toBe(
+      REASONS.triggerPress,
+    );
+  });
+
+  it('replaces the open reason when a closing popup reopens', () => {
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    state.openReason = REASONS.triggerHover;
+
+    expect(createPopupOpenState(state, true, request(REASONS.triggerFocus)).openReason).toBe(
+      REASONS.triggerFocus,
+    );
+  });
+});
+
+describe('useOpenStateTransitions', () => {
+  function OpenStateTransitionsTest({
+    store,
+    unmountRef,
+  }: {
+    store: TestStore;
+    unmountRef: React.RefObject<(() => void) | null>;
+  }) {
+    const open = store.useState('open');
+    const { forceUnmount } = useOpenStateTransitions(open, store);
+    unmountRef.current = forceUnmount;
+    return null;
+  }
+
+  it('keeps the open reason until the popup unmounts', () => {
+    const store = createStore();
+    const unmountRef = React.createRef<(() => void) | null>();
+    render(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} />);
+
+    act(() => {
+      store.update(
+        createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerHover)),
+      );
+    });
+
+    // Keep the closed popup mounted, as an exit animation would, until it's unmounted on demand.
+    act(() => {
+      store.update(
+        createPopupOpenState(store.state, false, createChangeEventDetails(REASONS.escapeKey), true),
+      );
+    });
+    expect(store.state.mounted).toBe(true);
+    expect(store.state.openReason).toBe(REASONS.triggerHover);
+
+    act(() => {
+      unmountRef.current!();
+    });
+    expect(store.state.mounted).toBe(false);
+    expect(store.state.openReason).toBe(null);
   });
 });
 

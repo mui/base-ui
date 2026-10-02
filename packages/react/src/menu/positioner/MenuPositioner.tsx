@@ -70,7 +70,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const openReason = store.useState('openReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
   const domReference = floatingRootContext.useState('domReferenceElement');
@@ -243,7 +243,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   };
 
   const menubarModal = parent.type === 'menubar' && parent.context.modal;
-  const popupModal = modal && lastOpenChangeReason !== REASONS.triggerHover;
+  const popupModal = modal && openReason !== REASONS.triggerHover;
 
   useAnchoredPopupScrollLock(
     open && (menubarModal || popupModal),
@@ -264,7 +264,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const shouldRenderBackdrop =
     mounted &&
     parent.type !== 'menu' &&
-    ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== REASONS.triggerHover) ||
+    ((parent.type !== 'menubar' && popupModal) ||
       (parent.type === 'menubar' && parent.context.modal));
 
   // cuts a hole in the backdrop to allow pointer interaction with the menubar or dropdown menu trigger element

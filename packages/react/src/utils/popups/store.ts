@@ -19,6 +19,12 @@ export type PopupStoreState<Payload> = {
    */
   readonly openProp: boolean | undefined;
   /**
+   * The reason of the latest accepted open request. A close keeps it, so it still describes the
+   * popup during the exit transition, and the Root clears it on unmount. `null` when the popup
+   * was opened through the `open` prop alone.
+   */
+  openReason: string | null;
+  /**
    * Whether the popup should be mounted in the DOM.
    * This usually follows `open` but can be different during exit transitions.
    */
@@ -95,6 +101,7 @@ export function createInitialPopupStoreState<Payload>(
   return {
     open: false,
     openProp: undefined,
+    openReason: null,
     mounted: false,
     transitionStatus: undefined,
     floatingRootContext: new FloatingRootStore({
@@ -176,6 +183,7 @@ function triggerOwnsOpenPopupOrIsOnlyTrigger(state: S, triggerId: string | undef
 
 export const popupStoreSelectors = {
   open: openSelector,
+  openReason: (state: S) => state.openReason,
   mounted: (state: S) => state.mounted,
   // `open` is written synchronously on an open change; `mounted`/`transitionStatus` sync in a
   // layout effect. Match useTransitionStatus so a retained popup does not miss its starting phase.

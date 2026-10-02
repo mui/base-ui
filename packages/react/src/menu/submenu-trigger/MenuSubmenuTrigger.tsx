@@ -210,11 +210,10 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 
   const openMethod = store.useState('openMethod');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const openReason = store.useState('openReason');
   // Arrow keys open the submenu through list navigation without dispatching a click, so
   // `openMethod` stays null there; Enter and Space do dispatch one and report `keyboard`.
-  const openedByKeyboard =
-    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
+  const openedByKeyboard = openReason === REASONS.listNavigation || openMethod === 'keyboard';
   const shouldOmitExpanded = open && openedByKeyboard && platform.screenReader.voiceOver;
   const submenuKeyDownProps = submenuRootContext?.onTriggerKeyDown
     ? { onKeyDown: submenuRootContext.onTriggerKeyDown }

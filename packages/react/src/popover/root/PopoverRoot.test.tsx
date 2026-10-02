@@ -2368,6 +2368,46 @@ describe('<Popover.Root />', () => {
 
       expect(screen.getByTestId('before')).toHaveFocus();
     });
+
+    describe('after a hover open', () => {
+      /** Renders a modal popover with a long exit animation and opens it by hovering. */
+      async function hoverOpenPopover(backdrop?: React.ReactNode) {
+        await render(
+          <div>
+            <style>{style}</style>
+            <ContainedTriggerPopover
+              rootProps={{ modal: true }}
+              triggerProps={{ openOnHover: true, delay: 0, closeDelay: 0 }}
+              portalProps={{ children: backdrop }}
+              popupProps={{ className: 'closing-popup' }}
+            />
+          </div>,
+        );
+
+        await user.hover(screen.getByTestId('trigger'));
+        await screen.findByTestId('popover-popup');
+      }
+
+      it('does not render the internal backdrop', async () => {
+        await hoverOpenPopover();
+        const positioner = screen.getByTestId('positioner');
+        expect(positioner.previousElementSibling).toBe(null);
+
+        await closeWithEscape();
+
+        expect(positioner.previousElementSibling).toBe(null);
+      });
+
+      it('keeps the backdrop click-through', async () => {
+        await hoverOpenPopover(<Popover.Backdrop data-testid="backdrop" />);
+        const backdrop = screen.getByTestId('backdrop');
+        expect(backdrop.style.pointerEvents).toBe('none');
+
+        await closeWithEscape();
+
+        expect(backdrop.style.pointerEvents).toBe('none');
+      });
+    });
   });
 
   describe('preventUnmountOnClose()', () => {

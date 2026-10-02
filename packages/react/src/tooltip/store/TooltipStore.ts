@@ -20,6 +20,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   isInstantPhase: boolean;
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   disableHoverablePopup: boolean;
+  /** The reason of the latest accepted open or close. `openReason` tells why the tooltip opened. */
   openChangeReason: TooltipRoot.ChangeEventReason | null;
   closeOnClick: boolean;
   closeDelay: number;

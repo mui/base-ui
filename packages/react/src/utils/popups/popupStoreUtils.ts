@@ -180,18 +180,26 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
 type PopupOpenState = Pick<
   PopupStoreState<unknown>,
   | 'open'
+  | 'openReason'
   | 'preventUnmountingOnClose'
   | 'activeTriggerId'
   | 'activeTriggerElement'
   | 'openedWithoutTrigger'
 >;
 
+/**
+ * Returns the open-state fields an accepted open change writes to a popup store.
+ *
+ * @param eventDetails The details of the accepted change. Its `trigger` becomes the active trigger,
+ * and an open request's `reason` becomes the `openReason`.
+ */
 export function createPopupOpenState(
   state: PopupOpenState,
   open: boolean,
-  trigger: Element | undefined,
+  eventDetails: Pick<BaseUIChangeEventDetails<string>, 'reason' | 'trigger'>,
   preventUnmountOnClose = false,
 ): PopupOpenState {
+  const trigger = eventDetails.trigger;
   let preventUnmountingOnClose = state.preventUnmountingOnClose;
   if (open) {
     // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
@@ -213,6 +221,10 @@ export function createPopupOpenState(
 
   return {
     open,
+    // Every accepted open request writes it, including one that upgrades an open popup (a click
+    // after a hover open). A close keeps it, so readers like backdrops and the focus manager don't
+    // flip mid-exit.
+    openReason: open ? eventDetails.reason : state.openReason,
     preventUnmountingOnClose,
     activeTriggerId,
     activeTriggerElement,
@@ -284,7 +296,7 @@ export function applyPopupOpenChange<
     const popupOpenState = createPopupOpenState(
       store.state,
       nextOpen,
-      eventDetails.trigger,
+      eventDetails,
       shouldPreventUnmountOnClose(),
     );
 
@@ -557,7 +569,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 /**
  * Manages the mounted state of the popup.
  * Sets up the transition status listeners and handles unmounting when needed.
- * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store.
+ * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store,
+ * and ends the open cycle on unmount by clearing the active trigger and `openReason`.
  *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
@@ -589,6 +602,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
         activeTriggerElement: null,
         mounted: false,
         preventUnmountingOnClose: false,
+        openReason: null,
       });
       onUnmount?.();
       store.context.onOpenChangeComplete?.(false);
