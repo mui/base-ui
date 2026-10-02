@@ -341,8 +341,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.3.0)(react@19.3.0)
       '@mui/internal-docs-infra':
-        specifier: 0.13.1-canary.1
-        version: 0.13.1-canary.1(@types/react@19.3.0)(next@16.3.5(@babel/core@8.0.5)(@playwright/test@1.63.0)(@types/node@22.20.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(prettier@3.9.8)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@10.2.2)
+        specifier: 0.13.1-canary.5
+        version: 0.13.1-canary.5(@types/react@19.3.0)(next@16.3.5(@babel/core@8.0.5)(@playwright/test@1.63.0)(@types/node@22.20.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(prettier@3.9.8)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@10.2.2)
       '@next/mdx':
         specifier: ^16.3.5
         version: 16.3.5(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.110.3(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.35.4(@types/node@22.20.4))(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.3.0)(react@19.3.0))
@@ -2420,8 +2420,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.13.1-canary.1':
-    resolution: {integrity: sha512-OZxEYcmb7BNUyZfUQRsTgqZFVtXs5OjkFLllBFP029t5rsgeF8/o0dQ/6nCneHOqh7my3gXcRGm5PNSlXDLrIg==}
+  '@mui/internal-docs-infra@0.13.1-canary.5':
+    resolution: {integrity: sha512-yGEAYAJOSaTAxMmp7DSuSvDv61fDdW8+i/d+R3rSti7vP9njwhm8ZUexqhPC2TcSInJPsnZl/jPZiVZwB71h4w==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -11755,7 +11755,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.13.1-canary.1(@types/react@19.3.0)(next@16.3.5(@babel/core@8.0.5)(@playwright/test@1.63.0)(@types/node@22.20.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(prettier@3.9.8)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@10.2.2)':
+  '@mui/internal-docs-infra@0.13.1-canary.5(@types/react@19.3.0)(next@16.3.5(@babel/core@8.0.5)(@playwright/test@1.63.0)(@types/node@22.20.4)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(prettier@3.9.8)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@10.2.2)':
     dependencies:
       '@babel/runtime': 8.0.5
       '@csstools/postcss-light-dark-function': 3.0.4(postcss@8.5.28)
