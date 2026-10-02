@@ -325,6 +325,7 @@ describe('filterable menu list semantics', () => {
     expect(screen.getByRole('menu')).toHaveAttribute('aria-orientation', 'horizontal');
     expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-orientation');
     await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', 'first-item'));
+    await waitFor(() => expect(input).toHaveFocus());
     await user.keyboard('[ArrowRight]');
     expect(input).toHaveAttribute('aria-activedescendant', 'second-item');
   });

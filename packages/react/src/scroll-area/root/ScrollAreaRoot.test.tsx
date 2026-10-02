@@ -989,10 +989,12 @@ describe('<ScrollArea.Root />', () => {
       // Scrolling does not change the corner size, so no scroll-area part should
       // re-render. Previously the corner-size setter built a fresh object on every
       // scroll frame, rebuilding the root context and re-rendering every part.
+      // `fireEvent` flushes the scroll's renders and effects synchronously. Don't await between
+      // the scroll and the check: React 19's async `act` yields a frame, where an unrelated
+      // measurement can commit.
       for (let i = 0; i < 3; i += 1) {
         fireEvent.scroll(viewport, { target: { scrollTop: 0, scrollLeft: 0 } });
       }
-      await flushMicrotasks();
 
       expect(commitCount).toBe(countBeforeScroll);
     });
