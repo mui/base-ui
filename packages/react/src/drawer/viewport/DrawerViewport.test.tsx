@@ -3,6 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Combobox } from '@base-ui/react/combobox';
 import { Drawer } from '@base-ui/react/drawer';
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup } from '@base-ui/react/radio-group';
 import { Slider } from '@base-ui/react/slider';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -4103,6 +4105,124 @@ describe('<Drawer.Viewport />', () => {
     }
 
     expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
+  });
+
+  it.skipIf(isJSDOM)(
+    'activates non-native interactive children on a real mouse click',
+    async () => {
+      const { userEvent } = await import('vitest/browser');
+      const reactGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean };
+
+      await render(
+        <Drawer.Root open>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup style={{ position: 'fixed', inset: 0 }}>
+                <RadioGroup>
+                  <Radio.Root value="a" style={{ display: 'block', width: 20, height: 20 }} />
+                </RadioGroup>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      // Trusted input, so the browser applies pointer capture's `click` retargeting.
+      reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+      try {
+        await userEvent.click(screen.getByRole('radio'));
+      } finally {
+        reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
+      }
+
+      expect(screen.getByRole('radio')).toHaveAttribute('aria-checked', 'true');
+    },
+  );
+
+  it('defers pointer capture until movement passes the drag threshold', async () => {
+    await render(
+      <Drawer.Root open>
+        <Drawer.Portal>
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+    const popup = screen.getByTestId('popup');
+
+    const setPointerCapture = vi.fn();
+    Object.defineProperty(popup, 'setPointerCapture', {
+      configurable: true,
+      value: setPointerCapture,
+    });
+    Object.defineProperty(popup, 'releasePointerCapture', {
+      configurable: true,
+      value: () => {},
+    });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => popup;
+
+    try {
+      fireEvent.pointerDown(viewport, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      // A plain press must not capture the pointer: capture would retarget the eventual
+      // `click` to the popup and block activation of non-native interactive children.
+      expect(setPointerCapture).not.toHaveBeenCalled();
+
+      fireEvent.pointerMove(viewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 2,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(viewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 4,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      // Sub-threshold jitter during a click must not capture either.
+      expect(setPointerCapture).not.toHaveBeenCalled();
+
+      fireEvent.pointerMove(viewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 12,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      expect(setPointerCapture).toHaveBeenCalledTimes(1);
+
+      fireEvent.pointerUp(viewport, {
+        pointerId: 1,
+        clientX: 0,
+        clientY: 12,
+        pointerType: 'mouse',
+      });
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
   });
 
   it('ends swipe drag when the primary mouse button is released mid-gesture', async () => {
