@@ -1701,7 +1701,7 @@ describe('useSwipeDismiss', () => {
 
         await flushMicrotasks();
 
-        // Keep the last moving sample (40px / 16ms), unless it is older than 80ms.
+        // Keep the last moving sample (20px / 8ms), unless it is older than 80ms.
         const details = onRelease.mock.calls[0]?.[0];
         expect(details?.releaseVelocityY).toBeCloseTo(expectedVelocity, 4);
         expect(details?.releaseVelocityX).toBeCloseTo(0, 2);
@@ -1712,88 +1712,129 @@ describe('useSwipeDismiss', () => {
   );
 
   it.each([
-    { rate: '60 Hz', intervalMs: 16 },
-    { rate: '120 Hz', intervalMs: 8 },
-  ])('reads the same release velocity from $rate input', async ({ intervalMs }) => {
-    const onRelease = vi.fn();
-    const speed = 0.9;
+    {
+      name: '60 Hz input',
+      moves: [
+        [1016, 14.4],
+        [1032, 28.8],
+        [1048, 43.2],
+        [1064, 57.6],
+      ],
+      release: [1080, 72],
+      expected: 0.9,
+    },
+    {
+      name: '120 Hz input',
+      moves: [
+        [1008, 7.2],
+        [1016, 14.4],
+        [1024, 21.6],
+        [1032, 28.8],
+      ],
+      release: [1040, 36],
+      expected: 0.9,
+    },
+    {
+      name: 'a slower final step',
+      moves: [
+        [1008, 10],
+        [1016, 20],
+        [1024, 30],
+        [1032, 31],
+      ],
+      release: [1040, 31],
+      expected: 0.125,
+    },
+    {
+      name: 'a flick after a pause',
+      moves: [
+        [1008, 10],
+        [1016, 20],
+        [1216, 30],
+        [1224, 40],
+      ],
+      release: [1232, 40],
+      expected: 1.25,
+    },
+  ])(
+    'measures release velocity from the latest movement ($name)',
+    async ({ moves, release, expected }) => {
+      const onRelease = vi.fn();
 
-    function SwipeBoxInputRate() {
-      const ref = React.useRef<HTMLDivElement>(null);
-      const swipe = useSwipeDismiss({
-        enabled: true,
-        directions: ['down'],
-        elementRef: ref,
-        movementCssVars: { x: '--x', y: '--y' },
-        onRelease,
-      });
-
-      return (
-        <div
-          data-testid="release-velocity-input-rate"
-          ref={ref}
-          style={swipe.getDragStyles()}
-          {...swipe.getPointerProps()}
-        />
-      );
-    }
-
-    vi.useFakeTimers();
-    try {
-      await render(<SwipeBoxInputRate />);
-      const element = screen.getByTestId('release-velocity-input-rate');
-
-      firePointer.down(element, {
-        button: 0,
-        buttons: 1,
-        pointerId: 1,
-        clientX: 0,
-        clientY: 0,
-        bubbles: true,
-        pointerType: 'mouse',
-        movementX: 0,
-        movementY: 0,
-        timeStamp: 1000,
-      });
-
-      await flushMicrotasks();
-
-      const step = speed * intervalMs;
-      let time = 1000;
-      let y = 0;
-      while (time < 1096) {
-        time += intervalMs;
-        y += step;
-        firePointer.move(element, {
-          pointerId: 1,
-          buttons: 1,
-          clientX: 0,
-          clientY: y,
-          bubbles: true,
-          movementX: 0,
-          movementY: step,
-          timeStamp: time,
+      function SwipeBoxLatestMovement() {
+        const ref = React.useRef<HTMLDivElement>(null);
+        const swipe = useSwipeDismiss({
+          enabled: true,
+          directions: ['down'],
+          elementRef: ref,
+          movementCssVars: { x: '--x', y: '--y' },
+          onRelease,
         });
-        // eslint-disable-next-line no-await-in-loop
-        await flushMicrotasks();
+
+        return (
+          <div
+            data-testid="release-velocity-latest-movement"
+            ref={ref}
+            style={swipe.getDragStyles()}
+            {...swipe.getPointerProps()}
+          />
+        );
       }
 
-      firePointer.up(element, {
-        pointerId: 1,
-        clientX: 0,
-        clientY: y + step,
-        bubbles: true,
-        timeStamp: time + intervalMs,
-      });
+      vi.useFakeTimers();
+      try {
+        await render(<SwipeBoxLatestMovement />);
+        const element = screen.getByTestId('release-velocity-latest-movement');
 
-      await flushMicrotasks();
+        firePointer.down(element, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 0,
+          clientY: 0,
+          bubbles: true,
+          pointerType: 'mouse',
+          movementX: 0,
+          movementY: 0,
+          timeStamp: 1000,
+        });
 
-      const details = onRelease.mock.calls[0]?.[0];
-      expect(details?.releaseVelocityY).toBeCloseTo(speed, 4);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
+        await flushMicrotasks();
+
+        let lastY = 0;
+        for (const [timeStamp, clientY] of moves) {
+          firePointer.move(element, {
+            pointerId: 1,
+            buttons: 1,
+            clientX: 0,
+            clientY,
+            bubbles: true,
+            movementX: 0,
+            movementY: clientY - lastY,
+            timeStamp,
+          });
+          lastY = clientY;
+          // eslint-disable-next-line no-await-in-loop
+          await flushMicrotasks();
+        }
+
+        firePointer.up(element, {
+          pointerId: 1,
+          clientX: 0,
+          clientY: release[1],
+          bubbles: true,
+          timeStamp: release[0],
+        });
+
+        await flushMicrotasks();
+
+        const details = onRelease.mock.calls[0]?.[0];
+        expect(details?.releaseVelocityY).toBeCloseTo(expected, 4);
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
 
   it('keeps release velocity when moves arrive sparsely', async () => {
     const onRelease = vi.fn();
@@ -1975,9 +2016,9 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      // 10px over the 16ms minimum duration. Measuring from the press would report 0.05.
+      // 10px over 8ms. Measuring from the press would report 0.05.
       const details = onRelease.mock.calls[0]?.[0];
-      expect(details?.releaseVelocityY).toBeCloseTo(0.625, 4);
+      expect(details?.releaseVelocityY).toBeCloseTo(1.25, 4);
     } finally {
       vi.useRealTimers();
     }
