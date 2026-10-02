@@ -28,8 +28,7 @@ import {
   focusable,
   isOutsideEvent,
   isTabbable,
-  getNextTabbable,
-  getPreviousTabbable,
+  getTabbableNearElement,
 } from '../utils/tabbable';
 import type { FocusableElement } from '../utils/tabbable';
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
@@ -1184,8 +1183,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
               void enqueueFocus(els[els.length - 1]);
             } else if (portalContext?.portalNode) {
               if (isOutsideEvent(event, portalContext.portalNode)) {
-                const nextTabbable = getNextTabbable(domReference);
-                nextTabbable?.focus();
+                getTabbableNearElement(event.currentTarget, 1)?.focus();
               } else {
                 resolveRef(previousFocusableElement ?? portalContext.beforeOutsideRef)?.focus();
               }
@@ -1204,8 +1202,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
               void enqueueFocus(getTabbableContent()[0]);
             } else if (portalContext?.portalNode) {
               if (isOutsideEvent(event, portalContext.portalNode)) {
-                const prevTabbable = getPreviousTabbable(domReference);
-                prevTabbable?.focus();
+                getTabbableNearElement(event.currentTarget, -1)?.focus();
               } else {
                 resolveRef(nextFocusableElement ?? portalContext.afterOutsideRef)?.focus();
               }
