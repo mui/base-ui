@@ -25,8 +25,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   modal: boolean | 'trap-focus';
   focusManagerModal: boolean;
   openMethod: InteractionType | null;
-  openChangeReason: PopoverRoot.ChangeEventReason | null;
-  openedByHover: boolean;
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
   openOnHover: boolean;
@@ -57,17 +55,17 @@ const selectors = {
       ? undefined
       : state.instantType,
   openMethod: (state: State<unknown>) => state.openMethod,
-  openChangeReason: (state: State<unknown>) => state.openChangeReason,
   isPressOpenedByTrigger: (state: State<unknown>, triggerId: string | undefined) =>
-    state.openChangeReason === REASONS.triggerPress &&
+    popupStoreSelectors.openReason(state) === REASONS.triggerPress &&
     popupStoreSelectors.isOpenedByTrigger(state, triggerId),
   // The trigger selectors below resolve to a constant for triggers that don't use them, so state
   // changes don't re-render every inactive trigger.
   isTouchPressOpen: (state: State<unknown>, openOnHover: boolean) =>
-    openOnHover && state.openMethod === 'touch' && state.openChangeReason === REASONS.triggerPress,
+    openOnHover &&
+    state.openMethod === 'touch' &&
+    popupStoreSelectors.openReason(state) === REASONS.triggerPress,
   hasTriggerFocusGuards: (state: State<unknown>, triggerId: string | undefined) =>
     popupStoreSelectors.isOpenedByTrigger(state, triggerId) && !state.focusManagerModal,
-  openedByHover: (state: State<unknown>) => state.openedByHover,
   modal: (state: State<unknown>) => state.modal,
   titleElementId: (state: State<unknown>) => state.titleElementId,
   descriptionElementId: (state: State<unknown>) => state.descriptionElementId,
@@ -147,21 +145,9 @@ export class PopoverStore<Payload> extends ReactStore<
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
-      const popupOpenState = createPopupOpenState(
-        this.state,
-        nextOpen,
-        eventDetails.trigger,
-        shouldPreventUnmountOnClose(),
-      ) as ReturnType<typeof createPopupOpenState> & {
-        openChangeReason: PopoverRoot.ChangeEventReason;
-        openedByHover: boolean;
-      };
-
-      popupOpenState.openChangeReason = eventDetails.reason;
-      // Latched per open cycle: only accepted open requests (including a hover-to-click upgrade)
-      // write it, so the close reason can't flip the focus manager on mid-exit.
-      popupOpenState.openedByHover = nextOpen ? isHover : this.state.openedByHover;
-      this.update(popupOpenState);
+      this.update(
+        createPopupOpenState(this.state, nextOpen, eventDetails, shouldPreventUnmountOnClose()),
+      );
     };
 
     if (isHover) {
@@ -220,8 +206,6 @@ function createInitialState<Payload>(
     focusManagerModal: false,
     instantType: undefined,
     openMethod: null,
-    openChangeReason: null,
-    openedByHover: false,
     titleElementId: undefined,
     descriptionElementId: undefined,
     openOnHover: false,

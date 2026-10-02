@@ -41,6 +41,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+  /** The reason of the latest accepted open or close. `openReason` tells why the menu opened. */
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
   floatingNodeId: string | undefined;
