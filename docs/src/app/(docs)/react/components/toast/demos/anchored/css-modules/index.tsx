@@ -5,37 +5,13 @@ import { Button } from '@base-ui/react/button';
 import styles from './index.module.css';
 
 const anchoredToastManager = Toast.createToastManager();
-const stackedToastManager = Toast.createToastManager();
 
 export default function ExampleToast() {
   return (
-    <React.Fragment>
-      <Toast.Provider toastManager={anchoredToastManager}>
-        <AnchoredToasts />
-      </Toast.Provider>
-      <Toast.Provider toastManager={stackedToastManager}>
-        <StackedToasts />
-      </Toast.Provider>
-
-      <div className={styles.ButtonGroup}>
-        <CopyButton />
-        <StackedToastButton />
-      </div>
-    </React.Fragment>
-  );
-}
-
-function StackedToastButton() {
-  function createToast() {
-    stackedToastManager.add({
-      description: 'Copied',
-    });
-  }
-
-  return (
-    <button type="button" className={styles.Button} onClick={createToast}>
-      Stacked toast
-    </button>
+    <Toast.Provider toastManager={anchoredToastManager}>
+      <AnchoredToasts />
+      <CopyButton />
+    </Toast.Provider>
   );
 }
 
@@ -86,27 +62,6 @@ function AnchoredToasts() {
               </Toast.Content>
             </Toast.Root>
           </Toast.Positioner>
-        ))}
-      </Toast.Viewport>
-    </Toast.Portal>
-  );
-}
-
-function StackedToasts() {
-  const { toasts } = Toast.useToastManager();
-  return (
-    <Toast.Portal>
-      <Toast.Viewport className={styles.StackedViewport}>
-        {toasts.map((toast) => (
-          <Toast.Root key={toast.id} toast={toast} className={styles.StackedToast}>
-            <Toast.Content className={styles.Content}>
-              <div className={styles.Text}>
-                <Toast.Title className={styles.Title} />
-                <Toast.Description className={styles.Description} />
-              </div>
-              <Toast.Close className={styles.Close}>Dismiss</Toast.Close>
-            </Toast.Content>
-          </Toast.Root>
         ))}
       </Toast.Viewport>
     </Toast.Portal>
