@@ -51,10 +51,12 @@ export const SelectItem = React.memo(
     });
 
     const store = useSelectRootContext();
-    const itemProps = store.useState('itemProps');
-    const multiple = store.useState('multiple');
-    const selectDisabled = store.useState('disabled');
-    const readOnly = store.useState('readOnly');
+    const {
+      props: itemProps,
+      multiple,
+      disabled: selectDisabled,
+      readOnly,
+    } = store.useState('itemRoot');
     const disabled = selectDisabled || disabledProp;
     const highlighted = store.useState('isActive', listItem.index);
     const open = store.useState('open');
