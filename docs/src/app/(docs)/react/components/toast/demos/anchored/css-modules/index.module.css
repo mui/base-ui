@@ -347,7 +347,7 @@
   }
 
   @media (hover: hover) {
-    &:hover:not([aria-disabled='true']) {
+    &:hover:not([data-disabled]) {
       background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
@@ -356,7 +356,7 @@
     }
   }
 
-  &:active:not([aria-disabled='true']) {
+  &:active:not([data-disabled]) {
     background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
