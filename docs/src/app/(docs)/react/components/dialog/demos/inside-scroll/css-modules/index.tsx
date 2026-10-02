@@ -16,8 +16,7 @@ export default function InsideScrollDialog() {
                 This layout keeps the popup fully on screen while allowing its content to scroll.
               </Dialog.Description>
             </div>
-            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- lets keyboard users scroll the content */}
-            <div className={styles.Body} tabIndex={0}>
+            <div className={styles.Body}>
               <div className={styles.BodyContent}>
                 {CONTENT_SECTIONS.map((item) => (
                   <section className={styles.Section} key={item.title}>
