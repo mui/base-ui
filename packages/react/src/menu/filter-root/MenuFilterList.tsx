@@ -62,7 +62,7 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
         event.stopPropagation();
         const trigger = fromNestedPopup && ownerFocused ? getNestedPopupTrigger(target) : undefined;
         if (trigger) {
-          moveHighlightFrom(store, trigger, event.key, {
+          moveHighlightFrom(store, trigger, event, {
             orientation,
             rtl: direction === 'rtl',
             loopFocus,

@@ -10160,6 +10160,135 @@ describe('<Combobox.Root />', () => {
       expect(value).toBe('a');
       expect(eventDetails.reason).toBe('keyboard');
       expect(eventDetails.index).toBe(0);
+      expect(eventDetails.event).toBeInstanceOf(KeyboardEvent);
+      expect(eventDetails.event.key).toBe('ArrowDown');
+    });
+
+    it('passes native mouse and pointer events for pointer highlights', async () => {
+      const items = ['a', 'b', 'c'];
+      const onItemHighlighted = vi.fn();
+
+      const { user } = await render(
+        <Combobox.Root items={items} onItemHighlighted={onItemHighlighted}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      const option = await screen.findByRole('option', { name: 'b' });
+      const hoverEvent = new MouseEvent('mousemove', { bubbles: true });
+      fireEvent(option, hoverEvent);
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith('b', expect.anything());
+      });
+      const eventDetails = onItemHighlighted.mock.lastCall?.[1];
+      expect(eventDetails.reason).toBe('pointer');
+      expect(eventDetails.event).toBeInstanceOf(MouseEvent);
+      expect(eventDetails.event).toBe(hoverEvent);
+      expect(eventDetails.event).not.toBeInstanceOf(PointerEvent);
+
+      const leaveEvent = new PointerEvent('pointerout', {
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent(option, leaveEvent);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ reason: 'pointer', event: leaveEvent }),
+        );
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].event).toBe(leaveEvent);
+    });
+
+    function HighlightCombobox(props: {
+      onItemHighlighted: Combobox.Root.Props<string>['onItemHighlighted'];
+    }) {
+      return (
+        <Combobox.Root
+          items={['apple', 'apricot', 'banana']}
+          onItemHighlighted={props.onItemHighlighted}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Clear data-testid="clear" keepMounted />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    async function highlightFirstWithKeyboard(
+      user: Awaited<ReturnType<typeof render>>['user'],
+      onItemHighlighted: ReturnType<typeof vi.fn>,
+    ) {
+      await user.click(screen.getByTestId('input'));
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith('apple', expect.anything());
+      });
+    }
+
+    it('reports a pointer highlight after keyboard navigation', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightCombobox onItemHighlighted={onItemHighlighted} />);
+      await highlightFirstWithKeyboard(user, onItemHighlighted);
+
+      fireEvent.mouseMove(screen.getByRole('option', { name: 'banana' }));
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith('banana', expect.anything());
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe('pointer');
+    });
+
+    it('reports no keyboard reason when typing clears the highlight', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightCombobox onItemHighlighted={onItemHighlighted} />);
+      await highlightFirstWithKeyboard(user, onItemHighlighted);
+
+      await user.keyboard('a');
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, expect.anything());
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe('none');
+    });
+
+    it('reports no keyboard reason when the clear button clears the highlight', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightCombobox onItemHighlighted={onItemHighlighted} />);
+      await highlightFirstWithKeyboard(user, onItemHighlighted);
+
+      fireEvent.click(screen.getByTestId('clear'));
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, expect.anything());
+      });
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe('none');
+      expect(details.event.type).toBe('click');
     });
   });
 
@@ -12846,7 +12975,7 @@ describe('<Combobox.Root />', () => {
           <Field.Root validate={(val) => (val === 'a' ? 'error' : null)}>
             <Combobox.Root required>
               <Combobox.Input data-testid="input" />
-              <Combobox.Clear data-testid="clear" />
+              <Combobox.Clear data-testid="clear" keepMounted />
               <Combobox.Portal>
                 <Combobox.Positioner>
                   <Combobox.Popup>
@@ -13240,7 +13369,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Trigger>
             <Combobox.Value data-testid="value" />
           </Combobox.Trigger>
-          <Combobox.Clear data-testid="clear" />
+          <Combobox.Clear data-testid="clear" keepMounted />
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>

@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import {
   getMaxListIndex,
@@ -17,14 +18,14 @@ import type { MenuStore } from '../store/MenuStore';
 export function moveHighlightFrom(
   store: MenuStore<unknown>,
   item: HTMLElement,
-  key: string,
+  event: React.KeyboardEvent,
   options: MoveHighlightOptions,
 ): HTMLElement | undefined {
   const { orientation, rtl, loopFocus, allowEscape } = options;
   const listRef = store.context.itemDomElements;
   const items = listRef.current;
   const { index } = getNextListIndex(items, items.indexOf(item), {
-    decrement: !isMainOrientationToEndKey(key, orientation, rtl),
+    decrement: !isMainOrientationToEndKey(event.key, orientation, rtl),
     loopFocus,
     allowEscape,
     // Match the menu's list navigation: `aria-disabled` items stay reachable.
@@ -35,7 +36,7 @@ export function moveHighlightFrom(
 
   const next = items[index];
   if (next) {
-    store.setActiveIndex(index, REASONS.keyboard);
+    store.setActiveIndex(index, REASONS.keyboard, event.nativeEvent);
     next.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }
   return next ?? undefined;

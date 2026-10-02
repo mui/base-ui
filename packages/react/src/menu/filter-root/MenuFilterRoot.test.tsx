@@ -5651,6 +5651,130 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
     });
   });
+
+  describe('prop: onItemHighlighted', () => {
+    it.each(['vertical', 'horizontal'] as const)(
+      'passes the keydown event to onItemHighlighted in a %s menu',
+      async (orientation) => {
+        const onItemHighlighted = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root open orientation={orientation} onItemHighlighted={onItemHighlighted}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await act(async () => {
+          input.focus();
+        });
+        await user.keyboard('[ArrowDown]');
+
+        await waitFor(() => {
+          expect(onItemHighlighted).toHaveBeenLastCalledWith(
+            screen.getByRole('menuitem', { name: 'Rename' }),
+            expect.anything(),
+          );
+        });
+        const details = onItemHighlighted.mock.lastCall?.[1];
+        expect(details.reason).toBe('keyboard');
+        expect(details.event).toBeInstanceOf(KeyboardEvent);
+        expect(details.event.key).toBe('ArrowDown');
+      },
+    );
+
+    function SubmenuHighlightMenu(props: {
+      onItemHighlighted: Menu.Root.Props['onItemHighlighted'];
+    }) {
+      return (
+        <Menu.FilterProvider>
+          <Menu.Root open onItemHighlighted={props.onItemHighlighted}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.Input aria-label="Filter sharing options" />
+                              <Menu.List>
+                                <Menu.Item>Email</Menu.Item>
+                              </Menu.List>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
+      );
+    }
+
+    it('passes the keydown events when entering and leaving a filterable submenu', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<SubmenuHighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      await act(async () => {
+        screen.getByRole('searchbox', { name: 'Filter actions' }).focus();
+      });
+      await user.keyboard('[ArrowDown][ArrowRight]');
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      const enterDetails = onItemHighlighted.mock.lastCall?.[1];
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(undefined);
+      expect(enterDetails.reason).toBe('keyboard');
+      expect(enterDetails.event.key).toBe('ArrowRight');
+
+      await user.keyboard('[ArrowLeft]');
+      const trigger = screen.getByRole('menuitem', { name: 'Share' });
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(trigger, expect.anything());
+      });
+
+      const exitDetails = onItemHighlighted.mock.lastCall?.[1];
+      expect(exitDetails.reason).toBe('keyboard');
+      expect(exitDetails.event.key).toBe('ArrowLeft');
+    });
+
+    it('reports no keyboard reason when Enter opens a filterable submenu', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<SubmenuHighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      await act(async () => {
+        screen.getByRole('searchbox', { name: 'Filter actions' }).focus();
+      });
+      await user.keyboard('[ArrowDown][Enter]');
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(undefined);
+      expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe('none');
+    });
+  });
 });
 
 describe('filterable menu navigation regressions', () => {
