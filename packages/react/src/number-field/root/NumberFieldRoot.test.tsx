@@ -1673,6 +1673,70 @@ describe('<NumberField />', () => {
       expect(fieldValue).toBe('54.5');
     });
 
+    it.skipIf(isJSDOM)('only validates the form specified by `form`', async () => {
+      const onParentSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+      });
+      const onExternalSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        return new FormData(event.currentTarget).getAll('quantity');
+      });
+      const { user } = await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={onExternalSubmit}>
+            <button type="submit">Submit external</button>
+          </form>
+          <form onSubmit={onParentSubmit}>
+            <NumberFieldBase.Root name="quantity" form="external-form" required>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+            <button type="submit">Submit parent</button>
+          </form>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit parent' }));
+      expect(onParentSubmit).toHaveBeenCalledOnce();
+
+      await user.click(screen.getByRole('button', { name: 'Submit external' }));
+      expect(onExternalSubmit).not.toHaveBeenCalled();
+
+      await user.type(screen.getByRole('textbox'), '12');
+      await user.click(screen.getByRole('button', { name: 'Submit external' }));
+      expect(onExternalSubmit).toHaveBeenCalledOnce();
+      expect(onExternalSubmit).toHaveReturnedWith(['12']);
+    });
+
+    it('updates both input form owners when `form` changes or is removed', async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+      function TestCase({ form }: { form?: string }) {
+        return (
+          <React.Fragment>
+            <form id="first-form" data-testid="first-form" />
+            <form id="second-form" data-testid="second-form" />
+            <form data-testid="parent-form">
+              <NumberFieldBase.Root form={form} inputRef={inputRef}>
+                <NumberFieldBase.Input />
+              </NumberFieldBase.Root>
+            </form>
+          </React.Fragment>
+        );
+      }
+
+      const { rerender } = await render(<TestCase form="first-form" />);
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      expect(input.form).toBe(screen.getByTestId('first-form'));
+      expect(inputRef.current?.form).toBe(input.form);
+
+      await rerender(<TestCase form="second-form" />);
+      expect(input.form).toBe(screen.getByTestId('second-form'));
+      expect(inputRef.current?.form).toBe(input.form);
+
+      await rerender(<TestCase />);
+      expect(input.form).toBe(screen.getByTestId('parent-form'));
+      expect(inputRef.current?.form).toBe(input.form);
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>
