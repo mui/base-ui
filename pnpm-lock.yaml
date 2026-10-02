@@ -188,8 +188,8 @@ importers:
         specifier: 0.18.5
         version: 0.18.5
       '@babel/plugin-transform-react-constant-elements':
-        specifier: 8.0.1
-        version: 8.0.1(@babel/core@8.0.5)
+        specifier: 8.0.5
+        version: 8.0.5(@babel/core@8.0.5)
       '@base-ui/monorepo-tests':
         specifier: workspace:*
         version: link:test
@@ -1326,8 +1326,8 @@ packages:
     peerDependencies:
       '@babel/core': ^8.0.0
 
-  '@babel/plugin-transform-react-constant-elements@8.0.1':
-    resolution: {integrity: sha512-mjjwl0NcyiOkC/mfpJN0l1wakKEjNi2RE/IvMnxaDo20z03a7MZLx7bVewOTiYSU1E7UIb6LrVldgslRM1k2Sw==}
+  '@babel/plugin-transform-react-constant-elements@8.0.5':
+    resolution: {integrity: sha512-8C0W33baZ3p3kaEw0AWLzCuhn6fPs4Nzno7otnXMNiJi0S+KmZIMwK0xIb5vyNZu8M4ugQf/iLt0UCwOqZ3OCg==}
     engines: {node: ^22.18.0 || >=24.11.0}
     peerDependencies:
       '@babel/core': ^8.0.0
@@ -10539,7 +10539,7 @@ snapshots:
       '@babel/core': 8.0.5
       '@babel/helper-plugin-utils': 8.0.1(@babel/core@8.0.5)
 
-  '@babel/plugin-transform-react-constant-elements@8.0.1(@babel/core@8.0.5)':
+  '@babel/plugin-transform-react-constant-elements@8.0.5(@babel/core@8.0.5)':
     dependencies:
       '@babel/core': 8.0.5
       '@babel/helper-plugin-utils': 8.0.1(@babel/core@8.0.5)
