@@ -32,7 +32,9 @@ type SwipeProgressDetailsInternal = {
 const DEFAULT_SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
 const MIN_VELOCITY_DURATION_MS = 50;
-const MIN_RELEASE_VELOCITY_DURATION_MS = 16;
+// Under one frame at 240 Hz, so it only damps near-simultaneous samples instead of halving
+// the velocity of 120 Hz input.
+const MIN_RELEASE_VELOCITY_DURATION_MS = 4;
 const MAX_RELEASE_VELOCITY_AGE_MS = 80;
 const MIN_VELOCITY_SAMPLE_DISTANCE = 1;
 const DEFAULT_IGNORE_SELECTOR = 'button,a,input,select,textarea,label,[role="button"]';
@@ -147,7 +149,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     ((details: { element: HTMLElement; direction: SwipeDirection }) => number) | null
   >(null);
   const swipeStartTimeRef = React.useRef<number | null>(null);
-  const dragSamplesRef = React.useRef<Array<{ x: number; y: number; time: number }>>([]);
+  const lastDragSampleRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const hasStationarySampleRef = React.useRef(false);
   const lastDragVelocityRef = React.useRef({ x: 0, y: 0 });
   const lastProgressDetailsRef = React.useRef<SwipeProgressDetailsInternal | null>(null);
@@ -250,8 +252,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       return;
     }
 
-    const samples = dragSamplesRef.current;
-    const lastSample = samples[samples.length - 1];
+    const lastSample = lastDragSampleRef.current;
     if (lastSample && timeStamp > lastSample.time) {
       // Some Android devices emit one effectively stationary move immediately before release.
       // Keep the last moving sample and its timestamp. Repeated stationary moves still clear
@@ -265,26 +266,14 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
         return;
       }
 
-      lastDragVelocityRef.current = getSampleVelocity(offset, timeStamp);
+      const durationMs = Math.max(timeStamp - lastSample.time, MIN_RELEASE_VELOCITY_DURATION_MS);
+      lastDragVelocityRef.current = {
+        x: (offset.x - lastSample.x) / durationMs,
+        y: (offset.y - lastSample.y) / durationMs,
+      };
     }
 
-    samples.push({ x: offset.x, y: offset.y, time: timeStamp });
-  }
-
-  // Measures from the newest sample at least `MIN_RELEASE_VELOCITY_DURATION_MS` old, so 120 Hz
-  // input reads the same velocity as 60 Hz input rather than dividing a half-size step by the
-  // full minimum duration.
-  function getSampleVelocity(offset: { x: number; y: number }, timeStamp: number) {
-    const samples = dragSamplesRef.current;
-    while (samples.length > 1 && samples[1].time <= timeStamp - MIN_RELEASE_VELOCITY_DURATION_MS) {
-      samples.shift();
-    }
-    const anchor = samples[0];
-    const durationMs = Math.max(timeStamp - anchor.time, MIN_RELEASE_VELOCITY_DURATION_MS);
-    return {
-      x: (offset.x - anchor.x) / durationMs,
-      y: (offset.y - anchor.y) / durationMs,
-    };
+    lastDragSampleRef.current = { x: offset.x, y: offset.y, time: timeStamp };
   }
 
   const reset = React.useCallback(() => {
@@ -310,7 +299,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     sawPrimaryButtonsOnMoveRef.current = false;
     elementSizeRef.current = { width: 0, height: 0 };
     swipeStartTimeRef.current = null;
-    dragSamplesRef.current = [];
+    lastDragSampleRef.current = null;
     hasStationarySampleRef.current = false;
     lastDragVelocityRef.current = { x: 0, y: 0 };
     lastProgressDetailsRef.current = null;
@@ -404,7 +393,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
     dragStartPosRef.current = position;
     swipeStartTimeRef.current = getValidTimeStamp(event.timeStamp);
-    dragSamplesRef.current = [];
+    lastDragSampleRef.current = null;
     hasStationarySampleRef.current = false;
     lastDragVelocityRef.current = { x: 0, y: 0 };
     swipeCancelBaselineRef.current = position;
@@ -608,7 +597,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
         if (moveTime !== null) {
           swipeStartTimeRef.current = moveTime;
         }
-        dragSamplesRef.current = [];
+        lastDragSampleRef.current = null;
         hasStationarySampleRef.current = false;
       }
     }
@@ -768,18 +757,20 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const velocityY = velocityDurationMs > 0 ? deltaY / velocityDurationMs : 0;
     let releaseVelocityX = lastDragVelocityRef.current.x;
     let releaseVelocityY = lastDragVelocityRef.current.y;
-    const lastSample = dragSamplesRef.current[dragSamplesRef.current.length - 1];
+    const lastSample = lastDragSampleRef.current;
     if (lastSample && endTime !== null && endTime >= lastSample.time) {
       const ageMs = endTime - lastSample.time;
       if (ageMs <= MAX_RELEASE_VELOCITY_AGE_MS) {
+        const sampleDurationMs = Math.max(ageMs, MIN_RELEASE_VELOCITY_DURATION_MS);
         const deltaFromLastSampleX = resolvedDragOffset.x - lastSample.x;
         const deltaFromLastSampleY = resolvedDragOffset.y - lastSample.y;
-        const sampleVelocity = getSampleVelocity(resolvedDragOffset, endTime);
+        const sampleVelocityX = deltaFromLastSampleX / sampleDurationMs;
+        const sampleVelocityY = deltaFromLastSampleY / sampleDurationMs;
         if (Math.abs(deltaFromLastSampleX) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
-          releaseVelocityX = sampleVelocity.x;
+          releaseVelocityX = sampleVelocityX;
         }
         if (Math.abs(deltaFromLastSampleY) >= MIN_VELOCITY_SAMPLE_DISTANCE) {
-          releaseVelocityY = sampleVelocity.y;
+          releaseVelocityY = sampleVelocityY;
         }
       } else {
         releaseVelocityX = 0;
