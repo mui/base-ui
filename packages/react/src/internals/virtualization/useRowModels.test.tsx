@@ -3,8 +3,8 @@ import { expect, describe, it, vi } from 'vitest';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import type { Group } from '../resolveValueLabel';
-import { useGroupedRowModels, useRowModels } from './useRowModels';
-import type { GroupedRows } from './useRowModels';
+import { useGroupedRowModels, useRowModels, useRowProjection } from './useRowModels';
+import type { GroupedRows, RowProjection } from './useRowModels';
 
 interface Item {
   id: string;
@@ -157,5 +157,65 @@ describe('useGroupedRowModels', () => {
     } finally {
       warnSpy.mockRestore();
     }
+  });
+});
+
+describe('useRowProjection', () => {
+  const { render } = createRenderer();
+
+  let projection: RowProjection<Item>;
+
+  function Probe(props: { groups: Group<Item>[] | undefined; items: Item[] }) {
+    const itemRows = useRowModels<Item>({ getItemKey: (item) => item.id, items: props.items });
+    const resolved = useRowProjection<Item>({
+      getGroupKey: undefined,
+      groups: props.groups,
+      itemRows,
+    });
+
+    useIsoLayoutEffect(() => {
+      projection = resolved;
+    });
+
+    return null;
+  }
+
+  it('relates a flat collection to its rows as the identity', async () => {
+    await render(<Probe groups={undefined} items={flatten(createGroups([3]))} />);
+
+    expect(projection.grouped).toBe(null);
+    expect(projection.toRow(2)).toBe(2);
+    expect(projection.toRow(3)).toBe(-1);
+    expect(projection.toRow(-1)).toBe(-1);
+    expect(projection.itemsBeforeRow(2)).toBe(2);
+    expect(projection.itemsBeforeRow(3)).toBe(3);
+    expect(projection.toItemWindow({ firstRowIndex: 1, lastRowIndex: 3 })).toEqual({
+      firstRowIndex: 1,
+      lastRowIndex: 3,
+    });
+    expect(projection.indexOfRow('string:item-1')).toBe(1);
+    expect(projection.isItemRowId).toBe(undefined);
+  });
+
+  it('relates a grouped collection to its rows around the headers', async () => {
+    // Rows: header, item-0, item-1, header, header, item-2.
+    const groups = createGroups([2, 0, 1]);
+    await render(<Probe groups={groups} items={flatten(groups)} />);
+
+    expect(projection.grouped).not.toBe(null);
+    expect(projection.toRow(0)).toBe(1);
+    expect(projection.toRow(2)).toBe(5);
+    expect(projection.toRow(3)).toBe(-1);
+    expect(projection.itemsBeforeRow(3)).toBe(2);
+    // The end counts every item, and a window cannot reach past it.
+    expect(projection.itemsBeforeRow(6)).toBe(3);
+    expect(projection.itemsBeforeRow(10)).toBe(3);
+    expect(projection.toItemWindow({ firstRowIndex: 2, lastRowIndex: 6 })).toEqual({
+      firstRowIndex: 1,
+      lastRowIndex: 3,
+    });
+    expect(projection.indexOfRow('group-header:number:1')).toBe(3);
+    expect(projection.isItemRowId?.('group-header:number:1')).toBe(false);
+    expect(projection.isItemRowId?.('string:item-2')).toBe(true);
   });
 });

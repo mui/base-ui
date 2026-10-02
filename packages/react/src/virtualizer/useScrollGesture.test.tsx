@@ -19,10 +19,18 @@ describe('useScrollGesture', () => {
 
   let gesture: ScrollGesture;
   let hydrateRowsMeta: Mock<() => void>;
+  let hasDeferredRowHeights: boolean;
+  let onSettled: Mock<() => void>;
+  let onScrollbarDragEnd: Mock<() => void>;
 
   function Probe(props: { tag?: 'div' | 'section' }) {
     const { tag: Tag = 'div' } = props;
-    const resolved = useScrollGesture({ settleGeometry: hydrateRowsMeta });
+    const resolved = useScrollGesture({
+      hasDeferredRowHeights: () => hasDeferredRowHeights,
+      onScrollbarDragEnd,
+      onSettled,
+      settleGeometry: hydrateRowsMeta,
+    });
 
     useIsoLayoutEffect(() => {
       gesture = resolved;
@@ -33,6 +41,9 @@ describe('useScrollGesture', () => {
 
   beforeEach(() => {
     hydrateRowsMeta = vi.fn();
+    hasDeferredRowHeights = false;
+    onSettled = vi.fn();
+    onScrollbarDragEnd = vi.fn();
   });
 
   it('ignores a scroll the caller recognizes as its own', async () => {
@@ -53,15 +64,15 @@ describe('useScrollGesture', () => {
     expect(gesture.isScrolling()).toBe(false);
   });
 
-  it('publishes a new settled revision once a gesture ends', async () => {
+  it('announces that a gesture settled once it ends', async () => {
     await render(<Probe />);
 
-    const initialRevision = gesture.settledRevision;
     gesture.noteScroll(USER_SCROLL);
+    expect(onSettled).not.toHaveBeenCalled();
 
     await advanceReactClock(clock, SCROLL_IDLE_MS);
 
-    expect(gesture.settledRevision).not.toBe(initialRevision);
+    expect(onSettled).toHaveBeenCalledTimes(1);
   });
 
   it('reads a scroll under a held pointer with no wheel input as a scrollbar drag', async () => {
@@ -115,26 +126,13 @@ describe('useScrollGesture', () => {
     expect(gesture.isScrollbarDrag()).toBe(false);
   });
 
-  it('holds a row measurement back for the duration of a drag', async () => {
-    await render(<Probe />);
-
-    firePointer.down(screen.getByTestId('scroller'), { timeStamp: 1 });
-    gesture.noteScroll(USER_SCROLL);
-
-    // The estimate is committed instead, so the geometry cannot move under the pointer.
-    expect(gesture.deferRowHeight('row-1', 90, 30)).toBe(30);
-    expect(gesture.releaseRowHeight('row-1')).toBe(90);
-    // A released measurement is committed once and then forgotten.
-    expect(gesture.releaseRowHeight('row-1')).toBe(undefined);
-  });
-
   it('commits the measurements a drag deferred once the pointer is released', async () => {
     await render(<Probe />);
 
     const scroller = screen.getByTestId('scroller');
     firePointer.down(scroller, { timeStamp: 1 });
     gesture.noteScroll(USER_SCROLL);
-    gesture.deferRowHeight('row-1', 90, 30);
+    hasDeferredRowHeights = true;
 
     expect(hydrateRowsMeta).not.toHaveBeenCalled();
 
@@ -144,17 +142,23 @@ describe('useScrollGesture', () => {
       expect(hydrateRowsMeta).toHaveBeenCalledTimes(1);
     });
     expect(gesture.isScrollbarDrag()).toBe(false);
+    expect(onSettled).toHaveBeenCalledTimes(1);
   });
 
-  it('drops every deferred measurement on request', async () => {
+  it('announces a released drag before committing the measurements it deferred', async () => {
     await render(<Probe />);
 
-    firePointer.down(screen.getByTestId('scroller'), { timeStamp: 1 });
+    const scroller = screen.getByTestId('scroller');
+    firePointer.down(scroller, { timeStamp: 1 });
     gesture.noteScroll(USER_SCROLL);
-    gesture.deferRowHeight('row-1', 90, 30);
+    hasDeferredRowHeights = true;
+    firePointer.up(scroller, { timeStamp: 2 });
 
-    gesture.clearDeferredRowHeights();
-
-    expect(gesture.releaseRowHeight('row-1')).toBe(undefined);
+    await waitFor(() => {
+      expect(onScrollbarDragEnd).toHaveBeenCalledTimes(1);
+    });
+    expect(onScrollbarDragEnd.mock.invocationCallOrder[0]).toBeLessThan(
+      hydrateRowsMeta.mock.invocationCallOrder[0],
+    );
   });
 });

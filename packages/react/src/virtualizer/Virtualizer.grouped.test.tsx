@@ -630,7 +630,9 @@ describe.skipIf(isJSDOM)('<Virtualizer /> grouped layout', () => {
     const virtualizer = screen.getByTestId('virtualizer');
     await waitFor(() => expect(virtualizer.scrollHeight).toBe(2020));
 
-    await act(async () => {
+    // Synchronously, so that the rows the request mounts are not measured before the collection
+    // changes: the request is to be standing still, waiting on their measurements.
+    act(() => {
       actionsRef.current?.scrollToIndex(30, { align: 'start' });
     });
     await rerender(<Test prepended />);

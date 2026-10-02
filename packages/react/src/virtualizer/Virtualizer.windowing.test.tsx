@@ -14,6 +14,8 @@ import {
   createVirtualizerItems as createItems,
   renderVirtualizerItem as renderItem,
   renderVirtualizerItemOf as renderItemOf,
+  wait,
+  waitSingleFrame,
 } from '#test-utils';
 import type { VirtualizerTestItem as TestItem } from '#test-utils';
 import type { VirtualizerHandle } from './host';
@@ -48,7 +50,10 @@ describe('<Virtualizer /> windowing', () => {
       </TestVirtualizedList>,
     );
 
-    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(5));
+    // Three rows cover the scrollport, and the engine keeps a buffer of at least fifteen estimated
+    // rows around the window. At the top of the list, the half that would sit above the first row
+    // goes below the window instead.
+    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(19));
 
     expect(screen.getByText('Item 5')).not.toBe(null);
     expect(screen.queryByText('Item 20')).toBe(null);
@@ -695,6 +700,62 @@ describe('<Virtualizer /> windowing', () => {
   );
 
   it.skipIf(isJSDOM)(
+    'freezes the window where it stands while a scrollbar drag outruns it',
+    async () => {
+      vi.restoreAllMocks();
+
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          items={createItems(500)}
+        >
+          {(item: TestItem) => <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>}
+        </TestVirtualizedList>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await screen.findByText('Item 1');
+      const scrollerRect = virtualizer.getBoundingClientRect();
+      const rowAtCenter = () =>
+        document
+          .elementFromPoint(scrollerRect.left + 10, scrollerRect.top + 50)
+          ?.closest('[data-row-index]');
+
+      // A native scrollbar drag: scroll bursts with a held mouse button and no wheel events.
+      fireEvent.mouseDown(virtualizer);
+      virtualizer.scrollTop = 2000;
+      fireEvent.scroll(virtualizer);
+      const row = rowAtCenter()!;
+      expect(row).toHaveTextContent('Item 103');
+      const rowTop = row.getBoundingClientRect().top;
+
+      // The drag moves the scrollport past the window's buffers before the scroll event reaches
+      // the page, which is what the compositor paints meanwhile: the window stays where it stood,
+      // rather than stuck at the scrollport's edge by rows that were never on screen.
+      virtualizer.scrollTop = 4000;
+      expect(rowAtCenter()).toBe(row);
+      expect(row.getBoundingClientRect().top).toBeCloseTo(rowTop, 0);
+
+      // The scroll event puts the rows where they belong.
+      fireEvent.scroll(virtualizer);
+      expect(rowAtCenter()).toHaveTextContent('Item 203');
+
+      // Once released, native scrolling moves the rows within the window again.
+      fireEvent.mouseUp(virtualizer);
+      // The window thaws in the frame after release.
+      await act(async () => {
+        await waitSingleFrame();
+      });
+      const centerRow = rowAtCenter()!;
+      const centerRowTop = centerRow.getBoundingClientRect().top;
+      virtualizer.scrollTop += 40;
+      expect(centerRow.getBoundingClientRect().top).toBeCloseTo(centerRowTop - 40, 0);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'keeps geometry frozen when re-dragging through rows demoted by an estimate refresh',
     async () => {
       vi.restoreAllMocks();
@@ -965,12 +1026,149 @@ describe('<Virtualizer /> windowing', () => {
   );
 
   it.skipIf(isJSDOM)(
-    'keeps the content anchored when an estimate refresh shrinks the total above the bottom',
+    'keeps the heights measured while scrolling across an estimate refresh',
+    async () => {
+      vi.restoreAllMocks();
+      const apiRef = React.createRef<VirtualizerHandle>();
+
+      const renderItem = (item: TestItem, index: number) => (
+        <TestListItem style={{ height: 20 + (index % 4) * 10 }}>{item.label}</TestListItem>
+      );
+
+      await render(
+        <TestVirtualizedList
+          apiRef={apiRef}
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          items={createItems(400)}
+        >
+          {renderItem}
+        </TestVirtualizedList>,
+      );
+      const virtualizer = screen.getByTestId('virtualizer');
+      await screen.findByText('Item 1');
+      const wait = (ms: number) =>
+        act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, ms);
+            }),
+        );
+      await wait(400);
+
+      // Scroll down in steps shorter than the rendered window, so every row on the way is
+      // mounted and measured, though none of it while the list is at rest.
+      for (let step = 1; step <= 10; step += 1) {
+        virtualizer.scrollTop = step * 400;
+        fireEvent.scroll(virtualizer);
+        // eslint-disable-next-line no-await-in-loop
+        await wait(16);
+      }
+      // The settle pass and the estimate refresh that the settled window calls for. The refresh
+      // re-estimates the rows never measured; the ones measured on the way down keep their
+      // heights, so an item with only measured rows above it keeps its place.
+      await wait(1500);
+      const metricsAtRest = apiRef.current?.getItemMetrics(50);
+      expect(metricsAtRest?.size).toBe(40);
+
+      // Back into rows measured on the way down: mounting them again measures nothing new.
+      virtualizer.scrollTop = 2000;
+      fireEvent.scroll(virtualizer);
+      await wait(600);
+
+      expect(apiRef.current?.getItemMetrics(50)).toEqual(metricsAtRest);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'keeps the content still when the settled window mounts unmeasured rows above it',
     async () => {
       vi.restoreAllMocks();
 
+      // The first rows seed a short estimate, and a block of tall rows sits above the
+      // destination, so the rows mounted above it later are all taller than estimated.
+      const renderItem = (item: TestItem, index: number) => (
+        <TestListItem style={{ height: index >= 250 && index < 300 ? 60 : 20 }}>
+          {item.label}
+        </TestListItem>
+      );
+
+      await render(
+        <TestVirtualizedList
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+          items={createItems(1000)}
+        >
+          {renderItem}
+        </TestVirtualizedList>,
+      );
+      const virtualizer = screen.getByTestId('virtualizer');
+      await screen.findByText('Item 1');
+
+      // Jump past the tall rows in one scroll: the whole buffer goes below the viewport, so none
+      // of the rows above the destination are mounted or measured.
+      virtualizer.scrollTop = 300 * 20;
+      fireEvent.scroll(virtualizer);
+      await screen.findByText('Item 301');
+
+      const getRowTop = (label: string) => {
+        const element = screen.queryByText(label)?.closest<HTMLElement>('[data-row-index]');
+        return element == null || element.style.position === 'absolute'
+          ? null
+          : element.getBoundingClientRect().top;
+      };
+      await act(async () => {
+        await new Promise((resolve) => {
+          requestAnimationFrame(resolve);
+        });
+      });
+      const trackedTop = getRowTop('Item 301');
+      expect(trackedTop).not.toBe(null);
+
+      // The engine rebalances its buffer a second after the last scroll, mounting the tall rows
+      // above the viewport. Watch every frame until well after that and their measurement.
+      const disturbances: string[] = [];
+      let watching = true;
+      const watchFrame = () => {
+        if (!watching) {
+          return;
+        }
+        const top = getRowTop('Item 301');
+        if (top === null) {
+          disturbances.push('Item 301 left the window');
+        } else if (Math.abs(top - trackedTop!) > 2) {
+          disturbances.push(`Item 301 moved from ${trackedTop!.toFixed(1)} to ${top.toFixed(1)}`);
+        }
+        requestAnimationFrame(watchFrame);
+      };
+      requestAnimationFrame(watchFrame);
+      try {
+        await act(
+          () =>
+            new Promise((resolve) => {
+              setTimeout(resolve, 1600);
+            }),
+        );
+      } finally {
+        watching = false;
+      }
+
+      expect(disturbances).toEqual([]);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'keeps the content anchored when an estimate refresh shrinks the total above the bottom',
+    async () => {
+      vi.restoreAllMocks();
+      const reactGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean };
+
       // Tall rows up front seed a high estimate; the short remainder keeps lowering the average
-      // as it is measured, so each refresh shrinks the virtual total.
+      // as it is measured, so each refresh shrinks the virtual total. A refresh moves every
+      // unmeasured row, so the collection is long enough for a small change in the average to
+      // shrink the total by more than the distance to the bottom.
       const renderShrinkingItem = (item: TestItem, index: number) => (
         <TestListItem style={{ height: index < 10 ? 100 : 20 }}>{item.label}</TestListItem>
       );
@@ -980,105 +1178,119 @@ describe('<Virtualizer /> windowing', () => {
           estimatedItemHeight={20}
           overscanPx={0}
           render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-          items={createItems(300)}
+          items={createItems(3000)}
         >
           {renderShrinkingItem}
         </TestVirtualizedList>,
       );
 
       const virtualizer = screen.getByTestId('virtualizer');
-      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(20000));
+      // The tall rows seed the estimate: wait for it to reach well past the static `3000 × 20`.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(120000));
 
       // Scrollbar-drag to the very bottom, release, and let the first refresh settle pinned.
       fireEvent.mouseDown(virtualizer);
       virtualizer.scrollTop = virtualizer.scrollHeight;
       fireEvent.scroll(virtualizer);
-      await screen.findByText('Item 300');
+      await screen.findByText('Item 3000');
       fireEvent.mouseUp(virtualizer);
-      await act(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(resolve, 600);
-          }),
-      );
 
-      // Scroll up a little; the rows this mounts measure short, so the next idle refresh shrinks
-      // the total below the current scroll position and the browser clamps `scrollTop`.
-      virtualizer.scrollTop -= 240;
-      fireEvent.scroll(virtualizer);
-      await act(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(resolve, 50);
-          }),
-      );
+      // From here on the list runs on its own: the drag's release, the measurements, and the
+      // refreshes all land on later frames. React 18 holds back every update scheduled inside an
+      // `act()` scope until the scope ends, so waiting inside one would commit a whole wait's
+      // worth of work at once, and nothing in between could be observed. Scroll events are
+      // dispatched directly, since `fireEvent` wraps them in `act()`.
+      reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+      try {
+        await wait(600);
 
-      const getTopVisibleRow = () => {
-        const scrollerRect = virtualizer.getBoundingClientRect();
-        let topRow: { index: number; offset: number } | null = null;
-        for (const rowElement of virtualizer.querySelectorAll<HTMLElement>('[data-row-index]')) {
-          if (rowElement.style.position === 'absolute') {
-            continue;
-          }
-          const rect = rowElement.getBoundingClientRect();
-          if (rect.height > 0 && rect.bottom > scrollerRect.top && rect.top < scrollerRect.bottom) {
-            if (topRow === null || rect.top < topRow.offset) {
-              topRow = { index: Number(rowElement.dataset.rowIndex), offset: rect.top };
+        // Scroll up past the rows measured at the bottom: the engine's buffer spans fifteen rows at
+        // the seeded estimate, so settling there measured several dozen of the short rows. The rows
+        // this scroll mounts are new samples, so the next idle refresh shrinks the total below the
+        // current scroll position and the browser clamps `scrollTop`.
+        virtualizer.scrollTop -= 2000;
+        virtualizer.dispatchEvent(new Event('scroll'));
+
+        const getTopVisibleRow = () => {
+          const scrollerRect = virtualizer.getBoundingClientRect();
+          let topRow: { index: number; offset: number } | null = null;
+          for (const rowElement of virtualizer.querySelectorAll<HTMLElement>('[data-row-index]')) {
+            if (rowElement.style.position === 'absolute') {
+              continue;
+            }
+            const rect = rowElement.getBoundingClientRect();
+            if (
+              rect.height > 0 &&
+              rect.bottom > scrollerRect.top &&
+              rect.top < scrollerRect.bottom
+            ) {
+              if (topRow === null || rect.top < topRow.offset) {
+                topRow = { index: Number(rowElement.dataset.rowIndex), offset: rect.top };
+              }
             }
           }
-        }
-        return topRow;
-      };
+          return topRow;
+        };
 
-      const tracked = getTopVisibleRow();
-      expect(tracked).not.toBe(null);
-      const trackedElement = virtualizer.querySelector<HTMLElement>(
-        `[data-row-index="${tracked!.index}"]`,
-      );
-      expect(trackedElement).not.toBe(null);
-
-      // Watch every committed state until the refresh settles: the row the user is looking at
-      // must not move on screen even though the geometry rewrite clamps the scroll position.
-      const disturbances: string[] = [];
-      const observer = new MutationObserver(() => {
-        const element = virtualizer.querySelector<HTMLElement>(
-          `[data-row-index="${tracked!.index}"]`,
+        // The rows for the new position are placed by their estimates, and reach the viewport
+        // once they are measured.
+        const tracked = await waitFor(() => {
+          const row = getTopVisibleRow();
+          expect(row).not.toBe(null);
+          return row!;
+        });
+        const trackedElement = virtualizer.querySelector<HTMLElement>(
+          `[data-row-index="${tracked.index}"]`,
         );
-        if (element === null || element.style.position === 'absolute') {
-          disturbances.push(`row ${tracked!.index} left the window`);
-          return;
-        }
-        const offset = element.getBoundingClientRect().top;
-        if (Math.abs(offset - tracked!.offset) > 2) {
-          disturbances.push(
-            `row ${tracked!.index} moved from ${tracked!.offset.toFixed(1)} to ${offset.toFixed(1)}`,
+        expect(trackedElement).not.toBe(null);
+
+        // Watch every committed state until the refresh settles, not just painted frames: the row
+        // the user is looking at must stay mounted, as the same element, and must not move on
+        // screen even though the geometry rewrite clamps the scroll position. A window committed
+        // for a stale position and corrected before the paint would still remount the row, losing
+        // its focus and any state inside it.
+        const disturbances: string[] = [];
+        const observer = new MutationObserver(() => {
+          const element = virtualizer.querySelector<HTMLElement>(
+            `[data-row-index="${tracked.index}"]`,
           );
+          if (element === null || element.style.position === 'absolute') {
+            disturbances.push(`row ${tracked.index} left the window`);
+            return;
+          }
+          if (element !== trackedElement) {
+            disturbances.push(`row ${tracked.index} was remounted`);
+            return;
+          }
+          const offset = element.getBoundingClientRect().top;
+          if (Math.abs(offset - tracked.offset) > 2) {
+            disturbances.push(
+              `row ${tracked.index} moved from ${tracked.offset.toFixed(1)} to ${offset.toFixed(1)}`,
+            );
+          }
+        });
+        observer.observe(virtualizer, {
+          subtree: true,
+          childList: true,
+          attributes: true,
+          attributeFilter: ['style'],
+        });
+
+        const scrollHeightBeforeRefresh = virtualizer.scrollHeight;
+        try {
+          // The refresh fires after the idle window; wait long enough for it and its follow-ups.
+          await waitFor(() =>
+            expect(virtualizer.scrollHeight).toBeLessThan(scrollHeightBeforeRefresh - 500),
+          );
+          await wait(400);
+        } finally {
+          observer.disconnect();
         }
-      });
-      observer.observe(virtualizer, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['style'],
-      });
 
-      const scrollHeightBeforeRefresh = virtualizer.scrollHeight;
-      try {
-        // The refresh fires after the idle window; wait long enough for it and its follow-ups.
-        await waitFor(() =>
-          expect(virtualizer.scrollHeight).toBeLessThan(scrollHeightBeforeRefresh - 500),
-        );
-        await act(
-          () =>
-            new Promise((resolve) => {
-              setTimeout(resolve, 400);
-            }),
-        );
+        expect(disturbances).toEqual([]);
       } finally {
-        observer.disconnect();
+        reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
       }
-
-      expect(disturbances).toEqual([]);
     },
   );
 
@@ -1092,7 +1304,7 @@ describe('<Virtualizer /> windowing', () => {
         apiRef={apiRef}
         estimatedItemHeight={20}
         overscanPx={0}
-        pinnedRowIndex={10}
+        pinnedRowIndex={50}
         render={
           <div
             ref={(element) => {
@@ -1125,32 +1337,29 @@ describe('<Virtualizer /> windowing', () => {
       </TestVirtualizedList>,
     );
 
-    const renderZone = screen
-      .getByTestId('virtualizer')
-      .querySelector<HTMLElement>('[style*="translate3d"]');
-    const target = screen.getByText('Item 11').parentElement;
+    const target = screen.getByText('Item 51').parentElement;
     expect(target).toHaveStyle({ position: 'absolute' });
 
-    act(() => apiRef.current?.scrollToIndex(10, { align: 'start' }));
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 200 });
-    // The native scroll event arrives later; the target window must already follow the immediate
-    // scroll write instead of leaving the viewport covered by the initial rows or nothing at all.
-    expect(screen.getByText('Item 11')).not.toBe(null);
+    await act(async () => apiRef.current?.scrollToIndex(50, { align: 'start' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 1000 });
+    // The native scroll event arrives a task later, if at all here; the engine is handed the
+    // written position before then, so the window follows the write rather than leaving the
+    // viewport to the initial rows.
     expect(target).not.toHaveStyle({ position: 'absolute' });
-    expect(renderZone?.style.transform).toContain('-20px');
+    expect(screen.getByText('Item 51').parentElement).toBe(target);
 
-    act(() => apiRef.current?.scrollToIndex(10, { align: 'center' }));
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 160 });
+    await act(async () => apiRef.current?.scrollToIndex(50, { align: 'center' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 960 });
 
-    act(() => apiRef.current?.scrollToIndex(10, { align: 'end' }));
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 120 });
+    await act(async () => apiRef.current?.scrollToIndex(50, { align: 'end' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 920 });
 
     scrollTop = 0;
-    act(() => apiRef.current?.scrollToIndex(10));
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 120 });
+    await act(async () => apiRef.current?.scrollToIndex(50));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 920 });
   });
 
-  it('renders a requested position the scroll element has not accepted yet', async () => {
+  it('renders a requested position once the scroll element accepts it', async () => {
     const apiRef = React.createRef<VirtualizerHandle>();
     const scrollTo = vi.fn<(options: ScrollToOptions) => void>();
     let acceptsScroll = false;
@@ -1196,23 +1405,19 @@ describe('<Virtualizer /> windowing', () => {
       </TestVirtualizedList>,
     );
 
-    const renderZone = screen
-      .getByTestId('virtualizer')
-      .querySelector<HTMLElement>('[style*="translate3d"]');
+    await act(async () => apiRef.current?.scrollToIndex(50, { align: 'start' }));
 
-    act(() => apiRef.current?.scrollToIndex(10, { align: 'start' }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 1000 });
+    // The scrollport rejected the write, so the rows stay where they are: a newly opened popup
+    // gains its scrollable overflow only on the frame after the one that mounts it.
+    expect(screen.queryByText('Item 51')).toBe(null);
 
-    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 200 });
-    // The scrollport rejected the write, but the rows are laid out for the position it was asked
-    // for, so the requested row is on screen in this commit rather than once the scroll lands.
-    expect(screen.getByText('Item 11').parentElement).not.toHaveStyle({ position: 'absolute' });
-    expect(renderZone?.style.transform).toContain('-20px');
-
-    // Once the scrollport can accept it, the retry brings `scrollTop` in line without moving the
-    // rows, which are already where the completed scroll puts them.
+    // Once the scrollport can accept it, the retry lands the position and the window follows.
     acceptsScroll = true;
-    await waitFor(() => expect(scrollTop).toBe(200));
-    expect(renderZone?.style.transform).toContain('-20px');
+    await waitFor(() => expect(scrollTop).toBe(1000));
+    await waitFor(() =>
+      expect(screen.getByText('Item 51').parentElement).not.toHaveStyle({ position: 'absolute' }),
+    );
   });
   it('exposes imperative scrolling by logical item index', async () => {
     const actionsRef = React.createRef<Virtualizer.Actions>();
@@ -1348,7 +1553,8 @@ describe('<Virtualizer /> windowing', () => {
 
       fireEvent.scroll(virtualizer);
       await waitFor(() => expect(screen.queryByText('Item 1')).toBe(null));
-      expect(screen.getAllByRole('listitem').length).toBeLessThan(20);
+      // A window: the rows covering the scrollport and the engine's buffer of fifteen rows.
+      expect(screen.getAllByRole('listitem').length).toBeLessThan(40);
 
       virtualizer.scrollTop = 0;
 
@@ -1420,7 +1626,11 @@ describe('<Virtualizer /> windowing', () => {
         }
         items={createItems(100)}
       >
-        {(item: TestItem) => <TestListItem>{item.label}</TestListItem>}
+        {(item: TestItem) => (
+          // The rows are laid out for real in a browser, and their observers report that height,
+          // not the mocked rectangle: declare the height the rest of the test assumes.
+          <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>
+        )}
       </TestVirtualizedList>,
     );
 
