@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
+import { Button } from '@base-ui/react/button';
 import styles from './index.module.css';
 
 const anchoredToastManager = Toast.createToastManager();
@@ -43,9 +44,6 @@ function CopyButton() {
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
 
   function handleCopy() {
-    if (copied) {
-      return;
-    }
     setCopied(true);
 
     anchoredToastManager.add({
@@ -62,16 +60,16 @@ function CopyButton() {
   }
 
   return (
-    <button
+    <Button
       ref={buttonRef}
-      type="button"
       className={styles.CopyButton}
       onClick={handleCopy}
       aria-label="Copy to clipboard"
-      aria-disabled={copied}
+      disabled={copied}
+      focusableWhenDisabled
     >
       {copied ? <CheckIcon /> : <ClipboardIcon />}
-    </button>
+    </Button>
   );
 }
 

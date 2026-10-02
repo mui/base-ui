@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
+import { Button } from '@base-ui/react/button';
 
 const stackedToastManager = Toast.createToastManager();
 const anchoredToastManager = Toast.createToastManager();
@@ -46,9 +47,6 @@ function CopyButton() {
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
 
   function handleCopy() {
-    if (copied) {
-      return;
-    }
     setCopied(true);
 
     anchoredToastManager.add({
@@ -65,16 +63,16 @@ function CopyButton() {
   }
 
   return (
-    <button
+    <Button
       ref={buttonRef}
-      type="button"
-      className="flex h-8 w-8 items-center justify-center rounded-none border border-neutral-950 bg-white text-neutral-950 select-none hover:not-aria-disabled:bg-neutral-100 active:not-aria-disabled:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-aria-disabled:bg-neutral-800 dark:active:not-aria-disabled:bg-neutral-700 aria-disabled:border-neutral-500 aria-disabled:text-neutral-500 dark:aria-disabled:border-neutral-400 dark:aria-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+      className="flex h-8 w-8 items-center justify-center rounded-none border border-neutral-950 bg-white text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       onClick={handleCopy}
       aria-label="Copy to clipboard"
-      aria-disabled={copied}
+      disabled={copied}
+      focusableWhenDisabled
     >
       {copied ? <CheckIcon /> : <ClipboardIcon />}
-    </button>
+    </Button>
   );
 }
 
