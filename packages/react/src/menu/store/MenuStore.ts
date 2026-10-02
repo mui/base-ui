@@ -105,7 +105,8 @@ const selectors = {
   filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
   inputProps: (state: State<unknown>) => state.inputProps,
   // `aria-selected` is invalid on `menuitem`, but Safari VoiceOver needs it for arrow-key
-  // navigation. Only WebKit may select the highlighted item, and only while its input has focus.
+  // navigation. Limit it to WebKit while the input has focus so normal VoiceOver navigation
+  // does not encounter the invalid attribute.
   webkitAriaSelected: (state: State<unknown>, highlighted: boolean) =>
     platform.engine.webkit && state.inputFocused && highlighted ? true : undefined,
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
