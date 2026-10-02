@@ -25,8 +25,6 @@ import {
   closest,
   contains,
   getTabbableNearElement,
-  getNextTabbable,
-  getPreviousTabbable,
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
@@ -742,8 +740,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
               if (referenceElement && isOutsideEvent(event, referenceElement)) {
                 beforeInsideRef.current?.focus();
               } else {
-                const prevTabbable = getPreviousTabbable(triggerElement);
-                prevTabbable?.focus();
+                (
+                  getTabbableNearElement(event.currentTarget, -1, null, false) ?? triggerElement
+                )?.focus();
               }
             }}
           />
@@ -758,18 +757,15 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                 const elementToFocus = afterInsideRef.current || triggerElement;
                 elementToFocus?.focus();
               } else {
-                let nextTabbable = getNextTabbable(triggerElement);
-
-                if (
-                  nested &&
-                  !positionerElement &&
-                  referenceElement &&
-                  nextTabbable &&
-                  contains(referenceElement, nextTabbable)
-                ) {
-                  nextTabbable = getTabbableNearElement(afterInsideRef.current, 1);
-                }
-
+                const nextTabbable =
+                  getTabbableNearElement(
+                    event.currentTarget,
+                    1,
+                    // A nested menu without a positioner renders its viewport inline after the
+                    // trigger. Skip the content that focus is leaving.
+                    nested && !positionerElement ? referenceElement : null,
+                    false,
+                  ) ?? triggerElement;
                 nextTabbable?.focus();
 
                 if ((!nested || positionerElement) && !contains(rootRef.current, nextTabbable)) {

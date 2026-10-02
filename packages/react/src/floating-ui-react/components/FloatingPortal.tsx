@@ -12,10 +12,10 @@ import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
   disableFocusInside,
-  getPreviousTabbable,
-  getNextTabbable,
+  getTabbableNearElement,
   isOutsideEvent,
 } from '../utils/tabbable';
+import type { FocusableElement } from '../utils/tabbable';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
@@ -233,6 +233,15 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     focusInsideDisabledRef.current = false;
   }, [open, portalNode]);
 
+  // Focus is leaving the portal content through an outside guard. Continue from the guard's
+  // place in the tab order. At the end of the document, go back to the reference instead.
+  function focusPastOutsideGuard(guard: Element, direction: 1 | -1) {
+    (
+      getTabbableNearElement(guard, direction, null, false) ??
+      (focusManagerState?.domReference as FocusableElement | null | undefined)
+    )?.focus();
+  }
+
   const portalContextValue = React.useMemo(
     () => ({
       beforeOutsideRef,
@@ -256,9 +265,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
               if (isOutsideEvent(event, portalNode)) {
                 beforeInsideRef.current?.focus();
               } else {
-                const domReference = focusManagerState ? focusManagerState.domReference : null;
-                const prevTabbable = getPreviousTabbable(domReference);
-                prevTabbable?.focus();
+                focusPastOutsideGuard(event.currentTarget, -1);
               }
             }}
           />
@@ -275,9 +282,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
               if (isOutsideEvent(event, portalNode)) {
                 afterInsideRef.current?.focus();
               } else {
-                const domReference = focusManagerState ? focusManagerState.domReference : null;
-                const nextTabbable = getNextTabbable(domReference);
-                nextTabbable?.focus();
+                focusPastOutsideGuard(event.currentTarget, 1);
 
                 if (focusManagerState?.closeOnFocusOut) {
                   focusManagerState?.onOpenChange(

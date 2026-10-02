@@ -7,12 +7,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { FocusGuard } from '../../utils/FocusGuard';
-import {
-  getNextTabbable,
-  getPreviousTabbable,
-  isOutsideEvent,
-  contains,
-} from '../../floating-ui-react/utils';
+import { getTabbableNearElement, isOutsideEvent, contains } from '../../floating-ui-react/utils';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
@@ -42,7 +37,7 @@ function Guards({ children }: { children: React.ReactNode }) {
         ref={beforeInsideRef}
         onFocus={(event) => {
           if (referenceElement && isOutsideEvent(event, referenceElement)) {
-            getNextTabbable(referenceElement)?.focus();
+            getTabbableNearElement(event.currentTarget, 1)?.focus();
           } else {
             beforeOutsideRef.current?.focus();
           }
@@ -53,7 +48,7 @@ function Guards({ children }: { children: React.ReactNode }) {
         ref={afterInsideRef}
         onFocus={(event) => {
           if (referenceElement && isOutsideEvent(event, referenceElement)) {
-            getPreviousTabbable(referenceElement)?.focus();
+            getTabbableNearElement(event.currentTarget, -1)?.focus();
           } else {
             afterOutsideRef.current?.focus();
           }

@@ -2019,6 +2019,48 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('last')).toHaveFocus();
       });
 
+      test('tabbing out at the end of the document focuses the reference', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          const { refs, context } = useFloating({
+            open,
+            onOpenChange: setOpen,
+          });
+
+          return (
+            <>
+              <span tabIndex={0} data-testid="first" />
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setOpen(true)}
+              />
+              <FloatingPortal>
+                {open && (
+                  <FloatingFocusManager context={context.rootStore} modal={false}>
+                    <div data-testid="floating" ref={refs.setFloating}>
+                      <span tabIndex={0} data-testid="inside" />
+                    </div>
+                  </FloatingFocusManager>
+                )}
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('inside')).toHaveFocus();
+
+        await userEvent.tab();
+
+        expect(screen.queryByTestId('floating')).not.toBeInTheDocument();
+        expect(screen.getByTestId('reference')).toHaveFocus();
+      });
+
       test('does not mark reference siblings due to outside focus guards', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);
