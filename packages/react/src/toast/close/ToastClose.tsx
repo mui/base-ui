@@ -26,9 +26,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
   } = componentProps;
 
   const store = useToastProviderContext();
-  const { toast, expanded } = useToastRootContext();
-
-  const [hasFocus, setHasFocus] = React.useState(false);
+  const { toast } = useToastRootContext();
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -44,15 +42,8 @@ export const ToastClose = React.forwardRef(function ToastClose(
     state,
     props: [
       {
-        'aria-hidden': !expanded && !hasFocus,
         onClick() {
           store.closeToast(toast.id);
-        },
-        onFocus() {
-          setHasFocus(true);
-        },
-        onBlur() {
-          setHasFocus(false);
         },
       },
       elementProps,
