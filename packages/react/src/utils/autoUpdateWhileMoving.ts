@@ -3,9 +3,9 @@ import { autoUpdate } from '../floating-ui-react';
 import type { AutoUpdateOptions, FloatingElement, ReferenceElement } from '../floating-ui-react';
 
 /**
- * Frames the anchor must stay still before per-frame polling stops.
+ * Still frames to check after the anchor rect last changed before per-frame polling stops.
  */
-export const SETTLE_FRAMES = 2;
+export const SETTLE_FRAMES = 3;
 
 /**
  * Floating UI's observers report anchor movement a frame late, so the popup trails an anchor inside
@@ -20,40 +20,28 @@ export function autoUpdateWhileMoving(
   options: AutoUpdateOptions,
 ) {
   const frame = AnimationFrame.create();
-  let prevRect = '';
-  let stableFrames = 0;
+  let prevRect: string | undefined;
+  let stillFrames = 0;
 
-  function rectChanged() {
+  function poll(force?: boolean) {
     const { x, y, width, height } = reference.getBoundingClientRect();
     const rect = `${x} ${y} ${width} ${height}`;
-    const changed = rect !== prevRect;
-    prevRect = rect;
-    return changed;
-  }
-
-  function poll() {
-    if (rectChanged()) {
-      stableFrames = 0;
+    if (force || rect !== prevRect) {
+      prevRect = rect;
+      stillFrames = 0;
       update();
-    } else if (stableFrames > SETTLE_FRAMES) {
-      return;
     }
-    stableFrames += 1;
-    frame.request(poll);
+    stillFrames += 1;
+    if (stillFrames <= SETTLE_FRAMES) {
+      frame.request(poll);
+    }
   }
 
   const cleanup = autoUpdate(
     reference,
     floating,
     // `ancestorScroll` is off only when anchor tracking is disabled.
-    options.ancestorScroll
-      ? () => {
-          update();
-          rectChanged();
-          stableFrames = 0;
-          frame.request(poll);
-        }
-      : update,
+    options.ancestorScroll ? () => poll(true) : update,
     options,
   );
 

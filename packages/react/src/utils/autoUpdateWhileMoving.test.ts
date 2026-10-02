@@ -52,8 +52,8 @@ function nextFrame() {
   vi.advanceTimersToNextFrame();
 }
 
-// Polling counts still frames up to `SETTLE_FRAMES + 1` and stops on the frame after that.
-const STILL_FRAMES_AFTER_MOVE = SETTLE_FRAMES + 1;
+// Polling checks `SETTLE_FRAMES` still frames after the last change, then stops.
+const STILL_FRAMES_AFTER_MOVE = SETTLE_FRAMES;
 
 describe('autoUpdateWhileMoving', () => {
   beforeEach(() => {
@@ -114,7 +114,8 @@ describe('autoUpdateWhileMoving', () => {
     const { update, observerUpdate, moveAnchor, cleanup } = setup();
 
     observerUpdate();
-    for (let i = 0; i < SETTLE_FRAMES; i += 1) {
+    // Move on the last still frame that is checked.
+    for (let i = 0; i < SETTLE_FRAMES - 1; i += 1) {
       nextFrame();
     }
     moveAnchor();
@@ -134,8 +135,7 @@ describe('autoUpdateWhileMoving', () => {
     const { update, observerUpdate, moveAnchor, cleanup } = setup();
 
     observerUpdate();
-    // The observer update starts the count at 0, one frame before a moved frame would.
-    for (let i = 0; i < STILL_FRAMES_AFTER_MOVE + 1; i += 1) {
+    for (let i = 0; i < STILL_FRAMES_AFTER_MOVE; i += 1) {
       expect(vi.getTimerCount()).toBe(1);
       nextFrame();
     }
