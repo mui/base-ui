@@ -674,6 +674,10 @@ describe('<MenuRoot />', () => {
         const trigger = screen.getByRole('button', { name: 'Trigger 1' });
         await user.click(trigger);
         await screen.findByTestId('level-1');
+        // Each popup focuses itself a frame after opening; keys sent earlier go to the previous level.
+        await waitFor(() => {
+          expect(screen.getByRole('menu')).toHaveFocus();
+        });
 
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
@@ -685,6 +689,9 @@ describe('<MenuRoot />', () => {
 
         await user.keyboard('[ArrowRight]');
         await screen.findByTestId('level-2');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Item 2' })).toHaveFocus();
+        });
 
         await user.keyboard('[ArrowDown]');
         const submenuTrigger2 = await screen.findByTestId('submenu-trigger-2');
@@ -698,9 +705,9 @@ describe('<MenuRoot />', () => {
         await user.click(screen.getByTestId('outside'));
         await waitFor(() => {
           expect(screen.queryByTestId('level-1')).toBe(null);
-          expect(screen.queryByTestId('level-2')).toBe(null);
-          expect(screen.queryByTestId('level-3')).toBe(null);
         });
+        expect(screen.queryByTestId('level-2')).toBe(null);
+        expect(screen.queryByTestId('level-3')).toBe(null);
       });
 
       it('allows selecting nested items via click, drag, release', async () => {

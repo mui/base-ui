@@ -1024,7 +1024,11 @@ describe('<Menu.Root />', () => {
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
 
-        await screen.findByTestId('menu');
+        const menu = await screen.findByTestId('menu');
+        // Each popup focuses itself a frame after opening; keys sent earlier go to the previous level.
+        await waitFor(() => {
+          expect(menu).toHaveFocus();
+        });
 
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
@@ -1038,6 +1042,9 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard('[ArrowRight]');
         await screen.findByTestId('submenu');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-4_1')).toHaveFocus();
+        });
 
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
@@ -1054,10 +1061,10 @@ describe('<Menu.Root />', () => {
         await user.click(outside);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('level-1')).toBe(null);
-          expect(screen.queryByTestId('level-2')).toBe(null);
-          expect(screen.queryByTestId('level-3')).toBe(null);
+          expect(screen.queryByTestId('menu')).toBe(null);
         });
+        expect(screen.queryByTestId('submenu')).toBe(null);
+        expect(screen.queryByTestId('nested-submenu')).toBe(null);
       });
 
       it.skipIf(isJSDOM)(
@@ -1116,7 +1123,11 @@ describe('<Menu.Root />', () => {
           const trigger = screen.getByRole('button', { name: 'Toggle' });
           await user.click(trigger);
 
-          await screen.findByTestId('menu');
+          const menu = await screen.findByTestId('menu');
+          // Each popup focuses itself a frame after opening; keys sent earlier go to the previous level.
+          await waitFor(() => {
+            expect(menu).toHaveFocus();
+          });
 
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
@@ -1131,6 +1142,9 @@ describe('<Menu.Root />', () => {
           await user.keyboard('[ArrowRight]');
 
           const nestedSubmenuTrigger = await screen.findByTestId('nested-submenu-trigger');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_1')).toHaveFocus();
+          });
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
 
@@ -1140,6 +1154,9 @@ describe('<Menu.Root />', () => {
 
           await user.keyboard('[ArrowRight]');
           await screen.findByTestId('nested-submenu');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_3_1')).toHaveFocus();
+          });
 
           await user.keyboard('[ArrowLeft]');
 
