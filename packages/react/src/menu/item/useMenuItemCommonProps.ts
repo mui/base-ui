@@ -65,7 +65,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     isSubmenuTrigger && rootContext.parent.type === 'menu'
       ? rootContext.parent.store
       : rootContext.store;
-  const webkitInputFocused = selectionStore.useState('webkitInputFocused');
+  const inputFocused = selectionStore.useState('inputFocused');
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const open = store.useState('open');
@@ -73,7 +73,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
   const tabIndex = !virtualFocus && open && highlighted ? 0 : -1;
-  const ariaSelected = webkitInputFocused && highlighted ? true : undefined;
+  const ariaSelected = platform.engine.webkit && inputFocused && highlighted ? true : undefined;
 
   return React.useMemo(
     () => ({
