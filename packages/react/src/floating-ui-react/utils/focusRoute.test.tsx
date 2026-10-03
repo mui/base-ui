@@ -689,6 +689,65 @@ describe.skipIf(isJSDOM)('focus route through the guards', () => {
   describe.each([
     { name: 'Popover', Component: Popover },
     { name: 'Menu', Component: Menu },
+  ])('$name as the last element of a Popover', ({ name, Component }) => {
+    it('tabs out of both popups to the element after the outer trigger', async () => {
+      await render(
+        <div>
+          <button data-testid="before">Before</button>
+          <Popover.Root modal={false}>
+            <Popover.Trigger>Outer</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="outer-popup">
+                  <Component.Root modal={false}>
+                    <Component.Trigger>Inner</Component.Trigger>
+                    <Component.Portal>
+                      <Component.Positioner>
+                        <Component.Popup data-testid="inner-popup">
+                          {name === 'Menu' ? (
+                            <Menu.Item data-testid="inside">Inside</Menu.Item>
+                          ) : (
+                            <button data-testid="inside">Inside</button>
+                          )}
+                        </Component.Popup>
+                      </Component.Positioner>
+                    </Component.Portal>
+                  </Component.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="after">After</button>
+        </div>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Outer' }));
+      const inner = screen.getByRole('button', { name: 'Inner' });
+      await waitFor(() => {
+        expect(inner).toHaveFocus();
+      });
+      await user.keyboard('{Enter}');
+      await waitFor(() => {
+        expect(screen.getByTestId('inside')).toHaveFocus();
+      });
+
+      // The inner trigger's guard unmounts with the inner popup before focus reaches the outer
+      // popup's guard, so that guard can't tell from the focus event where focus came from.
+      await user.tab();
+
+      expect(screen.getByTestId('after')).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.queryByTestId('inner-popup')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('outer-popup')).toBe(null);
+      });
+    });
+  });
+
+  describe.each([
+    { name: 'Popover', Component: Popover },
+    { name: 'Menu', Component: Menu },
   ])('$name opened without a trigger', ({ name, Component }) => {
     it('tabs out of the popup to the element after its portal', async () => {
       await render(

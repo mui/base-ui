@@ -131,6 +131,11 @@ export function getFocusRoute(store: FloatingRootStore): FocusRoute {
   return store.focusRoute;
 }
 
+// The element a route is moving focus on from, while it calls `focus()`. When a close unmounted the
+// guard that had focus, the guard focused next (an outer popup's, say) gets no `relatedTarget` and
+// learns from this where focus came from.
+let handoffOrigin: Element | null = null;
+
 /**
  * Moves focus that reached one of the route's guards. Each guard's owner passes the facts it owns:
  * a trigger passes none, and the focus manager passes the rest, which apply to the content and
@@ -152,7 +157,7 @@ export function focusRoute(
 ) {
   const route = getFocusRoute(store);
   const guard = event.currentTarget;
-  const relatedTarget = event.relatedTarget as Element | null;
+  const relatedTarget = (event.relatedTarget as Element | null) ?? handoffOrigin;
   // The floating root keeps a removed trigger as its reference, and a consumer may replace the
   // trigger's element when the popup closes, so only a trigger in the document counts.
   const getTrigger = () => {
@@ -198,6 +203,8 @@ export function focusRoute(
     }
   }
 
+  // The guard, or the trigger if the close unmounted the guard.
+  const origin = guard.isConnected ? guard : trigger;
   let element: FocusableElement | null | undefined;
   if (target < TRIGGER) {
     element = route[target].current;
@@ -206,12 +213,12 @@ export function focusRoute(
   } else if (target < FORWARD) {
     element = getTabbableNearElement(guard, target === NEXT ? 1 : -1);
   } else if (target < FIRST) {
-    // Continue from the guard, or from the trigger if the close unmounted the guard, skipping the
-    // popup and the rest of the route. At the end of the document, a trigger guard wraps around
-    // like the browser's tab cycle, and a portal guard goes back to the trigger.
+    // Continue from the origin, skipping the popup and the rest of the route. At the end of the
+    // document, a trigger guard wraps around like the browser's tab cycle, and a portal guard goes
+    // back to the trigger.
     element =
       getTabbableNearElement(
-        guard.isConnected ? guard : trigger,
+        origin,
         target === FORWARD ? 1 : -1,
         [container, ...route.map((ref) => ref.current)],
         atTrigger,
@@ -222,7 +229,10 @@ export function focusRoute(
     // enqueueFocus returns a rAF-cancel function we don't need here.
     void enqueueFocus(content[target === FIRST ? 0 : content.length - 1]);
   }
+  const previousOrigin = handoffOrigin;
+  handoffOrigin = origin;
   element?.focus();
+  handoffOrigin = previousOrigin;
 
   // A portal guard is unmounted by the close itself, so it moves focus first.
   if (close && !atTrigger) {
