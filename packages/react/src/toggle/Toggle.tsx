@@ -27,6 +27,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     className,
     defaultPressed = false,
     disabled: disabledProp = false,
+    focusableWhenDisabled = false,
     form, // never participates in form validation
     onPressedChange,
     pressed: pressedProp,
@@ -67,6 +68,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    focusableWhenDisabled,
     native: nativeButton,
   });
 
@@ -113,11 +115,12 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     props,
   });
 
-  // A disabled toggle is natively disabled and cannot hold roving focus.
+  // Unless `focusableWhenDisabled` is set, a disabled toggle is natively disabled
+  // and cannot hold roving focus.
   // Toolbar reads this metadata to compute its `disabledIndices`.
   const itemMetadata: ToolbarRoot.ItemMetadata = React.useMemo(
-    () => ({ disabled, focusableWhenDisabled: false }),
-    [disabled],
+    () => ({ disabled, focusableWhenDisabled }),
+    [disabled, focusableWhenDisabled],
   );
 
   if (groupContext) {
@@ -171,6 +174,11 @@ export interface ToggleProps<Value extends string>
    * @default false
    */
   disabled?: boolean | undefined;
+  /**
+   * Whether the toggle should remain focusable when disabled.
+   * @default false
+   */
+  focusableWhenDisabled?: boolean | undefined;
   /**
    * Callback fired when the pressed state is changed.
    */
