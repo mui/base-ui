@@ -2,7 +2,8 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, screen } from '@mui/internal-test-utils';
 import { Toggle } from '@base-ui/react/toggle';
-import { createRenderer, describeConformance } from '#test-utils';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { ToggleGroup } from '../toggle-group/ToggleGroup';
 
 describe('<Toggle />', () => {
@@ -143,6 +144,89 @@ describe('<Toggle />', () => {
 
       expect(handlePressed.mock.calls.length).toBe(0);
       expect(button).toHaveAttribute('aria-pressed', 'false');
+    });
+  });
+
+  describe('prop: focusableWhenDisabled', () => {
+    it('remains focusable but ignores interactions', async () => {
+      const handlePressedChange = vi.fn();
+      const handleClick = vi.fn();
+
+      const { user } = await render(
+        <Toggle
+          disabled
+          focusableWhenDisabled
+          onPressedChange={handlePressedChange}
+          onClick={handleClick}
+        />,
+      );
+
+      const button = screen.getByRole('button');
+
+      expect(button).not.toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+
+      await user.keyboard('[Tab]');
+      expect(button).toHaveFocus();
+
+      await user.click(button);
+      await user.keyboard('[Space]');
+      await user.keyboard('[Enter]');
+
+      expect(handlePressedChange).toHaveBeenCalledTimes(0);
+      expect(handleClick).toHaveBeenCalledTimes(0);
+      expect(button).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('does not toggle a group value', async () => {
+      const onValueChange = vi.fn();
+
+      const { user } = await render(
+        <ToggleGroup onValueChange={onValueChange}>
+          <Toggle value="one" disabled focusableWhenDisabled />
+        </ToggleGroup>,
+      );
+
+      const button = screen.getByRole('button');
+
+      expect(button).not.toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+
+      await user.click(button);
+      await user.keyboard('[Enter]');
+
+      expect(onValueChange).toHaveBeenCalledTimes(0);
+      expect(button).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('is natively disabled by default', async () => {
+      await render(<Toggle disabled />);
+
+      expect(screen.getByRole('button')).toHaveAttribute('disabled');
+    });
+
+    it.skipIf(isJSDOM)('is reachable by roving focus in a toolbar', async () => {
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button />
+          <Toggle disabled focusableWhenDisabled />
+          <Toggle disabled />
+        </Toolbar.Root>,
+      );
+
+      const [first, focusableToggle, disabledToggle] = screen.getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+      expect(first).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+      expect(focusableToggle).toHaveFocus();
+
+      // A natively disabled toggle is skipped, so focus wraps to the start.
+      await user.keyboard('[ArrowRight]');
+      expect(disabledToggle).not.toHaveFocus();
+      expect(first).toHaveFocus();
     });
   });
 
