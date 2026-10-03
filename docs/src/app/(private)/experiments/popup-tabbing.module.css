@@ -1,4 +1,6 @@
 .Page {
+  --color-pass: oklch(55% 0.15 150deg);
+
   padding: 1.5rem;
 }
 
@@ -11,389 +13,395 @@
 
 .Description {
   margin-top: 0.25rem;
+  max-width: 60rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: var(--color-gray-600);
 }
 
-.SwitchLabel {
-  margin-top: 1rem;
+.Toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 1rem -1.5rem 0;
+  padding: 0.5rem 1.5rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  background: var(--color-gray-50);
+  border-block: 1px solid var(--color-gray-200);
+}
+
+.Summary {
+  display: flex;
+  gap: 1rem;
   font-size: 0.875rem;
-  line-height: 1.25rem;
   font-weight: 500;
   color: var(--color-gray-900);
 }
 
-.SwitchRoot {
-  position: relative;
+.Summary [data-status='passed'] {
+  color: var(--color-pass);
+}
+
+.Summary [data-status='failed'] {
+  color: var(--color-red);
+}
+
+.FocusIndicator {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+}
+
+.FocusIndicator strong {
+  color: var(--color-gray-900);
+}
+
+.Scenarios {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
+  gap: 1rem;
+}
+
+.Scenario {
   display: flex;
-  width: 2.25rem;
-  height: 1.25rem;
-  border-radius: 9999px;
-  background: var(--color-gray-200);
-  padding: 1px;
-  outline: 1px solid var(--color-gray-300);
-  outline-offset: -1px;
-  transition: background-color 150ms;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background: var(--color-content, white);
 }
 
-.SwitchRoot:focus-visible {
-  outline: 2px solid var(--color-blue);
+.Scenario[data-status='passed'] {
+  border-color: var(--color-pass);
 }
 
-.SwitchRoot[data-checked] {
-  background: var(--color-gray-900);
-  outline-color: var(--color-gray-900);
+.Scenario[data-status='failed'] {
+  border-color: var(--color-red);
 }
 
-.SwitchThumb {
-  height: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 9999px;
-  background: white;
-  transition: transform 150ms;
+.ScenarioHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-.SwitchThumb[data-checked] {
-  transform: translateX(1rem);
-}
-
-.Sections {
-  margin-top: 1.5rem;
-}
-
-.Sections > :not([hidden]) ~ :not([hidden]) {
-  margin-top: 2.5rem;
-}
-
-.Section {
-  margin: 0;
-}
-
-.SectionTitle {
-  margin-bottom: 0.75rem;
+.ScenarioTitle {
   font-size: 1rem;
+  line-height: 1.5rem;
   font-weight: 600;
   color: var(--color-gray-900);
+}
+
+.Status {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+}
+
+.Status[data-status='running'] {
+  color: var(--color-blue);
+}
+
+.Status[data-status='passed'] {
+  color: var(--color-pass);
+}
+
+.Status[data-status='failed'],
+.Status[data-status='interrupted'] {
+  color: var(--color-red);
+}
+
+.ScenarioDescription {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-600);
 }
 
 .Row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .Button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 2.5rem;
+  height: 2rem;
+  padding: 0 0.75rem;
   border: 1px solid var(--color-gray-200);
   border-radius: 0.375rem;
   background: var(--color-gray-50);
-  padding: 0 0.875rem;
-  font-size: 1rem;
-  font-weight: 500;
+  font: inherit;
+  font-size: 0.875rem;
   color: var(--color-gray-900);
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .Button:hover,
-.Button:active,
 .Button[data-popup-open] {
   background: var(--color-gray-100);
 }
 
 .Button:focus-visible {
   outline: 2px solid var(--color-blue);
-  outline-offset: -1px;
+  outline-offset: 1px;
 }
 
-.PopoverPopupColumn {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  transform-origin: var(--transform-origin);
-  border-radius: 0.5rem;
-  background: canvas;
-  padding: 1rem;
-  color: var(--color-gray-900);
-  outline: 1px solid var(--color-gray-200);
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
-  transition:
-    transform 150ms,
-    scale 150ms,
-    opacity 150ms;
+.Container {
+  display: contents;
 }
 
-.PopoverPopupRow {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  transform-origin: var(--transform-origin);
-  border-radius: 0.5rem;
-  background: canvas;
-  padding: 1rem;
-  color: var(--color-gray-900);
-  outline: 1px solid var(--color-gray-200);
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
-  transition:
-    transform 150ms,
-    scale 150ms,
-    opacity 150ms;
+.Positioner {
+  z-index: 2;
 }
 
-.PopoverPopupColumn[data-starting-style],
-.PopoverPopupColumn[data-ending-style],
-.PopoverPopupRow[data-starting-style],
-.PopoverPopupRow[data-ending-style] {
-  scale: 0.9;
-  opacity: 0;
-}
-
-@media (prefers-color-scheme: dark) {
-  .PopoverPopupColumn,
-  .PopoverPopupRow {
-    box-shadow: none;
-    outline-color: var(--color-gray-300);
-    outline-offset: -1px;
-  }
-}
-
-.MenuPositioner {
-  outline: none;
-}
-
-.MenuPopup {
-  transform-origin: var(--transform-origin);
-  border-radius: 0.375rem;
-  background: canvas;
-  padding: 0.25rem 0;
-  color: var(--color-gray-900);
-  outline: 1px solid var(--color-gray-200);
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
-  transition:
-    transform 150ms,
-    scale 150ms,
-    opacity 150ms;
-}
-
-.MenuPopup[data-starting-style],
-.MenuPopup[data-ending-style] {
-  scale: 0.9;
-  opacity: 0;
-}
-
-.MenuArrow[data-side='bottom'] {
-  top: -8px;
-}
-
-.MenuArrow[data-side='left'] {
-  right: -13px;
-  rotate: 90deg;
-}
-
-.MenuArrow[data-side='right'] {
-  left: -13px;
-  rotate: -90deg;
-}
-
-.MenuArrow[data-side='top'] {
-  bottom: -8px;
-  rotate: 180deg;
-}
-
-.MenuItem {
-  position: relative;
-  z-index: 0;
-  display: flex;
-  cursor: default;
-  padding: 0.5rem 2rem 0.5rem 1rem;
-  font-size: 0.875rem;
-  line-height: 1rem;
-  -webkit-user-select: none;
-  user-select: none;
-  outline: none;
-}
-
-.MenuItem[data-highlighted] {
-  color: var(--color-gray-50);
-}
-
-.MenuItem[data-highlighted]::before {
-  content: '';
-  position: absolute;
-  inset: 0 0.25rem;
-  z-index: -1;
-  border-radius: 0.25rem;
-  background: var(--color-gray-900);
-}
-
-.MenuSeparator {
-  margin: 0.375rem 1rem;
-  height: 1px;
-  background: var(--color-gray-200);
-}
-
-.ComboboxField {
-  position: relative;
+.Popup {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 500;
-  color: var(--color-gray-900);
-}
-
-.ComboboxInputWrap {
-  position: relative;
-}
-
-.ComboboxInput {
-  height: 2.5rem;
-  width: 16rem;
+  min-width: 8rem;
+  padding: 0.5rem;
   border: 1px solid var(--color-gray-200);
-  border-radius: 0.375rem;
-  background: canvas;
-  padding-left: 0.875rem;
-  padding-right: 2rem;
-  font-size: 1rem;
-  color: var(--color-gray-900);
-}
-
-.ComboboxInput:focus {
-  outline: 2px solid var(--color-blue);
-  outline-offset: -1px;
-}
-
-.ComboboxActions {
-  position: absolute;
-  right: 0.5rem;
-  bottom: 0;
-  display: flex;
-  height: 2.5rem;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-gray-600);
-}
-
-.ComboboxTriggerButton {
-  display: flex;
-  height: 2.5rem;
-  width: 1.5rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.25rem;
-  background: transparent;
-  padding: 0;
-}
-
-.ComboboxIcon {
-  width: 1rem;
-  height: 1rem;
-}
-
-.ComboboxPopup {
-  width: var(--anchor-width);
-  max-width: var(--available-width);
-  max-height: min(var(--available-height), 23rem);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scroll-padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: var(--color-popup, white);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
   transform-origin: var(--transform-origin);
-  border-radius: 0.375rem;
-  background: canvas;
-  padding: 0.5rem 0;
-  color: var(--color-gray-900);
-  outline: 1px solid var(--color-gray-200);
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
   transition:
-    transform 150ms,
-    scale 150ms,
-    opacity 150ms;
+    opacity 120ms,
+    transform 120ms;
 }
 
-.ComboboxPopup[data-starting-style],
-.ComboboxPopup[data-ending-style] {
-  scale: 0.95;
+.Popup[data-starting-style],
+.Popup[data-ending-style] {
   opacity: 0;
+  transform: scale(0.96);
 }
 
-.ComboboxEmpty {
-  padding: 0.5rem 1rem;
-  font-size: 0.925rem;
-  line-height: 1rem;
-  color: var(--color-gray-600);
-}
-
-.ComboboxEmpty:empty {
-  margin: 0;
-  padding: 0;
-}
-
-.ComboboxItem {
-  position: relative;
-  z-index: 0;
+.Item {
   display: flex;
+  align-items: center;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
   cursor: default;
-  padding: 0.5rem 2rem 0.5rem 1rem;
-  font-size: 1rem;
-  line-height: 1rem;
-  -webkit-user-select: none;
+  outline: 0;
   user-select: none;
-  outline: none;
+  -webkit-user-select: none;
 }
 
-.ComboboxItem[data-highlighted] {
+.Item[data-highlighted] {
+  background: var(--color-gray-900);
   color: var(--color-gray-50);
 }
 
-.ComboboxItem[data-highlighted]::before {
-  content: '';
-  position: absolute;
-  inset: 0 0.5rem;
-  z-index: -1;
-  border-radius: 0.25rem;
-  background: var(--color-gray-900);
+.InputGroup {
+  display: flex;
+  align-items: center;
 }
 
-.InnerTitle {
+.Input {
+  height: 2rem;
+  width: 8rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  font: inherit;
   font-size: 0.875rem;
-  font-weight: 500;
+  color: var(--color-gray-900);
+  background: var(--color-content, white);
 }
 
-.InnerDescription {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
+.Input:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 1px;
+}
+
+.InputTrigger {
+  height: 2rem;
+  width: 1.75rem;
+  margin-left: -1.75rem;
+  border: 0;
+  background: none;
   color: var(--color-gray-600);
 }
 
-.ArrowFill {
-  fill: canvas;
+.Backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: rgb(0 0 0 / 20%);
+  transition: opacity 120ms;
 }
 
-.ArrowStrokeLight {
-  fill: var(--color-gray-200);
+.Backdrop[data-starting-style],
+.Backdrop[data-ending-style] {
+  opacity: 0;
 }
 
-.ArrowStrokeDark {
-  fill: transparent;
+.Dialog,
+.FloatingDialog {
+  position: fixed;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 16rem;
+  padding: 1rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background: var(--color-popup, white);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
+  transition: opacity 120ms;
 }
 
-@media (prefers-color-scheme: dark) {
-  .ArrowStrokeDark {
-    fill: var(--color-gray-300);
-  }
+.Dialog {
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+}
+
+.FloatingDialog {
+  right: 1.5rem;
+  bottom: 1.5rem;
+}
+
+.Dialog[data-starting-style],
+.Dialog[data-ending-style],
+.FloatingDialog[data-starting-style],
+.FloatingDialog[data-ending-style] {
+  opacity: 0;
+}
+
+.DialogTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.NavigationMenu {
+  display: contents;
+}
+
+.NavigationMenuList {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.NavigationMenuContent {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.Menubar {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.Steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-left: 1.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-600);
+}
+
+.Step {
+  padding-left: 0.25rem;
+}
+
+.Step::marker {
+  color: var(--color-gray-300);
+}
+
+.Step[data-state='current'] {
+  color: var(--color-gray-900);
+}
+
+.Step[data-state='current']::marker {
+  content: '▸ ';
+  color: var(--color-blue);
+}
+
+.Step[data-state='passed']::marker {
+  content: '✓ ';
+  color: var(--color-pass);
+}
+
+.Step[data-state='failed'] {
+  color: var(--color-gray-900);
+}
+
+.Step[data-state='failed']::marker {
+  content: '✗ ';
+  color: var(--color-red);
+}
+
+.StepAction {
+  display: inline-block;
+  min-width: 8rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: var(--color-gray-900);
+}
+
+.StepExpected strong {
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.StepNote {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-gray-500, var(--color-gray-600));
+}
+
+.StepActual {
+  display: block;
+  font-weight: 500;
+  color: var(--color-red);
+}
+
+.Message {
+  font-size: 0.8125rem;
+  color: var(--color-red);
+}
+
+.ScenarioFooter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-top: auto;
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+}
+
+.LinkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--color-blue);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.Trail {
+  overflow-wrap: anywhere;
 }
