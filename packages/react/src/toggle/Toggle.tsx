@@ -27,7 +27,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     className,
     defaultPressed = false,
     disabled: disabledProp = false,
-    focusableWhenDisabled = false,
+    focusableWhenDisabled,
     form, // never participates in form validation
     onPressedChange,
     pressed: pressedProp,
@@ -119,7 +119,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
   // and cannot hold roving focus.
   // Toolbar reads this metadata to compute its `disabledIndices`.
   const itemMetadata: ToolbarRoot.ItemMetadata = React.useMemo(
-    () => ({ disabled, focusableWhenDisabled }),
+    () => ({ disabled, focusableWhenDisabled: focusableWhenDisabled ?? false }),
     [disabled, focusableWhenDisabled],
   );
 

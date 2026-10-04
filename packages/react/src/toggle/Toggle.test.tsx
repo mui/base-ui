@@ -210,8 +210,10 @@ describe('<Toggle />', () => {
       const { user } = await render(
         <Toolbar.Root>
           <Toolbar.Button />
-          <Toggle disabled focusableWhenDisabled />
-          <Toggle disabled />
+          <ToggleGroup>
+            <Toggle value="one" disabled focusableWhenDisabled />
+            <Toggle value="two" disabled />
+          </ToggleGroup>
         </Toolbar.Root>,
       );
 
