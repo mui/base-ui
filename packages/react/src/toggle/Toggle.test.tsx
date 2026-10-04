@@ -200,8 +200,27 @@ describe('<Toggle />', () => {
       expect(button).toHaveAttribute('aria-pressed', 'false');
     });
 
-    it('is natively disabled by default', async () => {
-      await render(<Toggle disabled />);
+    it.each([
+      ['unset', {}],
+      ['false', { focusableWhenDisabled: false }],
+    ])('is natively disabled when %s', async (_, props) => {
+      await render(<Toggle disabled {...props} />);
+
+      const button = screen.getByRole('button');
+
+      expect(button).toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+    });
+
+    it.each([
+      ['unset', {}],
+      ['false', { focusableWhenDisabled: false }],
+    ])('is natively disabled in a group when %s', async (_, props) => {
+      await render(
+        <ToggleGroup>
+          <Toggle value="one" disabled {...props} />
+        </ToggleGroup>,
+      );
 
       expect(screen.getByRole('button')).toHaveAttribute('disabled');
     });
