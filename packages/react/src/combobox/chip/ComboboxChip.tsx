@@ -108,6 +108,11 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
             return;
           }
 
+          if (event.key === 'Tab') {
+            setHighlightedChipIndex(undefined);
+            return;
+          }
+
           const nextIndex = handleKeyDown(event);
 
           ReactDOM.flushSync(() => {

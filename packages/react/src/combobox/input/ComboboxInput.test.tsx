@@ -931,6 +931,81 @@ describe('<Combobox.Input />', () => {
       expect(handleValueChange.mock.calls[0][0]).toEqual(['apple', 'cherry']);
     });
 
+    it('removes the last chip after tabbing from a chip back to the input', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          multiple
+          open={false}
+          defaultValue={['apple', 'banana', 'cherry']}
+          onValueChange={handleValueChange}
+        >
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  {value.map((item) => (
+                    <Combobox.Chip key={item} data-testid={item}>
+                      {item}
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{ArrowLeft}');
+      expect(screen.getByTestId('cherry')).toHaveFocus();
+
+      await user.tab();
+      expect(input).toHaveFocus();
+
+      await user.keyboard('{Backspace}');
+
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['apple', 'banana']);
+    });
+
+    it('focuses the last chip with ArrowLeft after tabbing from a chip back to the input', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple open={false} defaultValue={['apple', 'banana', 'cherry']}>
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  {value.map((item) => (
+                    <Combobox.Chip key={item} data-testid={item}>
+                      {item}
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const lastChip = screen.getByTestId('cherry');
+
+      await user.click(input);
+      await user.keyboard('{ArrowLeft}');
+      expect(lastChip).toHaveFocus();
+
+      await user.tab();
+      expect(input).toHaveFocus();
+
+      await user.keyboard('{ArrowLeft}');
+      expect(lastChip).toHaveFocus();
+    });
+
     it('removes the last selected value when no chips are rendered', async () => {
       const handleValueChange = vi.fn();
       const { user } = await render(
