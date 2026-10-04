@@ -30,12 +30,16 @@ describe('<Combobox.Clear />', () => {
     expect(screen.getByTestId('clear')).not.toBe(null);
   });
 
-  it('does not render the default "x" glyph when `render` is a childless custom element', async () => {
-    // Regression test for https://github.com/mui/base-ui/issues/4752
+  it('removes the default "x" glyph when `children={null}` is passed alongside `render`', async () => {
+    // See https://github.com/mui/base-ui/issues/4752 — `render` alone does not clear the
+    // default glyph (that would change behavior for call sites using `render` only to swap
+    // the tag); pairing it with `children={null}` is the documented way to opt out.
     await render(
       <Combobox.Root defaultValue="a">
         <Combobox.Input />
-        <Combobox.Clear render={<button data-testid="custom-clear" className="my-clear" />} />
+        <Combobox.Clear render={<button data-testid="custom-clear" className="my-clear" />}>
+          {null}
+        </Combobox.Clear>
       </Combobox.Root>,
     );
 

@@ -78,6 +78,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const defaultProps: React.ComponentProps<'div'> = {
     'aria-hidden': true,
+    children: isUp ? '▲' : '▼',
     style: {
       position: 'absolute',
     },
@@ -137,7 +138,6 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     ref: [forwardedRef, scrollArrowRef],
     state,
     props: [defaultProps, elementProps],
-    defaultChildren: isUp ? '▲' : '▼',
     stateAttributesMapping: transitionStatusMapping,
   });
 
