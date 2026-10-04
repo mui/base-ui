@@ -3,7 +3,8 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { Dialog } from '@base-ui/react/dialog';
 import demoStyles from 'docs/src/app/(docs)/react/components/dialog/demos/hero/css-modules/index.module.css';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './dialog.module.css';
 
 interface Settings {

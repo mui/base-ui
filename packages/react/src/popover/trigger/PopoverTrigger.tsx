@@ -8,12 +8,12 @@ import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
-import { PopoverHandle } from '../store/PopoverHandle';
+import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
@@ -120,8 +120,10 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     },
   };
 
-  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
-    useTriggerFocusGuards(store, triggerElementRef);
+  const { handlePreFocusGuardFocus, handleFocusTargetFocus } = useTriggerFocusGuards(
+    store,
+    triggerElementRef,
+  );
 
   const state: PopoverTriggerState = {
     disabled,
@@ -153,10 +155,13 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   // regardless of whether the focus guards are rendered or not.
   const keyedElement = <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 
-  if (isMountedByThisTrigger && !focusManagerModal) {
+  if (isOpenedByThisTrigger && !focusManagerModal) {
     return (
       <React.Fragment>
-        <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
+        <FocusGuard
+          ref={store.context.beforeTriggerFocusGuardRef}
+          onFocus={handlePreFocusGuardFocus}
+        />
         {keyedElement}
         <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>

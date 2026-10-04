@@ -15,6 +15,7 @@ import { DemoAutocompleteHero } from './demos/hero';
 - **Avoid when selection state is needed**: Use [Combobox](/react/components/combobox) instead of Autocomplete if the selection should be remembered and the input value cannot be custom. Unlike Combobox, Autocomplete's input can contain free-form text, as its suggestions only _optionally_ autocomplete the text.
 - **Can be used for filterable command pickers**: The input can be used as a filter for command items that perform an action when clicked when rendered inside the popup.
 - **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Closing animations**: The popup stays rendered until its closing animation finishes. See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
 
 ## Anatomy
 
@@ -147,6 +148,16 @@ import { DemoAutocompleteCommandPalette } from './demos/command-palette';
 
 <DemoAutocompleteCommandPalette />
 
+### Custom keyboard shortcuts
+
+Use `actionsRef.highlightItem()` to navigate the open list with custom keyboard shortcuts. This example binds <kbd>Ctrl</kbd>+<kbd>N</kbd> to the next item and <kbd>Ctrl</kbd>+<kbd>P</kbd> to the previous item.
+
+import { DemoAutocompleteKeyboardShortcuts } from './demos/keyboard-shortcuts';
+
+<DemoAutocompleteKeyboardShortcuts />
+
+Navigation wraps between the first and last items unless `loopFocus` is disabled. Unlike arrow-key navigation, these shortcuts do not return the highlight to the input.
+
 ### Grid layout
 
 Display items in a grid layout, wrapping each row in `<Autocomplete.Row>` components.
@@ -162,6 +173,8 @@ Efficiently handle large datasets using a virtualization library like `@tanstack
 import { DemoAutocompleteVirtualized } from './demos/virtualized';
 
 <DemoAutocompleteVirtualized />
+
+When using `highlightItem()`, scroll your virtualizer to the index reported by `onItemHighlighted` for the `'imperative-action'` reason. The highlighted item may not be rendered yet.
 
 #### Memoizing items
 

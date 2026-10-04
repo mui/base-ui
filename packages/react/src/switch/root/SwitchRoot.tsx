@@ -14,6 +14,7 @@ import { stateAttributesMapping } from '../stateAttributesMapping';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -62,7 +63,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     setDirty,
     validityData,
     setFilled,
-    setFocused,
     validationMode,
     disabled: fieldDisabled,
     name: fieldName,
@@ -77,6 +77,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
+  const setFocused = useSetFieldFocused(disabled, switchRef);
 
   const id = useBaseUiId();
 
@@ -113,6 +114,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     inputRef,
     !nativeButton,
     hiddenInputId,
+    elementProps['aria-label'],
   );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
@@ -123,9 +125,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     'aria-required': required || undefined,
     'aria-labelledby': ariaLabelledBy,
     onFocus() {
-      if (!disabled) {
-        setFocused(true);
-      }
+      setFocused(true);
     },
     onBlur() {
       const element = inputRef.current;

@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/ecaf36c894f9e8bc68959b23bf33e45aefeb319c/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/4479f61e20e6fb3b1a6b8144827a66c46f01d3b8/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -23,6 +23,10 @@ default-job: &default-job
       description: The version of react to be used
       type: string
       default: << pipeline.parameters.react-version >>
+    package-overrides:
+      description: Space separated package@version overrides applied after install
+      type: string
+      default: ''
   resource_class: medium
   environment:
     &default-environment # expose it globally otherwise we have to thread it from each job to the install command
@@ -31,7 +35,7 @@ default-job: &default-job
   working_directory: /tmp/base-ui
   executor:
     name: code-infra/mui-node
-    node-version: '22.23.2'
+    node-version: '22.23.3'
 
 default-context: &default-context
   context:
@@ -54,6 +58,7 @@ jobs:
       - checkout
       - code-infra/install-deps:
           react-version: << parameters.react-version >>
+          package-overrides: << parameters.package-overrides >>
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom
@@ -91,6 +96,7 @@ jobs:
       - checkout
       - code-infra/install-deps:
           react-version: << parameters.react-version >>
+          package-overrides: << parameters.package-overrides >>
       - run:
           name: Tests TypeScript definitions
           command: pnpm typescript
@@ -131,11 +137,12 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps:
           react-version: << parameters.react-version >>
+          package-overrides: << parameters.package-overrides >>
       - run:
           name: Run tests on headless Chromium
           command: pnpm test:chromium
@@ -146,7 +153,7 @@ jobs:
     resource_class: medium+
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -160,7 +167,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -219,7 +226,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -236,7 +243,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -318,14 +325,20 @@ workflows:
           <<: *default-context
           name: 'JSDOM tests (React 18)'
           react-version: '^18'
+          # react-router 8 requires React >= 19.2.7
+          package-overrides: react-router@7
       - test_browser:
           <<: *default-context
           name: 'Browser tests (React 18)'
           react-version: '^18'
+          # react-router 8 requires React >= 19.2.7
+          package-overrides: react-router@7
       - test_types:
           <<: *default-context
           name: 'Typechecking (React 18)'
           react-version: '^18'
+          # react-router 8 requires React >= 19.2.7
+          package-overrides: react-router@7
   typescript-next:
     triggers:
       - schedule:

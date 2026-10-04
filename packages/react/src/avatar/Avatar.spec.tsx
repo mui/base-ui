@@ -1,5 +1,6 @@
 import { expectType } from '#test-utils';
-import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
+import { Avatar } from '@base-ui/react/avatar';
+import type { ImageLoadingStatus } from '@base-ui/react/avatar';
 
 // `Avatar.Image` accepts and forwards the native responsive/loading `<img>` props.
 <Avatar.Root

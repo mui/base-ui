@@ -11,42 +11,42 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                                                                                                          | Default  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| :------------------- | :------------------------------------------------------------------------------------------------------------ | :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name                 | `string`                                                                                                      | -        | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| defaultValue         | `string \| number \| string[]`                                                                                | -        | The uncontrolled input value of the autocomplete when it's initially rendered. To render a controlled autocomplete, use the `value` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| value                | `string \| string[] \| number`                                                                                | -        | The input value of the autocomplete. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| onValueChange        | `((value: string, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)`                               | -        | Event handler called when the input value of the autocomplete changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| defaultOpen          | `boolean`                                                                                                     | `false`  | Whether the popup is initially open. To render a controlled popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| open                 | `boolean`                                                                                                     | -        | Whether the popup is currently open. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| onOpenChange         | `((open: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)`                               | -        | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| autoHighlight        | `boolean \| 'always'`                                                                                         | `false`  | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| keepHighlight        | `boolean`                                                                                                     | `false`  | Whether the highlighted item should be preserved when the pointer leaves the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| highlightItemOnHover | `boolean`                                                                                                     | `true`   | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| actionsRef           | `React.RefObject<Autocomplete.Root.Actions \| null>`                                                          | -        | A ref to imperative actions. `unmount`: Manually unmounts the autocomplete.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| filter               | `((item: ItemValue, query: string, itemToString?: ((item: ItemValue) => string)) => boolean) \| null`         | -        | AutocompleteFilter function used to match items against the input query.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| filteredItems        | `any[] \| Group<any>[] \| ItemValue[] \| Group<ItemValue>[]`                                                  | -        | Filtered items to display in the list.&#xA;When provided, the list uses these items instead of filtering the `items` prop internally.&#xA;When `items` is also provided, this array must preserve its flat or grouped structure.&#xA;Nullish entries are not supported, as in `items`.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                                                                                                                                                                    |
-| form                 | `string`                                                                                                      | -        | Identifies the form that owns the internal input.&#xA;Useful when the autocomplete is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| grid                 | `boolean`                                                                                                     | `false`  | Whether list items are presented in a grid layout.&#xA;When enabled, arrow keys navigate across rows and columns inferred from DOM rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| inline               | `boolean`                                                                                                     | `false`  | Whether the list is rendered inline without using the component's own popup. Specify `open` unconditionally in conjunction with this prop so the list is considered&#xA;visible: `<Autocomplete.Root inline open>`                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| itemToStringValue    | `((itemValue: ItemValue) => string)`                                                                          | -        | When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                                                    |
-| items                | `({ items: any[] })[] \| ItemValue[]`                                                                         | -        | The items to be displayed in the list.&#xA;Can be either a flat array of items or an array of groups with items.&#xA;Nullish entries are not supported: remove them from the data before passing it.                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| limit                | `number`                                                                                                      | `-1`     | The maximum number of items to display in the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| locale               | `Intl.LocalesArgument`                                                                                        | -        | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| loopFocus            | `boolean`                                                                                                     | `true`   | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp.                                                              |
-| modal                | `boolean`                                                                                                     | `false`  | Determines if the popup enters a modal state when open. `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.                                                                                                                                                                                    |
-| mode                 | `'list' \| 'both' \| 'inline' \| 'none'`                                                                      | `'list'` | Controls how the autocomplete behaves with respect to list filtering and inline autocompletion. `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.`both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).`inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).`none`: items are static (not filtered), and the input value will not change based on the active item. |
-| onItemHighlighted    | `((highlightedValue: ItemValue \| undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void)` | -        | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering.`'none'`: the highlight changed programmatically.                                                                                                                                                                                              |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                                                   | -        | Event handler called after any animations complete when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| openOnInputClick     | `boolean`                                                                                                     | `false`  | Whether the popup opens when clicking the input.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| submitOnItemClick    | `boolean`                                                                                                     | `false`  | Whether clicking an item should submit the autocomplete's owning form.&#xA;By default, clicking an item via a pointer or Enter key does not submit the owning form.&#xA;Useful when the autocomplete is used as a single-field form search input.                                                                                                                                                                                                                                                                                                                                                                                  |
-| virtualized          | `boolean`                                                                                                     | `false`  | Whether the items are being externally virtualized.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| disabled             | `boolean`                                                                                                     | `false`  | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| readOnly             | `boolean`                                                                                                     | `false`  | Whether the user should be unable to choose a different option from the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| required             | `boolean`                                                                                                     | `false`  | Whether the user must choose a value before submitting a form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| inputRef             | `React.Ref<HTMLInputElement>`                                                                                 | -        | A ref to the hidden input element.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| id                   | `string`                                                                                                      | -        | The id of the component.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| children             | `React.ReactNode`                                                                                             | -        | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Prop                 | Type                                                                                                          | Default  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| :------------------- | :------------------------------------------------------------------------------------------------------------ | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                 | `string`                                                                                                      | -        | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| defaultValue         | `string \| number \| string[]`                                                                                | -        | The uncontrolled input value of the autocomplete when it's initially rendered. To render a controlled autocomplete, use the `value` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| value                | `string \| string[] \| number`                                                                                | -        | The input value of the autocomplete. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| onValueChange        | `((value: string, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)`                               | -        | Event handler called when the input value of the autocomplete changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| defaultOpen          | `boolean`                                                                                                     | `false`  | Whether the popup is initially open. To render a controlled popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| open                 | `boolean`                                                                                                     | -        | Whether the popup is currently open. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| onOpenChange         | `((open: boolean, eventDetails: Autocomplete.Root.OpenChangeEventDetails) => void)`                           | -        | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| autoHighlight        | `boolean \| 'always'`                                                                                         | `false`  | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| keepHighlight        | `boolean`                                                                                                     | `false`  | Whether the highlighted item should be preserved when the pointer leaves the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| highlightItemOnHover | `boolean`                                                                                                     | `true`   | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| actionsRef           | `React.RefObject<Autocomplete.Root.Actions \| null>`                                                          | -        | A ref to imperative actions. `unmount`: Ends the closing phase of the autocomplete after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the autocomplete completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the autocomplete imperatively when called.`highlightItem`: Moves or clears the highlight while the popup is open.&#xA;`'next'` and `'previous'` move sequentially through the items, including across rows in a&#xA;grid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the&#xA;highlight to the input. `'first'` and `'last'` highlight the first or last item.&#xA;`'none'` clears the highlight; with `autoHighlight="always"`, the highlight cannot be cleared.&#xA;Calling this action does not open the popup. To highlight an item after opening it, call&#xA;the action from `onOpenChangeComplete` when `open` is `true`.&#xA;Highlight changes requested through this action report the reason `'imperative-action'`&#xA;to `onItemHighlighted`. |
+| filter               | `((item: ItemValue, query: string, itemToString?: ((item: ItemValue) => string)) => boolean) \| null`         | -        | AutocompleteFilter function used to match items against the input query.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| filteredItems        | `any[] \| Group<any>[] \| ItemValue[] \| Group<ItemValue>[]`                                                  | -        | Filtered items to display in the list.&#xA;When provided, the list uses these items instead of filtering the `items` prop internally.&#xA;When `items` is also provided, this array must preserve its flat or grouped structure.&#xA;Nullish entries are not supported, as in `items`.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| form                 | `string`                                                                                                      | -        | Identifies the form that owns the internal input.&#xA;Useful when the autocomplete is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| grid                 | `boolean`                                                                                                     | `false`  | Whether list items are presented in a grid layout.&#xA;When enabled, arrow keys navigate across rows and columns inferred from DOM rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| inline               | `boolean`                                                                                                     | `false`  | Whether the list is rendered inline without using the component's own popup. Specify `open` unconditionally in conjunction with this prop so the list is considered&#xA;visible: `<Autocomplete.Root inline open>`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| itemToStringValue    | `((itemValue: ItemValue) => string)`                                                                          | -        | When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| items                | `({ items: any[] })[] \| ItemValue[]`                                                                         | -        | The items to be displayed in the list.&#xA;Can be either a flat array of items or an array of groups with items.&#xA;Nullish entries are not supported: remove them from the data before passing it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| limit                | `number`                                                                                                      | `-1`     | The maximum number of items to display in the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| locale               | `Intl.LocalesArgument`                                                                                        | -        | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| loopFocus            | `boolean`                                                                                                     | `true`   | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| modal                | `boolean`                                                                                                     | `false`  | Determines if the popup enters a modal state when open. `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| mode                 | `'list' \| 'both' \| 'inline' \| 'none'`                                                                      | `'list'` | Controls how the autocomplete behaves with respect to list filtering and inline autocompletion. `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.`both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).`inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).`none`: items are static (not filtered), and the input value will not change based on the active item.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| onItemHighlighted    | `((highlightedValue: ItemValue \| undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void)` | -        | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`&#xA;rather than a `PointerEvent`.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the&#xA;item list changing, or the popup opening or closing.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                                                   | -        | Event handler called after any animations complete when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| openOnInputClick     | `boolean`                                                                                                     | `false`  | Whether the popup opens when clicking the input.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| submitOnItemClick    | `boolean`                                                                                                     | `false`  | Whether clicking an item should submit the autocomplete's owning form.&#xA;By default, clicking an item via a pointer or Enter key does not submit the owning form.&#xA;Useful when the autocomplete is used as a single-field form search input.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| virtualized          | `boolean`                                                                                                     | `false`  | Whether the items are being externally virtualized.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| disabled             | `boolean`                                                                                                     | `false`  | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| readOnly             | `boolean`                                                                                                     | `false`  | Whether the user should be unable to choose a different option from the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| required             | `boolean`                                                                                                     | `false`  | Whether the user must choose a value before submitting a form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| inputRef             | `React.Ref<HTMLInputElement>`                                                                                 | -        | A ref to the hidden input element.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| id                   | `string`                                                                                                      | -        | The id of the component.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| children             | `React.ReactNode`                                                                                             | -        | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 ### Root.Props
 
@@ -61,7 +61,11 @@ type AutocompleteRootState = {};
 ### Root.Actions
 
 ```typescript
-type AutocompleteRootActions = { unmount: () => void };
+type AutocompleteRootActions = {
+  unmount: () => void;
+  close: () => void;
+  highlightItem: (target: Autocomplete.Root.HighlightItemTarget) => void;
+};
 ```
 
 ### Root.ChangeEventReason
@@ -81,6 +85,7 @@ type AutocompleteRootChangeEventReason =
   | 'clear-press'
   | 'chip-remove-press'
   | 'cancel-open'
+  | 'imperative-action'
   | 'none';
 ```
 
@@ -101,6 +106,7 @@ type AutocompleteRootChangeEventDetails = (
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -119,16 +125,58 @@ type AutocompleteRootChangeEventDetails = (
 ### Root.HighlightEventReason
 
 ```typescript
-type AutocompleteRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';
+type AutocompleteRootHighlightEventReason = 'keyboard' | 'pointer' | 'imperative-action' | 'none';
 ```
 
 ### Root.HighlightEventDetails
 
 ```typescript
 type AutocompleteRootHighlightEventDetails =
+  | { reason: 'imperative-action'; event: Event; index: number }
   | { reason: 'none'; event: Event; index: number }
   | { reason: 'keyboard'; event: KeyboardEvent; index: number }
-  | { reason: 'pointer'; event: PointerEvent; index: number };
+  | { reason: 'pointer'; event: MouseEvent | PointerEvent; index: number };
+```
+
+### Root.HighlightItemTarget
+
+```typescript
+type AutocompleteRootHighlightItemTarget = 'next' | 'previous' | 'first' | 'last' | 'none';
+```
+
+### Root.OpenChangeEventDetails
+
+```typescript
+type AutocompleteRootOpenChangeEventDetails = (
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'input-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
+  | { reason: 'input-change'; event: Event | InputEvent }
+  | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
+  | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
+};
 ```
 
 ### Trigger
@@ -684,23 +732,6 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Autocomplete.Group.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Group Data Attributes:**
-
-| Attribute       | Type                                                                               | Description                                                                        |
-| :-------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed    | -                                                                                  | Present when the input group is pressed.                                           |
-| data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
-| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
-| data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused    | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
-
 ### Group.Props
 
 Re-export of [Group](#group) props.
@@ -747,6 +778,12 @@ Renders a `<div>` element.
 | className   | `string \| ((state: Autocomplete.Separator.State) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style       | `React.CSSProperties \| ((state: Autocomplete.Separator.State) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render      | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Separator.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Separator Data Attributes:**
+
+| Attribute        | Type                         | Description                                 |
+| :--------------- | :--------------------------- | :------------------------------------------ |
+| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the separator. |
 
 ### Separator.Props
 
@@ -955,6 +992,67 @@ type ReturnValue = T[];
 
 ## Additional Types
 
+### AutocompleteArrowDataAttributes
+
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace AutocompleteArrowDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
+```
+
+### AutocompleteBackdropDataAttributes
+
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace AutocompleteBackdropDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### AutocompleteClearDataAttributes
+
+Data attributes of [Clear](#clear).
+
+```typescript
+declare namespace AutocompleteClearDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the clear button is visible. */
+  const visible: 'data-visible';
+  /** Present when the button begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the button is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
 ### AutocompleteFilter
 
 ```typescript
@@ -978,6 +1076,237 @@ type AutocompleteFilterOptions = {
    */
   locale?: Intl.LocalesArgument;
 };
+```
+
+### AutocompleteInputDataAttributes
+
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace AutocompleteInputDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the input is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the component is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the component is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the component is required. */
+  const required: 'data-required';
+  /** Present when the component is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the component is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the component has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the component's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the component has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the input is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the corresponding items list is empty. */
+  const listEmpty: 'data-list-empty';
+}
+```
+
+### AutocompleteInputGroupDataAttributes
+
+Data attributes of [InputGroup](#inputgroup).
+
+```typescript
+declare namespace AutocompleteInputGroupDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the input group is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the component is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the component is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the component is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the component is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the component has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the component's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the component has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the component is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the corresponding items list is empty. */
+  const listEmpty: 'data-list-empty';
+}
+```
+
+### AutocompleteItemDataAttributes
+
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace AutocompleteItemDataAttributes {
+  /** Present when the item is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the item is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### AutocompletePopupDataAttributes
+
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace AutocompletePopupDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /** Present when the items list is empty. */
+  const empty: 'data-empty';
+}
+```
+
+### AutocompletePositionerCssVariables
+
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace AutocompletePositionerCssVariables {
+  /**
+   * The available width between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableWidth: '--available-width';
+  /**
+   * The available height between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableHeight: '--available-height';
+  /**
+   * The anchor's width.
+   * @type number
+   */
+  const anchorWidth: '--anchor-width';
+  /**
+   * The anchor's height.
+   * @type number
+   */
+  const anchorHeight: '--anchor-height';
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
+  const transformOrigin: '--transform-origin';
+}
+```
+
+### AutocompletePositionerDataAttributes
+
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace AutocompletePositionerDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the items list is empty. */
+  const empty: 'data-empty';
+}
+```
+
+### AutocompleteSeparatorDataAttributes
+
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace AutocompleteSeparatorDataAttributes {
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
+### AutocompleteTriggerDataAttributes
+
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace AutocompleteTriggerDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the trigger is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the component is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the component is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the component is required. */
+  const required: 'data-required';
+  /** Present when the component is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the component is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the component has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the component's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the component has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the trigger is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the corresponding items list is empty. */
+  const listEmpty: 'data-list-empty';
+}
 ```
 
 ## External Types
@@ -1019,7 +1348,7 @@ type Orientation = 'horizontal' | 'vertical';
 
 ## Export Groups
 
-- `Autocomplete.Root`: `Autocomplete.Root`, `Autocomplete.Root.Props`, `Autocomplete.Root.State`, `Autocomplete.Root.Actions`, `Autocomplete.Root.ChangeEventReason`, `Autocomplete.Root.ChangeEventDetails`, `Autocomplete.Root.HighlightEventReason`, `Autocomplete.Root.HighlightEventDetails`
+- `Autocomplete.Root`: `Autocomplete.Root`, `Autocomplete.Root.Props`, `Autocomplete.Root.State`, `Autocomplete.Root.Actions`, `Autocomplete.Root.HighlightItemTarget`, `Autocomplete.Root.ChangeEventReason`, `Autocomplete.Root.ChangeEventDetails`, `Autocomplete.Root.OpenChangeEventDetails`, `Autocomplete.Root.HighlightEventReason`, `Autocomplete.Root.HighlightEventDetails`
 - `Autocomplete.Value`: `Autocomplete.Value`, `Autocomplete.Value.State`, `Autocomplete.Value.Props`
 - `Autocomplete.Trigger`: `Autocomplete.Trigger`, `Autocomplete.Trigger.State`, `Autocomplete.Trigger.Props`
 - `Autocomplete.Input`: `Autocomplete.Input`, `Autocomplete.Input.State`, `Autocomplete.Input.Props`
@@ -1042,7 +1371,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteSeparatorProps`, `AutocompleteSeparatorState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteTriggerDataAttributes`, `AutocompleteInputDataAttributes`, `AutocompleteInputGroupDataAttributes`, `AutocompleteClearDataAttributes`, `AutocompleteBackdropDataAttributes`, `AutocompletePositionerCssVariables`, `AutocompletePositionerDataAttributes`, `AutocompletePopupDataAttributes`, `AutocompleteArrowDataAttributes`, `AutocompleteItemDataAttributes`, `AutocompleteSeparatorDataAttributes`, `AutocompleteRootState`, `AutocompleteRootHighlightItemTarget`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootOpenChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
@@ -1051,8 +1380,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Autocomplete.Root.Props`: `AutocompleteRootProps`
 - `Autocomplete.Root.State`: `AutocompleteRootState`
 - `Autocomplete.Root.Actions`: `AutocompleteRootActions`
+- `Autocomplete.Root.HighlightItemTarget`: `AutocompleteRootHighlightItemTarget`
 - `Autocomplete.Root.ChangeEventReason`: `AutocompleteRootChangeEventReason`
 - `Autocomplete.Root.ChangeEventDetails`: `AutocompleteRootChangeEventDetails`
+- `Autocomplete.Root.OpenChangeEventDetails`: `AutocompleteRootOpenChangeEventDetails`
 - `Autocomplete.Root.HighlightEventReason`: `AutocompleteRootHighlightEventReason`
 - `Autocomplete.Root.HighlightEventDetails`: `AutocompleteRootHighlightEventDetails`
 - `Autocomplete.Value.State`: `AutocompleteValueState`

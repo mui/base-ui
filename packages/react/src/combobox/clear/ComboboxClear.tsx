@@ -5,12 +5,14 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
-import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxClearState> = {
@@ -104,7 +106,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             return;
           }
 
-          const type = store.context.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer;
+          const type = getHighlightReason(event);
 
           store.context.setInputValue(
             '',
@@ -118,9 +120,14 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             );
             // A distinct object shape: `Store.update` iterates own keys, so passing an explicit
             // `selectedIndex: undefined` would overwrite the state instead of leaving it alone.
-            store.context.setIndices({ activeIndex: null, selectedIndex: null, type });
+            store.context.setIndices({
+              activeIndex: null,
+              selectedIndex: null,
+              type,
+              event: event.nativeEvent,
+            });
           } else {
-            store.context.setIndices({ activeIndex: null, type });
+            store.context.setIndices({ activeIndex: null, type, event: event.nativeEvent });
           }
 
           store.context.inputRef.current?.focus();

@@ -110,6 +110,12 @@ If your content is flexible, you can use the `max-height` property on `.Popup` t
 
 Native scrollbars are visible while transitioning content, so we recommend using the [Scroll Area](/react/components/scroll-area) component instead of native scrollbars to keep them hidden, which also allows the `Arrow` to be centered correctly.
 
+## Closing animations
+
+The popup stays rendered until its closing animation finishes.
+See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
+For Navigation Menu, call `eventDetails.preventUnmountOnClose()` in `onValueChange` when the value becomes `null`, and use `actionsRef.current.close()` instead of setting `value` to `null` directly.
+
 ## API reference
 
 import { TypesNavigationMenu } from './types';

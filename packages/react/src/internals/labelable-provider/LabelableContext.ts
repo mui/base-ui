@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { NOOP } from '../noop';
-import { HTMLProps } from '../types';
+import type { HTMLProps } from '../types';
 
 export interface LabelableContext {
   /**

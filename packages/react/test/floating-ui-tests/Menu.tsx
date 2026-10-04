@@ -19,15 +19,15 @@ import {
   shift,
   useClick,
   useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
-  useHover,
   useListNavigation,
   useTypeahead,
   useFocus,
 } from '../../src/floating-ui-react';
+import { useFloating } from './useFloating';
+import { useHover } from './useHover';
 import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './Menu.module.css';
@@ -117,14 +117,14 @@ export const MenuComponent = React.forwardRef<
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
   });
-  const click = useClick(context, {
+  const click = useClick(context.rootStore, {
     event: 'mousedown',
     toggle: !isNested || !allowHover,
     ignoreMouse: isNested,
   });
-  const focus = useFocus(context, { enabled: openOnFocus });
-  const dismiss = useDismiss(context, { bubbles: true });
-  const listNavigation = useListNavigation(context, {
+  const focus = useFocus(context.rootStore, { enabled: openOnFocus });
+  const dismiss = useDismiss(context.rootStore, { bubbles: true });
+  const listNavigation = useListNavigation(context.rootStore, {
     listRef: elementsRef,
     activeIndex,
     nested: isNested,
@@ -132,7 +132,7 @@ export const MenuComponent = React.forwardRef<
     orientation,
     grid: grid ? gridNavigation : undefined,
   });
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef: labelsRef,
     onMatch: isOpen ? setActiveIndex : undefined,
     activeIndex,
@@ -266,7 +266,7 @@ export const MenuComponent = React.forwardRef<
           {(keepMounted || isOpen) && (
             <FloatingPortal>
               <FloatingFocusManager
-                context={context}
+                context={context.rootStore}
                 modal={false}
                 initialFocus={!isNested}
                 returnFocus={!isNested}

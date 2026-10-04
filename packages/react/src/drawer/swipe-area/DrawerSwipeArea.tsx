@@ -10,12 +10,14 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { NOOP } from '../../internals/noop';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getDisplacement, useSwipeDismiss, type SwipeDirection } from '../../utils/useSwipeDismiss';
+import { getDisplacement, useSwipeDismiss } from '../../utils/useSwipeDismiss';
+import type { SwipeDirection } from '../../utils/useSwipeDismiss';
 import { getElementTransform } from '../../utils/getElementTransform';
 import * as DrawerPopupCssVars from '../popup/DrawerPopupCssVars';
 import * as DrawerPopupDataAttributes from '../popup/DrawerPopupDataAttributes';
 import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
-import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
+import { useDrawerRootContext } from '../root/DrawerRootContext';
+import type { DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';

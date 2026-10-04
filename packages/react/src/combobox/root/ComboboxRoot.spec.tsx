@@ -1,9 +1,6 @@
 import * as React from 'react';
-import {
-  Combobox,
-  type ComboboxItemCollection,
-  type CreateComboboxItemsOptions,
-} from '@base-ui/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
+import type { ComboboxItemCollection, CreateComboboxItemsOptions } from '@base-ui/react/combobox';
 import { expectType } from '#test-utils';
 import { mergeProps } from '../../merge-props';
 import { REASONS } from '../../internals/reasons';
@@ -289,6 +286,28 @@ function App3() {
         setValue(newValue);
       }}
     />
+  );
+}
+
+function ReadonlyMultipleValues() {
+  const [value, setValue] = React.useState<string[]>([]);
+  const readonlyValue: readonly string[] = value;
+  const tupleValue = ['javascript', 'typescript'] as const;
+
+  return (
+    <React.Fragment>
+      <Combobox.Root multiple value={readonlyValue} onValueChange={setValue} />
+      <Combobox.Root multiple defaultValue={readonlyValue} onValueChange={setValue} />
+      <Combobox.Root
+        multiple
+        value={tupleValue}
+        onValueChange={(newValue) => {
+          expectType<('javascript' | 'typescript')[], typeof newValue>(newValue);
+          newValue.pop();
+        }}
+      />
+      <Combobox.Root multiple defaultValue={tupleValue} onValueChange={setValue} />
+    </React.Fragment>
   );
 }
 
@@ -588,3 +607,21 @@ function FilterArgumentApp() {
     </React.Fragment>
   );
 }
+
+<Combobox.Root
+  onItemHighlighted={(_item, details) => {
+    if (details.reason === 'pointer') {
+      expectType<MouseEvent | PointerEvent, typeof details.event>(details.event);
+      // @ts-expect-error Hover can report a MouseEvent without pointer-specific methods.
+      details.event.getCoalescedEvents();
+      if (details.event instanceof PointerEvent) {
+        expectType<PointerEvent, typeof details.event>(details.event);
+        details.event.getCoalescedEvents();
+      }
+    } else if (details.reason === 'keyboard') {
+      expectType<KeyboardEvent, typeof details.event>(details.event);
+    } else {
+      expectType<Event, typeof details.event>(details.event);
+    }
+  }}
+/>;
