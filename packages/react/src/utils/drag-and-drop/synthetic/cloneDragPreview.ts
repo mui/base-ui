@@ -16,6 +16,7 @@ import {
   getDragEventRoot,
   getElementScale,
   getElementZoom,
+  getOrCreate,
   getOwnZoom,
 } from '../utils';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
@@ -130,12 +131,11 @@ function ensureNeutralizerStyles(host: PreviewHost): void {
   if (!('adoptedStyleSheets' in target)) {
     return;
   }
-  let sheet = neutralizerSheets.get(target);
-  if (!sheet) {
-    sheet = new (ownerWindow(host).CSSStyleSheet)();
-    sheet.replaceSync(NEUTRALIZER_CSS);
-    neutralizerSheets.set(target, sheet);
-  }
+  const sheet = getOrCreate(neutralizerSheets, target, () => {
+    const created = new (ownerWindow(host).CSSStyleSheet)();
+    created.replaceSync(NEUTRALIZER_CSS);
+    return created;
+  });
   // Re-adopt on every call instead of tracking which roots already have it. An app
   // that assigns a new `adoptedStyleSheets` array (on a theme switch, say) drops
   // the sheet, and the next preview would carry the source's transitions again.
@@ -149,8 +149,6 @@ export interface DragPreviewElementHandle {
   readonly isClone: boolean;
   /** Where the preview was built, reused when it is rebuilt mid-drag. */
   readonly anchor: PreviewAnchor;
-  /** The source's border box at drag start, measured once. */
-  readonly sourceRect: DOMRect;
   /** Move the preview's top-left corner to these viewport coordinates. */
   setPosition(x: number, y: number): void;
   /**
@@ -161,17 +159,11 @@ export interface DragPreviewElementHandle {
    */
   ensureConnected(): void;
   /**
-   * Reset content transition state and let the updater write the root's own style,
-   * then the engine's attributes and declarations. `applyAttributes` must run after
-   * the root's own style, since it also reads what the engine's declarations replace.
-   * Refresh geometry and motion after the write, using the new cascade.
+   * Replace the root's own inline style with `ownStyle`, then put the engine's
+   * attributes and declarations back on top. Refresh geometry and motion after the
+   * write, using the new cascade.
    */
-  updateContentStyle(
-    write: (
-      styles: Map<string, [value: string, priority: string]>,
-      applyAttributes: () => void,
-    ) => void,
-  ): void;
+  updateContentStyle(ownStyle: string): void;
   destroy(): void;
   /** Restore motion rules before the ending-style transition is measured. */
   prepareForDrop(): void;
@@ -1594,13 +1586,12 @@ export function createDragPreviewElement(
     element,
     isClone,
     anchor,
-    sourceRect,
     setPosition(x, y) {
       position = { x, y };
       writePosition();
     },
     ensureConnected: reconnect,
-    updateContentStyle(write) {
+    updateContentStyle(ownStyle) {
       if (destroyed) {
         return;
       }
@@ -1611,10 +1602,14 @@ export function createDragPreviewElement(
       dragTransition = null;
       engineStyles.delete('transition-duration');
       engineStyles.delete('transition-delay');
-      write(engineStyles, () => {
-        captureOwnOffsetStyle();
-        applyEngineAttributes();
-      });
+      element.style.cssText = ownStyle;
+      // After the root's own style, since it also reads what the engine's
+      // declarations replace.
+      captureOwnOffsetStyle();
+      applyEngineAttributes();
+      for (const [name, [value, priority]] of engineStyles) {
+        element.style.setProperty(name, value, priority);
+      }
       updatePositionScale();
       refreshPopoverCorrections(false);
       neutralizeTranslateTransition();

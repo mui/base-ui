@@ -1,3 +1,4 @@
+import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { contains } from '@base-ui/utils/shadowDom';
@@ -30,6 +31,37 @@ export function onceCleanup(cleanup: () => void): () => void {
     done = true;
     cleanup();
   };
+}
+
+/** The value `map` holds for `key`, created with `create` and stored on first access. */
+export function getOrCreate<K, V>(
+  map: { get(key: K): V | undefined; set(key: K, value: V): unknown },
+  key: K,
+  create: (key: K) => V,
+): V {
+  let value = map.get(key);
+  if (value === undefined) {
+    value = create(key);
+    map.set(key, value);
+  }
+  return value;
+}
+
+/**
+ * A shallow copy of `value`, stored in `cache` under `key` and replaced only when a
+ * field changes. A getter that mutates and returns one object can't change the copy.
+ */
+export function getShallowSnapshot<K extends object, V extends object>(
+  cache: WeakMap<K, V>,
+  key: K,
+  value: V,
+): V {
+  let snapshot = cache.get(key);
+  if (snapshot === undefined || !fastObjectShallowCompare(value, snapshot)) {
+    snapshot = { ...value };
+    cache.set(key, snapshot);
+  }
+  return snapshot;
 }
 
 /**

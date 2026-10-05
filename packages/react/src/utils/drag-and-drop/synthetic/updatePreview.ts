@@ -45,14 +45,7 @@ export function updatePreview(): void {
         updatePreviewContent(content, {
           onRoot: handle.showContent,
           onRootChange(ownStyle) {
-            const preview = handle.getPreviewElement();
-            preview?.updateContentStyle((styles, applyAttributes) => {
-              preview.element.style.cssText = ownStyle;
-              applyAttributes();
-              for (const [name, [value, priority]] of styles) {
-                preview.element.style.setProperty(name, value, priority);
-              }
-            });
+            handle.getPreviewElement()?.updateContentStyle(ownStyle);
           },
         });
       };

@@ -125,11 +125,11 @@ describe('documentBinding', () => {
         },
       },
     });
-    binding.bind(outer);
-    binding.bind(inner);
+    const unbindOuter = binding.bind(outer);
+    const unbindInner = binding.bind(inner);
     registerCleanup(() => {
-      binding.unbind(inner);
-      binding.unbind(outer);
+      unbindInner();
+      unbindOuter();
     });
 
     target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
@@ -202,8 +202,7 @@ describe('documentBinding', () => {
       slot: 'documentBinding.test.composedPath',
       listeners: { pointerdown: () => {} },
     });
-    binding.bind(doc);
-    registerCleanup(() => binding.unbind(doc));
+    registerCleanup(binding.bind(doc));
     const pointerListeners = addSpy.mock.calls
       .filter(([type]) => type === 'pointerdown')
       .map(([, listener]) => listener as EventListener);
@@ -218,8 +217,7 @@ describe('documentBinding', () => {
 
     const host = createIframeElement(doc);
     const shadow = host.attachShadow({ mode: 'closed' });
-    binding.bind(shadow);
-    registerCleanup(() => binding.unbind(shadow));
+    registerCleanup(binding.bind(shadow));
 
     composedPath.mockReturnValue([host]);
     pointerListeners.forEach((listener) => listener(event));

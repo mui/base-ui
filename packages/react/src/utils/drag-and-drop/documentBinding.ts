@@ -3,6 +3,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from './sharedState';
 import type { DragCleanupFn } from './types';
+import { onceCleanup } from './utils';
 
 export type DragEventRoot = Document | ShadowRoot;
 
@@ -12,8 +13,8 @@ interface DocumentBindingEntry {
 }
 
 interface DocumentBinding {
-  bind(root: DragEventRoot): void;
-  unbind(root: DragEventRoot): void;
+  /** Bind `root`, and return the function that releases this binding. */
+  bind(root: DragEventRoot): DragCleanupFn;
 }
 
 interface CreateEventRootBindingOptions {
@@ -95,25 +96,27 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     };
   };
 
+  function unbind(root: DragEventRoot): void {
+    const entry = bindings.get(root);
+    if (!entry) {
+      return;
+    }
+    entry.count -= 1;
+    if (entry.count === 0) {
+      bindings.delete(root);
+      entry.cleanup();
+    }
+  }
+
   return {
-    bind(root: DragEventRoot): void {
+    bind(root: DragEventRoot): DragCleanupFn {
       const existing = bindings.get(root);
       if (existing) {
         existing.count += 1;
-        return;
+      } else {
+        bindings.set(root, { count: 1, cleanup: install(root) });
       }
-      bindings.set(root, { count: 1, cleanup: install(root) });
-    },
-    unbind(root: DragEventRoot): void {
-      const entry = bindings.get(root);
-      if (!entry) {
-        return;
-      }
-      entry.count -= 1;
-      if (entry.count === 0) {
-        bindings.delete(root);
-        entry.cleanup();
-      }
+      return onceCleanup(() => unbind(root));
     },
   };
 }

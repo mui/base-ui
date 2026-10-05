@@ -8,6 +8,7 @@ import {
   isCopiedNode,
 } from './previewContent';
 import type { PreviewContent, PreviewContentCopy } from './previewContent';
+import { getOrCreate } from '../utils';
 
 export interface PreviewContentUpdateCallbacks {
   /**
@@ -146,11 +147,9 @@ function syncAttributes(
   isRoot: boolean,
 ) {
   const doc = ownerDocument(target);
-  let inertDocument = inertDocuments.get(doc);
-  if (!inertDocument) {
-    inertDocument = doc.implementation.createHTMLDocument('');
-    inertDocuments.set(doc, inertDocument);
-  }
+  const inertDocument = getOrCreate(inertDocuments, doc, () =>
+    doc.implementation.createHTMLDocument(''),
+  );
   const scratch = inertDocument.importNode(source, false);
   copy.sanitizer.neutralize(scratch);
   copy.sanitizer.rewriteId(scratch);

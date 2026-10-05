@@ -129,8 +129,7 @@ export default function ActivationLab() {
 
   function selectMode(nextModeId: string) {
     setModeId(nextModeId);
-    setPhase('ready');
-    setDropped(false);
+    reset();
   }
 
   function reset() {

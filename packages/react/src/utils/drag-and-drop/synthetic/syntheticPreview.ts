@@ -32,6 +32,22 @@ export interface SyntheticPreviewSourceIdentity {
   payload: unknown;
 }
 
+/**
+ * The identity of a draggable's source, from its parameters. Registration and pickup
+ * build it the same way, so a remounted source finds the preview it left behind.
+ */
+export function getPreviewSourceIdentity(parameters: {
+  kind: { id: symbol };
+  previewKey?: string | number | undefined;
+  payload?: unknown;
+}): SyntheticPreviewSourceIdentity {
+  return {
+    kind: parameters.kind.id,
+    previewKey: parameters.previewKey,
+    payload: parameters.payload,
+  };
+}
+
 /** A released preview still running its drop transition onto `source`. */
 interface EndingPreview {
   identity: SyntheticPreviewSourceIdentity;
@@ -202,7 +218,7 @@ export function createSyntheticPreview(
           initialPoint: initialProposed,
           input: { x: lastX, y: lastY },
           sourceElement: sourceElement as HTMLElement,
-          sourceRect: currentPreview.sourceRect,
+          sourceRect: currentPreview.anchor.sourceRect,
           // These modifiers move the preview, so a step in its own units uses the
           // preview's scale, not the source's.
           scale: previewScale ?? DEFAULT_SCALE,

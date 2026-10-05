@@ -216,10 +216,10 @@ describe('createDragPreviewElement (clone)', () => {
       // box, in both size and origin. Pairing the untransformed size with the
       // transformed box's top-left would snap the preview up and left by 4% of the
       // card on pickup.
-      expect(handle.sourceRect.width).toBe(100);
-      expect(handle.sourceRect.height).toBe(50);
-      expect(handle.sourceRect.x).toBe(100);
-      expect(handle.sourceRect.y).toBe(100);
+      expect(handle.anchor.sourceRect.width).toBe(100);
+      expect(handle.anchor.sourceRect.height).toBe(50);
+      expect(handle.anchor.sourceRect.x).toBe(100);
+      expect(handle.anchor.sourceRect.y).toBe(100);
     });
 
     it('uses the measured rect verbatim when nothing transforms the source', () => {
@@ -230,10 +230,10 @@ describe('createDragPreviewElement (clone)', () => {
 
       // Not `offsetWidth`, which rounds to an integer. An untransformed source's
       // rect is exact, and the preview keeps its subpixel size.
-      expect(handle.sourceRect.x).toBe(10);
-      expect(handle.sourceRect.y).toBe(20);
-      expect(handle.sourceRect.width).toBe(100.5);
-      expect(handle.sourceRect.height).toBe(50.25);
+      expect(handle.anchor.sourceRect.x).toBe(10);
+      expect(handle.anchor.sourceRect.y).toBe(20);
+      expect(handle.anchor.sourceRect.width).toBe(100.5);
+      expect(handle.anchor.sourceRect.height).toBe(50.25);
     });
 
     it.each([
@@ -255,10 +255,10 @@ describe('createDragPreviewElement (clone)', () => {
       // describes the preview's box, origin included. The rect contains the
       // offset, the engine's positioning overwrites the clone's `translate`, and
       // its `transform` is neutralized.
-      expect(handle.sourceRect.x).toBe(20);
-      expect(handle.sourceRect.y).toBe(25);
-      expect(handle.sourceRect.width).toBe(100.5);
-      expect(handle.sourceRect.height).toBe(50.25);
+      expect(handle.anchor.sourceRect.x).toBe(20);
+      expect(handle.anchor.sourceRect.y).toBe(25);
+      expect(handle.anchor.sourceRect.width).toBe(100.5);
+      expect(handle.anchor.sourceRect.height).toBe(50.25);
     });
   });
 

@@ -15,7 +15,11 @@ import { clearActivePreviewHandle, setActivePreviewHandle } from '../activePrevi
 import { attachDragPreview, resolveDragPreview } from '../synthetic/pickupPreview';
 import { compileDragModifiers } from '../dragModifiers';
 import * as dragRootLock from '../synthetic/dragRootLock';
-import { createSyntheticPreview, finishEndingPreview } from '../synthetic/syntheticPreview';
+import {
+  createSyntheticPreview,
+  finishEndingPreview,
+  getPreviewSourceIdentity,
+} from '../synthetic/syntheticPreview';
 import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
@@ -137,11 +141,7 @@ export function createPreviewAndStartSession(
     }
     preview = createSyntheticPreview(
       element,
-      {
-        kind: draggableParameters.kind.id,
-        previewKey: draggableParameters.previewKey,
-        payload: draggableParameters.payload,
-      },
+      getPreviewSourceIdentity(draggableParameters),
       compileDragModifiers(previewSettings.modifiers),
     );
     attachDragPreview(preview, element, previewSettings, initialInput, pressInput);

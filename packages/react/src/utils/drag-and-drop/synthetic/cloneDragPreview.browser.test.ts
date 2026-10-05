@@ -606,8 +606,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     const handle = clonePreview(source, null)!;
     try {
       // `offsetWidth`/`offsetHeight` would round these to 121 and 30.
-      expect(handle.sourceRect.width).toBeCloseTo(120.5, 2);
-      expect(handle.sourceRect.height).toBeCloseTo(30.25, 2);
+      expect(handle.anchor.sourceRect.width).toBeCloseTo(120.5, 2);
+      expect(handle.anchor.sourceRect.height).toBeCloseTo(30.25, 2);
     } finally {
       handle.destroy();
     }
@@ -858,10 +858,10 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
     const handle = clonePreview(source, null)!;
 
-    expect(handle.sourceRect.left).toBeCloseTo(baseline.left);
-    expect(handle.sourceRect.top).toBeCloseTo(baseline.top);
-    expect(handle.sourceRect.width).toBe(120);
-    expect(handle.sourceRect.height).toBe(30);
+    expect(handle.anchor.sourceRect.left).toBeCloseTo(baseline.left);
+    expect(handle.anchor.sourceRect.top).toBeCloseTo(baseline.top);
+    expect(handle.anchor.sourceRect.width).toBe(120);
+    expect(handle.anchor.sourceRect.height).toBe(30);
 
     handle.destroy();
   });
@@ -873,10 +873,10 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
     const handle = clonePreview(source, null)!;
 
-    expect(handle.sourceRect.left).toBeCloseTo(baseline.left);
-    expect(handle.sourceRect.top).toBeCloseTo(baseline.top);
-    expect(handle.sourceRect.width).toBe(120);
-    expect(handle.sourceRect.height).toBe(30);
+    expect(handle.anchor.sourceRect.left).toBeCloseTo(baseline.left);
+    expect(handle.anchor.sourceRect.top).toBeCloseTo(baseline.top);
+    expect(handle.anchor.sourceRect.width).toBe(120);
+    expect(handle.anchor.sourceRect.height).toBe(30);
 
     handle.destroy();
   });

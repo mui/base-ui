@@ -116,12 +116,9 @@ const eventRootBinding = createEventRootBinding({
   listeners: { pointerdown: onPointerDown, dblclick: onDoubleClick },
 });
 
-export function bindPointerListeners(root: DragEventRoot): void {
-  eventRootBinding.bind(root);
-}
-
-export function unbindPointerListeners(root: DragEventRoot): void {
-  eventRootBinding.unbind(root);
+/** Bind the gesture listeners at `root`, and return the function that releases them. */
+export function bindPointerListeners(root: DragEventRoot): DragCleanupFn {
+  return eventRootBinding.bind(root);
 }
 
 /**

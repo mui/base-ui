@@ -115,7 +115,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
       }
     }, [enclosingCollisionContext, kind, collision]);
   }
-  const { ref, dragging, settling, setHandleElement, previewHandle } = useDraggableElement<
+  const { ref, dragging, settling, registerHandle, previewHandle } = useDraggableElement<
     TPayload,
     TDragData
   >(
@@ -139,14 +139,14 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
 
   const contextValue = React.useMemo(
     () => ({
-      setHandleElement,
+      registerHandle,
       previewHandle,
       // The engine publishes preview content through the provider seen from here.
       // `Draggable.Preview` compares its own nearest provider against it.
       previewContext: draggableContext,
       disabled: disabled ?? false,
     }),
-    [setHandleElement, previewHandle, draggableContext, disabled],
+    [registerHandle, previewHandle, draggableContext, disabled],
   );
 
   const element = useRenderElement('div', componentProps, {

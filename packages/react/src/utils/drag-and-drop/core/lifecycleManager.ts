@@ -232,6 +232,17 @@ export function start(parameters: StartParameters): DragSessionController | null
     return cloneLocationHistory(location);
   }
 
+  /** Event details for a dispatch driven by the latest input. */
+  function createMoveDetails(target: DraggableTargetRecord | null) {
+    return createDragEventDetails(
+      lastInputReason,
+      lastInputEvent,
+      snapshotLocation(),
+      source,
+      target,
+    );
+  }
+
   /**
    * Builds the location for the terminal `onDraggableLeave` that still-hovered
    * targets receive when the drag ends. It is a copy whose `current.targets` is
@@ -438,8 +449,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     publishedRejectedTarget = rejectedTarget;
     setDragSession({
       source,
-      location: cloneLocationHistory(location),
-      dropTargetElements: new Set(location.current.targets.map((target) => target.element)),
+      location: snapshotLocation(),
       rejectedTarget,
     });
   }
@@ -494,6 +504,21 @@ export function start(parameters: StartParameters): DragSessionController | null
     throw error;
   }
 
+  /**
+   * Runs a consumer dispatch round with `dispatching` set, so a refresh it triggers
+   * is queued (see `dispatching`). A throw ends the drag (see `recover`).
+   */
+  function runDispatch<T>(dispatch: () => T): T {
+    dispatching = true;
+    try {
+      return dispatch();
+    } catch (error) {
+      return recover(error);
+    } finally {
+      dispatching = false;
+    }
+  }
+
   // Delivers `onMoveStart` before any `onDraggableEnter` or `onDraggableDrop`. A
   // collection that hasn't seen `onMoveStart` has an empty dragged-item set and
   // would ignore the drop.
@@ -505,8 +530,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       source,
       location.current.targets[0] ?? null,
     );
-    dispatching = true;
-    try {
+    runDispatch(() => {
       getSourceHandlers().onMoveStart?.(startDetails);
       // A source `onMoveStart` can cancel the drag synchronously through
       // `cancelDrag()`. The cancel already delivered the terminal events, so
@@ -516,7 +540,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       }
       dispatchToAllDropTargets(location.current.targets, 'onDraggableStart', startDetails, isLive);
       dispatchToMonitors('onMoveStart', startDetails);
-      // The stack under the pickup point is published in `dropTargetElements` and
+      // The stack under the pickup point is published in the session and
       // gets a terminal `onDraggableLeave` from `doDrop` or `doCancel`, so it
       // needs an enter too. `dispatchDropTargetChange`, the only other source of
       // `onDraggableEnter`, never runs for this first stack because there is no
@@ -534,11 +558,7 @@ export function start(parameters: StartParameters): DragSessionController | null
         hoveredDropTargets.push(record);
         dispatchToDropTarget(record, 'onDraggableEnter', startDetails);
       }
-    } catch (error) {
-      recover(error);
-    } finally {
-      dispatching = false;
-    }
+    });
     if (tornDown) {
       return;
     }
@@ -550,18 +570,9 @@ export function start(parameters: StartParameters): DragSessionController | null
   function dispatchDrag(): void {
     // `previous` is the location at the last delivered event (see `lastDispatched`).
     location.previous = lastDispatched;
-    const locationSnapshot = snapshotLocation();
-    const { targets } = locationSnapshot.current;
-    const dragDetails = createDragEventDetails(
-      lastInputReason,
-      lastInputEvent,
-      locationSnapshot,
-      source,
-      targets[0] ?? null,
-    );
-    dispatching = true;
-    // Recover on throw (see `dispatchDragStart`).
-    try {
+    const dragDetails = createMoveDetails(location.current.targets[0] ?? null);
+    const { targets } = dragDetails.location.current;
+    runDispatch(() => {
       captureDropTargetCollision(targets[0], source);
       getSourceHandlers().onMove?.(dragDetails);
       // A source `onMove` can cancel synchronously. If it did, deliver nothing more.
@@ -570,10 +581,9 @@ export function start(parameters: StartParameters): DragSessionController | null
       }
       dispatchToAllDropTargets(targets, 'onDraggableMove', dragDetails, isLive);
       dispatchToMonitors('onMove', dragDetails);
-    } catch (error) {
-      recover(error);
-    } finally {
-      dispatching = false;
+    });
+    if (tornDown) {
+      return;
     }
     lastDispatched = location.current;
     drainPendingRefresh();
@@ -671,18 +681,10 @@ export function start(parameters: StartParameters): DragSessionController | null
   ): void {
     lastTarget = rawTarget;
 
-    let newDropTargets: DraggableTargetRecord[];
-    dispatching = true;
     // Resolution contains each target's callbacks, so a throw here is an engine
     // bug. Recover like a dispatch does, or the session would stay active and
     // refuse every later pickup.
-    try {
-      newDropTargets = resolveStack(rawTarget, input);
-    } catch (error) {
-      recover(error);
-    } finally {
-      dispatching = false;
-    }
+    const newDropTargets = runDispatch(() => resolveStack(rawTarget, input));
     // A consumer `canDrop` can cancel the drag synchronously. Teardown already
     // delivered the terminal events and cleared the session, so don't update or
     // publish location state for the ended drag.
@@ -703,16 +705,8 @@ export function start(parameters: StartParameters): DragSessionController | null
       // `previous` moves only when an event is delivered, not on every raw
       // sample (see `lastDispatched`).
       location.previous = lastDispatched;
-      const moveDetails = createDragEventDetails(
-        lastInputReason,
-        lastInputEvent,
-        snapshotLocation(),
-        source,
-        newDropTargets[0] ?? null,
-      );
-      dispatching = true;
-      // Recover on throw (see `dispatchDragStart`).
-      try {
+      const moveDetails = createMoveDetails(newDropTargets[0] ?? null);
+      runDispatch(() => {
         if (!dispatchChangeRound(previousDropTargets, newDropTargets, moveDetails)) {
           return;
         }
@@ -723,20 +717,10 @@ export function start(parameters: StartParameters): DragSessionController | null
         // same targets in this frame. Consumer handlers, and any rect reads in
         // them, would otherwise run twice on every entry frame.
         if (!dragDispatchFollows && newDropTargets.length > 0) {
-          const entryDetails = createDragEventDetails(
-            lastInputReason,
-            lastInputEvent,
-            snapshotLocation(),
-            source,
-            newDropTargets[0],
-          );
+          const entryDetails = createMoveDetails(newDropTargets[0]);
           dispatchToAllDropTargets(newDropTargets, 'onDraggableMove', entryDetails, isLive);
         }
-      } catch (error) {
-        recover(error);
-      } finally {
-        dispatching = false;
-      }
+      });
 
       // Publish only when the stack changed, or selectors would re-run every
       // frame. A re-entrant `cancelDrag()` from a dispatch above can tear the
@@ -808,7 +792,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     // with the session.
     dispatching = true;
 
-    // Recover on throw (see `dispatchDragStart`). The final resolution is inside
+    // Recover on throw (see `recover`). The final resolution is inside
     // too, so a throw from it still ends the drag.
     try {
       const freshDropTargets = getDropTargetsOver(rawTarget, { input, source });
@@ -958,7 +942,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     location.previous = lastDispatched;
     location.current = { input: input ?? location.current.input, targets: [] };
 
-    // Recover on throw (see `dispatchDragStart`).
+    // Recover on throw (see `recover`).
     try {
       if (departedDropTargets.length > 0) {
         const changeDetails = createDragEventDetails<DragEndReason>(

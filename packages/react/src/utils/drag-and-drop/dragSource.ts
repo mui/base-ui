@@ -2,7 +2,7 @@ import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import { getSharedSlot } from './sharedState';
 import { getRegistration } from './draggableRegistry';
 import { dragSessionStore, notifyDragSourceUpdated } from './dragSessionStore';
-import { getParticipantPayload } from './participantData';
+import { syncParticipantPayload } from './participantData';
 import type { ParticipantPayload } from './participantData';
 
 const sourcePayloads = getSharedSlot(
@@ -25,8 +25,7 @@ export function createDragSource(
   dragHandle: Element | null,
 ): DraggableRootRecord {
   const registration = getRegistration(element);
-  const data = getParticipantPayload(registration ?? {}, kind, initialPayload);
-  data.sync(initialPayload);
+  const { data } = syncParticipantPayload(registration ?? {}, kind, initialPayload);
   let dragData: unknown;
 
   const source: DraggableRootRecord = {
@@ -100,7 +99,7 @@ export function syncActiveDragSourcePayload(
   } else {
     const registration = getRegistration(element);
     if (registration) {
-      getParticipantPayload(registration, kind, payload).sync(payload);
+      syncParticipantPayload(registration, kind, payload);
     }
   }
 }

@@ -1,4 +1,3 @@
-import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { matchesAccept } from './dragKind';
 import type { DraggableAccept } from '../../draggable/DraggableProvider';
 import type {
@@ -10,7 +9,7 @@ import type {
 } from '../../draggable/root/DraggableRoot';
 import type { DraggableEventDetailsMap } from './types';
 import { getSharedSlot } from './sharedState';
-import { containConsumerError } from './utils';
+import { containConsumerError, getShallowSnapshot } from './utils';
 
 /** Returns a monitor's latest parameters. Read on each dispatch. */
 type MonitorGetter = () => MonitorParameters<any, any>;
@@ -37,13 +36,6 @@ const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
   activeSource: null,
   matchedMonitors: new WeakMap<MonitorGetter, MonitorParameters>(),
 }));
-
-function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: MonitorParameters) {
-  const matched = state.matchedMonitors.get(getMonitor);
-  if (matched === undefined || !fastObjectShallowCompare(parameters, matched)) {
-    state.matchedMonitors.set(getMonitor, { ...parameters });
-  }
-}
 
 /**
  * Engages a monitor in the active drag when its `accept` matches the source. Runs
@@ -78,7 +70,7 @@ function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
     matchesAccept(monitor.accept, activeSource)
   ) {
     state.activeMonitors.add(getMonitor);
-    rememberMatchedMonitor(getMonitor, monitor);
+    getShallowSnapshot(state.matchedMonitors, getMonitor, monitor);
   }
 }
 
@@ -125,7 +117,7 @@ export function dispatchToMonitors<
       () => {
         let monitor = getMonitor();
         if (matchesAccept(monitor.accept, eventDetails.source)) {
-          rememberMatchedMonitor(getMonitor, monitor);
+          getShallowSnapshot(state.matchedMonitors, getMonitor, monitor);
         } else {
           // `accept` no longer matches. Deliver only `onMoveEnd`, through the last
           // matching parameters, so the monitor can close the drag it joined.

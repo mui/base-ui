@@ -17,7 +17,10 @@ import { cancelDrag } from './cancelDrag';
 import { isActive } from './core/lifecycleManager';
 import { publishDragPreview } from './overlay/dragPreviewStore';
 import { getActivePreviewHandle } from './activePreview';
-import { retargetEndingPreviewSource } from './synthetic/syntheticPreview';
+import {
+  getPreviewSourceIdentity,
+  retargetEndingPreviewSource,
+} from './synthetic/syntheticPreview';
 import type { InternalDragEngine, InternalDraggableParameters } from './registrationTypes';
 import type { DragCleanupFn } from './types';
 import type { DraggablePreviewRenderParameters } from '../../draggable/preview/DraggablePreview';
@@ -122,11 +125,7 @@ export function createRegisterSource(
       disabled: initial.disabled,
     });
     const unregister = addDraggableRegistration(element, getNormalized, staticSetup.refresh);
-    retargetEndingPreviewSource(element, {
-      kind: initial.kind.id,
-      previewKey: initial.previewKey,
-      payload: initial.payload,
-    });
+    retargetEndingPreviewSource(element, getPreviewSourceIdentity(initial));
     const unbindSensors = bindDraggableSensors(element);
 
     return onceCleanup(() => {

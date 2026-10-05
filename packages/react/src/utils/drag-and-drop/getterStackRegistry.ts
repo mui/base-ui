@@ -48,16 +48,13 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
   const { entries, onFirstAdd, onLastRemove } = options;
 
   function add(element: TElement, getter: TGetter): void {
-    let getters = entries.get(element);
-    const firstRegistration = getters === undefined;
-    if (getters === undefined) {
-      getters = [];
-      entries.set(element, getters);
+    const getters = entries.get(element);
+    if (getters) {
+      getters.push(getter);
+      return;
     }
-    getters.push(getter);
-    if (firstRegistration) {
-      onFirstAdd?.(element);
-    }
+    entries.set(element, [getter]);
+    onFirstAdd?.(element);
   }
 
   function remove(element: TElement, getter: TGetter, beforeDelete?: () => void): void {

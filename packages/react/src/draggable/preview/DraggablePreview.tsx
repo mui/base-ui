@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { warn } from '@base-ui/utils/warn';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -103,7 +102,6 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
   return null;
 }
 
-const EMPTY_STATE: DraggablePreviewState = EMPTY_OBJECT;
 // The styling hook the engine also sets on the preview. It is set here too, so the
 // content can be styled the same way before the engine copies it.
 const PREVIEW_ELEMENT_PROPS = { [DraggablePreviewDataAttributes.dragPreview as string]: '' };
@@ -117,7 +115,6 @@ function PreviewElement(props: PreviewElementProps): React.ReactNode {
   const { className, style, render, ...elementProps } = props;
 
   return useRenderElement('div', props, {
-    state: EMPTY_STATE,
     props: [PREVIEW_ELEMENT_PROPS, elementProps],
   });
 }

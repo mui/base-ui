@@ -22,7 +22,7 @@ import type {
   DraggableTargetRecord,
   DraggableTargetResolutionContext,
 } from '../target/DraggableTarget';
-import { registerTarget, registerMonitor } from '../../utils/drag-and-drop/registrations';
+import { registerTarget } from '../../utils/drag-and-drop/registrations';
 import { resolveCollision } from '../../utils/drag-and-drop/dropTarget';
 import type {
   CollisionResolutionRegistration,
@@ -34,6 +34,7 @@ import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { DraggableCollisionContext } from './DraggableCollisionContext';
 import type { CollisionParticipant } from './DraggableCollisionContext';
 import { useDraggableContext } from '../DraggableContext';
+import { useMonitor } from '../use-monitor/useMonitor';
 
 /**
  * Groups draggables of the same kind and reports which one is under the pointer, for sorting.
@@ -72,24 +73,31 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     ) => {
       participants.set(sourceElement, (participants.get(sourceElement) ?? 0) + 1);
       participantElements.add(element);
-      // Rebuilt only when the participant or this provider's props change. The
-      // engine reads the getter at least twice per frame per walked target and
-      // snapshots registrations by identity, so a new object on every call would
-      // be copied every frame.
+      // Rebuilt only when the participant, `kind` or `canCollide` change. The engine
+      // reads the getter at least twice per frame per walked target and snapshots
+      // registrations by identity, so a new object on every call would be copied
+      // every frame. Only the two props it reads are kept, not the whole `props`.
       let lastParticipant: CollisionParticipant | null = null;
-      let lastConfig: DraggableCollisionProviderProps<TPayload, TDragData> | null = null;
+      let lastKind: DraggableKind<TPayload, TDragData> | null = null;
+      let lastCanCollide: DraggableCollisionProviderProps<TPayload, TDragData>['canCollide'];
       let registration:
         | (DropTargetParameters<TPayload, TPayload, TDragData, TDragData> &
             CollisionResolutionRegistration)
         | null = null;
       const unregister = registerTarget<TPayload, TPayload, TDragData, TDragData>(element, () => {
         const participant = getParticipant();
-        const config = getProps();
-        if (registration !== null && participant === lastParticipant && config === lastConfig) {
+        const { kind, canCollide } = getProps();
+        if (
+          registration !== null &&
+          participant === lastParticipant &&
+          kind === lastKind &&
+          canCollide === lastCanCollide
+        ) {
           return registration;
         }
         lastParticipant = participant;
-        lastConfig = config;
+        lastKind = kind;
+        lastCanCollide = canCollide;
         registration = {
           [resolveCollision]: (record, source) => {
             if (sourceElement === source.element || captured.has(record)) {
@@ -103,11 +111,11 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
           },
           snap: participant.snap,
           kind: targetKind,
-          accept: config.kind,
+          accept: kind,
           payload: participant.payload as TPayload,
-          disabled: participant.disabled || participant.kind.id !== config.kind.id,
+          disabled: participant.disabled || participant.kind.id !== kind.id,
           canDrop: (context) =>
-            config.canCollide?.({ ...context, payload: participant.payload as TPayload }) ?? true,
+            canCollide?.({ ...context, payload: participant.payload as TPayload }) ?? true,
         };
         return registration;
       });
@@ -188,7 +196,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     props.onCollisionChange?.({ ...eventDetails, target, previousTarget });
   };
 
-  const getMonitor = useStableCallback(() => ({
+  useMonitor({
     accept: props.kind,
     onMoveStart(eventDetails: MoveStartEventDetails<TPayload, TDragData>) {
       const source = eventDetails.source;
@@ -220,8 +228,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
         props.onMoveEnd?.({ ...eventDetails, target, previousTarget });
       }
     },
-  }));
-  useIsoLayoutEffect(() => registerMonitor(getMonitor), [getMonitor]);
+  });
 
   const firstParameterEffect = React.useRef(true);
   useIsoLayoutEffect(() => {

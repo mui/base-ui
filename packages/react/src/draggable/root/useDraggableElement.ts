@@ -61,13 +61,13 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   useIsoLayoutEffect(() => {
     syncActiveDragSourcePayload(elementRef.current, parameters.kind.id, parameters.payload);
   });
-  // Every mounted handle in mount order, tagged with its `Draggable.Handle` token.
-  // Only the first one drives pickup. The rest are tracked so that unmounting the
-  // first falls back to another handle instead of making the whole element draggable.
-  const attachedHandlesRef = React.useRef<Array<{ token: object; node: HTMLElement }>>([]);
+  // Every mounted handle node in mount order. Only the first one drives pickup. The
+  // rest are tracked so that unmounting the first falls back to another handle
+  // instead of making the whole element draggable.
+  const attachedHandlesRef = React.useRef<HTMLElement[]>([]);
   // `null` when no `Draggable.Handle` is mounted, so the whole element is the handle.
   const getAttachedHandle = useRefWithInit(
-    () => () => attachedHandlesRef.current[0]?.node ?? null,
+    () => () => attachedHandlesRef.current[0] ?? null,
   ).current;
 
   // The link a `Draggable.Preview` declares into. Created once, so carrying it on
@@ -170,29 +170,26 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
 
   // Re-register when a handle node attaches or detaches, so the static setup
   // follows it.
-  const setHandleElement = useRefWithInit(() => (node: HTMLElement | null, token: object) => {
+  const registerHandle = useRefWithInit(() => (node: HTMLElement) => {
     const handles = attachedHandlesRef.current;
-    const index = handles.findIndex((handle) => handle.token === token);
-    if (node) {
-      if (index === -1) {
-        handles.push({ token, node });
-      } else {
-        // Same handle, new node (a virtualizer recycling the row).
-        handles[index].node = node;
+    handles.push(node);
+    if (process.env.NODE_ENV !== 'production') {
+      if (handles.length > 1) {
+        warn(
+          'A Draggable.Root contains more than one mounted Draggable.Handle. ' +
+            'Pickup is restricted to the first one, so the others are inert and look broken. ' +
+            'Render a single handle, switching its content or position instead of mounting a second.',
+        );
       }
-      if (process.env.NODE_ENV !== 'production') {
-        if (handles.length > 1) {
-          warn(
-            'A Draggable.Root contains more than one mounted Draggable.Handle. ' +
-              'Pickup is restricted to the first one, so the others are inert and look broken. ' +
-              'Render a single handle, switching its content or position instead of mounting a second.',
-          );
-        }
-      }
-    } else if (index !== -1) {
-      handles.splice(index, 1);
     }
     reconcile();
+    return () => {
+      const index = handles.indexOf(node);
+      if (index !== -1) {
+        handles.splice(index, 1);
+      }
+      reconcile();
+    };
   }).current;
 
   // Reconcile the static gesture setup when `disabled` changes without a node
@@ -232,7 +229,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     ref,
     dragging,
     settling,
-    setHandleElement,
+    registerHandle,
     previewHandle,
   };
 }
@@ -245,11 +242,11 @@ export interface UseDraggableElementReturnValue<TPayload = undefined, TDragData 
   /** Whether this element's preview is settling into place after a drop. */
   settling: boolean;
   /**
-   * Attach or detach the child that is the drag handle. Pickup is then
-   * restricted to it. Without a handle, the whole source is draggable. `token`
-   * identifies the calling handle across attach and detach. Stable.
+   * Attach the child that is the drag handle, and return the function that detaches
+   * it. Pickup is restricted to the handle. Without one, the whole source is
+   * draggable. Stable.
    */
-  setHandleElement: (node: HTMLElement | null, token: object) => void;
+  registerHandle: (node: HTMLElement) => () => void;
   /** The link a `Draggable.Preview` declares into. Stable. */
   previewHandle: DragPreviewHandle<TPayload, TDragData>;
 }

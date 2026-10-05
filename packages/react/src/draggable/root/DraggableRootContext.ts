@@ -5,14 +5,11 @@ import type { DraggableContextValue } from '../DraggableContext';
 
 export interface DraggableRootContext<TPayload = unknown, TDragData = unknown> {
   /**
-   * Attach or detach a drag handle. Re-registers the draggable so the static
-   * gesture setup follows a handle that mounts later. Stable.
-   *
-   * `token` identifies the calling handle across its attach (`node`) and detach
-   * (`null`) calls. React passes only `null` on detach, and the node is still in
-   * the document then, so the token is the only way to tell which handle left.
+   * Attach a drag handle, and return the function that detaches it. Both
+   * re-register the draggable so the static gesture setup follows a handle that
+   * mounts later. Stable.
    */
-  setHandleElement: (node: HTMLElement | null, token: object) => void;
+  registerHandle: (node: HTMLElement) => () => void;
   /** The link a `Draggable.Preview` declares into. Stable. */
   previewHandle: DragPreviewHandle<TPayload, TDragData>;
   /**

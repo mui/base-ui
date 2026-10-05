@@ -21,7 +21,6 @@ function createPreviewElement(
     element,
     isClone,
     anchor: { sourceRect, sourceScale: { x: 1, y: 1 }, hosts: [], inContainer: false, slot: null },
-    sourceRect,
     destroyed: false,
     setPosition(x, y) {
       element.style.translate = `${x}px ${y}px`;
@@ -614,7 +613,7 @@ describe('preview modifiers', () => {
     expect(context.previewOffset).toEqual({ x: 0, y: 0 });
     expect(context.initialPoint).toEqual({ x: 90, y: 180 });
     expect(context.sourceElement).toBe(source);
-    expect(context.sourceRect).toBe(preview.sourceRect);
+    expect(context.sourceRect).toBe(preview.anchor.sourceRect);
     expect(context.previewRect?.width).toBe(50);
     expect(context.previewRect?.height).toBe(30);
   });

@@ -16,11 +16,11 @@ import type {
 } from '../../draggable/root/DraggableRoot';
 import type { DragCleanupFn, DraggablePayload } from './types';
 import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
-import { bindPointerListeners, unbindPointerListeners } from './synthetic/syntheticSensor';
+import { bindPointerListeners } from './synthetic/syntheticSensor';
 import { overrideInlineStyles } from './synthetic/dragRootLock';
 import type { InlineStyleOverride } from './synthetic/dragRootLock';
 import { getSharedSlot } from './sharedState';
-import { getDragEventRoot, onceCleanup } from './utils';
+import { getDragEventRoot, getOrCreate, onceCleanup } from './utils';
 import { resolveDragHandle } from './draggableRegistry';
 
 interface GestureSetupEntry {
@@ -50,11 +50,10 @@ function applyGestureSetup(gestureElement: HTMLElement | null): DragCleanupFn {
     return NOOP;
   }
 
-  let entry = gestureSetups.get(gestureElement);
-  if (!entry) {
-    entry = { count: 0, restore: overrideInlineStyles(gestureElement, GESTURE_STYLES) };
-    gestureSetups.set(gestureElement, entry);
-  }
+  const entry = getOrCreate(gestureSetups, gestureElement, () => ({
+    count: 0,
+    restore: overrideInlineStyles(gestureElement, GESTURE_STYLES),
+  }));
   entry.count += 1;
   return onceCleanup(() => {
     entry.count -= 1;
@@ -118,11 +117,7 @@ export function applyDraggableStaticSetup(
 
 /** Bind the pointer sensor at the element's document or shadow root. */
 export function bindDraggableSensors(element: Element): DragCleanupFn {
-  const root = getDragEventRoot(element);
-  bindPointerListeners(root);
-  return onceCleanup(() => {
-    unbindPointerListeners(root);
-  });
+  return bindPointerListeners(getDragEventRoot(element));
 }
 
 export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {

@@ -5,6 +5,7 @@ import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 import { getSharedSlot } from './sharedState';
 import { getActivePreviewHandle } from './activePreview';
+import { getOrCreate } from './utils';
 
 /**
  * Snapshot of the active drag, mirrored from the lifecycle for reactive
@@ -13,8 +14,6 @@ import { getActivePreviewHandle } from './activePreview';
 export interface DragSessionState {
   source: DraggableRootRecord;
   location: DraggableLocationHistory;
-  /** The elements of every drop target in the active stack, as a set for constant-time lookups. */
-  dropTargetElements: ReadonlySet<Element>;
   /**
    * The target whose `canDrop` returned `'reject'` at the current position, or
    * `null`. A rejection refuses the drop and empties the stack, so this is the
@@ -124,8 +123,8 @@ export function setDragSession(state: DragSessionState | null): void {
       listeners.add(listener);
     }
   } else {
-    previous?.dropTargetElements.forEach(addElementListeners);
-    state?.dropTargetElements.forEach(addElementListeners);
+    previous?.location.current.targets.forEach((target) => addElementListeners(target.element));
+    state?.location.current.targets.forEach((target) => addElementListeners(target.element));
     addElementListeners(previous?.rejectedTarget);
     addElementListeners(state?.rejectedTarget);
   }
@@ -163,7 +162,7 @@ export function createDragTargetStateStore(): DragTargetStateStore {
     let value = 0;
     if (session?.rejectedTarget === element) {
       value += DragTargetState.rejected;
-    } else if (session?.dropTargetElements.has(element)) {
+    } else if (session?.location.current.targets.some((target) => target.element === element)) {
       value += DragTargetState.over;
       if (session.location.current.targets[0]?.element === element) {
         value += DragTargetState.innermost;
@@ -180,12 +179,7 @@ export function createDragTargetStateStore(): DragTargetStateStore {
     if (current === null) {
       return;
     }
-    let set = slot.targetListeners.get(current);
-    if (!set) {
-      set = new Set();
-      slot.targetListeners.set(current, set);
-    }
-    set.add(listener);
+    getOrCreate(slot.targetListeners, current, () => new Set()).add(listener);
   }
 
   function removeFromElement(current: Element | null, listener: () => void): void {

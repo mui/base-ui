@@ -549,7 +549,7 @@ describe('lifecycle manager', () => {
 
     it('fires onDraggableEnter on the drop targets already under the pointer at pickup', async () => {
       // No `onTargetChange` round diffs the initial stack into existence, yet it
-      // is published in `dropTargetElements` (`data-over` is set) and gets a
+      // is published in the session (`data-over` is set) and gets a
       // terminal `onDraggableLeave`. It needs its own enter to open that pair.
       await renderDnd();
       const under = createElement();

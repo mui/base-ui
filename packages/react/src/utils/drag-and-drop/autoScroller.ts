@@ -23,6 +23,7 @@ import {
   safeCallConsumer,
   elementFromPointIgnoring,
   getComposedParentElement,
+  getOrCreate,
   getOverflowFlags,
   getViewportRect,
   isPointInRect,
@@ -350,7 +351,7 @@ function canScrollToward(
   isPageScroller: boolean,
 ): boolean {
   const body = isPageScroller ? ownerDocument(el).body : null;
-  const flow = readCached(state.flowCache, body ?? el, readScrollFlow);
+  const flow = getOrCreate(state.flowCache, body ?? el, readScrollFlow);
   const reversed = !isPageScroller && flow.reversedAxis === axis;
   const negativeOrigin = flow.negativeOrigin[axis] !== reversed;
   const offset = axis === 'x' ? el.scrollLeft : el.scrollTop;
@@ -447,26 +448,13 @@ function readScrollFlow(element: HTMLElement): ScrollFlow {
   };
 }
 
+const BOTH_AXES: AxisFlags = { x: true, y: true };
+
 // Overflow and direction come from `getComputedStyle`, which costs a style
 // resolve per read, so they are cached per drag. Starting or stopping a drag
 // resets the caches, and so does an observed restyle (see `refreshAutoScroll`).
-function readCached<T>(
-  cache: WeakMap<HTMLElement, T>,
-  element: HTMLElement,
-  compute: (el: HTMLElement) => T,
-): T {
-  let cached = cache.get(element);
-  if (cached === undefined) {
-    cached = compute(element);
-    cache.set(element, cached);
-  }
-  return cached;
-}
-
-const BOTH_AXES: AxisFlags = { x: true, y: true };
-
 function readOverflowFlags(element: HTMLElement): OverflowFlags {
-  return readCached(state.overflowCache, element, getOverflowFlags);
+  return getOrCreate(state.overflowCache, element, getOverflowFlags);
 }
 
 /**

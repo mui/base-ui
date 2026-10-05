@@ -1,5 +1,4 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
-import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { clamp } from '@base-ui/utils/clamp';
 import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
@@ -25,8 +24,13 @@ import type {
 import { matchesAccept } from './dragKind';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
-import { getComposedParentElement, safeCallConsumer } from './utils';
-import { getParticipantPayload, resetParticipantPayload } from './participantData';
+import {
+  getComposedParentElement,
+  getOrCreate,
+  getShallowSnapshot,
+  safeCallConsumer,
+} from './utils';
+import { resetParticipantPayload, syncParticipantPayload } from './participantData';
 import { dragSessionStore, notifyDragTargetUpdated } from './dragSessionStore';
 
 /**
@@ -299,17 +303,8 @@ export function endDropTargetSession(): void {
  * reset the others either.
  */
 function getRegistrationKey(element: Element, getParameters: DropTargetGetter): object {
-  let keys = state.registrationKeys.get(element);
-  if (keys === undefined) {
-    keys = new WeakMap();
-    state.registrationKeys.set(element, keys);
-  }
-  let key = keys.get(getParameters);
-  if (key === undefined) {
-    key = {};
-    keys.set(getParameters, key);
-  }
-  return key;
+  const keys = getOrCreate(state.registrationKeys, element, () => new WeakMap());
+  return getOrCreate(keys, getParameters, () => ({}));
 }
 
 /**
@@ -400,12 +395,7 @@ function safeCall<T>(
 const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
 
 function snapshotRegistration(registration: AnyDropTargetParameters): AnyDropTargetParameters {
-  let snapshot = state.registrationSnapshots.get(registration);
-  if (snapshot === undefined || !fastObjectShallowCompare(registration, snapshot)) {
-    snapshot = { ...registration };
-    state.registrationSnapshots.set(registration, snapshot);
-  }
-  return snapshot;
+  return getShallowSnapshot(state.registrationSnapshots, registration, registration);
 }
 
 /** The registration's `dragData` for this drag, starting from `undefined` for a new drag or kind. */
@@ -437,13 +427,12 @@ export function syncDropTargetPayload(
   if (!element) {
     return;
   }
-  const payloadState = getParticipantPayload(
+  const { changed } = syncParticipantPayload(
     getRegistrationKey(element, getParameters),
     kind,
     payload,
   );
   const source = dragSessionStore.state?.source;
-  const changed = payloadState.sync(payload);
   if (source && changed) {
     notifyDragTargetUpdated(source, element);
   }
@@ -484,11 +473,9 @@ function resolveDropTargetOutcome(
   if (!getRegistration) {
     return null;
   }
-  // Consumers supply the getter through the public imperative API. A throw here
-  // would abort the resolution walk, and during the initial resolution in `start()`
-  // it would tear the drag down before it began. Treat a throwing getter like an
-  // unregistered target.
-  const registration = safeCall('getParameters', element, getRegistration, null);
+  // A throwing getter is contained by the caller, `getDropTargetsOver`, which
+  // treats it like an unregistered target.
+  const registration = getRegistration();
   // A disabled target is not a candidate. Like a failed `canDrop`, the walk falls
   // through to ancestor targets. A getter written in plain JS can also return
   // `undefined`.
@@ -522,8 +509,11 @@ function resolveDropTargetOutcome(
 
   const kind = registration.kind?.id;
   const registrationKey = getRegistrationKey(element, getRegistration);
-  const payloadState = getParticipantPayload(registrationKey, kind, registration.payload);
-  payloadState.sync(registration.payload);
+  const { data: payloadState } = syncParticipantPayload(
+    registrationKey,
+    kind,
+    registration.payload,
+  );
   const data = getTargetDragData(registrationKey, source, kind);
   const record: DraggableTargetRecord = {
     element,
@@ -745,7 +735,7 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   if (!getRegistration) {
     return;
   }
-  // Same containment as `resolveDropTargetOutcome`. A throwing getter costs this
+  // Same containment as `getDropTargetsOver`. A throwing getter costs this
   // target its event and doesn't unwind the dispatch sequence.
   const registration = safeCall('getParameters', record.element, getRegistration, null);
   if (registration == null) {
