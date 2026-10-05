@@ -1105,15 +1105,14 @@ function dropOccludedCandidates(
     if (probe === null || candidate.pageScroller !== null || !isProbeInRect(candidate)) {
       continue;
     }
-    let hitChain = hitChains.get(probe);
-    if (hitChain === undefined) {
-      hitChain = new Set();
+    const hitChain = getOrCreate(hitChains, probe, () => {
+      const chain = new Set<Element>();
       let node = elementFromPointIgnoring(doc, probe.clientX, probe.clientY, preview, closedRoots);
       for (; node !== null; node = getComposedParentElement(node, closedRoots)) {
-        hitChain.add(node);
+        chain.add(node);
       }
-      hitChains.set(probe, hitChain);
-    }
+      return chain;
+    });
     if (hitChain.has(candidate.element)) {
       hovered.add(candidate);
     }
@@ -1279,9 +1278,9 @@ interface AutoScrollerState {
   observedChainElements: Set<Element>;
   /** Watches for content/style changes only while the frame loop is parked. */
   idleMutationObserver: MutationObserver | null;
-  /** Per-drag per-axis overflow cache (see `readCached`). */
+  /** Per-drag per-axis overflow cache (see `readOverflowFlags`). */
   overflowCache: WeakMap<HTMLElement, OverflowFlags>;
-  /** Per-drag scroll flow cache (see `readCached`). */
+  /** Per-drag scroll flow cache (see `readScrollFlow`). */
   flowCache: WeakMap<HTMLElement, ScrollFlow>;
 }
 

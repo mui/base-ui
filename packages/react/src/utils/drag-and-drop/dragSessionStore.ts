@@ -72,6 +72,15 @@ export function notifyDragTargetUpdated(source: DraggableRootRecord, element: El
   if (session?.source !== source) {
     return;
   }
+  // A target in none of the stacks has no published snapshot to refresh.
+  const { initial, current, previous } = session.location;
+  if (
+    ![initial, current, previous].some((entry) =>
+      entry.targets.some((target) => target.element === element),
+    )
+  ) {
+    return;
+  }
   const location = cloneLocationHistory(session.location);
   for (const entry of [location.initial, location.current, location.previous]) {
     entry.targets = entry.targets.map((target) => {

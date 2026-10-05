@@ -1,7 +1,7 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getSharedSlot } from '../sharedState';
 import { trackDropTargetShadowRoots } from '../dropTarget';
-import { adoptStyleSheet, unadoptStyleSheet } from '../utils';
+import { adoptStyleSheet, getOrCreate, unadoptStyleSheet } from '../utils';
 import type { DragCleanupFn } from '../types';
 
 interface DragCursorState {
@@ -49,8 +49,7 @@ interface DragCursorStyleOptions {
  */
 function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean {
   const key = nonce ?? '';
-  let documentStyles = state.styles.get(doc);
-  const existing = documentStyles?.get(key);
+  const existing = state.styles.get(doc)?.get(key);
   if (existing?.isConnected) {
     return true;
   }
@@ -78,11 +77,7 @@ function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean 
     return false;
   }
 
-  if (!documentStyles) {
-    documentStyles = new Map<string, HTMLStyleElement>();
-    state.styles.set(doc, documentStyles);
-  }
-  documentStyles.set(key, style);
+  getOrCreate(state.styles, doc, () => new Map()).set(key, style);
   return true;
 }
 
@@ -103,17 +98,17 @@ function adoptShadowRootCursor(shadowRoot: ShadowRoot, doc: Document): DragClean
   if (!('adoptedStyleSheets' in shadowRoot) || ownerDocument(shadowRoot.host) !== doc) {
     return undefined;
   }
-  let sheet = state.shadowSheets.get(shadowRoot);
-  if (!sheet) {
-    try {
-      sheet = new (ownerWindow(shadowRoot.host).CSSStyleSheet)();
-      sheet.replaceSync(`* { ${CURSOR_DECLARATION} }`);
-    } catch {
-      // No constructable stylesheets in this realm. The shadow tree keeps its own
-      // cursor, and dragging still works.
-      return undefined;
-    }
-    state.shadowSheets.set(shadowRoot, sheet);
+  let sheet: CSSStyleSheet;
+  try {
+    sheet = getOrCreate(state.shadowSheets, shadowRoot, () => {
+      const created = new (ownerWindow(shadowRoot.host).CSSStyleSheet)();
+      created.replaceSync(`* { ${CURSOR_DECLARATION} }`);
+      return created;
+    });
+  } catch {
+    // No constructable stylesheets in this realm. The shadow tree keeps its own
+    // cursor, and dragging still works.
+    return undefined;
   }
   adoptStyleSheet(shadowRoot, sheet);
   return () => unadoptStyleSheet(shadowRoot, sheet);

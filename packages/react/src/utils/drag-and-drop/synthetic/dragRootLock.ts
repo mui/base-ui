@@ -1,4 +1,5 @@
 import { ownerDocument } from '@base-ui/utils/owner';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { getSharedSlot } from '../sharedState';
 import type { DragCleanupFn } from '../types';
 
@@ -61,7 +62,7 @@ const LOCKED_STYLES: readonly InlineStyleOverride[] = [
 
 interface DragRootLockState {
   /** Restores the inline styles the lock overwrote, or `null` when unlocked. */
-  restore: DragCleanupFn[] | null;
+  restore: DragCleanupFn | null;
 }
 
 const state = getSharedSlot<DragRootLockState>('dragRootLock', () => ({
@@ -98,11 +99,7 @@ function collectLockElements(doc: Document): HTMLElement[] {
 export function unlock(): void {
   const restore = state.restore;
   state.restore = null;
-  if (restore) {
-    for (const restoreRoot of restore) {
-      restoreRoot();
-    }
-  }
+  restore?.();
 }
 
 /**
@@ -119,7 +116,9 @@ export function lock(element: Element): void {
   // `touch-action` and `overscroll-behavior` on `body` independently of `html`,
   // so locking only one lets scroll leak through. Locking only the inner document
   // would let an iframe's host page scroll.
-  state.restore = collectLockElements(ownerDocument(element)).map((root) =>
-    overrideInlineStyles(root, LOCKED_STYLES),
+  state.restore = mergeCleanups(
+    ...collectLockElements(ownerDocument(element)).map((root) =>
+      overrideInlineStyles(root, LOCKED_STYLES),
+    ),
   );
 }

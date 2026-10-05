@@ -623,6 +623,28 @@ function copyLiveState(
   };
 }
 
+type InlineDeclaration = [name: string, value: string, priority: string];
+
+/** The inline value and priority `style` holds for each of `names`. */
+function readInlineDeclarations(
+  style: CSSStyleDeclaration,
+  names: readonly string[],
+): InlineDeclaration[] {
+  return names.map((name) => [name, style.getPropertyValue(name), style.getPropertyPriority(name)]);
+}
+
+/** Write back declarations read by `readInlineDeclarations`. Empty ones stay unset. */
+function writeInlineDeclarations(
+  style: CSSStyleDeclaration,
+  declarations: readonly InlineDeclaration[],
+): void {
+  for (const [name, value, priority] of declarations) {
+    if (value) {
+      style.setProperty(name, value, priority);
+    }
+  }
+}
+
 /**
  * Set a scroll offset without animating it. Under `scroll-behavior: smooth`, a
  * `scrollTop` write starts a smooth scroll, so the preview would show the top of
@@ -659,17 +681,14 @@ const TABLE_ROW_PARTS = new Set([
  * inserted, or `null` when the source is not a row or row group.
  */
 function captureTableCellWidths(
-  sourceNodes: Element[],
-  cloneNodes: Element[],
+  source: Element,
+  clonesBySource: ReadonlyMap<Element, Element>,
   win: Window & typeof globalThis,
 ): (() => void) | null {
-  const source = sourceNodes[0];
   const display = win.getComputedStyle(source).display;
   if (!TABLE_ROW_PARTS.has(display)) {
     return null;
   }
-  const clonesBySource = new Map<Element, Element>();
-  sourceNodes.forEach((node, index) => clonesBySource.set(node, cloneNodes[index]));
   const rows = display === 'table-row' ? [source] : Array.from(source.children);
   const widths: Array<{ cell: Element | undefined; width: string }> = [];
   for (const row of rows) {
@@ -692,10 +711,10 @@ function captureTableCellWidths(
 
 interface PreparedDragPreviewClone {
   element: HTMLElement;
-  /** The source's elements in tree order, paired index-by-index with `nodes`. */
+  /** The source's elements in tree order. */
   sourceNodes: Element[];
-  /** The clone's elements in the same order as `sourceNodes`. */
-  nodes: Element[];
+  /** Each of `sourceNodes` to its clone. */
+  clonesBySource: Map<Element, Element>;
   applyPostInsertion: () => void;
 }
 
@@ -748,7 +767,9 @@ function prepareDragPreviewClone(
     }
   }
 
-  return { element, sourceNodes, nodes: cloneNodes, applyPostInsertion };
+  const clonesBySource = new Map<Element, Element>();
+  sourceNodes.forEach((node, index) => clonesBySource.set(node, cloneNodes[index]));
+  return { element, sourceNodes, clonesBySource, applyPostInsertion };
 }
 
 /** The number an `<ol>` gives `item`, or `null` when it is not an item of an `<ol>`. */
@@ -1131,21 +1152,6 @@ export function createDragPreviewElement(
     }
   }
 
-  /**
-   * Remove these from a clone instead of overwriting them. It carries the source's
-   * `style` attribute, and an inline declaration would beat `NEUTRALIZER_CSS`.
-   */
-  function clearNeutralizedInlineStyles(): void {
-    if (!isClone) {
-      return;
-    }
-    for (const property of NEUTRALIZED_PROPERTIES) {
-      if (!engineStyles.has(property)) {
-        element.style.removeProperty(property);
-      }
-    }
-  }
-
   // The content's transition during the drag, while it covers `translate`. At the
   // drop, it is compared with the ending one (see `prepareForDrop`).
   let dragTransition: string | null = null;
@@ -1153,7 +1159,7 @@ export function createDragPreviewElement(
   // The content's own inline `transition-duration` and `transition-delay` while
   // `neutralizeTranslateTransition` overrides them, so the drop can put them back.
   // `null` when nothing is overridden.
-  let ownTransitionTiming: Array<[name: string, value: string, priority: string]> | null = null;
+  let ownTransitionTiming: InlineDeclaration[] | null = null;
 
   /**
    * The engine writes `translate` on the root of a custom preview every frame, so a
@@ -1191,10 +1197,9 @@ export function createDragPreviewElement(
       return;
     }
     dragTransition ??= getTransitionSignature(computed);
-    ownTransitionTiming = ['transition-duration', 'transition-delay'].map((name) => [
-      name,
-      element.style.getPropertyValue(name),
-      element.style.getPropertyPriority(name),
+    ownTransitionTiming = readInlineDeclarations(element.style, [
+      'transition-duration',
+      'transition-delay',
     ]);
     setEngineStyle('transition-duration', nextDurations.join(', '), 'important');
     setEngineStyle('transition-delay', nextDelays.join(', '), 'important');
@@ -1207,23 +1212,17 @@ export function createDragPreviewElement(
     }
     const timing = ownTransitionTiming;
     ownTransitionTiming = null;
-    for (const [name, value, priority] of timing) {
+    for (const [name] of timing) {
       removeEngineStyle(name);
-      if (value) {
-        element.style.setProperty(name, value, priority);
-      }
     }
+    writeInlineDeclarations(element.style, timing);
   }
 
   // The custom root's own inline `margin` and `translate`, which the engine's
   // declarations replace. `readOwnOffset` puts them back to measure them.
-  let ownOffsetStyle: Array<[name: string, value: string, priority: string]> = [];
+  let ownOffsetStyle: InlineDeclaration[] = [];
   function captureOwnOffsetStyle(): void {
-    ownOffsetStyle = OWN_OFFSET_PROPERTIES.map((name) => [
-      name,
-      element.style.getPropertyValue(name),
-      element.style.getPropertyPriority(name),
-    ]);
+    ownOffsetStyle = readInlineDeclarations(element.style, OWN_OFFSET_PROPERTIES);
   }
 
   applyEngineAttributes();
@@ -1260,14 +1259,18 @@ export function createDragPreviewElement(
     setEngineStyle('max-width', 'none');
     setEngineStyle('min-height', '0px');
     setEngineStyle('max-height', 'none');
+    // Remove these instead of overwriting them. The clone carries the source's
+    // `style` attribute, and an inline declaration would beat `NEUTRALIZER_CSS`.
+    for (const property of NEUTRALIZED_PROPERTIES) {
+      element.style.removeProperty(property);
+    }
   }
-  clearNeutralizedInlineStyles();
 
   // Read from the source while the clone is still detached. Inserting the clone
   // would make it the parent's last child and snapshot `:last-child` rules at a
   // position the source does not hold.
-  const contextualStyles = clone && capturePreviewStyles(clone.sourceNodes, clone.nodes);
-  const applyTableCellWidths = clone && captureTableCellWidths(clone.sourceNodes, clone.nodes, win);
+  const contextualStyles = clone && capturePreviewStyles(clone.sourceNodes, clone.clonesBySource);
+  const applyTableCellWidths = clone && captureTableCellWidths(source, clone.clonesBySource, win);
 
   if (process.env.NODE_ENV !== 'production') {
     const parentName = isClone || isShadowRoot(host) ? null : host.localName;
@@ -1432,23 +1435,21 @@ export function createDragPreviewElement(
    * inside them, so the preview is skewed. This is expected.
    */
   function applyAncestorScale(): void {
+    origin = { x: 0, y: 0 };
     if (scale.x !== 1 || scale.y !== 1) {
       setEngineStyle(
         'transform',
         `scale(${scale.x}, ${scale.y})`,
         suppressedTransform ? 'important' : '',
       );
-    } else if (suppressedTransform) {
-      setEngineStyle('transform', 'none', 'important');
-    } else if (engineStyles.has('transform')) {
-      removeEngineStyle('transform');
-    }
-    origin = { x: 0, y: 0 };
-    if (scale.x !== 1 || scale.y !== 1) {
       const parts = win.getComputedStyle(element).transformOrigin.split(/\s+/);
       const x = Number.parseFloat(parts[0]);
       const y = Number.parseFloat(parts[1]);
       origin = { x: Number.isFinite(x) ? x : 0, y: Number.isFinite(y) ? y : 0 };
+    } else if (suppressedTransform) {
+      setEngineStyle('transform', 'none', 'important');
+    } else if (engineStyles.has('transform')) {
+      removeEngineStyle('transform');
     }
   }
 
@@ -1463,11 +1464,7 @@ export function createDragPreviewElement(
     }
     element.style.removeProperty('margin');
     element.style.removeProperty('translate');
-    for (const [name, value, priority] of ownOffsetStyle) {
-      if (value) {
-        element.style.setProperty(name, value, priority);
-      }
-    }
+    writeInlineDeclarations(element.style, ownOffsetStyle);
     const computed = win.getComputedStyle(element);
     const marginX = Number.parseFloat(computed.marginLeft) || 0;
     const marginY = Number.parseFloat(computed.marginTop) || 0;

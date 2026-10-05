@@ -25,21 +25,37 @@ const DRAG_INTERACTIVE_ELEMENT_SELECTOR = [
 ].join(',');
 
 /**
- * Whether the press landed on an interactive control nested inside `pickupNode`,
- * such as a rename input or a row's action button. The walk stops before
- * `pickupNode`, so a draggable or handle that is itself a `<button>` stays draggable.
+ * Whether `test` holds for `target` or one of its composed ancestors below
+ * `pickupNode`. The walk stops before `pickupNode`.
  */
-export function hasInteractiveAncestorWithin(target: Element, pickupNode: Element): boolean {
+function someNodeBelow(
+  target: Element,
+  pickupNode: Element,
+  test: (node: Element) => boolean,
+): boolean {
   for (
     let node: Element | null = target;
     node !== null && node !== pickupNode;
     node = getComposedParentElement(node)
   ) {
-    if (node.matches(DRAG_INTERACTIVE_ELEMENT_SELECTOR) && !node.matches(':disabled')) {
+    if (test(node)) {
       return true;
     }
   }
   return false;
+}
+
+/**
+ * Whether the press landed on an interactive control nested inside `pickupNode`,
+ * such as a rename input or a row's action button. The walk stops before
+ * `pickupNode`, so a draggable or handle that is itself a `<button>` stays draggable.
+ */
+export function hasInteractiveAncestorWithin(target: Element, pickupNode: Element): boolean {
+  return someNodeBelow(
+    target,
+    pickupNode,
+    (node) => node.matches(DRAG_INTERACTIVE_ELEMENT_SELECTOR) && !node.matches(':disabled'),
+  );
 }
 
 /**
@@ -58,15 +74,10 @@ export function hasCapturingAncestorWithin(
   pointerId: number,
   includeTarget: boolean,
 ): boolean {
-  for (
-    let node: Element | null = target;
-    node !== null && node !== pickupNode;
-    node = getComposedParentElement(node)
-  ) {
+  return someNodeBelow(
+    target,
+    pickupNode,
     // Optional-chained because jsdom has no pointer capture.
-    if ((includeTarget || node !== target) && node.hasPointerCapture?.(pointerId)) {
-      return true;
-    }
-  }
-  return false;
+    (node) => (includeTarget || node !== target) && node.hasPointerCapture?.(pointerId) === true,
+  );
 }

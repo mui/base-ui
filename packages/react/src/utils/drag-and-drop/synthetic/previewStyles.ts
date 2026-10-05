@@ -2,7 +2,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from '../sharedState';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
-import { adoptStyleSheet, getDragEventRoot, unadoptStyleSheet } from '../utils';
+import { adoptStyleSheet, getDragEventRoot, getOrCreate, unadoptStyleSheet } from '../utils';
 
 const STRUCTURAL_SELECTOR = /[>+~]|:(?:first|last|nth|only|empty|has)\b/;
 const PSEUDO_ELEMENT = /::(before|after|marker)\b/g;
@@ -68,16 +68,20 @@ const RULES_PER_SOURCE_NODE = 512;
  * source nodes. The clone is not in the DOM yet. Once inserted, it is the last
  * child of its parent rather than at the source's sibling position, so
  * `:nth-child`, `:first-child`, `:last-child` and sibling combinators would resolve
- * to the wrong value. In a `container`, child combinators can stop matching too. `sourceNodes` and `cloneNodes` list both trees in the same
- * order, rooted at the source and its clone, so each snapshot is keyed by the
- * clone node it is restored onto.
+ * to the wrong value. In a `container`, child combinators can stop matching too.
+ * `sourceNodes` lists the source tree in order, rooted at the source, and
+ * `clonesBySource` maps each source node to its clone, so each snapshot is keyed by
+ * the clone node it is restored onto.
  */
-export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element[]) {
-  const clone = cloneNodes[0];
+export function capturePreviewStyles(
+  sourceNodes: Element[],
+  clonesBySource: ReadonlyMap<Element, Element>,
+) {
+  const clone = clonesBySource.get(sourceNodes[0])!;
   const win = ownerWindow(sourceNodes[0]);
   // Captured in its own scope, so the closures returned below, which live as long
   // as the preview, don't keep the source nodes and the capture maps alive.
-  const { snapshots, needsFullSnapshot } = captureSnapshots(sourceNodes, cloneNodes, win);
+  const { snapshots, needsFullSnapshot } = captureSnapshots(sourceNodes, clonesBySource, win);
   let sheet: CSSStyleSheet | null = null;
   let sheetRoot: Document | ShadowRoot | null = null;
 
@@ -130,24 +134,25 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
         return {
           node,
           pseudo,
-          values: values.filter(([name, value]) => computed.getPropertyValue(name) !== value),
+          // Each value the clone has now is kept, for the marker check below.
+          values: values
+            .map(
+              ([name, value, priority]) =>
+                [name, value, priority, computed.getPropertyValue(name)] as const,
+            )
+            .filter(([, value, , current]) => current !== value),
         };
       });
       // A broad snapshot must not overwrite styles consumers apply to previews.
       // Before writing, drop any value that changes when the marker is removed.
       // It comes from a preview rule, not from the lost ancestry.
       if (changed.some(({ values }) => values.length > 0)) {
-        const previewValues = changed.map(({ node, pseudo, values }) => {
-          const computed = win.getComputedStyle(node, pseudo || null);
-          return values.map(([name]) => computed.getPropertyValue(name));
-        });
         clone.removeAttribute(DraggablePreviewDataAttributes.dragPreview);
         try {
-          changed.forEach((entry, index) => {
+          changed.forEach((entry) => {
             const computed = win.getComputedStyle(entry.node, entry.pseudo || null);
             entry.values = entry.values.filter(
-              ([name], valueIndex) =>
-                computed.getPropertyValue(name) === previewValues[index][valueIndex],
+              ([name, , , current]) => computed.getPropertyValue(name) === current,
             );
           });
         } finally {
@@ -162,13 +167,12 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
         let style: CSSStyleDeclaration;
         if (pseudo) {
           sheet ??= new win.CSSStyleSheet();
-          let id = nodeIds.get(node);
-          if (id === undefined) {
-            id = String(ids.next);
+          const id = getOrCreate(nodeIds, node, () => {
+            const next = String(ids.next);
             ids.next += 1;
-            nodeIds.set(node, id);
-            node.setAttribute(NODE_ATTRIBUTE, id);
-          }
+            node.setAttribute(NODE_ATTRIBUTE, next);
+            return next;
+          });
           const index = sheet.insertRule(
             `[${NODE_ATTRIBUTE}="${id}"]${pseudo} {}`,
             sheet.cssRules.length,
@@ -219,17 +223,13 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
 /** The values to restore onto each clone node, and whether they came from a full snapshot. */
 function captureSnapshots(
   sourceNodes: Element[],
-  cloneNodes: Element[],
+  clonesBySource: ReadonlyMap<Element, Element>,
   win: Window & typeof globalThis,
 ) {
   const source = sourceNodes[0];
-  const clone = cloneNodes[0];
+  const clone = clonesBySource.get(source)!;
   const root = source.getRootNode() as Document | ShadowRoot;
   const properties = new Map<Element, Properties>();
-  const clonesBySource = new Map<Element, Element>();
-  for (let i = 0; i < sourceNodes.length; i += 1) {
-    clonesBySource.set(sourceNodes[i], cloneNodes[i]);
-  }
   let needsFullSnapshot = false;
   let inspectedRules = 0;
   // Full snapshots scale with the dragged subtree. Give a large subtree more
@@ -247,16 +247,8 @@ function captureSnapshots(
     if (!clonesBySource.has(sourceNode)) {
       return;
     }
-    let byPseudo = properties.get(sourceNode);
-    if (!byPseudo) {
-      byPseudo = new Map();
-      properties.set(sourceNode, byPseudo);
-    }
-    let set = byPseudo.get(pseudo);
-    if (!set) {
-      set = new Map();
-      byPseudo.set(pseudo, set);
-    }
+    const byPseudo = getOrCreate(properties, sourceNode, () => new Map());
+    const set = getOrCreate(byPseudo, pseudo, () => new Map());
     for (const name of names) {
       set.set(name, set.get(name) || declaration?.getPropertyPriority(name) || '');
     }

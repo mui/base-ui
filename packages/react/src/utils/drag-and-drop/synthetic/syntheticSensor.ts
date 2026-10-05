@@ -39,7 +39,6 @@ import {
 import { getSharedSlot } from '../sharedState';
 import { setActivePointerAccessors } from '../activePointer';
 import { createEventRootBinding } from '../documentBinding';
-import type { DragEventRoot } from '../documentBinding';
 import { createDragSource } from '../dragSource';
 import {
   canPickUp,
@@ -56,6 +55,7 @@ import { modifyDragPoint, createDragModifiersState } from '../dragModifiers';
 import type { DragModifiersState } from '../dragModifiers';
 import {
   deepElementFromPoint,
+  getDragEventRoot,
   getInput,
   getModifierKeys,
   getOverflowFlags,
@@ -116,9 +116,12 @@ const eventRootBinding = createEventRootBinding({
   listeners: { pointerdown: onPointerDown, dblclick: onDoubleClick },
 });
 
-/** Bind the gesture listeners at `root`, and return the function that releases them. */
-export function bindPointerListeners(root: DragEventRoot): DragCleanupFn {
-  return eventRootBinding.bind(root);
+/**
+ * Bind the gesture listeners at the element's document or shadow root, and return
+ * the function that releases them.
+ */
+export function bindPointerListeners(element: Element): DragCleanupFn {
+  return eventRootBinding.bind(getDragEventRoot(element));
 }
 
 /**
@@ -421,24 +424,20 @@ function acceptPressPickup(
 
 function onPointerDown(event: Event): void {
   const pointerEvent = event as PointerEvent;
-  const pressTarget = getTarget(event);
-  // Resolve on every press, before the checks below, because the walk also
-  // refreshes the static setup of every draggable around the target (see
-  // `resolveDraggablePickup`).
-  let candidate = resolveDraggablePickup(pressTarget);
   const pointerType = normalizePointerType(pointerEvent.pointerType);
   // Read by `onDoubleClick` for a `dblclick` that carries no `pointerType`, and
   // reported by a double-click drag until its first move (see `commitActivation`).
   state.lastPointerDown = pointerEvent;
 
-  const hadSession = state.pending !== null || state.active !== null;
-  if (!recoverDetachedSession(event)) {
+  // Ending a stranded session runs its end handlers, which can change the
+  // registrations, so the press resolves after it.
+  const recovered = recoverDetachedSession(event);
+  // Resolve on every press, before the checks below, because the walk also
+  // refreshes the static setup of every draggable around the target (see
+  // `resolveDraggablePickup`).
+  const candidate = resolveDraggablePickup(getTarget(event));
+  if (!recovered) {
     return;
-  }
-  if (hadSession) {
-    // Ending the stranded session ran its end handlers, which can change the
-    // registrations the press resolved against.
-    candidate = resolveDraggablePickup(pressTarget);
   }
 
   // Accept the press if either `button` or `buttons` reports the primary button.
@@ -503,16 +502,16 @@ function onPointerDown(event: Event): void {
     listeners: [],
     pressHoldTimer: new WindowTimeout(win),
     contextMenuSuppression,
-    gestureCleanups: [
-      suppressNativeDragForSyntheticPointer(element),
-      // iOS Safari only lets the active phase's `touchmove` guard cancel scroll
-      // if a `{ passive: false }` listener existed before the gesture needed it.
-      // The guard is added on the document at commit, which is too late, so this
-      // window listener lives with the whole gesture rather than the pending
-      // listeners.
-      addEventListener(win, 'touchmove', NOOP, { passive: false }),
-    ],
+    gestureCleanups: [suppressNativeDragForSyntheticPointer(element)],
   };
+  if (pointerType !== 'mouse') {
+    // iOS Safari only lets the active phase's `touchmove` guard cancel scroll
+    // if a `{ passive: false }` listener existed before the gesture needed it.
+    // The guard is added on the document at commit, which is too late, so this
+    // window listener lives with the whole gesture rather than the pending
+    // listeners. A mouse drag gets no guard, so it needs none.
+    pendingRef.gestureCleanups.push(addEventListener(win, 'touchmove', NOOP, { passive: false }));
+  }
   state.pending = pendingRef;
 
   pendingRef.listeners.push(
@@ -1310,12 +1309,7 @@ function onActivePointerMove(pointerEvent: PointerEvent): void {
     // Apply modifiers like every reported input, so `onMoveEnd` doesn't report a
     // raw coordinate the drag never reported while live.
     const input = modifyActiveInput(active, getInput(pointerEvent));
-    active.terminalFrameQueued = true;
-    active.rafFrame.request(() => {
-      if (state.active === active) {
-        cancelActive(input, REASONS.missedRelease, pointerEvent);
-      }
-    });
+    queueTerminalCancel(active, input, REASONS.missedRelease, pointerEvent);
     return;
   }
   // Chorded release. Lifting the primary button while another is held fires
@@ -1420,10 +1414,23 @@ function onActiveLostPointerCapture(pointerEvent: PointerEvent): void {
   }
   // Let a terminal event in the same frame win. `lostpointercapture` often
   // reports (0,0), so a real hand-off uses the last good input.
+  queueTerminalCancel(active, undefined, REASONS.captureLost, pointerEvent);
+}
+
+/**
+ * Cancel the drag on the next frame, in place of the queued `onActiveFrame`
+ * (see `ActiveSession.terminalFrameQueued`), unless a terminal event ends it first.
+ */
+function queueTerminalCancel(
+  active: ActiveSession,
+  input: DraggableInput | undefined,
+  reason: DragCanceledReason,
+  event: PointerEvent,
+): void {
   active.terminalFrameQueued = true;
   active.rafFrame.request(() => {
     if (state.active === active) {
-      cancelActive(undefined, REASONS.captureLost, pointerEvent);
+      cancelActive(input, reason, event);
     }
   });
 }

@@ -16,11 +16,10 @@ import type {
 } from '../../draggable/root/DraggableRoot';
 import type { DragCleanupFn, DraggablePayload } from './types';
 import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
-import { bindPointerListeners } from './synthetic/syntheticSensor';
 import { overrideInlineStyles } from './synthetic/dragRootLock';
 import type { InlineStyleOverride } from './synthetic/dragRootLock';
 import { getSharedSlot } from './sharedState';
-import { getDragEventRoot, getOrCreate, onceCleanup } from './utils';
+import { getOrCreate, onceCleanup } from './utils';
 import { resolveDragHandle } from './draggableRegistry';
 
 interface GestureSetupEntry {
@@ -113,11 +112,6 @@ export function applyDraggableStaticSetup(
       releaseSetup();
     }),
   };
-}
-
-/** Bind the pointer sensor at the element's document or shadow root. */
-export function bindDraggableSensors(element: Element): DragCleanupFn {
-  return bindPointerListeners(getDragEventRoot(element));
 }
 
 export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {

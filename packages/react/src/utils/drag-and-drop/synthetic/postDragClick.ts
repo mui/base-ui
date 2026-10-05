@@ -20,6 +20,7 @@
 import { ownerWindow } from '@base-ui/utils/owner';
 import { NOOP } from '@base-ui/utils/empty';
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import { WindowTimeout } from '../../windowTimeout';
 import { getSharedSlot } from '../sharedState';
@@ -188,10 +189,7 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
     },
     { capture: true },
   );
-  offPointerUp = () => {
-    offUp();
-    offCancel();
-  };
+  offPointerUp = mergeCleanups(offUp, offCancel);
   timeout.start(HELD_WINDOW_MS, disarm);
 }
 

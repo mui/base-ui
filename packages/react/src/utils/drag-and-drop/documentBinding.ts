@@ -1,4 +1,5 @@
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from './sharedState';
@@ -86,14 +87,7 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
       addEventListener(target, type, onCapture, { capture: true }),
       addEventListener(target, type, onBubble),
     ]);
-    return () => {
-      for (const off of offs) {
-        off();
-      }
-      if (shadowRoot) {
-        boundShadowRoots.delete(root.host);
-      }
-    };
+    return mergeCleanups(...offs, shadowRoot && (() => boundShadowRoots.delete(root.host)));
   };
 
   function unbind(root: DragEventRoot): void {

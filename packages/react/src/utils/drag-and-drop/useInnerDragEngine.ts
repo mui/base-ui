@@ -7,7 +7,8 @@ import { useDraggableContext } from '../../draggable/DraggableContext';
 import type { DraggableContextValue } from '../../draggable/DraggableContext';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
-import { applyDraggableStaticSetup, bindDraggableSensors } from './draggable';
+import { applyDraggableStaticSetup } from './draggable';
+import { bindPointerListeners } from './synthetic/syntheticSensor';
 import type { DraggableConfig } from './draggable';
 import { addDraggableRegistration } from './draggableRegistry';
 import { registerViewport, registerTarget, registerMonitor } from './registrations';
@@ -126,7 +127,7 @@ export function createRegisterSource(
     });
     const unregister = addDraggableRegistration(element, getNormalized, staticSetup.refresh);
     retargetEndingPreviewSource(element, getPreviewSourceIdentity(initial));
-    const unbindSensors = bindDraggableSensors(element);
+    const unbindSensors = bindPointerListeners(element);
 
     return onceCleanup(() => {
       staticSetup.release();
