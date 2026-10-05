@@ -594,6 +594,10 @@ describe('<Menubar />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('share-menu')).not.toBe(null);
         });
+        // The submenu focuses its first item a frame after opening.
+        await waitFor(() => {
+          expect(screen.getByTestId('share-item-1')).toHaveFocus();
+        });
 
         // Close submenu with left arrow
         await user.keyboard('{ArrowLeft}');
