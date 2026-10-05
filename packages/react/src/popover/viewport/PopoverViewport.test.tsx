@@ -198,7 +198,12 @@ describe('<Popover.Viewport />', () => {
       await user.click(screen.getByRole('button', { name: 'Trigger' }));
       await rerender(<Test triggerKey="b" />);
 
-      expect(screen.getByTestId('viewport')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+      expect(screen.getByTestId('viewport')).not.toHaveAttribute('data-transitioning');
+      expect(document.querySelector('[data-previous]')).toBe(null);
     },
   );
 
