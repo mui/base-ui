@@ -52,13 +52,13 @@ describe('<Slider.Label />', () => {
     try {
       const { user, unmount } = await render(
         <React.Fragment>
-          <input id="volume" aria-label="Unrelated control" />
+          <input aria-label="Unrelated control" />
           {ReactDOM.createPortal(
             <Field.Root>
               <Slider.Root defaultValue={50}>
                 <Slider.Label>Volume</Slider.Label>
                 <Slider.Control>
-                  <Slider.Thumb id="volume" />
+                  <Slider.Thumb />
                 </Slider.Control>
               </Slider.Root>
             </Field.Root>,
@@ -69,10 +69,14 @@ describe('<Slider.Label />', () => {
 
       try {
         const thumb = within(container).getByRole('slider', { name: 'Volume' });
+        const unrelatedControl = screen.getByRole('textbox', { name: 'Unrelated control' });
+        expect(thumb.id).not.toBe('');
+        unrelatedControl.id = thumb.id;
 
         await user.click(within(container).getByText('Volume'));
 
         expect(shadowRoot.activeElement).toBe(thumb);
+        expect(unrelatedControl).not.toHaveFocus();
       } finally {
         unmount();
       }
