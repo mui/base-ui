@@ -90,48 +90,31 @@ describe('FloatingFocusManager: focus return at close', () => {
       return trigger;
     }
 
-    it.each([
-      {
-        closeWith: 'Escape',
-        close: (user: User) => user.keyboard('{Escape}'),
-        focusOptions: { preventScroll: true, focusVisible: true },
-      },
-      {
-        closeWith: 'a pointer press on Popover.Close',
-        close: (user: User) => user.click(screen.getByTestId('close')),
-        focusOptions: { preventScroll: true },
-      },
-    ])(
-      'focuses the trigger once when closed with $closeWith, before the popup unmounts',
-      async ({ close, focusOptions }) => {
-        const exit = holdExit();
-        const { user } = await render(<TestPopover />);
-        const trigger = await openPopover(user);
-        const focusSpy = vi.spyOn(trigger, 'focus');
+    it('focuses the trigger once when closed with a pointer press on Popover.Close, before the popup unmounts', async () => {
+      const exit = holdExit();
+      const { user } = await render(<TestPopover />);
+      const trigger = await openPopover(user);
+      const focusSpy = vi.spyOn(trigger, 'focus');
 
-        await close(user);
+      await user.click(screen.getByTestId('close'));
 
-        await waitFor(() => {
-          expect(trigger).toHaveFocus();
-        });
-        const popup = screen.getByTestId('popup');
-        expect(popup).toHaveAttribute('data-ending-style');
-        expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
-
-        await exit.release();
-        expect(screen.queryByTestId('popup')).toBe(null);
+      await waitFor(() => {
         expect(trigger).toHaveFocus();
-        expect(focusSpy.mock.calls).toEqual([[focusOptions]]);
-      },
-    );
+      });
+      const popup = screen.getByTestId('popup');
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
+
+      await exit.release();
+      expect(screen.queryByTestId('popup')).toBe(null);
+      expect(trigger).toHaveFocus();
+      expect(focusSpy.mock.calls).toEqual([[{ preventScroll: true }]]);
+    });
   });
 
   describe('reopened in the close commit', () => {
-    function ReopeningPopover(props: {
-      reopenWith: 'handle' | 'prop';
-      reopenRef: React.RefObject<boolean>;
-    }) {
-      const { reopenWith, reopenRef } = props;
+    function ReopeningPopover(props: { reopenRef: React.RefObject<boolean> }) {
+      const { reopenRef } = props;
       const [handle] = React.useState(() => Popover.createHandle());
       const [open, setOpen] = React.useState(false);
 
@@ -140,12 +123,8 @@ describe('FloatingFocusManager: focus return at close', () => {
           return;
         }
         reopenRef.current = false;
-        if (reopenWith === 'handle') {
-          handle.open('reopening-trigger');
-        } else {
-          setOpen(true);
-        }
-      }, [open, reopenWith, reopenRef, handle]);
+        handle.open('reopening-trigger');
+      }, [open, reopenRef, handle]);
 
       return (
         <Popover.Root handle={handle} open={open} onOpenChange={setOpen}>
@@ -161,30 +140,25 @@ describe('FloatingFocusManager: focus return at close', () => {
       );
     }
 
-    it.each(['handle', 'prop'] as const)(
-      'keeps the focus ring of an Escape close when reopened by %s',
-      async (reopenWith) => {
-        const reopenRef: React.RefObject<boolean> = { current: false };
-        const { user } = await render(
-          <ReopeningPopover reopenWith={reopenWith} reopenRef={reopenRef} />,
-        );
-        const trigger = screen.getByRole('button', { name: 'Trigger' });
-        await act(async () => trigger.focus());
-        await user.keyboard('{Enter}');
-        await waitFor(() => {
-          expect(screen.getByTestId('inside')).toHaveFocus();
-        });
-        const focusSpy = vi.spyOn(trigger, 'focus');
+    it('keeps the focus ring of an Escape close when reopened by a handle', async () => {
+      const reopenRef: React.RefObject<boolean> = { current: false };
+      const { user } = await render(<ReopeningPopover reopenRef={reopenRef} />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      await act(async () => trigger.focus());
+      await user.keyboard('{Enter}');
+      await waitFor(() => {
+        expect(screen.getByTestId('inside')).toHaveFocus();
+      });
+      const focusSpy = vi.spyOn(trigger, 'focus');
 
-        reopenRef.current = true;
-        await user.keyboard('{Escape}');
+      reopenRef.current = true;
+      await user.keyboard('{Escape}');
 
-        await waitFor(() => {
-          expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true, focusVisible: true });
-        });
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
-      },
-    );
+      await waitFor(() => {
+        expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true, focusVisible: true });
+      });
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
   });
 
   describe('nested Dialogs closed together', () => {

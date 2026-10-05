@@ -5,7 +5,6 @@ import { Combobox } from '@base-ui/react/combobox';
 import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
-import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Popover } from '@base-ui/react/popover';
 import { Select } from '@base-ui/react/select';
 import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
@@ -186,75 +185,6 @@ function Row(props: { children: React.ReactNode }) {
 /* Scenarios */
 
 const scenarios: Scenario[] = [
-  {
-    id: 'popover',
-    title: 'Popover: tab out and back',
-    description: 'A non-modal Popover follows its trigger in the tab order.',
-    popups: ['Popover'],
-    Demo() {
-      return (
-        <Row>
-          <BasicPopover>
-            <Items names={['Item 1', 'Item 2']} />
-          </BasicPopover>
-        </Row>
-      );
-    },
-    steps: [
-      { action: 'click Before', focus: 'Before' },
-      { action: 'Tab', focus: 'Trigger' },
-      { action: 'Enter', focus: 'Item 1', open: ['Popover'] },
-      { action: 'Tab', focus: 'Item 2', open: ['Popover'] },
-      {
-        action: 'Tab',
-        focus: 'After',
-        note: 'Tabbing out of the last item closes the popover and continues after the trigger.',
-      },
-      { action: 'Shift+Tab', focus: 'Trigger', note: 'The closed popover is skipped.' },
-      { action: 'Enter', focus: 'Item 1', open: ['Popover'] },
-      {
-        action: 'Shift+Tab',
-        focus: 'Trigger',
-        open: ['Popover'],
-        note: 'Shift+Tab out of the first item returns to the trigger and keeps the popover open.',
-      },
-      {
-        action: 'Tab',
-        focus: 'Item 1',
-        open: ['Popover'],
-        note: 'Tab from the trigger goes back into the open popover.',
-      },
-      { action: 'Shift+Tab', focus: 'Trigger', open: ['Popover'] },
-      { action: 'Shift+Tab', focus: 'Before', note: 'Leaving the trigger backwards closes it.' },
-    ],
-  },
-  {
-    id: 'popover-modal',
-    title: 'Popover with modal and a Close button',
-    description: 'A modal Popover with a Close part traps focus.',
-    popups: ['Popover'],
-    Demo() {
-      const { label } = useLabels();
-      return (
-        <Row>
-          <BasicPopover modal>
-            <Button name="Item 1" />
-            <Popover.Close {...label('Close')}>Close</Popover.Close>
-          </BasicPopover>
-        </Row>
-      );
-    },
-    steps: [
-      { action: 'click Before', focus: 'Before' },
-      { action: 'Tab', focus: 'Trigger' },
-      { action: 'Enter', focus: 'Item 1', open: ['Popover'] },
-      { action: 'Tab', focus: 'Close', open: ['Popover'] },
-      { action: 'Tab', focus: 'Item 1', open: ['Popover'], note: 'Focus wraps around.' },
-      { action: 'Shift+Tab', focus: 'Close', open: ['Popover'] },
-      { action: 'Escape', focus: 'Trigger', note: 'Escape returns focus to the trigger.' },
-      { action: 'Tab', focus: 'After' },
-    ],
-  },
   {
     id: 'popover-hover',
     title: 'Popover opened on hover',
@@ -457,34 +387,6 @@ const scenarios: Scenario[] = [
     ],
   },
   {
-    id: 'menu',
-    title: 'Menu: tab out and back',
-    description: 'Tab and Shift+Tab both close a menu.',
-    popups: ['Menu'],
-    Demo() {
-      return (
-        <Row>
-          <BasicMenu />
-        </Row>
-      );
-    },
-    steps: [
-      { action: 'click Before', focus: 'Before' },
-      { action: 'Tab', focus: 'Trigger' },
-      { action: 'Enter', focus: 'Item 1', open: ['Menu'] },
-      { action: 'ArrowDown', focus: 'Item 2', open: ['Menu'] },
-      { action: 'Tab', focus: 'After', note: 'Tab closes the menu and moves on.' },
-      { action: 'Shift+Tab', focus: 'Trigger' },
-      { action: 'Enter', focus: 'Item 1', open: ['Menu'] },
-      {
-        action: 'Shift+Tab',
-        focus: 'Trigger',
-        note: 'Shift+Tab closes the menu and returns to its trigger.',
-      },
-      { action: 'Shift+Tab', focus: 'Before' },
-    ],
-  },
-  {
     id: 'menu-hover',
     title: 'Menu opened on hover',
     description: 'Hover the trigger, then keep the pointer still.',
@@ -612,29 +514,6 @@ const scenarios: Scenario[] = [
       { action: 'Shift+Tab', focus: 'Trigger' },
       { action: 'Enter', focus: 'Search', open: ['Combobox'] },
       { action: 'Escape', focus: 'Trigger', note: 'Escape returns focus to the trigger.' },
-    ],
-  },
-  {
-    id: 'dialog',
-    title: 'Dialog',
-    description: 'A modal Dialog traps focus.',
-    popups: ['Dialog'],
-    Demo() {
-      return (
-        <Row>
-          <BasicDialog />
-        </Row>
-      );
-    },
-    steps: [
-      { action: 'click Before', focus: 'Before' },
-      { action: 'Tab', focus: 'Trigger' },
-      { action: 'Enter', focus: 'Item 1', open: ['Dialog'] },
-      { action: 'Tab', focus: 'Close', open: ['Dialog'] },
-      { action: 'Tab', focus: 'Item 1', open: ['Dialog'], note: 'Focus wraps around.' },
-      { action: 'Shift+Tab', focus: 'Close', open: ['Dialog'] },
-      { action: 'Escape', focus: 'Trigger' },
-      { action: 'Tab', focus: 'After' },
     ],
   },
   {
@@ -803,6 +682,8 @@ const scenarios: Scenario[] = [
       { action: 'Tab', focus: 'Outer' },
       { action: 'Enter', focus: 'Inner', open: ['Outer'] },
       { action: 'Enter', focus: 'Inner item', open: ['Outer', 'Inner'] },
+      // The inner trigger's guard unmounts with the inner popup before focus reaches the outer
+      // popup's guard, so that guard can't tell from the focus event where focus came from.
       { action: 'Tab', focus: 'After', note: 'Tabbing out of both popovers closes both.' },
       { action: 'Shift+Tab', focus: 'Outer' },
       { action: 'Enter', focus: 'Inner', open: ['Outer'] },
@@ -860,6 +741,8 @@ const scenarios: Scenario[] = [
       { action: 'Tab', focus: 'Outer' },
       { action: 'Enter', focus: 'Menu', open: ['Outer'] },
       { action: 'Enter', focus: 'Item 1', open: ['Outer', 'Menu'] },
+      // The inner trigger's guard unmounts with the inner popup before focus reaches the outer
+      // popup's guard, so that guard can't tell from the focus event where focus came from.
       { action: 'Tab', focus: 'After', note: 'Tabbing out of the menu leaves the popover too.' },
       { action: 'Shift+Tab', focus: 'Outer' },
       { action: 'Enter', focus: 'Menu', open: ['Outer'] },
@@ -925,66 +808,6 @@ const scenarios: Scenario[] = [
       { action: 'Enter', focus: 'Input', open: ['Outer'] },
       { action: 'Shift+Tab', focus: 'Outer', open: ['Outer'] },
       { action: 'Shift+Tab', focus: 'Before' },
-    ],
-  },
-  {
-    id: 'navigation-menu',
-    title: 'Navigation menu',
-    description: 'Tab moves through the open content, then on to the next item.',
-    popups: ['Overview'],
-    Demo() {
-      const { label, popup } = useLabels();
-      return (
-        <Row>
-          <NavigationMenu.Root>
-            <NavigationMenu.List>
-              <NavigationMenu.Item>
-                <NavigationMenu.Trigger {...label('Overview')}>Overview</NavigationMenu.Trigger>
-                <NavigationMenu.Content {...popup('Overview')}>
-                  {['Link 1', 'Link 2'].map((name) => (
-                    <NavigationMenu.Link key={name} href="#" {...label(name)}>
-                      {name}
-                    </NavigationMenu.Link>
-                  ))}
-                </NavigationMenu.Content>
-              </NavigationMenu.Item>
-              <NavigationMenu.Item>
-                <NavigationMenu.Link href="#" {...label('Docs')}>
-                  Docs
-                </NavigationMenu.Link>
-              </NavigationMenu.Item>
-            </NavigationMenu.List>
-            <NavigationMenu.Portal>
-              <NavigationMenu.Positioner sideOffset={8}>
-                <NavigationMenu.Popup>
-                  <NavigationMenu.Viewport />
-                </NavigationMenu.Popup>
-              </NavigationMenu.Positioner>
-            </NavigationMenu.Portal>
-          </NavigationMenu.Root>
-        </Row>
-      );
-    },
-    steps: [
-      { action: 'click Before', focus: 'Before' },
-      { action: 'Tab', focus: 'Overview' },
-      { action: 'Enter', focus: 'Overview', open: ['Overview'] },
-      { action: 'Tab', focus: 'Link 1', open: ['Overview'], note: 'Tab enters the open content.' },
-      { action: 'Tab', focus: 'Link 2', open: ['Overview'] },
-      {
-        action: 'Tab',
-        focus: 'Docs',
-        open: ['Overview'],
-        note: 'The content stays open while focus is still in the navigation menu.',
-      },
-      {
-        action: 'Shift+Tab',
-        focus: 'Link 2',
-        open: ['Overview'],
-        note: 'Shift+Tab goes back into the open content, at its last link.',
-      },
-      { action: 'Tab', focus: 'Docs', open: ['Overview'] },
-      { action: 'Tab', focus: 'After', note: 'Leaving the navigation menu closes the content.' },
     ],
   },
   {

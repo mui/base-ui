@@ -103,11 +103,15 @@ describe('runOpenChange', () => {
     run(false, createDetails(REASONS.escapeKey));
     expect(commit).toHaveBeenLastCalledWith(false);
 
-    onOpenChange.mockImplementation((_open, details) => {
+    onOpenChange.mockImplementationOnce((_open, details) => {
       details.preventUnmountOnClose();
     });
     run(false, createDetails(REASONS.escapeKey));
     expect(commit).toHaveBeenLastCalledWith(true);
+
+    // The request doesn't carry over to the next close.
+    run(false, createDetails(REASONS.escapeKey));
+    expect(commit).toHaveBeenLastCalledWith(false);
   });
 
   it("reports the root's trigger for a close that names none", () => {

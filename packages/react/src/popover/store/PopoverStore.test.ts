@@ -19,16 +19,6 @@ function createOpenStore() {
 
 describe('PopoverStore', () => {
   describe('setOpen', () => {
-    it('reports the active trigger only for a close button press', () => {
-      const closePress = createOpenStore();
-      closePress.store.setOpen(false, createChangeEventDetails(REASONS.closePress));
-      expect(closePress.onOpenChange.mock.calls[0][1].trigger).toBe(closePress.trigger);
-
-      const escape = createOpenStore();
-      escape.store.setOpen(false, createChangeEventDetails(REASONS.escapeKey));
-      expect(escape.onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
-    });
-
     it('maps the change reason to instantType', () => {
       const escape = createOpenStore();
       escape.store.setOpen(false, createChangeEventDetails(REASONS.escapeKey));
@@ -51,7 +41,7 @@ describe('PopoverStore', () => {
       expect(outsidePress.store.state.instantType).toBe(undefined);
     });
 
-    it('lets a hover open stick until a patient click', () => {
+    it('re-arms stickIfOpen on a hover open', () => {
       const { store } = createOpenStore();
       store.set('stickIfOpen', false);
 

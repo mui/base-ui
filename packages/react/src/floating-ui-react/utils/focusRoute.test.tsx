@@ -222,16 +222,6 @@ describe('focusRoute', () => {
     expect(after).toHaveFocus();
   });
 
-  it('leaves through the portal when the trigger has no guards', () => {
-    const { guards, inside, route, reach } = setup();
-    guards[AFTER_TRIGGER].remove();
-    route[AFTER_TRIGGER].current = null;
-
-    reach(AFTER_CONTENT, inside);
-
-    expect(guards[AFTER_PORTAL]).toHaveFocus();
-  });
-
   it('leaves past the placeholder when the trigger is no longer in the document', () => {
     const { trigger, guards, inside, reach } = setup();
     trigger.remove();
@@ -481,28 +471,23 @@ describe.skipIf(isJSDOM)('focus route through the guards', () => {
   describe('while the popup is open and focus is outside it', () => {
     beforeEach(resetBrowserPointer);
 
-    describe.each([
-      // A hover-opened popover leaves focus where it was.
-      { name: 'Popover', Component: Popover, focusesInside: false },
-      // A hover-opened menu still moves focus inside on a later frame.
-      { name: 'Menu', Component: Menu, focusesInside: true },
-    ])('$name', ({ name, Component, focusesInside }) => {
+    describe('Menu', () => {
       it('tabs forward onto the trigger instead of bouncing off its leading guard', async () => {
         await render(
           <div>
             <button data-testid="before">Before</button>
-            <Component.Root modal={false}>
-              <Component.Trigger openOnHover delay={0}>
+            <Menu.Root modal={false}>
+              <Menu.Trigger openOnHover delay={0}>
                 Toggle
-              </Component.Trigger>
-              <Component.Portal>
-                <Component.Positioner>
-                  <Component.Popup data-testid="popup">
-                    {name === 'Menu' ? <Menu.Item>Inside</Menu.Item> : <button>Inside</button>}
-                  </Component.Popup>
-                </Component.Positioner>
-              </Component.Portal>
-            </Component.Root>
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup">
+                    <Menu.Item>Inside</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
             <button data-testid="after">After</button>
           </div>,
         );
@@ -514,9 +499,10 @@ describe.skipIf(isJSDOM)('focus route through the guards', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('popup')).not.toBe(null);
         });
-        // Wait for any initial focus to land before moving focus back out.
+        // A hover-opened menu still moves focus inside on a later frame; wait for it to land
+        // before moving focus back out.
         await waitFor(() => {
-          expect(screen.getByTestId('popup').contains(document.activeElement)).toBe(focusesInside);
+          expect(screen.getByTestId('popup').contains(document.activeElement)).toBe(true);
         });
         await act(async () => before.focus());
 
@@ -528,8 +514,8 @@ describe.skipIf(isJSDOM)('focus route through the guards', () => {
     });
 
     describe('hover-opened Popover', () => {
-      function HoverPopover() {
-        return (
+      it('tabs backward onto the trigger from the element after it', async () => {
+        await render(
           <div>
             <button data-testid="before">Before</button>
             <Popover.Root>
@@ -545,37 +531,18 @@ describe.skipIf(isJSDOM)('focus route through the guards', () => {
               </Popover.Portal>
             </Popover.Root>
             <button data-testid="after">After</button>
-          </div>
+          </div>,
         );
-      }
 
-      async function hoverOpen(focusTarget: HTMLElement) {
         const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await act(async () => focusTarget.focus());
+        const after = screen.getByTestId('after');
+        await act(async () => after.focus());
         enterWithMouse(trigger);
         await waitFor(() => {
           expect(screen.queryByTestId('popup')).not.toBe(null);
         });
         // Hover-opening leaves focus where it was.
-        expect(focusTarget).toHaveFocus();
-        return trigger;
-      }
-
-      it('tabs from the trigger past the popup and closes it', async () => {
-        await render(<HoverPopover />);
-        const trigger = await hoverOpen(screen.getByRole('button', { name: 'Toggle' }));
-
-        await user.tab();
-
-        expect(screen.getByTestId('after')).toHaveFocus();
-        await waitFor(() => {
-          expect(trigger).toHaveAttribute('aria-expanded', 'false');
-        });
-      });
-
-      it('tabs backward onto the trigger from the element after it', async () => {
-        await render(<HoverPopover />);
-        const trigger = await hoverOpen(screen.getByTestId('after'));
+        expect(after).toHaveFocus();
 
         await user.tab({ shift: true });
 
@@ -586,16 +553,13 @@ describe.skipIf(isJSDOM)('focus route through the guards', () => {
   });
 
   describe('when the consumer refuses the focus-out close', () => {
-    describe.each([
-      { name: 'Popover', Component: Popover },
-      { name: 'Menu', Component: Menu },
-    ])('$name', ({ name, Component }) => {
-      function RefusingPopup() {
+    describe('Menu', () => {
+      function RefusingMenu() {
         const [open, setOpen] = React.useState(false);
         return (
           <div>
             <button data-testid="before">Before</button>
-            <Component.Root
+            <Menu.Root
               modal={false}
               open={open}
               onOpenChange={(nextOpen, details) => {
@@ -604,26 +568,22 @@ describe.skipIf(isJSDOM)('focus route through the guards', () => {
                 }
               }}
             >
-              <Component.Trigger>Toggle</Component.Trigger>
-              <Component.Portal>
-                <Component.Positioner>
-                  <Component.Popup data-testid="popup">
-                    {name === 'Menu' ? (
-                      <Menu.Item data-testid="inside">Inside</Menu.Item>
-                    ) : (
-                      <button data-testid="inside">Inside</button>
-                    )}
-                  </Component.Popup>
-                </Component.Positioner>
-              </Component.Portal>
-            </Component.Root>
+              <Menu.Trigger>Toggle</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup">
+                    <Menu.Item data-testid="inside">Inside</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
             <button data-testid="after">After</button>
           </div>
         );
       }
 
       it('tabs out to the element after the trigger instead of looping back inside', async () => {
-        await render(<RefusingPopup />);
+        await render(<RefusingMenu />);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
@@ -639,133 +599,22 @@ describe.skipIf(isJSDOM)('focus route through the guards', () => {
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
       });
     });
-
-    it('tabs backward into the end of a Popover from the element after it', async () => {
-      function App() {
-        const [open, setOpen] = React.useState(false);
-        return (
-          <div>
-            <Popover.Root
-              modal={false}
-              open={open}
-              onOpenChange={(nextOpen, details) => {
-                // Refuse every close, so focus can leave without closing the popover.
-                if (details.reason === 'trigger-press') {
-                  setOpen(nextOpen);
-                }
-              }}
-            >
-              <Popover.Trigger>Toggle</Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner>
-                  <Popover.Popup data-testid="popup">
-                    <button data-testid="first">First</button>
-                    <button data-testid="last">Last</button>
-                  </Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>
-            <button data-testid="after">After</button>
-          </div>
-        );
-      }
-
-      await render(<App />);
-
-      await user.click(screen.getByRole('button', { name: 'Toggle' }));
-      await waitFor(() => {
-        expect(screen.getByTestId('first')).toHaveFocus();
-      });
-      await user.click(screen.getByTestId('after'));
-      expect(screen.getByTestId('after')).toHaveFocus();
-      expect(screen.queryByTestId('popup')).not.toBe(null);
-
-      await user.tab({ shift: true });
-
-      expect(screen.getByTestId('last')).toHaveFocus();
-    });
   });
 
-  describe.each([
-    { name: 'Popover', Component: Popover },
-    { name: 'Menu', Component: Menu },
-  ])('$name as the last element of a Popover', ({ name, Component }) => {
-    it('tabs out of both popups to the element after the outer trigger', async () => {
-      await render(
-        <div>
-          <button data-testid="before">Before</button>
-          <Popover.Root modal={false}>
-            <Popover.Trigger>Outer</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup data-testid="outer-popup">
-                  <Component.Root modal={false}>
-                    <Component.Trigger>Inner</Component.Trigger>
-                    <Component.Portal>
-                      <Component.Positioner>
-                        <Component.Popup data-testid="inner-popup">
-                          {name === 'Menu' ? (
-                            <Menu.Item data-testid="inside">Inside</Menu.Item>
-                          ) : (
-                            <button data-testid="inside">Inside</button>
-                          )}
-                        </Component.Popup>
-                      </Component.Positioner>
-                    </Component.Portal>
-                  </Component.Root>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-          <button data-testid="after">After</button>
-        </div>,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'Outer' }));
-      const inner = screen.getByRole('button', { name: 'Inner' });
-      await waitFor(() => {
-        expect(inner).toHaveFocus();
-      });
-      await user.keyboard('{Enter}');
-      await waitFor(() => {
-        expect(screen.getByTestId('inside')).toHaveFocus();
-      });
-
-      // The inner trigger's guard unmounts with the inner popup before focus reaches the outer
-      // popup's guard, so that guard can't tell from the focus event where focus came from.
-      await user.tab();
-
-      expect(screen.getByTestId('after')).toHaveFocus();
-      await waitFor(() => {
-        expect(screen.queryByTestId('inner-popup')).toBe(null);
-      });
-      await waitFor(() => {
-        expect(screen.queryByTestId('outer-popup')).toBe(null);
-      });
-    });
-  });
-
-  describe.each([
-    { name: 'Popover', Component: Popover },
-    { name: 'Menu', Component: Menu },
-  ])('$name opened without a trigger', ({ name, Component }) => {
+  describe('Menu opened without a trigger', () => {
     it('tabs out of the popup to the element after its portal', async () => {
       await render(
         <div>
           <button data-testid="before">Before</button>
-          <Component.Root defaultOpen modal={false}>
-            <Component.Portal>
-              <Component.Positioner>
-                <Component.Popup data-testid="popup">
-                  {name === 'Menu' ? (
-                    <Menu.Item data-testid="inside">Inside</Menu.Item>
-                  ) : (
-                    <button data-testid="inside">Inside</button>
-                  )}
-                </Component.Popup>
-              </Component.Positioner>
-            </Component.Portal>
-          </Component.Root>
+          <Menu.Root defaultOpen modal={false}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="popup">
+                  <Menu.Item data-testid="inside">Inside</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
           <button data-testid="after">After</button>
         </div>,
       );

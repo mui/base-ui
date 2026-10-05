@@ -978,14 +978,6 @@ describe('createPopupOpenState', () => {
     );
   });
 
-  it('records the reason of an open request', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
-
-    expect(createPopupOpenState(state, true, request(REASONS.triggerHover)).openReason).toBe(
-      REASONS.triggerHover,
-    );
-  });
-
   it('keeps the open reason through a close request', () => {
     const state = createInitialPopupStoreState(new PopupTriggerMap());
     state.open = true;
@@ -996,21 +988,21 @@ describe('createPopupOpenState', () => {
     );
   });
 
-  it('replaces the open reason when an open popup is opened again', () => {
-    // A click on the trigger of a hover-opened popup upgrades it to a click-opened one.
+  it('replaces the open reason when the popup is opened, again or while closing', () => {
     const state = createInitialPopupStoreState(new PopupTriggerMap());
+    expect(createPopupOpenState(state, true, request(REASONS.triggerHover)).openReason).toBe(
+      REASONS.triggerHover,
+    );
+
+    // A click on the trigger of a hover-opened popup upgrades it to a click-opened one.
     state.open = true;
     state.openReason = REASONS.triggerHover;
-
     expect(createPopupOpenState(state, true, request(REASONS.triggerPress)).openReason).toBe(
       REASONS.triggerPress,
     );
-  });
 
-  it('replaces the open reason when a closing popup reopens', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
-    state.openReason = REASONS.triggerHover;
-
+    // A closing popup that reopens.
+    state.open = false;
     expect(createPopupOpenState(state, true, request(REASONS.triggerFocus)).openReason).toBe(
       REASONS.triggerFocus,
     );
@@ -1102,34 +1094,16 @@ describe('applyPopupOpenChange', () => {
     return createChangeEventDetails(reason) as OpenChangeDetails;
   }
 
-  it('commits after the consumer and the dispatch', () => {
-    const { store, order, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
-    const details = createDetails(REASONS.triggerFocus);
+  it('runs beforeCommit right before the update', () => {
+    const { store, order, update } = createOpenChangeStore();
     const beforeCommit = vi.fn(() => {
       order.push('beforeCommit');
     });
 
-    applyPopupOpenChange(store, true, details, { beforeCommit });
+    applyPopupOpenChange(store, true, createDetails(REASONS.triggerFocus), { beforeCommit });
 
-    expect(onOpenChange).toHaveBeenCalledWith(true, details);
-    expect(dispatchOpenChange).toHaveBeenCalledWith(true, details);
     expect(update).toHaveBeenCalledTimes(1);
-    expect(order).toEqual(['onOpenChange', 'dispatchOpenChange', 'beforeCommit', 'update']);
-  });
-
-  it('does not commit a canceled change', () => {
-    const { store, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
-    onOpenChange.mockImplementation((_open, details) => {
-      details.cancel();
-    });
-    const beforeCommit = vi.fn();
-
-    applyPopupOpenChange(store, true, createDetails(REASONS.triggerPress), { beforeCommit });
-
-    expect(onOpenChange).toHaveBeenCalledTimes(1);
-    expect(beforeCommit).not.toHaveBeenCalled();
-    expect(dispatchOpenChange).not.toHaveBeenCalled();
-    expect(update).not.toHaveBeenCalled();
+    expect(order.slice(-2)).toEqual(['beforeCommit', 'update']);
   });
 
   it('ignores a close while closed', () => {

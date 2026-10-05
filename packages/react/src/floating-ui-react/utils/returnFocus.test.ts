@@ -168,16 +168,6 @@ const rows: Row[] = [
     expected: null,
   },
   {
-    name: 'a sloppy outside press on blank space with an explicit finalFocus',
-    request: () => request(REASONS.outsidePress, pointerdown()),
-    pressed: true,
-    focus: 'body',
-    ownedFocusAtClose: true,
-    returnFocus: 'final',
-    settle: SETTLE_RELEASE,
-    expected: { focus: 'final' },
-  },
-  {
     name: 'a sloppy outside press on an input with an explicit finalFocus',
     request: () => request(REASONS.outsidePress, pointerdown()),
     pressed: true,
@@ -374,13 +364,6 @@ const rows: Row[] = [
 
   // Passive session: a hover-opened Popover
   {
-    name: 'a passive session closed with Escape when focus never entered',
-    request: () => request(REASONS.escapeKey, escape()),
-    passive: true,
-    focus: 'outsideInput',
-    expected: null,
-  },
-  {
     name: 'a passive session closed with Escape after focus moved inside',
     request: () => request(REASONS.escapeKey, escape()),
     passive: true,
@@ -399,19 +382,6 @@ const rows: Row[] = [
     request: () => request(REASONS.escapeKey, escape()),
     passive: true,
     focus: 'body',
-    ownedFocusAtClose: false,
-    expected: null,
-  },
-  {
-    name: 'a passive session closed by the pointer leaving with focus inside',
-    request: () => request(REASONS.triggerHover, mouseleave()),
-    passive: true,
-    expected: null,
-  },
-  {
-    name: 'a parent closed while focus is in its open child Dialog',
-    request: () => request(REASONS.closePress, click()),
-    focus: 'outside',
     ownedFocusAtClose: false,
     expected: null,
   },

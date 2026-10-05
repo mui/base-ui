@@ -17,6 +17,7 @@ import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from './MenubarContext';
 import { useMenuRootContext } from '../menu/root/MenuRootContext';
+import type { FloatingUIOpenChangeDetails } from '../internals/types';
 
 describe('<Menubar />', () => {
   beforeEach(async () => {
@@ -51,7 +52,12 @@ describe('<Menubar />', () => {
   });
 
   it('ignores a delayed touch click immediately after focus opens another menu', async () => {
-    const { user } = await render(<ContainedTriggerMenubar />);
+    const handleInternalOpenChange = vi.fn();
+    const { user } = await render(
+      <ContainedTriggerMenubar
+        editMenuChildren={<OpenChangeSpy onOpenChange={handleInternalOpenChange} />}
+      />,
+    );
 
     await user.click(screen.getByTestId('file-trigger'));
     await screen.findByTestId('file-menu');
@@ -67,12 +73,15 @@ describe('<Menubar />', () => {
         editTrigger.focus();
       });
       screen.getByTestId('edit-menu');
+      handleInternalOpenChange.mockClear();
 
       fireEvent(
         editTrigger,
         new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
       );
       expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+      // The ignored click isn't reported as an internal close either.
+      expect(handleInternalOpenChange.mock.calls.length).toBe(0);
 
       await act(async () => {
         vi.advanceTimersByTime(310);
@@ -89,74 +98,6 @@ describe('<Menubar />', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('edit-menu')).toBe(null);
     });
-  });
-
-  it('does not report an ignored touch click as an internal close', async () => {
-    const handleInternalOpenChange = vi.fn();
-
-    function OpenChangeSpy() {
-      const floatingRootContext = useMenuRootContext().store.useState('floatingRootContext');
-
-      React.useEffect(() => {
-        floatingRootContext.context.events.on('openchange', handleInternalOpenChange);
-        return () => {
-          floatingRootContext.context.events.off('openchange', handleInternalOpenChange);
-        };
-      }, [floatingRootContext]);
-
-      return null;
-    }
-
-    const { user } = await render(
-      <Menubar>
-        <Menu.Root>
-          <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner data-testid="file-menu">
-              <Menu.Popup>
-                <Menu.Item>Open</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-        <Menu.Root>
-          <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
-          <OpenChangeSpy />
-          <Menu.Portal>
-            <Menu.Positioner data-testid="edit-menu">
-              <Menu.Popup>
-                <Menu.Item>Copy</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      </Menubar>,
-    );
-
-    await user.click(screen.getByTestId('file-trigger'));
-    await screen.findByTestId('file-menu');
-
-    const editTrigger = screen.getByTestId('edit-trigger');
-
-    // Freeze timers so the 300ms touch-click cooldown started by the focus-open is still active.
-    vi.useFakeTimers();
-    try {
-      await act(async () => {
-        editTrigger.focus();
-      });
-      screen.getByTestId('edit-menu');
-      handleInternalOpenChange.mockClear();
-
-      fireEvent(
-        editTrigger,
-        new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
-      );
-    } finally {
-      vi.useRealTimers();
-    }
-
-    expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-    expect(handleInternalOpenChange.mock.calls.length).toBe(0);
   });
 
   it('closes on a touch item click immediately after focus opens another menu', async () => {
@@ -1439,9 +1380,24 @@ describe('<Menubar />', () => {
   });
 });
 
-function ContainedTriggerMenubar(props: Menubar.Props) {
+function OpenChangeSpy(props: { onOpenChange: (details: FloatingUIOpenChangeDetails) => void }) {
+  const { onOpenChange } = props;
+  const floatingRootContext = useMenuRootContext().store.useState('floatingRootContext');
+
+  React.useEffect(() => {
+    floatingRootContext.context.events.on('openchange', onOpenChange);
+    return () => {
+      floatingRootContext.context.events.off('openchange', onOpenChange);
+    };
+  }, [floatingRootContext, onOpenChange]);
+
+  return null;
+}
+
+function ContainedTriggerMenubar(props: Menubar.Props & { editMenuChildren?: React.ReactNode }) {
+  const { editMenuChildren, ...menubarProps } = props;
   return (
-    <Menubar {...props} style={{ maxWidth: '25vw', display: 'flex' }}>
+    <Menubar {...menubarProps} style={{ maxWidth: '25vw', display: 'flex' }}>
       <Menu.Root>
         <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
         <Menu.Portal>
@@ -1466,6 +1422,7 @@ function ContainedTriggerMenubar(props: Menubar.Props) {
       </Menu.Root>
       <Menu.Root>
         <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+        {editMenuChildren}
         <Menu.Portal>
           <Menu.Positioner data-testid="edit-menu">
             <Menu.Popup>

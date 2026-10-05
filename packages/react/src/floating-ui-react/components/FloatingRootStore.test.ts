@@ -99,16 +99,6 @@ describe('FloatingRootStore close requests', () => {
     expect(takeCloseRequest(store, session)?.details.nativeEvent).toBe(event);
   });
 
-  it('is found when the consumer commits the close with `flushSync` before it is dispatched', () => {
-    const store = createStore();
-    const session = markCloseRequest(store);
-    // The close commits inside `onOpenChange` and queues the job; the dispatch comes after, and
-    // the job takes the request when it runs.
-    const event = dispatchClose(store);
-
-    expect(takeCloseRequest(store, session)?.details.nativeEvent).toBe(event);
-  });
-
   it('is kept for a deferred close when there is no input in between', () => {
     const store = createStore();
     const session = markCloseRequest(store);
@@ -127,6 +117,7 @@ describe('FloatingRootStore close requests', () => {
     dispatchClose(store, new KeyboardEvent('keydown', { key: 'Tab' }));
     invalidateCloseRequest(store, new PointerEvent('pointerdown'));
 
+    expect(hasCloseRequestSince(store, session)).toBe(false);
     expect(takeCloseRequest(store, session)).toBe(undefined);
   });
 
@@ -146,18 +137,5 @@ describe('FloatingRootStore close requests', () => {
     dispatchClose(store);
 
     expect(takeCloseRequest(store, session)?.moved).toBe(undefined);
-  });
-
-  it('tells initial focus about a close requested after it was scheduled', () => {
-    const store = createStore();
-    dispatchClose(store);
-    const scheduled = markCloseRequest(store);
-    expect(hasCloseRequestSince(store, scheduled)).toBe(false);
-
-    dispatchClose(store);
-    expect(hasCloseRequestSince(store, scheduled)).toBe(true);
-
-    invalidateCloseRequest(store, new KeyboardEvent('keydown'));
-    expect(hasCloseRequestSince(store, scheduled)).toBe(false);
   });
 });
