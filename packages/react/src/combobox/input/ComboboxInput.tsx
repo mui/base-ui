@@ -214,6 +214,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         id,
         onFocus() {
           setFocused(true);
+          comboboxChipsContext?.setHighlightedChipIndex(undefined);
 
           if (!inline) {
             return;
