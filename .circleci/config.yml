@@ -311,16 +311,14 @@ workflows:
       - test_benchmark:
           <<: *default-context
           name: 'Benchmark tests'
-  # Nightly rather than per push: in September 2026 these jobs used 26% of the repo's credits, and
-  # every failure they had that the regular JSDOM/browser jobs didn't was a flake or an infra error.
+  # On master merges rather than every push: in September 2026 these jobs used 26% of the repo's
+  # credits, and every failure they had that the regular JSDOM/browser jobs didn't was a flake or an
+  # infra error.
   react-compiler:
-    triggers:
-      - schedule:
-          cron: '0 0 * * *'
-          filters:
-            branches:
-              only:
-                - master
+    when:
+      and:
+        - equal: [pipeline, << pipeline.parameters.workflow >>]
+        - equal: [master, << pipeline.git.branch >>]
     jobs:
       - test_unit_compiler:
           <<: *default-context
