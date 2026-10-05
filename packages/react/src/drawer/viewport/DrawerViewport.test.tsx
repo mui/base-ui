@@ -626,6 +626,66 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('dismisses with a touch swipe down that starts on an SVG inside a top-edge scroll container', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <svg width={20} height={20}>
+                  <rect data-testid="rect" width={20} height={20} />
+                </svg>
+                <div style={{ height: 120 }} />
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    const rect = screen.getByTestId('rect');
+    const backdrop = screen.getByTestId('backdrop');
+    const popup = screen.getByTestId('popup');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 160, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+    scroll.scrollTop = 0;
+
+    Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => rect;
+
+    try {
+      fireEvent.touchStart(rect, {
+        touches: [createTouch(rect, { clientX: 0, clientY: 0 })],
+      });
+
+      fireEvent.touchMove(rect, {
+        touches: [createTouch(rect, { clientX: 0, clientY: 140 })],
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+
+      fireEvent.touchEnd(rect, {
+        changedTouches: [createTouch(rect, { clientX: 0, clientY: 140 })],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleOpenChange).toHaveBeenCalledWith(
+      false,
+      expect.objectContaining({ reason: 'swipe' }),
+    );
+  });
+
   it('allows clicks on non-interactive elements without data-base-ui-swipe-ignore', async () => {
     const handleClick = vi.fn();
     const handleOpenChange = vi.fn();

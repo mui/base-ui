@@ -39,7 +39,7 @@ export function isScrollable(
     : isScrollableX(element, allowOverflowIntent);
 }
 
-function findScrollableAncestor(
+export function findScrollableAncestor(
   target: EventTarget | null,
   root: HTMLElement,
   axis: ScrollAxis,
@@ -56,14 +56,6 @@ function findScrollableAncestor(
     node = getParentNode(node);
   }
   return null;
-}
-
-export function hasScrollableAncestor(
-  target: Element,
-  root: HTMLElement,
-  axis: ScrollAxis,
-): boolean {
-  return findScrollableAncestor(target, root, axis) != null;
 }
 
 export function findScrollableTouchTarget(

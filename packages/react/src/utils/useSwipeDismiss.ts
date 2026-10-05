@@ -4,7 +4,7 @@ import { clamp } from '@base-ui/utils/clamp';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { closest, contains, getTarget } from '../floating-ui-react/utils';
-import { findScrollableTouchTarget, hasScrollableAncestor } from './scrollable';
+import { findScrollableAncestor, findScrollableTouchTarget } from './scrollable';
 import type { ScrollAxis } from './scrollable';
 import { getElementAtPoint } from './getElementAtPoint';
 import { getElementTransform } from './getElementTransform';
@@ -380,7 +380,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const element = elementRef.current;
     if (ignoreScrollableAncestors && element && target) {
       const ignoreAncestors = startOptions?.ignoreScrollableAncestors ?? false;
-      if (!ignoreAncestors && hasScrollableAncestor(target, element, scrollAxis)) {
+      if (!ignoreAncestors && findScrollableAncestor(target, element, scrollAxis) != null) {
         return false;
       }
     }
