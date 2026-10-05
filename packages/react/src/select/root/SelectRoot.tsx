@@ -162,7 +162,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           selectedIndex: null,
           popupProps: EMPTY_OBJECT,
           triggerProps: EMPTY_OBJECT,
-          itemRoot: { props: EMPTY_OBJECT, multiple, disabled, readOnly },
+          itemRoot: { props: EMPTY_OBJECT, multiple, disabled, readOnly, isItemEqualToValue },
           triggerElement: null,
           positionerElement: null,
           listElement: null,
@@ -445,8 +445,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const itemProps =
     (listNavigation.item as React.HTMLProps<HTMLElement> | undefined) ?? EMPTY_OBJECT;
   const itemRoot = React.useMemo(
-    () => ({ props: itemProps, multiple, disabled, readOnly }),
-    [itemProps, multiple, disabled, readOnly],
+    () => ({ props: itemProps, multiple, disabled, readOnly, isItemEqualToValue }),
+    [itemProps, multiple, disabled, readOnly, isItemEqualToValue],
   );
 
   store.useContextCallback('setValue', setValue);
