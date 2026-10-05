@@ -362,6 +362,22 @@ describe('<PreviewCard.Root />', () => {
 
         expect(screen.getByText('Content')).not.toBe(null);
       });
+
+      it('does not open after the delay once closed imperatively', async () => {
+        const actionsRef = React.createRef<PreviewCard.Root.Actions>();
+        await render(<TestPreviewCard rootProps={{ actionsRef }} triggerProps={{ delay: 100 }} />);
+
+        const trigger = screen.getByRole('link', { name: 'Link' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await act(async () => actionsRef.current!.close());
+
+        await tick(100);
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
     });
 
     describe('prop: closeDelay', () => {

@@ -2440,6 +2440,32 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe('prop: delay', () => {
+      const { render: renderFakeTimers, clock } = createRenderer();
+
+      clock.withFakeTimers();
+
+      it('does not open after the delay once closed imperatively', async () => {
+        const actionsRef = React.createRef<Menu.Root.Actions>();
+        await renderFakeTimers(
+          <TestMenu rootProps={{ actionsRef }} triggerProps={{ openOnHover: true, delay: 100 }} />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await act(async () => actionsRef.current!.close());
+
+        clock.tick(100);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+    });
+
     describe('prop: closeDelay', () => {
       const { render: renderFakeTimers, clock } = createRenderer();
 

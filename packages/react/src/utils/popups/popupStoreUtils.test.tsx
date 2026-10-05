@@ -1067,11 +1067,9 @@ describe('applyPopupOpenChange', () => {
       openChangeReason: undefined,
     };
 
-    const dispatchOpenChange = vi
-      .spyOn(state.floatingRootContext, 'dispatchOpenChange')
-      .mockImplementation(() => {
-        order.push('dispatchOpenChange');
-      });
+    vi.spyOn(state.floatingRootContext, 'dispatchOpenChange').mockImplementation(() => {
+      order.push('dispatchOpenChange');
+    });
     const onOpenChange = vi.fn((_open: boolean, _details: BaseUIChangeEventDetails<string>) => {
       order.push('onOpenChange');
     });
@@ -1087,7 +1085,7 @@ describe('applyPopupOpenChange', () => {
       update,
     };
 
-    return { store, order, onOpenChange, dispatchOpenChange, update };
+    return { store, order, onOpenChange, update };
   }
 
   function createDetails(reason: string) {
@@ -1106,13 +1104,12 @@ describe('applyPopupOpenChange', () => {
     expect(order.slice(-2)).toEqual(['beforeCommit', 'update']);
   });
 
-  it('ignores a close while closed', () => {
-    const { store, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
+  it('neither reports nor commits a close while closed', () => {
+    const { store, onOpenChange, update } = createOpenChangeStore();
 
     applyPopupOpenChange(store, false, createDetails(REASONS.triggerHover));
 
     expect(onOpenChange).not.toHaveBeenCalled();
-    expect(dispatchOpenChange).not.toHaveBeenCalled();
     expect(update).not.toHaveBeenCalled();
   });
 

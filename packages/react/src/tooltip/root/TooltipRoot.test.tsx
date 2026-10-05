@@ -303,6 +303,24 @@ describe('<Tooltip.Root />', () => {
 
         expect(screen.getByText('Content')).not.toBe(null);
       });
+
+      it('does not open after the delay once closed imperatively', async () => {
+        const actionsRef = React.createRef<Tooltip.Root.Actions>();
+        await render(<TestTooltip rootProps={{ actionsRef }} triggerProps={{ delay: 100 }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await act(async () => actionsRef.current!.close());
+
+        clock.tick(100);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
     });
 
     describe('prop: closeDelay', () => {

@@ -61,12 +61,15 @@ describe('runOpenChange', () => {
     expect(order).toEqual(['onOpenChange', 'dispatchOpenChange', 'commit']);
   });
 
-  it('does nothing when closing a closed popup', () => {
-    const { order, run } = setup({ open: false });
+  it('only emits an unrecorded close when closing a closed popup', () => {
+    const { order, dispatchOpenChange, run } = setup({ open: false });
+    const details = createDetails(REASONS.imperativeAction);
 
-    run(false, createDetails(REASONS.escapeKey));
+    run(false, details);
 
-    expect(order).toEqual([]);
+    // The interactions hear it to cancel a pending open; the consumer isn't asked.
+    expect(order).toEqual(['dispatchOpenChange']);
+    expect(dispatchOpenChange).toHaveBeenCalledWith(false, details, false);
   });
 
   it('opens an open popup again', () => {
