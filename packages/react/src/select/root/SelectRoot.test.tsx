@@ -413,6 +413,8 @@ describe('<Select.Root />', () => {
       render,
       itemRole: 'option',
       selectable: true,
+      listEnd: 'stop',
+      disabledItemNavigation: 'reachable',
     });
   });
 

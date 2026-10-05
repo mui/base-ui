@@ -214,6 +214,9 @@ describe('<Combobox.Root />', () => {
     focusModel: 'virtual',
     homeEnd: false,
     selectable: true,
+    spaceActivates: false,
+    listEnd: 'escape',
+    disabledItemNavigation: 'reachable',
   });
 
   describe('IME composition', () => {

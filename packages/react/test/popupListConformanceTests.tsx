@@ -25,18 +25,21 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     focusModel = 'dom',
     homeEnd = true,
     selectable = false,
+    spaceActivates = true,
+    listEnd,
+    disabledItemNavigation,
   } = config;
 
-  function renderList(
-    root?: Record<string, unknown>,
-    disabledItems: readonly string[] = [],
-    onItemClick?: React.MouseEventHandler<HTMLElement>,
-  ) {
+  function renderList(options: RenderListOptions = {}) {
+    const { root, items = ITEMS, disabledItems = [], onItemClick } = options;
     return render(
       <div>
+        <button type="button" data-testid="before">
+          Before
+        </button>
         {createComponent({
           root,
-          items: ITEMS,
+          items,
           disabledItems,
           onItemClick,
           scrollerStyle: {
@@ -59,7 +62,10 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
   }
 
   function getHighlightedIndex() {
-    return ITEMS.findIndex((_, index) => getItem(index).hasAttribute('data-highlighted'));
+    const highlighted = screen
+      .queryAllByRole(itemRole)
+      .find((item) => item.hasAttribute('data-highlighted'));
+    return highlighted ? ITEMS.indexOf(highlighted.textContent ?? '') : -1;
   }
 
   function getFocusOwner() {
@@ -67,7 +73,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     if (active === screen.getByTestId('trigger')) {
       return 'trigger';
     }
-    if (ITEMS.some((_, index) => getItem(index).contains(active))) {
+    if (screen.queryAllByRole(itemRole).some((item) => item.contains(active))) {
       return 'item';
     }
     if (screen.getByTestId('popup').contains(active)) {
@@ -94,7 +100,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'true');
     });
     await waitFor(() => {
-      expect(getItem(0)).toBeVisible();
+      expect(screen.getAllByRole(itemRole)[0]).toBeVisible();
     });
     // Let opening focus and scroll work scheduled in animation frames settle.
     await settle();
@@ -112,9 +118,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
   }
 
   async function openWithKeyboard(user: User) {
-    await act(async () => {
-      screen.getByTestId('trigger').focus();
-    });
+    await focusTrigger();
     await user.keyboard('{ArrowDown}');
     await waitForOpen();
 
@@ -128,6 +132,38 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     }
 
     return getHighlightedIndex();
+  }
+
+  async function focusTrigger() {
+    await act(async () => {
+      screen.getByTestId('trigger').focus();
+    });
+  }
+
+  /** Real focus moves to the highlighted item, or stays on the trigger and points at it. */
+  async function expectFocusOnItem(index: number) {
+    const trigger = screen.getByTestId('trigger');
+    if (focusModel === 'virtual') {
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-activedescendant', getItem(index).id);
+      });
+      expect(trigger).toHaveFocus();
+    } else {
+      await waitFor(() => {
+        expect(getItem(index)).toHaveFocus();
+      });
+    }
+  }
+
+  /** Where the highlight lands after moving past an end of a list of `count` items. */
+  function pastEnd(edge: 'first' | 'last', count: number) {
+    if (listEnd === 'escape') {
+      return -1;
+    }
+    if (listEnd === 'wrap') {
+      return edge === 'first' ? count - 1 : 0;
+    }
+    return edge === 'first' ? 0 : count - 1;
   }
 
   async function navigateTo(user: User, from: number, to: number) {
@@ -198,11 +234,11 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       it('does not activate a disabled item', async () => {
         const onItemClick = vi.fn();
         const onValueChange = vi.fn();
-        const { user } = await renderList(
-          selectable ? { onValueChange } : undefined,
-          [ITEMS[1]],
+        const { user } = await renderList({
+          root: selectable ? { onValueChange } : undefined,
+          disabledItems: [ITEMS[1]],
           onItemClick,
-        );
+        });
         await openWithMouse(user);
 
         await user.hover(getItem(1));
@@ -287,9 +323,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     describe('keyboard', () => {
       it('opens on the last item with ArrowUp', async () => {
         const { user } = await renderList();
-        await act(async () => {
-          screen.getByTestId('trigger').focus();
-        });
+        await focusTrigger();
 
         await user.keyboard('{ArrowUp}');
         await waitForOpen();
@@ -301,10 +335,8 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
       if (selectable) {
         it.each(['{ArrowDown}', '{ArrowUp}'])('opens on the selected item with %s', async (key) => {
-          const { user } = await renderList({ defaultValue: ITEMS[8] });
-          await act(async () => {
-            screen.getByTestId('trigger').focus();
-          });
+          const { user } = await renderList({ root: { defaultValue: ITEMS[8] } });
+          await focusTrigger();
 
           await user.keyboard(key);
           await waitForOpen();
@@ -329,6 +361,90 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           expect(getHighlightedIndex()).toBe(start);
         });
       });
+
+      it('moves focus along with the highlight', async () => {
+        const { user } = await renderList();
+        const start = await openWithKeyboard(user);
+        await expectFocusOnItem(start);
+
+        await user.keyboard('{ArrowDown}');
+        await expectFocusOnItem(start + 1);
+
+        await user.keyboard('{ArrowUp}');
+        await expectFocusOnItem(start);
+      });
+
+      it.each(spaceActivates ? ['{Enter}', ' '] : ['{Enter}'])(
+        'activates the highlighted item once with %s',
+        async (key) => {
+          const activated: string[] = [];
+          const onValueChange = vi.fn();
+          const { user } = await renderList({
+            root: selectable ? { onValueChange } : undefined,
+            onItemClick: (event) => activated.push(event.currentTarget.textContent ?? ''),
+          });
+          const start = await openWithKeyboard(user);
+          await user.keyboard('{ArrowDown}');
+          await expectFocusOnItem(start + 1);
+
+          await user.keyboard(key);
+
+          await waitForClosed();
+          expect(activated).toEqual([ITEMS[start + 1]]);
+          if (selectable) {
+            expect(onValueChange.mock.calls.map(([value]) => value)).toEqual([ITEMS[start + 1]]);
+          }
+          await waitFor(() => {
+            expect(screen.getByTestId('trigger')).toHaveFocus();
+          });
+        },
+      );
+
+      it(`${disabledItemNavigation === 'reachable' ? 'stops on' : 'skips'} a disabled item while navigating`, async () => {
+        const { user } = await renderList({ disabledItems: [ITEMS[2]] });
+        const start = await openWithKeyboard(user);
+        expect(start).toBe(0);
+
+        await navigateTo(user, 0, 1);
+        await user.keyboard('{ArrowDown}');
+        const next = disabledItemNavigation === 'reachable' ? 2 : 3;
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(next);
+        });
+
+        await user.keyboard('{ArrowUp}');
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(next - 1);
+        });
+      });
+
+      it('opens past a disabled first item', async () => {
+        const { user } = await renderList({ disabledItems: [ITEMS[0]] });
+
+        const start = await openWithKeyboard(user);
+
+        expect(start).toBe(1);
+      });
+
+      if (homeEnd) {
+        it('moves to the disabled or nearest enabled ends with End and Home', async () => {
+          const { user } = await renderList({
+            disabledItems: [ITEMS[0], ITEMS[ITEMS.length - 1]],
+          });
+          await openWithKeyboard(user);
+          const reachable = disabledItemNavigation === 'reachable';
+
+          await user.keyboard('{End}');
+          await waitFor(() => {
+            expect(getHighlightedIndex()).toBe(reachable ? ITEMS.length - 1 : ITEMS.length - 2);
+          });
+
+          await user.keyboard('{Home}');
+          await waitFor(() => {
+            expect(getHighlightedIndex()).toBe(reachable ? 0 : 1);
+          });
+        });
+      }
 
       if (homeEnd) {
         it('moves the highlight to the last and first items with End and Home', async () => {
@@ -363,10 +479,99 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       });
     });
 
+    describe('list boundaries', () => {
+      const pastEndVerb = { wrap: 'wraps', stop: 'stops', escape: 'leaves the list' }[listEnd];
+
+      it(`${pastEndVerb} past the first item`, async () => {
+        const { user } = await renderList();
+        const start = await openWithKeyboard(user);
+        expect(start).toBe(0);
+
+        await user.keyboard('{ArrowUp}');
+
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(pastEnd('first', ITEMS.length));
+        });
+      });
+
+      it(`${pastEndVerb} past the last item`, async () => {
+        const { user } = await renderList();
+        await focusTrigger();
+        await user.keyboard('{ArrowUp}');
+        await waitForOpen();
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(ITEMS.length - 1);
+        });
+
+        await user.keyboard('{ArrowDown}');
+
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(pastEnd('last', ITEMS.length));
+        });
+      });
+
+      it('keeps a single item reachable', async () => {
+        const activated: string[] = [];
+        const { user } = await renderList({
+          items: [ITEMS[0]],
+          onItemClick: (event) => activated.push(event.currentTarget.textContent ?? ''),
+        });
+        await openWithKeyboard(user);
+
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(listEnd === 'escape' ? -1 : 0);
+        });
+        if (listEnd === 'escape') {
+          await user.keyboard('{ArrowDown}');
+        }
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(0);
+        });
+
+        await user.keyboard('{Enter}');
+        await waitForClosed();
+        expect(activated).toEqual([ITEMS[0]]);
+      });
+
+      it('handles keys without an error or losing focus when the list is empty', async () => {
+        const onValueChange = vi.fn();
+        const { user } = await renderList({ items: [], root: selectable ? { onValueChange } : {} });
+        await focusTrigger();
+
+        await user.keyboard('{ArrowDown}{ArrowDown}{ArrowUp}{Enter}');
+        await settle();
+
+        expect(screen.queryAllByRole(itemRole)).toHaveLength(0);
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(document.activeElement).not.toBe(document.body);
+      });
+
+      it('does not activate anything when every item is disabled', async () => {
+        const onItemClick = vi.fn();
+        const onValueChange = vi.fn();
+        const { user } = await renderList({
+          disabledItems: ITEMS,
+          onItemClick,
+          root: selectable ? { onValueChange } : {},
+        });
+        await focusTrigger();
+
+        await user.keyboard('{ArrowDown}');
+        await waitForOpen();
+        await user.keyboard('{ArrowDown}{ArrowUp}{Enter}');
+        await settle();
+
+        expect(onItemClick).not.toHaveBeenCalled();
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(document.activeElement).not.toBe(document.body);
+      });
+    });
+
     if (selectable) {
       describe('opening', () => {
         it.skipIf(isJSDOM)('reveals the selected item when opening', async () => {
-          const { user } = await renderList({ defaultValue: ITEMS[8] });
+          const { user } = await renderList({ root: { defaultValue: ITEMS[8] } });
           await openWithMouse(user);
 
           await waitFor(() => {
@@ -401,6 +606,19 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         });
       });
 
+      it('closes on Shift+Tab and moves focus to the element before the popup', async () => {
+        const { user } = await renderList();
+        await openWithKeyboard(user);
+
+        await user.keyboard('{Shift>}{Tab}{/Shift}');
+
+        await waitForClosed();
+        // The popup follows the trigger in focus order, unless focus never left the trigger.
+        await waitFor(() => {
+          expect(screen.getByTestId(focusModel === 'virtual' ? 'before' : 'trigger')).toHaveFocus();
+        });
+      });
+
       it('closes on an outside press', async () => {
         const { user } = await renderList();
         await openWithMouse(user);
@@ -411,6 +629,13 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       });
     });
   });
+}
+
+interface RenderListOptions {
+  root?: Record<string, unknown> | undefined;
+  items?: readonly string[] | undefined;
+  disabledItems?: readonly string[] | undefined;
+  onItemClick?: React.MouseEventHandler<HTMLElement> | undefined;
 }
 
 export interface PopupListTestProps {
@@ -453,4 +678,16 @@ export interface PopupListTestConfig {
    * @default false
    */
   selectable?: boolean;
+  /**
+   * Whether Space activates the highlighted item. Comboboxes type it into the input instead.
+   * @default true
+   */
+  spaceActivates?: boolean;
+  /**
+   * What the arrow keys do past the first or last item: `wrap` to the other end, `stop` there,
+   * or `escape` the list, clearing the highlight.
+   */
+  listEnd: 'wrap' | 'stop' | 'escape';
+  /** Whether the arrow keys can highlight disabled items or skip over them. */
+  disabledItemNavigation: 'reachable' | 'skipped';
 }

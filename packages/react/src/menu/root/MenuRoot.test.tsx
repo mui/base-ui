@@ -234,6 +234,8 @@ describe('<Menu.Root />', () => {
     ),
     render,
     itemRole: 'menuitem',
+    listEnd: 'wrap',
+    disabledItemNavigation: 'reachable',
   });
 
   function NestedMenuWithModalProp() {
