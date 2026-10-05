@@ -95,10 +95,6 @@
   inset: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-
-  &[data-ending-style] {
-    pointer-events: none;
-  }
 }
 
 .ScrollContent {
