@@ -541,7 +541,8 @@ describe('<Popover.Root />', () => {
         async () => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-          const closeTransitionMs = 50;
+          // Long enough that a slow run can't finish the close before the re-enter.
+          const closeTransitionMs = 10_000;
           const style = `
             @keyframes popover-reopen-during-close {
               from {
