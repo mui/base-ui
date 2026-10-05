@@ -13,8 +13,8 @@ import { Select } from '@base-ui/react/select';
 import { useInterval } from '@base-ui/utils/useInterval';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { SettingsMetadata } from './_components/SettingsPanel';
-import { useExperimentSettings } from './_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './popup-focus-return.module.css';
 
 /**
