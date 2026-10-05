@@ -1,12 +1,12 @@
-.AnchoredViewport {
+.Viewport {
   outline: 0;
 }
 
-.AnchoredPositioner {
+.Positioner {
   z-index: calc(1000 - var(--toast-index));
 }
 
-.AnchoredToast {
+.Toast {
   box-sizing: border-box;
   position: relative;
   font-size: 0.875rem;
@@ -51,7 +51,7 @@
   }
 }
 
-.AnchoredDescription {
+.Description {
   margin: 0;
 }
 
