@@ -319,7 +319,7 @@ describe('<Collapsible.Panel />', () => {
       expect(screen.queryByTestId('panel')).toBe(null);
     });
 
-    it('supports removing the rendered panel as it closes', async () => {
+    it('finishes closing when the render function removes the panel element', async () => {
       const onOpenChange = vi.fn();
 
       const RemovablePanel = React.forwardRef<
@@ -353,6 +353,8 @@ describe('<Collapsible.Panel />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
       expect(onOpenChange).toHaveBeenCalledWith(false, expect.anything());
+      // Closing settles even though no element is left to animate.
+      expect(trigger).not.toHaveAttribute('data-ending-style');
     });
 
     it('preserves inline alignment styles while measuring an opening panel', async () => {

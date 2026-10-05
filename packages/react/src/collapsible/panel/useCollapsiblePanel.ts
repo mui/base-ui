@@ -308,6 +308,10 @@ export function useCollapsiblePanel(
 
     const panel = panelRef.current;
     if (!panel) {
+      // A render function can drop the panel element while it closes. There is nothing left
+      // to animate, so finish closing instead of staying in the ending phase.
+      setMounted(false);
+      setDimensions(EMPTY_DIMENSIONS, false);
       return undefined;
     }
 
