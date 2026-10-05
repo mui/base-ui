@@ -9,7 +9,7 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
 
 describe('<Select.Item />', () => {
   const { render } = createRenderer();
@@ -295,6 +295,41 @@ describe('<Select.Item />', () => {
 
     expect(handleClick).not.toHaveBeenCalled();
     expect(screen.getByTestId('value').textContent).toBe('');
+  });
+
+  it('calls onClick once for a click made after the opening delay', async () => {
+    // Past the delay, a release over an item can select it on its own, so a regular click must
+    // still only activate the item through its click event.
+    const onClick = vi.fn();
+    const { user } = await render(
+      <Select.Root>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner alignItemWithTrigger={false}>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b" onClick={onClick}>
+                b
+              </Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByTestId('trigger'));
+    const optionB = await screen.findByRole('option', { name: 'b' });
+    await act(async () => {
+      await wait(500);
+    });
+    await user.click(optionB);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'false');
+    });
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('should call onClick exactly once for a regular click', async () => {

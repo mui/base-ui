@@ -22,6 +22,7 @@ import {
   isJSDOM,
   moveMouse,
   popupConformanceTests,
+  popupListConformanceTests,
   resetBrowserPointer,
   wait,
 } from '#test-utils';
@@ -136,6 +137,98 @@ describe('<Menu.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'menu',
+  });
+
+  describe('opening', () => {
+    function TestMenu(props: { children?: React.ReactNode }) {
+      return (
+        <Menu.Root>
+          <Menu.Trigger data-testid="trigger">Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {props.children ?? (
+                  <React.Fragment>
+                    <Menu.Item>One</Menu.Item>
+                    <Menu.Item>Two</Menu.Item>
+                  </React.Fragment>
+                )}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('highlights the first item when the items render a microtask after a keyboard opening', async () => {
+      function RenderNextMicrotask(props: { children: React.ReactNode }) {
+        const [ready, setReady] = React.useState(false);
+        React.useLayoutEffect(() => {
+          queueMicrotask(() => setReady(true));
+        }, []);
+        return ready ? props.children : null;
+      }
+
+      const { user } = await render(
+        <TestMenu>
+          <RenderNextMicrotask>
+            <Menu.Item>One</Menu.Item>
+            <Menu.Item>Two</Menu.Item>
+          </RenderNextMicrotask>
+        </TestMenu>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+    });
+
+    it.skipIf(isJSDOM).each([
+      { name: 'a zero-size press', init: { width: 0, height: 0 } },
+      { name: "Chrome's 1x1 pressureless press", init: { width: 1, height: 1, pressure: 0 } },
+    ])('moves focus to the first item after a screen reader $name', async ({ init }) => {
+      await render(<TestMenu />);
+      const trigger = screen.getByTestId('trigger');
+
+      // Screen readers synthesize the press; the click itself can still report `detail: 1`.
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', buttons: 0, ...init });
+      fireEvent.mouseDown(trigger, { detail: 1 });
+      fireEvent.pointerUp(trigger, { pointerType: 'mouse', ...init });
+      fireEvent.mouseUp(trigger, { detail: 1 });
+      fireEvent.click(trigger, { detail: 1 });
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+    });
+  });
+
+  popupListConformanceTests({
+    createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle }) => (
+      <Menu.Root {...root}>
+        <Menu.Trigger data-testid="trigger">Open menu</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup data-testid="popup">
+              <Menu.List data-testid="scroller" style={scrollerStyle}>
+                {items.map((item) => (
+                  <Menu.Item key={item} disabled={disabledItems.includes(item)} style={itemStyle}>
+                    <span>{item}</span>
+                  </Menu.Item>
+                ))}
+              </Menu.List>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    ),
+    render,
+    itemRole: 'menuitem',
   });
 
   function NestedMenuWithModalProp() {

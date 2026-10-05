@@ -10,7 +10,12 @@ import {
   ignoreActWarnings,
   reactMajor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import {
+  createRenderer,
+  isJSDOM,
+  popupConformanceTests,
+  popupListConformanceTests,
+} from '#test-utils';
 import { Combobox, ComboboxSeparatorDataAttributes } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -177,6 +182,76 @@ describe('<Combobox.Root />', () => {
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
     combobox: true,
+  });
+
+  popupListConformanceTests({
+    createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle }) => (
+      <Combobox.Root items={items} {...root}>
+        <Combobox.Input data-testid="trigger" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup">
+              <Combobox.List data-testid="scroller" style={scrollerStyle}>
+                {(item: string) => (
+                  <Combobox.Item
+                    key={item}
+                    value={item}
+                    disabled={disabledItems.includes(item)}
+                    style={itemStyle}
+                  >
+                    <span>{item}</span>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    ),
+    render,
+    itemRole: 'option',
+    focusModel: 'virtual',
+    homeEnd: false,
+    selectable: true,
+  });
+
+  describe('IME composition', () => {
+    it('does not move the highlight with arrow keys that pick an IME candidate', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['a', 'b', 'c']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      const optionA = await screen.findByRole('option', { name: 'a' });
+      await waitFor(() => {
+        expect(optionA).toHaveAttribute('data-highlighted');
+      });
+
+      // Chrome reports keys handled by an active IME composition with keyCode 229.
+      fireEvent.keyDown(input, { key: 'ArrowDown', keyCode: 229, which: 229 });
+      await flushMicrotasks();
+
+      expect(optionA).toHaveAttribute('data-highlighted');
+    });
   });
 
   describe('manual unmount lifecycle', () => {

@@ -12,7 +12,13 @@ import {
   ignoreActWarnings,
   reactMajor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  isJSDOM,
+  popupConformanceTests,
+  popupListConformanceTests,
+  wait,
+} from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { REASONS } from '../../internals/reasons';
@@ -374,6 +380,38 @@ describe('<Select.Root />', () => {
       triggerMouseAction: 'click',
       expectedPopupRole: 'listbox',
       alwaysMounted: 'only-after-open',
+    });
+
+    // The suite owns the scroller geometry, which item-aligned positioning would override.
+    popupListConformanceTests({
+      createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle }) => (
+        <Select.Root {...root}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup data-testid="popup">
+                <Select.List data-testid="scroller" style={scrollerStyle}>
+                  {items.map((item) => (
+                    <Select.Item
+                      key={item}
+                      value={item}
+                      disabled={disabledItems.includes(item)}
+                      style={itemStyle}
+                    >
+                      <Select.ItemText>{item}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      ),
+      render,
+      itemRole: 'option',
+      selectable: true,
     });
   });
 
@@ -5452,6 +5490,44 @@ describe('<Select.Root />', () => {
   });
 
   describe('typeahead', () => {
+    it('starts a new search after focus leaves the select', async () => {
+      const { user } = await render(
+        <div>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="banana">banana</Select.Item>
+                  <Select.Item value="avocado">avocado</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button data-testid="outside">outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('b');
+      expect(screen.getByTestId('value').textContent).toBe('banana');
+
+      // Leaving and returning within the typeahead timeout must not continue the "b" search.
+      await act(async () => {
+        screen.getByTestId('outside').focus();
+        trigger.focus();
+      });
+      await user.keyboard('a');
+
+      expect(screen.getByTestId('value').textContent).toBe('avocado');
+    });
+
     it.skipIf(isJSDOM)(
       'does not trigger selection when Space is pressed during text navigation',
       async () => {
@@ -7015,6 +7091,123 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('opening', () => {
+    it('does not carry an ArrowUp opening over to a later pointer opening', async () => {
+      // A selected item claims the keyboard opening, so the ArrowUp is never consumed.
+      function Test() {
+        const [value, setValue] = React.useState<string | null>('b');
+        return (
+          <div>
+            <button data-testid="clear" onClick={() => setValue(null)}>
+              Clear
+            </button>
+            <Select.Root value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner alignItemWithTrigger={false}>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                    <Select.Item value="c">c</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+      });
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      await user.click(screen.getByTestId('clear'));
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toHaveFocus();
+      });
+      await act(async () => {
+        await wait(50);
+      });
+
+      expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
+    });
+  });
+
+  describe('closing', () => {
+    it.skipIf(isJSDOM)(
+      'keeps the highlight on the item while the popup animates out',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const { user } = await render(
+          <React.Fragment>
+            <style>
+              {`@keyframes select-test-exit { to { opacity: 0; } }
+              .select-test-exit[data-ending-style] { animation: select-test-exit 10s; }`}
+            </style>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner alignItemWithTrigger={false}>
+                  <Select.Popup className="select-test-exit" data-testid="popup">
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>,
+        );
+
+        await act(async () => {
+          screen.getByTestId('trigger').focus();
+        });
+        await user.keyboard('{ArrowDown}');
+        const optionA = await screen.findByRole('option', { name: 'a' });
+        const optionB = screen.getByRole('option', { name: 'b' });
+        await waitFor(() => {
+          expect(optionA).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(optionB).toHaveFocus();
+        });
+
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(optionB).toHaveAttribute('data-highlighted');
+
+        // Items moving under the pointer while the popup fades out don't take the highlight.
+        fireEvent.mouseMove(optionA, {
+          movementX: 1,
+          movementY: 1,
+        });
+        expect(optionB).toHaveAttribute('data-highlighted');
+      },
+    );
+  });
+
   describe('trigger render cost', () => {
     it('does not re-render the trigger while navigating the list', async () => {
       let triggerRenders = 0;
@@ -7113,6 +7306,22 @@ describe('<Select.Root />', () => {
 
       act(() => actionsRef.current!.highlightItem('previous'));
       await waitFor(() => expect(screen.getByRole('option', { name: 'One' })).toHaveFocus());
+    });
+
+    it('enters the list from the end with `previous` when nothing is highlighted', async () => {
+      const actionsRef = React.createRef<Select.Root.Actions>();
+      const { user } = await render(<TestSelect actionsRef={actionsRef} />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const listbox = await screen.findByRole('listbox');
+      await waitFor(() => expect(listbox).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('none'));
+      act(() => actionsRef.current!.highlightItem('previous'));
+
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Three' })).toHaveAttribute('data-highlighted'),
+      );
     });
 
     it('returns focus to the popup when the highlight is cleared', async () => {
