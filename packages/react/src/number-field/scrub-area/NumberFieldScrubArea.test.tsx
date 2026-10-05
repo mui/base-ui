@@ -1,8 +1,8 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { screen, act, fireEvent, reactMajor } from '@mui/internal-test-utils';
+import { screen, act, fireEvent, ignoreActWarnings, reactMajor } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
 
 const isWebKit = platform.engine.webkit;
@@ -660,20 +660,30 @@ describe('<NumberField.ScrubArea />', () => {
     });
   });
 
-  it('should fire onClick when clicked without scrubbing', async () => {
+  it('should fire onClick once when clicked without scrubbing', async () => {
     const handleClick = vi.fn();
 
-    const { user } = await render(
+    await render(
       <NumberField.Root defaultValue={0}>
-        <NumberField.ScrubArea data-testid="scrub-area" onClick={handleClick}>
+        <NumberField.ScrubArea
+          data-testid="scrub-area"
+          onClick={handleClick}
+          style={{ display: 'inline-block', width: 100, height: 40 }}
+        >
           <NumberField.ScrubAreaCursor />
         </NumberField.ScrubArea>
+        <NumberField.Input />
       </NumberField.Root>,
     );
 
-    await user.click(screen.getByTestId('scrub-area'));
+    // Real browser input, so the native click and the synthesized one can both happen.
+    ignoreActWarnings();
+    const { userEvent } = await import('vitest/browser');
+    await userEvent.click(screen.getByTestId('scrub-area'));
+    // The synthesized click is deferred by one task (20ms in Firefox).
+    await wait(50);
 
-    expect(handleClick.mock.calls.length).toBe(1);
+    expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
   it('should fire onClick on child elements', async () => {
