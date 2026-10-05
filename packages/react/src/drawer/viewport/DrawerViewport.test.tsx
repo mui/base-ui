@@ -91,9 +91,7 @@ describe('<Drawer.Viewport />', () => {
       expect(activeListeners.size).toBe(1);
 
       await setProps({ open: false });
-      await waitFor(() => {
-        expect(activeListeners.size).toBe(0);
-      });
+      expect(activeListeners.size).toBe(0);
     } finally {
       addSpy.mockRestore();
       removeSpy.mockRestore();
