@@ -384,7 +384,7 @@ describe('<Select.Root />', () => {
 
     // The suite owns the scroller geometry, which item-aligned positioning would override.
     popupListConformanceTests({
-      createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle }) => (
+      createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle, onItemClick }) => (
         <Select.Root {...root}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
@@ -399,6 +399,7 @@ describe('<Select.Root />', () => {
                       value={item}
                       disabled={disabledItems.includes(item)}
                       style={itemStyle}
+                      onClick={onItemClick}
                     >
                       <Select.ItemText>{item}</Select.ItemText>
                     </Select.Item>

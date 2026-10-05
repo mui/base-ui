@@ -185,7 +185,7 @@ describe('<Combobox.Root />', () => {
   });
 
   popupListConformanceTests({
-    createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle }) => (
+    createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle, onItemClick }) => (
       <Combobox.Root items={items} {...root}>
         <Combobox.Input data-testid="trigger" />
         <Combobox.Portal>
@@ -198,6 +198,7 @@ describe('<Combobox.Root />', () => {
                     value={item}
                     disabled={disabledItems.includes(item)}
                     style={itemStyle}
+                    onClick={onItemClick}
                   >
                     <span>{item}</span>
                   </Combobox.Item>

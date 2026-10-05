@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM } from '@base-ui/utils/testUtils';
@@ -27,13 +27,18 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     selectable = false,
   } = config;
 
-  function renderList(root?: Record<string, unknown>, disabledItems: readonly string[] = []) {
+  function renderList(
+    root?: Record<string, unknown>,
+    disabledItems: readonly string[] = [],
+    onItemClick?: React.MouseEventHandler<HTMLElement>,
+  ) {
     return render(
       <div>
         {createComponent({
           root,
           items: ITEMS,
           disabledItems,
+          onItemClick,
           scrollerStyle: {
             height: SCROLLER_HEIGHT,
             maxHeight: 'none',
@@ -191,16 +196,37 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       });
 
       it('does not activate a disabled item', async () => {
-        const { user } = await renderList(undefined, [ITEMS[1]]);
+        const onItemClick = vi.fn();
+        const onValueChange = vi.fn();
+        const { user } = await renderList(
+          selectable ? { onValueChange } : undefined,
+          [ITEMS[1]],
+          onItemClick,
+        );
         await openWithMouse(user);
 
         await user.hover(getItem(1));
         await user.keyboard('{Enter}');
+        await settle();
+
+        expect(onItemClick).not.toHaveBeenCalled();
+        expect(onValueChange).not.toHaveBeenCalled();
+
         await user.click(getItem(1));
         await settle();
 
+        expect(onItemClick).not.toHaveBeenCalled();
+        expect(onValueChange).not.toHaveBeenCalled();
         expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'true');
         expect(getItem(1)).not.toHaveAttribute('data-selected');
+
+        // An enabled item must reach the same callbacks, so disconnected handlers cannot pass.
+        await user.click(getItem(2));
+        expect(onItemClick).toHaveBeenCalledTimes(1);
+        if (selectable) {
+          expect(onValueChange).toHaveBeenCalledTimes(1);
+          expect(onValueChange.mock.calls[0][0]).toBe(ITEMS[2]);
+        }
       });
 
       it.skipIf(isJSDOM)(
@@ -394,6 +420,8 @@ export interface PopupListTestProps {
   items: readonly string[];
   /** Labels of the items to render as disabled. */
   disabledItems: readonly string[];
+  /** Click handler attached to every item. */
+  onItemClick?: React.MouseEventHandler<HTMLElement>;
   /** Styles for the element that scrolls the items. */
   scrollerStyle: React.CSSProperties;
   /** Styles for each item. */
