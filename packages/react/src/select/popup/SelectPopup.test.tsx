@@ -87,6 +87,42 @@ describe('<Select.Popup />', () => {
     expect(screen.getByTestId('next')).not.toHaveFocus();
   });
 
+  it('moves focus into the items when the boundary item is already highlighted', async () => {
+    const { user } = await render(
+      <Select.Root defaultValue="a">
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <button type="button">Select all</button>
+              <Select.List>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.List>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await act(async () => screen.getByTestId('trigger').focus());
+    await user.keyboard('[Enter]');
+
+    const a = await screen.findByRole('option', { name: 'a' });
+    await waitFor(() => expect(a).toHaveAttribute('data-highlighted'));
+    await act(async () => screen.getByRole('button', { name: 'Select all' }).focus());
+    expect(a).toHaveAttribute('data-highlighted');
+
+    await user.keyboard('[ArrowDown]');
+    await waitFor(() => expect(a).toHaveFocus());
+
+    await user.keyboard('[ArrowDown]');
+    await waitFor(() => expect(screen.getByRole('option', { name: 'b' })).toHaveFocus());
+  });
+
   it('has aria attributes when no Select.List is present', async () => {
     const { user } = await render(
       <Select.Root multiple>
