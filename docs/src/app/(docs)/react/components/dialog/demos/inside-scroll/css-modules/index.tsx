@@ -17,14 +17,12 @@ export default function InsideScrollDialog() {
               </Dialog.Description>
             </div>
             <div className={styles.Body}>
-              <div className={styles.BodyContent}>
-                {CONTENT_SECTIONS.map((item) => (
-                  <section className={styles.Section} key={item.title}>
-                    <h3 className={styles.SectionTitle}>{item.title}</h3>
-                    <p className={styles.SectionBody}>{item.body}</p>
-                  </section>
-                ))}
-              </div>
+              {CONTENT_SECTIONS.map((item) => (
+                <section className={styles.Section} key={item.title}>
+                  <h3 className={styles.SectionTitle}>{item.title}</h3>
+                  <p className={styles.SectionBody}>{item.body}</p>
+                </section>
+              ))}
             </div>
             <div className={styles.Actions}>
               <Dialog.Close className={styles.Button}>Close</Dialog.Close>
