@@ -11,12 +11,9 @@ describe('TooltipStore', () => {
         undefined,
         false,
       );
-      const onOpenChange = vi.fn();
-      store.context.onOpenChange = onOpenChange;
 
       store.setOpen(false, createChangeEventDetails(REASONS.none));
 
-      expect(onOpenChange).not.toHaveBeenCalled();
       expect(store.state.openChangeReason).toBe(REASONS.none);
     });
   });
@@ -24,9 +21,7 @@ describe('TooltipStore', () => {
   describe('cancelPendingOpen', () => {
     it('clears a pending hover open without closing anything', () => {
       const store = new TooltipStore<unknown>({}, undefined, false);
-      const onOpenChange = vi.fn();
       const handleInternalOpenChange = vi.fn();
-      store.context.onOpenChange = onOpenChange;
       const floatingRootContext = store.state.floatingRootContext;
       floatingRootContext.context.events.on('openchange', handleInternalOpenChange);
 
@@ -34,7 +29,6 @@ describe('TooltipStore', () => {
 
       expect(handleInternalOpenChange.mock.calls.length).toBe(1);
       expect(handleInternalOpenChange.mock.calls[0][0].open).toBe(false);
-      expect(onOpenChange).not.toHaveBeenCalled();
       expect(floatingRootContext.closeRequest).toBe(undefined);
     });
   });

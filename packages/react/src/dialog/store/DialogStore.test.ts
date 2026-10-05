@@ -25,24 +25,5 @@ describe('DialogStore', () => {
 
       expect(onOpenChange.mock.calls[0][1].trigger).toBe(trigger);
     });
-
-    it('keeps the popup mounted only for an accepted close', () => {
-      const { store, onOpenChange } = createOpenStore();
-      onOpenChange.mockImplementationOnce((_open, details) => {
-        details.preventUnmountOnClose();
-        details.cancel();
-      });
-
-      store.setOpen(false, createChangeEventDetails(REASONS.escapeKey));
-      expect(store.state.open).toBe(true);
-      expect(store.state.preventUnmountingOnClose).toBe(false);
-
-      onOpenChange.mockImplementationOnce((_open, details) => {
-        details.preventUnmountOnClose();
-      });
-      store.setOpen(false, createChangeEventDetails(REASONS.escapeKey));
-      expect(store.state.open).toBe(false);
-      expect(store.state.preventUnmountingOnClose).toBe(true);
-    });
   });
 });

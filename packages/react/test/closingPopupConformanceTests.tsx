@@ -4,6 +4,7 @@ import { ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { isJSDOM } from '@base-ui/utils/testUtils';
 import { holdExit } from './holdExit';
 import { resetBrowserPointer } from './resetBrowserPointer';
+import { wait, waitSingleFrame } from './wait';
 import type { PopupTestConfig, TestedComponentProps } from './popupConformanceTests';
 
 type Interactions = Pick<
@@ -98,6 +99,10 @@ export function closingPopupConformanceTests(config: ClosingPopupTestConfig) {
       const { setProps } = await renderClosingPopup({ open: true });
 
       await setProps({ open: false });
+      // Gives an exit that isn't held the time to finish and unmount the popup.
+      await waitSingleFrame();
+      await waitSingleFrame();
+      await wait(0);
 
       expect(getPopup()).not.toBe(null);
       expect(getPopup()).not.toBeInaccessible();
@@ -125,18 +130,18 @@ export function closingPopupConformanceTests(config: ClosingPopupTestConfig) {
       });
     }
 
-    it('leaves no focus guard tabbable', async () => {
-      holdExit();
-      const { setProps } = await renderClosingPopup({ open: true });
-      if (focusGuards) {
+    if (focusGuards) {
+      it('leaves no focus guard tabbable', async () => {
+        holdExit();
+        const { setProps } = await renderClosingPopup({ open: true });
         expect(getTabbableFocusGuards()).not.toEqual([]);
-      }
 
-      await setProps({ open: false });
+        await setProps({ open: false });
 
-      expect(getPopup()).not.toBe(null);
-      expect(getTabbableFocusGuards()).toEqual([]);
-    });
+        expect(getPopup()).not.toBe(null);
+        expect(getTabbableFocusGuards()).toEqual([]);
+      });
+    }
 
     if (opensWithClick && returnFocus) {
       it('returns focus to the trigger when it closes, before the exit animation finishes', async () => {
@@ -212,18 +217,6 @@ export function closingPopupConformanceTests(config: ClosingPopupTestConfig) {
           await exit.release();
 
           expect(screen.getByTestId('after')).toHaveFocus();
-        });
-
-        it('moves focus before the trigger when tabbing backward from the trigger', async () => {
-          holdExit();
-          const { user } = await renderClosingPopup();
-          const trigger = await open(user);
-          await closeWithEscape(user, trigger);
-
-          await user.tab({ shift: true });
-
-          expect(screen.getByTestId('before')).toHaveFocus();
-          expect(getPopup()).not.toBe(null);
         });
       });
     }

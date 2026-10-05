@@ -1012,19 +1012,23 @@ describe('<Select.Root />', () => {
 
       it('is not emitted for a canceled close', async () => {
         const handleInternalOpenChange = vi.fn();
+        const handleOpenChange = vi.fn<NonNullable<Select.Root.Props<string>['onOpenChange']>>(
+          (nextOpen, eventDetails) => {
+            if (!nextOpen) {
+              eventDetails.cancel();
+            }
+          },
+        );
         const { user } = await render(
           <TestSelect
             onInternalOpenChange={handleInternalOpenChange}
-            onOpenChange={(nextOpen, eventDetails) => {
-              if (!nextOpen) {
-                eventDetails.cancel();
-              }
-            }}
+            onOpenChange={handleOpenChange}
           />,
         );
 
         await user.keyboard('{Escape}');
 
+        expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
         expect(screen.queryByRole('listbox')).not.toBe(null);
         expect(handleInternalOpenChange.mock.calls.length).toBe(0);
       });

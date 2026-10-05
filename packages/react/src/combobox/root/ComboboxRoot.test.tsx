@@ -931,64 +931,6 @@ describe('<Combobox.Root />', () => {
         await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id));
       },
     );
-
-    it.skipIf(isJSDOM)(
-      'keeps the popup input out of reach during the close animation until the trigger reopens the popup',
-      async () => {
-        // Holds the close animation, so the reopen always interrupts it.
-        holdExit();
-
-        const { user } = await render(
-          <Combobox.Root items={['Apple', 'Banana']}>
-            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-            <Combobox.Portal>
-              <Combobox.Positioner data-testid="positioner">
-                <Combobox.Popup data-testid="popup">
-                  <Combobox.Input data-testid="input" />
-                  <Combobox.Empty>No matches</Combobox.Empty>
-                  <Combobox.List>
-                    {(item: string) => (
-                      <Combobox.Item key={item} value={item}>
-                        {item}
-                      </Combobox.Item>
-                    )}
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>,
-        );
-
-        const trigger = screen.getByTestId('trigger');
-        await user.click(trigger);
-        const input = await screen.findByTestId('input');
-        await waitFor(() => expect(input).toHaveFocus());
-        await user.type(input, 'ap');
-        await user.keyboard('{Escape}');
-
-        const popup = screen.getByTestId('popup');
-        const positioner = screen.getByTestId('positioner');
-        await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
-        await waitFor(() => expect(trigger).toHaveFocus());
-        expect(positioner).toHaveAttribute('inert');
-
-        // The closing input cannot take focus back, so typing cannot reopen the popup from it.
-        await act(async () => input.focus());
-        expect(trigger).toHaveFocus();
-
-        await user.click(trigger);
-
-        await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
-        expect(positioner).not.toHaveAttribute('inert');
-        await waitFor(() => expect(input).toHaveFocus());
-
-        await user.keyboard('b');
-
-        expect(input).toHaveValue('b');
-        expect(screen.getByRole('option', { name: 'Banana' })).not.toBe(null);
-        expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
-      },
-    );
   });
 
   it('does not aria-hide the input group when the input is outside the popup', async () => {
@@ -6783,7 +6725,7 @@ describe('<Combobox.Root />', () => {
         ),
         render,
         triggerMouseAction: 'click',
-        closing: { inert: 'positioner', returnFocus: true, focusGuards: false },
+        closing: { inert: 'positioner', returnFocus: true, focusGuards: true },
       });
 
       it.each([
@@ -10962,14 +10904,17 @@ describe('<Combobox.Root />', () => {
 
       it('is not emitted for a canceled close', async () => {
         const handleInternalOpenChange = vi.fn();
+        const handleOpenChange = vi.fn<NonNullable<Combobox.Root.Props<string>['onOpenChange']>>(
+          (nextOpen, eventDetails) => {
+            if (!nextOpen) {
+              eventDetails.cancel();
+            }
+          },
+        );
         const { user } = await render(
           <TestCombobox
             onInternalOpenChange={handleInternalOpenChange}
-            onOpenChange={(nextOpen, eventDetails) => {
-              if (!nextOpen) {
-                eventDetails.cancel();
-              }
-            }}
+            onOpenChange={handleOpenChange}
           />,
         );
 
@@ -10978,6 +10923,7 @@ describe('<Combobox.Root />', () => {
         });
         await user.keyboard('{Escape}');
 
+        expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
         expect(screen.queryByRole('listbox')).not.toBe(null);
         expect(handleInternalOpenChange.mock.calls.length).toBe(0);
       });

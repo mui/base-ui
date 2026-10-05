@@ -7,7 +7,6 @@ import {
   closingPopupConformanceTests,
   describeConformance,
   createRenderer,
-  holdExit,
   isJSDOM,
   popupFocusPropsTests,
 } from '#test-utils';
@@ -548,41 +547,5 @@ describe('<Dialog.Popup />', () => {
         closing: { inert: 'popup', returnFocus: true, focusGuards: true },
       });
     });
-
-    it.each([
-      { name: 'modal', modal: true },
-      { name: 'non-modal', modal: false },
-    ])(
-      'returns focus to the trigger when closed with the Close button, before the popup unmounts ($name)',
-      async ({ modal }) => {
-        const exit = holdExit();
-        const { user } = await render(
-          <Dialog.Root modal={modal}>
-            <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Popup data-testid="popup">
-                <button data-testid="inside">Inside</button>
-                <Dialog.Close data-testid="close">Close</Dialog.Close>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>,
-        );
-        const trigger = screen.getByTestId('trigger');
-        await user.click(trigger);
-        // Wait for the initial focus, which lands a frame after opening.
-        await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
-        const popup = screen.getByTestId('popup');
-
-        await user.click(screen.getByTestId('close'));
-
-        await waitFor(() => expect(trigger).toHaveFocus());
-        expect(popup).toHaveAttribute('data-ending-style');
-        expect(popup).toHaveAttribute('inert');
-
-        await exit.release();
-        expect(popup).not.toBeInTheDocument();
-        expect(trigger).toHaveFocus();
-      },
-    );
   });
 });

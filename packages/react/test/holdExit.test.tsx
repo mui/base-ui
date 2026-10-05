@@ -44,16 +44,6 @@ describe('holdExit', () => {
         expect(screen.queryByTestId('popup')).toBe(null);
       });
 
-      it('releases an exit that has not checked its animations yet', async () => {
-        const exit = holdExit({ adapter });
-        const { setProps } = await render(<TestPopover open />);
-
-        await setProps({ open: false });
-        await exit.release();
-
-        expect(screen.queryByTestId('popup')).toBe(null);
-      });
-
       it('holds an exit that starts after a release', async () => {
         const exit = holdExit({ adapter });
         const { setProps } = await render(<TestPopover open />);

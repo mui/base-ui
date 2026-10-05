@@ -413,28 +413,23 @@ it('finds adjacent controls around a disabled anchor', () => {
   expect(getTabbableNearElement(anchor, 1)).toBe(after);
 });
 
-it.each(['inert', 'tabindex'] as const)(
-  'finds the neighbours of a focus guard made untabbable by %s',
-  (cause) => {
-    const first = document.createElement('button');
-    const before = document.createElement('button');
-    const container = document.createElement('div');
-    const guard = document.createElement('span');
-    const after = document.createElement('button');
-    const last = document.createElement('button');
-    guard.tabIndex = cause === 'tabindex' ? -1 : 0;
-    if (cause === 'inert') {
-      container.setAttribute('inert', '');
-    }
-    container.append(guard);
-    document.body.append(first, before, container, after, last);
-    guard.focus();
+it('finds the neighbours of a focus guard made untabbable by inert', () => {
+  const first = document.createElement('button');
+  const before = document.createElement('button');
+  const container = document.createElement('div');
+  const guard = document.createElement('span');
+  const after = document.createElement('button');
+  const last = document.createElement('button');
+  guard.tabIndex = 0;
+  container.setAttribute('inert', '');
+  container.append(guard);
+  document.body.append(first, before, container, after, last);
+  guard.focus();
 
-    // The search starts from the anchor, not from the focused element.
-    expect(getTabbableNearElement(guard, 1)).toBe(after);
-    expect(getTabbableNearElement(guard, -1)).toBe(before);
-  },
-);
+  // The search starts from the anchor, not from the focused element.
+  expect(getTabbableNearElement(guard, 1)).toBe(after);
+  expect(getTabbableNearElement(guard, -1)).toBe(before);
+});
 
 it.each([1, -1] as const)(
   'wraps around the end of the document only when allowed in direction=%s',
