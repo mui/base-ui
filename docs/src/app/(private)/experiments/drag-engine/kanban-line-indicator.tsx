@@ -4,6 +4,7 @@ import { Draggable } from '@base-ui/react/draggable';
 import * as React from 'react';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 
 import theme from './theme.module.css';
 import styles from './kanban-line-indicator.module.css';
@@ -211,16 +212,18 @@ function KanbanSnapContent() {
     },
   );
 
+  // Runs every frame, so keep the previous indicator when the slot didn't change.
+  // A new object would re-render the whole board.
+  function trackIndicator(eventDetails: { location: Draggable.LocationHistory }) {
+    const { clientX, clientY } = eventDetails.location.current.input;
+    const next = computeIndicator(clientX, clientY, columnElementsRef.current);
+    setIndicator((prev) => (fastObjectShallowCompare(prev, next) ? prev : next));
+  }
+
   Draggable.useMonitor({
     accept: cardKind,
-    onMoveStart: (eventDetails) => {
-      const { clientX, clientY } = eventDetails.location.current.input;
-      setIndicator(computeIndicator(clientX, clientY, columnElementsRef.current));
-    },
-    onMove: (eventDetails) => {
-      const { clientX, clientY } = eventDetails.location.current.input;
-      setIndicator(computeIndicator(clientX, clientY, columnElementsRef.current));
-    },
+    onMoveStart: trackIndicator,
+    onMove: trackIndicator,
     onMoveEnd: (eventDetails) => {
       if (!eventDetails.canceled) {
         const { clientX, clientY } = eventDetails.location.current.input;

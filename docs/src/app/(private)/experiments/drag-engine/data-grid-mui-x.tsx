@@ -175,7 +175,8 @@ function getCollisionElement(element: HTMLElement) {
   return element.parentElement ?? element;
 }
 
-function ColumnHeader({
+// Memoized, so an auto-scroll frame that keeps the same window skips every header.
+const ColumnHeader = React.memo(function ColumnHeader({
   column,
   boundaryRef,
 }: {
@@ -228,9 +229,10 @@ function ColumnHeader({
       </Menu.Root>
     </div>
   );
-}
+});
 
-function GridRow({
+// Memoized, so an auto-scroll frame that keeps the same window skips every row.
+const GridRow = React.memo(function GridRow({
   row,
   columns,
   leadingWidth,
@@ -280,7 +282,7 @@ function GridRow({
       </Draggable.Root>
     </div>
   );
-}
+});
 
 function DataGridInner() {
   const [columns, setColumns] = React.useState<Column[]>(COLUMNS);
@@ -323,11 +325,6 @@ function DataGridInner() {
     return () => grid.removeEventListener('wheel', onWheel);
   }, []);
 
-  // Refs so the stable drag callbacks read the latest order without re-registering.
-  const columnsRef = React.useRef(columns);
-  columnsRef.current = columns;
-  const rowsRef = React.useRef(rows);
-  rowsRef.current = rows;
   const dropIndicatorRef = React.useRef<DropIndicator | null>(null);
 
   const setDropIndicator = useStableCallback((next: DropIndicator | null) => {
@@ -343,14 +340,14 @@ function DataGridInner() {
   // second half maps to `pos + 1`. The two halves on either side of a shared
   // border resolve to the same gap, so the indicator never doubles.
   const onColumnDragOver = useStableCallback((columnId: string, beforeHalf: boolean) => {
-    const pos = columnsRef.current.findIndex((c) => c.id === columnId);
+    const pos = columns.findIndex((c) => c.id === columnId);
     if (pos >= 0) {
       setDropIndicator({ axis: 'column', index: beforeHalf ? pos : pos + 1 });
     }
   });
 
   const onRowDragOver = useStableCallback((rowId: string, beforeHalf: boolean) => {
-    const pos = rowsRef.current.findIndex((r) => r.id === rowId);
+    const pos = rows.findIndex((r) => r.id === rowId);
     if (pos >= 0) {
       setDropIndicator({ axis: 'row', index: beforeHalf ? pos : pos + 1 });
     }
@@ -373,7 +370,11 @@ function DataGridInner() {
     columns.length,
     columnIndexAt(columnOffsets, windowLeft + BODY_WIDTH) + 1 + OVERSCAN,
   );
-  const visibleColumns = columns.slice(startCol, endCol);
+  // Memoized so the rows' `columns` prop keeps its identity while the window holds.
+  const visibleColumns = React.useMemo(
+    () => columns.slice(startCol, endCol),
+    [columns, startCol, endCol],
+  );
   const leadingWidth = columnOffsets[startCol];
   const trailingWidth = totalWidth - columnOffsets[endCol];
 

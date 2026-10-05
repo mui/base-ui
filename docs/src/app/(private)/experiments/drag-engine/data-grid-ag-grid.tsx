@@ -169,7 +169,8 @@ function getCollisionElement(element: HTMLElement) {
   return element.parentElement ?? element;
 }
 
-function ColumnHeader({
+// Memoized, so an auto-scroll frame that keeps the same window skips every header.
+const ColumnHeader = React.memo(function ColumnHeader({
   column,
   boundaryRef,
 }: {
@@ -232,9 +233,10 @@ function ColumnHeader({
       </Menu.Root>
     </div>
   );
-}
+});
 
-function GridRow({
+// Memoized, so an auto-scroll frame that keeps the same window skips every row.
+const GridRow = React.memo(function GridRow({
   row,
   columns,
   leadingWidth,
@@ -286,7 +288,7 @@ function GridRow({
       </Draggable.Root>
     </div>
   );
-}
+});
 
 function DataGridInner() {
   const [columns, setColumns] = React.useState<Column[]>(COLUMNS);
@@ -345,7 +347,11 @@ function DataGridInner() {
     columns.length,
     columnIndexAt(columnOffsets, windowLeft + BODY_WIDTH) + 1 + OVERSCAN,
   );
-  const visibleColumns = columns.slice(startCol, endCol);
+  // Memoized so the rows' `columns` prop keeps its identity while the window holds.
+  const visibleColumns = React.useMemo(
+    () => columns.slice(startCol, endCol),
+    [columns, startCol, endCol],
+  );
   const leadingWidth = columnOffsets[startCol];
   const trailingWidth = totalWidth - columnOffsets[endCol];
 

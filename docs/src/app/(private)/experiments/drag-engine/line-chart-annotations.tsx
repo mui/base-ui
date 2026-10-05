@@ -76,7 +76,8 @@ function yInvert(py: number): number {
 }
 
 /** The series, its gridlines and its axes. It never handles a drag. */
-function Chart() {
+// Static, so memoized: a drag updates the annotations every frame, not the chart.
+const Chart = React.memo(function Chart() {
   const points = SERIES.map((value, index) => `${xScale(index)},${yScale(value)}`).join(' ');
   return (
     <svg
@@ -131,7 +132,7 @@ function Chart() {
       ))}
     </svg>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // The annotation model
@@ -992,7 +993,9 @@ function CommentView({
   );
 }
 
-function AnnotationView({
+// Memoized: a drag replaces only the dragged annotation, so the others keep their
+// props and skip rendering on every frame.
+const AnnotationView = React.memo(function AnnotationView({
   annotation,
   selected,
   editing,
@@ -1013,7 +1016,7 @@ function AnnotationView({
     default: // comment
       return <CommentView annotation={annotation} selected={selected} editing={editing} />;
   }
-}
+});
 
 // ---------------------------------------------------------------------------
 // Creating annotations

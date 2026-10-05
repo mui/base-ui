@@ -118,7 +118,10 @@ function InfiniteCanvasContent() {
       return;
     }
     const matrix = new DOMMatrixReadOnly(getComputedStyle(content).transform);
-    setPainted({ x: -matrix.m41, y: -matrix.m42 });
+    const x = -matrix.m41;
+    const y = -matrix.m42;
+    // Runs every frame. Keep the previous object while the camera is idle.
+    setPainted((prev) => (prev.x === x && prev.y === y ? prev : { x, y }));
   });
 
   Draggable.useMonitor({

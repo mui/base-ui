@@ -22,6 +22,7 @@ import {
   startOfDay,
   startOfMonth,
   useCalendarView,
+  makeEventId,
 } from '../calendarLogic';
 import styles from '../calendar.module.css';
 
@@ -203,7 +204,7 @@ function MonthDayCell(props: { dayMs: number; monthStart: number }) {
           dispatch({
             type: 'CREATE_EVENT',
             event: {
-              id: `evt-create-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              id: makeEventId(),
               title: 'New event',
               start: preview.start,
               end: preview.end,

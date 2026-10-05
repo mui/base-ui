@@ -3,6 +3,7 @@ import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { findClosestSlot } from './kanban-placeholder-card-slots';
 
 import styles from './kanban-placeholder-card.module.css';
@@ -166,26 +167,24 @@ function KanbanBoardContent() {
     },
   );
 
+  // Runs every frame, so keep the previous placeholder when the slot didn't change.
+  // A new object would re-render the whole board.
+  function trackPlaceholder(eventDetails: {
+    location: Draggable.LocationHistory;
+    source: { element: HTMLElement };
+  }) {
+    const { clientX, clientY } = eventDetails.location.current.input;
+    const slot = computeSlot(clientX, clientY, columnElementsRef.current);
+    const next = slot
+      ? { ...slot, height: eventDetails.source.element.getBoundingClientRect().height }
+      : null;
+    setPlaceholder((prev) => (fastObjectShallowCompare(prev, next) ? prev : next));
+  }
+
   Draggable.useMonitor({
     accept: cardKind,
-    onMoveStart: (eventDetails) => {
-      const { clientX, clientY } = eventDetails.location.current.input;
-      const slot = computeSlot(clientX, clientY, columnElementsRef.current);
-      setPlaceholder(
-        slot
-          ? { ...slot, height: eventDetails.source.element.getBoundingClientRect().height }
-          : null,
-      );
-    },
-    onMove: (eventDetails) => {
-      const { clientX, clientY } = eventDetails.location.current.input;
-      const slot = computeSlot(clientX, clientY, columnElementsRef.current);
-      setPlaceholder(
-        slot
-          ? { ...slot, height: eventDetails.source.element.getBoundingClientRect().height }
-          : null,
-      );
-    },
+    onMoveStart: trackPlaceholder,
+    onMove: trackPlaceholder,
     // The placeholder always shows the nearest slot, even when the pointer is
     // between columns or just outside the board. Commit that same slot on a real
     // release. Canceling with Escape or blur only clears the placeholder.

@@ -26,6 +26,7 @@ import {
   resolveDropPreview,
   snapToMinutes,
   useCalendarView,
+  makeEventId,
 } from '../calendarLogic';
 import styles from '../calendar.module.css';
 
@@ -230,7 +231,7 @@ function WeekAllDayCell(props: { dayMs: number }) {
           dispatch({
             type: 'CREATE_EVENT',
             event: {
-              id: `evt-create-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              id: makeEventId(),
               title: 'New event',
               start: preview.start,
               end: preview.end,
@@ -447,7 +448,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           dispatch({
             type: 'CREATE_EVENT',
             event: {
-              id: `evt-create-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              id: makeEventId(),
               title: 'New event',
               start: preview.start,
               end: preview.end,
