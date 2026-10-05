@@ -42,13 +42,12 @@ function resolveDropIndex(track: HTMLElement, clientX: number): number {
     return 0;
   }
 
-  const slotXs = [stops[0].getBoundingClientRect().left];
-  for (let i = 1; i < stops.length; i += 1) {
-    const previous = stops[i - 1].getBoundingClientRect();
-    const current = stops[i].getBoundingClientRect();
-    slotXs.push((previous.right + current.left) / 2);
+  const rects = stops.map((stop) => stop.getBoundingClientRect());
+  const slotXs = [rects[0].left];
+  for (let i = 1; i < rects.length; i += 1) {
+    slotXs.push((rects[i - 1].right + rects[i].left) / 2);
   }
-  slotXs.push(stops[stops.length - 1].getBoundingClientRect().right);
+  slotXs.push(rects[rects.length - 1].right);
 
   let index = 0;
   let bestDx = Infinity;

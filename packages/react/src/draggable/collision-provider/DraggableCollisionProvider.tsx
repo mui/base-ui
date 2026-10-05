@@ -26,7 +26,7 @@ import { registerTarget, registerMonitor } from '../../utils/drag-and-drop/regis
 import { resolveCollision } from '../../utils/drag-and-drop/dropTarget';
 import type {
   CollisionResolutionRegistration,
-  RegisterTargetParameters,
+  DropTargetParameters,
 } from '../../utils/drag-and-drop/dropTarget';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
 import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
@@ -79,7 +79,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
       let lastParticipant: CollisionParticipant | null = null;
       let lastConfig: DraggableCollisionProviderProps<TPayload, TDragData> | null = null;
       let registration:
-        | (RegisterTargetParameters<TPayload, TPayload, TDragData, TDragData> &
+        | (DropTargetParameters<TPayload, TPayload, TDragData, TDragData> &
             CollisionResolutionRegistration)
         | null = null;
       const unregister = registerTarget<TPayload, TPayload, TDragData, TDragData>(element, () => {

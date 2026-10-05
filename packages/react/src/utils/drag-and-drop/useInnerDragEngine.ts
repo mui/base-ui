@@ -16,23 +16,21 @@ import { setParticipantOwner } from './participantData';
 import { cancelDrag } from './cancelDrag';
 import { isActive } from './core/lifecycleManager';
 import { publishDragPreview } from './overlay/dragPreviewStore';
-import { getActiveDragPreviewSettings, getActivePreviewHandle } from './activePreview';
+import { getActivePreviewHandle } from './activePreview';
 import { retargetEndingPreviewSource } from './synthetic/syntheticPreview';
 import type { InternalDragEngine, InternalDraggableParameters } from './registrationTypes';
 import type { DragCleanupFn } from './types';
 import type { DraggablePreviewRenderParameters } from '../../draggable/preview/DraggablePreview';
 
 /**
- * Draggable registration shared by `Draggable.Root` and the imperative engine.
- * Kept separate from {@link DragEngineImpl} so declarative bundles exclude the full manager.
+ * Creates the draggable registration shared by `Draggable.Root` and the imperative
+ * engine, bound to the given preview and CSP contexts.
  */
-export class DragEngineBase {
-  constructor(
-    private readonly getPreviewContext: () => DraggableContextValue,
-    private readonly getCSPContext: () => CSPContextValue,
-  ) {}
-
-  registerSource = <TPayload = undefined, TDragData = unknown>(
+export function createRegisterSource(
+  getPreviewContext: () => DraggableContextValue,
+  getCSPContext: () => CSPContextValue,
+) {
+  return <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
     get: () => InternalDraggableParameters<TPayload, TDragData>,
     payloadOwner?: object,
@@ -57,30 +55,23 @@ export class DragEngineBase {
     // Defined for every source, because whether a drag has React content to
     // publish is known only once the sensor resolves the preview at drag start.
     const publishPreview = (payload: DraggablePreviewRenderParameters<TPayload, TDragData>) => {
-      // The sensor resolved these settings and set up the preview before starting
-      // this session. Only custom content needs React. The engine builds a clone
-      // without it.
-      const settings = getActiveDragPreviewSettings();
+      // The sensor set up the preview before starting this session. Only custom
+      // content needs React. The engine builds a clone without it, and attaches no
+      // content to a disabled preview.
       const handle = getActivePreviewHandle();
       const content = handle?.getContent();
-      if (
-        settings == null ||
-        settings.render === null ||
-        settings.disabled ||
-        !handle ||
-        !content
-      ) {
+      if (!handle || !content) {
         return;
       }
       content.render = publishPreview as (parameters: DraggablePreviewRenderParameters) => void;
-      const node = settings.render(payload);
+      const node = content.renderContent(payload);
       // The render function is consumer code and may have ended the drag.
       if (!isActive() || getActivePreviewHandle() !== handle) {
         return;
       }
       // Content that resolves to nothing declines the preview. The engine then has
       // nothing to copy and shows no preview until a later render returns content.
-      publishDragPreview(this.getPreviewContext(), {
+      publishDragPreview(getPreviewContext(), {
         node: node === false ? null : node,
         container: content.container,
         sync: handle.syncContent,
@@ -99,7 +90,7 @@ export class DragEngineBase {
     let normalized: DraggableConfig<TPayload, TDragData> | null = null;
     const getNormalized = (): DraggableConfig<TPayload, TDragData> => {
       const params = get();
-      const cspContext = this.getCSPContext();
+      const cspContext = getCSPContext();
       if (
         normalized !== null &&
         cspContext === lastCSPContext &&
@@ -146,17 +137,6 @@ export class DragEngineBase {
   };
 }
 
-class DragEngineImpl extends DragEngineBase implements InternalDragEngine {
-  cancelDrag = cancelDrag;
-
-  // The stateless primitives, re-exposed as methods (see `./registrations`).
-  registerTarget = registerTarget;
-
-  registerViewport = registerViewport;
-
-  registerMonitor = registerMonitor;
-}
-
 /**
  * Returns the registration function `Draggable.Root` calls, bound to the nearest
  * `Draggable.Provider` and CSP context. It is stable across renders.
@@ -165,23 +145,12 @@ class DragEngineImpl extends DragEngineBase implements InternalDragEngine {
  * drop-target and monitor registrations into every bundle that contains a
  * `Draggable.Root`.
  */
-export function useRegisterSource(): DragEngineBase['registerSource'] {
-  return useDragEngineInstance(DragEngineBase).registerSource;
-}
-
-/** One engine instance per hook call, bound to the nearest `Draggable.Provider` and CSP context. */
-function useDragEngineInstance<T extends DragEngineBase>(
-  Engine: new (
-    getPreviewContext: () => DraggableContextValue,
-    getCSPContext: () => CSPContextValue,
-  ) => T,
-): T {
+export function useRegisterSource(): ReturnType<typeof createRegisterSource> {
   const previewContext = useDraggableContext();
   const cspContext = useCSPContext();
   const getPreviewContext = useStableCallback(() => previewContext);
   const getCSPContext = useStableCallback(() => cspContext);
-
-  return useRefWithInit(() => new Engine(getPreviewContext, getCSPContext)).current;
+  return useRefWithInit(() => createRegisterSource(getPreviewContext, getCSPContext)).current;
 }
 
 /**
@@ -189,5 +158,13 @@ function useDragEngineInstance<T extends DragEngineBase>(
  * `Draggable.Provider` nearest this hook call. Registrations and sensors are global.
  */
 export function useInnerDragEngine(): InternalDragEngine {
-  return useDragEngineInstance(DragEngineImpl);
+  const registerSource = useRegisterSource();
+  // The stateless primitives are re-exposed as methods (see `./registrations`).
+  return useRefWithInit(() => ({
+    registerSource,
+    registerTarget,
+    registerViewport,
+    registerMonitor,
+    cancelDrag,
+  })).current;
 }

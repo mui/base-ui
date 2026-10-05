@@ -8,6 +8,7 @@
  */
 
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
+import { REASONS } from '../../../internals/reasons';
 import type {
   DraggableLocation,
   DraggableLocationHistory,
@@ -158,7 +159,7 @@ export function start(parameters: StartParameters): DragSessionController | null
   }
 
   const {
-    payload: source,
+    source,
     getSourceHandlers,
     initialInput,
     initialTarget,
@@ -180,7 +181,7 @@ export function start(parameters: StartParameters): DragSessionController | null
   // drag driven without events, such as a programmatic session or a test harness,
   // gets the placeholder from `createDragEventDetails`.
   let lastInputEvent: Event | undefined = initialEvent;
-  let lastInputReason: DragMoveReason = 'pointer';
+  let lastInputReason: DragMoveReason = REASONS.pointer;
 
   // The target whose `canDrop` returned `'reject'` at the current position, and
   // the value in the last published snapshot. A rejection change usually leaves
@@ -390,7 +391,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     const departedDropTargets = hoveredDropTargets.slice();
     if (departedDropTargets.length > 0) {
       const leaveDetails = createDragEventDetails<DragEndReason>(
-        'handler-error',
+        REASONS.handlerError,
         undefined,
         createTerminalLeaveLocation(location.current.input),
         source,
@@ -414,7 +415,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     location.previous = lastDispatched;
     location.current = { input: location.current.input, targets: [] };
     const endDetails = createMoveEndEventDetails(
-      'handler-error',
+      REASONS.handlerError,
       undefined,
       snapshotLocation(),
       source,
@@ -825,7 +826,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       captureDropTargetCollision(innermostDropTarget, source);
       // This path covers a drop on a target and a release over nothing. Neither is
       // a cancel, and the reason tells them apart. Only a drop fires `onDraggableDrop`.
-      const endReason: DragEndReason = innermostDropTarget ? 'drop' : 'outside-release';
+      const endReason: DragEndReason = innermostDropTarget ? REASONS.drop : REASONS.outsideRelease;
       const previousDropTargets = location.current.targets;
 
       location.previous = lastDispatched;
@@ -886,7 +887,7 @@ export function start(parameters: StartParameters): DragSessionController | null
         // an `onMoveEnd` that unregistered the target can't swallow it.
         if (innermostDropTarget) {
           const dropDetails = createDragEventDetails(
-            'drop',
+            REASONS.drop,
             event,
             snapshotLocation(),
             source,
@@ -935,7 +936,7 @@ export function start(parameters: StartParameters): DragSessionController | null
 
   function doCancel(
     input?: DraggableInput,
-    reason: DragCanceledReason = 'imperative-action',
+    reason: DragCanceledReason = REASONS.imperativeAction,
     event?: Event,
   ): void {
     // As in `doDrop`, code that runs between the sensor's `clearActive()` and
@@ -1110,7 +1111,7 @@ export interface DragSessionController {
 }
 
 export interface StartParameters {
-  payload: DraggableRootRecord;
+  source: DraggableRootRecord;
   /**
    * Returns the drag source's latest event handlers. It is read on every dispatch,
    * so a draggable that re-renders mid-drag runs its current closures. Only the

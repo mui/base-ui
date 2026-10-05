@@ -6,7 +6,7 @@ import { useDraggableContext } from '../DraggableContext';
 import { registerViewport } from '../../utils/drag-and-drop/registrations';
 import { wakeAutoScroll, normalizeOverflowMargin } from '../../utils/drag-and-drop/autoScroller';
 import { sameAccept } from '../../utils/drag-and-drop/dragKind';
-import type { RegisterViewportParameters } from '../../utils/drag-and-drop/autoScroller';
+import type { ViewportParameters } from '../../utils/drag-and-drop/autoScroller';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 
 /**
@@ -24,7 +24,7 @@ export function useDraggableViewportElement<TSourcePayload = unknown, TDragData 
   // The public `registerViewport` is typed by the `accept` value, while this
   // internal hook is typed by the payload it promises, like the component's
   // implementation signature. So the parameters are cast to `unknown` here.
-  const getParameters = useStableCallback(() => parameters as RegisterViewportParameters<unknown>);
+  const getParameters = useStableCallback(() => parameters as ViewportParameters<unknown>);
 
   // Registering during a drag starts and wakes the loop with the latest input.
   // `disabled` is read from the parameters every frame instead of gating the
@@ -56,7 +56,7 @@ export function useDraggableViewportElement<TSourcePayload = unknown, TDragData 
 export type UseDraggableViewportElementParameters<
   TSourcePayload = unknown,
   TDragData = unknown,
-> = RegisterViewportParameters<TSourcePayload, TDragData>;
+> = ViewportParameters<TSourcePayload, TDragData>;
 
 export interface UseDraggableViewportElementReturnValue {
   /** Ref callback to attach to the scroll container element. */

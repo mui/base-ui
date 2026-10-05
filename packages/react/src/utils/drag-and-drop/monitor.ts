@@ -13,12 +13,7 @@ import { getSharedSlot } from './sharedState';
 import { containConsumerError } from './utils';
 
 /** Returns a monitor's latest parameters. Read on each dispatch. */
-type MonitorGetter = () => RegisterMonitorParameters<any, any>;
-
-interface MatchedMonitor {
-  /** A shallow copy, so a getter that mutates one object in place can't change it. */
-  snapshot: RegisterMonitorParameters;
-}
+type MonitorGetter = () => MonitorParameters<any, any>;
 
 interface MonitorState {
   /** The parameters getter of every registered monitor. */
@@ -30,23 +25,23 @@ interface MonitorState {
   /**
    * The last parameters of each engaged monitor whose `accept` matched. A monitor
    * whose `accept` stops matching mid-drag still gets `onMoveEnd` through them.
-   * They are copied only when their fields change, including when an imperative
-   * getter mutates and returns the same object.
+   * They are shallow copies, so a getter that mutates one object in place can't
+   * change them, and are copied only when their fields change.
    */
-  matchedMonitors: WeakMap<MonitorGetter, MatchedMonitor>;
+  matchedMonitors: WeakMap<MonitorGetter, MonitorParameters>;
 }
 
 const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
   allMonitors: new Set<MonitorGetter>(),
   activeMonitors: new Set<MonitorGetter>(),
   activeSource: null,
-  matchedMonitors: new WeakMap<MonitorGetter, MatchedMonitor>(),
+  matchedMonitors: new WeakMap<MonitorGetter, MonitorParameters>(),
 }));
 
-function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: RegisterMonitorParameters) {
+function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: MonitorParameters) {
   const matched = state.matchedMonitors.get(getMonitor);
-  if (matched === undefined || !fastObjectShallowCompare(parameters, matched.snapshot)) {
-    state.matchedMonitors.set(getMonitor, { snapshot: { ...parameters } });
+  if (matched === undefined || !fastObjectShallowCompare(parameters, matched)) {
+    state.matchedMonitors.set(getMonitor, { ...parameters });
   }
 }
 
@@ -110,7 +105,7 @@ export function activateMonitors(source: DraggableRootRecord): void {
 }
 
 export function dispatchToMonitors<
-  K extends keyof DraggableEventDetailsMap & keyof RegisterMonitorParameters,
+  K extends keyof DraggableEventDetailsMap & keyof MonitorParameters,
 >(eventName: K, eventDetails: DraggableEventDetailsMap[K]): void {
   if (state.activeMonitors.size === 0) {
     return;
@@ -141,7 +136,7 @@ export function dispatchToMonitors<
           if (!previous) {
             return;
           }
-          monitor = previous.snapshot;
+          monitor = previous;
         }
         const handler = monitor[eventName] as
           ((eventDetails: DraggableEventDetailsMap[K]) => void) | undefined;
@@ -157,7 +152,7 @@ export function clearActiveMonitors(): void {
   state.activeSource = null;
 }
 
-export interface RegisterMonitorParameters<TSourcePayload = unknown, TDragData = unknown> {
+export interface MonitorParameters<TSourcePayload = unknown, TDragData = unknown> {
   /**
    * One or more kinds of draggable to observe. Omit it to observe every drag,
    * with `source.payload` typed as `unknown`.

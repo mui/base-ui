@@ -9,11 +9,9 @@ import type {
 import { getParentElement } from '../getParentElement';
 import { getElementAtPoint } from '../getElementAtPoint';
 import {
+  getOwnLinearTransform,
   identityLinearTransform,
   multiplyLinearTransforms,
-  parseComputedLinearTransform,
-  parseRotateLinearTransform,
-  parseScaleLinearTransform,
 } from './linearTransform';
 
 /** The four modifier key flags, as the events that carry them report them. */
@@ -32,6 +30,15 @@ export function onceCleanup(cleanup: () => void): () => void {
     done = true;
     cleanup();
   };
+}
+
+/**
+ * Cancel the event's default action and keep every later listener, on any node,
+ * from seeing it.
+ */
+export function swallowEvent(event: Event): void {
+  event.preventDefault();
+  event.stopImmediatePropagation();
 }
 
 /**
@@ -176,17 +183,16 @@ export function isDetachedDocument(doc: Document): boolean {
 }
 
 /**
- * The layout viewport size. Prefers `documentElement.clientWidth/Height` over
- * `innerWidth/innerHeight`, which include the scrollbar gutter where
- * `elementFromPoint` finds nothing. Falls back to the window size when layout
- * reports 0, as in a detached document or jsdom.
+ * The layout viewport rect in client coordinates. Prefers
+ * `documentElement.clientWidth/Height` over `innerWidth/innerHeight`, which include
+ * the scrollbar gutter where `elementFromPoint` finds nothing. Falls back to the
+ * window size when layout reports 0, as in a detached document or jsdom.
  */
-export function getViewportSize(win: Window): { width: number; height: number } {
+export function getViewportRect(win: Window) {
   const docEl = win.document.documentElement;
-  return {
-    width: docEl.clientWidth || win.innerWidth,
-    height: docEl.clientHeight || win.innerHeight,
-  };
+  const width = docEl.clientWidth || win.innerWidth;
+  const height = docEl.clientHeight || win.innerHeight;
+  return { left: 0, top: 0, right: width, bottom: height, width, height };
 }
 
 /**
@@ -479,19 +485,9 @@ export function getElementScale(element: HTMLElement): DraggablePosition {
     // `transform`, so a `scale: 1.5` hover lift has to be read on its own. `rotate`
     // doesn't change a scale by itself, but it changes which axis an ancestor's scale
     // lands on. Leaving it out would swap the axes under a non-uniform ancestor scale.
-    // Only `translate` can be ignored. Within one element, the order is `rotate`,
-    // then `scale`, then `transform`.
-    const own = escapedTransforms ? null : parseComputedLinearTransform(style.transform);
-    if (own) {
-      matrix = multiplyLinearTransforms(own, matrix);
-    }
-    const scaleLonghand = escapedTransforms ? null : parseScaleLinearTransform(style.scale);
-    if (scaleLonghand) {
-      matrix = multiplyLinearTransforms(scaleLonghand, matrix);
-    }
-    const rotateLonghand = escapedTransforms ? null : parseRotateLinearTransform(style.rotate);
-    if (rotateLonghand) {
-      matrix = multiplyLinearTransforms(rotateLonghand, matrix);
+    // Only `translate` can be ignored.
+    if (!escapedTransforms) {
+      matrix = multiplyLinearTransforms(getOwnLinearTransform(style), matrix);
     }
     // `zoom` is not a transform, so it stays out of the matrix. It compounds down the
     // tree the same way, so it is multiplied in separately.

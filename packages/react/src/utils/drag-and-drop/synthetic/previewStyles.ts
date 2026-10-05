@@ -73,9 +73,157 @@ const RULES_PER_SOURCE_NODE = 512;
  * clone node it is restored onto.
  */
 export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element[]) {
+  const clone = cloneNodes[0];
+  const win = ownerWindow(sourceNodes[0]);
+  // Captured in its own scope, so the closures returned below, which live as long
+  // as the preview, don't keep the source nodes and the capture maps alive.
+  const { snapshots, needsFullSnapshot } = captureSnapshots(sourceNodes, cloneNodes, win);
+  let sheet: CSSStyleSheet | null = null;
+  let sheetRoot: Document | ShadowRoot | null = null;
+
+  function detachSheet() {
+    if (sheetRoot && sheet) {
+      unadoptStyleSheet(sheetRoot, sheet);
+    }
+  }
+
+  function reconnect() {
+    if (!sheet) {
+      return;
+    }
+    const target = getDragEventRoot(clone);
+    if (sheetRoot !== target) {
+      detachSheet();
+      sheetRoot = target;
+    }
+    adoptStyleSheet(target, sheet);
+  }
+
+  /**
+   * A restored value is a style change on a node that is already rendered, so a
+   * descendant whose own `transition` covers it would fade in from the value its
+   * position at the end of the parent gave it. The preview must look settled on its first frame.
+   * Only transitions are finished. A running `@keyframes` inside the source, such
+   * as a spinner, keeps playing on the clone.
+   */
+  function finishTransitions() {
+    if (typeof clone.getAnimations !== 'function' || typeof win.CSSTransition !== 'function') {
+      return;
+    }
+    for (const animation of clone.getAnimations({ subtree: true })) {
+      if (animation instanceof win.CSSTransition) {
+        animation.finish();
+      }
+    }
+  }
+
+  return {
+    /** Call once the clone is inserted, so the diff sees its final cascade. */
+    restore() {
+      // Finish all reads before writing styles, avoiding a layout per node.
+      const changed = snapshots.map(({ node, pseudo, values }) => {
+        // A clone node `sanitize()` dropped (a script) has nothing to restore.
+        if (!node.isConnected) {
+          return { node, pseudo, values: [] };
+        }
+        const computed = win.getComputedStyle(node, pseudo || null);
+        return {
+          node,
+          pseudo,
+          values: values.filter(([name, value]) => computed.getPropertyValue(name) !== value),
+        };
+      });
+      // A broad snapshot must not overwrite styles consumers apply to previews.
+      // Before writing, drop any value that changes when the marker is removed.
+      // It comes from a preview rule, not from the lost ancestry.
+      if (changed.some(({ values }) => values.length > 0)) {
+        const previewValues = changed.map(({ node, pseudo, values }) => {
+          const computed = win.getComputedStyle(node, pseudo || null);
+          return values.map(([name]) => computed.getPropertyValue(name));
+        });
+        clone.removeAttribute(DraggablePreviewDataAttributes.dragPreview);
+        try {
+          changed.forEach((entry, index) => {
+            const computed = win.getComputedStyle(entry.node, entry.pseudo || null);
+            entry.values = entry.values.filter(
+              ([name], valueIndex) =>
+                computed.getPropertyValue(name) === previewValues[index][valueIndex],
+            );
+          });
+        } finally {
+          clone.setAttribute(DraggablePreviewDataAttributes.dragPreview, '');
+        }
+      }
+      const nodeIds = new Map<Element, string>();
+      for (const { node, pseudo, values } of changed) {
+        if (values.length === 0) {
+          continue;
+        }
+        let style: CSSStyleDeclaration;
+        if (pseudo) {
+          sheet ??= new win.CSSStyleSheet();
+          let id = nodeIds.get(node);
+          if (id === undefined) {
+            id = String(ids.next);
+            ids.next += 1;
+            nodeIds.set(node, id);
+            node.setAttribute(NODE_ATTRIBUTE, id);
+          }
+          const index = sheet.insertRule(
+            `[${NODE_ATTRIBUTE}="${id}"]${pseudo} {}`,
+            sheet.cssRules.length,
+          );
+          style = (sheet.cssRules[index] as CSSStyleRule).style;
+        } else if (node instanceof win.HTMLElement || node instanceof win.SVGElement) {
+          style = node.style;
+        } else {
+          continue;
+        }
+        for (const [name, value, priority] of values) {
+          style.setProperty(name, value, pseudo ? 'important' : priority);
+        }
+      }
+      reconnect();
+      if (!changed.some(({ values }) => values.length > 0)) {
+        snapshots.length = 0;
+        return;
+      }
+      finishTransitions();
+      // An unreadable sheet can also hold `!important` declarations. Computed
+      // styles do not expose priority, so raise only the restorations that still
+      // lose to a surviving declaration. Reads are batched before writes.
+      if (needsFullSnapshot) {
+        const important = changed.flatMap(({ node, pseudo, values }) => {
+          if (pseudo || !(node instanceof win.HTMLElement || node instanceof win.SVGElement)) {
+            return [];
+          }
+          const computed = win.getComputedStyle(node);
+          return values
+            .filter(([name, value]) => computed.getPropertyValue(name) !== value)
+            .map(([name, value]) => ({ node, name, value }));
+        });
+        for (const { node, name, value } of important) {
+          node.style.setProperty(name, value, 'important');
+        }
+        if (important.length > 0) {
+          finishTransitions();
+        }
+      }
+      snapshots.length = 0;
+    },
+    reconnect,
+    destroy: detachSheet,
+  };
+}
+
+/** The values to restore onto each clone node, and whether they came from a full snapshot. */
+function captureSnapshots(
+  sourceNodes: Element[],
+  cloneNodes: Element[],
+  win: Window & typeof globalThis,
+) {
   const source = sourceNodes[0];
   const clone = cloneNodes[0];
-  const win = ownerWindow(source);
   const root = source.getRootNode() as Document | ShadowRoot;
   const properties = new Map<Element, Properties>();
   const clonesBySource = new Map<Element, Element>();
@@ -285,140 +433,5 @@ export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element
       };
     });
   });
-  let sheet: CSSStyleSheet | null = null;
-  let sheetRoot: Document | ShadowRoot | null = null;
-
-  function detachSheet() {
-    if (sheetRoot && sheet) {
-      unadoptStyleSheet(sheetRoot, sheet);
-    }
-  }
-
-  function reconnect() {
-    if (!sheet) {
-      return;
-    }
-    const target = getDragEventRoot(clone);
-    if (sheetRoot !== target) {
-      detachSheet();
-      sheetRoot = target;
-    }
-    adoptStyleSheet(target, sheet);
-  }
-
-  /**
-   * A restored value is a style change on a node that is already rendered, so a
-   * descendant whose own `transition` covers it would fade in from the value its
-   * position at the end of the parent gave it. The preview must look settled on its first frame.
-   * Only transitions are finished. A running `@keyframes` inside the source, such
-   * as a spinner, keeps playing on the clone.
-   */
-  function finishTransitions() {
-    if (typeof clone.getAnimations !== 'function' || typeof win.CSSTransition !== 'function') {
-      return;
-    }
-    for (const animation of clone.getAnimations({ subtree: true })) {
-      if (animation instanceof win.CSSTransition) {
-        animation.finish();
-      }
-    }
-  }
-
-  return {
-    /** Call once the clone is inserted, so the diff sees its final cascade. */
-    restore() {
-      // Finish all reads before writing styles, avoiding a layout per node.
-      const changed = snapshots.map(({ node, pseudo, values }) => {
-        // A clone node `sanitize()` dropped (a script) has nothing to restore.
-        if (!node.isConnected) {
-          return { node, pseudo, values: [] };
-        }
-        const computed = win.getComputedStyle(node, pseudo || null);
-        return {
-          node,
-          pseudo,
-          values: values.filter(([name, value]) => computed.getPropertyValue(name) !== value),
-        };
-      });
-      // A broad snapshot must not overwrite styles consumers apply to previews.
-      // Before writing, drop any value that changes when the marker is removed.
-      // It comes from a preview rule, not from the lost ancestry.
-      if (changed.some(({ values }) => values.length > 0)) {
-        const previewValues = changed.map(({ node, pseudo, values }) => {
-          const computed = win.getComputedStyle(node, pseudo || null);
-          return values.map(([name]) => computed.getPropertyValue(name));
-        });
-        clone.removeAttribute(DraggablePreviewDataAttributes.dragPreview);
-        try {
-          changed.forEach((entry, index) => {
-            const computed = win.getComputedStyle(entry.node, entry.pseudo || null);
-            entry.values = entry.values.filter(
-              ([name], valueIndex) =>
-                computed.getPropertyValue(name) === previewValues[index][valueIndex],
-            );
-          });
-        } finally {
-          clone.setAttribute(DraggablePreviewDataAttributes.dragPreview, '');
-        }
-      }
-      const nodeIds = new Map<Element, string>();
-      for (const { node, pseudo, values } of changed) {
-        if (values.length === 0) {
-          continue;
-        }
-        let style: CSSStyleDeclaration;
-        if (pseudo) {
-          sheet ??= new win.CSSStyleSheet();
-          let id = nodeIds.get(node);
-          if (id === undefined) {
-            id = String(ids.next);
-            ids.next += 1;
-            nodeIds.set(node, id);
-            node.setAttribute(NODE_ATTRIBUTE, id);
-          }
-          const index = sheet.insertRule(
-            `[${NODE_ATTRIBUTE}="${id}"]${pseudo} {}`,
-            sheet.cssRules.length,
-          );
-          style = (sheet.cssRules[index] as CSSStyleRule).style;
-        } else if (node instanceof win.HTMLElement || node instanceof win.SVGElement) {
-          style = node.style;
-        } else {
-          continue;
-        }
-        for (const [name, value, priority] of values) {
-          style.setProperty(name, value, pseudo ? 'important' : priority);
-        }
-      }
-      reconnect();
-      if (!changed.some(({ values }) => values.length > 0)) {
-        snapshots.length = 0;
-        return;
-      }
-      finishTransitions();
-      // An unreadable sheet can also hold `!important` declarations. Computed
-      // styles do not expose priority, so raise only the restorations that still
-      // lose to a surviving declaration. Reads are batched before writes.
-      if (needsFullSnapshot) {
-        const important = changed.flatMap(({ node, pseudo, values }) => {
-          if (pseudo || !(node instanceof win.HTMLElement || node instanceof win.SVGElement)) {
-            return [];
-          }
-          const computed = win.getComputedStyle(node);
-          return values
-            .filter(([name, value]) => computed.getPropertyValue(name) !== value)
-            .map(([name, value]) => ({ node, name, value }));
-        });
-        for (const { node, name, value } of important) {
-          node.style.setProperty(name, value, 'important');
-        }
-        if (important.length > 0) {
-          finishTransitions();
-        }
-      }
-      snapshots.length = 0;
-    },
-    reconnect,
-    destroy: detachSheet,
-  };
+  return { snapshots, needsFullSnapshot };
 }

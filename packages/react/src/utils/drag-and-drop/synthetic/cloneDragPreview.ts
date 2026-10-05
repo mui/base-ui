@@ -19,15 +19,7 @@ import {
   getOwnZoom,
 } from '../utils';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
-import {
-  COMPUTED_MATRIX,
-  identityLinearTransform,
-  multiplyLinearTransforms,
-  parseComputedLinearTransform,
-  parseRotateLinearTransform,
-  parseScaleLinearTransform,
-} from '../linearTransform';
-import type { LinearTransform } from '../linearTransform';
+import { COMPUTED_MATRIX, getOwnLinearTransform } from '../linearTransform';
 
 /**
  * Properties the preview must not inherit from the source. The engine moves the
@@ -187,7 +179,7 @@ export interface DragPreviewElementHandle {
 
 type PreviewHost = HTMLElement | ShadowRoot;
 
-const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
+export const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
 const previewIds = getSharedSlot('dragPreviewIds', () => ({ next: 0 }));
 
@@ -820,36 +812,6 @@ function isTranslationOnly(transform: string): boolean {
   );
 }
 
-/** The source's own 2D transform without translation or transform-origin. */
-function getLinearTransform(sourceStyle: CSSStyleDeclaration): LinearTransform | null {
-  let matrix = identityLinearTransform;
-  if (sourceStyle.rotate !== 'none') {
-    const rotate = parseRotateLinearTransform(sourceStyle.rotate, true);
-    if (!rotate) {
-      return null;
-    }
-    matrix = multiplyLinearTransforms(matrix, rotate);
-  }
-
-  if (sourceStyle.scale !== 'none') {
-    const scale = parseScaleLinearTransform(sourceStyle.scale);
-    if (!scale) {
-      return null;
-    }
-    matrix = multiplyLinearTransforms(matrix, scale);
-  }
-
-  if (sourceStyle.transform !== 'none') {
-    const transform = parseComputedLinearTransform(sourceStyle.transform, false);
-    if (!transform) {
-      return null;
-    }
-    matrix = multiplyLinearTransforms(matrix, transform);
-  }
-
-  return matrix;
-}
-
 function getUntransformedSourceRect(
   rect: DOMRect,
   width: number,
@@ -865,7 +827,7 @@ function getUntransformedSourceRect(
       width,
       height,
     );
-  const matrix = getLinearTransform(sourceStyle);
+  const matrix = getOwnLinearTransform(sourceStyle, true);
   const originParts = sourceStyle.transformOrigin.split(/\s+/);
   const originX = Number.parseFloat(originParts[0]);
   const originY = Number.parseFloat(originParts[1]);

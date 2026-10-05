@@ -6,6 +6,7 @@
 
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { ReasonToEvent } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { BaseUIEventReason } from '../../internals/reasons';
 import type { DraggableLocationHistory } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
@@ -51,6 +52,6 @@ export function createMoveEndEventDetails(
     location,
     source,
     target,
-    canceled: reason !== 'drop' && reason !== 'outside-release',
+    canceled: reason !== REASONS.drop && reason !== REASONS.outsideRelease,
   }) as MoveEndEventDetails;
 }

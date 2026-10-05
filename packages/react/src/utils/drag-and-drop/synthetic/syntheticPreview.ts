@@ -8,6 +8,7 @@ import { createDragPreviewElement, measurePreviewSource } from './cloneDragPrevi
 import type { DragPreviewElementHandle, PreviewAnchor } from './cloneDragPreview';
 import { copyPreviewContent, createPreviewContentContainer } from './previewContent';
 import type { PreviewContent } from './previewContent';
+import type { ResolvedDragPreview } from './pickupPreview';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
 import type { DragModifierKeys } from '../utils';
@@ -117,12 +118,16 @@ export function retargetEndingPreviewSource(
 export interface PreviewContentOptions {
   /** Where the copy of the content goes. Measured at pickup. */
   anchor: PreviewAnchor;
+  /** The consumer's function that renders the content. */
+  renderContent: NonNullable<ResolvedDragPreview['render']>;
   /**
    * Resolve the preview's offset from its first copy, once it has a size. Called again
    * only after the content declined the preview and rendered something new.
    */
   resolveOffset: (element: HTMLElement) => DraggablePosition;
 }
+
+export type AttachedPreviewContent = PreviewContentOptions & PreviewContent;
 
 /**
  * `modifiers` are the compiled preview-level modifiers, or `null` for none. They
@@ -148,7 +153,7 @@ export function createSyntheticPreview(
   // `container`. The sensor moves it through `update`.
   let previewElement: DragPreviewElementHandle | null = null;
   // The content of a custom preview and how it is shown. `null` for a clone.
-  let content: (PreviewContentOptions & PreviewContent) | null = null;
+  let content: AttachedPreviewContent | null = null;
   let previewOffsetX = 0;
   let previewOffsetY = 0;
   let lastX = 0;
@@ -313,7 +318,7 @@ export function createSyntheticPreview(
         copy: null,
       };
     },
-    getContent(): PreviewContent | null {
+    getContent(): AttachedPreviewContent | null {
       return content;
     },
     syncContent(): void {
@@ -470,7 +475,7 @@ export interface SyntheticPreviewHandle {
    */
   attachContent(options: PreviewContentOptions): void;
   /** The custom preview's content, or `null` for a clone. */
-  getContent(): PreviewContent | null;
+  getContent(): AttachedPreviewContent | null;
   /** Copy the content after its first commit, or run its pending update. */
   syncContent(): void;
   /** Show a new copy of the custom content, or remove the preview when `root` is `null`. */

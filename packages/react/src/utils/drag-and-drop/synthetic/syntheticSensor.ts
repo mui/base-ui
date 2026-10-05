@@ -13,6 +13,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../../internals/reasons';
 import {
   evaluateActivations,
   getActivationDelayMs,
@@ -50,7 +51,7 @@ import type { DraggablePickup } from '../draggableRegistry';
 import { hasCapturingAncestorWithin } from '../interactiveElement';
 import { getDropTargetShadowRootsByHost, trackDropTargetShadowRoots } from '../dropTarget';
 import type { DraggableInput, DraggablePointerType } from '../../../draggable/DraggableProvider';
-import type { DragCanceledReason, DragCleanupFn, DragMoveReason } from '../types';
+import type { DragCanceledReason, DragCleanupFn, DragMoveReason, DragStartReason } from '../types';
 import { modifyDragPoint, createDragModifiersState } from '../dragModifiers';
 import type { DragModifiersState } from '../dragModifiers';
 import {
@@ -65,6 +66,7 @@ import {
   onceCleanup,
   remapInput,
   runAllCleanups,
+  swallowEvent,
 } from '../utils';
 
 interface SyntheticDragState {
@@ -289,26 +291,26 @@ function setPointerCaptureSafely(element: Element, pointerId: number): void {
  */
 const POINTER_AT_CANCEL: Record<DragCanceledReason, PointerAtTeardown> = {
   // This cancel fires because the button came up.
-  'missed-release': 'released',
+  [REASONS.missedRelease]: 'released',
   // A canceled pointer never produces a compatibility click.
-  'pointer-canceled': 'none',
+  [REASONS.pointerCanceled]: 'none',
   // Triggered by another gesture's press (see `recoverDetachedSession`). In a
   // dead realm `ownerWindow` falls back to the top-level window, so arming would
   // swallow the new press's click on the wrong document.
-  'document-detached': 'none',
+  [REASONS.documentDetached]: 'none',
   // The rest interrupt a gesture whose button is still down.
-  'escape-key': 'held',
-  'tab-key': 'held',
-  'imperative-action': 'held',
-  'window-blur': 'held',
-  'page-hidden': 'held',
-  'capture-lost': 'held',
-  'handler-error': 'held',
+  [REASONS.escapeKey]: 'held',
+  [REASONS.tabKey]: 'held',
+  [REASONS.imperativeAction]: 'held',
+  [REASONS.windowBlur]: 'held',
+  [REASONS.pageHidden]: 'held',
+  [REASONS.captureLost]: 'held',
+  [REASONS.handlerError]: 'held',
 };
 
 function cancelActive(
   input?: DraggableInput,
-  reason: DragCanceledReason = 'imperative-action',
+  reason: DragCanceledReason = REASONS.imperativeAction,
   event?: Event,
 ): void {
   const active = state.active;
@@ -459,7 +461,7 @@ function onPointerDown(event: Event): void {
   }
 
   let activation = resolveActivation(parameters.activation, pointerType);
-  let activationKind: PendingSession['activationKind'] = 'pointer';
+  let activationKind: PendingSession['activationKind'] = REASONS.pointer;
   // Touch and pen double-tap. The second tap on the same source picks it up
   // while the pointer is down, and the release drops it. Mouse uses the native
   // `dblclick` instead (see `onDoubleClick`) and then follows the pointer with no
@@ -468,7 +470,7 @@ function onPointerDown(event: Event): void {
     if (isSecondTap(element, pointerEvent, pointerType)) {
       clearLastTap();
       activation = [{ type: 'immediate' }];
-      activationKind = 'double-click';
+      activationKind = REASONS.doubleClick;
     } else {
       recordTap(element, pointerEvent, pointerType);
     }
@@ -566,7 +568,7 @@ function recoverDetachedSession(event: Event): boolean {
   if (state.pending) {
     clearPending();
   } else {
-    cancelActive(undefined, 'document-detached', event);
+    cancelActive(undefined, REASONS.documentDetached, event);
   }
   return !state.pending && !state.active;
 }
@@ -608,7 +610,7 @@ function onDoubleClick(event: Event): void {
     pointerId: -1,
     pointerType: 'mouse',
     activation: [],
-    activationKind: 'double-click',
+    activationKind: REASONS.doubleClick,
     heldPointer: false,
     origin: { x: mouseEvent.clientX, y: mouseEvent.clientY },
     lastNativeEvent: mouseEvent,
@@ -1014,7 +1016,7 @@ function commitActivation(): void {
       lastPointerEvent: pending.heldPointer
         ? pending.lastNativeEvent
         : (state.lastPointerDown ?? pending.lastNativeEvent),
-      lastMoveReason: 'pointer',
+      lastMoveReason: REASONS.pointer,
       modifiers,
       // Resolve on the first active frame to confirm the entered target and fire
       // the first `onMove`. That frame clears it, so later stationary frames skip
@@ -1035,7 +1037,7 @@ function commitActivation(): void {
     // lifecycle now instead of waiting for a later `pointerdown` to find the dead
     // document.
     if (isDetachedDocument(doc)) {
-      cancelActive(undefined, 'document-detached', pending.lastNativeEvent);
+      cancelActive(undefined, REASONS.documentDetached, pending.lastNativeEvent);
       return;
     }
 
@@ -1184,8 +1186,7 @@ function onDoubleClickPress(event: MouseEvent): void {
   if (event.button !== 0 || normalizePointerType((event as PointerEvent).pointerType) !== 'mouse') {
     return;
   }
-  event.preventDefault();
-  event.stopImmediatePropagation();
+  swallowEvent(event);
 }
 
 function onDoubleClickDrop(event: MouseEvent): void {
@@ -1199,8 +1200,7 @@ function onDoubleClickDrop(event: MouseEvent): void {
     return;
   }
   // This click completes the move, so it must not also open or edit the destination.
-  event.preventDefault();
-  event.stopImmediatePropagation();
+  swallowEvent(event);
   // The user may have double-clicked to drop. The rest of that double-click must
   // not pick up the item under the pointer again, often the one just dropped.
   suppressDoubleClickFollowUp(active.element);
@@ -1316,7 +1316,7 @@ function onActivePointerMove(pointerEvent: PointerEvent): void {
     active.terminalFrameQueued = true;
     active.rafFrame.request(() => {
       if (state.active === active) {
-        cancelActive(input, 'missed-release', pointerEvent);
+        cancelActive(input, REASONS.missedRelease, pointerEvent);
       }
     });
     return;
@@ -1333,7 +1333,7 @@ function onActivePointerMove(pointerEvent: PointerEvent): void {
   active.lastInput = getInput(pointerEvent);
   active.lastNativeEvent = pointerEvent;
   active.lastPointerEvent = pointerEvent;
-  active.lastMoveReason = 'pointer';
+  active.lastMoveReason = REASONS.pointer;
   active.frameDirty = true;
   // Replace the queued frame only when it holds a terminal fallback. An earlier
   // `buttons === 0` sample or a lost capture may have queued one, and this
@@ -1399,7 +1399,7 @@ function onActivePointerCancel(pointerEvent: PointerEvent): void {
   }
   // `pointercancel` often reports (0,0). Pass `undefined` so the lifecycle uses
   // the last good input instead of snapping to the origin.
-  cancelActive(undefined, 'pointer-canceled', pointerEvent);
+  cancelActive(undefined, REASONS.pointerCanceled, pointerEvent);
 }
 
 function onActiveLostPointerCapture(pointerEvent: PointerEvent): void {
@@ -1426,7 +1426,7 @@ function onActiveLostPointerCapture(pointerEvent: PointerEvent): void {
   active.terminalFrameQueued = true;
   active.rafFrame.request(() => {
     if (state.active === active) {
-      cancelActive(undefined, 'capture-lost', pointerEvent);
+      cancelActive(undefined, REASONS.captureLost, pointerEvent);
     }
   });
 }
@@ -1453,7 +1453,7 @@ function syncActiveModifierKeys(event: KeyboardEvent): void {
   // `eventDetails.event.shiftKey` and `location.current.input.shiftKey` would
   // disagree in the same `onMove`.
   active.lastNativeEvent = event;
-  active.lastMoveReason = 'modifier-key';
+  active.lastMoveReason = REASONS.modifierKey;
   active.frameDirty = true;
   scheduleActiveFrame(active);
 }
@@ -1464,21 +1464,20 @@ function onActiveKeyDown(keyEvent: KeyboardEvent): void {
   }
   syncActiveModifierKeys(keyEvent);
   if (keyEvent.key === 'Tab') {
-    cancelActive(undefined, 'tab-key', keyEvent);
+    cancelActive(undefined, REASONS.tabKey, keyEvent);
     return;
   }
   if (keyEvent.key !== 'Escape') {
     return;
   }
-  keyEvent.preventDefault();
   // The cancel consumes Escape. Otherwise the same keydown would also close an
   // enclosing dialog or popover.
-  keyEvent.stopImmediatePropagation();
-  cancelActive(undefined, 'escape-key', keyEvent);
+  swallowEvent(keyEvent);
+  cancelActive(undefined, REASONS.escapeKey, keyEvent);
 }
 
 function onActiveBlur(event: Event): void {
-  cancelActive(undefined, 'window-blur', event);
+  cancelActive(undefined, REASONS.windowBlur, event);
 }
 
 function onActiveVisibilityChange(event: Event): void {
@@ -1486,7 +1485,7 @@ function onActiveVisibilityChange(event: Event): void {
   if (!active || ownerDocument(active.element).visibilityState !== 'hidden') {
     return;
   }
-  cancelActive(undefined, 'page-hidden', event);
+  cancelActive(undefined, REASONS.pageHidden, event);
 }
 
 /**
@@ -1519,7 +1518,7 @@ function notifyExternalScroll(): void {
   // frame already pending for a move or a key keeps its own.
   if (!active.frameDirty) {
     active.lastNativeEvent = active.lastPointerEvent;
-    active.lastMoveReason = 'pointer';
+    active.lastMoveReason = REASONS.pointer;
   }
   active.frameDirty = true;
   scheduleActiveFrame(active);
@@ -1561,7 +1560,7 @@ interface PendingSession {
   pointerType: DraggablePointerType;
   activation: DraggableRootActivation[];
   /** How the pickup happened, reported to `onBeforeMoveStart` as `eventDetails.reason`. */
-  activationKind: 'pointer' | 'double-click';
+  activationKind: DragStartReason;
   /**
    * Whether a held pointer drives the gesture. If so, the pointer is captured,
    * `pointerup` drops, and a `buttons` release cancels. `false` only for a mouse

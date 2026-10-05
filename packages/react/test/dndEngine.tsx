@@ -24,7 +24,7 @@ import type {
   RegisterViewportParameters,
   RegisterMonitorParameters,
 } from '../src/utils/drag-and-drop/registrationTypes';
-import type { RegisterTargetParameters } from '../src/utils/drag-and-drop/dropTarget';
+import type { DropTargetParameters } from '../src/utils/drag-and-drop/dropTarget';
 
 /**
  * The kind {@link DndTestEngine}'s `registerSource` defaults to, so a fixture only
@@ -47,7 +47,7 @@ type TestDraggableParameters<TPayload, TDragData = unknown> = Omit<
 };
 
 type TestTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData> = Omit<
-  RegisterTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>,
+  DropTargetParameters<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>,
   'kind'
 > & { kind?: DraggableKind<TTargetPayload, TTargetDragData> };
 

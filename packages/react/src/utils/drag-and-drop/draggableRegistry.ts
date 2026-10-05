@@ -68,7 +68,9 @@ export interface DraggablePickup {
 }
 
 /** Resolves the configured drag handle element, or `null` when there is none. */
-export function resolveDragHandle(parameters: DraggableConfig<any, any>): Element | null {
+export function resolveDragHandle(
+  parameters: Pick<DraggableConfig<any, any>, 'handle'>,
+): Element | null {
   return resolveElementReference(parameters.handle, undefined);
 }
 

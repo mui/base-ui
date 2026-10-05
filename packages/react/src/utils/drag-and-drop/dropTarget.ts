@@ -35,7 +35,7 @@ import { dragSessionStore, notifyDragTargetUpdated } from './dragSessionStore';
  */
 const DROP_TARGET_ATTR = 'data-base-ui-drop-target';
 
-type AnyDropTargetParameters = RegisterTargetParameters<any, any, any, any>;
+type AnyDropTargetParameters = DropTargetParameters<any, any, any, any>;
 /** Getter for a single hook's latest drop-target parameters. */
 type DropTargetGetter = () => AnyDropTargetParameters;
 
@@ -715,7 +715,7 @@ export function getDropTargetsOver(
   return result;
 }
 
-type DropTargetEventName = keyof DropTargetEventReasonMap & keyof RegisterTargetParameters;
+type DropTargetEventName = keyof DropTargetEventReasonMap & keyof DropTargetParameters;
 
 /**
  * Deliver `eventName` to the target behind `record` through the element's active
@@ -920,7 +920,7 @@ export function dispatchToAllDropTargets<K extends DropTargetEventName>(
  * this target's own. `Draggable.Target` and `registerTarget` infer them from `accept`
  * and `payload`.
  */
-export type RegisterTargetParameters<
+export type DropTargetParameters<
   TSourcePayload = unknown,
   TTargetPayload = unknown,
   TDragData = unknown,

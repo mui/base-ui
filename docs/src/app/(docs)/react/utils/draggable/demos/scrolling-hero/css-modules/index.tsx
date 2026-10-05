@@ -73,13 +73,12 @@ function resolveDrop(container: HTMLElement, clientY: number): { index: number; 
     return { index: 0, slotY: container.getBoundingClientRect().top };
   }
 
-  const slotYs = [cards[0].getBoundingClientRect().top];
-  for (let i = 1; i < cards.length; i += 1) {
-    const prev = cards[i - 1].getBoundingClientRect();
-    const curr = cards[i].getBoundingClientRect();
-    slotYs.push((prev.bottom + curr.top) / 2);
+  const rects = cards.map((card) => card.getBoundingClientRect());
+  const slotYs = [rects[0].top];
+  for (let i = 1; i < rects.length; i += 1) {
+    slotYs.push((rects[i - 1].bottom + rects[i].top) / 2);
   }
-  slotYs.push(cards[cards.length - 1].getBoundingClientRect().bottom);
+  slotYs.push(rects[rects.length - 1].bottom);
 
   let index = 0;
   let bestDy = Infinity;

@@ -1,7 +1,7 @@
 import type { DraggableConfig } from './draggable';
-import type { RegisterTargetParameters as InternalRegisterTargetParameters } from './dropTarget';
-import type { RegisterViewportParameters as InternalRegisterViewportParameters } from './autoScroller';
-import type { RegisterMonitorParameters as InternalRegisterMonitorParameters } from './monitor';
+import type { DropTargetParameters } from './dropTarget';
+import type { ViewportParameters } from './autoScroller';
+import type { MonitorParameters } from './monitor';
 import type { DraggableKind, DraggableAccept } from '../../draggable/DraggableProvider';
 import type { AcceptedDragPayload, AcceptedDragData, DraggablePayload } from './types';
 
@@ -30,7 +30,7 @@ export type RegisterTargetParameters<
   TDragData = unknown,
   TTargetDragData = unknown,
 > = Omit<
-  InternalRegisterTargetParameters<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>,
+  DropTargetParameters<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>,
   'accept'
 > & {
   /**
@@ -40,12 +40,7 @@ export type RegisterTargetParameters<
    * Drags of other kinds ignore this target, but an ancestor target can still accept them.
    */
   accept: NonNullable<
-    InternalRegisterTargetParameters<
-      TSourcePayload,
-      TTargetPayload,
-      TDragData,
-      TTargetDragData
-    >['accept']
+    DropTargetParameters<TSourcePayload, TTargetPayload, TDragData, TTargetDragData>['accept']
   >;
 };
 
@@ -102,7 +97,7 @@ export interface InternalDragEngine extends Omit<
     TTargetDragData = unknown,
   >(
     element: HTMLElement,
-    getParameters: () => InternalRegisterTargetParameters<
+    getParameters: () => DropTargetParameters<
       TSourcePayload,
       TTargetPayload,
       TDragData,
@@ -117,14 +112,12 @@ export interface InternalDragEngine extends Omit<
 export type RegisterViewportParameters<
   TSourcePayload = unknown,
   TDragData = unknown,
-> = InternalRegisterViewportParameters<TSourcePayload, TDragData> &
-  DragObserverAccept<TSourcePayload, TDragData>;
+> = ViewportParameters<TSourcePayload, TDragData> & DragObserverAccept<TSourcePayload, TDragData>;
 
 export type RegisterMonitorParameters<
   TSourcePayload = unknown,
   TDragData = unknown,
-> = InternalRegisterMonitorParameters<TSourcePayload, TDragData> &
-  DragObserverAccept<TSourcePayload, TDragData>;
+> = MonitorParameters<TSourcePayload, TDragData> & DragObserverAccept<TSourcePayload, TDragData>;
 
 /**
  * The page-wide drag manager returned by `useManager`.

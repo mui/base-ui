@@ -23,6 +23,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import { WindowTimeout } from '../../windowTimeout';
 import { getSharedSlot } from '../sharedState';
+import { swallowEvent } from '../utils';
 import type { DragCleanupFn } from '../types';
 
 /**
@@ -123,8 +124,7 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
       ) {
         return;
       }
-      event.preventDefault();
-      event.stopImmediatePropagation();
+      swallowEvent(event);
       disarm();
     },
     { capture: true },
@@ -236,7 +236,7 @@ export function suppressDoubleClickFollowUp(element: Element): void {
           return;
         }
         if (event.detail >= 2) {
-          swallow(event);
+          swallowEvent(event);
         } else {
           followUp.disarm();
         }
@@ -259,14 +259,9 @@ export function consumeDoubleClickFollowUp(event: Event): boolean {
   if (!followUp || ownerWindow(getTarget(event)) !== followUp.win) {
     return false;
   }
-  swallow(event);
+  swallowEvent(event);
   followUp.disarm();
   return true;
-}
-
-function swallow(event: Event): void {
-  event.preventDefault();
-  event.stopImmediatePropagation();
 }
 
 /** Disarm without waiting for a click. Used by the engine's test reset. */

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Store, useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { syncDropTargetPayload } from '../../utils/drag-and-drop/dropTarget';
 import { registerTarget } from '../../utils/drag-and-drop/registrations';
@@ -67,13 +68,8 @@ export function useDraggableTargetElement(
     registerTarget(element, getParameters),
   );
 
-  // Forward the attached node to the engine registration and the local ref.
-  // Created once, so the merged callback keeps a stable identity.
-  const ref = useRefWithInit(() => (node: HTMLElement | null) => {
-    elementRef.current = node;
-    targetStateStore.setElement(node);
-    registrationRef(node);
-  }).current;
+  // All three are stable, so the merged callback keeps its identity.
+  const ref = useMergedRefs(elementRef, targetStateStore.setElement, registrationRef);
 
   // Re-resolve for a stationary pointer when `disabled`, `accept`, or `canDrop`
   // changes identity. Changes hidden behind a stable callback show up on the next
@@ -124,7 +120,7 @@ export type UseDraggableTargetElementParameters = RegisterTargetParameters & {
 
 export interface UseDraggableTargetElementReturnValue {
   /** Ref callback to attach to the drop target element. */
-  ref: React.RefCallback<HTMLElement>;
+  ref: React.RefCallback<HTMLElement> | null;
   /**
    * Whether a matching drag source is over the drop target or a nested
    * descendant.

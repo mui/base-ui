@@ -123,6 +123,7 @@ export function attachDragPreview(
   if (settings.render !== null) {
     preview.attachContent({
       anchor,
+      renderContent: settings.render,
       // An offset callback needs the preview's rendered size, so every form resolves
       // once the first copy of the content is in place.
       resolveOffset(container) {

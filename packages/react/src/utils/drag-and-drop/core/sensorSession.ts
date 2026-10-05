@@ -151,7 +151,7 @@ export function createPreviewAndStartSession(
     // Publish before the session starts. The lifecycle dispatches
     // `onGenerateDragPreview` synchronously from `start()`, and the React layer
     // reads the preview host from this slot while handling it.
-    setActivePreviewHandle(preview, previewSettings);
+    setActivePreviewHandle(preview);
     dragRootLock.lock(element);
     locked = true;
     // Place the preview at the current input so the first frame does not leave it
@@ -185,7 +185,7 @@ export function createPreviewAndStartSession(
 
     const sessionPreview = preview;
     const session = start({
-      payload: dragSource,
+      source: dragSource,
       getSourceHandlers: getLatestParameters,
       initialInput,
       initialTarget,

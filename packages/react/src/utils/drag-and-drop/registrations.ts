@@ -1,7 +1,7 @@
 /**
  * The engine's stateless registration functions.
  *
- * They live apart from `DragEngineImpl` because drop targets, monitors and
+ * They live apart from `createRegisterSource` because drop targets, monitors and
  * auto-scrollers need none of its preview wiring or draggable static setup.
  * Importing them from here keeps the preview clone and the pointer sensor out of
  * the bundle for `Draggable.Target`, `Draggable.Viewport` and `useMonitor`, so an
@@ -31,7 +31,7 @@ import type {
   RegisterMonitorParameters,
   DragParametersWithInferredAccept,
 } from './registrationTypes';
-import type { RegisterTargetParameters } from './dropTarget';
+import type { DropTargetParameters } from './dropTarget';
 import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
 import type { AcceptedDragData, AcceptedDragPayload, DragCleanupFn } from './types';
 import { onceCleanup } from './utils';
@@ -43,7 +43,7 @@ export function registerTarget<
   TTargetDragData = unknown,
 >(
   element: HTMLElement,
-  getParameters: () => RegisterTargetParameters<
+  getParameters: () => DropTargetParameters<
     TSourcePayload,
     TTargetPayload,
     TDragData,

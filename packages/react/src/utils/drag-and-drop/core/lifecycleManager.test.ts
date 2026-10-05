@@ -60,7 +60,7 @@ describe('lifecycle manager', () => {
     const onMoveEnd = vi.fn();
     const grabOffset = { x: 12, y: 8 };
     const handle = start({
-      payload: createDragSource(element, TEST_KIND.id, {}, null),
+      source: createDragSource(element, TEST_KIND.id, {}, null),
       getSourceHandlers: () => ({ onMoveStart, onMoveEnd }),
       initialInput: makeInput(),
       initialTarget: target,
@@ -112,7 +112,7 @@ describe('lifecycle manager', () => {
   ): DragSessionController | null {
     const element = createElement();
     return start({
-      payload: createDragSource(element, kind.id, {}, null),
+      source: createDragSource(element, kind.id, {}, null),
       getSourceHandlers: () => handlers,
       initialInput: makeInput(),
       initialTarget,
@@ -567,7 +567,7 @@ describe('lifecycle manager', () => {
       under.appendChild(source);
       act(() => {
         start({
-          payload: createDragSource(source, TEST_KIND.id, {}, null),
+          source: createDragSource(source, TEST_KIND.id, {}, null),
           getSourceHandlers: () => ({}),
           initialInput: makeInput(),
           initialTarget: source,
@@ -626,7 +626,7 @@ describe('lifecycle manager', () => {
       inner.appendChild(source);
       act(() => {
         start({
-          payload: createDragSource(source, TEST_KIND.id, {}, null),
+          source: createDragSource(source, TEST_KIND.id, {}, null),
           getSourceHandlers: () => ({}),
           initialInput: makeInput(),
           initialTarget: source,
@@ -1155,7 +1155,7 @@ describe('lifecycle manager', () => {
       const element = createElement();
       const onForceCleanup = vi.fn();
       const handle = start({
-        payload: createDragSource(element, TEST_KIND.id, {}, null),
+        source: createDragSource(element, TEST_KIND.id, {}, null),
         getSourceHandlers: () => ({}),
         initialInput: makeInput(),
         initialTarget: null,

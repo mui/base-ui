@@ -15,7 +15,7 @@ import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type { MoveEventDetails, DropTargetChangeEventDetails } from './types';
 import { matchesAccept } from './dragKind';
 import { addMonitor, removeMonitor } from './monitor';
-import type { RegisterMonitorParameters } from './monitor';
+import type { MonitorParameters } from './monitor';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import {
@@ -24,7 +24,7 @@ import {
   elementFromPointIgnoring,
   getComposedParentElement,
   getOverflowFlags,
-  getViewportSize,
+  getViewportRect,
   isPointInRect,
   isRtlElement,
   remapInput,
@@ -78,7 +78,7 @@ const MAX_FRAME_DELTA_MS = 64;
  * Returns a scroller's latest parameters. `scrollLoop` calls it every frame, so it
  * sees the current callbacks.
  */
-type ScrollerGetter = () => RegisterViewportParameters<any, any>;
+type ScrollerGetter = () => ViewportParameters<any, any>;
 
 const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   scrollers: new Map<HTMLElement, ScrollerGetter[]>(),
@@ -105,7 +105,7 @@ const holds = createGetterStackRegistry<HTMLElement, ScrollerGetter>({
 
 // The internal monitor that drives the scroll loop. The first viewport
 // registration installs it.
-const SCROLL_MONITOR_PARAMS: RegisterMonitorParameters = {
+const SCROLL_MONITOR_PARAMS: MonitorParameters = {
   onMoveStart: (eventDetails) => startScrollSession(eventDetails.source, eventDetails.location),
   onMove: refreshDragInput,
   onTargetChange: refreshDragInput,
@@ -319,7 +319,7 @@ function safeCall<T>(
  * with no error to diagnose either.
  */
 function resolveMaxSpeed(
-  registration: RegisterViewportParameters,
+  registration: ViewportParameters,
   element: HTMLElement,
   feedback: DraggableViewportMaxSpeedContext,
 ): number {
@@ -444,21 +444,6 @@ function readScrollFlow(element: HTMLElement): ScrollFlow {
       y: vertical && (style.writingMode === 'sideways-lr' ? !rtl : rtl),
     },
     reversedAxis,
-  };
-}
-
-// The viewport rect in client coordinates. `getViewportSize` excludes scrollbars
-// and has the jsdom and detached-document fallback, so these edge zones match
-// the edges `restrictToWindowEdges` uses.
-function getViewportRect(element: HTMLElement) {
-  const { width, height } = getViewportSize(ownerWindow(element));
-  return {
-    left: 0,
-    top: 0,
-    right: width,
-    bottom: height,
-    width,
-    height,
   };
 }
 
@@ -619,7 +604,7 @@ function runScrollFrame(timestamp: number): void {
     if (ownerDocument(element) !== sourceDocument || getParameters === undefined) {
       continue;
     }
-    const registration = safeCall<RegisterViewportParameters | null>(
+    const registration = safeCall<ViewportParameters | null>(
       'getParameters',
       element,
       getParameters,
@@ -640,7 +625,11 @@ function runScrollFrame(timestamp: number): void {
       continue;
     }
     const pageScroller = resolvePageScroller(element);
-    const rect = pageScroller ? getViewportRect(element) : element.getBoundingClientRect();
+    // `getViewportRect` excludes scrollbars, so these edge zones match the edges
+    // `restrictToWindowEdges` uses.
+    const rect = pageScroller
+      ? getViewportRect(ownerWindow(element))
+      : element.getBoundingClientRect();
     let overflowRect: ScrollCandidate['overflowRect'] = rect;
     // The page ignores `overflowMargin` and needs no entry history, because its
     // probe is the pointer clamped into the viewport (see below).
@@ -1197,7 +1186,7 @@ type ScrollRect = Pick<DOMRect, 'top' | 'right' | 'bottom' | 'left' | 'width' | 
 interface ScrollCandidate {
   element: HTMLElement;
   getParameters: ScrollerGetter;
-  registration: RegisterViewportParameters;
+  registration: ViewportParameters;
   pageScroller: HTMLElement | null;
   rect: ScrollRect;
   overflowRect: Pick<ScrollRect, 'top' | 'right' | 'bottom' | 'left'>;
@@ -1268,7 +1257,7 @@ interface AutoScrollerState {
    * or stops, including while the frame runs (see `scrollLoop`).
    */
   scrollFrame: WindowAnimationFrame | null;
-  scrollMonitorGetter: (() => RegisterMonitorParameters) | null;
+  scrollMonitorGetter: (() => MonitorParameters) | null;
   lastTimestamp: number;
   /** The physical pointer; see {@link resolveProbePoint}. */
   currentInput: DraggableInput | null;
@@ -1308,7 +1297,7 @@ interface AutoScrollerState {
   flowCache: WeakMap<HTMLElement, ScrollFlow>;
 }
 
-export interface RegisterViewportParameters<TSourcePayload = unknown, TDragData = unknown> {
+export interface ViewportParameters<TSourcePayload = unknown, TDragData = unknown> {
   /**
    * How far outside the container a drag can continue auto-scrolling, in CSS pixels.
    * The drag must enter the container first, and enter it again after moving beyond

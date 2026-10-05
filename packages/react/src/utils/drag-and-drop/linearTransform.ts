@@ -98,3 +98,34 @@ export function parseRotateLinearTransform(
     d: cos + uy * uy * (1 - cos),
   };
 }
+
+/**
+ * An element's own `rotate`, `scale`, and `transform`, composed in the order CSS
+ * applies them. `translate` and `transform-origin` are left out. In strict mode, a
+ * part that can't be read, a 3D `transform`, or an out-of-plane `rotate` returns
+ * `null`. Otherwise those parts are skipped.
+ */
+export function getOwnLinearTransform(
+  style: CSSStyleDeclaration,
+  strict: true,
+): LinearTransform | null;
+export function getOwnLinearTransform(style: CSSStyleDeclaration): LinearTransform;
+export function getOwnLinearTransform(
+  style: CSSStyleDeclaration,
+  strict = false,
+): LinearTransform | null {
+  const parts: Array<[value: string, parsed: LinearTransform | null]> = [
+    [style.rotate, parseRotateLinearTransform(style.rotate, strict)],
+    [style.scale, parseScaleLinearTransform(style.scale)],
+    [style.transform, parseComputedLinearTransform(style.transform, !strict)],
+  ];
+  let matrix = identityLinearTransform;
+  for (const [value, parsed] of parts) {
+    if (parsed) {
+      matrix = multiplyLinearTransforms(matrix, parsed);
+    } else if (strict && value !== 'none') {
+      return null;
+    }
+  }
+  return matrix;
+}

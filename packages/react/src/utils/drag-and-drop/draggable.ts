@@ -1,3 +1,4 @@
+import { NOOP } from '@base-ui/utils/empty';
 import type { DraggableKind } from '../../draggable/DraggableProvider';
 import type { DraggableHandleReference } from '../../draggable/handle/DraggableHandle';
 import type {
@@ -19,7 +20,8 @@ import { bindPointerListeners, unbindPointerListeners } from './synthetic/synthe
 import { overrideInlineStyles } from './synthetic/dragRootLock';
 import type { InlineStyleOverride } from './synthetic/dragRootLock';
 import { getSharedSlot } from './sharedState';
-import { getDragEventRoot, onceCleanup, resolveElementReference } from './utils';
+import { getDragEventRoot, onceCleanup } from './utils';
+import { resolveDragHandle } from './draggableRegistry';
 
 interface GestureSetupEntry {
   count: number;
@@ -45,7 +47,7 @@ const GESTURE_STYLES: readonly InlineStyleOverride[] = [
  */
 function applyGestureSetup(gestureElement: HTMLElement | null): DragCleanupFn {
   if (gestureElement === null) {
-    return () => {};
+    return NOOP;
   }
 
   let entry = gestureSetups.get(gestureElement);
@@ -89,9 +91,7 @@ export function applyDraggableStaticSetup(
    * otherwise the element, and none while disabled.
    */
   const resolveGestureElement = (latest: Pick<DraggableConfig<any, any>, 'handle' | 'disabled'>) =>
-    latest.disabled
-      ? null
-      : ((resolveElementReference(latest.handle, undefined) as HTMLElement | null) ?? element);
+    latest.disabled ? null : ((resolveDragHandle(latest) as HTMLElement | null) ?? element);
   let appliedElement = resolveGestureElement(parameters);
   let releaseSetup = applyGestureSetup(appliedElement);
   let released = false;

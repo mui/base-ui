@@ -1,11 +1,10 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { contains } from '@base-ui/utils/shadowDom';
 import { isElement } from '@floating-ui/utils/dom';
-import { copyElementState, createPreviewSanitizer } from './cloneDragPreview';
+import { HTML_NAMESPACE, copyElementState, createPreviewSanitizer } from './cloneDragPreview';
 import type { DraggablePreviewRenderParameters } from '../../../draggable/preview/DraggablePreview';
 import type { PreviewSanitizer } from './cloneDragPreview';
 
-const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
 const CDATA_SECTION_NODE = 4;

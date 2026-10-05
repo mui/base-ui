@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import { getSharedSlot } from './sharedState';
 import { createKind } from './dragKind';
-import { DragEngineBase } from './useInnerDragEngine';
+import { createRegisterSource } from './useInnerDragEngine';
 import { registerTarget } from './registrations';
 import {
   createElement,
@@ -52,18 +52,18 @@ describe('separate copies of the engine', () => {
       vi.resetModules();
       const copyB = await import('./registrations');
       // Neither copy is the one this file imported.
-      expect(copyA.DragEngineBase).not.toBe(DragEngineBase);
+      expect(copyA.createRegisterSource).not.toBe(createRegisterSource);
       expect(copyB.registerTarget).not.toBe(registerTarget);
 
       const kind = createKind('shared-card');
       const source = createElement();
       const target = createElement();
       const onDraggableDrop = vi.fn();
-      const engine = new copyA.DragEngineBase(
+      const registerSource = copyA.createRegisterSource(
         () => ({}) as never,
         () => ({}) as never,
       );
-      registerCleanup(engine.registerSource(source, () => ({ kind })));
+      registerCleanup(registerSource(source, () => ({ kind })));
       registerCleanup(copyB.registerTarget(target, () => ({ accept: kind, onDraggableDrop })));
 
       await lift(source);

@@ -10,7 +10,7 @@ import {
   containConsumerError,
   getComposedParentElement,
   getElementScale,
-  getViewportSize,
+  getViewportRect,
   resolveElementReference,
 } from './utils';
 import type { DragModifierKeys } from './utils';
@@ -65,17 +65,8 @@ export const restrictToHorizontalAxis: DraggableRootModifier = ({ point, initial
 });
 
 /** Keeps the drag inside the browser viewport. */
-export const restrictToWindowEdges: DraggableRootModifier = (context) => {
-  const { width, height } = getViewportSize(context.ownerWindow);
-  return clampPointToRect(context, {
-    left: 0,
-    top: 0,
-    right: width,
-    bottom: height,
-    width,
-    height,
-  });
-};
+export const restrictToWindowEdges: DraggableRootModifier = (context) =>
+  clampPointToRect(context, getViewportRect(context.ownerWindow));
 
 /**
  * Keeps the drag inside an element. Accepts the element, a ref to it, or a function
