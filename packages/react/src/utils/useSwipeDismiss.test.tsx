@@ -1720,7 +1720,7 @@ describe('useSwipeDismiss', () => {
         [1048, 43.2],
         [1064, 57.6],
       ],
-      release: [1080, 72],
+      release: [1080, 57.6],
       expected: 0.9,
     },
     {
@@ -1731,7 +1731,7 @@ describe('useSwipeDismiss', () => {
         [1024, 21.6],
         [1032, 28.8],
       ],
-      release: [1040, 36],
+      release: [1040, 28.8],
       expected: 0.9,
     },
     {
@@ -1755,6 +1755,16 @@ describe('useSwipeDismiss', () => {
       ],
       release: [1232, 40],
       expected: 1.25,
+    },
+    {
+      // 8px over 2ms is floored to 4ms.
+      name: 'near-simultaneous samples',
+      moves: [
+        [1008, 10],
+        [1010, 18],
+      ],
+      release: [1018, 18],
+      expected: 2,
     },
   ])(
     'measures release velocity from the latest movement ($name)',
