@@ -1838,6 +1838,57 @@ describe('<Popover.Root />', () => {
         ).toBeLessThanOrEqual(1);
       });
     });
+
+    it('does not re-render inactive triggers when the open reason changes', async () => {
+      const testPopover = Popover.createHandle();
+      const renderCounts = [0, 0, 0];
+
+      await render(
+        <div>
+          {renderCounts.map((_, index) => (
+            <Popover.Trigger
+              key={index}
+              handle={testPopover}
+              openOnHover
+              delay={0}
+              render={(props) => {
+                renderCounts[index] += 1;
+                return <button {...props} />;
+              }}
+            >
+              {`Trigger ${index + 1}`}
+            </Popover.Trigger>
+          ))}
+
+          <Popover.Root handle={testPopover}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Popover Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      await waitFor(() => {
+        expect(screen.queryByText('Popover Content')).toBeVisible();
+      });
+
+      const inactiveRenderCounts = renderCounts.slice(1);
+
+      // A click soon after a hover open keeps the popover open and changes the open reason
+      // from hover to press.
+      fireEvent.click(trigger1);
+      await waitFor(() => {
+        expect(trigger1).toHaveAttribute('data-pressed');
+      });
+
+      expect(renderCounts.slice(1)).toEqual(inactiveRenderCounts);
+    });
   });
 
   describe.skipIf(isJSDOM)('imperative actions on the handle', () => {

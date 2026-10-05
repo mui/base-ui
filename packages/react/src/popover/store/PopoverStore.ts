@@ -56,6 +56,11 @@ const selectors = {
       : state.instantType,
   openMethod: (state: State<unknown>) => state.openMethod,
   openChangeReason: (state: State<unknown>) => state.openChangeReason,
+  openedByTouchPress: (state: State<unknown>) =>
+    state.openMethod === 'touch' && state.openChangeReason === REASONS.triggerPress,
+  isOpenedByTriggerPress: (state: State<unknown>, triggerId: string | undefined) =>
+    popupStoreSelectors.isOpenedByTrigger(state, triggerId) &&
+    state.openChangeReason === REASONS.triggerPress,
   modal: (state: State<unknown>) => state.modal,
   focusManagerModal: (state: State<unknown>) => state.focusManagerModal,
   stickIfOpen: (state: State<unknown>) => state.stickIfOpen,
