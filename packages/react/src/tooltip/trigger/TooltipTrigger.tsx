@@ -213,8 +213,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     }
   };
 
-  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
-  const shouldApplyRootTriggerProps = isMountedByThisTrigger || trackCursorAxis !== 'none';
+  const rootTriggerProps = store.useState('appliedTriggerProps', isMountedByThisTrigger);
 
   const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
@@ -224,7 +223,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     props: [
       hoverProps,
       focusProps,
-      shouldApplyRootTriggerProps ? rootTriggerProps : undefined,
+      rootTriggerProps,
       {
         onMouseOver(event: React.MouseEvent) {
           handleNestedTriggerHover(event.nativeEvent);

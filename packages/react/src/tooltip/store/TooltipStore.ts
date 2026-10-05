@@ -36,6 +36,17 @@ const selectors = {
   instantType: (state: State<unknown>) => state.instantType,
   isInstantPhase: (state: State<unknown>) => state.isInstantPhase,
   trackCursorAxis: (state: State<unknown>) => state.trackCursorAxis,
+  /**
+   * Root trigger props for a trigger, or `undefined` when they don't apply to it.
+   * Inactive triggers only use them to track the cursor, so the rest skip
+   * re-rendering whenever the tooltip opens or closes.
+   */
+  appliedTriggerProps: (state: State<unknown>, isActive: boolean) => {
+    if (isActive) {
+      return state.activeTriggerProps;
+    }
+    return state.trackCursorAxis !== 'none' ? state.inactiveTriggerProps : undefined;
+  },
   disableHoverablePopup: (state: State<unknown>) => state.disableHoverablePopup,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
   closeOnClick: (state: State<unknown>) => state.closeOnClick,

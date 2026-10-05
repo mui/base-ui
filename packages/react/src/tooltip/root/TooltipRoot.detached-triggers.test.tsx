@@ -1560,6 +1560,54 @@ describe('<Tooltip.Root />', () => {
       const popup = screen.getByTestId('popup');
       expect(popup.style.scale).toBe('');
     });
+
+    it('does not re-render inactive triggers when the tooltip opens and closes', async () => {
+      const testTooltip = Tooltip.createHandle();
+      const renderCounts = [0, 0, 0];
+
+      await render(
+        <div>
+          {renderCounts.map((_, index) => (
+            <Tooltip.Trigger
+              key={index}
+              handle={testTooltip}
+              delay={0}
+              style={{ pointerEvents: 'none' }}
+              render={(props) => {
+                renderCounts[index] += 1;
+                return <button {...props} />;
+              }}
+            >
+              {`Trigger ${index + 1}`}
+            </Tooltip.Trigger>
+          ))}
+
+          <Tooltip.Root handle={testTooltip}>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Tooltip Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const inactiveRenderCounts = renderCounts.slice(1);
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      await waitFor(() => {
+        expect(screen.queryByText('Tooltip Content')).toBeVisible();
+      });
+
+      fireEvent.mouseLeave(trigger1);
+      await waitFor(() => {
+        expect(screen.queryByText('Tooltip Content')).toBe(null);
+      });
+
+      expect(renderCounts.slice(1)).toEqual(inactiveRenderCounts);
+    });
   });
 
   describe.skipIf(isJSDOM)('imperative actions on the handle', () => {
