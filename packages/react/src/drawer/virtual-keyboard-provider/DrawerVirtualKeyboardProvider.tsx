@@ -436,6 +436,16 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       keyboardRealignTimeout.start(KEYBOARD_REALIGN_INTERVAL, realign);
     };
 
+    // A tap's compatibility mousedown moves focus before mouseup/click hit-test the same
+    // point. Defer releasing the inset and slack so the target stays under the finger.
+    const releaseFocusedKeyboardTarget = () => {
+      focusedKeyboardTargetRef.current = null;
+      keyboardScrollElement = null;
+      keyboardVisualHeight = -1;
+      keyboardRealignTimeout.clear();
+      scheduleKeyboardFocusAlignment();
+    };
+
     const captureFocusedKeyboardTarget = (eventTarget: EventTarget | null) => {
       if (nestedDrawerOpen) {
         return false;
@@ -483,7 +493,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         // inset, slack, and pending realign. Reconcile against the real focus here.
         // A handler that ends focus entirely emits no `focusin` to reconcile from; that case
         // is covered by clearing the suppression flag above so its `focusout` is handled.
-        clearFocusedKeyboardTarget();
+        releaseFocusedKeyboardTarget();
         return;
       }
 
@@ -516,7 +526,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         return;
       }
 
-      clearFocusedKeyboardTarget();
+      releaseFocusedKeyboardTarget();
     };
 
     const handleViewportUpdate = () => {
@@ -549,7 +559,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     // distinguish a user scroll from a reveal scroll WebKit canceled. A later focus or viewport
     // change reschedules alignment if it's still needed.
     const cancelKeyboardRealignOnPointerDown = () => {
-      keyboardFocusFrame.cancel();
+      // Preserve a pending cleanup when focus has already left the keyboard input.
+      if (focusedKeyboardTargetRef.current) {
+        keyboardFocusFrame.cancel();
+      }
       keyboardRealignTimeout.clear();
       keyboardScrollElement = null;
     };
