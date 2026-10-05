@@ -68,6 +68,32 @@ describe('syntheticDrag sensor', () => {
     act(() => cancelDrag());
   });
 
+  it('starts from content slotted into a handle that wraps a slot', async () => {
+    const { engine } = await renderDnd();
+    const host = createElement();
+    const shadow = host.attachShadow({ mode: 'open' });
+    const source = document.createElement('div');
+    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+    const handle = document.createElement('div');
+    handle.appendChild(document.createElement('slot'));
+    source.appendChild(handle);
+    shadow.appendChild(source);
+    const slotted = document.createElement('span');
+    host.appendChild(slotted);
+    const onMoveStart = vi.fn();
+    engine.registerSource(source, {
+      handle,
+      activation: { pen: { type: 'immediate' } },
+      onMoveStart,
+    });
+
+    penDown(slotted, 50, 50);
+    await flushRaf();
+
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    act(() => cancelDrag());
+  });
+
   it('restores draggable="true" on a source that declared it', async () => {
     const { engine } = await renderDnd();
     const el = createElement();

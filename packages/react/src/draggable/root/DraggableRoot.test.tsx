@@ -368,6 +368,45 @@ describe('Draggable.Root', () => {
     expect(first).not.toHaveAttribute('data-dragging');
   });
 
+  it('passes the swapped source node to modifiers mid-drag', async () => {
+    const sourceElements: HTMLElement[] = [];
+    const probe: Draggable.Root.Modifier = (context) => {
+      sourceElements.push(context.sourceElement);
+      return context.point;
+    };
+    function Swappable({ swapped }: { swapped: boolean }) {
+      return (
+        <Draggable.Root
+          kind={testDragKind}
+          data-testid={swapped ? 'b' : 'a'}
+          modifiers={probe}
+          render={(props) => <div key={swapped ? 'b' : 'a'} {...props} />}
+        />
+      );
+    }
+
+    const { rerender } = await renderDnd(<Swappable swapped={false} />);
+    const first = screen.getByTestId('a');
+    first.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+    fireDrag.dragStart(first);
+    await flushRaf();
+
+    await rerender(<Swappable swapped />);
+    const second = screen.getByTestId('b');
+    // `fireDrag` dispatches on the first node, which is now detached.
+    firePointer.move(second, {
+      pointerType: 'mouse',
+      pointerId: 1,
+      clientX: 60,
+      clientY: 60,
+      buttons: 1,
+      timeStamp: 100,
+    });
+    await flushRaf();
+
+    expect(sourceElements.at(-1)).toBe(second);
+  });
+
   it('defers a disabled flip mid-drag: the drag survives, the setup lands at drag end', async () => {
     // A reconcile input change while this element is the active source must not
     // tear down the gesture. The re-registration runs at drag end.
@@ -1125,6 +1164,45 @@ describe('Draggable.Root', () => {
 
       expect(clone).toHaveAttribute('data-ending-style');
       expect(clone.hasAttribute('data-dropped')).toBe(onTarget);
+      finishAnimation();
+      await finished;
+      await flushRaf();
+    });
+
+    it('does not mark the ending preview dropped when the release enters a target that cancels', async () => {
+      vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+      registerCleanup(() => vi.unstubAllGlobals());
+      const onMoveEnd = vi.fn();
+      const { engine } = await renderDnd(
+        <Draggable.Root kind={testDragKind} data-testid="drag" onMoveEnd={onMoveEnd}>
+          Card
+        </Draggable.Root>,
+      );
+      const source = screen.getByTestId('drag');
+      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      const target = createElement();
+      engine.registerTarget(target, { onDraggableEnter: () => engine.cancelDrag() });
+
+      fireDrag.dragStart(source);
+      await flushRaf();
+      const clone = document.querySelector('[data-drag-preview]') as HTMLElement;
+      let finishAnimation!: () => void;
+      const finished = new Promise<void>((resolve) => {
+        finishAnimation = resolve;
+      });
+      registerCleanup(() => finishAnimation());
+      clone.getAnimations = () =>
+        [{ effect: { getTiming: () => ({ iterations: 1 }) }, finished }] as unknown as Animation[];
+      // No frame runs between the move and the release, so the target is first
+      // entered by the release itself.
+      fireDrag.dragEnter(target);
+      fireDrag.dragOver(target);
+      fireDrag.drop(target);
+      await flushRaf();
+
+      expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
+      expect(clone).toHaveAttribute('data-ending-style');
+      expect(clone).not.toHaveAttribute('data-dropped');
       finishAnimation();
       await finished;
       await flushRaf();

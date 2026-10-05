@@ -826,7 +826,6 @@ export function start(parameters: StartParameters): DragSessionController | null
       // This path covers a drop on a target and a release over nothing. Neither is
       // a cancel, and the reason tells them apart. Only a drop fires `onDraggableDrop`.
       const endReason: DragEndReason = innermostDropTarget ? 'drop' : 'outside-release';
-      onRelease?.(innermostDropTarget !== null);
       const previousDropTargets = location.current.targets;
 
       location.previous = lastDispatched;
@@ -855,6 +854,10 @@ export function start(parameters: StartParameters): DragSessionController | null
         // newly resolved records, not the ones from entry.
         refreshHoveredRecords(hoveredDropTargets, freshDropTargets);
       }
+
+      // Only now, since a change handler above can still cancel the drag, and a
+      // canceled drag's preview must not end as dropped.
+      onRelease?.(innermostDropTarget !== null);
 
       // The end sequence is committed. A `cancelDrag()` from an end dispatch
       // below must do nothing instead of starting a second end. An `onMoveEnd`

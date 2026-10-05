@@ -1413,7 +1413,7 @@ manager.registerTarget(element, () => ({
 }));
 ```
 
-TypeScript infers `eventDetails.source.payload` from `accept` but can't infer the target's own `payload` through the options function. Pass both type arguments, as in `registerTarget<typeof card, SlotPayload>`, when the target reads `eventDetails.currentTarget.payload`.
+TypeScript infers `eventDetails.source.payload` from `accept` and `eventDetails.currentTarget.payload` from `payload`. To check `payload` against a declared type, pass both type arguments, as in `registerTarget<typeof card, SlotPayload>`.
 
 ### registerViewport
 

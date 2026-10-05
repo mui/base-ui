@@ -254,7 +254,11 @@ export interface DragModifiersState {
    * to it, and the session starts from it.
    */
   initialPoint: DraggablePosition;
-  sourceElement: HTMLElement;
+  /**
+   * The drag's source. Its `element` follows a remount during the drag (see
+   * `retargetDragSource`), so the modifiers never read a detached node.
+   */
+  source: { readonly element: HTMLElement };
   /** The source's rect at drag start, measured before `[data-dragging]` can restyle it. */
   sourceRect: DOMRect;
   /**
@@ -275,7 +279,7 @@ export interface DragModifiersState {
  */
 export function createDragModifiersState(
   declared: DraggableRootModifiers | undefined,
-  sourceElement: HTMLElement,
+  source: { readonly element: HTMLElement },
   startPoint: DraggablePosition,
   /** The pickup event's modifier keys, for the initial apply. */
   keys: DragModifierKeys,
@@ -287,9 +291,9 @@ export function createDragModifiersState(
   const state: DragModifiersState = {
     modifiers,
     initialPoint: startPoint,
-    sourceElement,
-    sourceRect: sourceElement.getBoundingClientRect(),
-    scale: getElementScale(sourceElement),
+    source,
+    sourceRect: source.element.getBoundingClientRect(),
+    scale: getElementScale(source.element),
   };
   // No preview exists yet at drag start, so rect modifiers clamp the bare point. The
   // keys come from the pickup event, so a drag started with a modifier key held is
@@ -314,12 +318,12 @@ export function modifyDragPoint(
   return applyDragModifiers(state.modifiers, point, {
     initialPoint: state.initialPoint,
     input: point,
-    sourceElement: state.sourceElement,
+    sourceElement: state.source.element,
     sourceRect: state.sourceRect,
     scale: state.scale,
     previewOffset: preview?.getPreviewOffset() ?? ZERO_OFFSET,
     keys,
-    ownerWindow: ownerWindow(state.sourceElement),
+    ownerWindow: ownerWindow(state.source.element),
     getPreviewRect: () => preview?.getPreviewElement()?.element.getBoundingClientRect() ?? null,
   });
 }

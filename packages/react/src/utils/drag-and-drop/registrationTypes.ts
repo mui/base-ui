@@ -51,18 +51,22 @@ export type RegisterTargetParameters<
 
 /**
  * Adds `accept`, typed as the inferred kinds so the callbacks get their payload
- * types. It is optional when the accepted payload is `unknown`, and required otherwise.
+ * types. It is optional when the accepted payload and drag data are `unknown`, and
+ * required otherwise.
  */
 export type DragParametersWithInferredAccept<
   TParameters,
   TAccept extends DraggableAccept<unknown>,
 > = TParameters &
-  (unknown extends AcceptedDragPayload<TAccept>
+  ([unknown, unknown] extends [AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>]
     ? { accept?: TAccept | undefined }
     : { accept: TAccept });
 
-/** A typed observer must declare which source kinds provide its payload. */
-export type DragObserverAccept<TSourcePayload, TDragData = unknown> = unknown extends TSourcePayload
+/** A typed observer must declare which source kinds provide its payload and drag data. */
+export type DragObserverAccept<TSourcePayload, TDragData = unknown> = [unknown, unknown] extends [
+  TSourcePayload,
+  TDragData,
+]
   ? { accept?: DraggableAccept<TSourcePayload, TDragData> | undefined }
   : { accept: DraggableAccept<TSourcePayload, TDragData> };
 

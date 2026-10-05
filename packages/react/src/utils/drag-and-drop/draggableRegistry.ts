@@ -6,7 +6,6 @@
  */
 
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import { contains } from '@base-ui/utils/shadowDom';
 import type { DragCleanupFn } from './types';
 import type { DraggableConfig } from './draggable';
 import { createGetterStackRegistry } from './getterStackRegistry';
@@ -77,12 +76,23 @@ export function resolveDragHandle(parameters: DraggableConfig<any, any>): Elemen
  * Whether the draggable accepts a press on `target`: it isn't `disabled`, and
  * the press began inside its drag handle, if it has one. With a handle, controls
  * elsewhere in the draggable keep their own behavior.
+ *
+ * The handle check walks the composed tree, as {@link canPickUp} does, so content
+ * slotted into a handle that wraps a `<slot>` counts as inside it.
  */
 function acceptsPress(pickup: Omit<DraggablePickup, 'element'>): boolean {
-  return (
-    !pickup.parameters.disabled &&
-    (!pickup.dragHandle || contains(pickup.dragHandle, pickup.target))
-  );
+  if (pickup.parameters.disabled) {
+    return false;
+  }
+  if (!pickup.dragHandle) {
+    return true;
+  }
+  for (let node: Element | null = pickup.target; node; node = getComposedParentElement(node)) {
+    if (node === pickup.dragHandle) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**

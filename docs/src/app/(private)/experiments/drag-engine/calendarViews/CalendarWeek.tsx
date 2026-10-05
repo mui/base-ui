@@ -220,7 +220,10 @@ function WeekAllDayCell(props: { dayMs: number }) {
       }
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
-          const preview = consumeDropPreview();
+          // The release can land on a target no move reached yet, so resolve the
+          // drop from it rather than from the last preview.
+          consumeDropPreview();
+          const preview = resolveDropPreview(eventDetails.source, eventDetails.target);
           if (preview?.intent !== 'create') {
             return;
           }
@@ -267,7 +270,8 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
       payload={movePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
-          const preview = consumeDropPreview();
+          consumeDropPreview();
+          const preview = resolveDropPreview(eventDetails.source, eventDetails.target);
           if (preview?.intent !== 'move') {
             return;
           }
@@ -435,7 +439,8 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
       }}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
-          const preview = consumeDropPreview();
+          consumeDropPreview();
+          const preview = resolveDropPreview(eventDetails.source, eventDetails.target);
           if (preview?.intent !== 'create') {
             return;
           }
@@ -508,7 +513,8 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
       payload={movePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
-          const preview = consumeDropPreview();
+          consumeDropPreview();
+          const preview = resolveDropPreview(eventDetails.source, eventDetails.target);
           if (preview?.intent !== 'move') {
             return;
           }
@@ -566,7 +572,8 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
       payload={resizePayload}
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
-          const preview = consumeDropPreview();
+          consumeDropPreview();
+          const preview = resolveDropPreview(eventDetails.source, eventDetails.target);
           if (preview?.intent !== 'resize') {
             return;
           }

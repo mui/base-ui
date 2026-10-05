@@ -197,7 +197,9 @@ type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
   Omit<RegisterSourceParameters<TPayload, TDragData>, 'preview' | 'handle' | 'kind'> & {
     children?: React.ReactNode | undefined;
     /**
-     * Whether other items of the nearest matching collision provider can be dropped on this one.
+     * Whether this item belongs to the nearest matching collision provider.
+     * With `false`, other items can't be dropped on it, and the provider treats its
+     * drags like drags that started elsewhere: they reach it once they enter another item.
      * @default true
      */
     collision?: boolean | undefined;

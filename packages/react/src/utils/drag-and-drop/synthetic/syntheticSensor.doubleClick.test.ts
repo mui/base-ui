@@ -175,6 +175,26 @@ describe('syntheticDrag double-click activation', () => {
     fireEvent.keyDown(document.body, { key: 'Escape' });
   });
 
+  it('reports the press of the second click for a scroll before the first move', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const onMove = vi.fn();
+    engine.registerSource(source, { activation: { type: 'double-click' }, onMove });
+
+    const pointer = { pointerType: 'mouse', pointerId: 1, clientX: 20, clientY: 20 } as const;
+    firePointer.down(source, { ...pointer, button: 0, buttons: 1, timeStamp: 10 });
+    firePointer.up(source, { ...pointer, button: 0, buttons: 0, timeStamp: 20 });
+    fireEvent.doubleClick(source, { detail: 2, button: 0, clientX: 20, clientY: 20 });
+    await flushRaf();
+    fireEvent.scroll(document.body);
+    await flushRaf();
+
+    expect(onMove).toHaveBeenCalledTimes(1);
+    expect(onMove.mock.calls[0][0].reason).toBe('pointer');
+    expect(onMove.mock.calls[0][0].event.type).toBe('pointerdown');
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+  });
+
   it('cancels the press that drops so the destination is neither focused nor pressed', async () => {
     const { engine } = await renderDnd();
     const source = createElement();

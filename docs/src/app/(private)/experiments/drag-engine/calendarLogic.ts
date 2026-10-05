@@ -402,6 +402,16 @@ export function createSeedState(today: number): CalendarState {
 // Drop resolution
 // -----------------------------------------------------------------------------
 
+function isCalendarDropTarget(
+  target: Draggable.Target.Record,
+): target is Draggable.Target.Record<CalendarDropPayload> {
+  return (
+    calDayCellKind.matches(target) ||
+    calDayColumnKind.matches(target) ||
+    calAllDayRowKind.matches(target)
+  );
+}
+
 /**
  * Turn the drop target under the pointer into a start, end and allDay that the
  * reducer can apply. There is no DOM measurement or rounding here. The day
@@ -410,9 +420,9 @@ export function createSeedState(today: number): CalendarState {
  */
 export function resolveDropPreview(
   source: Draggable.Root.Record<CalendarDragSource>,
-  dropTarget: Draggable.Target.Record<CalendarDropPayload> | null,
+  dropTarget: Draggable.Target.Record | null,
 ): DropPreview | null {
-  if (!dropTarget) {
+  if (!dropTarget || !isCalendarDropTarget(dropTarget)) {
     return null;
   }
 

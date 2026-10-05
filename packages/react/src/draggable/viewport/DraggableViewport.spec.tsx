@@ -107,3 +107,5 @@ const scrollCards: DragScrollHandler<CardPayload> = (eventDetails) => {
 <Draggable.Viewport<CardPayload> onDragScroll={scrollCards} />;
 // @ts-expect-error callbacks cannot infer a payload type without a runtime filter.
 <Draggable.Viewport onDragScroll={scrollCards} />;
+// @ts-expect-error explicit drag data types cannot bypass the runtime filter.
+<Draggable.Viewport<unknown, number> />;

@@ -1321,6 +1321,22 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     }
   });
 
+  it('shows the clone of a source that is an open popover', () => {
+    const panel = document.createElement('div');
+    panel.setAttribute('popover', 'manual');
+    panel.textContent = 'Panel';
+    list.appendChild(panel);
+    panel.showPopover();
+    const handle = clonePreview(panel, null)!;
+    try {
+      expect(handle.element.matches(':popover-open')).toBe(true);
+      expect(getComputedStyle(handle.element).display).toBe('block');
+    } finally {
+      handle.destroy();
+      panel.remove();
+    }
+  });
+
   it('keeps the popover UA chrome off the preview', () => {
     // A source that sets none of the properties the `[popover]` UA rule sets: no
     // border, padding, background, overflow or color of its own.

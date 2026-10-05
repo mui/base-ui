@@ -57,6 +57,10 @@ import type { LinearTransform } from '../linearTransform';
 const MOTION_PROPERTIES = ['transition', 'animation'];
 const NEUTRALIZED_PROPERTIES = [...MOTION_PROPERTIES, 'transform'];
 
+// The inline declarations of a custom preview root that offset it from its position
+// (see `readOwnOffset`). The engine's own `margin` and `translate` replace them.
+const OWN_OFFSET_PROPERTIES = ['margin-top', 'margin-left', 'translate'];
+
 /**
  * Marks the element the engine positions: `"clone"` for the clone of the source, or
  * `"content"` for the copy of a custom preview's content. The engine finds the
@@ -166,8 +170,9 @@ export interface DragPreviewElementHandle {
   ensureConnected(): void;
   /**
    * Reset content transition state and let the updater write the root's own style,
-   * then the engine's attributes and declarations. Refresh geometry and motion
-   * after the write, using the new cascade.
+   * then the engine's attributes and declarations. `applyAttributes` must run after
+   * the root's own style, since it also reads what the engine's declarations replace.
+   * Refresh geometry and motion after the write, using the new cascade.
    */
   updateContentStyle(
     write: (
@@ -463,7 +468,9 @@ export function createPreviewSanitizer(options: PreviewSanitizerOptions = {}): P
     },
     rewriteId(node) {
       const id = node.getAttribute('id');
-      if (id && !keepId?.(id)) {
+      // An id rewritten once stays rewritten, even after the page stops using it, so
+      // the references already remapped to it keep pointing at it.
+      if (id && (rewritten.has(id) || !keepId?.(id))) {
         const next = `${id}${idSuffix}`;
         rewritten.set(id, next);
         node.setAttribute('id', next);
@@ -1254,7 +1261,19 @@ export function createDragPreviewElement(
     }
   }
 
+  // The custom root's own inline `margin` and `translate`, which the engine's
+  // declarations replace. `readOwnOffset` puts them back to measure them.
+  let ownOffsetStyle: Array<[name: string, value: string, priority: string]> = [];
+  function captureOwnOffsetStyle(): void {
+    ownOffsetStyle = OWN_OFFSET_PROPERTIES.map((name) => [
+      name,
+      element.style.getPropertyValue(name),
+      element.style.getPropertyPriority(name),
+    ]);
+  }
+
   applyEngineAttributes();
+  captureOwnOffsetStyle();
 
   // Geometry only. Every visual property stays in the cascade so that a consumer
   // rule keyed on `[data-drag-preview]` wins without `!important`.
@@ -1490,6 +1509,11 @@ export function createDragPreviewElement(
     }
     element.style.removeProperty('margin');
     element.style.removeProperty('translate');
+    for (const [name, value, priority] of ownOffsetStyle) {
+      if (value) {
+        element.style.setProperty(name, value, priority);
+      }
+    }
     const computed = win.getComputedStyle(element);
     const marginX = Number.parseFloat(computed.marginLeft) || 0;
     const marginY = Number.parseFloat(computed.marginTop) || 0;
@@ -1553,7 +1577,10 @@ export function createDragPreviewElement(
   // browser's `[popover]` chrome would show through in that comparison.
   contextualStyles?.restore();
   applyTableCellWidths?.();
-  openInTopLayer(true);
+  // An element that is a popover already, such as the clone of an open popover
+  // source, looks like one in the page, so the popover changes nothing to correct.
+  // Closed, it measures as `display: none`, which a correction would keep.
+  openInTopLayer(!element.hasAttribute('popover'));
   neutralizeTranslateTransition();
   readOwnOffset();
   applyAncestorScale();
@@ -1622,7 +1649,10 @@ export function createDragPreviewElement(
       dragTransition = null;
       engineStyles.delete('transition-duration');
       engineStyles.delete('transition-delay');
-      write(engineStyles, applyEngineAttributes);
+      write(engineStyles, () => {
+        captureOwnOffsetStyle();
+        applyEngineAttributes();
+      });
       updatePositionScale();
       refreshPopoverCorrections(false);
       neutralizeTranslateTransition();

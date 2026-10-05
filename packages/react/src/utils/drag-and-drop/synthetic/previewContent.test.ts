@@ -253,6 +253,26 @@ describe('updatePreviewContent', () => {
     expect(root.querySelector('script')).toBeNull();
   });
 
+  it('keeps a rewritten id after the page stops using it', () => {
+    const taken = document.createElement('div');
+    taken.id = 'paint';
+    document.body.appendChild(taken);
+    const { container, copy, update } = createContent(document.body);
+    container.innerHTML =
+      '<svg><linearGradient id="paint"></linearGradient><rect fill="url(#paint)"></rect></svg>';
+    const root = copy()!;
+    const gradient = root.querySelector('linearGradient')!;
+    expect(gradient.id).toMatch(/^paint-drag-preview-\d+$/);
+
+    // The source with the same id unmounts, as when a virtualizer recycles it.
+    taken.remove();
+    container.querySelector('rect')!.setAttribute('width', '10');
+    update();
+
+    expect(root.querySelector('rect')).toHaveAttribute('fill', `url(#${gradient.id})`);
+    expect(root.querySelector('linearGradient')!.id).toBe(gradient.id);
+  });
+
   it('never lets a copied radio join a page radio group, even briefly', () => {
     // The page's own radio group.
     const page = document.createElement('div');

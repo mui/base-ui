@@ -198,14 +198,17 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     expect([red, green, blue]).toEqual([0, 128, 0]);
   });
 
-  it('offsets the preview by its own margin and translate', async () => {
+  it.each([
+    ['a class', '.Badge { margin: 10px 0 0 20px; translate: 5px 50%; }', undefined],
+    ['the style prop', '', { margin: '10px 0 0 20px', translate: '5px 50%' }],
+  ])('offsets the preview by its own margin and translate from %s', async (_, css, ownStyle) => {
     // The engine positions the preview through `margin` and `translate`, so the
     // root's own values shift it from its offset, as they would shift it in place.
-    style.textContent = '.Badge { margin: 10px 0 0 20px; translate: 5px 50%; height: 40px; }';
+    style.textContent = `.Badge { height: 40px; } ${css}`;
     rtlRender(
       <DraggableProvider>
         <Draggable.Root kind={testDragKind} data-testid="drag">
-          <Draggable.Preview className="Badge" offset="pointer">
+          <Draggable.Preview className="Badge" style={ownStyle} offset="pointer">
             Preview
           </Draggable.Preview>
         </Draggable.Root>
@@ -246,6 +249,37 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     expect(getComputedStyle(screen.getByTestId('preview').parentElement!).transitionDuration).toBe(
       '0s',
     );
+  });
+
+  it('offsets the preview by the translate its root gets on Draggable.updatePreview()', async () => {
+    style.textContent = '.Badge { height: 40px; }';
+    function Fixture(props: { shift: number }) {
+      return (
+        <DraggableProvider>
+          <Draggable.Root kind={testDragKind} data-testid="drag">
+            <Draggable.Preview
+              className="Badge"
+              style={{ translate: `${props.shift}px 0px` }}
+              offset="pointer"
+            >
+              Preview
+            </Draggable.Preview>
+          </Draggable.Root>
+        </DraggableProvider>
+      );
+    }
+    const { rerender } = rtlRender(<Fixture shift={0} />);
+    const source = screen.getByTestId('drag');
+    fireDrag.dragStart(source, { clientX: 100, clientY: 100 });
+    fireDrag.dragOver(source, { clientX: 100, clientY: 100 });
+    await flushRaf();
+    expect(screen.getByText('Preview').getBoundingClientRect().left).toBeCloseTo(100);
+
+    rerender(<Fixture shift={20} />);
+    Draggable.updatePreview();
+    await flushRaf();
+
+    expect(screen.getByText('Preview').getBoundingClientRect().left).toBeCloseTo(120);
   });
 
   it('measures the popover corrections again when the content restyles its root', async () => {

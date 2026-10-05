@@ -480,9 +480,13 @@ describe('createDragModifiersState', () => {
     const source = document.createElement('div');
     source.getBoundingClientRect = measure;
     const start = { x: 0, y: 0 };
-    expect(createDragModifiersState(undefined, source, start, NO_MODIFIER_KEYS)).toBeNull();
-    expect(createDragModifiersState([], source, start, NO_MODIFIER_KEYS)).toBeNull();
-    expect(createDragModifiersState([false, null], source, start, NO_MODIFIER_KEYS)).toBeNull();
+    expect(
+      createDragModifiersState(undefined, { element: source }, start, NO_MODIFIER_KEYS),
+    ).toBeNull();
+    expect(createDragModifiersState([], { element: source }, start, NO_MODIFIER_KEYS)).toBeNull();
+    expect(
+      createDragModifiersState([false, null], { element: source }, start, NO_MODIFIER_KEYS),
+    ).toBeNull();
     expect(measure).not.toHaveBeenCalled();
   });
 
@@ -494,12 +498,12 @@ describe('createDragModifiersState', () => {
     source.getBoundingClientRect = measure;
     const state = createDragModifiersState(
       restrictToElement(boundary),
-      source,
+      { element: source },
       { x: 50, y: 350 },
       NO_MODIFIER_KEYS,
     )!;
     expect(state.initialPoint).toEqual({ x: 100, y: 300 });
-    expect(state.sourceElement).toBe(source);
+    expect(state.source.element).toBe(source);
     expect(measure).toHaveBeenCalledTimes(1);
     expect(state.sourceRect).toBe(measure.mock.results[0].value);
   });
@@ -518,7 +522,7 @@ describe('modifyDragPoint', () => {
     source.getBoundingClientRect = () => makeRect(0, 0, 20, 20);
     const state = createDragModifiersState(
       [probe, restrictToElement(boundary)],
-      source,
+      { element: source },
       { x: 50, y: 50 },
       NO_MODIFIER_KEYS,
     )!;
@@ -544,7 +548,7 @@ describe('modifyDragPoint', () => {
     source.getBoundingClientRect = () => makeRect(0, 0, 20, 20);
     const state = createDragModifiersState(
       restrictToVerticalAxis,
-      source,
+      { element: source },
       { x: 10, y: 10 },
       NO_MODIFIER_KEYS,
     )!;

@@ -73,8 +73,8 @@ interface SyntheticDragState {
   active: ActiveSession | null;
   /** The first tap of a possible touch/pen double-tap (see `recordTap`). */
   lastTap: TapRecord | null;
-  /** The pointer type of the last `pointerdown` anywhere (see `onDoubleClick`). */
-  lastPointerDownType: DraggablePointerType | null;
+  /** The last `pointerdown` anywhere (see `onDoubleClick`). */
+  lastPointerDown: PointerEvent | null;
   cleanupContextMenuSuppression: DragCleanupFn | null;
 }
 
@@ -82,7 +82,7 @@ const state = getSharedSlot<SyntheticDragState>('syntheticDrag', () => ({
   pending: null,
   active: null,
   lastTap: null,
-  lastPointerDownType: null,
+  lastPointerDown: null,
   cleanupContextMenuSuppression: null,
 }));
 setActivePointerAccessors({
@@ -428,8 +428,9 @@ function onPointerDown(event: Event): void {
   // `resolveDraggablePickup`).
   let candidate = resolveDraggablePickup(pressTarget);
   const pointerType = normalizePointerType(pointerEvent.pointerType);
-  // Read by `onDoubleClick` for a `dblclick` that carries no `pointerType`.
-  state.lastPointerDownType = pointerType;
+  // Read by `onDoubleClick` for a `dblclick` that carries no `pointerType`, and
+  // reported by a double-click drag until its first move (see `commitActivation`).
+  state.lastPointerDown = pointerEvent;
 
   const hadSession = state.pending !== null || state.active !== null;
   if (!recoverDetachedSession(event)) {
@@ -587,7 +588,7 @@ function onDoubleClick(event: Event): void {
   const pointerType =
     'pointerType' in mouseEvent
       ? normalizePointerType((mouseEvent as PointerEvent).pointerType)
-      : (state.lastPointerDownType ?? 'mouse');
+      : normalizePointerType(state.lastPointerDown?.pointerType);
   if (pointerType !== 'mouse') {
     return;
   }
@@ -941,7 +942,7 @@ function commitActivation(): void {
     // `[data-dragging]` styles can restyle what custom modifiers read.
     const modifiers = createDragModifiersState(
       parameters.modifiers,
-      element,
+      dragSource,
       { x: lastInput.clientX, y: lastInput.clientY },
       lastInput,
     );
@@ -1007,7 +1008,12 @@ function commitActivation(): void {
       preview,
       lastInput,
       lastNativeEvent: pending.lastNativeEvent,
-      lastPointerEvent: pending.lastNativeEvent,
+      // A double-click pickup holds no pointer, and its `dblclick` isn't a
+      // `PointerEvent` in every browser. Until the first move, a frame that runs
+      // for a scroll reports the press of the second click.
+      lastPointerEvent: pending.heldPointer
+        ? pending.lastNativeEvent
+        : (state.lastPointerDown ?? pending.lastNativeEvent),
       lastMoveReason: 'pointer',
       modifiers,
       // Resolve on the first active frame to confirm the entered target and fire
@@ -1525,7 +1531,7 @@ export function resetForTests(): void {
   // next test.
   clearActive(false, 'none');
   clearLastTap();
-  state.lastPointerDownType = null;
+  state.lastPointerDown = null;
   state.cleanupContextMenuSuppression?.();
 }
 
@@ -1610,9 +1616,9 @@ interface ActiveSession {
    */
   lastNativeEvent: PointerEvent | MouseEvent | KeyboardEvent;
   /**
-   * The last pointer event, first the activation event and then each
-   * `pointermove`. A frame driven only by a scroll reports it (see
-   * `notifyExternalScroll`).
+   * The last pointer event, first the activation event, or the second press of a
+   * double-click, and then each `pointermove`. A frame driven only by a scroll
+   * reports it (see `notifyExternalScroll`).
    */
   lastPointerEvent: PointerEvent | MouseEvent;
   /** Why `lastNativeEvent` caused the next movement frame. */

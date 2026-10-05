@@ -38,6 +38,12 @@ const missingViewportAccept: DraggableManagerRegisterViewportParameters<CardPayl
 engine.registerMonitor<typeof card>(() => ({}));
 // @ts-expect-error explicit accepted-kind generics cannot bypass the runtime filter.
 engine.registerViewport<typeof card>(element, () => ({}));
+// @ts-expect-error typed drag data requires a runtime filter too.
+engine.registerMonitor<Draggable.Kind<unknown, number>>(() => ({}));
+// @ts-expect-error typed drag data requires a runtime filter too.
+engine.registerViewport<Draggable.Kind<unknown, number>>(element, () => ({}));
+// @ts-expect-error typed drag data requires a runtime filter too.
+const missingDragDataAccept: DraggableManagerRegisterMonitorParameters<unknown, number> = {};
 
 // The imperative entry point is self-contained. It exposes the factories its
 // registration methods require, without importing a component namespace.
