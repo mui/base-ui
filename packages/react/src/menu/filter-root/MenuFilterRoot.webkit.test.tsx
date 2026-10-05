@@ -17,7 +17,7 @@ vi.mock('@base-ui/utils/platform', async () => {
   };
 });
 
-function Test() {
+function Test(props: { autoFocus?: boolean; inputKey?: string }) {
   return (
     <Menu.FilterProvider>
       <Menu.Root defaultOpen>
@@ -25,7 +25,11 @@ function Test() {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              <Menu.Input aria-label="Filter actions" />
+              <Menu.Input
+                key={props.inputKey}
+                aria-label="Filter actions"
+                autoFocus={props.autoFocus}
+              />
               <Menu.List>
                 <Menu.Item>Apple</Menu.Item>
                 <Menu.Item>Banana</Menu.Item>
@@ -71,6 +75,40 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
     await act(async () => input.focus());
     expect(banana).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('keeps selection state for an auto-focused input in Strict Mode', async () => {
+    const { user } = await render(
+      <React.StrictMode>
+        <Test autoFocus />
+      </React.StrictMode>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+
+    await user.keyboard('[ArrowDown]');
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
+
+  it('keeps selection state when a focused input is replaced', async () => {
+    const { user, setProps } = await render(<Test autoFocus inputKey="first" />);
+    await waitFor(() =>
+      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus(),
+    );
+
+    await setProps({ inputKey: 'second' });
+    const replacement = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(replacement).toHaveFocus());
+
+    await user.keyboard('[ArrowDown]');
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
   });
 
   it('does not restore selection after a focused input unmounts and the menu reopens on hover', async () => {

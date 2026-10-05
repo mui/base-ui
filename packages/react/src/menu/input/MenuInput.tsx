@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { FilterDropdownInput } from '../../filter-dropdown/input/FilterDropdownInput';
 import type {
   FilterDropdownInputProps,
@@ -7,6 +9,7 @@ import type {
 } from '../../filter-dropdown/input/FilterDropdownInput';
 import { useFilterDropdownValueContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../../merge-props';
+import { activeElement } from '../../floating-ui-react/utils';
 import { useMenuFilterKeyDown } from '../filter-root/useMenuFilterKeyDown';
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -30,17 +33,36 @@ export const MenuInput = React.forwardRef(function MenuInput(
   const activeItemId = store.useState('highlightedItemId');
 
   const handleKeyDown = useMenuFilterKeyDown(value !== '');
+  const handleInputRef = React.useCallback(
+    (input: HTMLInputElement | null) => {
+      if (input == null) {
+        return undefined;
+      }
 
-  React.useEffect(() => () => store.set('inputFocused', false), [store]);
+      // Autofocus may precede this ref, and Strict Mode can replay its cleanup without moving
+      // DOM focus. Read the active element on every attachment to restore the store if needed.
+      if (activeElement(ownerDocument(input)) === input) {
+        store.set('focusedInput', input);
+      }
 
+      return () => {
+        if (store.state.focusedInput === input) {
+          store.set('focusedInput', null);
+        }
+      };
+    },
+    [store],
+  );
+
+  const mergedRefs = useMergedRefs(forwardedRef, handleInputRef);
   const inputProps = mergeProps<typeof FilterDropdownInput>(
     {
       onKeyDown: handleKeyDown,
-      onFocus() {
-        store.set('inputFocused', true);
+      onFocus(event) {
+        store.set('focusedInput', event.currentTarget);
       },
       onBlur() {
-        store.set('inputFocused', false);
+        store.set('focusedInput', null);
       },
     },
     componentProps,
@@ -51,7 +73,7 @@ export const MenuInput = React.forwardRef(function MenuInput(
       {...inputProps}
       activeItemId={activeItemId}
       navigationProps={navigationProps}
-      ref={forwardedRef}
+      ref={mergedRefs}
     />
   );
 });

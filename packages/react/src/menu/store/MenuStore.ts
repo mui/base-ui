@@ -35,8 +35,8 @@ export type State<Payload> = PopupStoreState<Payload> & {
   filterTriggerProps: HTMLProps;
   /** List navigation props for the element that holds real focus under virtual focus. */
   inputProps: HTMLProps;
-  /** Whether this menu's filter input currently has focus. */
-  inputFocused: boolean;
+  /** This menu's filter input while it has focus. */
+  focusedInput: HTMLInputElement | null;
   /** The element at `activeIndex` once the item list settles. Only virtual focus publishes it. */
   highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
@@ -108,7 +108,7 @@ const selectors = {
   // navigation. Limit it to WebKit while the input has focus so normal VoiceOver navigation
   // does not encounter the invalid attribute.
   webkitAriaSelected: (state: State<unknown>, highlighted: boolean) =>
-    platform.engine.webkit && state.inputFocused && highlighted ? true : undefined,
+    platform.engine.webkit && state.focusedInput != null && highlighted ? true : undefined,
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
@@ -310,7 +310,7 @@ function createInitialState<Payload>(
     listElement: null,
     filterTriggerProps: EMPTY_OBJECT,
     inputProps: EMPTY_OBJECT,
-    inputFocused: false,
+    focusedInput: null,
     highlightedItem: undefined,
     hoverEnabled: true,
     instantType: undefined,
