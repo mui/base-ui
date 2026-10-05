@@ -8,8 +8,8 @@ import { REASONS } from '../../internals/reasons';
  */
 export interface OpenChangeAdapter<EventDetails> {
   /**
-   * The committed open state. Closing a closed popup does nothing. Opening an open one goes
-   * through: it can move the popup to another trigger or upgrade a hover open.
+   * The committed open state. Closing a closed popup only cancels a pending open. Opening an open
+   * one goes through: it can move the popup to another trigger or upgrade a hover open.
    */
   open: boolean;
   /**
@@ -39,9 +39,9 @@ export interface OpenChangeAdapter<EventDetails> {
 }
 
 /**
- * Runs an open change request through the sequence every popup root shares: skip a redundant
- * close, let the consumer accept or cancel it, refuse it, record and emit it through the floating
- * root, then commit it through the root's adapter.
+ * Runs an open change request through the sequence every popup root shares: reduce a redundant
+ * close to canceling a pending open, let the consumer accept or cancel it, refuse it, record and
+ * emit it through the floating root, then commit it through the root's adapter.
  *
  * The consumer runs first, so a canceled change never reaches the floating root's `openchange`
  * subscribers or its close request.
@@ -53,6 +53,9 @@ export function runOpenChange<EventDetails extends BaseUIChangeEventDetails<stri
   adapter: OpenChangeAdapter<EventDetails>,
 ) {
   if (!nextOpen && !adapter.open) {
+    // Nothing to close, so the consumer isn't asked and no close request is recorded. The
+    // interactions still hear it, so a delayed hover open can't open the popup afterwards.
+    floatingRootContext.dispatchOpenChange(false, eventDetails, false);
     return;
   }
 

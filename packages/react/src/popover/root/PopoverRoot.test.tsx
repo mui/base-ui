@@ -494,6 +494,31 @@ describe('<Popover.Root />', () => {
 
         expect(screen.getByText('Content')).not.toBe(null);
       });
+
+      it('does not open after the delay once closed imperatively', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChange = vi.fn();
+        await render(
+          <TestPopover
+            rootProps={{ actionsRef, onOpenChange }}
+            triggerProps={{ openOnHover: true, delay: 100 }}
+          />,
+        );
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.mouseEnter(anchor);
+        fireEvent.mouseMove(anchor);
+
+        await act(async () => actionsRef.current!.close());
+
+        clock.tick(100);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+        expect(onOpenChange).not.toHaveBeenCalled();
+      });
     });
 
     describe('prop: closeDelay', () => {
