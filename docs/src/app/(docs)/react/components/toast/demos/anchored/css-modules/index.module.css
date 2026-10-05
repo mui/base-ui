@@ -8,11 +8,8 @@
 
 .Toast {
   box-sizing: border-box;
-  position: relative;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  display: flex;
-  flex-direction: column;
   width: max-content;
   padding: 0.25rem 0.5rem;
   border: 1px solid oklch(14.5% 0 0deg);
