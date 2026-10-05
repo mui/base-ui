@@ -22,7 +22,7 @@ import type {
   DraggableRootElementReference,
 } from '../../draggable/root/DraggableRoot';
 
-const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
+export const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
 
 /**
  * Clamp the point so the preview stays inside `rect`. The preview sits at

@@ -24,7 +24,6 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import { WindowTimeout } from '../../windowTimeout';
 import { getSharedSlot } from '../sharedState';
-import { swallowEvent } from '../utils';
 import type { DragCleanupFn } from '../types';
 
 /**
@@ -260,6 +259,15 @@ export function consumeDoubleClickFollowUp(event: Event): boolean {
   swallowEvent(event);
   followUp.disarm();
   return true;
+}
+
+/**
+ * Cancel the event's default action and keep every later listener, on any node,
+ * from seeing it.
+ */
+export function swallowEvent(event: Event): void {
+  event.preventDefault();
+  event.stopImmediatePropagation();
 }
 
 /** Disarm without waiting for a click. Used by the engine's test reset. */

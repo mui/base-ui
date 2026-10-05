@@ -51,12 +51,17 @@ export function overrideInlineStyles(
   };
 }
 
-/** The inline styles the lock sets to `none` on every root it holds. */
-const LOCKED_STYLES: readonly InlineStyleOverride[] = [
-  { property: 'touchAction', cssName: 'touch-action', value: 'none' },
+/** The inline styles that stop text selection and the touch callout menu. */
+export const SELECTION_LOCK_STYLES: readonly InlineStyleOverride[] = [
   { property: 'userSelect', cssName: 'user-select', value: 'none' },
   { property: 'webkitUserSelect', cssName: '-webkit-user-select', value: 'none' },
   { property: 'webkitTouchCallout', cssName: '-webkit-touch-callout', value: 'none' },
+];
+
+/** The inline styles the lock sets to `none` on every root it holds. */
+const LOCKED_STYLES: readonly InlineStyleOverride[] = [
+  { property: 'touchAction', cssName: 'touch-action', value: 'none' },
+  ...SELECTION_LOCK_STYLES,
   { property: 'overscrollBehavior', cssName: 'overscroll-behavior', value: 'none' },
 ];
 

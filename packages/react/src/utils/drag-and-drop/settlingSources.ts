@@ -19,11 +19,7 @@ export const settlingSourcesStore: ReadonlyStore<ReadonlySet<Element>> = store;
  * only writer of `[data-settling]`, so the two always agree.
  */
 export function setSourceSettling(element: Element, settling: boolean): void {
-  if (settling) {
-    element.setAttribute(DraggableRootDataAttributes.settling, '');
-  } else {
-    element.removeAttribute(DraggableRootDataAttributes.settling);
-  }
+  element.toggleAttribute(DraggableRootDataAttributes.settling, settling);
   if (store.state.has(element) === settling) {
     return;
   }

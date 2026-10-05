@@ -114,10 +114,11 @@ export function getOwnLinearTransform(
   style: CSSStyleDeclaration,
   strict = false,
 ): LinearTransform | null {
+  const { rotate, scale, transform } = style;
   const parts: Array<[value: string, parsed: LinearTransform | null]> = [
-    [style.rotate, parseRotateLinearTransform(style.rotate, strict)],
-    [style.scale, parseScaleLinearTransform(style.scale)],
-    [style.transform, parseComputedLinearTransform(style.transform, !strict)],
+    [rotate, parseRotateLinearTransform(rotate, strict)],
+    [scale, parseScaleLinearTransform(scale)],
+    [transform, parseComputedLinearTransform(transform, !strict)],
   ];
   let matrix = identityLinearTransform;
   for (const [value, parsed] of parts) {

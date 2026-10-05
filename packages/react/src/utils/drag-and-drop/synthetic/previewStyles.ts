@@ -131,17 +131,15 @@ export function capturePreviewStyles(
           return { node, pseudo, values: [] };
         }
         const computed = win.getComputedStyle(node, pseudo || null);
-        return {
-          node,
-          pseudo,
-          // Each value the clone has now is kept, for the marker check below.
-          values: values
-            .map(
-              ([name, value, priority]) =>
-                [name, value, priority, computed.getPropertyValue(name)] as const,
-            )
-            .filter(([, value, , current]) => current !== value),
-        };
+        // Each changed value keeps the one the clone has now, for the marker check below.
+        const changedValues: Array<readonly [string, string, string, string]> = [];
+        for (const [name, value, priority] of values) {
+          const current = computed.getPropertyValue(name);
+          if (current !== value) {
+            changedValues.push([name, value, priority, current]);
+          }
+        }
+        return { node, pseudo, values: changedValues };
       });
       // A broad snapshot must not overwrite styles consumers apply to previews.
       // Before writing, drop any value that changes when the marker is removed.

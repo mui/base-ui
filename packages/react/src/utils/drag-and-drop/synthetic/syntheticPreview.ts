@@ -12,14 +12,13 @@ import type { ResolvedDragPreview } from './pickupPreview';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
 import type { DragModifierKeys } from '../utils';
-import { applyDragModifiers } from '../dragModifiers';
+import { applyDragModifiers, ZERO_OFFSET } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
 import { setSourceSettling } from '../settlingSources';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
 import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
 
-const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
 /** What `getElementScale` reports for an element with no ancestor transform. */
 const DEFAULT_SCALE: DraggablePosition = { x: 1, y: 1 };
 const MIN_SETTLING_WATCHDOG_MS = 1000;

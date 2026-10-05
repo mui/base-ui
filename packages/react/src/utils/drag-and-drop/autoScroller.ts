@@ -32,10 +32,9 @@ import {
 } from './utils';
 import type { OverflowFlags } from './utils';
 import { getRawActivePointerInput, notifyExternalScroll } from './activePointer';
-import { getActivePreviewHandle } from './activePreview';
 import { getDropTargetShadowRootsByHost } from './dropTarget';
 import { dragSessionStore } from './dragSessionStore';
-import { PREVIEW_ELEMENT_ATTRIBUTE } from './synthetic/cloneDragPreview';
+import { getActivePreviewHandle, PREVIEW_ELEMENT_ATTRIBUTE } from './activePreview';
 import { getMaxScrollOffset } from '../scrollEdges';
 import type {
   DraggableViewportDragScrollDirection,

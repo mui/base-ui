@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import { getSharedSlot } from './sharedState';
 import { createKind } from './dragKind';
-import { createRegisterSource } from './useInnerDragEngine';
+import { createRegisterSource } from './useRegisterSource';
 import { registerTarget } from './registrations';
 import {
   createElement,
@@ -48,7 +48,7 @@ describe('separate copies of the engine', () => {
     'drops a source registered through one copy onto a target registered through another',
     async () => {
       vi.resetModules();
-      const copyA = await import('./useInnerDragEngine');
+      const copyA = await import('./useRegisterSource');
       vi.resetModules();
       const copyB = await import('./registrations');
       // Neither copy is the one this file imported.

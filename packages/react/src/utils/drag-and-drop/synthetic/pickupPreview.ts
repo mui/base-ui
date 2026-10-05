@@ -59,7 +59,7 @@ export function resolveDragPreview(
  * Defaults to `'source'`, which keeps the grab point the preview was picked up by,
  * so a cloned preview lifts off the element without shifting.
  */
-export function resolveDragPreviewOffset(
+function resolveDragPreviewOffset(
   offset: DraggablePreviewOffset | undefined,
   params: DraggablePreviewOffsetParameters,
 ): DraggablePosition {

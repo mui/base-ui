@@ -2,6 +2,7 @@ import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import { getSharedSlot } from './sharedState';
 import { getRegistration } from './draggableRegistry';
 import { dragSessionStore, notifyDragSourceUpdated } from './dragSessionStore';
+import { getActivePreviewHandle } from './activePreview';
 import { syncParticipantPayload } from './participantData';
 import type { ParticipantPayload } from './participantData';
 
@@ -102,4 +103,32 @@ export function syncActiveDragSourcePayload(
       syncParticipantPayload(registration, kind, payload);
     }
   }
+}
+
+/**
+ * Moves the active drag source to a new node, for example when a virtualizer
+ * remounts the dragged row. Points the session at the new node and moves the
+ * preview's source marking (`data-dragging`) to it. Does nothing unless
+ * `oldElement` is the active source, so an unrelated draggable's swap can't take
+ * over the session.
+ *
+ * The session's `source` is mutated, not replaced, so `dragSessionStore.state.source`
+ * stays `===` to the `source` of every event in the drag. `dragSourceStore`
+ * publishes a new copy instead, because its React subscribers need a new
+ * reference to re-render. Don't compare a `DraggableRootRecord` read from there
+ * to an event's `source` by identity.
+ */
+export function retargetDragSource(oldElement: Element, newElement: HTMLElement): void {
+  const source = dragSessionStore.state?.source;
+  if (source?.element !== oldElement) {
+    return;
+  }
+  // Mutated in place because this is the lifecycle's own `source`, which every
+  // event of the drag reports. It must point at the live node.
+  source.element = newElement;
+  // Publishes a copy to `dragSourceStore`. Republishing the mutated object keeps
+  // the same reference, so `useActiveDrag()` and `Draggable.Root`'s `dragging`
+  // would keep reading the detached node.
+  notifyDragSourceUpdated(source);
+  getActivePreviewHandle()?.retargetSource(newElement);
 }

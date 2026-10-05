@@ -1,7 +1,15 @@
 'use client';
-import { useInnerDragEngine } from '../../utils/drag-and-drop/useInnerDragEngine';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
+import {
+  registerMonitor,
+  registerTarget,
+  registerViewport,
+} from '../../utils/drag-and-drop/registrations';
+import { cancelDrag } from '../../utils/drag-and-drop/cancelDrag';
 import type {
   DraggableManager,
+  InternalDragEngine,
   RegisterMonitorParameters,
   RegisterSourceParameters,
   RegisterTargetParameters,
@@ -19,9 +27,20 @@ import type {
  * Documentation: [Base UI useManager](https://base-ui.com/react/utils/draggable#usemanager)
  */
 export function useManager(): UseDraggableManagerReturnValue {
+  // Preview content renders through the `Draggable.Provider` nearest this hook call.
+  // Registrations and sensors are global, so the stateless registrations are
+  // re-exposed as methods (see `registrations.ts`).
+  const registerSource = useRegisterSource();
+  const engine = useRefWithInit((): InternalDragEngine => ({
+    registerSource,
+    registerTarget,
+    registerViewport,
+    registerMonitor,
+    cancelDrag,
+  })).current;
   // The public signatures require a payload when the caller's kind declares one.
   // Internal registrations keep it optional so components can forward theirs.
-  return useInnerDragEngine() as DraggableManager;
+  return engine as DraggableManager;
 }
 
 export namespace useManager {

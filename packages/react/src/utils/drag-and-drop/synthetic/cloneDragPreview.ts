@@ -7,6 +7,7 @@ import {
   isPreviewRootProperty,
 } from './previewStyles';
 import { getSharedSlot } from '../sharedState';
+import { PREVIEW_ELEMENT_ATTRIBUTE } from '../activePreview';
 import * as DraggablePreviewCssVars from '../../../draggable/preview/DraggablePreviewCssVars';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
@@ -53,15 +54,6 @@ const NEUTRALIZED_PROPERTIES = [...MOTION_PROPERTIES, 'transform'];
 // The inline declarations of a custom preview root that offset it from its position
 // (see `readOwnOffset`). The engine's own `margin` and `translate` replace them.
 const OWN_OFFSET_PROPERTIES = ['margin-top', 'margin-left', 'translate'];
-
-/**
- * Marks the element the engine positions: `"clone"` for the clone of the source, or
- * `"content"` for the copy of a custom preview's content. The engine finds the
- * preview through it in either mode. The same element carries the public
- * `data-drag-preview`. The `data-base-ui-` prefix means this one is internal, not a
- * styling hook.
- */
-export const PREVIEW_ELEMENT_ATTRIBUTE = 'data-base-ui-drag-preview';
 
 /**
  * Keyed on a clone's `PREVIEW_ELEMENT_ATTRIBUTE`, so it reaches only the clone's

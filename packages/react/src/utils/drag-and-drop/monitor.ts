@@ -37,6 +37,11 @@ const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
   matchedMonitors: new WeakMap<MonitorGetter, MonitorParameters>(),
 }));
 
+/** Keep a copy of the monitor's parameters for a later `onMoveEnd` (see `matchedMonitors`). */
+function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: MonitorParameters): void {
+  getShallowSnapshot(state.matchedMonitors, getMonitor, parameters);
+}
+
 /**
  * Engages a monitor in the active drag when its `accept` matches the source. Runs
  * for every monitor at drag start, and for a monitor that registers mid-drag, such
@@ -70,7 +75,7 @@ function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
     matchesAccept(monitor.accept, activeSource)
   ) {
     state.activeMonitors.add(getMonitor);
-    getShallowSnapshot(state.matchedMonitors, getMonitor, monitor);
+    rememberMatchedMonitor(getMonitor, monitor);
   }
 }
 
@@ -117,7 +122,7 @@ export function dispatchToMonitors<
       () => {
         let monitor = getMonitor();
         if (matchesAccept(monitor.accept, eventDetails.source)) {
-          getShallowSnapshot(state.matchedMonitors, getMonitor, monitor);
+          rememberMatchedMonitor(getMonitor, monitor);
         } else {
           // `accept` no longer matches. Deliver only `onMoveEnd`, through the last
           // matching parameters, so the monitor can close the drag it joined.

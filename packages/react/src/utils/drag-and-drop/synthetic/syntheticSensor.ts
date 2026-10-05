@@ -35,6 +35,7 @@ import {
   consumeDoubleClickFollowUp,
   suppressDoubleClickFollowUp,
   suppressNextClick,
+  swallowEvent,
 } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
 import { setActivePointerAccessors } from '../activePointer';
@@ -66,7 +67,6 @@ import {
   onceCleanup,
   remapInput,
   runAllCleanups,
-  swallowEvent,
 } from '../utils';
 
 interface SyntheticDragState {

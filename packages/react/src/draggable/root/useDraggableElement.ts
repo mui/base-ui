@@ -5,8 +5,11 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { syncActiveDragSourcePayload } from '../../utils/drag-and-drop/dragSource';
-import { useRegisterSource } from '../../utils/drag-and-drop/useInnerDragEngine';
+import {
+  retargetDragSource,
+  syncActiveDragSourcePayload,
+} from '../../utils/drag-and-drop/dragSource';
+import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
 import { createDragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type { DragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type {
@@ -19,11 +22,7 @@ import type {
   DraggableCollisionContextValue,
 } from '../collision-provider/DraggableCollisionContext';
 import type { DraggableRootRecord } from './DraggableRoot';
-import {
-  dragSessionStore,
-  dragSourceStore,
-  retargetDragSource,
-} from '../../utils/drag-and-drop/dragSessionStore';
+import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import { settlingSourcesStore } from '../../utils/drag-and-drop/settlingSources';
 

@@ -16,11 +16,16 @@ import type {
 } from '../../draggable/root/DraggableRoot';
 import type { DragCleanupFn, DraggablePayload } from './types';
 import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
-import { overrideInlineStyles } from './synthetic/dragRootLock';
+import { overrideInlineStyles, SELECTION_LOCK_STYLES } from './synthetic/dragRootLock';
 import type { InlineStyleOverride } from './synthetic/dragRootLock';
 import { getSharedSlot } from './sharedState';
 import { getOrCreate, onceCleanup } from './utils';
-import { resolveDragHandle } from './draggableRegistry';
+import { addDraggableRegistration, resolveDragHandle } from './draggableRegistry';
+import { bindPointerListeners } from './synthetic/syntheticSensor';
+import {
+  getPreviewSourceIdentity,
+  retargetEndingPreviewSource,
+} from './synthetic/syntheticPreview';
 
 interface GestureSetupEntry {
   count: number;
@@ -35,9 +40,7 @@ const gestureSetups = getSharedSlot<WeakMap<Element, GestureSetupEntry>>(
 /** The inline styles that stop the browser from handling pointer gestures on an element. */
 const GESTURE_STYLES: readonly InlineStyleOverride[] = [
   { property: 'touchAction', cssName: 'touch-action', value: 'manipulation' },
-  { property: 'userSelect', cssName: 'user-select', value: 'none' },
-  { property: 'webkitUserSelect', cssName: '-webkit-user-select', value: 'none' },
-  { property: 'webkitTouchCallout', cssName: '-webkit-touch-callout', value: 'none' },
+  ...SELECTION_LOCK_STYLES,
 ];
 
 /**
@@ -112,6 +115,37 @@ export function applyDraggableStaticSetup(
       releaseSetup();
     }),
   };
+}
+
+/**
+ * Registers `element` as a draggable: its static gesture setup, its registry entry,
+ * the hand-off of a preview still settling onto it, and the pointer sensor on its
+ * document or shadow root. `getParameters` is read on each press and dispatch.
+ */
+export function registerDraggableElement(
+  element: HTMLElement,
+  initial: Pick<
+    DraggableConfig<any, any>,
+    'handle' | 'disabled' | 'kind' | 'previewKey' | 'payload'
+  >,
+  getParameters: () => DraggableConfig<any, any>,
+): DragCleanupFn {
+  // Static DOM setup, read at registration. The pointer sensor bound below
+  // refreshes it from the live registration on each press.
+  const staticSetup = applyDraggableStaticSetup({
+    element,
+    handle: initial.handle,
+    disabled: initial.disabled,
+  });
+  const unregister = addDraggableRegistration(element, getParameters, staticSetup.refresh);
+  retargetEndingPreviewSource(element, getPreviewSourceIdentity(initial));
+  const unbindSensors = bindPointerListeners(element);
+
+  return onceCleanup(() => {
+    staticSetup.release();
+    unregister();
+    unbindSensors();
+  });
 }
 
 export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {

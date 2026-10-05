@@ -2,6 +2,15 @@ import { getSharedSlot } from './sharedState';
 import type { SyntheticPreviewHandle } from './synthetic/syntheticPreview';
 
 /**
+ * Marks the element the engine positions: `"clone"` for the clone of the source, or
+ * `"content"` for the copy of a custom preview's content. The engine finds the
+ * preview through it in either mode, including a preview still settling after its
+ * drag. The same element carries the public `data-drag-preview`. The
+ * `data-base-ui-` prefix means this one is internal, not a styling hook.
+ */
+export const PREVIEW_ELEMENT_ATTRIBUTE = 'data-base-ui-drag-preview';
+
+/**
  * The active drag's preview handle. The React layer reaches the engine-built
  * element, and any custom content, through it.
  */

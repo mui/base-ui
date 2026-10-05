@@ -7,22 +7,13 @@ import { useDraggableContext } from '../../draggable/DraggableContext';
 import type { DraggableContextValue } from '../../draggable/DraggableContext';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
-import { applyDraggableStaticSetup } from './draggable';
-import { bindPointerListeners } from './synthetic/syntheticSensor';
+import { registerDraggableElement } from './draggable';
 import type { DraggableConfig } from './draggable';
-import { addDraggableRegistration } from './draggableRegistry';
-import { registerViewport, registerTarget, registerMonitor } from './registrations';
-import { onceCleanup } from './utils';
 import { setParticipantOwner } from './participantData';
-import { cancelDrag } from './cancelDrag';
 import { isActive } from './core/lifecycleManager';
 import { publishDragPreview } from './overlay/dragPreviewStore';
 import { getActivePreviewHandle } from './activePreview';
-import {
-  getPreviewSourceIdentity,
-  retargetEndingPreviewSource,
-} from './synthetic/syntheticPreview';
-import type { InternalDragEngine, InternalDraggableParameters } from './registrationTypes';
+import type { InternalDraggableParameters } from './registrationTypes';
 import type { DragCleanupFn } from './types';
 import type { DraggablePreviewRenderParameters } from '../../draggable/preview/DraggablePreview';
 
@@ -118,22 +109,7 @@ export function createRegisterSource(
       setParticipantOwner(getNormalized, payloadOwner);
     }
 
-    // Static DOM setup, read at registration. The pointer sensor bound below
-    // refreshes it from the live registration on each press.
-    const staticSetup = applyDraggableStaticSetup({
-      element,
-      handle: initial.handle,
-      disabled: initial.disabled,
-    });
-    const unregister = addDraggableRegistration(element, getNormalized, staticSetup.refresh);
-    retargetEndingPreviewSource(element, getPreviewSourceIdentity(initial));
-    const unbindSensors = bindPointerListeners(element);
-
-    return onceCleanup(() => {
-      staticSetup.release();
-      unregister();
-      unbindSensors();
-    });
+    return registerDraggableElement(element, initial, getNormalized);
   };
 }
 
@@ -141,9 +117,8 @@ export function createRegisterSource(
  * Returns the registration function `Draggable.Root` calls, bound to the nearest
  * `Draggable.Provider` and CSP context. It is stable across renders.
  *
- * It returns only this function because {@link useInnerDragEngine} would pull the
- * drop-target and monitor registrations into every bundle that contains a
- * `Draggable.Root`.
+ * It lives apart from `useManager`, which adds the drop-target and monitor
+ * registrations, so those stay out of every bundle that contains a `Draggable.Root`.
  */
 export function useRegisterSource(): ReturnType<typeof createRegisterSource> {
   const previewContext = useDraggableContext();
@@ -151,20 +126,4 @@ export function useRegisterSource(): ReturnType<typeof createRegisterSource> {
   const getPreviewContext = useStableCallback(() => previewContext);
   const getCSPContext = useStableCallback(() => cspContext);
   return useRefWithInit(() => createRegisterSource(getPreviewContext, getCSPContext)).current;
-}
-
-/**
- * Returns the full engine, for `useManager`. Preview content renders through the
- * `Draggable.Provider` nearest this hook call. Registrations and sensors are global.
- */
-export function useInnerDragEngine(): InternalDragEngine {
-  const registerSource = useRegisterSource();
-  // The stateless primitives are re-exposed as methods (see `./registrations`).
-  return useRefWithInit(() => ({
-    registerSource,
-    registerTarget,
-    registerViewport,
-    registerMonitor,
-    cancelDrag,
-  })).current;
 }

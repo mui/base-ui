@@ -86,8 +86,8 @@ export interface DraggableViewportState {
 }
 
 // `disabled` isn't redeclared here because the API reference drops JSDoc on
-// intersection members. Its description lives on `RegisterViewportParameters`,
-// which this type inherits.
+// intersection members. Its description lives on `ViewportParameters` in
+// `autoScroller.ts`, which this type inherits through `RegisterViewportParameters`.
 export type DraggableViewportProps<
   TSourcePayload = unknown,
   TDragData = unknown,

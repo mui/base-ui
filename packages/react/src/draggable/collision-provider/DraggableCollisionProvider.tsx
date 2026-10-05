@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { useValueChanged } from '../../internals/useValueChanged';
 import type {
   DragEndEventDetailsProperties,
   DragEndReason,
@@ -230,19 +230,18 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     },
   });
 
-  const firstParameterEffect = React.useRef(true);
-  useIsoLayoutEffect(() => {
-    if (firstParameterEffect.current) {
-      firstParameterEffect.current = false;
-    } else if (dragSourceStore.state && props.kind.matches(dragSourceStore.state)) {
-      // Refresh only this group's participants. An inline `canCollide` gets a new
-      // identity on every render, and a page-wide refresh would re-resolve every
-      // target per frame.
+  // Refresh only this group's participants. An inline `canCollide` gets a new
+  // identity on every render, and a page-wide refresh would re-resolve every
+  // target per frame. Refreshes requested together are coalesced.
+  const refreshParticipants = () => {
+    if (dragSourceStore.state && props.kind.matches(dragSourceStore.state)) {
       for (const element of participantElements) {
         scheduleDropTargetParameterRefresh(element);
       }
     }
-  }, [props.kind, props.canCollide, participantElements]);
+  };
+  useValueChanged(props.kind, refreshParticipants);
+  useValueChanged(props.canCollide, refreshParticipants);
 
   const context = React.useMemo(
     () => ({ register, kind: props.kind, parent }),

@@ -65,15 +65,6 @@ export function getShallowSnapshot<K extends object, V extends object>(
 }
 
 /**
- * Cancel the event's default action and keep every later listener, on any node,
- * from seeing it.
- */
-export function swallowEvent(event: Event): void {
-  event.preventDefault();
-  event.stopImmediatePropagation();
-}
-
-/**
  * Resolve an element given as a plain element, a ref, or a getter, or return
  * `null` when unset. `handle`, `container`, and the `element` of
  * `restrictToElement` use this shape. `argument` is passed to the getter.

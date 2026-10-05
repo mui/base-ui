@@ -3,11 +3,8 @@ import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, isJSDOM } from '#test-utils';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
-import {
-  createDragPreviewElement,
-  measurePreviewAnchor,
-  PREVIEW_ELEMENT_ATTRIBUTE,
-} from './cloneDragPreview';
+import { createDragPreviewElement, measurePreviewAnchor } from './cloneDragPreview';
+import { PREVIEW_ELEMENT_ATTRIBUTE } from '../activePreview';
 
 /** Measure and clone `source`, the way a pickup does. */
 function clonePreview(source: HTMLElement, container: HTMLElement | null) {
