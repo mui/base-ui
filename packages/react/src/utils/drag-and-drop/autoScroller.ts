@@ -9,10 +9,21 @@ import { REASONS } from '../../internals/reasons';
 import type {
   DraggableAccept,
   DraggableInput,
+  DraggableKind,
   DraggableLocationHistory,
 } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
-import type { MoveEventDetails, DropTargetChangeEventDetails } from './types';
+import type {
+  AcceptedDragData,
+  AcceptedDragPayload,
+  DragCleanupFn,
+  MoveEventDetails,
+  DropTargetChangeEventDetails,
+} from './types';
+import type {
+  DragParametersWithInferredAccept,
+  RegisterViewportParameters,
+} from './registrationTypes';
 import { matchesAccept } from './dragKind';
 import { addMonitor, removeMonitor } from './monitor';
 import type { MonitorParameters } from './monitor';
@@ -121,11 +132,20 @@ const SCROLL_MONITOR_PARAMS: MonitorParameters = {
  * The first registration installs the scroll monitor and the last one removes
  * it. The loop only runs between a drag's start and end, and parks whenever no
  * container is engaged.
+ *
+ * It lives here rather than in `registrations.ts`, so `Draggable.Target` and
+ * `useMonitor` don't load the auto-scroller. The type argument is the `accept`
+ * value, like in every other API that takes `accept`.
  */
-export function addScrollerRegistration(
+export function registerViewport<
+  TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>,
+>(
   element: HTMLElement,
-  getParameters: ScrollerGetter,
-): () => void {
+  getParameters: () => DragParametersWithInferredAccept<
+    RegisterViewportParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
+    TAccept
+  >,
+): DragCleanupFn {
   const release = holds.hold(element, getParameters);
   invalidateScrollerOrder();
   // A registration during a drag wakes the loop. A container that appears under

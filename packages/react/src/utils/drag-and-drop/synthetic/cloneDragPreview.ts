@@ -19,6 +19,7 @@ import {
   getElementZoom,
   getOrCreate,
   getOwnZoom,
+  getSubtreeElements,
 } from '../utils';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import { COMPUTED_MATRIX, getOwnLinearTransform } from '../linearTransform';
@@ -615,6 +616,12 @@ function copyLiveState(
   };
 }
 
+/** The computed `transform-origin` in pixels. A part that doesn't parse is `NaN`. */
+function readTransformOrigin(style: CSSStyleDeclaration): DraggablePosition {
+  const parts = style.transformOrigin.split(/\s+/);
+  return { x: Number.parseFloat(parts[0]), y: Number.parseFloat(parts[1]) };
+}
+
 type InlineDeclaration = [name: string, value: string, priority: string];
 
 /** The inline value and priority `style` holds for each of `names`. */
@@ -714,7 +721,7 @@ function prepareDragPreviewClone(
   source: HTMLElement,
   win: Window & typeof globalThis,
 ): PreparedDragPreviewClone {
-  const queriedSourceNodes: Element[] = [source, ...Array.from(source.querySelectorAll('*'))];
+  const queriedSourceNodes = getSubtreeElements(source);
   let element: HTMLElement;
   let sourceNodes: Element[];
   let cloneNodes: Element[];
@@ -723,7 +730,7 @@ function prepareDragPreviewClone(
   } else {
     element = source.cloneNode(true) as HTMLElement;
     sourceNodes = queriedSourceNodes;
-    cloneNodes = [element, ...Array.from(element.querySelectorAll('*'))];
+    cloneNodes = getSubtreeElements(element);
   }
   // A preview inside the source, in a `container` the source holds, would be copied
   // into the next one. `Draggable.updatePreview()` would then nest previews.
@@ -833,9 +840,7 @@ function getUntransformedSourceRect(
       height,
     );
   const matrix = getOwnLinearTransform(sourceStyle, true);
-  const originParts = sourceStyle.transformOrigin.split(/\s+/);
-  const originX = Number.parseFloat(originParts[0]);
-  const originY = Number.parseFloat(originParts[1]);
+  const { x: originX, y: originY } = readTransformOrigin(sourceStyle);
   if (!matrix || !Number.isFinite(originX) || !Number.isFinite(originY)) {
     return fallback();
   }
@@ -1434,9 +1439,7 @@ export function createDragPreviewElement(
         `scale(${scale.x}, ${scale.y})`,
         suppressedTransform ? 'important' : '',
       );
-      const parts = win.getComputedStyle(element).transformOrigin.split(/\s+/);
-      const x = Number.parseFloat(parts[0]);
-      const y = Number.parseFloat(parts[1]);
+      const { x, y } = readTransformOrigin(win.getComputedStyle(element));
       origin = { x: Number.isFinite(x) ? x : 0, y: Number.isFinite(y) ? y : 0 };
     } else if (suppressedTransform) {
       setEngineStyle('transform', 'none', 'important');

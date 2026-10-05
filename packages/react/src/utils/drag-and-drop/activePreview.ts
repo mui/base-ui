@@ -42,10 +42,10 @@ export function clearActivePreviewHandle(handle: SyntheticPreviewHandle): void {
 }
 
 /**
- * The active drag's preview handle. The React layer reads the host from it, re-anchors
- * the host once its content has rendered, and tears it down when the content resolves
- * to nothing. The session store retargets it when a virtualizer remounts the source
- * mid-drag, so `data-dragging` follows the live element. `null` when no drag is active.
+ * The active drag's preview handle. The React layer reads the custom content from it
+ * (`getContent()`, `syncContent`). `retargetDragSource` in `dragSource.ts` retargets it
+ * when a virtualizer remounts the source mid-drag, so `data-dragging` follows the live
+ * element. `null` when no drag is active.
  */
 export function getActivePreviewHandle(): SyntheticPreviewHandle | null {
   return slot.handle;

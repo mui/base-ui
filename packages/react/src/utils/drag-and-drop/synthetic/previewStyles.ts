@@ -226,7 +226,7 @@ function captureSnapshots(
 ) {
   const source = sourceNodes[0];
   const clone = clonesBySource.get(source)!;
-  const root = source.getRootNode() as Document | ShadowRoot;
+  const root = getDragEventRoot(source);
   const properties = new Map<Element, Properties>();
   let needsFullSnapshot = false;
   let inspectedRules = 0;

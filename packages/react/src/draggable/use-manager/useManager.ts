@@ -1,11 +1,8 @@
 'use client';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
-import {
-  registerMonitor,
-  registerTarget,
-  registerViewport,
-} from '../../utils/drag-and-drop/registrations';
+import { registerMonitor, registerTarget } from '../../utils/drag-and-drop/registrations';
+import { registerViewport } from '../../utils/drag-and-drop/autoScroller';
 import { cancelDrag } from '../../utils/drag-and-drop/cancelDrag';
 import type {
   DraggableManager,
@@ -29,7 +26,7 @@ import type {
 export function useManager(): UseDraggableManagerReturnValue {
   // Preview content renders through the `Draggable.Provider` nearest this hook call.
   // Registrations and sensors are global, so the stateless registrations are
-  // re-exposed as methods (see `registrations.ts`).
+  // re-exposed as methods (see `registrations.ts` and `autoScroller.ts`).
   const registerSource = useRegisterSource();
   const engine = useRefWithInit((): InternalDragEngine => ({
     registerSource,

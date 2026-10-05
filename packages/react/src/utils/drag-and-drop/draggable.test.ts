@@ -6,7 +6,7 @@ describe('draggable static setup', () => {
   it.skipIf(isJSDOM)('restores inline gesture style priorities', () => {
     const element = document.createElement('div');
     element.style.setProperty('user-select', 'text', 'important');
-    const setup = applyDraggableStaticSetup({ element });
+    const setup = applyDraggableStaticSetup(element, {});
     expect(element.style.userSelect).toBe('none');
     setup.release();
     expect(element.style.userSelect).toBe('text');

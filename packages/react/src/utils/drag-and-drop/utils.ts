@@ -33,6 +33,11 @@ export function onceCleanup(cleanup: () => void): () => void {
   };
 }
 
+/** `root` and all its descendant elements, in tree order. */
+export function getSubtreeElements(root: Element): Element[] {
+  return [root, ...Array.from(root.querySelectorAll('*'))];
+}
+
 /** The value `map` holds for `key`, created with `create` and stored on first access. */
 export function getOrCreate<K, V>(
   map: { get(key: K): V | undefined; set(key: K, value: V): unknown },

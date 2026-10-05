@@ -700,6 +700,11 @@ function isWithinTapTolerance(tap: TapRecord, pointerEvent: PointerEvent): boole
   return dx * dx + dy * dy <= DOUBLE_TAP_TOLERANCE_PX * DOUBLE_TAP_TOLERANCE_PX;
 }
 
+/** Whether the primary button is still down. `buttons` is a bitmask, and bit 0 is the primary. */
+function isPrimaryHeld(event: PointerEvent): boolean {
+  return event.buttons % 2 !== 0;
+}
+
 /** Installed only while a gesture is alive (see `onPointerDown` and `commitActivation`). */
 function preventContextMenu(event: Event): void {
   event.preventDefault();
@@ -812,7 +817,7 @@ function onPendingPointerMove(pointerEvent: PointerEvent): void {
   // `pointerup` reports the last button. Without this check, the candidate stays
   // armed and blocks every later `pointerdown` until a move with `buttons === 0`
   // clears it.
-  if (pointerEvent.buttons % 2 === 0) {
+  if (!isPrimaryHeld(pointerEvent)) {
     clearPending(true);
     return;
   }
@@ -827,7 +832,7 @@ function onPendingPointerUp(pointerEvent: PointerEvent): void {
   }
   // Safari can misreport `button` on a quick release. Ignore a non-primary
   // release only while `buttons` confirms that the primary is still held.
-  if (pointerEvent.button !== 0 && pointerEvent.buttons % 2 !== 0) {
+  if (pointerEvent.button !== 0 && isPrimaryHeld(pointerEvent)) {
     return;
   }
   // A clean release without a drag frees the contextmenu suppression (see `clearPending`).
@@ -1317,7 +1322,7 @@ function onActivePointerMove(pointerEvent: PointerEvent): void {
   // `pointerup` reports the last button, which `onActivePointerUp` ignores. The
   // user lifted the primary button on purpose, so this drops at the current
   // position instead of canceling.
-  if (active.heldPointer && pointerEvent.buttons % 2 === 0) {
+  if (active.heldPointer && !isPrimaryHeld(pointerEvent)) {
     dropActiveAtPointer(pointerEvent);
     return;
   }
@@ -1342,7 +1347,7 @@ function onActivePointerUp(pointerEvent: PointerEvent): void {
     return;
   }
   // See `onPendingPointerUp` for the `buttons` fallback.
-  if (pointerEvent.button !== 0 && pointerEvent.buttons % 2 !== 0) {
+  if (pointerEvent.button !== 0 && isPrimaryHeld(pointerEvent)) {
     return;
   }
   dropActiveAtPointer(pointerEvent);

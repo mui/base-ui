@@ -150,7 +150,7 @@ export function createPreviewAndStartSession(
     preview.markSourceDragging();
     // Publish before the session starts. The lifecycle dispatches
     // `onGenerateDragPreview` synchronously from `start()`, and the React layer
-    // reads the preview host from this slot while handling it.
+    // reads the custom preview content from this slot while handling it.
     setActivePreviewHandle(preview);
     dragRootLock.lock(element);
     locked = true;

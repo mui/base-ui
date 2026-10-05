@@ -8,7 +8,7 @@ import {
   isCopiedNode,
 } from './previewContent';
 import type { PreviewContent, PreviewContentCopy } from './previewContent';
-import { getOrCreate } from '../utils';
+import { getOrCreate, getSubtreeElements } from '../utils';
 
 export interface PreviewContentUpdateCallbacks {
   /**
@@ -79,10 +79,7 @@ export function updatePreviewContent(
 
   // A new id can be referenced from anywhere in the copy, so it remaps the whole copy.
   // Otherwise only the new nodes need it.
-  const remapped =
-    copy.sanitizer.rewrittenIdCount === idsBefore
-      ? added
-      : [root, ...Array.from(root.querySelectorAll('*'))];
+  const remapped = copy.sanitizer.rewrittenIdCount === idsBefore ? added : getSubtreeElements(root);
   for (const element of remapped) {
     copy.sanitizer.remapReferences(element);
   }

@@ -84,16 +84,16 @@ export interface DraggableStaticSetup {
  * changes without re-registration.
  */
 export function applyDraggableStaticSetup(
-  parameters: Pick<DraggableConfig, 'element' | 'handle' | 'disabled'>,
+  element: HTMLElement,
+  initial: Pick<DraggableConfig<any, any>, 'handle' | 'disabled'>,
 ): DraggableStaticSetup {
-  const { element } = parameters;
   /**
    * The node that gets the gesture styles. It is the handle when there is one,
    * otherwise the element, and none while disabled.
    */
   const resolveGestureElement = (latest: Pick<DraggableConfig<any, any>, 'handle' | 'disabled'>) =>
     latest.disabled ? null : ((resolveDragHandle(latest) as HTMLElement | null) ?? element);
-  let appliedElement = resolveGestureElement(parameters);
+  let appliedElement = resolveGestureElement(initial);
   let releaseSetup = applyGestureSetup(appliedElement);
   let released = false;
 
@@ -132,11 +132,7 @@ export function registerDraggableElement(
 ): DragCleanupFn {
   // Static DOM setup, read at registration. The pointer sensor bound below
   // refreshes it from the live registration on each press.
-  const staticSetup = applyDraggableStaticSetup({
-    element,
-    handle: initial.handle,
-    disabled: initial.disabled,
-  });
+  const staticSetup = applyDraggableStaticSetup(element, initial);
   const unregister = addDraggableRegistration(element, getParameters, staticSetup.refresh);
   retargetEndingPreviewSource(element, getPreviewSourceIdentity(initial));
   const unbindSensors = bindPointerListeners(element);

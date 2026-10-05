@@ -117,8 +117,8 @@ export function createRegisterSource(
  * Returns the registration function `Draggable.Root` calls, bound to the nearest
  * `Draggable.Provider` and CSP context. It is stable across renders.
  *
- * It lives apart from `useManager`, which adds the drop-target and monitor
- * registrations, so those stay out of every bundle that contains a `Draggable.Root`.
+ * It lives apart from `useManager`, which adds the stateless registrations, so the
+ * auto-scroller stays out of every bundle that contains a `Draggable.Root`.
  */
 export function useRegisterSource(): ReturnType<typeof createRegisterSource> {
   const previewContext = useDraggableContext();

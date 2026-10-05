@@ -1,11 +1,11 @@
 /**
  * The engine's stateless registration functions.
  *
- * They live apart from `createRegisterSource` because drop targets, monitors and
- * auto-scrollers need none of its preview wiring or draggable static setup.
- * Importing them from here keeps the preview clone and the pointer sensor out of
- * the bundle for `Draggable.Target`, `Draggable.Viewport` and `useMonitor`, so an
- * app that only accepts drops doesn't pay for them.
+ * They live apart from `createRegisterSource` because drop targets and monitors
+ * need none of its preview wiring or draggable static setup. Importing them from
+ * here keeps the preview clone and the pointer sensor out of the bundle for
+ * `Draggable.Target` and `useMonitor`, so an app that only accepts drops doesn't
+ * pay for them. `registerViewport` lives in `autoScroller.ts` for the same reason.
  *
  * They carry no per-instance state, so they are plain functions. The engine
  * re-exposes them as methods.
@@ -17,7 +17,6 @@ import {
   removeDropTargetRegistration,
   retainRetiringDropTarget,
 } from './dropTarget';
-import { addScrollerRegistration } from './autoScroller';
 import { addMonitor, removeMonitor } from './monitor';
 import {
   isActive,
@@ -27,7 +26,6 @@ import {
 } from './core/lifecycleManager';
 import { dragSessionStore } from './dragSessionStore';
 import type {
-  RegisterViewportParameters,
   RegisterMonitorParameters,
   DragParametersWithInferredAccept,
 } from './registrationTypes';
@@ -144,19 +142,6 @@ export function registerTarget<
       }
     });
   });
-}
-
-// The type argument is the `accept` value, like in every other API that takes `accept`.
-export function registerViewport<
-  TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>,
->(
-  element: HTMLElement,
-  getParameters: () => DragParametersWithInferredAccept<
-    RegisterViewportParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
-    TAccept
-  >,
-): DragCleanupFn {
-  return addScrollerRegistration(element, getParameters);
 }
 
 // The type argument is the `accept` value, like in every other API that takes `accept`.
