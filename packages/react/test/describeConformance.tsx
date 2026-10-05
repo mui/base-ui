@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { ConformanceOptions, MuiRenderResult, RenderOptions } from '@mui/internal-test-utils';
+import type { MuiRenderResult, RenderOptions } from '@mui/internal-test-utils';
 import { createDescribe } from '@mui/internal-test-utils';
 import { testPropForwarding } from './conformanceTests/propForwarding';
 import { testRefForwarding } from './conformanceTests/refForwarding';
@@ -16,10 +16,12 @@ export type ConformantComponentProps = {
   nativeButton?: boolean;
 };
 
-export interface BaseUiConformanceTestsOptions extends Omit<
-  Partial<ConformanceOptions>,
-  'render' | 'mount' | 'skip' | 'classes'
-> {
+/**
+ * Options read by the Base UI conformance suites.
+ * Declared explicitly (rather than derived from MUI's `ConformanceOptions`) so options that no
+ * suite reads fail typechecking instead of silently doing nothing.
+ */
+export interface BaseUiConformanceTestsOptions {
   render: (
     element: React.ReactElement<
       ConformantComponentProps,
@@ -27,8 +29,19 @@ export interface BaseUiConformanceTestsOptions extends Omit<
     >,
     options?: RenderOptions | undefined,
   ) => Promise<BaseUIRenderResult> | MuiRenderResult;
-  skip?: (keyof typeof fullSuite)[];
+  /**
+   * The constructor the forwarded ref is expected to be an instance of.
+   */
+  refInstanceof: abstract new (...args: any[]) => unknown;
+  /**
+   * The element the render-prop and prop-forwarding tests render in place of the default one.
+   * Rendering a `button` also sets `nativeButton` on components that accept it.
+   * @default 'div'
+   */
   testRenderPropWith?: keyof React.JSX.IntrinsicElements;
+  /**
+   * Whether the component accepts the `nativeButton` prop.
+   */
   button?: boolean;
   /**
    * Whether the component is allowed to be wrapped by an extra element for testing.
@@ -37,30 +50,14 @@ export interface BaseUiConformanceTestsOptions extends Omit<
   wrappingAllowed?: boolean;
 }
 
-const fullSuite = {
-  propsSpread: testPropForwarding,
-  refForwarding: testRefForwarding,
-  renderProp: testRenderProp,
-  className: testClassName,
-};
-
 function describeConformanceFn(
   minimalElement: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
-  const { after: runAfterHook = () => {}, only = Object.keys(fullSuite), skip = [] } = getOptions();
-
-  const filteredTests = Object.keys(fullSuite).filter(
-    (testKey) =>
-      only.indexOf(testKey) !== -1 && skip.indexOf(testKey as keyof typeof fullSuite) === -1,
-  ) as (keyof typeof fullSuite)[];
-
-  afterAll(runAfterHook);
-
-  filteredTests.forEach((testKey) => {
-    const test = fullSuite[testKey];
-    test(minimalElement, getOptions as any);
-  });
+  testPropForwarding(minimalElement, getOptions);
+  testRefForwarding(minimalElement, getOptions);
+  testRenderProp(minimalElement, getOptions);
+  testClassName(minimalElement, getOptions);
 }
 
 export const describeConformance = createDescribe('Base UI component API', describeConformanceFn);

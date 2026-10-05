@@ -13,6 +13,7 @@ import {
 import {
   createRenderer,
   isJSDOM,
+  isScrollLocked,
   popupConformanceTests,
   popupListConformanceTests,
 } from '#test-utils';
@@ -182,6 +183,9 @@ describe('<Combobox.Root />', () => {
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
     combobox: true,
+    openReason: REASONS.inputPress,
+    // The `popup` props go to the List (it carries the listbox role), which has no exit state.
+    exitAnimation: false,
   });
 
   popupListConformanceTests({
@@ -1180,7 +1184,7 @@ describe('<Combobox.Root />', () => {
       </Combobox.Root>,
     );
 
-    rerender(
+    await rerender(
       <Combobox.Root items={undefined} defaultOpen>
         <Combobox.Input />
         <Combobox.Portal>
@@ -1193,7 +1197,7 @@ describe('<Combobox.Root />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.getByRole('combobox')).not.toBe(null);
+    expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('hides the trigger when popup is open with input outside the popup', async () => {
@@ -3679,8 +3683,10 @@ describe('<Combobox.Root />', () => {
 
         await user.click(screen.getByTestId('set-external'));
         await waitFor(() => {
-          expect(screen.queryByRole('listbox')).toBe(null);
           expect(screen.getByTestId('selected-index').textContent).toBe('2');
+        });
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
         });
 
         await user.click(input);
@@ -4452,13 +4458,13 @@ describe('<Combobox.Root />', () => {
   });
 
   it.each([
-    { lockState: 'readOnly', label: 'inside Field', withField: true },
-    { lockState: 'disabled', label: 'inside Field', withField: true },
-    { lockState: 'readOnly', label: 'outside Field', withField: false },
-    { lockState: 'disabled', label: 'outside Field', withField: false },
+    { lockState: 'readOnly', label: 'inside Field', withField: true, expectedError: 'test' },
+    { lockState: 'disabled', label: 'inside Field', withField: true, expectedError: 'test' },
+    { lockState: 'readOnly', label: 'outside Field', withField: false, expectedError: null },
+    { lockState: 'disabled', label: 'outside Field', withField: false, expectedError: null },
   ] as const)(
     'ignores hidden-input autofill when $lockState $label',
-    async ({ lockState, withField }) => {
+    async ({ lockState, withField, expectedError }) => {
       const onValueChange = vi.fn();
       const onInputValueChange = vi.fn();
       const combobox = (
@@ -4501,11 +4507,7 @@ describe('<Combobox.Root />', () => {
         .getAllByDisplayValue('')
         .find((el) => el.getAttribute('name') === 'test') as HTMLInputElement;
       expect(hiddenInput).not.toBeUndefined();
-
-      // Only the Field wrapper renders an error.
-      const expectedError = withField ? 'test' : undefined;
-
-      expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
+      expect(screen.queryByTestId('error')?.textContent ?? null).toBe(expectedError);
 
       fireEvent.change(hiddenInput, { target: { value: 'b' } });
       await flushMicrotasks();
@@ -4514,8 +4516,7 @@ describe('<Combobox.Root />', () => {
       expect(onInputValueChange).not.toHaveBeenCalled();
       expect(visibleInput.value).toBe('');
       expect(hiddenInput.value).toBe('');
-
-      expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
+      expect(screen.queryByTestId('error')?.textContent ?? null).toBe(expectedError);
     },
   );
 
@@ -4558,9 +4559,9 @@ describe('<Combobox.Root />', () => {
     expect(screen.getByRole('option', { name: 'c' })).not.toBe(null);
   });
 
-  it('shows all items when opening after browser autofill with insertReplacementText', async () => {
+  it('does not open the popup on browser autofill with insertReplacementText', async () => {
     const items = ['a', 'b', 'c'];
-    const { user } = await render(
+    await render(
       <Combobox.Root name="test" items={items}>
         <Combobox.Input />
         <Combobox.Portal>
@@ -4581,20 +4582,12 @@ describe('<Combobox.Root />', () => {
 
     const input = screen.getByRole('combobox');
 
-    fireEvent.input(
-      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'test')!,
-      { target: { value: 'b' }, inputType: 'insertReplacementText' },
-    );
+    // Firefox reports autofill on the visible input as `insertReplacementText`.
+    fireEvent.input(input, { target: { value: 'b' }, inputType: 'insertReplacementText' });
     await flushMicrotasks();
 
-    await user.click(input);
-
-    await waitFor(() => {
-      expect(screen.getByRole('listbox')).not.toBe(null);
-    });
-    expect(screen.getByRole('option', { name: 'a' })).not.toBe(null);
-    expect(screen.getByRole('option', { name: 'b' })).not.toBe(null);
-    expect(screen.getByRole('option', { name: 'c' })).not.toBe(null);
+    expect(input).toHaveValue('b');
+    expect(screen.queryByRole('listbox')).toBe(null);
   });
 
   it('should handle browser autofill with object values', async () => {
@@ -5073,12 +5066,7 @@ describe('<Combobox.Root />', () => {
         await screen.findByRole('listbox');
 
         await waitFor(() => {
-          const isScrollLocked =
-            trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
-            trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            trigger.ownerDocument.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(true);
+          expect(isScrollLocked(trigger.ownerDocument)).toBe(true);
         });
       });
 
@@ -5112,12 +5100,7 @@ describe('<Combobox.Root />', () => {
           });
         });
 
-        const isScrollLocked =
-          trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
-          trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-          trigger.ownerDocument.body.style.overflow === 'hidden';
-
-        expect(isScrollLocked).toBe(false);
+        expect(isScrollLocked(trigger.ownerDocument)).toBe(false);
       });
     });
   });
@@ -8756,7 +8739,7 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: openOnInputClick', () => {
-    it('opens on input click by default', async () => {
+    it('keeps the popup open on a second input click by default', async () => {
       const { user } = await render(
         <Combobox.Root>
           <Combobox.Input data-testid="input" />
@@ -9930,12 +9913,14 @@ describe('<Combobox.Root />', () => {
         expect(input).toHaveAttribute('aria-activedescendant', typeScriptOption.id);
       });
 
+      expect(typeScriptOption).toHaveAttribute('aria-selected', 'true');
+
       await user.keyboard('{Enter}');
 
       await waitFor(() => {
         expect(typeScriptOption).toHaveAttribute('aria-selected', 'false');
-        expect(input).toHaveAttribute('aria-activedescendant', typeScriptOption.id);
       });
+      expect(input).toHaveAttribute('aria-activedescendant', typeScriptOption.id);
     });
 
     it('continues ArrowDown navigation from the Enter-selected item (multiple mode)', async () => {
@@ -10794,91 +10779,6 @@ describe('<Combobox.Root />', () => {
     });
   });
 
-  describe('prop: defaultOpen', () => {
-    it('opens by default', async () => {
-      await render(
-        <Combobox.Root defaultOpen>
-          <Combobox.Input />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value="a">a</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      expect(screen.getByRole('listbox')).not.toBe(null);
-    });
-
-    it('remains uncontrolled (can be closed via interaction)', async () => {
-      const { user } = await render(
-        <Combobox.Root defaultOpen>
-          <Combobox.Input data-testid="input" />
-          <Combobox.Trigger>Open</Combobox.Trigger>
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value="a">a</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      expect(screen.getByRole('listbox')).not.toBe(null);
-
-      await user.click(document.body);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).toBe(null);
-      });
-    });
-
-    it('is overridden by controlled open={false}', async () => {
-      await render(
-        <Combobox.Root defaultOpen open={false}>
-          <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value="a">a</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      expect(screen.queryByRole('listbox')).toBe(null);
-    });
-
-    it('respects controlled open={true}', async () => {
-      await render(
-        <Combobox.Root defaultOpen open>
-          <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value="a">a</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      expect(screen.getByRole('listbox')).not.toBe(null);
-    });
-  });
-
   describe('prop: limit', () => {
     it('keeps the selected index unset when the selected item is outside the rendered limit', async () => {
       const items = ['apple', 'banana', 'cherry', 'date'];
@@ -11685,26 +11585,25 @@ describe('<Combobox.Root />', () => {
         const apple = screen.getByRole('option', { name: 'Apple' });
 
         await waitFor(() => {
-          expect(apple).toHaveAttribute('data-highlighted');
           expect(input).toHaveAttribute('aria-activedescendant', apple.id);
         });
+        expect(apple).toHaveAttribute('data-highlighted');
 
         const done = screen.getByRole('button', { name: 'Done' });
         fireEvent.blur(input, { relatedTarget: done });
         fireEvent.focus(done);
+        await flushMicrotasks();
 
-        await waitFor(() => {
-          expect(input).not.toHaveAttribute('aria-activedescendant');
-          expect(apple).not.toHaveAttribute('data-highlighted');
-        });
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+        expect(apple).not.toHaveAttribute('data-highlighted');
 
         fireEvent.blur(done, { relatedTarget: input });
         fireEvent.focus(input);
 
         await waitFor(() => {
-          expect(apple).toHaveAttribute('data-highlighted');
           expect(input).toHaveAttribute('aria-activedescendant', apple.id);
         });
+        expect(apple).toHaveAttribute('data-highlighted');
       });
     });
   });
@@ -12350,12 +12249,10 @@ describe('<Combobox.Root />', () => {
       const label = screen.getByTestId<HTMLLabelElement>('label');
       const trigger = screen.getByTestId('trigger');
 
-      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('id', 'x-id');
         expect(trigger).toHaveAttribute('aria-labelledby', label.id);
       });
-      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
+      expect(trigger).toHaveAttribute('id', 'x-id');
     });
 
     it('does not apply validation ARIA attributes to input inside popup', async () => {
@@ -12427,12 +12324,10 @@ describe('<Combobox.Root />', () => {
       const label = screen.getByTestId<HTMLDivElement>('label');
       const trigger = screen.getByTestId('trigger');
 
-      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('id', 'x-id');
         expect(trigger).toHaveAttribute('aria-labelledby', label.id);
       });
-      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
+      expect(trigger).toHaveAttribute('id', 'x-id');
     });
 
     it('Combobox.Label focuses trigger without opening when input is inside popup', async () => {
@@ -13216,6 +13111,9 @@ describe('<Combobox.Root />', () => {
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{Enter}');
 
+      // Selecting an item must not validate until the input is blurred.
+      expect(input).not.toHaveAttribute('aria-invalid');
+
       fireEvent.blur(input);
 
       await flushMicrotasks();
@@ -13278,9 +13176,9 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      await waitFor(() => {
-        expect(screen.getByTestId('input')).not.toHaveAttribute('aria-labelledby');
-      });
+      // Label registration runs in effects inside the awaited, act-wrapped render, so any
+      // fallback would already be set here.
+      expect(screen.getByTestId('input')).not.toHaveAttribute('aria-labelledby');
     });
 
     it('updates Combobox.Label linkage when root id changes', async () => {
@@ -13300,15 +13198,13 @@ describe('<Combobox.Root />', () => {
 
       await setProps({ id: 'second' });
 
-      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
+      const trigger = screen.getByTestId('trigger');
+
       await waitFor(() => {
-        const label = screen.getByTestId('label');
-        const trigger = screen.getByTestId('trigger');
-        expect(trigger).toHaveAttribute('id', 'second');
-        expect(label.id).toBe('second-label');
-        expect(trigger).toHaveAttribute('aria-labelledby', label.id);
+        expect(trigger).toHaveAttribute('aria-labelledby', 'second-label');
       });
-      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
+      expect(trigger).toHaveAttribute('id', 'second');
+      expect(screen.getByTestId('label')).toHaveAttribute('id', 'second-label');
     });
 
     it('Field.Description', async () => {
@@ -13666,10 +13562,8 @@ describe('<Combobox.Root />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
-        expect(screen.getByRole('option', { name: 'United States' })).not.toBe(null);
-      });
+      await screen.findByRole('option', { name: 'Canada' });
+      expect(screen.getByRole('option', { name: 'United States' })).toBeInTheDocument();
     });
   });
 
@@ -14210,7 +14104,7 @@ describe('<Combobox.Root />', () => {
     it('ignores scalar browser autofill in multiple mode', async () => {
       const onValueChange = vi.fn();
       await render(
-        <Combobox.Root multiple onValueChange={onValueChange}>
+        <Combobox.Root multiple items={['apple']} onValueChange={onValueChange}>
           <Combobox.Input data-testid="visible-input" />
         </Combobox.Root>,
       );

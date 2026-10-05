@@ -91,6 +91,9 @@ describe('visual regressions', () => {
   });
 
   routes.forEach((route: string, index: number) => {
+    // These tests only generate screenshots for the visual regression service to compare,
+    // so they have no assertions, and the route list is built at runtime.
+    // eslint-disable-next-line base-ui-test/no-tests-in-foreach
     it(
       `creates screenshots of ${route}`,
       // With the playwright inspector we might want to call `page.pause` which would lead to a timeout.

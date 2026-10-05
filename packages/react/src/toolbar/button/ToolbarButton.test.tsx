@@ -32,7 +32,7 @@ describe('<Toolbar.Button />', () => {
 
   describeConformance(<Toolbar.Button />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render: (node) => {
       return render(
@@ -44,18 +44,6 @@ describe('<Toolbar.Button />', () => {
       );
     },
   }));
-
-  describe('ARIA attributes', () => {
-    it('renders a button', async () => {
-      await render(
-        <Toolbar.Root>
-          <Toolbar.Button data-testid="button" />
-        </Toolbar.Root>,
-      );
-
-      expect(screen.getByTestId('button')).toBe(screen.getByRole('button'));
-    });
-  });
 
   describe('prop: nativeButton', () => {
     it('custom element: dispatches real clicks from Space keyboard activation', async () => {
@@ -679,10 +667,9 @@ describe('<Toolbar.Button />', () => {
       });
 
       it('prevents composite keydowns from escaping', async () => {
-        const onOpenChange = vi.fn();
         const { user } = await render(
           <Toolbar.Root>
-            <Dialog.Root modal={false} onOpenChange={onOpenChange}>
+            <Dialog.Root modal={false}>
               <Toolbar.Button render={<Dialog.Trigger />}>dialog</Toolbar.Button>
               <Dialog.Portal>
                 <Dialog.Popup />
@@ -704,106 +691,18 @@ describe('<Toolbar.Button />', () => {
 
         await user.keyboard('{ArrowRight}');
 
-        expect(onOpenChange).toHaveBeenLastCalledWith(true, expect.anything());
+        expect(screen.getByRole('dialog')).toHaveFocus();
+        expect(screen.getByRole('button', { name: 'empty' })).not.toHaveFocus();
       });
     });
 
     describe('AlertDialog', () => {
-      it('renders an alert dialog trigger', async () => {
-        await render(
+      // AlertDialog.Trigger is Dialog.Trigger, so rendering, interactions and the disabled state are
+      // covered by the Dialog block. This keeps the modal case, where focus moves into a modal popup.
+      it('prevents composite keydowns from escaping', async () => {
+        const { user } = await render(
           <Toolbar.Root>
             <AlertDialog.Root>
-              <Toolbar.Button render={<AlertDialog.Trigger data-testid="trigger" />} />
-              <AlertDialog.Portal>
-                <AlertDialog.Backdrop />
-                <AlertDialog.Popup>
-                  <AlertDialog.Title>title text</AlertDialog.Title>
-                </AlertDialog.Popup>
-              </AlertDialog.Portal>
-            </AlertDialog.Root>
-          </Toolbar.Root>,
-        );
-
-        expect(screen.getByTestId('trigger')).toBe(screen.getByRole('button'));
-      });
-
-      it('handles interactions', async () => {
-        const onOpenChange = vi.fn();
-        const { user } = await render(
-          <Toolbar.Root>
-            <AlertDialog.Root onOpenChange={onOpenChange}>
-              <Toolbar.Button render={<AlertDialog.Trigger />} />
-              <AlertDialog.Portal>
-                <AlertDialog.Backdrop />
-                <AlertDialog.Popup>
-                  <AlertDialog.Title>title text</AlertDialog.Title>
-                </AlertDialog.Popup>
-              </AlertDialog.Portal>
-            </AlertDialog.Root>
-          </Toolbar.Root>,
-        );
-
-        expect(screen.queryByText('title text')).toBe(null);
-
-        const trigger = screen.getByRole('button');
-        await user.keyboard('[Tab]');
-        expect(trigger).toHaveFocus();
-        expect(onOpenChange).toHaveBeenCalledTimes(0);
-
-        await user.keyboard('[Enter]');
-        expect(screen.queryByText('title text')).not.toBe(null);
-        expect(onOpenChange).toHaveBeenCalledTimes(1);
-        expect(onOpenChange).toHaveBeenNthCalledWith(1, true, expect.anything());
-
-        await user.keyboard('[Escape]');
-        expect(screen.queryByText('title text')).toBe(null);
-        expect(onOpenChange).toHaveBeenCalledTimes(2);
-        expect(onOpenChange).toHaveBeenNthCalledWith(2, false, expect.anything());
-
-        await waitFor(() => {
-          expect(trigger).toHaveFocus();
-        });
-      });
-
-      it('disabled state', async () => {
-        const onOpenChange = vi.fn();
-        const { user } = await render(
-          <Toolbar.Root>
-            <AlertDialog.Root onOpenChange={onOpenChange}>
-              <Toolbar.Button disabled render={<AlertDialog.Trigger />} />
-              <AlertDialog.Portal>
-                <AlertDialog.Backdrop />
-                <AlertDialog.Popup>
-                  <AlertDialog.Title>title text</AlertDialog.Title>
-                </AlertDialog.Popup>
-              </AlertDialog.Portal>
-            </AlertDialog.Root>
-          </Toolbar.Root>,
-        );
-
-        expect(screen.queryByText('title text')).toBe(null);
-
-        const trigger = screen.getByRole('button');
-        expect(trigger).not.toHaveAttribute('disabled');
-        expect(trigger).toHaveAttribute('data-disabled');
-        expect(trigger).toHaveAttribute('aria-disabled', 'true');
-
-        await user.keyboard('[Tab]');
-        expect(trigger).toHaveFocus();
-        expect(onOpenChange).toHaveBeenCalledTimes(0);
-
-        await user.keyboard('[Enter]');
-        await user.keyboard('[Space]');
-        await user.keyboard('[ArrowUp]');
-        await user.keyboard('[ArrowDown]');
-        expect(onOpenChange).toHaveBeenCalledTimes(0);
-      });
-
-      it('prevents composite keydowns from escaping', async () => {
-        const onOpenChange = vi.fn();
-        const { user } = await render(
-          <Toolbar.Root>
-            <AlertDialog.Root onOpenChange={onOpenChange}>
               <Toolbar.Button render={<AlertDialog.Trigger />}>dialog</Toolbar.Button>
               <AlertDialog.Portal>
                 <AlertDialog.Popup />
@@ -814,7 +713,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(screen.queryByRole('alertdialog')).toBe(null);
 
         const trigger = screen.getByRole('button', { name: 'dialog' });
         await user.click(trigger);
@@ -825,7 +724,8 @@ describe('<Toolbar.Button />', () => {
 
         await user.keyboard('{ArrowRight}');
 
-        expect(onOpenChange).toHaveBeenLastCalledWith(true, expect.anything());
+        expect(screen.getByRole('alertdialog')).toHaveFocus();
+        expect(screen.getByRole('button', { name: 'empty', hidden: true })).not.toHaveFocus();
       });
     });
 
