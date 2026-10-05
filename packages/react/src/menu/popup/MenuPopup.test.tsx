@@ -132,6 +132,70 @@ describe('<Menu.Popup />', () => {
     await waitFor(() => expect(one).toHaveFocus());
   });
 
+  it('moves focus into the items when the boundary item is already highlighted', async () => {
+    const { user } = await render(
+      <Menu.Root>
+        <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <a href="#profile">Profile</a>
+              <Menu.Item>One</Menu.Item>
+              <Menu.Item>Two</Menu.Item>
+              <Menu.Item>Three</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await act(async () => screen.getByRole('button', { name: 'Open' }).focus());
+    await user.keyboard('[Enter]');
+
+    const one = await screen.findByRole('menuitem', { name: 'One' });
+    await waitFor(() => expect(one).toHaveAttribute('data-highlighted'));
+    await act(async () => screen.getByRole('link', { name: 'Profile' }).focus());
+    expect(one).toHaveAttribute('data-highlighted');
+
+    await user.keyboard('[ArrowDown]');
+    await waitFor(() => expect(one).toHaveFocus());
+
+    await user.keyboard('[ArrowDown]');
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
+  });
+
+  it('moves focus into the items when the last item is already highlighted', async () => {
+    const { user } = await render(
+      <Menu.Root>
+        <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <a href="#profile">Profile</a>
+              <Menu.Item>One</Menu.Item>
+              <Menu.Item>Two</Menu.Item>
+              <Menu.Item>Three</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await act(async () => screen.getByRole('button', { name: 'Open' }).focus());
+    await user.keyboard('[ArrowUp]');
+
+    const three = await screen.findByRole('menuitem', { name: 'Three' });
+    await waitFor(() => expect(three).toHaveAttribute('data-highlighted'));
+    await act(async () => screen.getByRole('link', { name: 'Profile' }).focus());
+    expect(three).toHaveAttribute('data-highlighted');
+
+    await user.keyboard('[ArrowUp]');
+    await waitFor(() => expect(three).toHaveFocus());
+
+    await user.keyboard('[ArrowUp]');
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
+  });
+
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
       await render(
