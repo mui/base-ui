@@ -48,6 +48,9 @@ function getBrowserConfig(): BrowserModeConfig {
 
 const config: UserWorkspaceConfig = {
   test: {
+    sequence: {
+      hooks: 'list',
+    },
     exclude: ['node_modules', 'build', '**/*.spec.*'],
     globals: true,
     setupFiles: [resolve(WORKSPACE_ROOT, './test/setupVitest.ts')],

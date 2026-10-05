@@ -7,9 +7,6 @@ const WORKSPACE_ROOT = resolve(CURRENT_DIR, './');
 
 export default defineConfig({
   test: {
-    sequence: {
-      hooks: 'list',
-    },
     projects: [
       'packages/*/vitest.config.mts',
       'docs/vitest.config.mts',
@@ -23,7 +20,7 @@ export default defineConfig({
       provider: 'istanbul',
       reporter: [['text', { maxCols: 200 }], 'lcov'],
       reportsDirectory: resolve(WORKSPACE_ROOT, 'coverage'),
-      include: ['packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx'],
+      include: ['src/**/*.ts', 'src/**/*.tsx', 'packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx'],
       exclude: ['**/*.test.{js,ts,tsx}', '**/*.test/*'],
     },
   },

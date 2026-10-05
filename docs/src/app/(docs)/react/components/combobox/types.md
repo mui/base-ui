@@ -41,7 +41,7 @@ Doesn't render its own HTML element.
 | loopFocus            | `boolean`                                                                                             | `true`  | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | modal                | `boolean`                                                                                             | `false` | Determines if the popup enters a modal state when open. `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | multiple             | `boolean`                                                                                             | `false` | Whether multiple items can be selected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| onItemHighlighted    | `((highlightedValue: Value \| undefined, eventDetails: Combobox.Root.HighlightEventDetails) => void)` | -       | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as `autoHighlight`, the item&#xA;list changing, or the popup opening or closing.                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| onItemHighlighted    | `((highlightedValue: Value \| undefined, eventDetails: Combobox.Root.HighlightEventDetails) => void)` | -       | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`&#xA;rather than a `PointerEvent`.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the&#xA;item list changing, or the popup opening or closing.                                                                                                                                                                                                                                                                                                                                                                                    |
 | onOpenChangeComplete | `((open: boolean) => void)`                                                                           | -       | Event handler called after any animations complete when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | openOnInputClick     | `boolean`                                                                                             | `true`  | Whether the popup opens when clicking the input.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | virtualized          | `boolean`                                                                                             | `false` | Whether the items are being externally virtualized.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
@@ -147,8 +147,8 @@ type ComboboxRootHighlightEventReason = 'keyboard' | 'pointer' | 'imperative-act
 type ComboboxRootHighlightEventDetails =
   | { reason: 'imperative-action'; event: Event; index: number }
   | { reason: 'none'; event: Event; index: number }
-  | { reason: 'keyboard'; event: KeyboardEvent; index: number }
-  | { reason: 'pointer'; event: PointerEvent; index: number };
+  | { reason: 'pointer'; event: MouseEvent | PointerEvent; index: number }
+  | { reason: 'keyboard'; event: KeyboardEvent; index: number };
 ```
 
 ### Root.HighlightItemTarget
@@ -757,24 +757,6 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Combobox.Group.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Group Data Attributes:**
-
-| Attribute        | Type                                                                               | Description                                                                        |
-| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
-| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid       | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
-| data-invalid     | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
-| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused     | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
-| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
-
 ### Group.Props
 
 Re-export of [Group](#group) props.
@@ -821,6 +803,12 @@ Renders a `<div>` element.
 | className   | `string \| ((state: Combobox.Separator.State) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style       | `React.CSSProperties \| ((state: Combobox.Separator.State) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render      | `ReactElement \| ((props: HTMLProps, state: Combobox.Separator.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Separator Data Attributes:**
+
+| Attribute        | Type                         | Description                                 |
+| :--------------- | :--------------------------- | :------------------------------------------ |
+| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the separator. |
 
 ### Separator.Props
 
@@ -1221,6 +1209,67 @@ type ReturnValue = T[];
 
 ## Additional Types
 
+### ComboboxArrowDataAttributes
+
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace ComboboxArrowDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
+```
+
+### ComboboxBackdropDataAttributes
+
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace ComboboxBackdropDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### ComboboxClearDataAttributes
+
+Data attributes of [Clear](#clear).
+
+```typescript
+declare namespace ComboboxClearDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the clear button is visible. */
+  const visible: 'data-visible';
+  /** Present when the button begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the button is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
 ### ComboboxFilter
 
 ```typescript
@@ -1256,10 +1305,260 @@ type ComboboxFilterOptions = {
 };
 ```
 
+### ComboboxInputDataAttributes
+
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace ComboboxInputDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the input is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the component is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the component is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the component is required. */
+  const required: 'data-required';
+  /** Present when the component is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the component is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the component has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the component's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the component has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the input is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the corresponding items list is empty. */
+  const listEmpty: 'data-list-empty';
+}
+```
+
+### ComboboxInputGroupDataAttributes
+
+Data attributes of [InputGroup](#inputgroup).
+
+```typescript
+declare namespace ComboboxInputGroupDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the input group is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the component is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the component is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the component is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the component is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the component has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the component's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the component has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the component is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the corresponding items list is empty. */
+  const listEmpty: 'data-list-empty';
+  /** Present when the combobox doesn't have a value. */
+  const placeholder: 'data-placeholder';
+}
+```
+
+### ComboboxItemDataAttributes
+
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace ComboboxItemDataAttributes {
+  /** Present when the item is selected. */
+  const selected: 'data-selected';
+  /** Present when the item is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the item is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### ComboboxItemIndicatorDataAttributes
+
+Data attributes of [ItemIndicator](#itemindicator).
+
+```typescript
+declare namespace ComboboxItemIndicatorDataAttributes {
+  /** Present when the indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### ComboboxPopupDataAttributes
+
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace ComboboxPopupDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the popup begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the popup is animating out. */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /** Present when the items list is empty. */
+  const empty: 'data-empty';
+}
+```
+
+### ComboboxPositionerCssVariables
+
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace ComboboxPositionerCssVariables {
+  /**
+   * The available width between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableWidth: '--available-width';
+  /**
+   * The available height between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableHeight: '--available-height';
+  /**
+   * The anchor's width.
+   * @type number
+   */
+  const anchorWidth: '--anchor-width';
+  /**
+   * The anchor's height.
+   * @type number
+   */
+  const anchorHeight: '--anchor-height';
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
+  const transformOrigin: '--transform-origin';
+}
+```
+
+### ComboboxPositionerDataAttributes
+
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace ComboboxPositionerDataAttributes {
+  /** Present when the popup is open. */
+  const open: 'data-open';
+  /** Present when the popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the items list is empty. */
+  const empty: 'data-empty';
+}
+```
+
 ### ComboboxPrimitiveValue
 
 ```typescript
 type ComboboxPrimitiveValue = string | number | bigint | boolean;
+```
+
+### ComboboxSeparatorDataAttributes
+
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace ComboboxSeparatorDataAttributes {
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
+### ComboboxTriggerDataAttributes
+
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace ComboboxTriggerDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the trigger is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the component is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the component is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the component is required. */
+  const required: 'data-required';
+  /** Present when the component is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the component is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the component has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the component's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the component has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the trigger is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the corresponding items list is empty. */
+  const listEmpty: 'data-list-empty';
+  /** Present when the combobox doesn't have a value. */
+  const placeholder: 'data-placeholder';
+}
 ```
 
 ### CreateComboboxItemsOptions
@@ -1354,7 +1653,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
 - `Combobox.createItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxItemCollection`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootHighlightItemTarget`, `ComboboxRootActions`, `ComboboxRootOpenChangeEventDetails`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`, `ComboboxSeparatorProps`, `ComboboxSeparatorState`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxItemCollection`, `ComboboxInputDataAttributes`, `ComboboxInputGroupDataAttributes`, `ComboboxTriggerDataAttributes`, `ComboboxBackdropDataAttributes`, `ComboboxPositionerCssVariables`, `ComboboxPositionerDataAttributes`, `ComboboxPopupDataAttributes`, `ComboboxArrowDataAttributes`, `ComboboxItemDataAttributes`, `ComboboxItemIndicatorDataAttributes`, `ComboboxClearDataAttributes`, `ComboboxSeparatorDataAttributes`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootHighlightItemTarget`, `ComboboxRootActions`, `ComboboxRootOpenChangeEventDetails`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`, `ComboboxSeparatorProps`, `ComboboxSeparatorState`
 
 ## Canonical Types
 

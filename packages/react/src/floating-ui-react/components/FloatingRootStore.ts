@@ -61,7 +61,7 @@ export class FloatingRootStore extends ReactStore<
   FloatingRootStoreContext,
   typeof selectors
 > {
-  private readonly syncOnly: boolean;
+  declare private readonly syncOnly: boolean;
 
   constructor(options: FloatingRootStoreOptions) {
     const { syncOnly, nested, onOpenChange, triggerElements, ...initialState } = options;
