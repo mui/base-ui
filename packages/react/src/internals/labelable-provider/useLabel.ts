@@ -36,11 +36,8 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
       return;
     }
 
-    const root = event.currentTarget.getRootNode();
-    const controlElement =
-      'getElementById' in root && typeof root.getElementById === 'function'
-        ? root.getElementById(resolvedControlId)
-        : null;
+    const root = event.currentTarget.getRootNode() as Document | ShadowRoot;
+    const controlElement = root.getElementById(resolvedControlId);
     if (isHTMLElement(controlElement)) {
       focusElementWithVisible(controlElement);
     }
