@@ -215,11 +215,55 @@ describe('<Combobox.Root />', () => {
     homeEnd: false,
     selectable: true,
     spaceActivates: false,
+    enterSpaceOpen: false,
+    typeahead: false,
+    modal: false,
+    triggerClickCloses: false,
     listEnd: 'escape',
     disabledItemNavigation: 'reachable',
   });
 
   describe('IME composition', () => {
+    // Browsers report keyCode 229 for every keydown an IME handles, including the committing Enter.
+    it('does not select the highlighted item with an Enter that commits IME text', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root items={['a', 'b', 'c']} onValueChange={onValueChange}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      const optionA = await screen.findByRole('option', { name: 'a' });
+      await waitFor(() => {
+        expect(optionA).toHaveAttribute('data-highlighted');
+      });
+
+      fireEvent.keyDown(input, { key: 'Enter', keyCode: 229, which: 229 });
+      await flushMicrotasks();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(optionA).toHaveAttribute('data-highlighted');
+    });
+
     it('does not move the highlight with arrow keys that pick an IME candidate', async () => {
       const { user } = await render(
         <Combobox.Root items={['a', 'b', 'c']}>

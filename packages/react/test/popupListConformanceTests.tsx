@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { Dialog } from '@base-ui/react/dialog';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM } from '@base-ui/utils/testUtils';
 import { resetBrowserPointer } from './resetBrowserPointer';
@@ -11,6 +12,7 @@ const ITEM_HEIGHT = 30;
 const SCROLLER_HEIGHT = 100;
 
 type User = Awaited<ReturnType<PopupListTestConfig['render']>>['user'];
+type RenderedElement = Parameters<PopupListTestConfig['render']>[0];
 
 /**
  * Behavior shared by popups that navigate a list of items (Select, Combobox, Menu). The
@@ -26,13 +28,24 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     homeEnd = true,
     selectable = false,
     spaceActivates = true,
+    enterSpaceOpen = true,
+    typeahead = true,
+    modal = true,
+    triggerClickCloses = true,
     listEnd,
     disabledItemNavigation,
   } = config;
 
-  function renderList(options: RenderListOptions = {}) {
-    const { root, items = ITEMS, disabledItems = [], onItemClick } = options;
-    return render(
+  function buildList(options: RenderListOptions): RenderedElement {
+    const {
+      root,
+      items = ITEMS,
+      disabledItems = [],
+      onItemClick,
+      onOutsideClick,
+      wrap = (node) => node,
+    } = options;
+    return wrap(
       <div>
         <button type="button" data-testid="before">
           Before
@@ -50,11 +63,19 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           },
           itemStyle: { height: ITEM_HEIGHT, boxSizing: 'border-box', margin: 0 },
         })}
-        <button type="button" data-testid="after">
+        <button type="button" data-testid="after" onClick={onOutsideClick}>
           After
         </button>
       </div>,
     );
+  }
+
+  function renderList(options: RenderListOptions = {}) {
+    return render(buildList(options));
+  }
+
+  function getTrigger() {
+    return screen.getByTestId('trigger');
   }
 
   function getItem(index: number) {
@@ -64,19 +85,22 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
   function getHighlightedIndex() {
     const highlighted = screen
       .queryAllByRole(itemRole)
-      .find((item) => item.hasAttribute('data-highlighted'));
-    return highlighted ? ITEMS.indexOf(highlighted.textContent ?? '') : -1;
+      .filter((item) => item.hasAttribute('data-highlighted'));
+    if (highlighted.length > 1) {
+      throw new Error(`Popup list conformance: ${highlighted.length} items are highlighted.`);
+    }
+    return highlighted.length ? ITEMS.indexOf(highlighted[0].textContent ?? '') : -1;
   }
 
   function getFocusOwner() {
     const active = document.activeElement;
-    if (active === screen.getByTestId('trigger')) {
+    if (active === getTrigger()) {
       return 'trigger';
     }
     if (screen.queryAllByRole(itemRole).some((item) => item.contains(active))) {
       return 'item';
     }
-    if (screen.getByTestId('popup').contains(active)) {
+    if (screen.queryByTestId('popup')?.contains(active)) {
       return 'popup';
     }
     return 'outside';
@@ -97,7 +121,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
   async function waitForOpen() {
     await waitFor(() => {
-      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'true');
+      expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
     });
     await waitFor(() => {
       expect(screen.getAllByRole(itemRole)[0]).toBeVisible();
@@ -108,12 +132,18 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
   async function waitForClosed() {
     await waitFor(() => {
-      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'false');
+      expect(getTrigger()).toHaveAttribute('aria-expanded', 'false');
+    });
+  }
+
+  async function focusTrigger() {
+    await act(async () => {
+      getTrigger().focus();
     });
   }
 
   async function openWithMouse(user: User) {
-    await user.click(screen.getByTestId('trigger'));
+    await user.click(getTrigger());
     await waitForOpen();
   }
 
@@ -121,28 +151,15 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     await focusTrigger();
     await user.keyboard('{ArrowDown}');
     await waitForOpen();
-
-    // Components differ on whether opening highlights an item; normalize to "something is
-    // highlighted" so the navigation tests can move relative to it.
-    if (getHighlightedIndex() === -1) {
-      await user.keyboard('{ArrowDown}');
-      await waitFor(() => {
-        expect(getHighlightedIndex()).not.toBe(-1);
-      });
-    }
-
-    return getHighlightedIndex();
-  }
-
-  async function focusTrigger() {
-    await act(async () => {
-      screen.getByTestId('trigger').focus();
+    await waitFor(() => {
+      expect(getHighlightedIndex()).not.toBe(-1);
     });
+    return getHighlightedIndex();
   }
 
   /** Real focus moves to the highlighted item, or stays on the trigger and points at it. */
   async function expectFocusOnItem(index: number) {
-    const trigger = screen.getByTestId('trigger');
+    const trigger = getTrigger();
     if (focusModel === 'virtual') {
       await waitFor(() => {
         expect(trigger).toHaveAttribute('aria-activedescendant', getItem(index).id);
@@ -152,6 +169,16 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       await waitFor(() => {
         expect(getItem(index)).toHaveFocus();
       });
+    }
+  }
+
+  /** Nothing is highlighted, and no element is announced as the active descendant either. */
+  async function expectNoHighlight() {
+    await waitFor(() => {
+      expect(getHighlightedIndex()).toBe(-1);
+    });
+    if (focusModel === 'virtual') {
+      expect(getTrigger()).not.toHaveAttribute('aria-activedescendant');
     }
   }
 
@@ -177,9 +204,28 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     });
   }
 
+  function createSpies() {
+    const activated: string[] = [];
+    const onValueChange = vi.fn();
+    return {
+      activated,
+      onValueChange,
+      options: {
+        root: selectable ? { onValueChange } : undefined,
+        onItemClick: (event: React.MouseEvent<HTMLElement>) => {
+          activated.push(event.currentTarget.textContent ?? '');
+        },
+      } satisfies RenderListOptions,
+      expectNothingCommitted() {
+        expect(activated).toEqual([]);
+        expect(onValueChange).not.toHaveBeenCalled();
+      },
+    };
+  }
+
   describe('Popup list conformance', () => {
     describe('pointer', () => {
-      it('highlights the hovered item', async () => {
+      it('highlights and focuses the hovered item', async () => {
         const { user } = await renderList();
         await openWithMouse(user);
 
@@ -188,10 +234,12 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         await waitFor(() => {
           expect(getHighlightedIndex()).toBe(2);
         });
+        await expectFocusOnItem(2);
       });
 
       it('clears the highlight when the pointer leaves the list without leaving focus on an item', async () => {
-        const { user } = await renderList();
+        const spies = createSpies();
+        const { user } = await renderList(spies.options);
         await openWithMouse(user);
 
         await user.hover(getItem(1));
@@ -201,13 +249,59 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
         await user.hover(screen.getByTestId('after'));
 
-        await waitFor(() => {
-          expect(getHighlightedIndex()).toBe(-1);
-        });
+        await expectNoHighlight();
         // A focused item that no longer looks highlighted would still respond to Enter.
         await waitFor(() => {
           expect(getFocusOwner()).toBe(focusModel === 'virtual' ? 'trigger' : 'popup');
         });
+        await user.keyboard('{Enter}');
+        await settle();
+        spies.expectNothingCommitted();
+      });
+
+      it('continues keyboard navigation from the hovered item', async () => {
+        const { user } = await renderList();
+        await openWithMouse(user);
+        await user.hover(getItem(4));
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(4);
+        });
+
+        await user.keyboard('{ArrowDown}');
+
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(5);
+        });
+        await expectFocusOnItem(5);
+      });
+
+      it('activates the hovered item with Enter', async () => {
+        const spies = createSpies();
+        const { user } = await renderList(spies.options);
+        await openWithMouse(user);
+        await user.hover(getItem(6));
+        await expectFocusOnItem(6);
+
+        await user.keyboard('{Enter}');
+
+        await waitForClosed();
+        expect(spies.activated).toEqual([ITEMS[6]]);
+        if (selectable) {
+          expect(spies.onValueChange.mock.calls.map(([value]) => value)).toEqual([ITEMS[6]]);
+        }
+      });
+
+      it('lets the pointer take the highlight back after keyboard navigation', async () => {
+        const { user } = await renderList();
+        const start = await openWithKeyboard(user);
+        await navigateTo(user, start, 3);
+
+        await user.hover(getItem(1));
+
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(1);
+        });
+        await expectFocusOnItem(1);
       });
 
       it('keeps the highlight when a touch scroll starts on the highlighted item', async () => {
@@ -240,6 +334,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           onItemClick,
         });
         await openWithMouse(user);
+        expect(getItem(1)).toHaveAttribute('aria-disabled', 'true');
 
         await user.hover(getItem(1));
         await user.keyboard('{Enter}');
@@ -253,7 +348,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
         expect(onItemClick).not.toHaveBeenCalled();
         expect(onValueChange).not.toHaveBeenCalled();
-        expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'true');
+        expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
         expect(getItem(1)).not.toHaveAttribute('data-selected');
 
         // An enabled item must reach the same callbacks, so disconnected handlers cannot pass.
@@ -263,6 +358,22 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           expect(onValueChange).toHaveBeenCalledTimes(1);
           expect(onValueChange.mock.calls[0][0]).toBe(ITEMS[2]);
         }
+      });
+
+      it('ignores right clicks on the trigger and on items', async () => {
+        const spies = createSpies();
+        const { user } = await renderList(spies.options);
+
+        await user.pointer({ keys: '[MouseRight]', target: getTrigger() });
+        await settle();
+        expect(getTrigger()).toHaveAttribute('aria-expanded', 'false');
+
+        await openWithMouse(user);
+        await user.pointer({ keys: '[MouseRight]', target: getItem(2) });
+        await settle();
+
+        expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
+        spies.expectNothingCommitted();
       });
 
       it.skipIf(isJSDOM)(
@@ -320,7 +431,34 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       );
     });
 
-    describe('keyboard', () => {
+    describe('opening', () => {
+      it('starts without a highlight after a pointer opening', async () => {
+        const { user } = await renderList();
+        await openWithMouse(user);
+
+        await expectNoHighlight();
+        expect(getFocusOwner()).toBe(focusModel === 'virtual' ? 'trigger' : 'popup');
+
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(0);
+        });
+        await expectFocusOnItem(0);
+      });
+
+      it('opens on the first item with ArrowDown', async () => {
+        const { user } = await renderList();
+        await focusTrigger();
+
+        await user.keyboard('{ArrowDown}');
+        await waitForOpen();
+
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(0);
+        });
+        await expectFocusOnItem(0);
+      });
+
       it('opens on the last item with ArrowUp', async () => {
         const { user } = await renderList();
         await focusTrigger();
@@ -331,6 +469,51 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         await waitFor(() => {
           expect(getHighlightedIndex()).toBe(ITEMS.length - 1);
         });
+        await expectFocusOnItem(ITEMS.length - 1);
+        if (!isJSDOM) {
+          await waitFor(() => {
+            expect(isFullyVisible(getItem(ITEMS.length - 1))).toBe(true);
+          });
+        }
+      });
+
+      it('opens past a disabled first item', async () => {
+        const { user } = await renderList({ disabledItems: [ITEMS[0]] });
+
+        const start = await openWithKeyboard(user);
+
+        expect(start).toBe(1);
+      });
+
+      if (enterSpaceOpen) {
+        it.each(['{Enter}', ' '])('opens with %s without activating an item', async (key) => {
+          const spies = createSpies();
+          const { user } = await renderList(spies.options);
+          await focusTrigger();
+
+          await user.keyboard(key);
+          await waitForOpen();
+          await settle();
+
+          expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
+          spies.expectNothingCommitted();
+          await waitFor(() => {
+            expect(getHighlightedIndex()).toBe(0);
+          });
+          await expectFocusOnItem(0);
+        });
+      }
+
+      it('starts fresh when reopened after Escape', async () => {
+        const { user } = await renderList();
+        const start = await openWithKeyboard(user);
+        await navigateTo(user, start, 7);
+        await user.keyboard('{Escape}');
+        await waitForClosed();
+
+        await openWithMouse(user);
+
+        await expectNoHighlight();
       });
 
       if (selectable) {
@@ -345,8 +528,30 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
             expect(getHighlightedIndex()).toBe(8);
           });
         });
-      }
 
+        it('marks only the selected item as selected', async () => {
+          const { user } = await renderList({ root: { defaultValue: ITEMS[8] } });
+          await openWithMouse(user);
+
+          expect(getItem(8)).toHaveAttribute('aria-selected', 'true');
+          expect(getItem(2)).toHaveAttribute('aria-selected', 'false');
+        });
+
+        it.skipIf(isJSDOM)('reveals and highlights the selected item when opening', async () => {
+          const { user } = await renderList({ root: { defaultValue: ITEMS[8] } });
+          await openWithMouse(user);
+
+          await waitFor(() => {
+            expect(isFullyVisible(getItem(8))).toBe(true);
+          });
+          await waitFor(() => {
+            expect(getHighlightedIndex()).toBe(8);
+          });
+        });
+      }
+    });
+
+    describe('keyboard', () => {
       it('moves the highlight one item at a time with the arrow keys', async () => {
         const { user } = await renderList();
         const start = await openWithKeyboard(user);
@@ -377,12 +582,8 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       it.each(spaceActivates ? ['{Enter}', ' '] : ['{Enter}'])(
         'activates the highlighted item once with %s',
         async (key) => {
-          const activated: string[] = [];
-          const onValueChange = vi.fn();
-          const { user } = await renderList({
-            root: selectable ? { onValueChange } : undefined,
-            onItemClick: (event) => activated.push(event.currentTarget.textContent ?? ''),
-          });
+          const spies = createSpies();
+          const { user } = await renderList(spies.options);
           const start = await openWithKeyboard(user);
           await user.keyboard('{ArrowDown}');
           await expectFocusOnItem(start + 1);
@@ -390,15 +591,50 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           await user.keyboard(key);
 
           await waitForClosed();
-          expect(activated).toEqual([ITEMS[start + 1]]);
+          expect(spies.activated).toEqual([ITEMS[start + 1]]);
           if (selectable) {
-            expect(onValueChange.mock.calls.map(([value]) => value)).toEqual([ITEMS[start + 1]]);
+            expect(spies.onValueChange.mock.calls.map(([value]) => value)).toEqual([
+              ITEMS[start + 1],
+            ]);
           }
           await waitFor(() => {
-            expect(screen.getByTestId('trigger')).toHaveFocus();
+            expect(getTrigger()).toHaveFocus();
           });
         },
       );
+
+      it('does not submit a surrounding form', async () => {
+        const onSubmit = vi.fn();
+        const { user } = await renderList({
+          wrap: (node) => (
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                onSubmit();
+              }}
+            >
+              {node}
+            </form>
+          ),
+        });
+
+        await openWithMouse(user);
+        await user.keyboard('{Escape}');
+        await waitForClosed();
+        if (enterSpaceOpen) {
+          await focusTrigger();
+          await user.keyboard('{Enter}');
+          await waitForOpen();
+          await user.keyboard('{Escape}');
+          await waitForClosed();
+        }
+        const start = await openWithKeyboard(user);
+        await navigateTo(user, start, start + 1);
+        await user.keyboard('{Enter}');
+        await waitForClosed();
+
+        expect(onSubmit).not.toHaveBeenCalled();
+      });
 
       it(`${disabledItemNavigation === 'reachable' ? 'stops on' : 'skips'} a disabled item while navigating`, async () => {
         const { user } = await renderList({ disabledItems: [ITEMS[2]] });
@@ -418,15 +654,32 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         });
       });
 
-      it('opens past a disabled first item', async () => {
-        const { user } = await renderList({ disabledItems: [ITEMS[0]] });
-
-        const start = await openWithKeyboard(user);
-
-        expect(start).toBe(1);
-      });
-
       if (homeEnd) {
+        it('moves the highlight to the last and first items with End and Home', async () => {
+          const { user } = await renderList();
+          await openWithKeyboard(user);
+
+          await user.keyboard('{End}');
+          await waitFor(() => {
+            expect(getHighlightedIndex()).toBe(ITEMS.length - 1);
+          });
+          if (!isJSDOM) {
+            await waitFor(() => {
+              expect(isFullyVisible(getItem(ITEMS.length - 1))).toBe(true);
+            });
+          }
+
+          await user.keyboard('{Home}');
+          await waitFor(() => {
+            expect(getHighlightedIndex()).toBe(0);
+          });
+          if (!isJSDOM) {
+            await waitFor(() => {
+              expect(isFullyVisible(getItem(0))).toBe(true);
+            });
+          }
+        });
+
         it('moves to the disabled or nearest enabled ends with End and Home', async () => {
           const { user } = await renderList({
             disabledItems: [ITEMS[0], ITEMS[ITEMS.length - 1]],
@@ -446,37 +699,53 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         });
       }
 
-      if (homeEnd) {
-        it('moves the highlight to the last and first items with End and Home', async () => {
+      it.skipIf(isJSDOM)(
+        'scrolls the highlighted item into view in both directions, only as far as needed',
+        async () => {
+          const { user } = await renderList();
+          const start = await openWithKeyboard(user);
+          const scroller = screen.getByTestId('scroller');
+
+          await navigateTo(user, start, 8);
+          await waitFor(() => {
+            expect(isFullyVisible(getItem(8))).toBe(true);
+          });
+
+          // Moving to an item that is already visible doesn't scroll.
+          const scrollTop = scroller.scrollTop;
+          await navigateTo(user, 8, 7);
+          await settle();
+          expect(scroller.scrollTop).toBe(scrollTop);
+
+          // Moving one item past the edge scrolls by about one item, rather than recentering.
+          await navigateTo(user, 7, 9);
+          await waitFor(() => {
+            expect(isFullyVisible(getItem(9))).toBe(true);
+          });
+          expect(scroller.scrollTop - scrollTop).toBeLessThanOrEqual(ITEM_HEIGHT + 1);
+
+          await navigateTo(user, 9, 2);
+          await waitFor(() => {
+            expect(isFullyVisible(getItem(2))).toBe(true);
+          });
+        },
+      );
+
+      if (typeahead) {
+        it.skipIf(isJSDOM)('reveals an item reached by typing its label', async () => {
           const { user } = await renderList();
           await openWithKeyboard(user);
 
-          await user.keyboard('{End}');
-          await waitFor(() => {
-            expect(getHighlightedIndex()).toBe(ITEMS.length - 1);
-          });
+          await user.keyboard('Item 9');
 
-          await user.keyboard('{Home}');
           await waitFor(() => {
-            expect(getHighlightedIndex()).toBe(0);
+            expect(getHighlightedIndex()).toBe(9);
+          });
+          await waitFor(() => {
+            expect(isFullyVisible(getItem(9))).toBe(true);
           });
         });
       }
-
-      it.skipIf(isJSDOM)('scrolls the highlighted item into view in both directions', async () => {
-        const { user } = await renderList();
-        const start = await openWithKeyboard(user);
-
-        await navigateTo(user, start, 8);
-        await waitFor(() => {
-          expect(isFullyVisible(getItem(8))).toBe(true);
-        });
-
-        await navigateTo(user, 8, 2);
-        await waitFor(() => {
-          expect(isFullyVisible(getItem(2))).toBe(true);
-        });
-      });
     });
 
     describe('list boundaries', () => {
@@ -489,9 +758,14 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
         await user.keyboard('{ArrowUp}');
 
-        await waitFor(() => {
-          expect(getHighlightedIndex()).toBe(pastEnd('first', ITEMS.length));
-        });
+        const expected = pastEnd('first', ITEMS.length);
+        if (expected === -1) {
+          await expectNoHighlight();
+        } else {
+          await waitFor(() => {
+            expect(getHighlightedIndex()).toBe(expected);
+          });
+        }
       });
 
       it(`${pastEndVerb} past the last item`, async () => {
@@ -505,17 +779,24 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
         await user.keyboard('{ArrowDown}');
 
-        await waitFor(() => {
-          expect(getHighlightedIndex()).toBe(pastEnd('last', ITEMS.length));
-        });
+        const expected = pastEnd('last', ITEMS.length);
+        if (expected === -1) {
+          await expectNoHighlight();
+        } else {
+          await waitFor(() => {
+            expect(getHighlightedIndex()).toBe(expected);
+          });
+          if (!isJSDOM) {
+            await waitFor(() => {
+              expect(isFullyVisible(getItem(expected))).toBe(true);
+            });
+          }
+        }
       });
 
       it('keeps a single item reachable', async () => {
-        const activated: string[] = [];
-        const { user } = await renderList({
-          items: [ITEMS[0]],
-          onItemClick: (event) => activated.push(event.currentTarget.textContent ?? ''),
-        });
+        const spies = createSpies();
+        const { user } = await renderList({ ...spies.options, items: [ITEMS[0]] });
         await openWithKeyboard(user);
 
         await user.keyboard('{ArrowDown}');
@@ -531,30 +812,25 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
         await user.keyboard('{Enter}');
         await waitForClosed();
-        expect(activated).toEqual([ITEMS[0]]);
+        expect(spies.activated).toEqual([ITEMS[0]]);
       });
 
       it('handles keys without an error or losing focus when the list is empty', async () => {
-        const onValueChange = vi.fn();
-        const { user } = await renderList({ items: [], root: selectable ? { onValueChange } : {} });
+        const spies = createSpies();
+        const { user } = await renderList({ ...spies.options, items: [] });
         await focusTrigger();
 
         await user.keyboard('{ArrowDown}{ArrowDown}{ArrowUp}{Enter}');
         await settle();
 
         expect(screen.queryAllByRole(itemRole)).toHaveLength(0);
-        expect(onValueChange).not.toHaveBeenCalled();
-        expect(document.activeElement).not.toBe(document.body);
+        spies.expectNothingCommitted();
+        expect(['trigger', 'popup']).toContain(getFocusOwner());
       });
 
       it('does not activate anything when every item is disabled', async () => {
-        const onItemClick = vi.fn();
-        const onValueChange = vi.fn();
-        const { user } = await renderList({
-          disabledItems: ITEMS,
-          onItemClick,
-          root: selectable ? { onValueChange } : {},
-        });
+        const spies = createSpies();
+        const { user } = await renderList({ ...spies.options, disabledItems: ITEMS });
         await focusTrigger();
 
         await user.keyboard('{ArrowDown}');
@@ -562,41 +838,33 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         await user.keyboard('{ArrowDown}{ArrowUp}{Enter}');
         await settle();
 
-        expect(onItemClick).not.toHaveBeenCalled();
-        expect(onValueChange).not.toHaveBeenCalled();
-        expect(document.activeElement).not.toBe(document.body);
+        spies.expectNothingCommitted();
+        expect(['trigger', 'item', 'popup']).toContain(getFocusOwner());
       });
     });
 
-    if (selectable) {
-      describe('opening', () => {
-        it.skipIf(isJSDOM)('reveals the selected item when opening', async () => {
-          const { user } = await renderList({ root: { defaultValue: ITEMS[8] } });
-          await openWithMouse(user);
-
-          await waitFor(() => {
-            expect(isFullyVisible(getItem(8))).toBe(true);
-          });
-        });
-      });
-    }
-
     describe('dismissal', () => {
-      it('closes on Escape and keeps focus on the trigger', async () => {
-        const { user } = await renderList();
-        await openWithKeyboard(user);
+      it('closes on Escape without committing, and keeps focus on the trigger', async () => {
+        const spies = createSpies();
+        const { user } = await renderList(spies.options);
+        const start = await openWithKeyboard(user);
+        await navigateTo(user, start, start + 1);
 
         await user.keyboard('{Escape}');
 
         await waitForClosed();
         await waitFor(() => {
-          expect(screen.getByTestId('trigger')).toHaveFocus();
+          expect(getTrigger()).toHaveFocus();
         });
+        expect(getTrigger()).not.toHaveAttribute('aria-activedescendant');
+        spies.expectNothingCommitted();
       });
 
-      it('closes on Tab and moves focus past the trigger', async () => {
-        const { user } = await renderList();
-        await openWithKeyboard(user);
+      it('closes on Tab without committing, and moves focus past the trigger', async () => {
+        const spies = createSpies();
+        const { user } = await renderList(spies.options);
+        const start = await openWithKeyboard(user);
+        await navigateTo(user, start, start + 1);
 
         await user.keyboard('{Tab}');
 
@@ -604,11 +872,14 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         await waitFor(() => {
           expect(screen.getByTestId('after')).toHaveFocus();
         });
+        spies.expectNothingCommitted();
       });
 
-      it('closes on Shift+Tab and moves focus to the element before the popup', async () => {
-        const { user } = await renderList();
-        await openWithKeyboard(user);
+      it('closes on Shift+Tab without committing, and moves focus to the element before the popup', async () => {
+        const spies = createSpies();
+        const { user } = await renderList(spies.options);
+        const start = await openWithKeyboard(user);
+        await navigateTo(user, start, start + 1);
 
         await user.keyboard('{Shift>}{Tab}{/Shift}');
 
@@ -617,15 +888,77 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         await waitFor(() => {
           expect(screen.getByTestId(focusModel === 'virtual' ? 'before' : 'trigger')).toHaveFocus();
         });
+        spies.expectNothingCommitted();
       });
 
-      it('closes on an outside press', async () => {
-        const { user } = await renderList();
+      it('closes on an outside press without committing', async () => {
+        const spies = createSpies();
+        const { user } = await renderList(spies.options);
         await openWithMouse(user);
+        await user.hover(getItem(1));
+        await waitFor(() => {
+          expect(getHighlightedIndex()).toBe(1);
+        });
 
         await user.click(document.body);
 
         await waitForClosed();
+        spies.expectNothingCommitted();
+      });
+
+      it.skipIf(isJSDOM)(
+        `closes on a real outside click ${modal ? 'that the page underneath does not receive' : 'that reaches the page underneath'}`,
+        async ({ onTestFinished }) => {
+          const { userEvent } = await import('vitest/browser');
+          onTestFinished(resetBrowserPointer);
+          const onOutsideClick = vi.fn();
+          const { user } = await renderList({ onOutsideClick });
+          await openWithMouse(user);
+
+          // `force` clicks at the button's position even when a backdrop covers it.
+          await act(async () => {
+            await userEvent.click(screen.getByTestId('after'), { force: true });
+          });
+
+          await waitForClosed();
+          expect(onOutsideClick).toHaveBeenCalledTimes(modal ? 0 : 1);
+        },
+      );
+
+      if (triggerClickCloses) {
+        it('closes when the trigger is clicked again', async () => {
+          const { user } = await renderList();
+          await openWithMouse(user);
+
+          await user.click(getTrigger());
+
+          await waitForClosed();
+          await settle();
+          expect(getTrigger()).toHaveAttribute('aria-expanded', 'false');
+        });
+      }
+
+      it('closes only itself on Escape inside a dialog', async () => {
+        const { user } = await renderList({
+          wrap: (node) => (
+            <Dialog.Root defaultOpen>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog">{node}</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          ),
+        });
+        await openWithKeyboard(user);
+
+        await user.keyboard('{Escape}');
+
+        await waitForClosed();
+        expect(screen.getByTestId('dialog')).toBeVisible();
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog')).toBe(null);
+        });
       });
     });
   });
@@ -636,6 +969,10 @@ interface RenderListOptions {
   items?: readonly string[] | undefined;
   disabledItems?: readonly string[] | undefined;
   onItemClick?: React.MouseEventHandler<HTMLElement> | undefined;
+  /** Click handler for the button rendered after the component. */
+  onOutsideClick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
+  /** Wraps the rendered tree, such as in a form or a dialog. */
+  wrap?: ((node: RenderedElement) => RenderedElement) | undefined;
 }
 
 export interface PopupListTestProps {
@@ -683,6 +1020,26 @@ export interface PopupListTestConfig {
    * @default true
    */
   spaceActivates?: boolean;
+  /**
+   * Whether Enter and Space open the popup from the trigger.
+   * @default true
+   */
+  enterSpaceOpen?: boolean;
+  /**
+   * Whether typing moves the highlight to a matching item, rather than filtering the list.
+   * @default true
+   */
+  typeahead?: boolean;
+  /**
+   * Whether the open popup blocks pointer interaction with the rest of the page.
+   * @default true
+   */
+  modal?: boolean;
+  /**
+   * Whether clicking the trigger while the popup is open closes it.
+   * @default true
+   */
+  triggerClickCloses?: boolean;
   /**
    * What the arrow keys do past the first or last item: `wrap` to the other end, `stop` there,
    * or `escape` the list, clearing the highlight.

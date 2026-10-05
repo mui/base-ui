@@ -7094,6 +7094,157 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('groups', () => {
+    it('navigates across groups without stopping on labels or separators', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Group>
+                  <Select.GroupLabel>Fruits</Select.GroupLabel>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="banana">banana</Select.Item>
+                </Select.Group>
+                <Select.Separator />
+                <Select.Group>
+                  <Select.GroupLabel>Vegetables</Select.GroupLabel>
+                  <Select.Item value="carrot">carrot</Select.Item>
+                  <Select.Item value="leek">leek</Select.Item>
+                </Select.Group>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'apple' })).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'carrot' })).toHaveFocus();
+      });
+
+      await user.keyboard('{End}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'leek' })).toHaveFocus();
+      });
+
+      await user.keyboard('{Home}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'apple' })).toHaveFocus();
+      });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('item-aligned popup interaction', () => {
+    const items = Array.from({ length: 30 }, (_, index) => `Item ${index}`);
+
+    function AlignedSelect() {
+      return (
+        <div style={{ paddingTop: 240 }}>
+          <Select.Root defaultValue="Item 15">
+            <Select.Trigger data-testid="trigger" style={{ height: 30 }}>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup data-testid="popup" style={{ maxHeight: 200 }}>
+                  {items.map((item) => (
+                    <Select.Item key={item} value={item} style={{ height: 30 }}>
+                      {item}
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>
+      );
+    }
+
+    async function settleFrames() {
+      await act(async () => {
+        await new Promise((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(resolve));
+        });
+      });
+    }
+
+    function getPopupGeometry() {
+      const popup = screen.getByTestId('popup');
+      const rect = popup.getBoundingClientRect();
+      return { top: rect.top, height: rect.height, scrollTop: popup.scrollTop };
+    }
+
+    it('does not move the popup or its list when hovering items at its edges', async () => {
+      const { user } = await render(<AlignedSelect />);
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Item 15' })).toHaveFocus();
+      });
+      await settleFrames();
+      const before = getPopupGeometry();
+      const popupRect = screen.getByTestId('popup').getBoundingClientRect();
+      const options = screen.getAllByRole('option');
+      const topEdgeItem = options.find((option) => {
+        return option.getBoundingClientRect().bottom > popupRect.top;
+      })!;
+      const bottomEdgeItem = options
+        .filter((option) => {
+          return option.getBoundingClientRect().top < popupRect.bottom;
+        })
+        .at(-1)!;
+
+      for (const item of [bottomEdgeItem, topEdgeItem]) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.hover(item);
+        // eslint-disable-next-line no-await-in-loop
+        await waitFor(() => {
+          expect(item).toHaveAttribute('data-highlighted');
+        });
+        // eslint-disable-next-line no-await-in-loop
+        await settleFrames();
+        expect(getPopupGeometry()).toEqual(before);
+      }
+    });
+
+    it('keeps the highlighted item visible while keyboard navigation grows the popup', async () => {
+      const { user } = await render(<AlignedSelect />);
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Item 15' })).toHaveFocus();
+      });
+
+      for (let i = 0; i < 10; i += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.keyboard('{ArrowDown}');
+      }
+      const item = screen.getByRole('option', { name: 'Item 25' });
+      await waitFor(() => {
+        expect(item).toHaveFocus();
+      });
+      await settleFrames();
+
+      const popupRect = screen.getByTestId('popup').getBoundingClientRect();
+      const itemRect = item.getBoundingClientRect();
+      expect(itemRect.top).toBeGreaterThanOrEqual(popupRect.top - 1);
+      expect(itemRect.bottom).toBeLessThanOrEqual(popupRect.bottom + 1);
+    });
+  });
+
   describe('opening', () => {
     it('does not carry an ArrowUp opening over to a later pointer opening', async () => {
       // A selected item claims the keyboard opening, so the ArrowUp is never consumed.
