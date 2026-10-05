@@ -7,6 +7,7 @@ import { Drawer } from '@base-ui/react/drawer';
 import { Field } from '@base-ui/react/field';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Popover } from '@base-ui/react/popover';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { Select } from '@base-ui/react/select';
@@ -195,6 +196,19 @@ export default function PopupFocusReturn() {
             note="openOnHover · focus manager off while hover-opened"
             openOnHover
           />
+          <PopoverCard
+            title="Popover keepMounted"
+            note="stays in the page while closed, hidden"
+            keepMounted
+          />
+          <PopoverCard
+            title="Popover in a container"
+            note="portal container comes before the trigger in the page"
+            containerBeforeTrigger
+          />
+          <TriggerlessPopoverCard />
+          <NestedPopupsCard />
+          <OnlyNestedPopupCard />
           <MenuCard title="Menu" note="click · with a submenu" />
           <MenuCard title="Menu hover" note="openOnHover · with a submenu" openOnHover />
           <MenubarCard />
@@ -208,9 +222,16 @@ export default function PopupFocusReturn() {
             note="modal={false} · nested dialogs"
             modal={false}
           />
+          <DialogCard
+            title="Dialog non-modal, stays open"
+            note="modal={false} disablePointerDismissal · focus can leave and come back"
+            modal={false}
+            disablePointerDismissal
+          />
           <AlertDialogCard />
           <DrawerCard />
           <PreviewCardCard />
+          <NavigationMenuCard />
         </div>
 
         <div className={styles.Toolbar}>
@@ -454,18 +475,32 @@ function PopoverCard(props: {
   note: string;
   modal?: boolean;
   openOnHover?: boolean;
+  keepMounted?: boolean;
+  containerBeforeTrigger?: boolean;
 }) {
-  const { title, note, modal = false, openOnHover = false } = props;
+  const {
+    title,
+    note,
+    modal = false,
+    openOnHover = false,
+    keepMounted = false,
+    containerBeforeTrigger = false,
+  } = props;
   const control = usePopupControl(title);
   const { finalFocus } = React.useContext(ExperimentContext);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <Card title={title} note={note}>
+      {containerBeforeTrigger && <div ref={containerRef} />}
       <Popover.Root modal={modal} {...control}>
         <Popover.Trigger className={styles.Button} openOnHover={openOnHover} delay={100}>
           {title}
         </Popover.Trigger>
-        <Popover.Portal>
+        <Popover.Portal
+          keepMounted={keepMounted}
+          container={containerBeforeTrigger ? containerRef : undefined}
+        >
           <Popover.Positioner sideOffset={8}>
             <Popover.Popup className={styles.Popup} finalFocus={finalFocus}>
               <Body title={title}>
@@ -475,6 +510,168 @@ function PopoverCard(props: {
           </Popover.Positioner>
         </Popover.Portal>
       </Popover.Root>
+    </Card>
+  );
+}
+
+function TriggerlessPopoverCard() {
+  const title = 'Popover without a trigger';
+  const { finalFocus, log, closeSignal } = React.useContext(ExperimentContext);
+  const [open, setOpen] = React.useState(false);
+  const anchorRef = React.useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    setOpen(false);
+  }, [closeSignal]);
+
+  return (
+    <Card title={title} note="always controlled · opened by a plain button">
+      <button
+        type="button"
+        ref={anchorRef}
+        className={styles.Button}
+        onClick={() => {
+          log(`${title}: open (button)`);
+          setOpen(true);
+        }}
+      >
+        Open popover
+      </button>
+      <Popover.Root
+        open={open}
+        onOpenChange={(nextOpen, details) => {
+          log(`${title}: ${nextOpen ? 'open' : 'close'} (${details.reason})`);
+          setOpen(nextOpen);
+        }}
+      >
+        <Popover.Portal>
+          <Popover.Positioner sideOffset={8} anchor={anchorRef}>
+            <Popover.Popup className={styles.Popup} finalFocus={finalFocus}>
+              <Body title={title} />
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>
+    </Card>
+  );
+}
+
+function InnerPopover(props: { title: string }) {
+  return (
+    <Popover.Root>
+      <Popover.Trigger className={styles.Button}>{props.title}</Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Positioner sideOffset={8}>
+          <Popover.Popup className={styles.Popup}>
+            <Body title={props.title} />
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}
+
+function InnerMenu(props: { title: string }) {
+  return (
+    <Menu.Root>
+      <Menu.Trigger className={styles.Button}>{props.title}</Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner sideOffset={8}>
+          <Menu.Popup className={`${styles.Popup} ${styles.ListPopup}`}>
+            <MenuItems title={props.title} />
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+}
+
+function NestedPopupsCard() {
+  const title = 'Nested popups';
+  const control = usePopupControl(title);
+
+  return (
+    <Card title={title} note="a Popover holding a Popover, a Menu and a Combobox">
+      <Popover.Root {...control}>
+        <Popover.Trigger className={styles.Button}>{title}</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner sideOffset={8}>
+            <Popover.Popup className={styles.Popup}>
+              <Body title={title}>
+                <InnerPopover title="Inner popover" />
+                <InnerMenu title="Inner menu" />
+                <Combobox.Root items={fruits}>
+                  <Combobox.Input className={styles.Input} placeholder="Inner combobox" />
+                  <Combobox.Portal>
+                    <Combobox.Positioner sideOffset={8}>
+                      <Combobox.Popup className={`${styles.Popup} ${styles.ListPopup}`}>
+                        <ComboboxItems />
+                      </Combobox.Popup>
+                    </Combobox.Positioner>
+                  </Combobox.Portal>
+                </Combobox.Root>
+                <button type="button" className={styles.Button}>
+                  Last
+                </button>
+              </Body>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>
+    </Card>
+  );
+}
+
+function OnlyNestedPopupCard() {
+  const title = 'Nested popup only';
+  const control = usePopupControl(title);
+
+  return (
+    <Card title={title} note="the inner trigger is the only tabbable element of the outer popover">
+      <Popover.Root {...control}>
+        <Popover.Trigger className={styles.Button}>{title}</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner sideOffset={8}>
+            <Popover.Popup className={styles.Popup}>
+              <InnerMenu title="Only a menu" />
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>
+    </Card>
+  );
+}
+
+function NavigationMenuCard() {
+  return (
+    <Card title="Navigation menu" note="Tab moves through the open content">
+      <NavigationMenu.Root>
+        <NavigationMenu.List className={styles.CardRow}>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={styles.Button}>Overview</NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.CardRow}>
+              <NavigationMenu.Link className={styles.Button} href="#">
+                Link 1
+              </NavigationMenu.Link>
+              <NavigationMenu.Link className={styles.Button} href="#">
+                Link 2
+              </NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item>
+            <NavigationMenu.Link className={styles.Button} href="#">
+              Docs
+            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner sideOffset={8}>
+            <NavigationMenu.Popup className={styles.Popup}>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>
     </Card>
   );
 }
@@ -755,8 +952,13 @@ function NestedDialog(props: { title: string; container?: HTMLElement; closePare
   );
 }
 
-function DialogCard(props: { title: string; note: string; modal?: boolean }) {
-  const { title, note, modal = true } = props;
+function DialogCard(props: {
+  title: string;
+  note: string;
+  modal?: boolean;
+  disablePointerDismissal?: boolean;
+}) {
+  const { title, note, modal = true, disablePointerDismissal } = props;
   const control = usePopupControl(title);
   const { finalFocus } = React.useContext(ExperimentContext);
   const actionsRef = React.useRef<Dialog.Root.Actions | null>(null);
@@ -764,7 +966,12 @@ function DialogCard(props: { title: string; note: string; modal?: boolean }) {
 
   return (
     <Card title={title} note={note}>
-      <Dialog.Root modal={modal} actionsRef={actionsRef} {...control}>
+      <Dialog.Root
+        modal={modal}
+        disablePointerDismissal={disablePointerDismissal}
+        actionsRef={actionsRef}
+        {...control}
+      >
         <Dialog.Trigger className={styles.Button}>{title}</Dialog.Trigger>
         <Dialog.Portal>
           {modal && <Dialog.Backdrop className={styles.Backdrop} />}
