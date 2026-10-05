@@ -4,9 +4,12 @@ import { beforeAll, beforeEach, describe, expect, it, onTestFinished, vi } from 
 import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { Combobox } from '@base-ui/react/combobox';
 import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Popover } from '@base-ui/react/popover';
+import { Select } from '@base-ui/react/select';
 import { createRenderer, holdExit, isJSDOM, wait } from '#test-utils';
 
 /** Records every element that receives focus from now until the test ends. */
@@ -306,11 +309,69 @@ describe('FloatingFocusManager: focus return at close', () => {
         );
       }
 
+      // Another popup opened by the press, with focus moving into it.
+      const otherPopups = {
+        Dialog: () => (
+          <Dialog.Root>
+            <Dialog.Trigger data-testid="other-trigger">Other</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="other-popup">
+                <button>Other inside</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+        Menu: () => (
+          <Menu.Root modal={false}>
+            <Menu.Trigger data-testid="other-trigger">Other</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="other-popup">
+                  <Menu.Item>Other item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        ),
+        Select: () => (
+          <Select.Root>
+            <Select.Trigger data-testid="other-trigger">
+              <Select.Value placeholder="Other" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup data-testid="other-popup">
+                  <Select.List>
+                    <Select.Item value="other">Other item</Select.Item>
+                  </Select.List>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        ),
+        Popover: () => (
+          <Popover.Root>
+            <Popover.Trigger data-testid="other-trigger">Other</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="other-popup">
+                  <button>Other inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        ),
+      };
+
       describe.each([
         { name: 'Menu', Popup: SloppyMenu },
         { name: 'Popover', Popup: IntentionalPopover },
       ])('$name', ({ Popup }) => {
-        function TestCase(props: { explicitFinalFocus?: boolean }) {
+        function TestCase(props: {
+          explicitFinalFocus?: boolean;
+          OtherPopup?: React.ComponentType;
+        }) {
+          const { OtherPopup = React.Fragment } = props;
           const finalFocusRef = React.useRef<HTMLButtonElement>(null);
           return (
             <div>
@@ -324,6 +385,7 @@ describe('FloatingFocusManager: focus return at close', () => {
                   Outside label
                 </label>
                 <input id="outside-input" data-testid="input" />
+                <OtherPopup />
               </div>
             </div>
           );
@@ -382,10 +444,246 @@ describe('FloatingFocusManager: focus return at close', () => {
           });
           expect(focused).not.toContain(trigger);
         });
+
+        it.each(Object.keys(otherPopups) as Array<keyof typeof otherPopups>)(
+          'leaves focus in a %s the press opened, over an explicit finalFocus',
+          async (other) => {
+            await render(<TestCase explicitFinalFocus OtherPopup={otherPopups[other]} />);
+            await openPopup();
+            const focused = recordFocusedElements();
+
+            await humanPress('other-trigger');
+            await waitFor(() => expectFocusInside('other-popup'));
+            // Give a wrong return time to happen: it would run a task after the release.
+            await wait(50);
+
+            expectFocusInside('other-popup');
+            expect(focused).not.toContain(screen.getByTestId('final-focus'));
+          },
+        );
+
+        // A quick press lets the return run before the Select's own initial focus lands, while
+        // its trigger still has focus.
+        it('leaves focus with a Select a quick press opened, over an explicit finalFocus', async () => {
+          await render(<TestCase explicitFinalFocus OtherPopup={otherPopups.Select} />);
+          await openPopup();
+          const focused = recordFocusedElements();
+
+          await user.click(screen.getByTestId('other-trigger'));
+          await waitFor(() => expectFocusInside('other-popup'));
+          await wait(50);
+
+          expectFocusInside('other-popup');
+          expect(focused).not.toContain(screen.getByTestId('final-focus'));
+        });
+
+        it('leaves focus in a Combobox input the press opened, over an explicit finalFocus', async () => {
+          function OtherCombobox() {
+            return (
+              <Combobox.Root items={['a', 'b']}>
+                <Combobox.Input data-testid="other-trigger" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup data-testid="other-popup">
+                      <Combobox.List>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            );
+          }
+
+          await render(<TestCase explicitFinalFocus OtherPopup={OtherCombobox} />);
+          await openPopup();
+          const focused = recordFocusedElements();
+
+          await humanPress('other-trigger');
+          await wait(50);
+
+          expect(screen.getByTestId('other-trigger')).toHaveFocus();
+          expect(screen.getByTestId('other-popup')).toBeVisible();
+          expect(focused).not.toContain(screen.getByTestId('final-focus'));
+        });
+      });
+
+      it('leaves focus on a NavigationMenu trigger the press opened, over an explicit finalFocus', async () => {
+        function Test() {
+          const finalFocusRef = React.useRef<HTMLButtonElement>(null);
+          return (
+            <div>
+              <SloppyMenu finalFocus={finalFocusRef} />
+              <button ref={finalFocusRef} data-testid="final-focus">
+                Final focus
+              </button>
+              <NavigationMenu.Root>
+                <NavigationMenu.List>
+                  <NavigationMenu.Item>
+                    <NavigationMenu.Trigger data-testid="other-trigger">
+                      Other
+                    </NavigationMenu.Trigger>
+                    <NavigationMenu.Content>
+                      <NavigationMenu.Link href="#">Other link</NavigationMenu.Link>
+                    </NavigationMenu.Content>
+                  </NavigationMenu.Item>
+                </NavigationMenu.List>
+                <NavigationMenu.Portal>
+                  <NavigationMenu.Positioner>
+                    <NavigationMenu.Popup>
+                      <NavigationMenu.Viewport />
+                    </NavigationMenu.Popup>
+                  </NavigationMenu.Positioner>
+                </NavigationMenu.Portal>
+              </NavigationMenu.Root>
+            </div>
+          );
+        }
+
+        await render(<Test />);
+        await user.click(screen.getByRole('button', { name: 'Trigger' }));
+        await waitFor(() => expectFocusInside('popup'));
+        const focused = recordFocusedElements();
+
+        await user.click(screen.getByTestId('other-trigger'), { delay: 100 });
+        await wait(50);
+
+        expect(screen.getByTestId('other-trigger')).toHaveFocus();
+        expect(screen.getByTestId('other-trigger')).toHaveAttribute('aria-expanded', 'true');
+        expect(focused).not.toContain(screen.getByTestId('final-focus'));
+      });
+
+      it('leaves focus in a Dialog that a plain button opened, over an explicit finalFocus', async () => {
+        function Test() {
+          const finalFocusRef = React.useRef<HTMLButtonElement>(null);
+          const [dialogOpen, setDialogOpen] = React.useState(false);
+          return (
+            <div>
+              <SloppyMenu finalFocus={finalFocusRef} />
+              <button ref={finalFocusRef} data-testid="final-focus">
+                Final focus
+              </button>
+              <button data-testid="opener" onClick={() => setDialogOpen(true)}>
+                Open dialog
+              </button>
+              <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="other-popup">
+                    <button>Other inside</button>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </div>
+          );
+        }
+
+        await render(<Test />);
+        await user.click(screen.getByRole('button', { name: 'Trigger' }));
+        await waitFor(() => expectFocusInside('popup'));
+        const focused = recordFocusedElements();
+
+        await user.click(screen.getByTestId('opener'), { delay: 100 });
+        await waitFor(() => expectFocusInside('other-popup'));
+        await wait(50);
+
+        expectFocusInside('other-popup');
+        expect(focused).not.toContain(screen.getByTestId('final-focus'));
+      });
+
+      it('focuses an explicit finalFocus after a press into a popup that was already open', async () => {
+        function Test() {
+          const finalFocusRef = React.useRef<HTMLButtonElement>(null);
+          return (
+            <div>
+              <SloppyMenu finalFocus={finalFocusRef} />
+              <button ref={finalFocusRef} data-testid="final-focus">
+                Final focus
+              </button>
+              <Dialog.Root modal={false} disablePointerDismissal>
+                <Dialog.Trigger data-testid="other-trigger">Other</Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="other-popup">
+                    <button data-testid="other-inside">Other inside</button>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </div>
+          );
+        }
+
+        await render(<Test />);
+        await user.click(screen.getByTestId('other-trigger'));
+        await waitFor(() => expectFocusInside('other-popup'));
+        await user.click(screen.getByRole('button', { name: 'Trigger' }));
+        await waitFor(() => expectFocusInside('popup'));
+
+        await user.click(screen.getByTestId('other-inside'), { delay: 100 });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('final-focus')).toHaveFocus();
+        });
       });
     });
 
     describe('controlled closes', () => {
+      it('focuses an explicit finalFocus when a nested menu closes the popover during its exit', async () => {
+        const exit = holdExit();
+        function Test() {
+          const finalFocusRef = React.useRef<HTMLButtonElement>(null);
+          const [open, setOpen] = React.useState(false);
+          return (
+            <div>
+              <button ref={finalFocusRef} data-testid="final-focus">
+                Final focus
+              </button>
+              <Popover.Root open={open} onOpenChange={setOpen}>
+                <Popover.Trigger>Trigger</Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="popup" finalFocus={finalFocusRef}>
+                      <Menu.Root>
+                        <Menu.Trigger>Sort</Menu.Trigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              {/* Radio items keep the menu open: only the popover closes. */}
+                              <Menu.RadioGroup
+                                defaultValue="name"
+                                onValueChange={() => setOpen(false)}
+                              >
+                                <Menu.RadioItem value="name">Name</Menu.RadioItem>
+                                <Menu.RadioItem value="date">Date</Menu.RadioItem>
+                              </Menu.RadioGroup>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.Root>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </div>
+          );
+        }
+
+        await render(<Test />);
+        await user.click(screen.getByRole('button', { name: 'Trigger' }));
+        await user.click(await screen.findByRole('button', { name: 'Sort' }));
+        await user.click(await screen.findByRole('menuitemradio', { name: 'Date' }));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('final-focus')).toHaveFocus();
+        });
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+
+        await exit.release();
+        expect(screen.getByTestId('final-focus')).toHaveFocus();
+      });
+
       it('does not reuse a refused close once the user presses inside again', async () => {
         function RefusingPopover(props: { closed?: boolean }) {
           const [open, setOpen] = React.useState(false);

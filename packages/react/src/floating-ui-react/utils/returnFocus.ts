@@ -6,7 +6,7 @@ import { REASONS } from '../../internals/reasons';
 import { resolveRef } from '../../utils/resolveRef';
 import type { FloatingFocusManagerProps } from '../components/FloatingFocusManager';
 import type { CloseRequest } from '../components/FloatingRootStore';
-import { closest, getTarget, isTypeableElement } from './element';
+import { closest, contains, getTarget, isTypeableElement } from './element';
 import { isVirtualClick, isVirtualPointerEvent } from './event';
 import { isTabbable, tabbable } from './tabbable';
 
@@ -45,6 +45,8 @@ export interface CloseIntent {
    * after the press is released (`SETTLE_RELEASE`) or right away (`SETTLE_TASK`).
    */
   settle: typeof SETTLE_TASK | typeof SETTLE_RELEASE | undefined;
+  /** The element an outside press landed on. */
+  pressTarget: Element | null;
 }
 
 /** What the manager knew when its popup opened. */
@@ -160,6 +162,7 @@ export function getCloseIntent(
         !isVirtualPointerEvent(event as PointerEvent) &&
         !preventScroll()),
     settle,
+    pressTarget: outsidePress ? (getTarget(event) as Element | null) : null,
   };
 }
 
@@ -253,6 +256,18 @@ export function getReturnTarget(
 }
 
 /**
+ * Whether an outside press opened (or switched to) another popup: the control it activated reports
+ * itself expanded, or focus is already in an open popup that the press didn't land in.
+ */
+function isPressOpeningPopup(target: Element | null, activeEl: Element | null) {
+  const label = closest(target, 'label') as HTMLLabelElement | null;
+  const control =
+    label?.control ?? closest(target, 'button,input,select,textarea,a[href],[tabindex]');
+  const popup = closest(activeEl, '[data-open]');
+  return control?.getAttribute('aria-expanded') === 'true' || (!!popup && !contains(popup, target));
+}
+
+/**
  * Decides what the return does once the close has committed and an outside press has settled.
  * The facts are positional to keep the call cheap; they are sampled when the return runs, except
  * those taken at the close.
@@ -308,7 +323,11 @@ export function getReturnFocusAction(
     // Another modal popup opened in the same interaction (e.g. a menu item opening a dialog)
     // has hidden the target from assistive tech; its initial focus owns focus now. Not when
     // this popup reopened: its own outside hiding mustn't cancel the close's return.
-    (isExplicit || open || !closest(target, '[aria-hidden="true"]'))
+    (isExplicit || open || !closest(target, '[aria-hidden="true"]')) &&
+    // The outside press opened another popup, which owns focus now, even over an explicit target.
+    // Not while focus is still here or on the body: a press that opened a popup leaves focus in it
+    // or on its trigger.
+    !(intent?.settle && !inside && !atBody && isPressOpeningPopup(intent.pressTarget, activeEl))
   ) {
     const options: FocusOptions = { preventScroll: true };
     if (closeType === 'keyboard') {

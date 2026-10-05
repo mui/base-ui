@@ -14,7 +14,17 @@ import type { ReturnFocusSession } from './returnFocus';
 import type { CloseRequest } from '../components/FloatingRootStore';
 
 type ElementName =
-  'trigger' | 'inside' | 'insideInput' | 'outside' | 'outsideInput' | 'final' | 'body';
+  | 'trigger'
+  | 'inside'
+  | 'insideInput'
+  | 'outside'
+  | 'outsideInput'
+  | 'final'
+  | 'otherTrigger'
+  | 'collapsedTrigger'
+  | 'expandedText'
+  | 'otherInside'
+  | 'body';
 
 let elements: Record<ElementName, HTMLElement>;
 
@@ -25,12 +35,18 @@ beforeEach(() => {
       <button id="outside">Outside</button>
       <input id="outsideInput" />
       <button id="final">Final focus</button>
+      <button id="otherTrigger" aria-expanded="true">Other trigger</button>
+      <button id="collapsedTrigger" aria-expanded="false">Collapsed trigger</button>
+      <div aria-expanded="true"><span id="expandedText">Expanded container</span></div>
     </div>
     <div id="positioner">
       <div id="popup">
         <button id="inside">Inside</button>
         <input id="insideInput" />
       </div>
+    </div>
+    <div id="other" data-open>
+      <button id="otherInside">Other inside</button>
     </div>
   `;
   const get = (id: string) => document.getElementById(id)!;
@@ -41,6 +57,10 @@ beforeEach(() => {
     outside: get('outside'),
     outsideInput: get('outsideInput'),
     final: get('final'),
+    otherTrigger: get('otherTrigger'),
+    collapsedTrigger: get('collapsedTrigger'),
+    expandedText: get('expandedText'),
+    otherInside: get('otherInside'),
     body: document.body,
   };
 });
@@ -59,7 +79,15 @@ const focusout = () => new FocusEvent('focusout');
 const mouseleave = () => new MouseEvent('mouseleave');
 const touchend = () => new TouchEvent('touchend');
 
-function request(reason: string, event: Event, extra?: { nested?: boolean; moved?: boolean }) {
+function request(
+  reason: string,
+  event: Event,
+  extra?: { nested?: boolean; moved?: boolean; target?: ElementName },
+) {
+  if (extra?.target) {
+    // Sets the event's target: the element an outside press landed on.
+    elements[extra.target].dispatchEvent(event);
+  }
   return {
     details: { open: false, reason, nativeEvent: event, nested: !!extra?.nested },
     moved: !!extra?.moved,
@@ -173,6 +201,99 @@ const rows: Row[] = [
     pressed: true,
     focus: 'outsideInput',
     ownedFocusAtClose: true,
+    returnFocus: 'final',
+    settle: SETTLE_RELEASE,
+    expected: { focus: 'final' },
+  },
+  {
+    name: 'an outside press that opened another popup, which took focus, with an explicit finalFocus',
+    request: () => request(REASONS.outsidePress, click(), { target: 'otherTrigger' }),
+    focus: 'otherInside',
+    ownedFocusAtClose: true,
+    returnFocus: 'final',
+    settle: SETTLE_TASK,
+    expected: null,
+  },
+  {
+    name: 'an outside press on an input while another popup stays open, with an explicit finalFocus',
+    request: () => request(REASONS.outsidePress, pointerdown(), { target: 'outsideInput' }),
+    pressed: true,
+    focus: 'outsideInput',
+    ownedFocusAtClose: true,
+    returnFocus: 'final',
+    settle: SETTLE_RELEASE,
+    expected: { focus: 'final' },
+  },
+  {
+    name: 'an outside press that opened another popup whose trigger still has focus',
+    request: () => request(REASONS.outsidePress, pointerdown(), { target: 'otherTrigger' }),
+    pressed: true,
+    focus: 'otherTrigger',
+    ownedFocusAtClose: true,
+    returnFocus: 'final',
+    settle: SETTLE_RELEASE,
+    expected: null,
+  },
+  {
+    name: 'an outside press into another popup that was already open, with an explicit finalFocus',
+    request: () => request(REASONS.outsidePress, pointerdown(), { target: 'otherInside' }),
+    pressed: true,
+    focus: 'otherInside',
+    ownedFocusAtClose: true,
+    returnFocus: 'final',
+    settle: SETTLE_RELEASE,
+    expected: { focus: 'final' },
+  },
+  {
+    name: 'a close that is not an outside press, with focus in a popup the press opened',
+    request: () => request(REASONS.itemPress, click(), { target: 'otherTrigger' }),
+    focus: 'otherInside',
+    ownedFocusAtClose: true,
+    returnFocus: 'final',
+    expected: { focus: 'final' },
+  },
+  {
+    name: 'an outside press on a plain button that opened another popup, which took focus',
+    request: () => request(REASONS.outsidePress, pointerdown(), { target: 'outside' }),
+    pressed: true,
+    focus: 'otherInside',
+    ownedFocusAtClose: true,
+    returnFocus: 'final',
+    settle: SETTLE_RELEASE,
+    expected: null,
+  },
+  {
+    name: 'an outside press on a collapsed control, with an explicit finalFocus',
+    request: () => request(REASONS.outsidePress, pointerdown(), { target: 'collapsedTrigger' }),
+    pressed: true,
+    focus: 'collapsedTrigger',
+    ownedFocusAtClose: true,
+    returnFocus: 'final',
+    settle: SETTLE_RELEASE,
+    expected: { focus: 'final' },
+  },
+  {
+    name: 'an outside press on text inside an expanded container, with an explicit finalFocus',
+    request: () => request(REASONS.outsidePress, pointerdown(), { target: 'expandedText' }),
+    pressed: true,
+    focus: 'outside',
+    ownedFocusAtClose: true,
+    returnFocus: 'final',
+    settle: SETTLE_RELEASE,
+    expected: { focus: 'final' },
+  },
+  {
+    name: 'an outside press on an expanded control that left focus on the body',
+    request: () => request(REASONS.outsidePress, click(), { target: 'otherTrigger' }),
+    focus: 'body',
+    ownedFocusAtClose: false,
+    settle: SETTLE_TASK,
+    expected: { focus: 'trigger' },
+  },
+  {
+    name: 'an outside press that opened another popup while focus is still in this popup',
+    request: () => request(REASONS.outsidePress, pointerdown(), { target: 'otherTrigger' }),
+    pressed: true,
     returnFocus: 'final',
     settle: SETTLE_RELEASE,
     expected: { focus: 'final' },
