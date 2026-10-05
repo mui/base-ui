@@ -53,12 +53,12 @@ function AnchoredToasts() {
   const { toasts } = Toast.useToastManager();
   return (
     <Toast.Portal>
-      <Toast.Viewport className={styles.AnchoredViewport}>
+      <Toast.Viewport className={styles.Viewport}>
         {toasts.map((toast) => (
-          <Toast.Positioner key={toast.id} toast={toast} className={styles.AnchoredPositioner}>
-            <Toast.Root toast={toast} className={styles.AnchoredToast}>
+          <Toast.Positioner key={toast.id} toast={toast} className={styles.Positioner}>
+            <Toast.Root toast={toast} className={styles.Toast}>
               <Toast.Content>
-                <Toast.Description className={styles.AnchoredDescription} />
+                <Toast.Description className={styles.Description} />
               </Toast.Content>
             </Toast.Root>
           </Toast.Positioner>
