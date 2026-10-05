@@ -1025,7 +1025,7 @@ describe('<Menu.Root />', () => {
         await user.click(trigger);
 
         const menu = await screen.findByTestId('menu');
-        // Each popup focuses itself a frame after opening; keys sent earlier go to the previous level.
+        // The menu focuses itself a frame after opening; keys sent earlier go to the trigger.
         await waitFor(() => {
           expect(menu).toHaveFocus();
         });
@@ -1124,7 +1124,7 @@ describe('<Menu.Root />', () => {
           await user.click(trigger);
 
           const menu = await screen.findByTestId('menu');
-          // Each popup focuses itself a frame after opening; keys sent earlier go to the previous level.
+          // The menu focuses itself a frame after opening; keys sent earlier go to the trigger.
           await waitFor(() => {
             expect(menu).toHaveFocus();
           });

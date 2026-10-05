@@ -674,7 +674,7 @@ describe('<MenuRoot />', () => {
         const trigger = screen.getByRole('button', { name: 'Trigger 1' });
         await user.click(trigger);
         await screen.findByTestId('level-1');
-        // Each popup focuses itself a frame after opening; keys sent earlier go to the previous level.
+        // The menu focuses itself a frame after opening; keys sent earlier go to the trigger.
         await waitFor(() => {
           expect(screen.getByRole('menu')).toHaveFocus();
         });

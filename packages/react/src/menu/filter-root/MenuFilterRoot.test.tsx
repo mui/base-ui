@@ -5109,6 +5109,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
       await user.hover(submenuTrigger);
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      // Let the root popup's initial focus land first so it can't steal focus from the click below.
+      await act(async () => {
+        await waitSingleFrame();
+      });
       fireEvent.mouseMove(submenuInput);
       await waitFor(() => {
         expect(submenuInput).toHaveAttribute('data-highlighted');
