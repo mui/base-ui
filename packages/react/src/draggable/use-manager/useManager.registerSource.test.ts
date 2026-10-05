@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { createDndRenderer, firePointer } from '#test-utils';
+import { firePointer } from '#test-utils';
+import { createDndRenderer } from '../../../test/dndEngine';
 import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';

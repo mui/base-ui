@@ -56,27 +56,24 @@ export default function SortableLive() {
   const initialOrder = React.useRef(tasks);
   const listRef = useSortableAnimation(tasks);
   const destinationRef = React.useRef<TaskDestination | null>(null);
-  const reorder = useStableCallback(
-    (eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>) => {
-      const next = getTaskDestination(eventDetails.target);
-      const previous = destinationRef.current;
-      if (next) {
-        const delta =
-          eventDetails.location.current.input.clientY -
-          eventDetails.location.previous.input.clientY;
-        if (delta !== 0) {
-          next.placement = delta > 0 ? 'after' : 'before';
-        } else if (next.id === previous?.id) {
-          next.placement = previous.placement;
-        }
+  function reorder(eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>) {
+    const next = getTaskDestination(eventDetails.target);
+    const previous = destinationRef.current;
+    if (next) {
+      const delta =
+        eventDetails.location.current.input.clientY - eventDetails.location.previous.input.clientY;
+      if (delta !== 0) {
+        next.placement = delta > 0 ? 'after' : 'before';
+      } else if (next.id === previous?.id) {
+        next.placement = previous.placement;
       }
-      if (sameTaskDestination(next, previous)) {
-        return;
-      }
-      destinationRef.current = next;
-      setTasks((current) => moveTask(current, eventDetails, next?.placement));
-    },
-  );
+    }
+    if (sameTaskDestination(next, previous)) {
+      return;
+    }
+    destinationRef.current = next;
+    setTasks((current) => moveTask(current, eventDetails, next?.placement));
+  }
   const swap = useStableCallback((task: string, direction: 'up' | 'down') => {
     const next = swapTask(tasks, task, direction);
     if (next === tasks) {

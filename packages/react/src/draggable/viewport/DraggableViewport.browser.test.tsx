@@ -2,7 +2,8 @@ import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 import { describe, it, expect, vi } from 'vitest';
 import { act, waitFor } from '@mui/internal-test-utils';
-import { createDndRenderer, firePointer, isJSDOM } from '#test-utils';
+import { firePointer, isJSDOM } from '#test-utils';
+import { createDndRenderer } from '../../../test/dndEngine';
 import { restrictToElement } from '../../utils/drag-and-drop/dragModifiers';
 import { registerCleanup, setupDragEngineTests, flushRaf } from '../../../test/dnd';
 

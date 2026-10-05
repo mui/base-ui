@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { createDndRenderer, isJSDOM } from '#test-utils';
+import { isJSDOM } from '#test-utils';
+import { createDndRenderer } from '../../../../test/dndEngine';
 import {
   createElement,
   flushRaf,
@@ -26,20 +27,10 @@ import {
   touchDown,
   touchMove,
   touchUp,
+  dispatch,
 } from '../../../../test/syntheticPointer';
 
 setupDragEngineTests();
-
-/**
- * Dispatch `event` on `target` inside `act`. The mounted `Draggable.Provider`
- * subscribes to the drag session store, so a raw dispatch that starts, moves, or
- * ends a drag would re-render React outside `act`.
- */
-function dispatch(target: EventTarget, event: Event): void {
-  act(() => {
-    target.dispatchEvent(event);
-  });
-}
 
 describe('syntheticDrag sensor', () => {
   const { renderDnd } = createDndRenderer();

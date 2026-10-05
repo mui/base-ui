@@ -32,7 +32,7 @@ const INITIAL_STOPS: Stop[] = [
 
 // Find the insertion slot closest to the pointer along the lane. Slots sit
 // before the first stop, in the middle of each gap, and after the last stop.
-function resolveDropIndex(track: HTMLElement, clientX: number): number {
+function resolveDropIndex(track: Element, clientX: number): number {
   // The drag preview is a clone of the stop, so it has `data-stop` too. Skip it,
   // since it follows the pointer and isn't a real slot.
   const stops = Array.from(
@@ -69,7 +69,6 @@ const STOP_CLASS =
 export default function AxisLane() {
   const [stops, setStops] = React.useState(INITIAL_STOPS);
   const [announcement, setAnnouncement] = React.useState('');
-  const trackRef = React.useRef<HTMLDivElement | null>(null);
 
   function moveStop(id: string, insertIndex: number) {
     const sourceIndex = stops.findIndex((stop) => stop.id === id);
@@ -106,17 +105,16 @@ export default function AxisLane() {
         >
           {/* @highlight-end */}
           <Draggable.Target
-            ref={trackRef}
             className="flex w-max gap-1.5"
             accept={stopKind}
             onDraggableDrop={(eventDetails) => {
-              const track = trackRef.current;
-              if (track) {
-                moveStop(
-                  eventDetails.source.payload,
-                  resolveDropIndex(track, eventDetails.location.current.input.clientX),
-                );
-              }
+              moveStop(
+                eventDetails.source.payload,
+                resolveDropIndex(
+                  eventDetails.currentTarget.element,
+                  eventDetails.location.current.input.clientX,
+                ),
+              );
             }}
           >
             {stops.map((stop, index) => (

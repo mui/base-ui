@@ -2,8 +2,7 @@
  * Shared drag-and-drop test utilities for the drag engine and its consumers.
  * Importing this module has no side effects.
  */
-import { afterEach, beforeEach } from 'vitest';
-import { reset as resetWarnings } from '@base-ui/utils/warn';
+import { afterEach } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { waitSingleFrame } from './wait';
 import { reset, isActive as isDragActive } from '../src/utils/drag-and-drop/core/lifecycleManager';
@@ -55,10 +54,11 @@ const cleanupQueue: Array<() => void> = [];
 
 /**
  * Queue a cleanup function, usually returned by one of the engine's `register*`
- * methods, to run in `afterEach`. Cleanups run in reverse order.
+ * methods, to run in `afterEach`, and return it. Cleanups run in reverse order.
  */
-export function registerCleanup(fn: () => void): void {
+export function registerCleanup<T extends () => void>(fn: T): T {
   cleanupQueue.push(fn);
+  return fn;
 }
 
 /**
@@ -74,11 +74,6 @@ export function registerCleanup(fn: () => void): void {
  * so a broken cleanup fails its own test instead of leaking into later ones.
  */
 export function setupDragEngineTests(): void {
-  // `warn()` logs each message once per process. Reset it so warning-count
-  // assertions don't depend on test order or on `.only`.
-  beforeEach(() => {
-    resetWarnings();
-  });
   afterEach(() => {
     runAllCleanups([...cleanupQueue.splice(0).reverse(), cleanupElements, resetDrag]);
   });
@@ -308,44 +303,45 @@ export function cancel(): void {
   fireDrag.dragEnd();
 }
 
-/** Force-end any pending drag state. Runs in `setupDragEngineTests()`'s `afterEach`. */
+/**
+ * Force-end any pending drag state. Runs in `setupDragEngineTests()`'s `afterEach`.
+ * Every step runs even when an earlier one throws (see `setupDragEngineTests`).
+ */
 function resetDrag(): void {
-  // Force-ending an active drag updates React state, such as `dragging` and
-  // custom preview portals, on consumers that are still mounted. Flush those
-  // updates inside `act` so teardown doesn't trigger the "not wrapped in
-  // act(...)" warning.
-  act(() => {
-    reset();
-    resetSyntheticSensor();
-    // The published preview is React state, so it has to be cleared inside `act`
-    // like the rest. A test that aborts mid-drag would otherwise leave the
-    // overlay rendering the previous test's preview.
-    clearPublishedDragPreview();
-  });
-  // Global state the sensors set but `reset()` doesn't clear. Without this, a
-  // test that fails mid-drag would leave the next test with scrolling locked,
-  // the drag cursor set, or its first click swallowed.
-  resetDragRootLock();
-  resetDragCursor();
-  resetPostDragClick();
-  // A drop keeps the clone mounted until the frame after it, or until its ending
-  // transition finishes. A test that ends right after `drop()` would otherwise
-  // leave it in the document, and its ancestor observer would re-home it to the
-  // body when the test's container is removed.
-  finishAllEndingPreviewsForTests();
-  // `reset()` clears the active monitors without dispatching `onMoveEnd`, so the
-  // scroll monitor never runs its own teardown. A running loop would keep
-  // scheduling frames and calling `scrollBy` in the next test, and keep the
-  // previous test's detached source in memory.
-  resetAutoScroller();
-  // Clear any drop targets still registered on detached nodes, so a failed or
-  // aborted test can't leak them into the next one.
-  resetDropTargets();
-  restoreElementFromPoint();
-  dragSource = null;
-  // Clear the touch target the synthetic pointer helpers remember, so one test's
-  // gesture can't redirect the next test's touch and pen events.
-  resetTouchTarget();
+  runAllCleanups([
+    // Force-ending an active drag updates React state, such as `dragging` and
+    // custom preview portals, on consumers that are still mounted. Flush those
+    // updates inside `act` so teardown doesn't trigger the "not wrapped in
+    // act(...)" warning. The published preview is React state too. A test that
+    // aborts mid-drag would otherwise leave the overlay rendering its preview.
+    () => act(() => runAllCleanups([reset, resetSyntheticSensor, clearPublishedDragPreview])),
+    // Global state the sensors set but `reset()` doesn't clear. Without this, a
+    // test that fails mid-drag would leave the next test with scrolling locked,
+    // the drag cursor set, or its first click swallowed.
+    resetDragRootLock,
+    resetDragCursor,
+    resetPostDragClick,
+    // A drop keeps the clone mounted until the frame after it, or until its ending
+    // transition finishes. A test that ends right after `drop()` would otherwise
+    // leave it in the document, and its ancestor observer would re-home it to the
+    // body when the test's container is removed.
+    finishAllEndingPreviewsForTests,
+    // `reset()` clears the active monitors without dispatching `onMoveEnd`, so the
+    // scroll monitor never runs its own teardown. A running loop would keep
+    // scheduling frames and calling `scrollBy` in the next test, and keep the
+    // previous test's detached source in memory.
+    resetAutoScroller,
+    // Clear any drop targets still registered on detached nodes, so a failed or
+    // aborted test can't leak them into the next one.
+    resetDropTargets,
+    () => {
+      restoreElementFromPoint();
+      dragSource = null;
+    },
+    // Clear the touch target the synthetic pointer helpers remember, so one test's
+    // gesture can't redirect the next test's touch and pen events.
+    resetTouchTarget,
+  ]);
 }
 
 /**

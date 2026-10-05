@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
+import { createDndRenderer } from '../../../test/dndEngine';
 import {
   createElement,
   flushRaf,

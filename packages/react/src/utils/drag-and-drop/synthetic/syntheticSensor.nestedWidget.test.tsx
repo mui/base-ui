@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, screen } from '@mui/internal-test-utils';
-import { createDndRenderer, firePointer, testDragKind } from '#test-utils';
+import { firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { Slider } from '@base-ui/react/slider';
+import { createDndRenderer, testDragKind } from '../../../../test/dndEngine';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import { penDown, penMove, touchDown, touchMove, touchUp } from '../../../../test/syntheticPointer';
 import { cancelDrag } from '../cancelDrag';

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { createDndRenderer } from '#test-utils';
+import { createDndRenderer } from '../../../test/dndEngine';
 import { flushRaf, registerCleanup, setupDragEngineTests } from '../../../test/dnd';
 import { dragSessionStore } from './dragSessionStore';
 import { createEventRootBinding } from './documentBinding';

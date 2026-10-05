@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { createDndRenderer } from '#test-utils';
+import { createDndRenderer } from '../../../../test/dndEngine';
 import {
   cancel,
   createElement,

@@ -2,8 +2,8 @@ import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
-import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
+import { createDndRenderer } from '../../../test/dndEngine';
 import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 
 setupDragEngineTests();

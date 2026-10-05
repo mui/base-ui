@@ -17,6 +17,7 @@
  * drag would re-render React outside `act`.
  */
 import { act } from '@mui/internal-test-utils';
+import { setEventTimeStamp } from './pointer';
 
 type SyntheticPointerType = 'touch' | 'pen';
 
@@ -36,13 +37,13 @@ let touchDownTarget: EventTarget | null = null;
  * `timeStamp` is read-only and not part of the event init, so it is defined on
  * the event, as `firePointer` does.
  */
-function dispatch(target: EventTarget, event: Event, options: SyntheticPointerOptions = {}): void {
-  const { timeStamp } = options;
-  if (timeStamp !== undefined) {
-    if (!(timeStamp > 0)) {
-      throw new Error(`syntheticPointer: timeStamp must be greater than 0, received ${timeStamp}.`);
-    }
-    Object.defineProperty(event, 'timeStamp', { value: timeStamp });
+export function dispatch(
+  target: EventTarget,
+  event: Event,
+  options: SyntheticPointerOptions = {},
+): void {
+  if (options.timeStamp !== undefined) {
+    setEventTimeStamp(event, options.timeStamp, 'syntheticPointer');
   }
   act(() => {
     target.dispatchEvent(event);

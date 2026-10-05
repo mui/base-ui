@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { createDndRenderer, testDragKind } from '#test-utils';
+import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import {
   createElement,
   dragOver,

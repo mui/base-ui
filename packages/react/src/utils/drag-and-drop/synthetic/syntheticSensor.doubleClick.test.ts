@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@mui/internal-test-utils';
-import { createDndRenderer, firePointer } from '#test-utils';
+import { firePointer } from '#test-utils';
+import { createDndRenderer } from '../../../../test/dndEngine';
 import {
   createElement,
   flushRaf,

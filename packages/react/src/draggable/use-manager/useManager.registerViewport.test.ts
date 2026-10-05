@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { act, waitFor } from '@mui/internal-test-utils';
-import { createDndRenderer, isJSDOM, testDragKind } from '#test-utils';
+import { isJSDOM } from '#test-utils';
+import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import {
   createElement,
   flushRaf,

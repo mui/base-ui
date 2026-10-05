@@ -92,7 +92,8 @@ function resolveDrop(container: HTMLElement, clientY: number): { index: number; 
   return { index, slotY: slotYs[index] };
 }
 
-function Card({
+// Memoized, so moving the drop line during a drag doesn't re-render every card.
+const Card = React.memo(function Card({
   task,
   draggable,
   onKeyDown,
@@ -118,7 +119,7 @@ function Card({
       {task.label}
     </Draggable.Root>
   );
-}
+});
 
 function DropZone({
   label,

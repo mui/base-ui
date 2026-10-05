@@ -122,17 +122,17 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
       const getParameters = asGetter(parameters);
       // `kind` is required on a real draggable. Default it so only the fixtures that
       // test kind matching have to declare one.
-      const cleanup = registerSourceInternal<TPayload, TDragData>(element, () => {
-        const declared = getParameters();
-        // `testDragKind` declares no drag data, so it can't satisfy an open
-        // `TDragData`. Cast the parameter shape here.
-        return {
-          ...declared,
-          kind: declared.kind ?? testDragKind,
-        } as RegisterSourceParameters<TPayload, TDragData>;
-      });
-      registerCleanup(cleanup);
-      return cleanup;
+      return registerCleanup(
+        registerSourceInternal<TPayload, TDragData>(element, () => {
+          const declared = getParameters();
+          // `testDragKind` declares no drag data, so it can't satisfy an open
+          // `TDragData`. Cast the parameter shape here.
+          return {
+            ...declared,
+            kind: declared.kind ?? testDragKind,
+          } as RegisterSourceParameters<TPayload, TDragData>;
+        }),
+      );
     },
     registerTarget: <
       TSourcePayload = unknown,
@@ -150,23 +150,24 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
       // without a payload.
       const registerTargetInternal = engine.registerTarget as InternalDragEngine['registerTarget'];
       const getParameters = asGetter(parameters);
-      const cleanup = registerTargetInternal<
-        TSourcePayload,
-        TTargetPayload,
-        TSourceDragData,
-        TTargetDragData
-      >(element, () => {
-        const declared = getParameters();
-        // Fixtures omit `accept` for brevity, so default it to `anyDragKind` and
-        // keep the missing-`accept` dev warning for consumer code. Skip this when
-        // `kind` is declared, because the kind-without-accept warning has its own
-        // test and must still fire.
-        return declared.accept === undefined && declared.kind === undefined
-          ? { ...declared, accept: anyDragKind as DraggableAccept<TSourcePayload, TSourceDragData> }
-          : declared;
-      });
-      registerCleanup(cleanup);
-      return cleanup;
+      return registerCleanup(
+        registerTargetInternal<TSourcePayload, TTargetPayload, TSourceDragData, TTargetDragData>(
+          element,
+          () => {
+            const declared = getParameters();
+            // Fixtures omit `accept` for brevity, so default it to `anyDragKind` and
+            // keep the missing-`accept` dev warning for consumer code. Skip this when
+            // `kind` is declared, because the kind-without-accept warning has its own
+            // test and must still fire.
+            return declared.accept === undefined && declared.kind === undefined
+              ? {
+                  ...declared,
+                  accept: anyDragKind as DraggableAccept<TSourcePayload, TSourceDragData>,
+                }
+              : declared;
+          },
+        ),
+      );
     },
     registerViewport: <TSourcePayload = unknown, TSourceDragData = unknown>(
       element: HTMLElement,
@@ -178,9 +179,7 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
         element: HTMLElement,
         getParameters: () => RegisterViewportParameters<TSourcePayload, TSourceDragData>,
       ) => () => void;
-      const cleanup = registerViewportInternal(element, asGetter(parameters));
-      registerCleanup(cleanup);
-      return cleanup;
+      return registerCleanup(registerViewportInternal(element, asGetter(parameters)));
     },
     registerMonitor: <TSourcePayload = unknown, TSourceDragData = unknown>(
       parameters: MaybeGetter<RegisterMonitorParameters<TSourcePayload, TSourceDragData>>,
@@ -190,9 +189,7 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
       const registerMonitorInternal = engine.registerMonitor as (
         getParameters: () => RegisterMonitorParameters<TSourcePayload, TSourceDragData>,
       ) => () => void;
-      const cleanup = registerMonitorInternal(asGetter(parameters));
-      registerCleanup(cleanup);
-      return cleanup;
+      return registerCleanup(registerMonitorInternal(asGetter(parameters)));
     },
     // Nothing to queue, since it registers nothing.
     cancelDrag: engine.cancelDrag,

@@ -2,8 +2,8 @@ import * as React from 'react';
 import { act, screen } from '@testing-library/react';
 import { useStore } from '@base-ui/utils/store';
 import { describe, it, expect } from 'vitest';
-import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
+import { createDndRenderer } from '../../../test/dndEngine';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { registerTarget } from '../../utils/drag-and-drop/registrations';
 import {

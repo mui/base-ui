@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { createDndRenderer, isJSDOM } from '#test-utils';
+import { isJSDOM } from '#test-utils';
+import { createDndRenderer } from '../../../../test/dndEngine';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import { createDragPreviewElement, measurePreviewAnchor } from './cloneDragPreview';

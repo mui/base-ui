@@ -2,8 +2,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
-import { createDndRenderer, firePointer } from '#test-utils';
+import { firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
+import { createDndRenderer } from '../../../test/dndEngine';
 import { lift, dragOver, drop, cancel, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 import { cancelDrag } from '../../utils/drag-and-drop/cancelDrag';
 

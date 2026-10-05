@@ -22,18 +22,6 @@ const INITIAL_WIDGETS: WidgetData[] = [
   { id: 'conversion', title: 'Conversion', value: '3.8%', detail: 'Up 0.4%', slot: 'center' },
 ];
 
-/**
- * Move a widget into an empty slot. Returns `current` if the slot is taken or the
- * widget is unknown.
- */
-function moveWidget(current: WidgetData[], widgetId: string, slot: SlotId): WidgetData[] {
-  const widget = current.find((item) => item.id === widgetId);
-  if (!widget || widget.slot === slot || current.some((item) => item.slot === slot)) {
-    return current;
-  }
-  return current.map((item) => (item.id === widgetId ? { ...item, slot } : item));
-}
-
 /** Find the nearest empty slot in `direction` from the widget, or `undefined` if there is none. */
 function findEmptySlot(
   current: WidgetData[],
@@ -63,13 +51,14 @@ export function useDashboardWidgets() {
   const focusFrame = useAnimationFrame();
   const dashboardRef = React.useRef<HTMLDivElement | null>(null);
 
-  function handleMoveWidget(widgetId: string, slot: SlotId) {
-    const next = moveWidget(widgets, widgetId, slot);
-    if (next === widgets) {
+  /** Move a widget into an empty slot. Does nothing if the slot is taken. */
+  function moveWidget(widgetId: string, slot: SlotId) {
+    const widget = widgets.find((item) => item.id === widgetId);
+    // A widget's own slot counts as taken, so a drop in place does nothing too.
+    if (!widget || widgets.some((item) => item.slot === slot)) {
       return;
     }
-    setWidgets(next);
-    const widget = widgets.find((item) => item.id === widgetId)!;
+    setWidgets(widgets.map((item) => (item === widget ? { ...item, slot } : item)));
     const target = SLOTS.find((item) => item.id === slot)!;
     setAnnouncement(`${widget.title} moved to ${target.label}.`);
   }
@@ -84,7 +73,7 @@ export function useDashboardWidgets() {
     if (!slot) {
       return;
     }
-    handleMoveWidget(widgetId, slot);
+    moveWidget(widgetId, slot);
     // The widget remounts in its new slot, so focus its replacement after the update.
     focusFrame.request(() => {
       dashboardRef.current?.querySelector<HTMLElement>(`[data-widget-id="${widgetId}"]`)?.focus();
@@ -94,7 +83,7 @@ export function useDashboardWidgets() {
   return {
     dashboardRef,
     widgets,
-    moveWidget: handleMoveWidget,
+    moveWidget,
     onWidgetKeyDown: handleWidgetKeyDown,
     announcement,
   };

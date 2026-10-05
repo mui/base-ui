@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createDndRenderer } from '#test-utils';
+import { createDndRenderer } from '../../../test/dndEngine';
 import { cancel, createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import { dragSessionStore, dragSourceStore } from './dragSessionStore';
 import { retargetDragSource } from './dragSource';

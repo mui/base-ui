@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { act, screen } from '@mui/internal-test-utils';
 import { describe, it, expect, vi } from 'vitest';
-import { createDndRenderer } from '#test-utils';
+import { createDndRenderer } from '../../../../test/dndEngine';
 import { Draggable } from '../../../draggable';
 import { setupDragEngineTests, createElement, lift, flushRaf } from '../../../../test/dnd';
 import { createPreviewAndStartSession } from './sensorSession';

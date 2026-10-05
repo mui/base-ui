@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { createDndRenderer } from '#test-utils';
+import { createDndRenderer } from '../../test/dndEngine';
 import { Draggable } from './index';
 import { lift, dragEnter, drop, setupDragEngineTests } from '../../test/dnd';
 

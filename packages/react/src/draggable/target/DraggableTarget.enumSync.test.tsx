@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
-import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
+import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes';
 

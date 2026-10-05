@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { screen, render as rtlRender } from '@testing-library/react';
-import { isJSDOM, testDragKind } from '#test-utils';
+import { isJSDOM } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { act } from '@mui/internal-test-utils';
+import { testDragKind } from '../../../test/dndEngine';
 import { setupDragEngineTests, fireDrag, flushRaf } from '../../../test/dnd';
 import { DraggableProvider } from '../DraggableProvider';
 

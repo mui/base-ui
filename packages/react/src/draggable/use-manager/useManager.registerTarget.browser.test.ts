@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { createDndRenderer, isJSDOM } from '#test-utils';
+import { isJSDOM } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
+import { createDndRenderer } from '../../../test/dndEngine';
 import { flushRaf, registerCleanup, setupDragEngineTests } from '../../../test/dnd';
 import { isActive } from '../../utils/drag-and-drop/core/lifecycleManager';
 

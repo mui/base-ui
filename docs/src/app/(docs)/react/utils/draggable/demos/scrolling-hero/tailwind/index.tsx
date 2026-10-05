@@ -97,7 +97,8 @@ const CARD_CLASS =
 
 const LIST_CLASS = 'relative flex min-h-0 flex-1 flex-col items-start gap-1.5 overflow-y-auto';
 
-function Card({
+// Memoized, so moving the drop line during a drag doesn't re-render every card.
+const Card = React.memo(function Card({
   task,
   draggable,
   onKeyDown,
@@ -123,7 +124,7 @@ function Card({
       {task.label}
     </Draggable.Root>
   );
-}
+});
 
 function DropZone({
   label,

@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent, screen, render as rawRender } from '@testing-library/react';
-import { createDndRenderer, describeConformance, firePointer, testDragKind } from '#test-utils';
+import { describeConformance, firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
+import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import {
   cancel,
   createElement,

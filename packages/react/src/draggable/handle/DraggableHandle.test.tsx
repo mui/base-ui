@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
-import { createDndRenderer, describeConformance, testDragKind } from '#test-utils';
+import { describeConformance } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
+import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import { cancel, dragOver, flushRaf, lift, setupDragEngineTests } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 
