@@ -12,6 +12,8 @@ import type { HTMLProps } from '../../internals/types';
 export type PopupStoreState<Payload> = {
   /**
    * Whether the popup is open (internal state).
+   * When `openProp` is set, this holds the last open-change request since the prop last closed
+   * the popup instead (see `useOpenProp`).
    */
   open: boolean;
   /**
