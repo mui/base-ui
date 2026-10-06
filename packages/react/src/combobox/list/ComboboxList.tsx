@@ -155,12 +155,6 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
             clickHighlightedItem(store, activeIndex, event.nativeEvent);
           }
         },
-        onKeyDownCapture() {
-          store.context.keyboardActiveRef.current = true;
-        },
-        onPointerMoveCapture() {
-          store.context.keyboardActiveRef.current = false;
-        },
       },
       elementProps,
     ],

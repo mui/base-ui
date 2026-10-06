@@ -8,6 +8,7 @@ export { enterWithMouse, firePointer, moveMouse } from './pointer';
 export { mergeRefs } from './mergeRefs';
 export { mockResizeObserver } from './mockResizeObserver';
 export { popupConformanceTests } from './popupConformanceTests';
+export { popupListConformanceTests } from './popupListConformanceTests';
 export { resetBrowserPointer } from './resetBrowserPointer';
 export { useTestInteractions } from './useTestInteractions';
 export {

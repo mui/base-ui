@@ -1,6 +1,7 @@
 import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   act,
   fireEvent,
@@ -22,8 +23,10 @@ import {
   isJSDOM,
   moveMouse,
   popupConformanceTests,
+  popupListConformanceTests,
   resetBrowserPointer,
   wait,
+  waitSingleFrame,
 } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
@@ -136,6 +139,157 @@ describe('<Menu.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'menu',
+  });
+
+  describe.skipIf(isJSDOM)('hover opening', () => {
+    it('stays open while the pointer crosses the gap from the trigger to the popup', async () => {
+      await render(
+        <Menu.Root modal={false}>
+          <Menu.Trigger data-testid="trigger" openOnHover delay={0}>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner sideOffset={24}>
+              <Menu.Popup data-testid="popup">
+                <Menu.Item data-testid="item">One</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      enterWithMouse(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      await act(async () => {
+        await waitSingleFrame();
+        await waitSingleFrame();
+      });
+
+      const triggerRect = trigger.getBoundingClientRect();
+      const item = screen.getByTestId('item');
+      const itemRect = item.getBoundingClientRect();
+      expect(itemRect.top - triggerRect.bottom).toBeGreaterThanOrEqual(20);
+      const x = Math.min(triggerRect.right, itemRect.right) - 5;
+
+      fireEvent.mouseLeave(trigger, {
+        clientX: x,
+        clientY: triggerRect.bottom + 1,
+        relatedTarget: document.body,
+      });
+      for (let y = triggerRect.bottom + 4; y < itemRect.top; y += 4) {
+        fireEvent.mouseMove(document.body, { clientX: x, clientY: y });
+      }
+      enterWithMouse(item, { clientX: x, clientY: itemRect.top + 2 });
+      await act(async () => {
+        await waitSingleFrame();
+        await waitSingleFrame();
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('popup')).toBeVisible();
+    });
+  });
+
+  describe('opening', () => {
+    function TestMenu(props: { children?: React.ReactNode }) {
+      return (
+        <Menu.Root>
+          <Menu.Trigger data-testid="trigger">Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {props.children ?? (
+                  <React.Fragment>
+                    <Menu.Item>One</Menu.Item>
+                    <Menu.Item>Two</Menu.Item>
+                  </React.Fragment>
+                )}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('highlights the first item when the items render a microtask after a keyboard opening', async () => {
+      function RenderNextMicrotask(props: { children: React.ReactNode }) {
+        const [ready, setReady] = React.useState(false);
+        React.useLayoutEffect(() => {
+          // React 18 would otherwise commit a default-priority update in a later task.
+          queueMicrotask(() => ReactDOM.flushSync(() => setReady(true)));
+        }, []);
+        return ready ? props.children : null;
+      }
+
+      const { user } = await render(
+        <TestMenu>
+          <RenderNextMicrotask>
+            <Menu.Item>One</Menu.Item>
+            <Menu.Item>Two</Menu.Item>
+          </RenderNextMicrotask>
+        </TestMenu>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+    });
+
+    it.skipIf(isJSDOM).each([
+      { name: 'a zero-size press', init: { width: 0, height: 0 } },
+      { name: "Chrome's 1x1 pressureless press", init: { width: 1, height: 1, pressure: 0 } },
+    ])('moves focus to the first item after a screen reader $name', async ({ init }) => {
+      await render(<TestMenu />);
+      const trigger = screen.getByTestId('trigger');
+
+      // Screen readers synthesize the press; the click itself can still report `detail: 1`.
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', buttons: 0, ...init });
+      fireEvent.mouseDown(trigger, { detail: 1 });
+      fireEvent.pointerUp(trigger, { pointerType: 'mouse', ...init });
+      fireEvent.mouseUp(trigger, { detail: 1 });
+      fireEvent.click(trigger, { detail: 1 });
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+    });
+  });
+
+  popupListConformanceTests({
+    createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle, onItemClick }) => (
+      <Menu.Root {...root}>
+        <Menu.Trigger data-testid="trigger">Open menu</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup data-testid="popup">
+              <Menu.List data-testid="scroller" style={scrollerStyle}>
+                {items.map((item) => (
+                  <Menu.Item
+                    key={item}
+                    disabled={disabledItems.includes(item)}
+                    style={itemStyle}
+                    onClick={onItemClick}
+                  >
+                    <span>{item}</span>
+                  </Menu.Item>
+                ))}
+              </Menu.List>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    ),
+    render,
+    itemRole: 'menuitem',
+    listEnd: 'wrap',
   });
 
   function NestedMenuWithModalProp() {
@@ -1052,7 +1206,11 @@ describe('<Menu.Root />', () => {
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
 
-        await screen.findByTestId('menu');
+        const menu = await screen.findByTestId('menu');
+        // The menu focuses itself a frame after opening; keys sent earlier go to the trigger.
+        await waitFor(() => {
+          expect(menu).toHaveFocus();
+        });
 
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
@@ -1066,6 +1224,9 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard('[ArrowRight]');
         await screen.findByTestId('submenu');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-4_1')).toHaveFocus();
+        });
 
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
@@ -1082,10 +1243,10 @@ describe('<Menu.Root />', () => {
         await user.click(outside);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('level-1')).toBe(null);
-          expect(screen.queryByTestId('level-2')).toBe(null);
-          expect(screen.queryByTestId('level-3')).toBe(null);
+          expect(screen.queryByTestId('menu')).toBe(null);
         });
+        expect(screen.queryByTestId('submenu')).toBe(null);
+        expect(screen.queryByTestId('nested-submenu')).toBe(null);
       });
 
       it.skipIf(isJSDOM)(
@@ -1144,7 +1305,11 @@ describe('<Menu.Root />', () => {
           const trigger = screen.getByRole('button', { name: 'Toggle' });
           await user.click(trigger);
 
-          await screen.findByTestId('menu');
+          const menu = await screen.findByTestId('menu');
+          // The menu focuses itself a frame after opening; keys sent earlier go to the trigger.
+          await waitFor(() => {
+            expect(menu).toHaveFocus();
+          });
 
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
@@ -1159,6 +1324,9 @@ describe('<Menu.Root />', () => {
           await user.keyboard('[ArrowRight]');
 
           const nestedSubmenuTrigger = await screen.findByTestId('nested-submenu-trigger');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_1')).toHaveFocus();
+          });
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
 
@@ -1168,6 +1336,9 @@ describe('<Menu.Root />', () => {
 
           await user.keyboard('[ArrowRight]');
           await screen.findByTestId('nested-submenu');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_3_1')).toHaveFocus();
+          });
 
           await user.keyboard('[ArrowLeft]');
 
@@ -3345,6 +3516,130 @@ describe('<Menu.Root />', () => {
       // what stops `useListNavigation` from rebuilding them on every key, which re-rendered every
       // trigger of every menu and select in the library.
       expect(triggerRenders).toBe(0);
+    });
+  });
+
+  describe('prop: onItemHighlighted', () => {
+    function HighlightMenu(props: { onItemHighlighted: Menu.Root.Props['onItemHighlighted'] }) {
+      return (
+        <Menu.Root onItemHighlighted={props.onItemHighlighted}>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>One</Menu.Item>
+                <Menu.Item>Two</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger>Three</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>Nested</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('passes the keydown event for keyboard highlights', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus();
+      });
+
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe(REASONS.keyboard);
+      expect(details.event).toBeInstanceOf(KeyboardEvent);
+      expect(details.event.key).toBe('ArrowDown');
+    });
+
+    it('passes the keydown event for typeahead highlights', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+      });
+
+      await user.keyboard('t');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus();
+      });
+
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe(REASONS.keyboard);
+      expect(details.event).toBeInstanceOf(KeyboardEvent);
+      expect(details.event.key).toBe('t');
+    });
+
+    it('passes native mouse and pointer events for pointer highlights', async () => {
+      const onItemHighlighted = vi.fn();
+      await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      const item = await screen.findByRole('menuitem', { name: 'Two' });
+      const hoverEvent = new MouseEvent('mousemove', { bubbles: true });
+      fireEvent(item, hoverEvent);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(item, expect.anything());
+      });
+
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe(REASONS.pointer);
+      expect(details.event).toBeInstanceOf(MouseEvent);
+      expect(details.event).toBe(hoverEvent);
+      expect(details.event).not.toBeInstanceOf(PointerEvent);
+
+      const leaveEvent = new PointerEvent('pointerout', {
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent(item, leaveEvent);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ reason: 'pointer', event: leaveEvent }),
+        );
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].event).toBe(leaveEvent);
+    });
+
+    it('passes the mouse event when a submenu trigger is hovered', async () => {
+      const onItemHighlighted = vi.fn();
+      await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'Three' });
+      fireEvent.mouseEnter(submenuTrigger);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(submenuTrigger, expect.anything());
+      });
+
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe(REASONS.pointer);
+      expect(details.event).toBeInstanceOf(MouseEvent);
     });
   });
 

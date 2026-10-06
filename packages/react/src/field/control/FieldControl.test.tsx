@@ -344,6 +344,48 @@ describe('<Field.Control />', () => {
     expect(root).not.toHaveAttribute('data-filled');
   });
 
+  it('forwards a changing defaultValue without warning', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      const { setProps } = await render(
+        <Field.Root data-testid="root">
+          <Field.Control defaultValue="" />
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      expect(root).not.toHaveAttribute('data-filled');
+
+      await setProps({ children: <Field.Control defaultValue="value" /> });
+
+      expect(screen.getByRole('textbox')).toHaveValue('value');
+      expect(root).toHaveAttribute('data-filled', '');
+      expect(errorSpy).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('keeps filled state from the edited value when defaultValue changes', async () => {
+    const { setProps } = await render(
+      <Field.Root data-testid="root">
+        <Field.Control defaultValue="" />
+      </Field.Root>,
+    );
+
+    const root = screen.getByTestId('root');
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'typed' } });
+    expect(root).toHaveAttribute('data-filled', '');
+
+    await setProps({ children: <Field.Control defaultValue="next" /> });
+    await setProps({ children: <Field.Control defaultValue="" /> });
+
+    expect(input).toHaveValue('typed');
+    expect(root).toHaveAttribute('data-filled', '');
+  });
+
   it('sets filled state from a controlled value on a custom element', async () => {
     await render(
       <Field.Root data-testid="root">

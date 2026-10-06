@@ -10,7 +10,12 @@ import {
   ignoreActWarnings,
   reactMajor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import {
+  createRenderer,
+  isJSDOM,
+  popupConformanceTests,
+  popupListConformanceTests,
+} from '#test-utils';
 import { Combobox, ComboboxSeparatorDataAttributes } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -177,6 +182,123 @@ describe('<Combobox.Root />', () => {
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
     combobox: true,
+  });
+
+  popupListConformanceTests({
+    createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle, onItemClick }) => (
+      <Combobox.Root items={items} {...root}>
+        <Combobox.Input data-testid="trigger" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup">
+              <Combobox.List data-testid="scroller" style={scrollerStyle}>
+                {(item: string) => (
+                  <Combobox.Item
+                    key={item}
+                    value={item}
+                    disabled={disabledItems.includes(item)}
+                    style={itemStyle}
+                    onClick={onItemClick}
+                  >
+                    <span>{item}</span>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    ),
+    render,
+    itemRole: 'option',
+    focusModel: 'virtual',
+    homeEnd: false,
+    selectable: true,
+    spaceActivates: false,
+    enterSpaceOpen: false,
+    typeahead: false,
+    modal: false,
+    triggerClickCloses: false,
+    listEnd: 'escape',
+  });
+
+  describe('IME composition', () => {
+    // Browsers report keyCode 229 for every keydown an IME handles, including the committing Enter.
+    it('does not select the highlighted item with an Enter that commits IME text', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root items={['a', 'b', 'c']} onValueChange={onValueChange}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      const optionA = await screen.findByRole('option', { name: 'a' });
+      await waitFor(() => {
+        expect(optionA).toHaveAttribute('data-highlighted');
+      });
+
+      fireEvent.keyDown(input, { key: 'Enter', keyCode: 229, which: 229 });
+      await flushMicrotasks();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      expect(optionA).toHaveAttribute('data-highlighted');
+    });
+
+    it('does not move the highlight with arrow keys that pick an IME candidate', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['a', 'b', 'c']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      const optionA = await screen.findByRole('option', { name: 'a' });
+      await waitFor(() => {
+        expect(optionA).toHaveAttribute('data-highlighted');
+      });
+
+      // Chrome reports keys handled by an active IME composition with keyCode 229.
+      fireEvent.keyDown(input, { key: 'ArrowDown', keyCode: 229, which: 229 });
+      await flushMicrotasks();
+
+      expect(optionA).toHaveAttribute('data-highlighted');
+    });
   });
 
   describe('manual unmount lifecycle', () => {
@@ -741,6 +863,7 @@ describe('<Combobox.Root />', () => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
         });
 
+        // Long enough that a slow run still reopens before the close finishes.
         const style = `
           @keyframes combobox-close-test {
             to {
@@ -749,7 +872,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
 
@@ -818,7 +941,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
 
@@ -7821,7 +7944,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 200ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
 
@@ -7906,7 +8029,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 200ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
 
@@ -8054,7 +8177,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
 
@@ -8111,6 +8234,8 @@ describe('<Combobox.Root />', () => {
         expect(screen.getByRole('status')).toHaveTextContent('No matches');
         expect(screen.queryByText('apple')).toBe(null);
 
+        // The close animation is long so a slow run can't finish it before the checks above.
+        popup.getAnimations().forEach((animation) => animation.finish());
         await waitFor(() => {
           expect(screen.queryByTestId('popup')).toBe(null);
         });
@@ -8140,7 +8265,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
 
@@ -8201,7 +8326,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
 
@@ -8283,7 +8408,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
 
@@ -9430,9 +9555,19 @@ describe('<Combobox.Root />', () => {
       });
 
       it('discards the request when an ignored typed open is followed by another open', async () => {
-        const { user, setProps } = await render(<AsyncCombobox items={['32']} open={false} />);
+        const onOpenChange = vi.fn();
+        const { user, setProps } = await render(
+          <AsyncCombobox items={['32']} open={false} onOpenChange={onOpenChange} />,
+        );
         await user.type(screen.getByRole('combobox'), '32');
         await user.click(screen.getByTestId('trigger'));
+        // A trigger press opens on the frame after `mousedown`, which `user.click` can beat.
+        await waitFor(() => {
+          expect(onOpenChange).toHaveBeenLastCalledWith(
+            true,
+            expect.objectContaining({ reason: REASONS.triggerPress }),
+          );
+        });
         await setProps({ open: true });
         expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
       });
@@ -9461,9 +9596,9 @@ describe('<Combobox.Root />', () => {
             await user.keyboard('{ArrowDown}');
           }
 
-          expect(screen.getByRole('option', { name: '32' })).not.toHaveAttribute(
-            'data-highlighted',
-          );
+          // A trigger press opens on the frame after `mousedown`, which `user.click` can beat.
+          const option = await screen.findByRole('option', { name: '32' });
+          expect(option).not.toHaveAttribute('data-highlighted');
           expect(input).not.toHaveAttribute('aria-activedescendant');
         },
       );
@@ -10446,6 +10581,135 @@ describe('<Combobox.Root />', () => {
       expect(value).toBe('a');
       expect(eventDetails.reason).toBe('keyboard');
       expect(eventDetails.index).toBe(0);
+      expect(eventDetails.event).toBeInstanceOf(KeyboardEvent);
+      expect(eventDetails.event.key).toBe('ArrowDown');
+    });
+
+    it('passes native mouse and pointer events for pointer highlights', async () => {
+      const items = ['a', 'b', 'c'];
+      const onItemHighlighted = vi.fn();
+
+      const { user } = await render(
+        <Combobox.Root items={items} onItemHighlighted={onItemHighlighted}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      const option = await screen.findByRole('option', { name: 'b' });
+      const hoverEvent = new MouseEvent('mousemove', { bubbles: true });
+      fireEvent(option, hoverEvent);
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith('b', expect.anything());
+      });
+      const eventDetails = onItemHighlighted.mock.lastCall?.[1];
+      expect(eventDetails.reason).toBe('pointer');
+      expect(eventDetails.event).toBeInstanceOf(MouseEvent);
+      expect(eventDetails.event).toBe(hoverEvent);
+      expect(eventDetails.event).not.toBeInstanceOf(PointerEvent);
+
+      const leaveEvent = new PointerEvent('pointerout', {
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent(option, leaveEvent);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ reason: 'pointer', event: leaveEvent }),
+        );
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].event).toBe(leaveEvent);
+    });
+
+    function HighlightCombobox(props: {
+      onItemHighlighted: Combobox.Root.Props<string>['onItemHighlighted'];
+    }) {
+      return (
+        <Combobox.Root
+          items={['apple', 'apricot', 'banana']}
+          onItemHighlighted={props.onItemHighlighted}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Clear data-testid="clear" keepMounted />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    async function highlightFirstWithKeyboard(
+      user: Awaited<ReturnType<typeof render>>['user'],
+      onItemHighlighted: ReturnType<typeof vi.fn>,
+    ) {
+      await user.click(screen.getByTestId('input'));
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith('apple', expect.anything());
+      });
+    }
+
+    it('reports a pointer highlight after keyboard navigation', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightCombobox onItemHighlighted={onItemHighlighted} />);
+      await highlightFirstWithKeyboard(user, onItemHighlighted);
+
+      fireEvent.mouseMove(screen.getByRole('option', { name: 'banana' }));
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith('banana', expect.anything());
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe('pointer');
+    });
+
+    it('reports no keyboard reason when typing clears the highlight', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightCombobox onItemHighlighted={onItemHighlighted} />);
+      await highlightFirstWithKeyboard(user, onItemHighlighted);
+
+      await user.keyboard('a');
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, expect.anything());
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe('none');
+    });
+
+    it('reports no keyboard reason when the clear button clears the highlight', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightCombobox onItemHighlighted={onItemHighlighted} />);
+      await highlightFirstWithKeyboard(user, onItemHighlighted);
+
+      fireEvent.click(screen.getByTestId('clear'));
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, expect.anything());
+      });
+      const details = onItemHighlighted.mock.lastCall?.[1];
+      expect(details.reason).toBe('none');
+      expect(details.event.type).toBe('click');
     });
   });
 
@@ -10736,7 +11000,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
 
@@ -13132,7 +13396,7 @@ describe('<Combobox.Root />', () => {
           <Field.Root validate={(val) => (val === 'a' ? 'error' : null)}>
             <Combobox.Root required>
               <Combobox.Input data-testid="input" />
-              <Combobox.Clear data-testid="clear" />
+              <Combobox.Clear data-testid="clear" keepMounted />
               <Combobox.Portal>
                 <Combobox.Positioner>
                   <Combobox.Popup>
@@ -13526,7 +13790,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Trigger>
             <Combobox.Value data-testid="value" />
           </Combobox.Trigger>
-          <Combobox.Clear data-testid="clear" />
+          <Combobox.Clear data-testid="clear" keepMounted />
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>

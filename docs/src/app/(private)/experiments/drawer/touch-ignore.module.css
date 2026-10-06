@@ -176,6 +176,11 @@
   justify-content: center;
 }
 
+.ViewportEnd {
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
 .Popup {
   box-sizing: border-box;
   display: flex;
@@ -204,6 +209,23 @@
   &[data-starting-style],
   &[data-ending-style] {
     transform: translateY(100%);
+  }
+}
+
+.PopupHorizontal {
+  width: min(24rem, 100%);
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+  padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
+  padding-bottom: 1.5rem;
+  border-radius: 1.5rem 0 0 1.5rem;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transform: translateX(100%);
   }
 }
 
@@ -262,6 +284,16 @@
   background: rgb(240 249 255);
 }
 
+.TileViolet {
+  border: 1px solid rgb(196 181 253);
+  background: rgb(245 243 255);
+}
+
+.TileRose {
+  border: 1px solid rgb(253 164 175);
+  background: rgb(255 241 242);
+}
+
 .TileTitle {
   font-size: 0.875rem;
   font-weight: 600;
@@ -279,6 +311,14 @@
   color: rgb(12 74 110);
 }
 
+.TileTitleViolet {
+  color: rgb(76 29 149);
+}
+
+.TileTitleRose {
+  color: rgb(136 19 55);
+}
+
 .TileDescription {
   margin-top: 0.25rem;
   font-size: 0.875rem;
@@ -294,6 +334,39 @@
 
 .TileDescriptionSky {
   color: rgb(7 89 133);
+}
+
+.TileDescriptionViolet {
+  color: rgb(91 33 182);
+}
+
+.TileDescriptionRose {
+  color: rgb(159 18 57);
+}
+
+.DirectionToggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.DirectionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.25rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background: white;
+  color: var(--color-gray-700);
+  font-size: 0.8125rem;
+  font-weight: 500;
+
+  &[data-active] {
+    border-color: rgb(15 23 42);
+    background: rgb(15 23 42);
+    color: white;
+  }
 }
 
 .Actions {

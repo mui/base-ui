@@ -29,7 +29,13 @@ export interface DescribeGregorianAdapterParameters {
    * Creates a date in French locale.
    */
   createDateInFrenchLocale: (dateStr: string) => TemporalSupportedObject;
+  /**
+   * Creates an adapter with the given locale.
+   */
+  createAdapterWithLocale: (localeCode: AdapterLocaleCode) => TemporalAdapter;
 }
+
+export type AdapterLocaleCode = 'en-US' | 'he' | 'en-IN' | 'ar-SA' | 'hi' | 'ar-EG';
 
 export type DescribeGregorianAdapterTestSuite = (
   params: DescribeGregorianAdapterParameters,

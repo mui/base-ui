@@ -299,10 +299,11 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
-   * - `'pointer'`: the highlight changed due to pointer hovering.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
    * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
-   * - `'none'`: the highlight changed for another reason, such as `autoHighlight`, the item
-   *   list changing, or the popup opening or closing.
+   * - `'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the
+   *   item list changing, or the popup opening or closing.
    */
   onItemHighlighted?:
     | ((

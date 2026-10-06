@@ -56,6 +56,8 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly itemLabels: React.RefObject<(string | null)[]>;
   /** Why the next `activeIndex` write happens, consumed by `onItemHighlighted` on commit. */
   highlightReason: MenuRoot.HighlightEventReason;
+  /** The event that caused the next `activeIndex` write, reported along with `highlightReason`. */
+  highlightEvent: Event | undefined;
   /** The item last committed as highlighted, kept in every menu so reasons compare against it. */
   reportedItem: HTMLElement | undefined;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
@@ -102,7 +104,15 @@ const selectors = {
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
-  instantType: (state: State<unknown>) => state.instantType,
+  // `trigger-change` describes a popup moving between triggers, which only has
+  // meaning while it is open. Dropping it once closed keeps a late or stale
+  // restoration from marking a closing popup instant and skipping its exit
+  // transition, including on close paths that never reach `setOpen` — a
+  // controlled consumer committing `open={false}` goes straight through the prop.
+  instantType: (state: State<unknown>) =>
+    state.instantType === 'trigger-change' && !popupStoreSelectors.open(state)
+      ? undefined
+      : state.instantType,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
   floatingTreeRoot: (state: State<unknown>): FloatingTreeStore => {
     if (state.parent.type === 'menu') {
@@ -203,22 +213,32 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
-  setActiveIndex(activeIndex: number | null, reason: MenuRoot.HighlightEventReason) {
+  setActiveIndex(
+    activeIndex: number | null,
+    reason: MenuRoot.HighlightEventReason,
+    event?: Event | undefined,
+  ) {
     // Only a write that changes the index is reported. Tagging a no-op, or a write back to the
     // reported item before the change commits, would let a later registry-driven re-emit report
     // this reason instead of `none`.
     if (this.state.activeIndex !== activeIndex) {
       const item =
         activeIndex === null ? undefined : this.context.itemDomElements.current[activeIndex];
-      this.context.highlightReason = item === this.context.reportedItem ? 'none' : reason;
+      const isWriteBack = item === this.context.reportedItem;
+      this.context.highlightReason = isWriteBack ? 'none' : reason;
+      this.context.highlightEvent = isWriteBack ? undefined : event;
     }
     this.set('activeIndex', activeIndex);
   }
 
-  highlightItem(element: Element | null, reason: MenuRoot.HighlightEventReason) {
+  highlightItem(
+    element: Element | null,
+    reason: MenuRoot.HighlightEventReason,
+    event?: Event | undefined,
+  ) {
     const index = this.context.itemDomElements.current.indexOf(element as HTMLElement);
     if (index > -1) {
-      this.setActiveIndex(index, reason);
+      this.setActiveIndex(index, reason, event);
     }
   }
 }
@@ -248,6 +268,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
     highlightReason: 'none',
+    highlightEvent: undefined,
     reportedItem: undefined,
     allowMouseUpTriggerRef: { current: false },
     virtualFocusRef: undefined,

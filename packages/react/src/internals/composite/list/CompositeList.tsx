@@ -31,7 +31,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   const onMapChange = useStableCallback(onMapChangeProp);
 
-  const [, setMapTick] = React.useState(false);
+  const [, setMapTick] = React.useState(0);
 
   const listeners = useRefWithInit(createListeners).current;
   const map = useRefWithInit(createMap<Metadata>).current;
@@ -49,7 +49,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     }
 
     isDirtyRef.current = true;
-    setMapTick((tick) => !tick);
+    setMapTick((tick) => tick + 1);
   });
 
   const register = useStableCallback(

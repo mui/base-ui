@@ -140,8 +140,8 @@ export class ReactStore<
       if (previouslyControlled !== undefined && previouslyControlled !== isControlled) {
         console.error(
           `A component is changing the ${
-            isControlled ? '' : 'un'
-          }controlled state of ${key.toString()} to be ${isControlled ? 'un' : ''}controlled. Elements should not switch from uncontrolled to controlled (or vice versa).`,
+            previouslyControlled ? '' : 'un'
+          }controlled state of ${key.toString()} to be ${previouslyControlled ? 'un' : ''}controlled. Elements should not switch from uncontrolled to controlled (or vice versa).`,
         );
       }
     }

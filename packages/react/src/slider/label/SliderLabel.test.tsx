@@ -1,7 +1,9 @@
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { describe, it, expect } from 'vitest';
 import { Slider } from '@base-ui/react/slider';
 import { Field } from '@base-ui/react/field';
-import { screen } from '@mui/internal-test-utils';
+import { screen, within } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Slider.Label />', () => {
@@ -38,6 +40,49 @@ describe('<Slider.Label />', () => {
 
     expect(screen.getByRole('slider', { name: 'Volume' })).toHaveFocus();
     expect(screen.getByRole('slider', { name: 'Unrelated range' })).not.toHaveFocus();
+  });
+
+  it('focuses the thumb in its shadow root when the outer document has a matching ID', async () => {
+    const host = document.createElement('div');
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const container = document.createElement('div');
+    shadowRoot.appendChild(container);
+    document.body.appendChild(host);
+
+    try {
+      const { user, unmount } = await render(
+        <React.Fragment>
+          <input aria-label="Unrelated control" />
+          {ReactDOM.createPortal(
+            <Field.Root>
+              <Slider.Root defaultValue={50}>
+                <Slider.Label>Volume</Slider.Label>
+                <Slider.Control>
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>,
+            container,
+          )}
+        </React.Fragment>,
+      );
+
+      try {
+        const thumb = within(container).getByRole('slider', { name: 'Volume' });
+        const unrelatedControl = screen.getByRole('textbox', { name: 'Unrelated control' });
+        expect(thumb.id).not.toBe('');
+        unrelatedControl.id = thumb.id;
+
+        await user.click(within(container).getByText('Volume'));
+
+        expect(shadowRoot.activeElement).toBe(thumb);
+        expect(unrelatedControl).not.toHaveFocus();
+      } finally {
+        unmount();
+      }
+    } finally {
+      host.remove();
+    }
   });
 
   it('does nothing when a Field slider has no thumb to focus', async () => {
