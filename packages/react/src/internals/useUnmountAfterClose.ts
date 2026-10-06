@@ -109,8 +109,9 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
     }
     if (pendingUnmountRef.current) {
       pendingUnmountRef.current = false;
-      // `getOpen` catches a controlled close that this commit doesn't render yet.
-      if (mounted && (!open || getOpen?.() === false)) {
+      // The mirror, not the committed `mounted`, so an `unmount` a descendant already ran in this
+      // commit isn't repeated. `getOpen` catches a controlled close this commit doesn't render yet.
+      if (mountedRef.current && (!open || getOpen?.() === false)) {
         unmount();
       }
     }
