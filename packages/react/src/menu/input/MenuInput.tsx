@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { FilterDropdownInput } from '../../filter-dropdown/input/FilterDropdownInput';
 import type {
   FilterDropdownInputProps,
@@ -7,6 +9,7 @@ import type {
 } from '../../filter-dropdown/input/FilterDropdownInput';
 import { useFilterDropdownValueContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../../merge-props';
+import { activeElement } from '../../floating-ui-react/utils';
 import { useMenuFilterKeyDown } from '../filter-root/useMenuFilterKeyDown';
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -30,9 +33,25 @@ export const MenuInput = React.forwardRef(function MenuInput(
   const activeItemId = store.useState('highlightedItemId');
 
   const handleKeyDown = useMenuFilterKeyDown(value !== '');
+  const handleInputRef = React.useCallback(
+    (input: HTMLInputElement | null) => {
+      // Ref changes cover input removal without blur and restore focus after Strict Mode replay.
+      store.set('inputFocused', input !== null && activeElement(ownerDocument(input)) === input);
+    },
+    [store],
+  );
 
+  const mergedRefs = useMergedRefs(forwardedRef, handleInputRef);
   const inputProps = mergeProps<typeof FilterDropdownInput>(
-    { onKeyDown: handleKeyDown },
+    {
+      onKeyDown: handleKeyDown,
+      onFocus() {
+        store.set('inputFocused', true);
+      },
+      onBlur() {
+        store.set('inputFocused', false);
+      },
+    },
     componentProps,
   );
 
@@ -41,7 +60,7 @@ export const MenuInput = React.forwardRef(function MenuInput(
       {...inputProps}
       activeItemId={activeItemId}
       navigationProps={navigationProps}
-      ref={forwardedRef}
+      ref={mergedRefs}
     />
   );
 });
