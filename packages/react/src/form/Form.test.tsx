@@ -15,6 +15,7 @@ import {
   waitFor,
   within,
 } from '@mui/internal-test-utils';
+import { isJSDOM } from '#test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<Form />', () => {
@@ -645,6 +646,25 @@ describe('<Form />', () => {
       expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
     });
 
+    it.skipIf(isJSDOM)('does not block submission on a field disabled by a native fieldset', () => {
+      const handleSubmit = vi.fn();
+
+      render(
+        <Form errors={{ foo: 'bar' }} onFormSubmit={handleSubmit}>
+          <fieldset disabled>
+            <Field.Root name="foo">
+              <Field.Control />
+            </Field.Root>
+          </fieldset>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+    });
+
     it('should not mark <Field.Control> as invalid if no error is provided', () => {
       render(
         <Form>
@@ -951,6 +971,31 @@ describe('<Form />', () => {
   });
 
   describe('prop: onFormSubmit', () => {
+    it.skipIf(isJSDOM)(
+      'omits fields disabled by a native fieldset from the values passed to validate',
+      () => {
+        const validate = vi.fn((_value: unknown, _formValues: Form.Values) => null);
+
+        render(
+          <Form onFormSubmit={() => {}}>
+            <fieldset disabled>
+              <Field.Root name="disabled">
+                <Field.Control defaultValue="x" />
+              </Field.Root>
+            </fieldset>
+            <Field.Root name="enabled" validate={validate}>
+              <Field.Control defaultValue="y" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        fireEvent.click(screen.getByText('submit'));
+
+        expect(validate.mock.lastCall?.[1]).toEqual({ enabled: 'y' });
+      },
+    );
+
     it('runs when the form is submitted', async () => {
       const submitSpy = vi.fn((formValues, eventDetails) => ({ formValues, eventDetails }));
 

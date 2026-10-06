@@ -120,9 +120,9 @@ export function useFieldValidation(
     return (element && registeredInputs.get(element)?.controlRef.current) || null;
   });
 
-  // Whether an ancestor (a native `<fieldset disabled>`) disables the field. Inputs disabled
-  // directly keep their existing behavior, which also keeps a field with several inputs (a range
-  // slider, a group) active while any of them is not disabled by an ancestor.
+  // A field is disabled by an ancestor (a native `<fieldset disabled>`) when all its inputs are
+  // `:disabled` and at least one only through that ancestor. Inputs disabled directly keep their
+  // existing behavior.
   const isDisabled = useStableCallback(() => {
     let disabledByAncestor = false;
     for (const input of registeredInputs.size > 0 ? registeredInputs.keys() : [inputRef.current]) {
