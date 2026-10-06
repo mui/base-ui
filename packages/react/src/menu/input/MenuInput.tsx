@@ -35,21 +35,8 @@ export const MenuInput = React.forwardRef(function MenuInput(
   const handleKeyDown = useMenuFilterKeyDown(value !== '');
   const handleInputRef = React.useCallback(
     (input: HTMLInputElement | null) => {
-      if (input == null) {
-        return undefined;
-      }
-
-      // Autofocus may precede this ref, and Strict Mode can replay its cleanup without moving
-      // DOM focus. Read the active element on every attachment to restore the store if needed.
-      if (activeElement(ownerDocument(input)) === input) {
-        store.set('focusedInput', input);
-      }
-
-      return () => {
-        if (store.state.focusedInput === input) {
-          store.set('focusedInput', null);
-        }
-      };
+      // Ref changes cover input removal without blur and restore focus after Strict Mode replay.
+      store.set('inputFocused', input !== null && activeElement(ownerDocument(input)) === input);
     },
     [store],
   );
@@ -58,11 +45,11 @@ export const MenuInput = React.forwardRef(function MenuInput(
   const inputProps = mergeProps<typeof FilterDropdownInput>(
     {
       onKeyDown: handleKeyDown,
-      onFocus(event) {
-        store.set('focusedInput', event.currentTarget);
+      onFocus() {
+        store.set('inputFocused', true);
       },
       onBlur() {
-        store.set('focusedInput', null);
+        store.set('inputFocused', false);
       },
     },
     componentProps,

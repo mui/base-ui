@@ -17,7 +17,7 @@ vi.mock('@base-ui/utils/platform', async () => {
   };
 });
 
-function Test(props: { autoFocus?: boolean; inputKey?: string }) {
+function Test(props: { autoFocus?: boolean; inputKey?: string; showInput?: boolean }) {
   return (
     <Menu.FilterProvider>
       <Menu.Root defaultOpen>
@@ -25,11 +25,13 @@ function Test(props: { autoFocus?: boolean; inputKey?: string }) {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              <Menu.Input
-                key={props.inputKey}
-                aria-label="Filter actions"
-                autoFocus={props.autoFocus}
-              />
+              {props.showInput !== false && (
+                <Menu.Input
+                  key={props.inputKey}
+                  aria-label="Filter actions"
+                  autoFocus={props.autoFocus}
+                />
+              )}
               <Menu.List>
                 <Menu.Item>Apple</Menu.Item>
                 <Menu.Item>Banana</Menu.Item>
@@ -109,6 +111,35 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
       'aria-selected',
       'true',
     );
+  });
+
+  it('keeps selection in sync when a focused input is replaced without autofocus', async () => {
+    const { user, setProps } = await render(<Test autoFocus inputKey="first" />);
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+    await user.keyboard('[ArrowDown]');
+    const apple = screen.getByRole('menuitem', { name: 'Apple' });
+    expect(apple).toHaveAttribute('aria-selected', 'true');
+
+    await setProps({ inputKey: 'second', autoFocus: false });
+    const replacement = screen.getByRole('searchbox', { name: 'Filter actions' });
+    expect(replacement).not.toBe(input);
+    // Engines differ in whether they restore focus after removing the old input.
+    expect(apple.getAttribute('aria-selected')).toBe(replacement.matches(':focus') ? 'true' : null);
+  });
+
+  it('clears selection when the focused input unmounts while the menu stays open', async () => {
+    const { user, setProps } = await render(<Test autoFocus />);
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+    await user.keyboard('[ArrowDown]');
+    const apple = screen.getByRole('menuitem', { name: 'Apple' });
+    expect(apple).toHaveAttribute('aria-selected', 'true');
+
+    await setProps({ showInput: false });
+    expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
+    expect(apple).toBeInTheDocument();
+    expect(apple).not.toHaveAttribute('aria-selected');
   });
 
   it('does not restore selection after a focused input unmounts and the menu reopens on hover', async () => {
