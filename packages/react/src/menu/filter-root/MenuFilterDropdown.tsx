@@ -83,10 +83,9 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
 
   // Only `setOpen` records a keyboard open, so a controlled close that bypasses it must not leave
   // the next programmatic open looking like one.
-  // A focused input can unmount without a blur event, so also clear its focus state here.
   useIsoLayoutEffect(() => {
     if (!open) {
-      store.update({ keyboardOpen: false, inputFocused: false });
+      store.set('keyboardOpen', false);
     }
   }, [open, store]);
 
