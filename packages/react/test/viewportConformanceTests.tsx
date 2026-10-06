@@ -369,8 +369,13 @@ export function viewportConformanceTests(config: ViewportTestConfig) {
         });
 
         await act(async () => setOpenExternal?.(false));
+        // `toBeVisible` turns false once the exit animation reaches opacity 0, before the exit
+        // completes, so also wait for the ending state to clear before reopening.
         await waitFor(() => {
           expect(screen.getByTestId('popup')).not.toBeVisible();
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).not.toHaveAttribute('data-ending-style');
         });
 
         await activateTrigger(trigger1, user);
