@@ -1,9 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { platform } from '@base-ui/utils/platform';
 import { createRenderer, firePointer, isJSDOM } from '#test-utils';
 import { useDrawerVirtualKeyboardContext } from './DrawerVirtualKeyboardContext';
 
@@ -981,78 +979,72 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     },
   );
 
-  it.skipIf(isJSDOM || !platform.engine.blink).each(['button', 'div'] as const)(
-    'activates a %s on the first tap while the keyboard is open',
-    async (Item) => {
-      const { cdp } = await import('vitest/browser');
-      const restoreInnerHeight = mockWindowInnerHeight(800);
-      const visualViewport = mockVisualViewport(800);
-      const onClick = vi.fn();
+  it.skipIf(isJSDOM)('activates an item on the first tap while the keyboard is open', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(800);
+    const onClick = vi.fn();
 
-      try {
-        await render(
-          <Drawer.Root open modal={false}>
-            <Drawer.VirtualKeyboardProvider>
-              <Drawer.Portal>
-                <Drawer.Viewport data-testid="viewport">
-                  <Drawer.Popup
-                    style={{
-                      position: 'fixed',
-                      left: 0,
-                      top: 'calc(360px - var(--drawer-keyboard-inset, 0px))',
-                    }}
+    try {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport data-testid="viewport">
+                <Drawer.Popup
+                  style={{
+                    position: 'fixed',
+                    left: 0,
+                    top: 'calc(360px - var(--drawer-keyboard-inset, 0px))',
+                  }}
+                >
+                  <input data-testid="input" type="text" />
+                  <button
+                    data-testid="item"
+                    type="button"
+                    onClick={onClick}
+                    style={{ display: 'block', width: 200, height: 40 }}
                   >
-                    <input data-testid="input" type="text" />
-                    <Item
-                      data-testid="item"
-                      data-base-ui-swipe-ignore
-                      onClick={onClick}
-                      style={{ display: 'block', width: 200, height: 40 }}
-                    >
-                      Select item
-                    </Item>
-                  </Drawer.Popup>
-                </Drawer.Viewport>
-              </Drawer.Portal>
-            </Drawer.VirtualKeyboardProvider>
-          </Drawer.Root>,
-        );
+                    Select item
+                  </button>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
 
-        const viewport = screen.getByTestId('viewport');
-        await act(async () => {
-          screen.getByTestId('input').focus();
-          visualViewport.resize(500);
-        });
-        await waitFor(() => {
-          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
-        });
+      const viewport = screen.getByTestId('viewport');
+      await act(async () => {
+        screen.getByTestId('input').focus();
+        visualViewport.resize(500);
+      });
+      await waitFor(() => {
+        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+      });
 
-        const frame = window.frameElement as HTMLIFrameElement | null;
-        const frameRect = frame?.getBoundingClientRect();
-        const scale = frameRect ? frameRect.width / window.innerWidth : 1;
-        const itemRect = screen.getByTestId('item').getBoundingClientRect();
+      const item = screen.getByTestId('item');
+      const itemRect = item.getBoundingClientRect();
+      const x = itemRect.left + itemRect.width / 2;
+      const y = itemRect.top + itemRect.height / 2;
 
-        // A tap dispatches mousedown, mouseup, and click in one task, all hit-tested at the
-        // tap point. A synchronous inset reset on focus loss moves the item away mid-tap.
-        await act(async () => {
-          await (cdp() as CDPSession).send('Input.synthesizeTapGesture', {
-            x: (frameRect?.left ?? 0) + (itemRect.left + itemRect.width / 2) * scale,
-            y: (frameRect?.top ?? 0) + (itemRect.top + itemRect.height / 2) * scale,
-          });
-        });
+      // A tap's compatibility mousedown moves focus, then mouseup and click are hit-tested at
+      // the tap point in the same task. A synchronous inset reset on focus loss would move
+      // the item away before they land.
+      fireEvent.mouseDown(item);
+      item.focus();
+      const target = document.elementFromPoint(x, y)!;
+      fireEvent.mouseUp(target);
+      fireEvent.click(target);
 
-        await waitFor(() => {
-          expect(onClick).toHaveBeenCalledTimes(1);
-        });
-        await waitFor(() => {
-          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
-        });
-      } finally {
-        visualViewport.restore();
-        restoreInnerHeight();
-      }
-    },
-  );
+      expect(onClick).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+      });
+    } finally {
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
 
   it.skipIf(isJSDOM)('does not add keyboard scroll slack while pinch-zoomed', async () => {
     const restoreInnerHeight = mockWindowInnerHeight(800);
