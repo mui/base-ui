@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { platform } from '@base-ui/utils/platform';
 import { createRenderer, firePointer, isJSDOM } from '#test-utils';
 import { useDrawerVirtualKeyboardContext } from './DrawerVirtualKeyboardContext';
 
@@ -979,10 +981,10 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     },
   );
 
-  it.skipIf(isJSDOM).each(['button', 'div'] as const)(
-    'activates a %s on the first click while the keyboard is open',
+  it.skipIf(isJSDOM || !platform.engine.blink).each(['button', 'div'] as const)(
+    'activates a %s on the first tap while the keyboard is open',
     async (Item) => {
-      const { userEvent: user } = await import('vitest/browser');
+      const { cdp } = await import('vitest/browser');
       const restoreInnerHeight = mockWindowInnerHeight(800);
       const visualViewport = mockVisualViewport(800);
       const onClick = vi.fn();
@@ -1025,13 +1027,23 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
           expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
         });
 
-        // Native input hit-tests mouseup at the original coordinates. A synchronous
-        // inset reset during mousedown moves the item away and loses its click.
+        const frame = window.frameElement as HTMLIFrameElement | null;
+        const frameRect = frame?.getBoundingClientRect();
+        const scale = frameRect ? frameRect.width / window.innerWidth : 1;
+        const itemRect = screen.getByTestId('item').getBoundingClientRect();
+
+        // A tap dispatches mousedown, mouseup, and click in one task, all hit-tested at the
+        // tap point. A synchronous inset reset on focus loss moves the item away mid-tap.
         await act(async () => {
-          await user.click(screen.getByTestId('item'));
+          await (cdp() as CDPSession).send('Input.synthesizeTapGesture', {
+            x: (frameRect?.left ?? 0) + (itemRect.left + itemRect.width / 2) * scale,
+            y: (frameRect?.top ?? 0) + (itemRect.top + itemRect.height / 2) * scale,
+          });
         });
 
-        expect(onClick).toHaveBeenCalledTimes(1);
+        await waitFor(() => {
+          expect(onClick).toHaveBeenCalledTimes(1);
+        });
         await waitFor(() => {
           expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
         });
