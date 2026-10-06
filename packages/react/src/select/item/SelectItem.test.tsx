@@ -518,6 +518,41 @@ describe('<Select.Item />', () => {
 
     clock.withFakeTimers();
 
+    it('calls onClick once for a click made after the opening delay', async () => {
+      // Past the delay, a release over an item can select it on its own, so a regular click must
+      // still only activate the item through its click event.
+      const onClick = vi.fn();
+      const { user } = await renderFakeTimers(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b" onClick={onClick}>
+                  b
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await act(async () => {
+        await clock.tickAsync(500);
+      });
+      await user.click(optionB);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'false');
+      });
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
     it('should not select an item on quick mouseup when showing a placeholder (no null item)', async () => {
       ignoreActWarnings();
       const fonts = [

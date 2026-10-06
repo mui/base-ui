@@ -420,13 +420,16 @@ describe('<Collapsible.Panel />', () => {
     });
 
     it('keeps exit transitions working after a close is interrupted by reopening', async () => {
+      // Keep the close running long enough for a slow run to interrupt it. Without animations,
+      // `data-ending-style` only lasts a frame and `waitFor` can miss it.
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
       const { user } = await render(
         <React.Fragment>
           <style>{`
             .interruptible-panel {
               overflow: hidden;
               height: var(--collapsible-panel-height);
-              transition: height 100ms linear;
+              transition: height 10s linear;
             }
 
             .interruptible-panel[data-starting-style],
@@ -635,6 +638,60 @@ describe('<Collapsible.Panel />', () => {
       expect(panel).toHaveAttribute('data-open');
       expect(panel.getAnimations().length).toBe(0);
       expect(getComputedStyle(panel).animationName).toBe('none');
+    });
+
+    it('animates on reopen after an initially open panel is removed by the render function', async () => {
+      const RemovablePanel = React.forwardRef<
+        HTMLDivElement,
+        React.ComponentPropsWithoutRef<'div'> & { open: boolean }
+      >(function RemovablePanel({ open, ...props }, ref) {
+        return open ? <div {...props} ref={ref} /> : null;
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          <style>{`
+            @keyframes removable-panel-open {
+              from {
+                opacity: 0;
+              }
+
+              to {
+                opacity: 1;
+              }
+            }
+
+            .removable-animation-panel[data-open] {
+              animation: removable-panel-open 10s linear;
+            }
+          `}</style>
+
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel
+              className="removable-animation-panel"
+              data-testid="panel"
+              render={(props, state) => <RemovablePanel {...props} open={state.open} />}
+            >
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(screen.getByTestId('panel').getAnimations()).toHaveLength(0);
+
+      await user.click(trigger);
+
+      expect(screen.queryByTestId('panel')).toBe(null);
+
+      await user.click(trigger);
+
+      const panel = screen.getByTestId('panel');
+      expect(panel).toHaveAttribute('data-open');
+      expect(getComputedStyle(panel).animationName).toBe('removable-panel-open');
+      expect(panel.getAnimations()).toHaveLength(1);
     });
 
     it('still animates on close and reopen after being initially open', async () => {
