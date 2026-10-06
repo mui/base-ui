@@ -82,7 +82,7 @@ export function useCollapsiblePanel(
   const hidden = !open && !mounted;
   const isHydrating = useIsHydrating();
   // React renders `hidden="until-found"` as `hidden=""` (https://github.com/facebook/react/issues/24740),
-  // which hides closed panels in server HTML from find-in-page, crawlers and text extractors.
+  // which hides closed panels in server HTML from crawlers and text extractors.
   // Collapse them with inline styles until hydration instead.
   const shouldDeferHiddenAttribute = hiddenUntilFound && hidden && isHydrating;
   const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;
@@ -368,6 +368,7 @@ export function useCollapsiblePanel(
     // legit string values to booleans so we have to force it back in the DOM
     // when necessary: https://github.com/react/react/issues/24740
     panel.setAttribute('hidden', 'until-found');
+    // `isHydrating`: React writes `hidden=""` once hydration ends, so restore `until-found`.
   }, [hidden, hiddenUntilFound, isHydrating]);
 
   React.useEffect(
