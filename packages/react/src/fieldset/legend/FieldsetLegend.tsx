@@ -4,7 +4,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
-import * as FieldsetLegendDataAttributes from './FieldsetLegendDataAttributes';
 
 /**
  * An accessible label that is automatically associated with the fieldset.
@@ -29,13 +28,7 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [
-      {
-        id,
-        [FieldsetLegendDataAttributes.disabled]: disabled ? '' : undefined,
-      },
-      elementProps,
-    ],
+    props: [{ id }, elementProps],
   });
 
   return element;
