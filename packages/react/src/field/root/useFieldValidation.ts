@@ -120,6 +120,20 @@ export function useFieldValidation(
     return (element && registeredInputs.get(element)?.controlRef.current) || null;
   });
 
+  // Whether an ancestor (a native `<fieldset disabled>`) disables the field. Inputs disabled
+  // directly keep their existing behavior, which also keeps a field with several inputs (a range
+  // slider, a group) active while any of them is not disabled by an ancestor.
+  const isDisabled = useStableCallback(() => {
+    let disabledByAncestor = false;
+    for (const input of registeredInputs.size > 0 ? registeredInputs.keys() : [inputRef.current]) {
+      if (!input?.matches(':disabled')) {
+        return false;
+      }
+      disabledByAncestor ||= !input.disabled;
+    }
+    return disabledByAncestor;
+  });
+
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
     validationCommitIdRef.current += 1;
     const validationCommitId = validationCommitIdRef.current;
@@ -291,13 +305,13 @@ export function useFieldValidation(
       // - validating on change, or
       // - native constraint validations passed, custom validity check is next
       const formValues = Array.from(formRef.current.fields.values()).reduce((acc, field) => {
-        if (field.name) {
+        if (field.name && !field.isDisabled()) {
           acc[field.name] = field.getValue();
         }
         return acc;
       }, {} as Form.Values);
 
-      const resultOrPromise = validate(value, formValues);
+      const resultOrPromise = isDisabled() ? null : validate(value, formValues);
       let result: string | string[] | null | void;
 
       if (
@@ -382,10 +396,19 @@ export function useFieldValidation(
       registeredInputs,
       registerInput,
       getInputControl,
+      isDisabled,
       commit,
       change,
     }),
-    [getValidationProps, registeredInputs, registerInput, getInputControl, commit, change],
+    [
+      getValidationProps,
+      registeredInputs,
+      registerInput,
+      getInputControl,
+      isDisabled,
+      commit,
+      change,
+    ],
   );
 }
 
@@ -411,6 +434,7 @@ export interface UseFieldValidationReturnValue {
   registeredInputs: RegisteredInputs;
   registerInput: (element: HTMLInputElement, registration: RegisteredInput) => void | (() => void);
   getInputControl: () => HTMLElement | null;
+  isDisabled: () => boolean;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown, cancelPending?: boolean) => void;
 }

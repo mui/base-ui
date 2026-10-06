@@ -22,6 +22,8 @@ export interface FormContext {
         validate: () => void;
         validityData: FieldValidityData;
         controlRef: React.RefObject<HTMLElement | null>;
+        /** Whether the field's native form control is effectively disabled at read time. */
+        isDisabled: () => boolean;
         getValue: () => unknown;
       }
     >;

@@ -1460,6 +1460,58 @@ describe('<CheckboxGroup />', () => {
       expect(validate.mock.lastCall?.[1].fruits).toEqual(['apple']);
       expect(handleSubmit.mock.lastCall?.[0].fruits).toEqual(['apple']);
     });
+
+    it('keeps validating a group whose checkboxes are all disabled individually', () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn(() => 'invalid');
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="fruits" validate={validate}>
+            <CheckboxGroup defaultValue={[]}>
+              <Checkbox.Root value="apple" disabled />
+              <Checkbox.Root value="banana" disabled />
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(handleSubmit).not.toHaveBeenCalled();
+    });
+
+    it.skipIf(isJSDOM)(
+      'omits a group disabled by a native fieldset from validation and submission',
+      () => {
+        const handleSubmit = vi.fn();
+        const validate = vi.fn(() => 'invalid');
+
+        render(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <fieldset disabled>
+              <Field.Root name="fruits" validate={validate}>
+                <CheckboxGroup defaultValue={['apple']}>
+                  <Checkbox.Root value="apple" />
+                  <Checkbox.Root value="banana" />
+                </CheckboxGroup>
+              </Field.Root>
+            </fieldset>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).getAll('fruits')).toEqual([]);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        expect(validate).not.toHaveBeenCalled();
+        expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+      },
+    );
   });
 
   describe.skipIf(isJSDOM)('Form', () => {
