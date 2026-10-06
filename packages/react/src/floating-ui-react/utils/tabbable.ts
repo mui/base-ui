@@ -210,6 +210,10 @@ export function getTabbableNearElement(
   exclude: Array<Element | null> = [],
   wrap = true,
 ): FocusableElement | null {
+  if (!referenceElement) {
+    return null;
+  }
+
   // Keep the anchor's composed-tree position separate from the focusable radio candidates.
   const list: FocusableElement[] = [];
   appendCandidates(ownerDocument(referenceElement).body, list);
