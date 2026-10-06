@@ -1926,6 +1926,97 @@ describe('<Menu.Root />', () => {
         expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       });
 
+      it('keeps submenu hover opening enabled when a reopen commits after the exit animation completes', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let finishExit!: () => void;
+        const exitFinished = new Promise<void>((resolve) => {
+          finishExit = resolve;
+        });
+        let setOpenExternal!: (open: boolean) => void;
+        let deferOpenChange = false;
+        let deferredOpen: boolean | null = null;
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          setOpenExternal = setOpen;
+
+          return (
+            <Menu.Root
+              open={open}
+              onOpenChange={(nextOpen) => {
+                if (deferOpenChange) {
+                  deferredOpen = nextOpen;
+                } else {
+                  setOpen(nextOpen);
+                }
+              }}
+            >
+              <Menu.Trigger>Trigger</Menu.Trigger>
+              <Menu.Portal keepMounted>
+                <Menu.Positioner data-testid="positioner">
+                  <Menu.Popup data-testid="popup">
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger" delay={20}>
+                        Submenu
+                      </Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="submenu-popup">
+                            <Menu.Item>Nested item</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+        const popup = screen.getByTestId('popup');
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        });
+        // The pointer moves over the menu, which allows hovering a submenu trigger to open it.
+        fireEvent.mouseMove(popup);
+
+        Object.defineProperty(popup, 'getAnimations', {
+          value: () => [{ finished: exitFinished }],
+          configurable: true,
+        });
+
+        await act(async () => setOpenExternal(false));
+        expect(popup).toHaveAttribute('data-ending-style');
+
+        deferOpenChange = true;
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(deferredOpen).toBe(true);
+        });
+
+        await act(async () => {
+          finishExit();
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
+        });
+        await act(async () => setOpenExternal(true));
+
+        // A reopen that commits before the exit completes keeps the menu's pointer state, so
+        // entering a submenu trigger opens it without another move over the menu.
+        fireEvent.mouseEnter(screen.getByTestId('submenu-trigger'));
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+        });
+      });
+
       it('clears the active trigger when a controlled close completes without a reopen', async () => {
         let setOpenExternal!: (open: boolean) => void;
 

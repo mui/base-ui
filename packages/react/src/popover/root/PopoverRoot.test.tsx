@@ -2585,6 +2585,104 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  describe('controlled reopen committed after the exit animation completes', () => {
+    // Holds a controlled reopen back, the way React 18 can commit it only after the exit
+    // animation's completion callback has run.
+    async function reopenAfterExitCompletes(
+      rootProps: Partial<Popover.Root.Props> = {},
+    ): Promise<HTMLElement> {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let finishExit!: () => void;
+      const exitFinished = new Promise<void>((resolve) => {
+        finishExit = resolve;
+      });
+      let setOpenExternal!: (open: boolean) => void;
+      let deferOpenChange = false;
+      let deferredOpen: boolean | null = null;
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        setOpenExternal = setOpen;
+
+        return (
+          <Popover.Root
+            {...rootProps}
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              rootProps.onOpenChange?.(nextOpen, eventDetails);
+              if (deferOpenChange) {
+                deferredOpen = nextOpen;
+              } else {
+                setOpen(nextOpen);
+              }
+            }}
+          >
+            <Popover.Trigger>Trigger</Popover.Trigger>
+            <Popover.Portal keepMounted>
+              <Popover.Positioner data-testid="positioner">
+                <Popover.Popup data-testid="popup">Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const popup = screen.getByTestId('popup');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-popup-open');
+      });
+
+      Object.defineProperty(popup, 'getAnimations', {
+        value: () => [{ finished: exitFinished }],
+        configurable: true,
+      });
+
+      await act(async () => setOpenExternal(false));
+      expect(popup).toHaveAttribute('data-ending-style');
+
+      deferOpenChange = true;
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(deferredOpen).toBe(true);
+      });
+
+      await act(async () => {
+        finishExit();
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
+      });
+      await act(async () => setOpenExternal(true));
+
+      return trigger;
+    }
+
+    it('keeps the pressed state of the trigger that reopened the popover', async () => {
+      const trigger = await reopenAfterExitCompletes();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-pressed');
+    });
+
+    it('does not report a completed close after the reopen request', async () => {
+      const calls: string[] = [];
+
+      await reopenAfterExitCompletes({
+        onOpenChange: (nextOpen) => calls.push(`change:${nextOpen}`),
+        onOpenChangeComplete: (nextOpen) => calls.push(`complete:${nextOpen}`),
+      });
+
+      const reopenIndex = calls.lastIndexOf('change:true');
+      expect(reopenIndex).toBeGreaterThan(-1);
+      expect(calls.slice(reopenIndex)).not.toContain('complete:false');
+    });
+  });
+
   describe('preventUnmountOnClose()', () => {
     it('does not leak from a canceled close into a synchronous second close', async () => {
       const popover = Popover.createHandle();

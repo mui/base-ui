@@ -587,7 +587,8 @@ export function useOpenProp<State extends PopupStoreState<unknown>>(
  *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
- * @param onUnmount Optional callback to be called when the popup is unmounted.
+ * @param onUnmount Optional callback to reset close-cycle state when the popup unmounts. Skipped,
+ *   along with `onOpenChangeComplete(false)`, when an open request arrived before the unmount.
  * @param animateInitialOpen Whether a popup that mounts already open should still play its enter
  *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
@@ -613,17 +614,19 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       // A trigger press during the exit writes the pressed trigger and `open: true` to the store,
       // but a controlled `open` prop may not have committed yet (React 18 can run the exit
       // completion in between). `useOpenProp` resets `state.open` when the prop closes the popup,
-      // so `true` here means a request made since then: keep its trigger instead of clearing it.
+      // so `true` here means a request made since then. It supersedes this close the same way a
+      // reopen that commits before the exit completes does: keep its trigger and the state it
+      // wrote, and skip the host's close cleanup and the close completion.
       if (store.state.open) {
         store.update({ mounted: false, preventUnmountingOnClose: false });
-      } else {
-        store.update({
-          activeTriggerId: null,
-          activeTriggerElement: null,
-          mounted: false,
-          preventUnmountingOnClose: false,
-        });
+        return;
       }
+      store.update({
+        activeTriggerId: null,
+        activeTriggerElement: null,
+        mounted: false,
+        preventUnmountingOnClose: false,
+      });
       onUnmount?.();
       store.context.onOpenChangeComplete?.(false);
     },
