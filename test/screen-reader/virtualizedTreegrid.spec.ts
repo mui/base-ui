@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
-import { screenReaderTest as test, type ScreenReaderPlaywright } from '@guidepup/playwright';
+import { screenReaderTest as test } from '@guidepup/playwright';
+import type { ScreenReaderPlaywright } from '@guidepup/playwright';
 
 /** Every step is spoken, so waiting for a phrase is waiting for speech. */
 const PHRASE_TIMEOUT = 30_000;
