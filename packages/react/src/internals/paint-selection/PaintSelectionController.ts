@@ -1,4 +1,6 @@
 import { getOverflowAncestors, isHTMLElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { contains } from '@base-ui/utils/shadowDom';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 
@@ -72,23 +74,29 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
     const pointerId = event.pointerId;
 
     const self = this;
+    const removeGestureListeners = mergeCleanups(
+      addEventListener(doc, 'pointermove', move, { passive: false }),
+      addEventListener(doc, 'pointerup', up),
+      addEventListener(doc, 'pointercancel', cancel),
+      addEventListener(doc, 'selectstart', preventSelection),
+      addEventListener(doc, 'dragstart', preventSelection),
+      addEventListener(win, 'blur', cancel),
+    );
+    const removeClickGuard = mergeCleanups(
+      addEventListener(doc, 'click', click, true),
+      addEventListener(doc, 'pointerdown', cleanup, true),
+    );
     function stop() {
       if (finished) {
         return;
       }
-      doc.removeEventListener('pointermove', move);
-      doc.removeEventListener('pointerup', up);
-      doc.removeEventListener('pointercancel', cancel);
-      doc.removeEventListener('selectstart', preventSelection);
-      doc.removeEventListener('dragstart', preventSelection);
-      win.removeEventListener('blur', cancel);
+      removeGestureListeners();
       finished = true;
       self.end?.();
     }
     function cleanup() {
       stop();
-      doc.removeEventListener('click', click, true);
-      doc.removeEventListener('pointerdown', cleanup, true);
+      removeClickGuard();
       if (self.cleanup === cleanup) {
         self.cleanup = undefined;
       }
@@ -211,14 +219,6 @@ export class PaintSelectionController<Item extends PaintSelectionItem> {
       }
       // Retain only the click guard until the trailing click or next pointerdown.
     }
-    doc.addEventListener('pointermove', move, { passive: false });
-    doc.addEventListener('pointerup', up);
-    doc.addEventListener('pointercancel', cancel);
-    doc.addEventListener('selectstart', preventSelection);
-    doc.addEventListener('dragstart', preventSelection);
-    doc.addEventListener('click', click, true);
-    doc.addEventListener('pointerdown', cleanup, true);
-    win.addEventListener('blur', cancel);
     this.cleanup = cleanup;
   }
 
