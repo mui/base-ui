@@ -1013,13 +1013,24 @@ describe('useOpenStateTransitions', () => {
   function OpenStateTransitionsTest({
     store,
     unmountRef,
+    renders,
+    disabled = false,
   }: {
     store: TestStore;
     unmountRef: React.RefObject<(() => void) | null>;
+    renders?: string[];
+    /** Like Tooltip's `disabled`: the Root passes `open && !disabled` as its open state. */
+    disabled?: boolean;
   }) {
     const open = store.useState('open');
+    const openReason = store.useState('openReason');
+    renders?.push(`${open}:${openReason}`);
     // The tests set the store's `openProp` directly, so it is never a commit behind the prop.
-    const { forceUnmount } = useOpenStateTransitions(open, store, store.state.openProp);
+    const { forceUnmount } = useOpenStateTransitions(
+      open && !disabled,
+      store,
+      store.state.openProp,
+    );
     unmountRef.current = forceUnmount;
     return null;
   }
@@ -1049,6 +1060,229 @@ describe('useOpenStateTransitions', () => {
     });
     expect(store.state.mounted).toBe(false);
     expect(store.state.openReason).toBe(null);
+  });
+
+  it('reports no open reason once the open prop alone reopens a closing popup', () => {
+    const store = createStore();
+    const unmountRef = React.createRef<(() => void) | null>();
+    const renders: string[] = [];
+    store.set('openProp', false);
+    render(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} renders={renders} />);
+
+    // A controlled root: the consumer accepts each request by updating the `open` prop.
+    act(() => {
+      store.update({
+        ...createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerHover)),
+        openProp: true,
+      });
+    });
+    act(() => {
+      store.update({
+        ...createPopupOpenState(
+          store.state,
+          false,
+          createChangeEventDetails(REASONS.escapeKey),
+          true,
+        ),
+        openProp: false,
+      });
+    });
+    expect(store.select('openReason')).toBe(REASONS.triggerHover);
+    renders.length = 0;
+
+    act(() => {
+      store.set('openProp', true);
+    });
+    expect(store.select('openReason')).toBe(null);
+    // Not even the first open render, before the Root's layout effect, sees the previous reason.
+    expect(renders).not.toContain(`true:${REASONS.triggerHover}`);
+
+    // The next exit doesn't bring back the previous cycle's reason.
+    act(() => {
+      store.set('openProp', false);
+    });
+    expect(store.select('openReason')).toBe(null);
+  });
+
+  it('keeps the open reason across closes and reopens through the open prop alone', () => {
+    const store = createStore();
+    const unmountRef = React.createRef<(() => void) | null>();
+    store.set('openProp', false);
+    render(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} />);
+
+    act(() => {
+      store.update({
+        ...createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerHover)),
+        openProp: true,
+      });
+    });
+
+    for (let cycle = 0; cycle < 2; cycle += 1) {
+      // Keep the closed popup mounted, as an exit animation would.
+      act(() => {
+        store.update({ preventUnmountingOnClose: true, openProp: false });
+      });
+      act(() => {
+        store.set('openProp', true);
+      });
+    }
+
+    expect(store.select('openReason')).toBe(REASONS.triggerHover);
+  });
+
+  it('reports no open reason once the open prop reopens a popup that was disabled and then closed by a request', () => {
+    const store = createStore();
+    const unmountRef = React.createRef<(() => void) | null>();
+    store.set('openProp', false);
+    const view = render(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} />);
+
+    act(() => {
+      store.update({
+        ...createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerHover)),
+        openProp: true,
+      });
+    });
+    // Disabling closes the Root's own open state first; its close request follows. Keep the closed
+    // popup mounted throughout, as an exit animation would.
+    act(() => {
+      store.set('preventUnmountingOnClose', true);
+    });
+    view.rerender(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} disabled />);
+    act(() => {
+      store.update({
+        ...createPopupOpenState(
+          store.state,
+          false,
+          createChangeEventDetails(REASONS.disabled),
+          true,
+        ),
+        openProp: false,
+      });
+    });
+    expect(store.state.mounted).toBe(true);
+
+    view.rerender(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} />);
+    act(() => {
+      store.set('openProp', true);
+    });
+
+    expect(store.select('openReason')).toBe(null);
+  });
+
+  it('clears the open reason on unmount while an open request is still pending', () => {
+    const store = createStore();
+    const unmountRef = React.createRef<(() => void) | null>();
+    store.set('openProp', false);
+    render(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} />);
+
+    act(() => {
+      store.update({
+        ...createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerPress)),
+        openProp: true,
+      });
+    });
+    act(() => {
+      store.update({
+        ...createPopupOpenState(
+          store.state,
+          false,
+          createChangeEventDetails(REASONS.escapeKey),
+          true,
+        ),
+        openProp: false,
+      });
+    });
+    // The consumer accepts a hover open during the exit but never applies it.
+    act(() => {
+      store.update(
+        createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerHover)),
+      );
+    });
+    expect(store.select('openReason')).toBe(REASONS.triggerHover);
+
+    act(() => {
+      unmountRef.current!();
+    });
+
+    expect(store.state.mounted).toBe(false);
+    expect(store.state.openReason).toBe(null);
+  });
+
+  it('keeps the open reason when a controlled root ignores a close request', () => {
+    const store = createStore();
+    const unmountRef = React.createRef<(() => void) | null>();
+    store.set('openProp', false);
+    render(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} />);
+
+    act(() => {
+      store.update({
+        ...createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerHover)),
+        openProp: true,
+      });
+    });
+    act(() => {
+      store.update(
+        createPopupOpenState(store.state, false, createChangeEventDetails(REASONS.escapeKey)),
+      );
+    });
+
+    expect(store.select('open')).toBe(true);
+    expect(store.select('openReason')).toBe(REASONS.triggerHover);
+  });
+
+  it('keeps the reason of an open request accepted while a controlled close is pending', () => {
+    const store = createStore();
+    const unmountRef = React.createRef<(() => void) | null>();
+    store.set('openProp', false);
+    render(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} />);
+
+    act(() => {
+      store.update({
+        ...createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerPress)),
+        openProp: true,
+      });
+    });
+    // The consumer accepts a close and then a hover open, but applies both later.
+    act(() => {
+      store.update(
+        createPopupOpenState(store.state, false, createChangeEventDetails(REASONS.escapeKey)),
+      );
+      store.update(
+        createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerHover)),
+      );
+    });
+    act(() => {
+      store.set('openProp', false);
+    });
+    act(() => {
+      store.set('openProp', true);
+    });
+
+    expect(store.select('openReason')).toBe(REASONS.triggerHover);
+  });
+
+  it('takes the reason of an open request that reopens a closing popup', () => {
+    const store = createStore();
+    const unmountRef = React.createRef<(() => void) | null>();
+    render(<OpenStateTransitionsTest store={store} unmountRef={unmountRef} />);
+
+    act(() => {
+      store.update(
+        createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerHover)),
+      );
+    });
+    act(() => {
+      store.update(
+        createPopupOpenState(store.state, false, createChangeEventDetails(REASONS.escapeKey), true),
+      );
+    });
+    act(() => {
+      store.update(
+        createPopupOpenState(store.state, true, createChangeEventDetails(REASONS.triggerPress)),
+      );
+    });
+
+    expect(store.select('openReason')).toBe(REASONS.triggerPress);
   });
 });
 
