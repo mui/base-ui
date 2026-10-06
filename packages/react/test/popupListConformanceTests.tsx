@@ -618,6 +618,8 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
               }}
             >
               {node}
+              {/* Without a submit button, a form with more than one field never submits implicitly. */}
+              <button type="submit">Submit</button>
             </form>
           ),
         });
