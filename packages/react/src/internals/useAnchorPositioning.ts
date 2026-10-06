@@ -502,9 +502,11 @@ export function useAnchorPositioningWithHook(
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
 
-  // Render `fixed` until positioned so `autoFocus` during mount can't scroll to the unpositioned
-  // popup. `autoUpdate` switches the element to `positionMethod` before its first measurement.
-  const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
+  // Render `fixed` until positioned so `autoFocus` on insertion can't scroll to the unpositioned
+  // popup. Measuring needs `positionMethod`'s offset parent, so `whileElementsMounted` applies it
+  // first, and `keepMounted` popups (usually inserted while closed) render it once mounted.
+  const resolvedPosition: 'absolute' | 'fixed' =
+    isPositioned || (keepMounted && mounted) ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(() => {
     let base: React.CSSProperties & Record<string, unknown>;
@@ -576,15 +578,12 @@ export function useAnchorPositioningWithHook(
     }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
-  // A layout effect, like `whileElementsMounted`, so the strategy is applied before an initial
-  // `update()` from Floating UI measures, regardless of when React flushes passive effects.
-  useIsoLayoutEffect(() => {
+  React.useEffect(() => {
     if (keepMounted && mounted && elements.reference && elements.floating) {
-      elements.floating.style.position = positionMethod;
       return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
     }
     return undefined;
-  }, [keepMounted, mounted, elements, update, autoUpdateOptions, positionMethod]);
+  }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
 
   const renderedSide = getSide(renderedPlacement);
   const logicalRenderedSide = getLogicalSide(sideParam, renderedSide, isRtl);

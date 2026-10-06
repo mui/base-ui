@@ -96,7 +96,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const positioning = useAnchorPositioning({
     anchor,
     floatingRootContext,
-    positionMethod: alignItemWithTriggerActive ? 'fixed' : positionMethod,
+    positionMethod,
     mounted,
     side,
     sideOffset,
