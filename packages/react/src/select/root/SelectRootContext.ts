@@ -4,6 +4,8 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 
 export const SelectRootContext = React.createContext<SelectStore | undefined>(undefined);
+// Keep the value outside `useSyncedValues` so descendants see the current value during the same commit.
+export const SelectValueContext = React.createContext<unknown>(null);
 export const SelectFloatingContext = React.createContext<FloatingRootContext | undefined>(
   undefined,
 );
@@ -16,6 +18,10 @@ export function useSelectRootContext() {
     );
   }
   return store;
+}
+
+export function useSelectValueContext() {
+  return React.useContext(SelectValueContext);
 }
 
 export function useSelectFloatingContext() {

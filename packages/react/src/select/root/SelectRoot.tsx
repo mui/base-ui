@@ -20,7 +20,7 @@ import {
   useTypeahead,
 } from '../../floating-ui-react';
 import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
-import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
+import { SelectFloatingContext, SelectRootContext, SelectValueContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -512,9 +512,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   return (
     <SelectRootContext.Provider value={store}>
-      <SelectFloatingContext.Provider value={floatingContext}>
-        {children}
-      </SelectFloatingContext.Provider>
+      <SelectValueContext.Provider value={value}>
+        <SelectFloatingContext.Provider value={floatingContext}>
+          {children}
+        </SelectFloatingContext.Provider>
+      </SelectValueContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {

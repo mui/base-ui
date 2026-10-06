@@ -564,6 +564,71 @@ describe('<Select.Root />', () => {
       );
     });
 
+    it('keeps a new controlled value when the previous item is removed in the same update', async () => {
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [options, setOptions] = React.useState(['alice', 'bob', 'carol', 'dave']);
+        const [value, setValue] = React.useState<string | null>('dave');
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            <Select.Root<string>
+              value={value}
+              onValueChange={(next, details) => {
+                onValueChange(next, details);
+                setValue(next);
+              }}
+              open={open}
+              onOpenChange={(next, details) => {
+                if (!next && details.reason === 'outside-press') {
+                  return;
+                }
+                setOpen(next);
+              }}
+              modal={false}
+            >
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.List>
+                      {options.map((option) => (
+                        <Select.Item key={option} value={option}>
+                          {option}
+                        </Select.Item>
+                      ))}
+                    </Select.List>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setOptions(['alice', 'bob']);
+                setValue('bob');
+              }}
+            >
+              Update options and value
+            </button>
+            <output data-testid="value">{value}</output>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      await user.click(screen.getByRole('combobox'));
+      await screen.findByRole('listbox');
+      await user.click(screen.getByRole('button', { name: 'Update options and value' }));
+
+      expect(screen.getByTestId('value')).toHaveTextContent('bob');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
     it('should not update the internal value if the controlled value prop does not change', async () => {
       const onValueChange = vi.fn();
       await render(
