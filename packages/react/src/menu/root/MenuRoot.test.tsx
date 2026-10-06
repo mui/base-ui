@@ -1,6 +1,7 @@
 import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   act,
   fireEvent,
@@ -164,7 +165,8 @@ describe('<Menu.Root />', () => {
       function RenderNextMicrotask(props: { children: React.ReactNode }) {
         const [ready, setReady] = React.useState(false);
         React.useLayoutEffect(() => {
-          queueMicrotask(() => setReady(true));
+          // React 18 would otherwise commit a default-priority update in a later task.
+          queueMicrotask(() => ReactDOM.flushSync(() => setReady(true)));
         }, []);
         return ready ? props.children : null;
       }
