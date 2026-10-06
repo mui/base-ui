@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { ownerWindow } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 import { FilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
 import { getTarget } from '../../floating-ui-react/utils';
+import { refocusOwner } from '../utils/refocusOwner';
 
 /**
  * @internal
@@ -30,14 +30,16 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     // Chromium includes scrollable elements in sequential focus navigation by default.
     tabIndex: -1,
     id,
-    onMouseDown(event) {
+    onFocus(event) {
+      // A press on the list's own content, such as its background, a group, or a group label,
+      // focuses the list.
+      const owner = context.focusOwnerRef.current;
       if (
-        getTarget(event.nativeEvent) === event.currentTarget &&
-        !isScrollbarPress(event.currentTarget, event.nativeEvent)
+        owner &&
+        event.relatedTarget === owner &&
+        getTarget(event.nativeEvent) === event.currentTarget
       ) {
-        // Keep focus on the virtual focus owner when the list background is pressed, while
-        // allowing items and the scrollbar to receive their native pointer interactions.
-        event.preventDefault();
+        refocusOwner(owner);
       }
     },
     onPointerMove() {
@@ -65,23 +67,6 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     ],
   });
 });
-
-function isScrollbarPress(element: HTMLElement, event: MouseEvent) {
-  const verticalScrollbarWidth = element.offsetWidth - element.clientWidth;
-  const horizontalScrollbarHeight = element.offsetHeight - element.clientHeight;
-  const isRtl = ownerWindow(element).getComputedStyle(element).direction === 'rtl';
-
-  const pressedVerticalScrollbar =
-    element.scrollHeight > element.clientHeight &&
-    verticalScrollbarWidth > 0 &&
-    (isRtl ? event.offsetX <= verticalScrollbarWidth : event.offsetX > element.clientWidth);
-  const pressedHorizontalScrollbar =
-    element.scrollWidth > element.clientWidth &&
-    horizontalScrollbarHeight > 0 &&
-    event.offsetY > element.clientHeight;
-
-  return pressedVerticalScrollbar || pressedHorizontalScrollbar;
-}
 
 export interface FilterDropdownListState {}
 

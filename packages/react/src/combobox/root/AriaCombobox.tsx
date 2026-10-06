@@ -28,9 +28,10 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import type {
   BaseUIChangeEventDetails,
-  BaseUIGenericEventDetails,
+  BaseUIHighlightEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
@@ -253,7 +254,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const startDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const endDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
-  const keyboardActiveRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
@@ -501,7 +501,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         listProps: {},
         inputProps: {},
         triggerProps: {},
-        itemProps: EMPTY_OBJECT,
+        itemRoot: {
+          props: EMPTY_OBJECT,
+          id,
+          selectionMode,
+          disabled,
+          readOnly,
+          isItemEqualToValue,
+        },
         positionerElement: null,
         listElement: null,
         popupId: undefined,
@@ -532,7 +539,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         inputRef,
         startDismissRef,
         endDismissRef,
-        keyboardActiveRef,
         chipsContainerRef,
         clearRef,
         valuesRef,
@@ -599,7 +605,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
    * (a no-op if nothing was highlighted). Keeps `lastHighlightRef` in sync with what was emitted.
    */
   const emitHighlight = useStableCallback(
-    (value: any, index: number, type: AriaCombobox.HighlightEventReason) => {
+    (value: any, index: number, type: AriaCombobox.HighlightEventReason, event?: Event) => {
       if (index === -1) {
         if (lastHighlightRef.current === INITIAL_LAST_HIGHLIGHT) {
           return;
@@ -609,7 +615,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         lastHighlightRef.current = { value, index };
       }
 
-      onItemHighlighted(value, createGenericEventDetails(type, undefined, { index }));
+      onItemHighlighted(value, createGenericEventDetails(type, event, { index }));
     },
   );
 
@@ -618,6 +624,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       activeIndex?: number | null | undefined;
       selectedIndex?: number | null | undefined;
       type?: AriaCombobox.HighlightEventReason | undefined;
+      event?: Event | undefined;
     }) => {
       const update = {} as Pick<StoreState, 'activeIndex' | 'selectedIndex'>;
 
@@ -639,9 +646,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       const type: AriaCombobox.HighlightEventReason = options.type || REASONS.none;
 
       if (activeIndexOption === null) {
-        emitHighlight(undefined, -1, type);
+        emitHighlight(undefined, -1, type, options.event);
       } else {
-        emitHighlight(valuesRef.current[activeIndexOption], activeIndexOption, type);
+        emitHighlight(valuesRef.current[activeIndexOption], activeIndexOption, type, options.event);
       }
     },
   );
@@ -1427,16 +1434,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         return;
       }
 
-      let type: AriaCombobox.HighlightEventReason;
-      if (source === 'imperative') {
-        type = REASONS.imperativeAction;
-      } else if (event) {
-        type = keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer;
-      } else {
-        type = REASONS.none;
-      }
-
-      setIndices({ activeIndex: nextActiveIndex, type });
+      setIndices({
+        activeIndex: nextActiveIndex,
+        type: source === 'imperative' ? REASONS.imperativeAction : getHighlightReason(event),
+        event: event?.nativeEvent,
+      });
     },
   });
 
@@ -1497,16 +1499,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     [listNavigation.floating, role.floating],
   );
 
-  const itemProps = React.useMemo<HTMLProps>(() => {
+  const itemRoot = React.useMemo(() => {
     const listNavigationItemProps = listNavigation.item as HTMLProps | undefined;
-    if (!listNavigationItemProps) {
-      return EMPTY_OBJECT;
-    }
-
-    // Combobox keeps focus on the input; item focus would incorrectly sync
-    // list navigation state from DOM focus.
-    return { ...listNavigationItemProps, onFocus: undefined };
-  }, [listNavigation.item]);
+    return {
+      // Combobox keeps focus on the input; item focus would incorrectly sync
+      // list navigation state from DOM focus.
+      props: listNavigationItemProps
+        ? { ...listNavigationItemProps, onFocus: undefined }
+        : EMPTY_OBJECT,
+      id,
+      selectionMode,
+      disabled,
+      readOnly,
+      isItemEqualToValue,
+    };
+  }, [listNavigation.item, id, selectionMode, disabled, readOnly, isItemEqualToValue]);
 
   store.useContextCallback('setOpen', setOpen);
   store.useContextCallback('setInputValue', setInputValue);
@@ -1526,7 +1533,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       listProps,
       inputProps,
       triggerProps,
-      itemProps,
+      itemRoot,
     });
   });
 
@@ -1542,7 +1549,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     listProps,
     inputProps,
     triggerProps,
-    itemProps,
+    itemRoot,
     openMethod,
     selectionMode,
     name,
@@ -1853,10 +1860,11 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
-   * - `'pointer'`: the highlight changed due to pointer hovering.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
    * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
-   * - `'none'`: the highlight changed for another reason, such as `autoHighlight`, the item
-   *   list changing, or the popup opening or closing.
+   * - `'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the
+   *   item list changing, or the popup opening or closing.
    */
   onItemHighlighted?:
     | ((itemValue: ItemValue | undefined, eventDetails: AriaCombobox.HighlightEventDetails) => void)
@@ -2036,7 +2044,7 @@ export namespace AriaCombobox {
     | typeof REASONS.pointer
     | typeof REASONS.imperativeAction
     | typeof REASONS.none;
-  export type HighlightEventDetails = BaseUIGenericEventDetails<
+  export type HighlightEventDetails = BaseUIHighlightEventDetails<
     HighlightEventReason,
     { index: number }
   >;

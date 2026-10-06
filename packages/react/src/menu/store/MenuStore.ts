@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
+import { platform } from '@base-ui/utils/platform';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
@@ -34,6 +35,8 @@ export type State<Payload> = PopupStoreState<Payload> & {
   filterTriggerProps: HTMLProps;
   /** List navigation props for the element that holds real focus under virtual focus. */
   inputProps: HTMLProps;
+  /** Whether this menu's filter input has focus. */
+  inputFocused: boolean;
   /** The element at `activeIndex` once the item list settles. Only virtual focus publishes it. */
   highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
@@ -56,6 +59,8 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly itemLabels: React.RefObject<(string | null)[]>;
   /** Why the next `activeIndex` write happens, consumed by `onItemHighlighted` on commit. */
   highlightReason: MenuRoot.HighlightEventReason;
+  /** The event that caused the next `activeIndex` write, reported along with `highlightReason`. */
+  highlightEvent: Event | undefined;
   /** The item last committed as highlighted, kept in every menu so reasons compare against it. */
   reportedItem: HTMLElement | undefined;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
@@ -99,10 +104,23 @@ const selectors = {
   },
   filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
   inputProps: (state: State<unknown>) => state.inputProps,
+  // `aria-selected` is invalid on `menuitem`, but Safari VoiceOver needs it for arrow-key
+  // navigation. Limit it to WebKit while the input has focus so normal VoiceOver navigation
+  // does not encounter the invalid attribute.
+  webkitAriaSelected: (state: State<unknown>, highlighted: boolean) =>
+    platform.engine.webkit && state.inputFocused && highlighted ? true : undefined,
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
-  instantType: (state: State<unknown>) => state.instantType,
+  // `trigger-change` describes a popup moving between triggers, which only has
+  // meaning while it is open. Dropping it once closed keeps a late or stale
+  // restoration from marking a closing popup instant and skipping its exit
+  // transition, including on close paths that never reach `setOpen` — a
+  // controlled consumer committing `open={false}` goes straight through the prop.
+  instantType: (state: State<unknown>) =>
+    state.instantType === 'trigger-change' && !popupStoreSelectors.open(state)
+      ? undefined
+      : state.instantType,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
   floatingTreeRoot: (state: State<unknown>): FloatingTreeStore => {
     if (state.parent.type === 'menu') {
@@ -203,22 +221,32 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
-  setActiveIndex(activeIndex: number | null, reason: MenuRoot.HighlightEventReason) {
+  setActiveIndex(
+    activeIndex: number | null,
+    reason: MenuRoot.HighlightEventReason,
+    event?: Event | undefined,
+  ) {
     // Only a write that changes the index is reported. Tagging a no-op, or a write back to the
     // reported item before the change commits, would let a later registry-driven re-emit report
     // this reason instead of `none`.
     if (this.state.activeIndex !== activeIndex) {
       const item =
         activeIndex === null ? undefined : this.context.itemDomElements.current[activeIndex];
-      this.context.highlightReason = item === this.context.reportedItem ? 'none' : reason;
+      const isWriteBack = item === this.context.reportedItem;
+      this.context.highlightReason = isWriteBack ? 'none' : reason;
+      this.context.highlightEvent = isWriteBack ? undefined : event;
     }
     this.set('activeIndex', activeIndex);
   }
 
-  highlightItem(element: Element | null, reason: MenuRoot.HighlightEventReason) {
+  highlightItem(
+    element: Element | null,
+    reason: MenuRoot.HighlightEventReason,
+    event?: Event | undefined,
+  ) {
     const index = this.context.itemDomElements.current.indexOf(element as HTMLElement);
     if (index > -1) {
-      this.setActiveIndex(index, reason);
+      this.setActiveIndex(index, reason, event);
     }
   }
 }
@@ -248,6 +276,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
     highlightReason: 'none',
+    highlightEvent: undefined,
     reportedItem: undefined,
     allowMouseUpTriggerRef: { current: false },
     virtualFocusRef: undefined,
@@ -281,6 +310,7 @@ function createInitialState<Payload>(
     listElement: null,
     filterTriggerProps: EMPTY_OBJECT,
     inputProps: EMPTY_OBJECT,
+    inputFocused: false,
     highlightedItem: undefined,
     hoverEnabled: true,
     instantType: undefined,

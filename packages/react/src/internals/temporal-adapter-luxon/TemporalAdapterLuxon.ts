@@ -368,6 +368,11 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     /* istanbul ignore next */
     return value.localWeekday ?? value.weekday;
   };
+
+  public isWeekend = (value: DateTime) => {
+    /* istanbul ignore next */
+    return this.setLocaleToValue(value).isWeekend ?? [6, 7].includes(value.weekday);
+  };
 }
 
 export namespace TemporalAdapterLuxon {
