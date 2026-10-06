@@ -177,6 +177,7 @@ type PopupOpenState = Pick<
   PopupStoreState<unknown>,
   | 'open'
   | 'openReason'
+  | 'openReasonStale'
   | 'preventUnmountingOnClose'
   | 'activeTriggerId'
   | 'activeTriggerElement'
@@ -221,6 +222,7 @@ export function createPopupOpenState(
     // after a hover open). A close keeps it, so readers like backdrops and the focus manager don't
     // flip mid-exit.
     openReason: open ? eventDetails.reason : state.openReason,
+    openReasonStale: !open && state.openReasonStale,
     preventUnmountingOnClose,
     activeTriggerId,
     activeTriggerElement,
@@ -542,7 +544,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  * Manages the mounted state of the popup.
  * Sets up the transition status listeners and handles unmounting when needed.
  * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store,
- * and ends the open cycle on unmount by clearing the active trigger and `openReason`.
+ * marks `openReason` stale when a close request ends the cycle, clears it when the `open` prop
+ * alone reopens the popup, and ends the open cycle on unmount by clearing the active trigger and
+ * `openReason`.
  *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
@@ -589,6 +593,19 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   });
 
   store.useSyncedValues({ mounted, transitionStatus });
+
+  // A close request ends the cycle `openReason` describes, though the exit still reads it. An open
+  // request accepted after it (a controlled root may apply both later) is for the next cycle, so
+  // only a close that follows a close request marks the reason stale. When the `open` prop alone
+  // reopens the popup, the selector reports `null` from the first open render, and this clears the
+  // stored reason.
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      store.set('openReasonStale', !store.state.open && store.state.openReason != null);
+    } else if (store.state.openReasonStale) {
+      store.set('openReason', null);
+    }
+  }, [open, store]);
 
   return { forceUnmount, transitionStatus };
 }

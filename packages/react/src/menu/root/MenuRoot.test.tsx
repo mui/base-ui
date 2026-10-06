@@ -3162,6 +3162,56 @@ describe('<Menu.Root />', () => {
 
         expect(backdrop.style.pointerEvents).toBe('none');
       });
+
+      it('is modal once the open prop reopens it after a close kept it mounted', async () => {
+        const setOpenRef: { current: (open: boolean) => void } = { current: () => {} };
+        function ControlledMenu() {
+          const [open, setOpen] = React.useState(false);
+          setOpenRef.current = setOpen;
+          return (
+            <Menu.Root
+              open={open}
+              onOpenChange={(nextOpen, details) => {
+                if (!nextOpen) {
+                  details.preventUnmountOnClose();
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              <Menu.Trigger openOnHover delay={0} closeDelay={0}>
+                Toggle
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner">
+                  <Menu.Popup data-testid="popup">
+                    <Menu.Item>Item 1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          );
+        }
+
+        ignoreActWarnings();
+        await render(<ControlledMenu />);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.hover(trigger);
+        await screen.findByTestId('popup');
+        const positioner = screen.getByTestId('positioner');
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        });
+        await user.unhover(trigger);
+        expect(positioner.previousElementSibling).toBe(null);
+
+        await act(async () => setOpenRef.current(true));
+
+        await waitFor(() => {
+          expect(positioner.previousElementSibling).not.toBe(null);
+        });
+      });
     });
   });
 
