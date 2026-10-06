@@ -16,6 +16,13 @@ export interface UseUnmountAfterCloseParameters {
    */
   ref: React.RefObject<HTMLElement | null>;
   /**
+   * Reads the latest open state when it can run ahead of the rendered `open`, such as a store
+   * that syncs a controlled `open` prop in a layout effect declared before this hook. An
+   * `unmount` batched with a controlled close then takes effect in the commit that still renders
+   * the popup open instead of being dropped.
+   */
+  getOpen?: (() => boolean) | undefined;
+  /**
    * Whether the current close cycle asked to keep the popup mounted until the `unmount` action
    * is called. Ignored while `open`.
    */
@@ -48,6 +55,7 @@ export interface UseUnmountAfterCloseParameters {
 export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters) {
   const {
     open,
+    getOpen,
     ref,
     preventUnmountOnClose,
     setPreventUnmountOnClose: setPreventUnmountOnCloseParam,
@@ -83,17 +91,26 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   const pendingUnmountRef = React.useRef(false);
   const rerender = useForcedRerendering();
 
+  // Set when `unmount` runs during this render's commit before the effect below, for example from
+  // a descendant's layout effect. The committed `mounted` is stale then, and resyncing the mirror
+  // to it would let the close completion unmount a second time.
+  let unmountedInCommit = false;
+
   const unmount = () => {
+    unmountedInCommit = true;
     mountedRef.current = false;
     setMounted(false);
     onUnmount();
   };
 
   useIsoLayoutEffect(() => {
-    mountedRef.current = mounted;
+    if (!unmountedInCommit) {
+      mountedRef.current = mounted;
+    }
     if (pendingUnmountRef.current) {
       pendingUnmountRef.current = false;
-      if (!open && mounted) {
+      // `getOpen` catches a controlled close that this commit doesn't render yet.
+      if (mounted && (!open || getOpen?.() === false)) {
         unmount();
       }
     }
