@@ -362,6 +362,46 @@ describe('<Combobox.Chip />', () => {
       expect(input).toHaveFocus();
     });
 
+    it.each(['ArrowDown', 'ArrowUp'])(
+      'focuses a conditional input when reopening from a chip with %s',
+      async (key) => {
+        function Test() {
+          const [open, setOpen] = React.useState(true);
+
+          return (
+            <Combobox.Root multiple defaultValue={['apple']} open={open} onOpenChange={setOpen}>
+              <Combobox.Chips>
+                <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+                {open && <Combobox.Input />}
+              </Combobox.Chips>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="banana">banana</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        const chip = screen.getByTestId('chip');
+
+        await user.click(screen.getByRole('combobox'));
+        await user.keyboard('{ArrowLeft}');
+
+        await waitFor(() => expect(screen.queryByRole('combobox')).toBe(null));
+        expect(chip).toHaveFocus();
+
+        await user.keyboard(`{${key}}`);
+
+        expect(screen.getByRole('combobox')).toHaveFocus();
+      },
+    );
+
     it('leaves focus on a chip for modified printable keys', async () => {
       const { user } = await render(
         <Combobox.Root multiple defaultValue={['apple']}>

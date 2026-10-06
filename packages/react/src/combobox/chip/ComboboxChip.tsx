@@ -76,10 +76,13 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       stopEvent(event);
-      store.context.setOpen(
-        true,
-        createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-      );
+      // The input may mount when opening.
+      ReactDOM.flushSync(() => {
+        store.context.setOpen(
+          true,
+          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+        );
+      });
       nextIndex = undefined;
     } else if (
       // Check for printable characters (letters, numbers, symbols)
