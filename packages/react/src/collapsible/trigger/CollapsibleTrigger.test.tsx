@@ -52,7 +52,7 @@ describe('<Collapsible.Trigger />', () => {
 
     const trigger = screen.getByRole('button', { name: 'Trigger' });
     expect(trigger).toHaveAttribute('aria-disabled', 'true');
-    expect(trigger).toHaveAttribute('tabindex', '-1');
+    expect(trigger).not.toHaveAttribute('tabindex');
     expect(trigger).not.toHaveAttribute('disabled');
 
     await user.keyboard('[Tab]');

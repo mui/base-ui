@@ -1,7 +1,9 @@
 import { expect, vi, describe, it } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import { Select } from '@base-ui/react/select';
+import { platform } from '@base-ui/utils/platform';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Select.Trigger />', () => {
   const { render } = createRenderer();
@@ -126,6 +128,75 @@ describe('<Select.Trigger />', () => {
 
       expect(document.activeElement).not.toBe(trigger);
     });
+
+    it.skipIf(isJSDOM || !platform.engine.blink)(
+      'keeps the value selectable when disabled',
+      async () => {
+        const { cdp } = await import('vitest/browser');
+
+        await render(
+          <Select.Root defaultValue="bravo">
+            <Select.Trigger data-testid="trigger" disabled nativeButton={false} render={<div />}>
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="alpha">alpha</Select.Item>
+                  <Select.Item value="bravo">bravo</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        const frame = window.frameElement as HTMLIFrameElement | null;
+        const frameRect = frame?.getBoundingClientRect();
+        // The rect of the rendered value, not of the trigger: a double click selects the word
+        // under the cursor, and the trigger is wider than the word it holds.
+        const valueRect = screen.getByTestId('value').getBoundingClientRect();
+        const center = {
+          x:
+            (frameRect?.left ?? 0) +
+            (frame?.clientLeft ?? 0) +
+            valueRect.left +
+            valueRect.width / 2,
+          y: (frameRect?.top ?? 0) + (frame?.clientTop ?? 0) + valueRect.top + valueRect.height / 2,
+        };
+        const session = cdp() as CDPSession;
+
+        async function press(clickCount: number) {
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mousePressed',
+            ...center,
+            button: 'left',
+            buttons: 1,
+            clickCount,
+          });
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseReleased',
+            ...center,
+            button: 'left',
+            buttons: 0,
+            clickCount,
+          });
+        }
+
+        // A real double click, because the selection this asserts is the browser's own default
+        // action for one: a synthetic event never produces it.
+        await act(async () => {
+          await session.send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...center });
+          await press(1);
+          await press(2);
+        });
+
+        await waitFor(() => {
+          expect(window.getSelection()?.toString()).toContain('bravo');
+        });
+        expect(trigger).not.toHaveFocus();
+      },
+    );
 
     it('does not toggle the popup when disabled', async () => {
       const handleOpenChange = vi.fn();
