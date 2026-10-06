@@ -213,7 +213,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     }
   };
 
-  const rootTriggerProps = store.useState('appliedTriggerProps', isMountedByThisTrigger);
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 

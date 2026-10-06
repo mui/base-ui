@@ -41,7 +41,7 @@ const selectors = {
    * Inactive triggers only use them to track the cursor, so the rest skip
    * re-rendering whenever the tooltip opens or closes.
    */
-  appliedTriggerProps: (state: State<unknown>, isActive: boolean) => {
+  triggerProps: (state: State<unknown>, isActive: boolean) => {
     if (isActive) {
       return state.activeTriggerProps;
     }
