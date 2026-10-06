@@ -39,8 +39,6 @@ export interface DragPreviewHandle<TPayload = unknown, TDragData = unknown> {
    * @internal
    */
   declare: (declaration: DragPreviewDeclaration<TPayload, TDragData>) => () => void;
-  /** @internal */
-  getDeclaration: () => DragPreviewDeclaration<TPayload, TDragData> | null;
   /**
    * The declared preview as the engine's `preview` option. Each field reads the
    * current declaration, so the engine resolves the part mounted at drag start.
@@ -77,9 +75,6 @@ export function createDragPreviewHandle<
           current = null;
         }
       };
-    },
-    getDeclaration() {
-      return current;
     },
     preview: {
       get offset() {

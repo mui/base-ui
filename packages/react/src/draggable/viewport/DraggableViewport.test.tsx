@@ -13,6 +13,7 @@ import {
   registerCleanup,
   setupDragEngineTests,
   fireDrag,
+  dragOver,
 } from '../../../test/dnd';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 
@@ -68,8 +69,7 @@ describe('Draggable.Viewport', () => {
   // the sensor's frame, the lifecycle's rAF-coalesced `onMove`, and the woken
   // loop frame. `fireDrag` resolves the engine's hit test onto `target`.
   async function dragTo(target: HTMLElement, clientX: number, clientY: number): Promise<void> {
-    fireDrag.dragOver(target, { clientX, clientY });
-    await flushRaf();
+    await dragOver(target, { clientX, clientY });
     await flushRaf();
     await flushRaf();
   }

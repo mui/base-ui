@@ -5,7 +5,7 @@ import { isJSDOM } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { act } from '@mui/internal-test-utils';
 import { testDragKind } from '../../../test/dndEngine';
-import { setupDragEngineTests, fireDrag, flushRaf } from '../../../test/dnd';
+import { setupDragEngineTests, fireDrag, flushRaf, dragOver } from '../../../test/dnd';
 import { DraggableProvider } from '../DraggableProvider';
 
 setupDragEngineTests();
@@ -272,8 +272,7 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
     const { rerender } = rtlRender(<Fixture shift={0} />);
     const source = screen.getByTestId('drag');
     fireDrag.dragStart(source, { clientX: 100, clientY: 100 });
-    fireDrag.dragOver(source, { clientX: 100, clientY: 100 });
-    await flushRaf();
+    await dragOver(source, { clientX: 100, clientY: 100 });
     expect(screen.getByText('Preview').getBoundingClientRect().left).toBeCloseTo(100);
 
     rerender(<Fixture shift={20} />);

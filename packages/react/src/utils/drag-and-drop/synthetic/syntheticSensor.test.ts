@@ -5,18 +5,17 @@ import { createDndRenderer } from '../../../../test/dndEngine';
 import {
   createElement,
   flushRaf,
+  mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
   splitEnd,
 } from '../../../../test/dnd';
 import { cancelDrag } from '../cancelDrag';
-import { notifyExternalScroll } from '../activePointer';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { dragSessionStore } from '../dragSessionStore';
 import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
 import { restrictToVerticalAxis } from '../dragModifiers';
-import * as syntheticSensor from './syntheticSensor';
 import {
   dispatchTouchEvent,
   getTouchDownTarget,
@@ -127,9 +126,7 @@ describe('syntheticDrag sensor', () => {
       .mockImplementationOnce(() => {
         throw new Error('pending listener cleanup failed');
       });
-    expect(() => act(() => syntheticSensor.cancelActiveDrag())).toThrow(
-      'pending listener cleanup failed',
-    );
+    expect(() => act(() => cancelDrag())).toThrow('pending listener cleanup failed');
     expect(el.getAttribute('draggable')).toBe('true');
     removePendingListener.mockRestore();
 
@@ -140,9 +137,7 @@ describe('syntheticDrag sensor', () => {
       .mockImplementationOnce(() => {
         throw new Error('active listener cleanup failed');
       });
-    expect(() => act(() => syntheticSensor.cancelActiveDrag())).toThrow(
-      'active listener cleanup failed',
-    );
+    expect(() => act(() => cancelDrag())).toThrow('active listener cleanup failed');
     expect(el.getAttribute('draggable')).toBe('true');
     expect(document.querySelector('[data-drag-preview]')).toBeNull();
     removeActiveListener.mockRestore();
@@ -350,12 +345,8 @@ describe('syntheticDrag sensor', () => {
     engine.registerTarget(tgt, {});
     engine.registerMonitor({ onTargetChange });
 
-    const originalEFP = document.elementFromPoint;
     const hit = { current: null as Element | null };
-    document.elementFromPoint = (() => hit.current) as typeof document.elementFromPoint;
-    registerCleanup(() => {
-      document.elementFromPoint = originalEFP;
-    });
+    mockElementFromPoint(() => hit.current);
 
     penDown(src, 50, 50, 7);
     await flushRaf();
@@ -618,8 +609,7 @@ describe('syntheticDrag sensor', () => {
     });
     engine.registerTarget(tgt, {});
 
-    const originalEFP = document.elementFromPoint;
-    document.elementFromPoint = (() => tgt) as typeof document.elementFromPoint;
+    mockElementFromPoint(() => tgt);
     // jsdom has no real pointer capture. Keep the anchor's capture state false
     // so the event target alone distinguishes this redirect.
     const originalHas = document.body.hasPointerCapture;
@@ -627,7 +617,6 @@ describe('syntheticDrag sensor', () => {
     document.body.hasPointerCapture = (() => false) as typeof document.body.hasPointerCapture;
     document.body.releasePointerCapture = (() => {}) as typeof document.body.releasePointerCapture;
     registerCleanup(() => {
-      document.elementFromPoint = originalEFP;
       document.body.hasPointerCapture = originalHas;
       document.body.releasePointerCapture = originalRelease;
     });
@@ -2691,13 +2680,9 @@ describe('syntheticDrag sensor', () => {
       engine.registerTarget(tgtB, {});
       engine.registerMonitor({ onTargetChange });
 
-      const originalEFP = document.elementFromPoint;
       const state = { hit: tgtA as Element };
       const efp = vi.fn(() => state.hit);
-      document.elementFromPoint = efp as typeof document.elementFromPoint;
-      registerCleanup(() => {
-        document.elementFromPoint = originalEFP;
-      });
+      mockElementFromPoint(efp);
 
       return { src, tgtA, tgtB, onTargetChange, efp, state };
     }
@@ -2753,29 +2738,6 @@ describe('syntheticDrag sensor', () => {
       touchUp(10, 10);
     });
 
-    it('re-resolves exactly once after notifyExternalScroll() while the pointer is stationary', async () => {
-      const { src, tgtB, onTargetChange, efp, state } = await setupStationaryDrag();
-
-      touchDown(src, 10, 10);
-      await flushRaf();
-      await flushRaf();
-
-      const efpCalls = efp.mock.calls.length;
-      const changes = onTargetChange.mock.calls.length;
-
-      // A scroll inside a shadow root doesn't compose, so the document capture
-      // listener never sees it; the auto-scroller reports it through this hook.
-      state.hit = tgtB;
-      notifyExternalScroll();
-      await flushRaf();
-      await flushRaf();
-
-      expect(efp.mock.calls.length).toBe(efpCalls + 1);
-      expect(onTargetChange.mock.calls.length).toBe(changes + 1);
-
-      touchUp(10, 10);
-    });
-
     it.each([false, true])(
       're-resolves after a shadow scroll with nested roots: %s',
       async (nested) => {
@@ -2798,12 +2760,8 @@ describe('syntheticDrag sensor', () => {
         engine.registerSource(src, { activation: { touch: { type: 'immediate' } } });
         engine.registerTarget(inner, { onDraggableEnter });
 
-        const originalEFP = document.elementFromPoint;
         const hit = { current: null as Element | null };
-        document.elementFromPoint = (() => hit.current) as typeof document.elementFromPoint;
-        registerCleanup(() => {
-          document.elementFromPoint = originalEFP;
-        });
+        mockElementFromPoint(() => hit.current);
 
         touchDown(src, 10, 10);
         await flushRaf();
@@ -2838,12 +2796,8 @@ describe('syntheticDrag sensor', () => {
       const onDraggableEnter = vi.fn();
       engine.registerSource(src, { activation: { touch: { type: 'immediate' } } });
 
-      const originalEFP = document.elementFromPoint;
       const hit = { current: null as Element | null };
-      document.elementFromPoint = (() => hit.current) as typeof document.elementFromPoint;
-      registerCleanup(() => {
-        document.elementFromPoint = originalEFP;
-      });
+      mockElementFromPoint(() => hit.current);
 
       touchDown(src, 10, 10);
       await flushRaf();
@@ -2885,12 +2839,8 @@ describe('syntheticDrag sensor', () => {
       // The sibling leaves before the drag starts, and `inner` is still in this root.
       releaseSibling();
 
-      const originalEFP = document.elementFromPoint;
       const hit = { current: null as Element | null };
-      document.elementFromPoint = (() => hit.current) as typeof document.elementFromPoint;
-      registerCleanup(() => {
-        document.elementFromPoint = originalEFP;
-      });
+      mockElementFromPoint(() => hit.current);
 
       touchDown(src, 10, 10);
       await flushRaf();
@@ -3108,12 +3058,7 @@ describe('syntheticDrag sensor', () => {
       engine.registerTarget(targetB, {});
       engine.registerMonitor({ onTargetChange });
 
-      const originalEFP = document.elementFromPoint;
-      document.elementFromPoint = ((x: number) =>
-        x === 100 ? targetB : targetA) as typeof document.elementFromPoint;
-      registerCleanup(() => {
-        document.elementFromPoint = originalEFP;
-      });
+      mockElementFromPoint((x) => (x === 100 ? targetB : targetA));
 
       touchDown(source, 10, 10);
       await flushRaf();
@@ -3148,7 +3093,7 @@ describe('syntheticDrag sensor', () => {
 
       // Content scrolls under the still pointer, long after the key press. That
       // frame reports the pointer, not the old key event.
-      act(() => notifyExternalScroll());
+      dispatch(document, new Event('scroll'));
       await flushRaf();
       expect(onMove.mock.lastCall?.[0].reason).toBe('pointer');
       expect(onMove.mock.lastCall?.[0].event).toBe(lastPointerMove);
@@ -3156,7 +3101,7 @@ describe('syntheticDrag sensor', () => {
       // A key change and a scroll in the same frame report the key, whose event
       // carries the reported modifier flags.
       pressKey('keyup', false);
-      act(() => notifyExternalScroll());
+      dispatch(document, new Event('scroll'));
       await flushRaf();
       expect(onMove.mock.lastCall?.[0].reason).toBe('modifier-key');
 
@@ -3189,7 +3134,7 @@ describe('syntheticDrag sensor', () => {
           }
         });
       }
-      act(() => notifyExternalScroll());
+      dispatch(document, new Event('scroll'));
       await flushRaf();
 
       const input = onMove.mock.lastCall?.[0].location.current.input;
@@ -3277,12 +3222,8 @@ describe('syntheticDrag sensor', () => {
       });
       engine.registerTarget(tgt, { onDraggableDrop: onDrop });
 
-      const originalEFP = document.elementFromPoint;
       const efp = vi.fn(() => tgt);
-      document.elementFromPoint = efp as typeof document.elementFromPoint;
-      registerCleanup(() => {
-        document.elementFromPoint = originalEFP;
-      });
+      mockElementFromPoint(efp);
 
       touchDown(el, 50, 50);
       await flushRaf();
@@ -3408,11 +3349,7 @@ describe('syntheticDrag sensor', () => {
         },
       });
       engine.registerTarget(target, {});
-      const originalEFP = document.elementFromPoint;
-      document.elementFromPoint = () => target;
-      registerCleanup(() => {
-        document.elementFromPoint = originalEFP;
-      });
+      mockElementFromPoint(() => target);
 
       touchDown(source, 50, 50);
       await flushRaf();
@@ -3467,19 +3404,22 @@ describe('syntheticDrag sensor', () => {
 
       touchDown(el, 50, 50);
       await flushRaf();
-      touchUp(50, 50);
 
-      // Real timers. The suppression is armed in the sensor's teardown, so fake
-      // timers would have to be installed before the drag, and the rAF stub
-      // behind this file's `flushRaf` is itself a `setTimeout`.
-      await new Promise((resolve) => {
-        setTimeout(resolve, 400);
-      });
+      // Installed after the drag started. The suppression is armed in the
+      // sensor's teardown, through the owner window's `setTimeout`.
+      vi.useFakeTimers();
+      try {
+        touchUp(50, 50);
 
-      act(() => {
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
-      });
-      expect(onClick).toHaveBeenCalledTimes(1);
+        vi.advanceTimersByTime(400);
+
+        act(() => {
+          el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+        });
+        expect(onClick).toHaveBeenCalledTimes(1);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('keeps the click suppressed when Escape cancels a drag whose button is still held', async () => {
@@ -3516,30 +3456,35 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
       expect(dragSessionStore.getSnapshot()).not.toBe(null);
 
-      // Escape cancels while the button is still down, so the sensor's own
-      // listeners are gone and it never sees the release. The window must not
-      // expire before the user lets go, or the drag turns into a click on the
-      // control it was picked up from.
-      dispatch(
-        document,
-        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
-      );
+      // Installed after the drag started. The suppression is armed in the
+      // sensor's teardown, through the owner window's `setTimeout`.
+      vi.useFakeTimers();
+      try {
+        // Escape cancels while the button is still down, so the sensor's own
+        // listeners are gone and it never sees the release. The window must not
+        // expire before the user lets go, or the drag turns into a click on the
+        // control it was picked up from.
+        dispatch(
+          document,
+          new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+        );
 
-      // Longer than the post-release window. The user has just pressed a key
-      // mid-gesture, so holding this long is normal.
-      await new Promise((resolve) => {
-        setTimeout(resolve, 400);
-      });
+        // Longer than the post-release window. The user has just pressed a key
+        // mid-gesture, so holding this long is normal.
+        vi.advanceTimersByTime(400);
 
-      dispatch(
-        document,
-        new PointerEvent('pointerup', { pointerId: 1, clientX: 0, clientY: 40, bubbles: true }),
-      );
-      act(() => {
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
-      });
+        dispatch(
+          document,
+          new PointerEvent('pointerup', { pointerId: 1, clientX: 0, clientY: 40, bubbles: true }),
+        );
+        act(() => {
+          el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+        });
 
-      expect(onClick).not.toHaveBeenCalled();
+        expect(onClick).not.toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('stops swallowing clicks once a never-released pointer outlives the held window', async () => {

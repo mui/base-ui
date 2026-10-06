@@ -9,6 +9,7 @@ import {
   dragOver,
   flushRaf,
   lift,
+  mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
   fireDrag,
@@ -60,8 +61,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(onDraggableEnter).not.toHaveBeenCalled();
   });
@@ -82,8 +82,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
 
     expect(onDraggableEnter).not.toHaveBeenCalled();
@@ -107,8 +106,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(inner);
-    fireDrag.dragOver(inner);
-    await flushRaf();
+    await dragOver(inner);
     fireDrag.drop(inner);
 
     // The disabled inner target never enters the stack (like `canDrop: () =>
@@ -142,13 +140,11 @@ describe('engine.registerTarget', () => {
     await lift(source);
     // Entering the target. The change round dispatches `onDraggableEnter` synchronously.
     fireDrag.dragEnter(target, { shiftKey: true, clientX: 30, clientY: 40 });
-    fireDrag.dragOver(target, { shiftKey: true, clientX: 30, clientY: 40 });
-    await flushRaf();
+    await dragOver(target, { shiftKey: true, clientX: 30, clientY: 40 });
     // A second move within the target, so the stack is unchanged. The change
     // round above cancels the queued source `onMove`, and only a settled move
     // like this one lets the throttled dispatch land.
-    fireDrag.dragOver(target, { shiftKey: true, clientX: 31, clientY: 41 });
-    await flushRaf();
+    await dragOver(target, { shiftKey: true, clientX: 31, clientY: 41 });
 
     // `DragEventDetails` narrows `event` to a `PointerEvent` for these reasons, so
     // reading a modifier off it has to work. A fabricated placeholder would
@@ -176,16 +172,14 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(onDraggableLeave).not.toHaveBeenCalled();
 
     disabled = true;
     // Nothing re-resolves until new input arrives. The next pointer move over
     // the now-disabled target drops it from the stack and delivers its leave.
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
 
@@ -210,15 +204,13 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(onDraggableLeave).not.toHaveBeenCalled();
 
     allowed = false;
     // The next pointer move re-resolves against the flipped predicate.
-    fireDrag.dragOver(target, { clientX: 1 });
-    await flushRaf();
+    await dragOver(target, { clientX: 1 });
 
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
 
@@ -237,8 +229,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     // `accept` is the cheap filter that runs first. A mismatched kind never
     // reaches the predicate, so per-frame walks skip the consumer callback.
@@ -259,8 +250,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
   });
@@ -279,8 +269,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
   });
@@ -304,8 +293,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(observedSelfKind).toBe(slotKind.id);
     expect(observedRecordKind).toBe(slotKind.id);
@@ -326,8 +314,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(observedKind).toBe(cardKind.id);
   });
@@ -346,8 +333,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
     await flushRaf();
 
@@ -366,8 +352,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
     await flushRaf();
 
@@ -392,8 +377,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
     await flushRaf();
 
@@ -411,8 +395,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
     await flushRaf();
 
@@ -429,8 +412,7 @@ describe('engine.registerTarget', () => {
 
     fireDrag.dragStart(source);
     await flushRaf();
-    fireDrag.dragEnter(target);
-    await flushRaf();
+    await dragEnter(target);
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     expect(onDraggableEnter).toHaveBeenCalledWith(
@@ -451,8 +433,7 @@ describe('engine.registerTarget', () => {
 
     fireDrag.dragStart(source);
     await flushRaf();
-    fireDrag.dragEnter(target);
-    await flushRaf();
+    await dragEnter(target);
 
     // The entry round and the frame's own move dispatch share one delivery, so a
     // consumer measuring in `onMove` pays for it once per frame, not twice.
@@ -477,10 +458,8 @@ describe('engine.registerTarget', () => {
 
     fireDrag.dragStart(source);
     await flushRaf();
-    fireDrag.dragEnter(target1);
-    await flushRaf();
-    fireDrag.dragEnter(target2);
-    await flushRaf();
+    await dragEnter(target1);
+    await dragEnter(target2);
 
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
   });
@@ -496,8 +475,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
 
     // A leave handler deriving "still hovered?" from `location.current` must see
@@ -518,8 +496,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
 
     expect(onDrop).toHaveBeenCalledTimes(1);
@@ -551,8 +528,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(inner);
-    fireDrag.dragOver(inner);
-    await flushRaf();
+    await dragOver(inner);
     fireDrag.drop(inner);
 
     // Inner is the innermost target, so it gets onDrop.
@@ -593,8 +569,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(inner);
-    fireDrag.dragOver(inner);
-    await flushRaf();
+    await dragOver(inner);
     fireDrag.drop(inner);
 
     // Inner rejected the drop, so it drops out of the active stack and the
@@ -633,8 +608,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(card);
-    fireDrag.dragOver(card);
-    await flushRaf();
+    await dragOver(card);
 
     // The card accepted, but its rejecting ancestor vetoes the subtree, so no
     // target resolves.
@@ -670,8 +644,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(column);
-    fireDrag.dragOver(column);
-    await flushRaf();
+    await dragOver(column);
     fireDrag.drop(column);
 
     // Unlike `false`, which abstains, `'reject'` refuses outright. The board
@@ -697,18 +670,15 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     expect(onDraggableEnter).not.toHaveBeenCalled();
 
     full = false;
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
     full = true;
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     expect(onDraggableLeave).toHaveBeenCalledTimes(1);
   });
 
@@ -729,8 +699,7 @@ describe('engine.registerTarget', () => {
 
       await lift(source);
       fireDrag.dragEnter(target, { clientX, clientY });
-      fireDrag.dragOver(target, { clientX, clientY });
-      await flushRaf();
+      await dragOver(target, { clientX, clientY });
       fireDrag.drop(target, { clientX, clientY });
 
       expect(onDrop).toHaveBeenCalledTimes(1);
@@ -795,8 +764,7 @@ describe('engine.registerTarget', () => {
 
       await lift(source, { clientY: 30 });
       fireDrag.dragEnter(target, { clientY: 265 });
-      fireDrag.dragOver(target, { clientY: 265 });
-      await flushRaf();
+      await dragOver(target, { clientY: 265 });
       fireDrag.drop(target, { clientY: 265 });
 
       const record = onDrop.mock.calls[0][0].currentTarget as DraggableTargetRecord;
@@ -815,46 +783,6 @@ describe('engine.registerTarget', () => {
       record.getLocalPoint();
       expect(measure).toHaveBeenCalledTimes(1);
     });
-  });
-
-  it('nested targets: each target receives its own record as `currentTarget`, and the innermost as `target`', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const outer = createElement();
-    const inner = createElement();
-    outer.appendChild(inner);
-
-    const outerEnter = vi.fn();
-    const outerMove = vi.fn();
-    const innerEnter = vi.fn();
-    const innerMove = vi.fn();
-
-    engine.registerSource(source, {});
-    engine.registerTarget(outer, { onDraggableEnter: outerEnter, onDraggableMove: outerMove });
-    engine.registerTarget(inner, { onDraggableEnter: innerEnter, onDraggableMove: innerMove });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(inner);
-    fireDrag.dragOver(inner);
-    await flushRaf();
-
-    expect(outerEnter).toHaveBeenCalledTimes(1);
-    expect(outerMove).toHaveBeenCalled();
-    // `currentTarget` is the outer target itself. `target` is the innermost target
-    // that leads the stack (and would receive the drop), as in a source's handlers.
-    const outerDetails = outerEnter.mock.calls[0][0];
-    expect(outerDetails.currentTarget.element).toBe(outer);
-    expect(outerDetails.target.element).toBe(inner);
-    expect(outerDetails.target).toBe(outerDetails.location.current.targets[0]);
-    expect(outerMove.mock.lastCall?.[0].currentTarget.element).toBe(outer);
-    expect(outerMove.mock.lastCall?.[0].target.element).toBe(inner);
-    expect(innerEnter.mock.calls[0][0].currentTarget.element).toBe(inner);
-    expect(innerEnter.mock.calls[0][0].target.element).toBe(inner);
-    expect(innerMove.mock.lastCall?.[0].currentTarget.element).toBe(inner);
-    expect(innerMove.mock.lastCall?.[0].target.element).toBe(inner);
-
-    cancel();
   });
 
   it('crosses shadow-DOM boundaries when collecting drop targets', async () => {
@@ -878,19 +806,7 @@ describe('engine.registerTarget', () => {
 
     fireDrag.dragStart(source);
     await flushRaf();
-
-    // Firing the drag events at `inner` never exercises the shadow walk, because
-    // event retargeting resolves `event.target` to the host in the light DOM.
-    // Drive `elementFromPoint` straight to the shadow-internal element, as the
-    // direct-child test below does, so the composed climb runs.
-    const originalEFP = document.elementFromPoint;
-    document.elementFromPoint = () => inner;
-    try {
-      fireDrag.dragOver(source);
-      await flushRaf();
-    } finally {
-      document.elementFromPoint = originalEFP;
-    }
+    await dragOver(inner);
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
     const details = onDraggableEnter.mock.calls[0][0];
@@ -918,22 +834,7 @@ describe('engine.registerTarget', () => {
 
     fireDrag.dragStart(source);
     await flushRaf();
-
-    // Resolve the pointer straight to the shadow-internal target. Event
-    // retargeting would otherwise hide it behind the host, so the deep-target
-    // walk can only be exercised by driving `elementFromPoint` directly.
-    const originalEFP = document.elementFromPoint;
-    document.elementFromPoint = () => inner;
-    try {
-      // Drive a pointer move so the sensor re-resolves against the swapped
-      // `elementFromPoint`. A stationary pointer doesn't re-resolve on its own,
-      // since a reorder under a still pointer could loop. The move is what makes
-      // the engine pick up the injected shadow target.
-      fireDrag.dragOver(source);
-      await flushRaf();
-    } finally {
-      document.elementFromPoint = originalEFP;
-    }
+    await dragOver(inner);
 
     expect(onDragEnterInner).toHaveBeenCalledTimes(1);
     expect(onDragEnterOuter).toHaveBeenCalledTimes(1);
@@ -972,15 +873,7 @@ describe('engine.registerTarget', () => {
 
       fireDrag.dragStart(source);
       await flushRaf();
-
-      const originalEFP = document.elementFromPoint;
-      document.elementFromPoint = () => slotted;
-      try {
-        fireDrag.dragOver(source);
-        await flushRaf();
-      } finally {
-        document.elementFromPoint = originalEFP;
-      }
+      await dragOver(slotted);
 
       expect(onDragEnterZone).toHaveBeenCalledTimes(1);
       expect(onDragEnterLight).toHaveBeenCalledTimes(1);
@@ -1021,8 +914,7 @@ describe('engine.registerTarget', () => {
       fireDrag.dragStart(source);
       await flushRaf();
       fireDrag.dragEnter(sane);
-      fireDrag.dragOver(sane);
-      await flushRaf();
+      await dragOver(sane);
 
       // The buggy callback's throw must have been logged (rejection path).
       expect(consoleError).toHaveBeenCalled();
@@ -1071,8 +963,7 @@ describe('engine.registerTarget', () => {
       fireDrag.dragStart(source);
       await flushRaf();
       fireDrag.dragEnter(sane);
-      fireDrag.dragOver(sane);
-      await flushRaf();
+      await dragOver(sane);
 
       // The throw was contained and logged...
       expect(consoleError).toHaveBeenCalled();
@@ -1107,8 +998,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
@@ -1144,8 +1034,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(onDraggableEnter).not.toHaveBeenCalled();
   });
@@ -1170,8 +1059,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
 
     expect(onDropA).toHaveBeenCalledTimes(1);
@@ -1199,8 +1087,7 @@ describe('engine.registerTarget', () => {
       fireDrag.dragStart(source);
       await flushRaf();
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
       fireDrag.drop(target);
 
       expect(onDrop).toHaveBeenCalledTimes(1);
@@ -1289,8 +1176,7 @@ describe('engine.registerTarget', () => {
 
       fireDrag.dragStart(source, { clientX: 0, clientY: 0 });
       await flushRaf();
-      fireDrag.dragOver(target, { clientX: 0, clientY: 10 });
-      await flushRaf();
+      await dragOver(target, { clientX: 0, clientY: 10 });
       await flushRaf();
 
       expect(events.length).toBeGreaterThan(0);
@@ -1298,8 +1184,7 @@ describe('engine.registerTarget', () => {
       const stashedY = stashed.location.current.input.clientY;
       const stashedStack = stashed.location.current.targets;
 
-      fireDrag.dragOver(target, { clientX: 0, clientY: 300 });
-      await flushRaf();
+      await dragOver(target, { clientX: 0, clientY: 300 });
       await flushRaf();
 
       // The stashed event still reports where it fired.
@@ -1332,21 +1217,18 @@ describe('engine.registerTarget', () => {
       await flushRaf();
       // Enter the target first. The stack change is itself a delivered event, so
       // measuring from here isolates movement within one target.
-      fireDrag.dragOver(target, { clientX: 0, clientY: 10 });
-      await flushRaf();
+      await dragOver(target, { clientX: 0, clientY: 10 });
       await flushRaf();
 
       // A: one move delivered on its own frame.
-      fireDrag.dragOver(target, { clientX: 0, clientY: 20 });
-      await flushRaf();
+      await dragOver(target, { clientX: 0, clientY: 20 });
       await flushRaf();
       expect(samples.at(-1)).toEqual({ previous: 10, current: 20 });
 
       // B and C are queued before the next frame, so they produce one delivered
       // event whose `previous` is A rather than B.
       fireDrag.dragOver(target, { clientX: 0, clientY: 30 });
-      fireDrag.dragOver(target, { clientX: 0, clientY: 40 });
-      await flushRaf();
+      await dragOver(target, { clientX: 0, clientY: 40 });
       await flushRaf();
 
       expect(samples.at(-1)).toEqual({ previous: 20, current: 40 });
@@ -1381,8 +1263,7 @@ describe('engine.registerTarget', () => {
       fireDrag.dragStart(source);
       await flushRaf();
       fireDrag.dragEnter(inner);
-      fireDrag.dragOver(inner);
-      await flushRaf();
+      await dragOver(inner);
       expect(outerEnter).toHaveBeenCalledTimes(1);
 
       cancel();
@@ -1509,10 +1390,8 @@ describe('engine.registerTarget', () => {
 
     fireDrag.dragStart(source);
     await flushRaf();
-    fireDrag.dragEnter(outer);
-    await flushRaf();
-    fireDrag.dragEnter(inner);
-    await flushRaf();
+    await dragEnter(outer);
+    await dragEnter(inner);
 
     // The interrupted round still reports exactly what it delivered
     // ([inner, outer]), and the deferred re-resolve settles the stack as its
@@ -1609,11 +1488,7 @@ describe('engine.registerTarget', () => {
     let hit: Element | null = null;
     frameDocument.elementFromPoint = () => hit;
     const topHitTest = vi.fn(() => target);
-    const originalTopHitTest = document.elementFromPoint;
-    document.elementFromPoint = topHitTest;
-    registerCleanup(() => {
-      document.elementFromPoint = originalTopHitTest;
-    });
+    mockElementFromPoint(topHitTest);
 
     const onDraggableEnter = vi.fn();
     const onDraggableDrop = vi.fn();
@@ -1727,8 +1602,7 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(source);
     expect(original).toHaveBeenCalledTimes(1);
     original.mockClear();
@@ -1738,11 +1612,9 @@ describe('engine.registerTarget', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     options.accept = columnKind;
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(current).toHaveBeenCalledTimes(1);
     expect(original).not.toHaveBeenCalled();

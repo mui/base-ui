@@ -234,13 +234,29 @@ export const fireDrag = {
 };
 
 /**
- * Flush one requestAnimationFrame tick.
+ * Flush `frames` requestAnimationFrame ticks, one at a time.
  * Uses rAF directly so it works both in JSDOM (where rAF is mapped to
  * setTimeout) and in real browsers (where rAF runs on the next paint frame).
  */
-export async function flushRaf(): Promise<void> {
-  await act(async () => {
-    await waitSingleFrame();
+export async function flushRaf(frames = 1): Promise<void> {
+  for (let i = 0; i < frames; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await act(async () => {
+      await waitSingleFrame();
+    });
+  }
+}
+
+/**
+ * Replace `document.elementFromPoint` with `hitTest` until the test ends. Use it
+ * when a test drives raw pointer events instead of `fireDrag`, which points the
+ * hit test at the element each step names.
+ */
+export function mockElementFromPoint(hitTest: (x: number, y: number) => Element | null): void {
+  const original = document.elementFromPoint;
+  document.elementFromPoint = hitTest as typeof document.elementFromPoint;
+  registerCleanup(() => {
+    document.elementFromPoint = original;
   });
 }
 
@@ -281,13 +297,13 @@ export async function lift(
 }
 
 /** Drag onto a drop target and flush so the engine's frame resolves it. */
-export async function dragEnter(element: HTMLElement, input?: DragEventInput): Promise<void> {
+export async function dragEnter(element: Element, input?: DragEventInput): Promise<void> {
   fireDrag.dragEnter(element, input);
   await flushRaf();
 }
 
 /** Continue dragging over a drop target. */
-export async function dragOver(element: HTMLElement, input?: DragEventInput): Promise<void> {
+export async function dragOver(element: Element, input?: DragEventInput): Promise<void> {
   fireDrag.dragOver(element, input);
   await flushRaf();
 }

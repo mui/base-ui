@@ -82,7 +82,7 @@ export interface DraggableStaticSetup {
  * imperative registrations correct when `disabled` or the resolved handle
  * changes without re-registration.
  */
-export function applyDraggableStaticSetup(
+function applyDraggableStaticSetup(
   element: HTMLElement,
   initial: Pick<DraggableConfig<any, any>, 'handle' | 'disabled'>,
 ): DraggableStaticSetup {

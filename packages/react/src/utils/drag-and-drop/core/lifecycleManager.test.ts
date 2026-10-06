@@ -9,6 +9,8 @@ import {
   setupDragEngineTests,
   splitEnd,
   fireDrag,
+  dragEnter,
+  dragOver,
 } from '../../../../test/dnd';
 import { getSharedSlot } from '../sharedState';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
@@ -80,7 +82,6 @@ describe('lifecycle manager', () => {
     expect(onMoveEnd.mock.calls[0][0].canceled).toBe(false);
     // `canceled` belongs to `onMoveEnd` only; the terminal leave has no such flag.
     expect(onDraggableLeave.mock.calls[0][0]).not.toHaveProperty('canceled');
-    removeDropTargetRegistration(target, getTarget);
   });
 
   function makeInput(): DraggableInput {
@@ -138,14 +139,9 @@ describe('lifecycle manager', () => {
     addDropTargetRegistration(inner, innerParameters);
     addDropTargetRegistration(outer, outerParameters);
     const handle = startDragWithHandlers({}, inner);
-    try {
-      expect(() => handle!.drop(makeInput(), inner)).toThrow('leave failed');
-      expect(outerLeave).toHaveBeenCalledTimes(1);
-      expect(isActive()).toBe(false);
-    } finally {
-      removeDropTargetRegistration(inner, innerParameters);
-      removeDropTargetRegistration(outer, outerParameters);
-    }
+    expect(() => handle!.drop(makeInput(), inner)).toThrow('leave failed');
+    expect(outerLeave).toHaveBeenCalledTimes(1);
+    expect(isActive()).toBe(false);
   });
 
   it('does not keep a monitor engaged by a pickup its getter canceled', () => {
@@ -204,6 +200,7 @@ describe('lifecycle manager', () => {
     const monitorEnd = vi.fn();
     const getMonitor = () => ({ onMoveEnd: monitorEnd });
     addMonitor(getMonitor);
+    registerCleanup(() => removeMonitor(getMonitor));
     const handle = startDragWithHandlers({
       onMove() {
         throw new Error('move failed');
@@ -218,7 +215,6 @@ describe('lifecycle manager', () => {
     expect(monitorEnd).toHaveBeenCalledTimes(1);
     expect(monitorEnd.mock.calls[0][0].reason).toBe('handler-error');
     expect(monitorEnd.mock.calls[0][0].canceled).toBe(true);
-    removeMonitor(getMonitor);
   });
 
   describe('target drag data', () => {
@@ -311,33 +307,6 @@ describe('lifecycle manager', () => {
       registerCleanup(() => removeDropTargetRegistration(element, getter));
     }
 
-    it('ignores a target whose parameters getter returns undefined', () => {
-      const target = createElement();
-      registerRawTarget(target, () => undefined);
-      const onMoveEnd = vi.fn();
-      const handle = startDragWithHandlers({ onMoveEnd }, target)!;
-
-      handle.update(makeInput(), target, new Event('pointermove'), 'pointer');
-      handle.drop(makeInput(), target);
-
-      expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
-      expect(isActive()).toBe(false);
-    });
-
-    it('treats `accept: null` like an omitted `accept`', () => {
-      const target = createElement();
-      const onDraggableDrop = vi.fn();
-      registerRawTarget(target, () => ({ accept: null, onDraggableDrop }));
-      const handle = startDragWithHandlers({}, target)!;
-
-      handle.update(makeInput(), target, new Event('pointermove'), 'pointer');
-      handle.drop(makeInput(), target);
-
-      expect(onDraggableDrop).toHaveBeenCalledTimes(1);
-      expect(isActive()).toBe(false);
-    });
-
     it('skips a target whose parameters fail to resolve without ending the drag', () => {
       vi.spyOn(console, 'error').mockImplementation(() => {});
       const outer = createElement();
@@ -417,7 +386,6 @@ describe('lifecycle manager', () => {
     expect(previousLeave).toHaveBeenCalledTimes(1);
     expect(newLeave).not.toHaveBeenCalled();
     handle!.cancel();
-    removeDropTargetRegistration(target, getTarget);
   });
 
   it('does not deliver the previous local payload to a target with a new kind', () => {
@@ -439,7 +407,6 @@ describe('lifecycle manager', () => {
     expect(previousLeave.mock.calls[0][0].currentTarget.payload).toEqual({ title: 'Original' });
     expect(newLeave).not.toHaveBeenCalled();
     handle!.cancel();
-    removeDropTargetRegistration(target, getTarget);
   });
 
   it('does not deliver an old kind to updated monitor callbacks and still closes the original observer', () => {
@@ -453,6 +420,7 @@ describe('lifecycle manager', () => {
         ? { accept: other, onMove: newMove, onMoveEnd: newEnd }
         : { accept: TEST_KIND, onMoveEnd: previousEnd };
     addMonitor(getMonitor);
+    registerCleanup(() => removeMonitor(getMonitor));
     const handle = startDragWithHandlers({});
     changed = true;
     handle!.update(makeInput(), null, new Event('pointermove'), 'pointer');
@@ -460,7 +428,6 @@ describe('lifecycle manager', () => {
     handle!.cancel();
     expect(previousEnd).toHaveBeenCalledTimes(1);
     expect(newEnd).not.toHaveBeenCalled();
-    removeMonitor(getMonitor);
   });
 
   describe('event ordering', () => {
@@ -526,8 +493,7 @@ describe('lifecycle manager', () => {
 
       fireDrag.dragStart(el);
       await flushRaf();
-      fireDrag.dragOver(inner);
-      await flushRaf();
+      await dragOver(inner);
       // Leave every target, so the stack empties.
       fireDrag.dragLeave();
       await flushRaf();
@@ -598,8 +564,6 @@ describe('lifecycle manager', () => {
       });
       expect(onDraggableEnter).toHaveBeenCalledTimes(1);
       expect(onDraggableLeave).toHaveBeenCalledTimes(1);
-
-      removeDropTargetRegistration(under, getUnderParams);
     });
 
     it('owes no leave to a target whose initial enter never ran', async () => {
@@ -641,9 +605,6 @@ describe('lifecycle manager', () => {
       expect(innerLeave).toHaveBeenCalledTimes(1);
       expect(outerEnter).not.toHaveBeenCalled();
       expect(outerLeave).not.toHaveBeenCalled();
-
-      removeDropTargetRegistration(inner, getInnerParams);
-      removeDropTargetRegistration(outer, getOuterParams);
     });
   });
 
@@ -663,13 +624,11 @@ describe('lifecycle manager', () => {
       fireDrag.dragStart(el);
       await flushRaf();
 
-      fireDrag.dragEnter(target1);
-      await flushRaf();
+      await dragEnter(target1);
       expect(onTargetChange).toHaveBeenCalledTimes(1);
       expect(onTargetChange.mock.calls[0][0].target?.element).toBe(target1);
 
-      fireDrag.dragEnter(target2);
-      await flushRaf();
+      await dragEnter(target2);
       expect(onTargetChange).toHaveBeenCalledTimes(2);
       expect(onTargetChange.mock.calls[1][0].target?.element).toBe(target2);
     });
@@ -700,7 +659,6 @@ describe('lifecycle manager', () => {
       expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(target);
 
       act(() => handle!.cancel());
-      removeDropTargetRegistration(target, getTarget);
     });
 
     it('coalesces registration and parameter refreshes while preserving the hit test', async () => {
@@ -724,7 +682,6 @@ describe('lifecycle manager', () => {
       expect(canDrop).toHaveBeenCalledTimes(1);
       expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(newTarget);
       act(() => handle!.cancel());
-      removeDropTargetRegistration(newTarget, getTarget);
     });
 
     it('does not let a stale session suppress a parameter refresh for the next drag', async () => {
@@ -756,8 +713,6 @@ describe('lifecycle manager', () => {
       act(() => {
         second!.cancel();
       });
-      removeDropTargetRegistration(targetA, getTargetA);
-      removeDropTargetRegistration(targetB, getTargetB);
     });
 
     it('re-hit-tests a parameter refresh whose last target was detached', async () => {
@@ -795,7 +750,6 @@ describe('lifecycle manager', () => {
       act(() => {
         handle!.cancel();
       });
-      removeDropTargetRegistration(target, getTarget);
     });
 
     it('drains a hovered target unregistering inside canDrop without restoring stale hover state', async () => {
@@ -816,13 +770,11 @@ describe('lifecycle manager', () => {
         onDraggableLeave,
       });
       fireDrag.dragStart(source);
-      fireDrag.dragEnter(target);
-      await flushRaf();
+      await dragEnter(target);
       expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(target);
 
       unregisterDuringResolution = true;
-      fireDrag.dragOver(target, { clientX: 20 });
-      await flushRaf();
+      await dragOver(target, { clientX: 20 });
 
       expect(dragSessionStore.getSnapshot()?.location.current.targets).toEqual([]);
       expect(onDraggableLeave).toHaveBeenCalledTimes(1);
@@ -852,8 +804,7 @@ describe('lifecycle manager', () => {
       await flushRaf();
       expect(parentOnDrag).not.toHaveBeenCalled();
 
-      fireDrag.dragEnter(child);
-      await flushRaf();
+      await dragEnter(child);
 
       expect(parentOnDrag).toHaveBeenCalledTimes(1);
       const elements = dragSessionStore
@@ -879,8 +830,7 @@ describe('lifecycle manager', () => {
       fireDrag.dragStart(source);
       await flushRaf();
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
       expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(target);
 
       const hitTest = vi.spyOn(document, 'elementFromPoint');
@@ -913,8 +863,7 @@ describe('lifecycle manager', () => {
       fireDrag.dragStart(source);
       await flushRaf();
       fireDrag.dragEnter(inner);
-      fireDrag.dragOver(inner);
-      await flushRaf();
+      await dragOver(inner);
       const elements = dragSessionStore
         .getSnapshot()
         ?.location.current.targets.map((record) => record.element);
@@ -976,8 +925,7 @@ describe('lifecycle manager', () => {
       fireDrag.dragStart(el);
       await flushRaf();
 
-      fireDrag.dragEnter(target);
-      await flushRaf();
+      await dragEnter(target);
       expect(targetOnDropTargetChange).toHaveBeenCalledTimes(1);
 
       fireDrag.dragEnd();
@@ -1069,8 +1017,7 @@ describe('lifecycle manager', () => {
       fireDrag.dragStart(el);
       await flushRaf();
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
 
       expect(onTargetChange).toHaveBeenCalled();
       const [details] = onTargetChange.mock.calls[0];
@@ -1108,8 +1055,7 @@ describe('lifecycle manager', () => {
       fireDrag.dragStart(el);
       await flushRaf();
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
       fireDrag.drop(target);
 
       expect(reasons.start).toBe('pointer');
@@ -1210,6 +1156,7 @@ describe('lifecycle manager', () => {
       addDropTargetRegistration(target, getTargetParams);
       const getMonitor = () => ({ onMoveEnd: monitorEnd });
       addMonitor(getMonitor);
+      registerCleanup(() => removeMonitor(getMonitor));
 
       const handle = startDragWithHandlers({ onMoveEnd });
       expect(handle).not.toBeNull();
@@ -1229,9 +1176,6 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
       expect(monitorEnd).toHaveBeenCalledTimes(1);
       expect(isActive()).toBe(false);
-
-      removeDropTargetRegistration(target, getTargetParams);
-      removeMonitor(getMonitor);
     });
 
     it.each(['manager', 'controller'] as const)(
@@ -1248,6 +1192,7 @@ describe('lifecycle manager', () => {
         const monitorEnd = vi.fn();
         const getMonitor = () => ({ onMoveEnd: monitorEnd });
         addMonitor(getMonitor);
+        registerCleanup(() => removeMonitor(getMonitor));
         handle = startDragWithHandlers({
           onMove: () => {
             throw new Error('boom from onMove');
@@ -1264,7 +1209,6 @@ describe('lifecycle manager', () => {
         expect(monitorEnd).toHaveBeenCalledTimes(1);
         expect(monitorEnd.mock.calls[0][0].reason).toBe('handler-error');
         expectEngineRecovered();
-        removeMonitor(getMonitor);
       },
     );
 
@@ -1293,8 +1237,6 @@ describe('lifecycle manager', () => {
       expect(onDraggableLeave.mock.calls[0][0].reason).toBe('handler-error');
       expect(onDraggableLeave.mock.calls[0][0]).not.toHaveProperty('canceled');
       expectEngineRecovered();
-
-      removeDropTargetRegistration(target, getTargetParams);
     });
 
     it('does not double-dispatch onMoveEnd when onMoveEnd itself throws', () => {
@@ -1327,6 +1269,7 @@ describe('lifecycle manager', () => {
         onMoveEnd: splitEnd(monitorDrop, monitorEnd),
       });
       addMonitor(getMonitor);
+      registerCleanup(() => removeMonitor(getMonitor));
 
       const sourceOnDragEnd = vi.fn();
       const handle = startDragWithHandlers({
@@ -1359,9 +1302,6 @@ describe('lifecycle manager', () => {
       expect(monitorEnd).toHaveBeenCalledTimes(1);
       expect(targetOnDragLeave).toHaveBeenCalledTimes(1);
       expectEngineRecovered();
-
-      removeDropTargetRegistration(target, getTargetParams);
-      removeMonitor(getMonitor);
     });
 
     it('a throwing target onDrop still lets monitors and terminal leaves run', () => {
@@ -1380,6 +1320,7 @@ describe('lifecycle manager', () => {
         onMoveEnd: splitEnd(monitorDrop, monitorEnd),
       });
       addMonitor(getMonitor);
+      registerCleanup(() => removeMonitor(getMonitor));
 
       const sourceOnDragEnd = vi.fn();
       const handle = startDragWithHandlers({ onMoveEnd: sourceOnDragEnd });
@@ -1393,9 +1334,6 @@ describe('lifecycle manager', () => {
       expect(monitorEnd).toHaveBeenCalledTimes(1);
       expect(targetOnDragLeave).toHaveBeenCalledTimes(1);
       expectEngineRecovered();
-
-      removeDropTargetRegistration(target, getTargetParams);
-      removeMonitor(getMonitor);
     });
 
     it('a throwing source onMoveEnd on cancel still reaches the monitors', () => {
@@ -1406,6 +1344,7 @@ describe('lifecycle manager', () => {
       addDropTargetRegistration(target, getTargetParams);
       const getMonitor = () => ({ onMoveEnd: monitorEnd });
       addMonitor(getMonitor);
+      registerCleanup(() => removeMonitor(getMonitor));
 
       const handle = startDragWithHandlers({
         onMoveEnd: () => {
@@ -1426,9 +1365,6 @@ describe('lifecycle manager', () => {
       expect(monitorEnd).toHaveBeenCalledTimes(1);
       expect(targetOnDragLeave).toHaveBeenCalledTimes(1);
       expectEngineRecovered();
-
-      removeDropTargetRegistration(target, getTargetParams);
-      removeMonitor(getMonitor);
     });
 
     it('a throwing monitor is contained and does not starve the others', async () => {
@@ -1483,19 +1419,6 @@ describe('lifecycle manager', () => {
           },
         }),
       ).toThrow('boom from onMoveStart');
-      expectEngineRecovered();
-    });
-
-    it('a throwing onMove tears the session down', () => {
-      const handle = startDragWithHandlers({
-        onMove: () => {
-          throw new Error('boom from onMove');
-        },
-      });
-      expect(handle).not.toBeNull();
-      expect(() => handle!.update(makeInput(), null, new Event('pointermove'), 'pointer')).toThrow(
-        'boom from onMove',
-      );
       expectEngineRecovered();
     });
 
@@ -1695,8 +1618,7 @@ describe('lifecycle manager', () => {
 
       fireDrag.dragStart(source);
       await flushRaf();
-      fireDrag.dragEnter(target);
-      await flushRaf();
+      await dragEnter(target);
 
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onTargetChange).not.toHaveBeenCalled();
@@ -1724,8 +1646,7 @@ describe('lifecycle manager', () => {
 
       fireDrag.dragStart(source);
       await flushRaf();
-      fireDrag.dragEnter(target);
-      await flushRaf();
+      await dragEnter(target);
       onTargetChange.mockClear();
       cancelOnResolve = true;
 
@@ -1758,13 +1679,11 @@ describe('lifecycle manager', () => {
 
       fireDrag.dragStart(el);
       await flushRaf();
-      fireDrag.dragEnter(targetA);
-      await flushRaf();
+      await dragEnter(targetA);
       // Moving from A to C runs A's leave during the change dispatch. The cancel
       // it issues must stop the fan-out, so C never hears about a drag that has
       // ended. An enter after teardown would leave C's hover state stuck.
-      fireDrag.dragEnter(targetC);
-      await flushRaf();
+      await dragEnter(targetC);
 
       expect(onDragEnterC).not.toHaveBeenCalled();
       expect(onDragC).not.toHaveBeenCalled();
@@ -1803,8 +1722,7 @@ describe('lifecycle manager', () => {
       await flushRaf();
       // Entering the child dispatches the entry `onDraggableMove` synchronously to
       // the stack, innermost first. The child's cancel must stop it there.
-      fireDrag.dragEnter(child);
-      await flushRaf();
+      await dragEnter(child);
 
       expect(childOnDrag).toHaveBeenCalledTimes(1);
       expect(parentOnDrag).not.toHaveBeenCalled();

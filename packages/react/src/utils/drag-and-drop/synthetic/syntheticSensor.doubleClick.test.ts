@@ -5,6 +5,7 @@ import { createDndRenderer } from '../../../../test/dndEngine';
 import {
   createElement,
   flushRaf,
+  mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
 } from '../../../../test/dnd';
@@ -34,11 +35,7 @@ describe('syntheticDrag double-click activation', () => {
     engine.registerTarget(target, { onDraggableDrop: onDrop });
     target.addEventListener('click', onClick);
     registerCleanup(() => target.removeEventListener('click', onClick));
-    const original = document.elementFromPoint;
-    document.elementFromPoint = () => target;
-    registerCleanup(() => {
-      document.elementFromPoint = original;
-    });
+    mockElementFromPoint(() => target);
 
     fireEvent.doubleClick(source, { detail: 2, button: 0, clientX: 20, clientY: 20 });
     expect(onMoveStart).toHaveBeenCalledTimes(1);
@@ -73,11 +70,7 @@ describe('syntheticDrag double-click activation', () => {
     const onDrop = vi.fn();
     engine.registerSource(source, { activation: { type: 'double-click' }, onMove });
     engine.registerTarget(target, { onDraggableDrop: onDrop });
-    const original = document.elementFromPoint;
-    document.elementFromPoint = () => target;
-    registerCleanup(() => {
-      document.elementFromPoint = original;
-    });
+    mockElementFromPoint(() => target);
 
     fireEvent.doubleClick(source, { detail: 2, button: 0, clientX: 20, clientY: 20 });
     // An empty `pointerType` counts as mouse, as it does at pickup. The session
@@ -383,11 +376,7 @@ describe('syntheticDrag double-click activation', () => {
         onMoveEnd,
       });
       engine.registerTarget(target, { onDraggableDrop: onDrop });
-      const original = document.elementFromPoint;
-      document.elementFromPoint = () => target;
-      registerCleanup(() => {
-        document.elementFromPoint = original;
-      });
+      mockElementFromPoint(() => target);
 
       firePointer.down(source, { ...tap, pointerType: 'touch', pointerId: 1, timeStamp: 10 });
       firePointer.up(source, { ...tap, pointerType: 'touch', pointerId: 1, timeStamp: 60 });

@@ -359,7 +359,6 @@ export function createSyntheticPreview(
     },
     retargetSource,
     setPreviewOffset,
-    removePreviewElement,
     getPreviewElement(): DragPreviewElementHandle | null {
       return previewElement;
     },
@@ -507,8 +506,6 @@ export interface SyntheticPreviewHandle {
    * once the first copy of custom content has a size.
    */
   setPreviewOffset(offset: DraggablePosition): void;
-  /** Destroy the preview element. */
-  removePreviewElement(): void;
   /** The current preview element, or `null`. */
   getPreviewElement(): DragPreviewElementHandle | null;
   /** The offset from the preview's top-left to the cursor (see `setPreviewOffset`). */

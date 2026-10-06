@@ -1,8 +1,14 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { firePointer } from '#test-utils';
+import { firePointer, isJSDOM } from '#test-utils';
 import { createDndRenderer } from '../../../test/dndEngine';
-import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
+import {
+  createElement,
+  flushRaf,
+  setupDragEngineTests,
+  fireDrag,
+  dragOver,
+} from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
 import { useManager } from './useManager';
@@ -71,6 +77,17 @@ describe('engine.registerSource', () => {
     cleanup();
     expect(el.style.touchAction).toBe('');
     expect(el.style.userSelect).toBe('');
+  });
+
+  it.skipIf(isJSDOM)('restores inline gesture style priorities on cleanup', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    el.style.setProperty('user-select', 'text', 'important');
+    const cleanup = engine.registerSource(el, {});
+    expect(el.style.userSelect).toBe('none');
+    cleanup();
+    expect(el.style.userSelect).toBe('text');
+    expect(el.style.getPropertyPriority('user-select')).toBe('important');
   });
 
   it('preserves ordinary interaction styles while disabled', async () => {
@@ -203,10 +220,8 @@ describe('engine.registerSource', () => {
 
     fireDrag.dragStart(el);
     await flushRaf();
-    fireDrag.dragOver(el, { clientX: 40, clientY: 40 });
-    await flushRaf();
-    fireDrag.dragOver(el, { clientX: 80, clientY: 80 });
-    await flushRaf();
+    await dragOver(el, { clientX: 40, clientY: 40 });
+    await dragOver(el, { clientX: 80, clientY: 80 });
 
     expect(onMove.mock.lastCall?.[0].source.payload).toBe(payload);
   });

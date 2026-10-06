@@ -3,7 +3,13 @@ import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer } from '../../../test/dndEngine';
-import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
+import {
+  createElement,
+  flushRaf,
+  setupDragEngineTests,
+  fireDrag,
+  dragOver,
+} from '../../../test/dnd';
 
 setupDragEngineTests();
 
@@ -45,8 +51,7 @@ describe('Draggable.Target state props', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(target).toHaveClass('is-enabled', 'is-over', 'is-innermost');
     expect(target.style.outlineWidth).toBe('2px');

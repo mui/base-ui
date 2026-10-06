@@ -3,7 +3,13 @@ import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
-import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
+import {
+  createElement,
+  flushRaf,
+  setupDragEngineTests,
+  fireDrag,
+  dragOver,
+} from '../../../test/dnd';
 import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes';
 
 setupDragEngineTests();
@@ -39,8 +45,7 @@ describe('Draggable.Target enum sync', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(inner);
-    fireDrag.dragOver(inner);
-    await flushRaf();
+    await dragOver(inner);
 
     // Every accepting target is marked as soon as the drag starts, wherever the
     // pointer is.
@@ -57,13 +62,11 @@ describe('Draggable.Target enum sync', () => {
     // without ever entering the stack.
     expect(full).not.toHaveAttribute(DraggableTargetDataAttributes.rejected);
     fireDrag.dragEnter(full);
-    fireDrag.dragOver(full);
-    await flushRaf();
+    await dragOver(full);
     expect(full).toHaveAttribute(DraggableTargetDataAttributes.rejected);
     expect(full).not.toHaveAttribute(DraggableTargetDataAttributes.dragOver);
     fireDrag.dragEnter(inner);
-    fireDrag.dragOver(inner);
-    await flushRaf();
+    await dragOver(inner);
     expect(full).not.toHaveAttribute(DraggableTargetDataAttributes.rejected);
 
     fireDrag.drop(inner);

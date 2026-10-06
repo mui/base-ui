@@ -7,6 +7,8 @@ import {
   setupDragEngineTests,
   splitEnd,
   fireDrag,
+  dragEnter,
+  dragOver,
 } from '../../../test/dnd';
 
 setupDragEngineTests();
@@ -48,8 +50,7 @@ describe('engine.registerMonitor', () => {
     fireDrag.dragStart(el);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
@@ -207,10 +208,8 @@ describe('engine.registerMonitor', () => {
     });
 
     // Later events must reach the late monitor.
-    fireDrag.dragEnter(target);
-    await flushRaf();
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragEnter(target);
+    await dragOver(target);
     fireDrag.drop(target);
 
     // The monitor joined after onMoveStart, so it never sees it.
@@ -274,8 +273,7 @@ describe('engine.registerMonitor', () => {
       expect(onDragStartSane).toHaveBeenCalledTimes(1);
 
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
       fireDrag.drop(target);
 
       // The drag was never aborted and ends with a drop.

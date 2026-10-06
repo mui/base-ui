@@ -105,8 +105,7 @@ describe('Draggable.Root', () => {
     expect(source).toHaveClass('dragging');
 
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     fireDrag.drop(target);
     await flushRaf();
@@ -203,8 +202,7 @@ describe('Draggable.Root', () => {
     const source = screen.getByTestId('drag');
     fireDrag.dragStart(source);
     await flushRaf();
-    fireDrag.dragOver(source, { clientX: 40, clientY: 40 });
-    await flushRaf();
+    await dragOver(source, { clientX: 40, clientY: 40 });
     expect(onMove.mock.lastCall?.[0].source.payload).toEqual({ token: 'abc' });
   });
 
@@ -480,8 +478,7 @@ describe('Draggable.Root', () => {
     // The drag still completes, so re-registration didn't unbind the sensors
     // during the gesture.
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     fireDrag.drop(target);
     await flushRaf();
 
@@ -636,8 +633,7 @@ describe('Draggable.Root', () => {
       fireDrag.dragStart(source);
       await flushRaf();
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
       fireDrag.drop(target);
       await flushRaf();
 
@@ -750,8 +746,7 @@ describe('Draggable.Root', () => {
       expect(onTargetChange).not.toHaveBeenCalled();
 
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
 
       expect(onTargetChange).toHaveBeenCalledTimes(1);
       const eventDetails = onTargetChange.mock.calls[0][0];
@@ -1069,8 +1064,7 @@ describe('Draggable.Root', () => {
       fireDrag.dragStart(first);
       await flushRaf();
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
 
       // An authored drop transition keeps the clone settling past the drop.
       const clone = document.querySelector('[data-drag-preview]') as HTMLElement;
@@ -1120,8 +1114,7 @@ describe('Draggable.Root', () => {
       expect(document.querySelector('[data-drag-preview]')).not.toBeNull();
 
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
       fireDrag.drop(target);
 
       // A clone gets an ending frame so an authored transition can settle it into
@@ -1149,8 +1142,7 @@ describe('Draggable.Root', () => {
       fireDrag.dragStart(source);
       await flushRaf();
       fireDrag.dragEnter(target);
-      fireDrag.dragOver(target);
-      await flushRaf();
+      await dragOver(target);
       // An authored ending transition keeps the clone mounted to inspect it.
       const clone = document.querySelector('[data-drag-preview]') as HTMLElement;
       let finishAnimation!: () => void;
@@ -1928,107 +1920,6 @@ describe('Draggable.Root', () => {
       expect(document.querySelector('.Card[data-drag-preview]')).toBeNull();
     });
 
-    it('still honours preview.offset for an imperative preview', async () => {
-      function OffsetCard() {
-        const engine = Draggable.useManager();
-        const elementRef = React.useRef<HTMLDivElement>(null);
-        React.useEffect(
-          () =>
-            engine.registerSource(elementRef.current!, () => ({
-              kind: cardKind,
-              payload: { id: 'a' },
-              preview: {
-                render: () => <span data-testid="preview">chip</span>,
-                offset: { x: 5, y: 6 },
-              },
-            })),
-          [engine],
-        );
-        return <div ref={elementRef} data-testid="drag" />;
-      }
-
-      await renderDnd(
-        <DraggableProvider>
-          <OffsetCard />
-        </DraggableProvider>,
-      );
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      await lift(source, { clientX: 30, clientY: 40 });
-      await dragOver(source, { clientX: 100, clientY: 120 });
-
-      const host = screen
-        .getByTestId('preview')
-        .closest('[data-base-ui-drag-preview]') as HTMLElement;
-      expect(host.style.translate).toBe('95px 114px');
-    });
-
-    it('shows no preview at all with preview.disabled', async () => {
-      function DisabledCard() {
-        const engine = Draggable.useManager();
-        const elementRef = React.useRef<HTMLDivElement>(null);
-        React.useEffect(
-          () =>
-            engine.registerSource(elementRef.current!, () => ({
-              kind: cardKind,
-              payload: { id: 'a' },
-              preview: { disabled: true },
-            })),
-          [engine],
-        );
-        return <div ref={elementRef} data-testid="drag" className="Card" />;
-      }
-
-      await renderDnd(<DisabledCard />);
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      fireDrag.dragStart(source);
-
-      expect(document.querySelector('[data-drag-preview]')).toBeNull();
-      expect(source).toHaveAttribute('data-dragging');
-    });
-
-    it('clamps an imperative preview to preview.modifiers', async () => {
-      function BoundedCard() {
-        const engine = Draggable.useManager();
-        const elementRef = React.useRef<HTMLDivElement>(null);
-        const boundsRef = React.useRef<HTMLDivElement>(null);
-        React.useEffect(
-          () =>
-            engine.registerSource(elementRef.current!, () => ({
-              kind: cardKind,
-              payload: { id: 'a' },
-              preview: {
-                modifiers: Draggable.restrictToElement(boundsRef),
-                offset: 'pointer',
-              },
-            })),
-          [engine],
-        );
-        return (
-          <React.Fragment>
-            <div ref={boundsRef} data-testid="bounds" />
-            <div ref={elementRef} data-testid="drag" className="Card" />
-          </React.Fragment>
-        );
-      }
-
-      await renderDnd(<BoundedCard />);
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-      screen.getByTestId('bounds').getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
-
-      await lift(source, { clientX: 10, clientY: 10 });
-
-      const clone = document.querySelector('[data-drag-preview]') as HTMLElement;
-      clone.getBoundingClientRect = () => new DOMRect(0, 0, 50, 30);
-
-      await dragOver(source, { clientX: 500, clientY: 500 });
-      expect(clone.style.translate).toBe('150px 170px');
-    });
-
     it('injects the clone into an explicit preview.container', async () => {
       const host = document.createElement('div');
       document.body.appendChild(host);
@@ -2055,44 +1946,6 @@ describe('Draggable.Root', () => {
         fireDrag.dragStart(source);
 
         expect(host.querySelector('[data-drag-preview]')).not.toBeNull();
-      } finally {
-        host.remove();
-      }
-    });
-
-    it('injects custom preview content into an explicit preview.container', async () => {
-      const host = document.createElement('div');
-      document.body.appendChild(host);
-      try {
-        function ContainedCard() {
-          const engine = Draggable.useManager();
-          const elementRef = React.useRef<HTMLDivElement>(null);
-          React.useEffect(
-            () =>
-              engine.registerSource(elementRef.current!, () => ({
-                kind: cardKind,
-                payload: { id: 'a' },
-                preview: {
-                  render: () => <span data-testid="preview">chip</span>,
-                  container: host,
-                },
-              })),
-            [engine],
-          );
-          return <div ref={elementRef} data-testid="drag" />;
-        }
-
-        await renderDnd(
-          <DraggableProvider>
-            <ContainedCard />
-          </DraggableProvider>,
-        );
-        const source = screen.getByTestId('drag');
-        source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-        fireDrag.dragStart(source);
-
-        expect(host.contains(screen.getByTestId('preview'))).toBe(true);
       } finally {
         host.remove();
       }

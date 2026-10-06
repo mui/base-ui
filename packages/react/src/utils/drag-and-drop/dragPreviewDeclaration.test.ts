@@ -19,7 +19,7 @@ describe('createDragPreviewHandle', () => {
     handle.declare(second);
     expect(String(spy.mock.calls[0][0])).toMatch(/more than one preview part/);
     // The last one mounted wins, so the outcome is deterministic.
-    expect(handle.getDeclaration()).toBe(second);
+    expect(handle.preview.render).toBe(second.render);
 
     spy.mockRestore();
   });
@@ -29,11 +29,11 @@ describe('createDragPreviewHandle', () => {
     const cleanup = handle.declare(createDeclaration());
 
     cleanup();
-    expect(handle.getDeclaration()).toBe(null);
+    expect(handle.preview.render).toBeUndefined();
 
     const next = createDeclaration();
     handle.declare(next);
-    expect(handle.getDeclaration()).toBe(next);
+    expect(handle.preview.render).toBe(next.render);
   });
 
   it('keeps a newer declaration when an older cleanup runs again', () => {
@@ -48,6 +48,6 @@ describe('createDragPreviewHandle', () => {
     handle.declare(remounted);
     staleCleanup();
 
-    expect(handle.getDeclaration()).toBe(remounted);
+    expect(handle.preview.render).toBe(remounted.render);
   });
 });

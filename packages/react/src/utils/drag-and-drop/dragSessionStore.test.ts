@@ -1,6 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createDndRenderer } from '../../../test/dndEngine';
-import { cancel, createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
+import {
+  cancel,
+  createElement,
+  flushRaf,
+  setupDragEngineTests,
+  fireDrag,
+  dragOver,
+} from '../../../test/dnd';
 import { dragSessionStore, dragSourceStore } from './dragSessionStore';
 import { retargetDragSource } from './dragSource';
 
@@ -28,8 +35,7 @@ describe('dragSessionStore', () => {
     await flushRaf();
 
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     fireDrag.drop(target);
     expect(dragSessionStore.state).toBeNull();
@@ -50,8 +56,7 @@ describe('dragSessionStore', () => {
     expect(beforeEnter!.location.current.targets.length).toBe(0);
 
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     const afterEnter = dragSessionStore.state;
     expect(afterEnter).not.toBe(beforeEnter);
@@ -72,8 +77,7 @@ describe('dragSessionStore', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     expect(dragSessionStore.state!.location.current.targets.length).toBe(1);
 
@@ -99,8 +103,7 @@ describe('dragSessionStore', () => {
     fireDrag.dragStart(source);
     await flushRaf();
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
 
     const snapshot = dragSessionStore.state!;
     const record = snapshot.location.current.targets[0];
@@ -167,8 +170,7 @@ describe('dragSessionStore', () => {
     expect(listener).toHaveBeenCalledTimes(1);
 
     fireDrag.dragEnter(target);
-    fireDrag.dragOver(target);
-    await flushRaf();
+    await dragOver(target);
     expect(listener).toHaveBeenCalledTimes(1);
 
     fireDrag.drop(target);

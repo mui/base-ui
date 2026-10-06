@@ -129,12 +129,12 @@ describe('syntheticPreview', () => {
   });
 
   describe('setPreviewElement', () => {
-    it('exposes the adopted preview element and destroys it on release', () => {
+    it('exposes the adopted preview element and destroys it when the preview is torn down', () => {
       const handle = createHandle(document.body);
       const preview = createPreviewElement();
       handle.setPreviewElement(preview);
       expect(handle.getPreviewElement()).toBe(preview);
-      handle.removePreviewElement();
+      handle.destroy();
       expect(handle.getPreviewElement()).toBeNull();
       expect(preview.destroyed).toBe(true);
     });
@@ -151,14 +151,6 @@ describe('syntheticPreview', () => {
       handle.setPreviewOffset({ x: 10, y: 20 });
       // Re-anchored without waiting for another pointer move.
       expect(preview.element.style.translate).toBe('90px 180px');
-    });
-
-    it('destroys the preview element when the whole preview is torn down', () => {
-      const handle = createHandle(document.body);
-      const preview = createPreviewElement();
-      handle.setPreviewElement(preview);
-      handle.destroy();
-      expect(preview.destroyed).toBe(true);
     });
 
     it('keeps a cloned preview mounted through its authored drop transition', async () => {
