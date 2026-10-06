@@ -1925,6 +1925,49 @@ describe('<Menu.Root />', () => {
         expect(trigger2).toHaveAttribute('aria-expanded', 'true');
         expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       });
+
+      it('clears the active trigger when a controlled close completes without a reopen', async () => {
+        let setOpenExternal!: (open: boolean) => void;
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          setOpenExternal = setOpen;
+
+          return (
+            <Menu.Root open={open} onOpenChange={setOpen}>
+              <Menu.Trigger>Trigger 1</Menu.Trigger>
+              <Menu.Trigger>Trigger 2</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup">
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+        await user.click(trigger1);
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        await act(async () => setOpenExternal(false));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        await act(async () => setOpenExternal(true));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      });
     });
 
     describe.skipIf(isJSDOM)('scroll locking', () => {
