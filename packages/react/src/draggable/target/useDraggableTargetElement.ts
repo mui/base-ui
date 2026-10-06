@@ -18,6 +18,9 @@ import {
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { matchesAccept, sameAccept } from '../../utils/drag-and-drop/dragKind';
 
+// The selector adds this flag itself, in the bit the engine leaves free above its own.
+const ACCEPTING = dragTargetStateStride;
+
 // Stable scalar selector. The per-target store already resolves the live node
 // and publishes only when this target's rendered state can change.
 function selectTargetState(
@@ -28,7 +31,7 @@ function selectTargetState(
   const targetState = state % dragTargetStateStride;
   const source = dragSourceStore.state;
   if (source !== null && !disabled && matchesAccept(accept, source)) {
-    return targetState + DragTargetState.accepting;
+    return targetState + ACCEPTING;
   }
   return targetState;
 }
@@ -110,7 +113,7 @@ export function useDraggableTargetElement(
     dragOver: hasTargetState(targetState, DragTargetState.over),
     dragOverInnermost: hasTargetState(targetState, DragTargetState.innermost),
     rejected: hasTargetState(targetState, DragTargetState.rejected),
-    accepting: hasTargetState(targetState, DragTargetState.accepting),
+    accepting: hasTargetState(targetState, ACCEPTING),
   };
 }
 

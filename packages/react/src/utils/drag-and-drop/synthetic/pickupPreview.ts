@@ -28,18 +28,16 @@ export interface ResolvedDragPreview {
 
 /**
  * Read the drag's preview settings once, at drag start. The engine builds the
- * preview element synchronously from them, before React can run.
- *
- * A declared part describes the preview completely and does not merge with the
- * registration's `preview`, which only an imperative registration can set.
+ * preview element synchronously from them, before React can run. A
+ * `Draggable.Preview` part reaches the engine through `preview` too (see
+ * `DragPreviewHandle.preview`).
  * @internal
  */
 export function resolveDragPreview(
   parameters: DraggableConfig<any, any>,
   source: HTMLElement,
 ): ResolvedDragPreview {
-  const declaration = parameters.getDragPreviewDeclaration?.();
-  const settings = declaration ? declaration.getSettings() : parameters.preview;
+  const settings = parameters.preview;
   const disabled = settings?.disabled ?? false;
 
   return {
@@ -48,7 +46,7 @@ export function resolveDragPreview(
     // Can be a callback, so leave it uninvoked when the preview is disabled.
     container: disabled ? null : resolveElementReference(settings?.container, source),
     disabled,
-    render: (declaration ? declaration.render : parameters.preview?.render) ?? null,
+    render: settings?.render ?? null,
   };
 }
 

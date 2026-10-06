@@ -6,21 +6,13 @@ import type { DraggableKind, DraggableAccept } from '../../draggable/DraggablePr
 import type { AcceptedDragPayload, AcceptedDragData, DraggablePayload } from './types';
 
 /**
- * The public parameters plus `getDragPreviewDeclaration`, through which a
- * `Draggable.Preview` reaches the engine. Consumers never set that field, so
- * `RegisterSourceParameters` omits it.
+ * Parameters accepted by `Draggable.Root` and `registerSource`, except the element.
+ * `onGenerateDragPreview` is omitted because the engine overwrites it to publish the
+ * preview it built.
  */
-// `onGenerateDragPreview` is omitted because the engine overwrites it to publish the
-// preview it built.
-export type InternalDraggableParameters<TPayload = undefined, TDragData = unknown> = Omit<
+export type RegisterSourceParameters<TPayload = undefined, TDragData = unknown> = Omit<
   DraggableConfig<TPayload, TDragData>,
   'element' | 'onGenerateDragPreview' | 'styleNonce' | 'disableStyleElements'
->;
-
-/** Parameters accepted by `Draggable.Root` and `registerSource`, except the element. */
-export type RegisterSourceParameters<TPayload = undefined, TDragData = unknown> = Omit<
-  InternalDraggableParameters<TPayload, TDragData>,
-  'getDragPreviewDeclaration'
 >;
 
 /** Public drop-target parameters, whose `accept` declaration is required. */

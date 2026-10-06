@@ -102,6 +102,9 @@ const CONTEXT_MENU_SUPPRESSION_MS = 1500;
 const DOUBLE_TAP_MS = 300;
 const DOUBLE_TAP_TOLERANCE_PX = 25;
 
+/** Shared listener options, so every capture listener doesn't allocate its own. */
+const CAPTURE: AddEventListenerOptions = { capture: true };
+
 /** Cursor pinned across the document during a pointer drag (see `dragCursor`). */
 const DEFAULT_DRAG_CURSOR = 'grabbing';
 
@@ -294,9 +297,10 @@ const POINTER_AT_CANCEL: Record<DragCanceledReason, PointerAtTeardown> = {
   [REASONS.missedRelease]: 'released',
   // A canceled pointer never produces a compatibility click.
   [REASONS.pointerCanceled]: 'none',
-  // Triggered by another gesture's press (see `recoverDetachedSession`). In a
-  // dead realm `ownerWindow` falls back to the top-level window, so arming would
-  // swallow the new press's click on the wrong document.
+  // Raised by another gesture's press (see `recoverDetachedSession`), or when a
+  // start callback removes the source's iframe (see `commitActivation`). In a dead
+  // realm `ownerWindow` falls back to the top-level window, so arming would swallow
+  // the next press's click on the wrong document.
   [REASONS.documentDetached]: 'none',
   // The rest interrupt a gesture whose button is still down.
   [REASONS.escapeKey]: 'held',
@@ -515,15 +519,15 @@ function onPointerDown(event: Event): void {
   state.pending = pendingRef;
 
   pendingRef.listeners.push(
-    addEventListener(win, 'pointermove', onPendingPointerMove, { capture: true }),
-    addEventListener(win, 'pointerup', onPendingPointerUp, { capture: true }),
-    addEventListener(win, 'pointercancel', onPendingPointerCancel, { capture: true }),
+    addEventListener(win, 'pointermove', onPendingPointerMove, CAPTURE),
+    addEventListener(win, 'pointerup', onPendingPointerUp, CAPTURE),
+    addEventListener(win, 'pointercancel', onPendingPointerCancel, CAPTURE),
     // Suppress the native HTML5 drag that a natively draggable descendant
     // (`<img>`, `<a href>`) would otherwise start from the same press.
-    addEventListener(win, 'dragstart', preventNativeDragStart, { capture: true }),
+    addEventListener(win, 'dragstart', preventNativeDragStart, CAPTURE),
     // Escape during the pending press-hold abandons the candidate before it
     // activates (the active phase has its own Escape handler).
-    addEventListener(win, 'keydown', onPendingKeyDown, { capture: true }),
+    addEventListener(win, 'keydown', onPendingKeyDown, CAPTURE),
     // If the window blurs or the tab is hidden (app switch, soft keyboard,
     // overlay) before the press-hold timer fires, abandon the candidate so a
     // drag never commits while the page is in the background.
@@ -538,9 +542,7 @@ function onPointerDown(event: Event): void {
     // `startContextMenuSuppression` removes itself after one menu. This listener
     // stays until the pending phase ends, so an early `contextmenu` can't leave
     // the rest of the held gesture unguarded.
-    pendingRef.listeners.push(
-      addEventListener(win, 'contextmenu', preventContextMenu, { capture: true }),
-    );
+    pendingRef.listeners.push(addEventListener(win, 'contextmenu', preventContextMenu, CAPTURE));
   }
 
   evaluatePendingActivation(pendingRef.startedAt);
@@ -662,8 +664,8 @@ function recordTap(
     }
   };
   cleanups.push(
-    addEventListener(win, 'pointerup', onUp, { capture: true }),
-    addEventListener(win, 'pointercancel', onCancel, { capture: true }),
+    addEventListener(win, 'pointerup', onUp, CAPTURE),
+    addEventListener(win, 'pointercancel', onCancel, CAPTURE),
   );
   state.lastTap = tap;
 }
@@ -755,8 +757,8 @@ function startContextMenuSuppression(win: Window, target: Element): DragCleanupF
   };
 
   cleanups.push(
-    addEventListener(win, 'contextmenu', onContextMenu, { capture: true }),
-    addEventListener(target, 'contextmenu', onContextMenu, { capture: true }),
+    addEventListener(win, 'contextmenu', onContextMenu, CAPTURE),
+    addEventListener(target, 'contextmenu', onContextMenu, CAPTURE),
   );
 
   state.cleanupContextMenuSuppression = cleanup;
@@ -1087,7 +1089,7 @@ function commitActivation(): void {
       // third-party bubble listener that calls `stopPropagation()` on
       // `pointermove` (analytics shims, other gesture libraries) must not freeze
       // the preview and target resolution.
-      addEventListener(doc, 'pointermove', onActivePointerMove, { capture: true }),
+      addEventListener(doc, 'pointermove', onActivePointerMove, CAPTURE),
     );
     if (pointerType !== 'mouse') {
       activeRef.listeners.push(
@@ -1106,16 +1108,16 @@ function commitActivation(): void {
         // is an ancestor at pickup, so a listener there adds nothing. A mouse
         // context menu comes from a separate button while capture is on `body`, so
         // the window listener below sees it.
-        addEventListener(target, 'contextmenu', preventContextMenu, { capture: true }),
+        addEventListener(target, 'contextmenu', preventContextMenu, CAPTURE),
       );
     }
     activeRef.listeners.push(
-      addEventListener(win, 'keydown', onActiveKeyDown, { capture: true }),
+      addEventListener(win, 'keydown', onActiveKeyDown, CAPTURE),
       // Only tracks modifier key releases. The drag has no keyup gesture.
-      addEventListener(win, 'keyup', syncActiveModifierKeys, { capture: true }),
+      addEventListener(win, 'keyup', syncActiveModifierKeys, CAPTURE),
       addEventListener(win, 'blur', onActiveBlur),
       addEventListener(doc, 'visibilitychange', onActiveVisibilityChange),
-      addEventListener(win, 'contextmenu', preventContextMenu, { capture: true }),
+      addEventListener(win, 'contextmenu', preventContextMenu, CAPTURE),
       // `scroll` doesn't bubble, but a capture listener on the document sees
       // scrolling in any descendant container, including auto-scroll's
       // `scrollBy`. The next frame then re-resolves the target under a stationary
@@ -1146,12 +1148,12 @@ function commitActivation(): void {
     // its own handler, because the capture redirect above makes touch and pen
     // fire a spurious one on the original element.
     activeRef.listeners.push(
-      addEventListener(win, 'pointerup', onActivePointerUp, { capture: true }),
-      addEventListener(win, 'pointercancel', onActivePointerCancel, { capture: true }),
-      addEventListener(win, 'lostpointercapture', onActiveLostPointerCapture, { capture: true }),
+      addEventListener(win, 'pointerup', onActivePointerUp, CAPTURE),
+      addEventListener(win, 'pointercancel', onActivePointerCancel, CAPTURE),
+      addEventListener(win, 'lostpointercapture', onActiveLostPointerCapture, CAPTURE),
       // Keep blocking native HTML5 drags from natively draggable descendants, as
       // in the pending phase.
-      addEventListener(win, 'dragstart', preventNativeDragStart, { capture: true }),
+      addEventListener(win, 'dragstart', preventNativeDragStart, CAPTURE),
     );
 
     if (!activeRef.heldPointer) {
@@ -1161,9 +1163,9 @@ function commitActivation(): void {
         // `pointerdown`.
         // Canceling `pointerdown` also suppresses the compatibility `mousedown`,
         // and the `click` that completes the drop still fires.
-        addEventListener(win, 'pointerdown', onDoubleClickPress, { capture: true }),
-        addEventListener(win, 'mousedown', onDoubleClickPress, { capture: true }),
-        addEventListener(win, 'click', onDoubleClickDrop, { capture: true }),
+        addEventListener(win, 'pointerdown', onDoubleClickPress, CAPTURE),
+        addEventListener(win, 'mousedown', onDoubleClickPress, CAPTURE),
+        addEventListener(win, 'click', onDoubleClickDrop, CAPTURE),
       );
     }
     scheduleActiveFrame(activeRef);

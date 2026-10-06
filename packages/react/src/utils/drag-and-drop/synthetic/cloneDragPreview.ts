@@ -737,9 +737,8 @@ function prepareDragPreviewClone(
   const previewNodes = new Set<Element>();
   for (const node of cloneNodes) {
     if (node !== element && node.hasAttribute(PREVIEW_ELEMENT_ATTRIBUTE)) {
-      previewNodes.add(node);
-      for (const descendant of Array.from(node.querySelectorAll('*'))) {
-        previewNodes.add(descendant);
+      for (const subtreeNode of getSubtreeElements(node)) {
+        previewNodes.add(subtreeNode);
       }
       node.remove();
     }
@@ -1020,7 +1019,7 @@ export function measurePreviewAnchor(
 
 /**
  * The children lists accept. React checks the content's nesting against tables and
- * selects (see `createPreviewContentMirror`), but not against lists, so a custom
+ * selects (see `createPreviewContentContainer`), but not against lists, so a custom
  * preview root that is invalid in a list gets a warning from Base UI instead.
  */
 const LIST_CHILDREN: Record<string, readonly string[]> = {

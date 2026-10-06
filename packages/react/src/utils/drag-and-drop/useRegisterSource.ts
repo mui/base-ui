@@ -13,7 +13,7 @@ import { setParticipantOwner } from './participantData';
 import { isActive } from './core/lifecycleManager';
 import { publishDragPreview } from './overlay/dragPreviewStore';
 import { getActivePreviewHandle } from './activePreview';
-import type { InternalDraggableParameters } from './registrationTypes';
+import type { RegisterSourceParameters } from './registrationTypes';
 import type { DragCleanupFn } from './types';
 import type { DraggablePreviewRenderParameters } from '../../draggable/preview/DraggablePreview';
 
@@ -27,7 +27,7 @@ export function createRegisterSource(
 ) {
   return <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
-    get: () => InternalDraggableParameters<TPayload, TDragData>,
+    get: () => RegisterSourceParameters<TPayload, TDragData>,
     payloadOwner?: object,
   ): DragCleanupFn => {
     const initial = get();
@@ -80,7 +80,7 @@ export function createRegisterSource(
     // identity. An imperative getter may mutate and return the same object every
     // time, and only the copy can tell a changed call from an unchanged one. The
     // comparison still costs less than rebuilding the object's 20 or so fields.
-    let lastParams: InternalDraggableParameters<TPayload, TDragData> | null = null;
+    let lastParams: RegisterSourceParameters<TPayload, TDragData> | null = null;
     let lastCSPContext: CSPContextValue | null = null;
     let normalized: DraggableConfig<TPayload, TDragData> | null = null;
     const getNormalized = (): DraggableConfig<TPayload, TDragData> => {

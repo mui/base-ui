@@ -26,6 +26,9 @@ import { WindowTimeout } from '../../windowTimeout';
 import { getSharedSlot } from '../sharedState';
 import type { DragCleanupFn } from '../types';
 
+/** Shared listener options, so every capture listener doesn't allocate its own. */
+const CAPTURE: AddEventListenerOptions = { capture: true };
+
 /**
  * Backstop for when neither a compatibility click nor a new press arrives.
  * Current browsers fire the click in the same task as `pointerup`, so this only
@@ -127,7 +130,7 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
       swallowEvent(event);
       disarm();
     },
-    { capture: true },
+    CAPTURE,
   );
 
   // A new press means the drag's compatibility click isn't coming. Browsers only
@@ -152,7 +155,7 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
       }
       disarm();
     },
-    { capture: true },
+    CAPTURE,
   );
 
   state.disarm = disarm;
@@ -174,7 +177,7 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
         timeout.start(CLICK_WINDOW_MS, disarm);
       }
     },
-    { capture: true },
+    CAPTURE,
   );
   // A canceled pointer produces no compatibility click, so there is nothing to
   // suppress.
@@ -186,7 +189,7 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
         disarm();
       }
     },
-    { capture: true },
+    CAPTURE,
   );
   offPointerUp = mergeCleanups(offUp, offCancel);
   timeout.start(HELD_WINDOW_MS, disarm);
@@ -238,9 +241,9 @@ export function suppressDoubleClickFollowUp(element: Element): void {
           followUp.disarm();
         }
       },
-      { capture: true },
+      CAPTURE,
     ),
-    addEventListener(win, 'dblclick', consumeDoubleClickFollowUp, { capture: true }),
+    addEventListener(win, 'dblclick', consumeDoubleClickFollowUp, CAPTURE),
   );
 
   state.doubleClickFollowUp = followUp;

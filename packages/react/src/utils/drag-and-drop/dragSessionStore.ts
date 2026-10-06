@@ -1,6 +1,9 @@
 import { Store } from '@base-ui/utils/store';
 import type { ReadonlyStore } from '@base-ui/utils/store';
-import type { DraggableLocationHistory } from '../../draggable/DraggableProvider';
+import type {
+  DraggableLocation,
+  DraggableLocationHistory,
+} from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 import { getSharedSlot } from './sharedState';
@@ -144,10 +147,10 @@ export const DragTargetState = {
   over: 1,
   innermost: 2,
   rejected: 4,
-  accepting: 8,
 } as const;
 
-export const dragTargetStateStride = DragTargetState.accepting;
+/** The first bit above the engine's flags. The snapshot encodes the source version from it. */
+export const dragTargetStateStride = 8;
 
 export interface DragTargetStateStore extends ReadonlyStore<number> {
   setElement(element: Element | null): void;
@@ -246,11 +249,12 @@ export function createDragTargetStateStore(): DragTargetStateStore {
 export function cloneLocationHistory(location: DraggableLocationHistory): DraggableLocationHistory {
   return {
     grabOffset: { ...location.grabOffset },
-    initial: { input: location.initial.input, targets: location.initial.targets.slice() },
-    current: { input: location.current.input, targets: location.current.targets.slice() },
-    previous: {
-      input: location.previous.input,
-      targets: location.previous.targets.slice(),
-    },
+    initial: cloneLocation(location.initial),
+    current: cloneLocation(location.current),
+    previous: cloneLocation(location.previous),
   };
+}
+
+function cloneLocation(location: DraggableLocation): DraggableLocation {
+  return { input: location.input, targets: location.targets.slice() };
 }

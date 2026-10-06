@@ -15,7 +15,6 @@ import type {
   DraggableRootActivationConfig,
 } from '../../draggable/root/DraggableRoot';
 import type { DragCleanupFn, DraggablePayload } from './types';
-import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
 import { overrideInlineStyles, SELECTION_LOCK_STYLES } from './synthetic/dragRootLock';
 import type { InlineStyleOverride } from './synthetic/dragRootLock';
 import { getSharedSlot } from './sharedState';
@@ -224,14 +223,6 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
    * `<Draggable.Preview>` instead.
    */
   preview?: DraggablePreviewParameters<NoInfer<TPayload>, NoInfer<TDragData>> | undefined;
-  /**
-   * The preview part declared for this draggable, if any. Set by the React layer.
-   * The engine reads it once at drag start, before React can run, to decide between
-   * cloning the source and building a host for custom content.
-   * @internal
-   */
-  getDragPreviewDeclaration?:
-    (() => DragPreviewDeclaration<NoInfer<TPayload>, NoInfer<TDragData>> | null) | undefined;
   /**
    * Event handler called once at the start of a drag, before `onMoveStart`,
    * while the preview is being built. The React layer installs its preview

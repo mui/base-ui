@@ -1,6 +1,7 @@
 import { warn } from '@base-ui/utils/warn';
 import type * as React from 'react';
 import type {
+  DraggablePreviewParameters,
   DraggablePreviewSettings,
   DraggablePreviewRenderParameters,
 } from '../../draggable/preview/DraggablePreview';
@@ -40,6 +41,13 @@ export interface DragPreviewHandle<TPayload = unknown, TDragData = unknown> {
   declare: (declaration: DragPreviewDeclaration<TPayload, TDragData>) => () => void;
   /** @internal */
   getDeclaration: () => DragPreviewDeclaration<TPayload, TDragData> | null;
+  /**
+   * The declared preview as the engine's `preview` option. Each field reads the
+   * current declaration, so the engine resolves the part mounted at drag start.
+   * Without one, every field is `undefined` and the engine clones the source.
+   * @internal
+   */
+  preview: DraggablePreviewParameters<TPayload, TDragData>;
 }
 
 export function createDragPreviewHandle<
@@ -72,6 +80,23 @@ export function createDragPreviewHandle<
     },
     getDeclaration() {
       return current;
+    },
+    preview: {
+      get offset() {
+        return current?.getSettings().offset;
+      },
+      get modifiers() {
+        return current?.getSettings().modifiers;
+      },
+      get disabled() {
+        return current?.getSettings().disabled;
+      },
+      get container() {
+        return current?.getSettings().container;
+      },
+      get render() {
+        return current?.render ?? undefined;
+      },
     },
   };
 }

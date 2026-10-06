@@ -848,7 +848,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       // below must do nothing instead of starting a second end. An `onMoveEnd`
       // that unregisters a target must not re-enter `updateDropTargets` and
       // change `location.current` under the drop and leave dispatches below.
-      // `tearDown()` clears these hooks anyway.
+      // `tearDown()` unpublishes the session, so they're unreachable afterwards.
       disarmSessionHooks();
 
       const endDetails = createMoveEndEventDetails(

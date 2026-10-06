@@ -13,7 +13,6 @@ import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
 import { createDragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type { DragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type {
-  InternalDraggableParameters,
   RegisterSourceParameters,
   RegisterTargetParameters,
 } from '../../utils/drag-and-drop/registrationTypes';
@@ -75,10 +74,10 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
 
   // The engine compares these field by field before re-normalizing, so both
   // accessors keep one identity for the hook's lifetime.
-  const internalParameters: InternalDraggableParameters<TPayload, TDragData> = {
+  const internalParameters: RegisterSourceParameters<TPayload, TDragData> = {
     ...parameters,
     handle: getAttachedHandle,
-    getDragPreviewDeclaration: previewHandle.getDeclaration,
+    preview: previewHandle.preview,
   };
   const options = { parameters: internalParameters, collision: collisionOptions };
   const getOptions = useStableCallback(() => options);

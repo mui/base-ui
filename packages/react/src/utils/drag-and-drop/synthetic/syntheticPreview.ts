@@ -149,13 +149,13 @@ export type AttachedPreviewContent = PreviewContentOptions & PreviewContent;
  * constrain where the preview is drawn, not the drag itself.
  */
 export function createSyntheticPreview(
-  initialSourceElement: Element,
+  initialSourceElement: HTMLElement,
   sourceIdentity: SyntheticPreviewSourceIdentity,
   modifiers: ReadonlyArray<DraggableRootModifier> | null,
 ): SyntheticPreviewHandle {
   // Re-pointed when a virtualizer remounts the dragged item to a new node, so the
-  // drag-state attribute follows the live element, as `isDragging` does.
-  let sourceElement: Element = initialSourceElement;
+  // drag-state attribute follows the live element, as `Draggable.Root`'s `dragging` does.
+  let sourceElement = initialSourceElement;
   let destroyed = false;
   let preparedForDrop = false;
   // Whether the release dropped on a target.
@@ -216,7 +216,7 @@ export function createSyntheticPreview(
         {
           initialPoint: initialProposed,
           input: { x: lastX, y: lastY },
-          sourceElement: sourceElement as HTMLElement,
+          sourceElement,
           sourceRect: currentPreview.anchor.sourceRect,
           // These modifiers move the preview, so a step in its own units uses the
           // preview's scale, not the source's.
@@ -274,7 +274,7 @@ export function createSyntheticPreview(
       removePreviewElement();
       return;
     }
-    const next = createDragPreviewElement(sourceElement as HTMLElement, content.anchor, root);
+    const next = createDragPreviewElement(sourceElement, content.anchor, root);
     if (!next) {
       return;
     }
@@ -442,7 +442,7 @@ export function createSyntheticPreview(
             sourceElement.isConnected &&
             (sourceElement.getClientRects().length > 0 || element.getClientRects().length === 0)
           ) {
-            const { sourceRect: destination } = measurePreviewSource(sourceElement as HTMLElement);
+            const { sourceRect: destination } = measurePreviewSource(sourceElement);
             endingPreview.setPosition(destination.left, destination.top);
           }
 

@@ -102,8 +102,9 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
   return null;
 }
 
-// The styling hook the engine also sets on the preview. It is set here too, so the
-// content can be styled the same way before the engine copies it.
+// The styling hook the engine also sets on the preview root. It is set here too for
+// content the engine wraps in a `div` (several nodes, or a non-HTML root), so the
+// content's own root still matches `[data-drag-preview]` rules.
 const PREVIEW_ELEMENT_PROPS = { [DraggablePreviewDataAttributes.dragPreview as string]: '' };
 
 /**

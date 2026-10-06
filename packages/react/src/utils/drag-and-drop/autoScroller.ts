@@ -573,11 +573,10 @@ function runScrollFrame(timestamp: number): void {
   const currentReportedInput = state.currentReportedInput;
   const currentSource = state.currentSource;
 
-  // A consumer callback that throws tears the lifecycle down through
-  // `clearActiveMonitors()` without sending `onMoveEnd` to the scroll monitor.
-  // `stopScrollLoop` then never runs, so the loop stops itself once no drag
-  // session is live. The input and source checks are only defensive, since
-  // `stopScrollLoop` nulls them along with the frame.
+  // A teardown that skips the terminal `onMoveEnd` (the test `reset()`, or an engine
+  // error after the end was already latched) never runs `stopScrollLoop`, so the
+  // loop stops itself once no drag session is published. The input and source
+  // checks are only defensive, since `stopScrollLoop` nulls them along with the frame.
   if (currentInput === null || currentSource === null || dragSessionStore.getSnapshot() === null) {
     stopScrollLoop();
     return;

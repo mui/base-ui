@@ -45,13 +45,8 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   TTargetPayload = unknown,
 >(
   componentProps: Omit<DraggableTargetPropsBase<TSourcePayload, TTargetPayload>, 'accept'> & {
-    /**
-     * One or more kinds of draggable this target accepts. Defaults to the kind of the
-     * nearest `<Draggable.Provider>`. Pass `Draggable.anyKind` to accept every drag,
-     * with `source.payload` typed as `unknown`.
-     *
-     * Drags of other kinds ignore this target, but an ancestor target can still accept them.
-     */
+    // Documented on the public props below. This implementation signature is
+    // replaced by the overloads, so its docs never ship.
     accept?: DraggableAccept<TSourcePayload> | undefined;
     payload?: TTargetPayload | undefined;
   },
