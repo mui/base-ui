@@ -829,8 +829,8 @@ describe('<PreviewCard.Positioner />', () => {
         finishExit = resolve;
       });
       let setOpenExternal!: (open: boolean) => void;
-      // Holds a controlled reopen back, the way React 18 can commit it only after the exit
-      // animation's completion callback has run.
+      // Holds a controlled reopen back until the exit animation's completion callback has run,
+      // the way React 18 can commit a parent's response after it.
       let deferOpenChange = false;
       let deferredOpen: boolean | null = null;
 
@@ -914,11 +914,15 @@ describe('<PreviewCard.Positioner />', () => {
 
       await act(async () => {
         finishExit();
+        // Let the exit complete and unmount the card before the parent's response is queued.
+        while (!positioner.hasAttribute('hidden')) {
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve);
+          });
+        }
+        setOpenExternal(true);
       });
-      await waitFor(() => {
-        expect(positioner).toHaveAttribute('hidden');
-      });
-      await act(async () => setOpenExternal(true));
 
       await waitFor(() => {
         expect(positioner).toBeVisible();

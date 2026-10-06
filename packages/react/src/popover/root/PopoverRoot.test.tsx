@@ -2585,10 +2585,14 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  describe('controlled reopen committed after the exit animation completes', () => {
-    // Holds a controlled reopen back, the way React 18 can commit it only after the exit
-    // animation's completion callback has run.
-    async function reopenAfterExitCompletes(
+  describe('controlled open request during the exit animation', () => {
+    type Response = 'commit after the exit' | 'ignore' | 'cancel';
+
+    // Presses the trigger while a controlled close is animating out, then answers the open request.
+    // 'commit after the exit' queues the reopen only after the exit animation's completion callback
+    // has run, the way React 18 can commit a parent's response after it.
+    async function requestOpenDuringExit(
+      response: Response,
       rootProps: Partial<Popover.Root.Props> = {},
     ): Promise<HTMLElement> {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
@@ -2598,8 +2602,8 @@ describe('<Popover.Root />', () => {
         finishExit = resolve;
       });
       let setOpenExternal!: (open: boolean) => void;
-      let deferOpenChange = false;
-      let deferredOpen: boolean | null = null;
+      let exiting = false;
+      let requestedOpen: boolean | null = null;
 
       function App() {
         const [open, setOpen] = React.useState(false);
@@ -2611,11 +2615,14 @@ describe('<Popover.Root />', () => {
             open={open}
             onOpenChange={(nextOpen, eventDetails) => {
               rootProps.onOpenChange?.(nextOpen, eventDetails);
-              if (deferOpenChange) {
-                deferredOpen = nextOpen;
-              } else {
+              if (!exiting) {
                 setOpen(nextOpen);
+                return;
               }
+              if (response === 'cancel') {
+                eventDetails.cancel();
+              }
+              requestedOpen = nextOpen;
             }}
           >
             <Popover.Trigger>Trigger</Popover.Trigger>
@@ -2645,41 +2652,70 @@ describe('<Popover.Root />', () => {
       await act(async () => setOpenExternal(false));
       expect(popup).toHaveAttribute('data-ending-style');
 
-      deferOpenChange = true;
+      exiting = true;
       await user.click(trigger);
       await waitFor(() => {
-        expect(deferredOpen).toBe(true);
+        expect(requestedOpen).toBe(true);
       });
 
+      const positioner = screen.getByTestId('positioner');
       await act(async () => {
         finishExit();
+        // Let the exit complete and unmount the popup before the parent's response is queued.
+        while (!positioner.hasAttribute('hidden')) {
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve);
+          });
+        }
+        if (response === 'commit after the exit') {
+          setOpenExternal(true);
+        }
       });
-      await waitFor(() => {
-        expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
-      });
-      await act(async () => setOpenExternal(true));
 
       return trigger;
     }
 
+    function recordOpenChanges() {
+      const calls: string[] = [];
+      const rootProps: Partial<Popover.Root.Props> = {
+        onOpenChange: (nextOpen) => calls.push(`change:${nextOpen}`),
+        onOpenChangeComplete: (nextOpen) => calls.push(`complete:${nextOpen}`),
+      };
+      return { calls, rootProps };
+    }
+
     it('keeps the pressed state of the trigger that reopened the popover', async () => {
-      const trigger = await reopenAfterExitCompletes();
+      const trigger = await requestOpenDuringExit('commit after the exit');
 
       expect(trigger).toHaveAttribute('data-popup-open');
       expect(trigger).toHaveAttribute('data-pressed');
     });
 
     it('does not report a completed close after the reopen request', async () => {
-      const calls: string[] = [];
+      const { calls, rootProps } = recordOpenChanges();
 
-      await reopenAfterExitCompletes({
-        onOpenChange: (nextOpen) => calls.push(`change:${nextOpen}`),
-        onOpenChangeComplete: (nextOpen) => calls.push(`complete:${nextOpen}`),
-      });
+      await requestOpenDuringExit('commit after the exit', rootProps);
 
       const reopenIndex = calls.lastIndexOf('change:true');
       expect(reopenIndex).toBeGreaterThan(-1);
       expect(calls.slice(reopenIndex)).not.toContain('complete:false');
+    });
+
+    it('reports the completed close when the open request is canceled', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      await requestOpenDuringExit('cancel', rootProps);
+
+      expect(calls.at(-1)).toBe('complete:false');
+    });
+
+    it('reports the completed close when the open request is ignored', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      await requestOpenDuringExit('ignore', rootProps);
+
+      expect(calls.at(-1)).toBe('complete:false');
     });
   });
 

@@ -2402,6 +2402,98 @@ describe('<Dialog.Root />', () => {
       expect(field).not.toHaveFocus();
     },
   );
+
+  describe('controlled open request during the exit animation', () => {
+    // Presses the trigger while a controlled close is animating out. With `commit`, the parent
+    // queues the reopen only after the exit animation's completion callback has run, the way
+    // React 18 can commit a parent's response after it. Otherwise the request is ignored.
+    async function requestOpenDuringExit(commit: boolean) {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let finishExit!: () => void;
+      const exitFinished = new Promise<void>((resolve) => {
+        finishExit = resolve;
+      });
+      let setOpenExternal!: (open: boolean) => void;
+      let exiting = false;
+      const calls: string[] = [];
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        setOpenExternal = setOpen;
+
+        return (
+          <Dialog.Root
+            open={open}
+            modal={false}
+            onOpenChange={(nextOpen) => {
+              calls.push(`change:${nextOpen}`);
+              if (!exiting) {
+                setOpen(nextOpen);
+              }
+            }}
+            onOpenChangeComplete={(nextOpen) => calls.push(`complete:${nextOpen}`)}
+          >
+            <Dialog.Trigger>Trigger</Dialog.Trigger>
+            <Dialog.Portal keepMounted>
+              <Dialog.Popup data-testid="popup">Content</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const popup = screen.getByTestId('popup');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-popup-open');
+      });
+
+      Object.defineProperty(popup, 'getAnimations', {
+        value: () => [{ finished: exitFinished }],
+        configurable: true,
+      });
+
+      await act(async () => setOpenExternal(false));
+      expect(popup).toHaveAttribute('data-ending-style');
+
+      exiting = true;
+      await user.click(trigger);
+      expect(calls.at(-1)).toBe('change:true');
+
+      await act(async () => {
+        finishExit();
+        // Let the exit complete and unmount the popup before the parent's response is queued.
+        while (!popup.hasAttribute('hidden')) {
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve);
+          });
+        }
+        if (commit) {
+          setOpenExternal(true);
+        }
+      });
+
+      return calls;
+    }
+
+    it('does not report a completed close after a reopen request that commits', async () => {
+      const calls = await requestOpenDuringExit(true);
+
+      const reopenIndex = calls.lastIndexOf('change:true');
+      expect(calls.slice(reopenIndex)).not.toContain('complete:false');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('hidden');
+    });
+
+    it('reports the completed close when the open request is ignored', async () => {
+      const calls = await requestOpenDuringExit(false);
+
+      expect(calls.at(-1)).toBe('complete:false');
+    });
+  });
 });
 
 // The viewport takes its overflow from <html>, falling back to <body> when <html> doesn't

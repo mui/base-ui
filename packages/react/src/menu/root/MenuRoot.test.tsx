@@ -2000,13 +2000,18 @@ describe('<Menu.Root />', () => {
           expect(deferredOpen).toBe(true);
         });
 
+        const positioner = screen.getByTestId('positioner');
         await act(async () => {
           finishExit();
+          // Let the exit complete and unmount the menu before the parent's response is queued.
+          while (!positioner.hasAttribute('hidden')) {
+            // eslint-disable-next-line no-await-in-loop
+            await new Promise((resolve) => {
+              setTimeout(resolve);
+            });
+          }
+          setOpenExternal(true);
         });
-        await waitFor(() => {
-          expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
-        });
-        await act(async () => setOpenExternal(true));
 
         // A reopen that commits before the exit completes keeps the menu's pointer state, so
         // entering a submenu trigger opens it without another move over the menu.
