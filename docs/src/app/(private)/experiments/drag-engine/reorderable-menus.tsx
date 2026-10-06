@@ -193,9 +193,9 @@ function ReorderableItem(props: ReorderableItemProps) {
           payload={entry.id}
           modifiers={Draggable.restrictToVerticalAxis}
           onMoveStart={list.onMoveStart}
-          onMoveEnd={(moveEvent, moveDetails) => {
+          onMoveEnd={(eventDetails) => {
             try {
-              if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+              if (eventDetails.target !== null) {
                 list.onDrop();
               }
             } finally {
@@ -207,8 +207,8 @@ function ReorderableItem(props: ReorderableItemProps) {
     >
       <GripIcon className={styles.icon} />
       {entry.label}
-      {/* Constrain only the clone. The pointer must remain free so releasing
-          outside the popup can still cancel. */}
+      {/* Constrain only the clone. The pointer must remain free so a release
+          outside the popup lands on no target and restores the order. */}
       <Draggable.Preview modifiers={Draggable.restrictToElement(popupRef)} />
     </Item>
   );
@@ -233,21 +233,21 @@ function ReorderableMenu() {
           >
             <Draggable.CollisionProvider
               kind={menuItemKind}
-              onCollisionChange={({ source, collision, previousCollision }) => {
+              onCollisionChange={(eventDetails) => {
                 if (
-                  collision &&
-                  previousCollision &&
-                  collision.target.payload === previousCollision.target.payload &&
-                  collision.target.getLocalPoint().y > 0.5 ===
-                    previousCollision.target.getLocalPoint().y > 0.5
+                  eventDetails.target &&
+                  eventDetails.previousTarget &&
+                  eventDetails.target.payload === eventDetails.previousTarget.payload &&
+                  eventDetails.target.getLocalPoint().y > 0.5 ===
+                    eventDetails.previousTarget.getLocalPoint().y > 0.5
                 ) {
                   return;
                 }
-                if (collision) {
+                if (eventDetails.target) {
                   list.onDragOverEntry(
-                    source.payload,
-                    collision.target.payload,
-                    collision.target.getLocalPoint().y > 0.5,
+                    eventDetails.source.payload,
+                    eventDetails.target.payload,
+                    eventDetails.target.getLocalPoint().y > 0.5,
                   );
                 }
               }}
@@ -290,21 +290,21 @@ function ReorderableContextMenu() {
           >
             <Draggable.CollisionProvider
               kind={menuItemKind}
-              onCollisionChange={({ source, collision, previousCollision }) => {
+              onCollisionChange={(eventDetails) => {
                 if (
-                  collision &&
-                  previousCollision &&
-                  collision.target.payload === previousCollision.target.payload &&
-                  collision.target.getLocalPoint().y > 0.5 ===
-                    previousCollision.target.getLocalPoint().y > 0.5
+                  eventDetails.target &&
+                  eventDetails.previousTarget &&
+                  eventDetails.target.payload === eventDetails.previousTarget.payload &&
+                  eventDetails.target.getLocalPoint().y > 0.5 ===
+                    eventDetails.previousTarget.getLocalPoint().y > 0.5
                 ) {
                   return;
                 }
-                if (collision) {
+                if (eventDetails.target) {
                   list.onDragOverEntry(
-                    source.payload,
-                    collision.target.payload,
-                    collision.target.getLocalPoint().y > 0.5,
+                    eventDetails.source.payload,
+                    eventDetails.target.payload,
+                    eventDetails.target.getLocalPoint().y > 0.5,
                   );
                 }
               }}

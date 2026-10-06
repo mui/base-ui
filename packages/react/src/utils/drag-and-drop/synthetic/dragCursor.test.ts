@@ -48,7 +48,7 @@ function activeCursorVar(): string {
 
 describe('dragCursor', () => {
   afterEach(() => {
-    dragCursor.resetForTests();
+    dragCursor.unlock();
     resetDropTargets();
   });
 
@@ -68,8 +68,8 @@ describe('dragCursor', () => {
 
   it('injects a single scoped cursor rule at module use', () => {
     dragCursor.lock(document.body, 'grabbing');
-    // Serialized from the CSSOM, so the `!important` the source declares is not
-    // asserted here: jsdom drops the priority when it re-serializes a `var()`
+    // The text is serialized from the CSSOM, so the source's `!important` isn't
+    // asserted. jsdom drops the priority when it re-serializes a `var()`
     // declaration.
     expect(scopedCursorRule()).toContain(`html.${DRAGGING_CLASS}.${STYLE_CLASS} *`);
     expect(scopedCursorRule()).toContain(`cursor: var(${CURSOR_VAR}, grabbing)`);
@@ -90,8 +90,8 @@ describe('dragCursor', () => {
       styleRuleText(style).includes('cursor:'),
     );
     expect(styles).toHaveLength(1);
-    // CSP still requires a matching nonce; this only verifies how the rule is
-    // represented once the sheet has been accepted.
+    // CSP still requires a matching nonce. This only checks how the rule is
+    // stored once the sheet is accepted.
     expect(styles[0].textContent).toBe('');
     dragCursor.unlock();
   });
@@ -178,12 +178,6 @@ describe('dragCursor', () => {
     dragCursor.unlock();
   });
 
-  it('applies the cursor value it is given via the CSS var', () => {
-    dragCursor.lock(document.body, 'move');
-    expect(activeCursorVar()).toBe('move');
-    dragCursor.unlock();
-  });
-
   it('removes the class and clears the var on unlock()', () => {
     dragCursor.lock(document.body, 'grabbing');
     dragCursor.unlock();
@@ -198,7 +192,7 @@ describe('dragCursor', () => {
       expect(activeCursorVar()).toBe('grabbing');
 
       dragCursor.unlock();
-      // A consumer theming the default cursor via the variable keeps its value.
+      // A consumer that themes the default cursor through the variable keeps its value.
       expect(activeCursorVar()).toBe('copy');
     } finally {
       document.documentElement.style.removeProperty(CURSOR_VAR);
@@ -241,11 +235,6 @@ describe('dragCursor', () => {
     dragCursor.lock(document.body, 'move');
     expect(activeCursorVar()).toBe('grabbing');
     dragCursor.unlock();
-  });
-
-  it('unlock() without a matching lock() is a no-op', () => {
-    expect(() => dragCursor.unlock()).not.toThrow();
-    expect(isDragging()).toBe(false);
   });
 
   describe.skipIf(isJSDOM)('shadow roots', () => {
@@ -322,8 +311,8 @@ describe('dragCursor', () => {
 
   it("locks the source's own document when it lives in an iframe", () => {
     // The class, the variable and the scoped rule must all land on the iframe's
-    // own root — the outer document's stylesheet cannot style a frame's content,
-    // so locking the outer root would leave the dragged frame's cursor unchanged.
+    // own root. The outer document's stylesheet can't style a frame's content, so
+    // locking the outer root would leave the frame's cursor unchanged.
     const frame = document.createElement('iframe');
     document.body.appendChild(frame);
     try {

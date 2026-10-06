@@ -1,11 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_ACTIVATION,
   evaluateActivation,
+  evaluateActivations,
   getActivationDelayMs,
   hasDoubleClickActivation,
   resolveActivation,
 } from './activation';
+
+// The documented defaults, spelled out so a changed default fails here.
+const DEFAULTS = {
+  mouse: { type: 'distance', distance: 5 },
+  pen: { type: 'distance', distance: 5 },
+  touch: { type: 'press-hold', delay: 250 },
+} as const;
 
 describe('activation', () => {
   describe('evaluateActivation', () => {
@@ -56,20 +63,20 @@ describe('activation', () => {
 
     it('press-hold defaults tolerance to 5px when omitted', () => {
       const activation = { type: 'press-hold', delay: 250 } as const;
-      // Movement under the 5px default does not cancel the hold: still pending
-      // before the delay, activating once it elapses.
+      // Movement under the 5px default keeps the hold alive. It stays pending
+      // before the delay and activates once the delay elapses.
       expect(evaluateActivation(activation, { x: 0, y: 0 }, { x: 4, y: 0 }, 100)).toBe('pending');
       expect(evaluateActivation(activation, { x: 0, y: 0 }, { x: 4, y: 0 }, 250)).toBe('activate');
-      // Movement over the default cancels, exactly as an explicit `tolerance: 5` would.
+      // Movement over the default cancels, as an explicit `tolerance: 5` would.
       expect(evaluateActivation(activation, { x: 0, y: 0 }, { x: 6, y: 0 }, 100)).toBe('cancel');
     });
   });
 
   describe('getActivationDelayMs', () => {
     it('returns the delay only for press-hold', () => {
-      expect(getActivationDelayMs({ type: 'immediate' })).toBeNull();
-      expect(getActivationDelayMs({ type: 'distance', distance: 5 })).toBeNull();
-      expect(getActivationDelayMs({ type: 'press-hold', delay: 250, tolerance: 5 })).toBe(250);
+      expect(getActivationDelayMs([{ type: 'immediate' }])).toBeNull();
+      expect(getActivationDelayMs([{ type: 'distance', distance: 5 }])).toBeNull();
+      expect(getActivationDelayMs([{ type: 'press-hold', delay: 250, tolerance: 5 }])).toBe(250);
     });
   });
 
@@ -86,13 +93,13 @@ describe('activation', () => {
       expect(resolveActivation(map, 'touch')).toEqual([{ type: 'distance', distance: 15 }]);
       // A pointer type the partial map does not cover falls back to its own
       // per-type default, not to another entry of the map.
-      expect(resolveActivation(map, 'mouse')).toEqual([DEFAULT_ACTIVATION.mouse]);
+      expect(resolveActivation(map, 'mouse')).toEqual([DEFAULTS.mouse]);
     });
 
     it('falls back to defaults by pointer type', () => {
-      expect(resolveActivation(undefined, 'mouse')).toEqual([DEFAULT_ACTIVATION.mouse]);
-      expect(resolveActivation(undefined, 'pen')).toEqual([DEFAULT_ACTIVATION.pen]);
-      expect(resolveActivation(undefined, 'touch')).toEqual([DEFAULT_ACTIVATION.touch]);
+      expect(resolveActivation(undefined, 'mouse')).toEqual([DEFAULTS.mouse]);
+      expect(resolveActivation(undefined, 'pen')).toEqual([DEFAULTS.pen]);
+      expect(resolveActivation(undefined, 'touch')).toEqual([DEFAULTS.touch]);
     });
   });
   it('resolves multiple alternatives and excludes double-click from pointer presses', () => {
@@ -107,8 +114,8 @@ describe('activation', () => {
   });
 
   it('applies the per-pointer default once across an array, only when nothing addresses the pointer', () => {
-    // Mouse is addressed by the double-click entry, so no distance default sneaks
-    // in from the touch-only entry: a plain drag must not pick the item up.
+    // The double-click entry addresses mouse, so the touch-only entry doesn't
+    // bring in the distance default. A plain drag must not pick the item up.
     expect(
       resolveActivation(
         [{ mouse: { type: 'double-click' } }, { touch: { type: 'press-hold', delay: 500 } }],
@@ -121,15 +128,15 @@ describe('activation', () => {
         'touch',
       ),
     ).toEqual([{ type: 'press-hold', delay: 500 }]);
-    // Nothing addresses pen: one default, not one per entry.
+    // No entry addresses pen, so it gets one default, not one per entry.
     expect(
       resolveActivation(
         [{ mouse: { type: 'double-click' } }, { touch: { type: 'press-hold', delay: 500 } }],
         'pen',
       ),
-    ).toEqual([DEFAULT_ACTIVATION.pen]);
+    ).toEqual([DEFAULTS.pen]);
     expect(resolveActivation([{ mouse: { type: 'distance', distance: 9 } }], 'touch')).toEqual([
-      DEFAULT_ACTIVATION.touch,
+      DEFAULTS.touch,
     ]);
     // An empty array disables pickup rather than restoring the default.
     expect(resolveActivation([], 'mouse')).toEqual([]);
@@ -142,7 +149,7 @@ describe('activation', () => {
     expect(hasDoubleClickActivation({ type: 'double-click' }, 'mouse')).toBe(true);
     expect(hasDoubleClickActivation({ type: 'double-click' }, 'touch')).toBe(true);
     expect(hasDoubleClickActivation({ type: 'double-click' }, 'pen')).toBe(true);
-    // A per-pointer map opts each type in on its own.
+    // A per-pointer map opts in each type separately.
     expect(hasDoubleClickActivation({ touch: { type: 'double-click' } }, 'touch')).toBe(true);
     expect(hasDoubleClickActivation({ touch: { type: 'double-click' } }, 'mouse')).toBe(false);
     expect(
@@ -153,13 +160,45 @@ describe('activation', () => {
     ).toBe(true);
   });
 
+  it.each(['mouse', 'touch', 'pen'] as const)(
+    'disables %s without disabling other pointer types',
+    (pointerType) => {
+      const config = { [pointerType]: false } as const;
+      expect(resolveActivation(config, pointerType)).toEqual([]);
+      expect(hasDoubleClickActivation(config, pointerType)).toBe(false);
+      const otherTypes = (['mouse', 'touch', 'pen'] as const).filter(
+        (type) => type !== pointerType,
+      );
+      for (const otherType of otherTypes) {
+        expect(resolveActivation(config, otherType)).toEqual([DEFAULTS[otherType]]);
+      }
+    },
+  );
+
+  it.each(['mouse', 'touch', 'pen'] as const)(
+    'lets false override every activation method for %s regardless of order',
+    (pointerType) => {
+      const config = [
+        { type: 'immediate' },
+        { type: 'double-click' },
+        { [pointerType]: false },
+      ] as const;
+      for (const entries of [config, [...config].reverse()]) {
+        expect(resolveActivation(entries, pointerType)).toEqual([]);
+        expect(hasDoubleClickActivation(entries, pointerType)).toBe(false);
+      }
+    },
+  );
+
   it('uses OR semantics when a hold cancels but distance remains pending', () => {
     const config = [
       { type: 'press-hold', delay: 100, tolerance: 2 },
       { type: 'distance', distance: 10 },
     ] as const;
-    expect(evaluateActivation(config, { x: 0, y: 0 }, { x: 5, y: 0 }, 20)).toBe('pending');
-    expect(evaluateActivation(config, { x: 0, y: 0 }, { x: 10, y: 0 }, 30)).toBe('activate');
+    const first = evaluateActivations(config, { x: 0, y: 0 }, { x: 5, y: 0 }, 20);
+    expect(first.activate).toBe(false);
+    expect(first.remaining).toEqual([{ type: 'distance', distance: 10 }]);
+    expect(evaluateActivations(config, { x: 0, y: 0 }, { x: 10, y: 0 }, 30).activate).toBe(true);
   });
 
   it('chooses the earliest hold timer', () => {

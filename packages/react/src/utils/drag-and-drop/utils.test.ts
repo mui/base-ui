@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { isJSDOM } from '#test-utils';
-import { deepElementFromPoint, elementFromPointIgnoring, getElementScale } from './utils';
+import {
+  deepElementFromPoint,
+  elementFromPointIgnoring,
+  getComposedParentElement,
+  getElementScale,
+} from './utils';
+
+const NO_SHADOW_ROOTS: ReadonlyMap<Element, ShadowRoot> = new Map();
 
 function makeEl(): HTMLElement {
   const el = document.createElement('div');
@@ -19,8 +26,8 @@ describe('elementFromPointIgnoring', () => {
     const preview = makeEl();
     const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(underlying);
 
-    expect(elementFromPointIgnoring(document, 10, 20, preview)).toBe(underlying);
-    // No re-hit needed: the first result already wasn't the preview.
+    expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBe(underlying);
+    // The first hit isn't the preview, so there is no second hit-test.
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
@@ -30,13 +37,13 @@ describe('elementFromPointIgnoring', () => {
     const inner = document.createElement('span');
     preview.appendChild(inner);
 
-    // Preview content can set `pointer-events: auto` and swallow the hit; the
-    // engine hides it synchronously (no repaint, so no flicker) and re-resolves.
+    // Preview content can set `pointer-events: auto` and catch the hit. The
+    // engine hides the preview synchronously and hit-tests again.
     const spy = vi.spyOn(document, 'elementFromPoint').mockImplementation(() => {
       return preview.style.display === 'none' ? underlying : inner;
     });
 
-    expect(elementFromPointIgnoring(document, 10, 20, preview)).toBe(underlying);
+    expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBe(underlying);
     expect(spy).toHaveBeenCalledTimes(2);
     // The preview's display is restored afterwards.
     expect(preview.style.display).toBe('');
@@ -46,14 +53,14 @@ describe('elementFromPointIgnoring', () => {
     const underlying = makeEl();
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(underlying);
 
-    expect(elementFromPointIgnoring(document, 10, 20, null)).toBe(underlying);
+    expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(underlying);
   });
 
   it('returns null when nothing is under the pointer', () => {
     const preview = makeEl();
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(null);
 
-    expect(elementFromPointIgnoring(document, 10, 20, preview)).toBeNull();
+    expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBeNull();
   });
 
   it('descends into an open shadow root instead of stopping at the host', () => {
@@ -61,13 +68,13 @@ describe('elementFromPointIgnoring', () => {
     const shadow = host.attachShadow({ mode: 'open' });
     const inner = document.createElement('div');
     shadow.appendChild(inner);
-    // jsdom's ShadowRoot has no elementFromPoint; supply the browser behavior.
+    // jsdom's ShadowRoot has no elementFromPoint, so stub the browser behavior.
     (shadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => inner;
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(host);
 
-    // A document-level hit stops at the shadow host; a drop target inside the
-    // shadow tree would never be entered without the descent.
-    expect(elementFromPointIgnoring(document, 10, 20, null)).toBe(inner);
+    // A document-level hit stops at the shadow host. Without the descent, a drop
+    // target inside the shadow tree would never be entered.
+    expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(inner);
   });
 
   it('stops descending when the shadow root resolves back to its host', () => {
@@ -76,7 +83,7 @@ describe('elementFromPointIgnoring', () => {
     (shadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => host;
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(host);
 
-    expect(elementFromPointIgnoring(document, 10, 20, null)).toBe(host);
+    expect(elementFromPointIgnoring(document, 10, 20, null, NO_SHADOW_ROOTS)).toBe(host);
   });
 });
 
@@ -99,7 +106,7 @@ describe('deepElementFromPoint', () => {
     (innerShadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => leaf;
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(outerHost);
 
-    expect(deepElementFromPoint(document, 10, 20)).toBe(leaf);
+    expect(deepElementFromPoint(document, 10, 20, NO_SHADOW_ROOTS)).toBe(leaf);
   });
 
   it('descends through closed ancestors of a retained shadow root', () => {
@@ -128,30 +135,86 @@ describe('deepElementFromPoint', () => {
     ).toBe(leaf);
   });
 
-  // Covers the jsdom quirk where ShadowRoot lacks elementFromPoint; in a real
-  // browser the method always exists, so the premise cannot be reproduced.
+  // jsdom's ShadowRoot lacks elementFromPoint. Browsers always have it, so this
+  // case can't be reproduced there.
   it.skipIf(!isJSDOM)('stops at a host whose shadow root cannot hit-test (jsdom)', () => {
     const host = makeEl();
     host.attachShadow({ mode: 'open' });
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(host);
 
-    expect(deepElementFromPoint(document, 10, 20)).toBe(host);
+    expect(deepElementFromPoint(document, 10, 20, NO_SHADOW_ROOTS)).toBe(host);
+  });
+
+  it.each([
+    ['NaN', NaN, 20],
+    ['infinite', 10, Infinity],
+  ])('reports nothing for a %s coordinate instead of hit-testing it', (_, x, y) => {
+    // Browsers reject a non-finite coordinate with a `TypeError`. A modifier
+    // producing one would otherwise throw on every frame and strand the drag.
+    const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(makeEl());
+
+    expect(deepElementFromPoint(document, x, y, NO_SHADOW_ROOTS)).toBeNull();
+    expect(elementFromPointIgnoring(document, x, y, null, NO_SHADOW_ROOTS)).toBeNull();
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('returns null in a document that cannot hit-test at all', () => {
     // jsdom defines `elementFromPoint` on neither Document nor ShadowRoot. This
     // runs from the activation commit, outside every containment boundary and
-    // after the pending listeners are gone, so throwing here would strand the
-    // sensor and refuse every later pickup — it has to degrade to "no target".
+    // after the pending listeners are removed. Throwing here would leave the
+    // sensor stuck and refuse every later pickup, so it returns no target.
     const doc = { elementFromPoint: undefined } as unknown as Document;
 
-    expect(deepElementFromPoint(doc, 10, 20)).toBeNull();
-    expect(elementFromPointIgnoring(doc, 10, 20, null)).toBeNull();
+    expect(deepElementFromPoint(doc, 10, 20, NO_SHADOW_ROOTS)).toBeNull();
+    expect(elementFromPointIgnoring(doc, 10, 20, null, NO_SHADOW_ROOTS)).toBeNull();
+  });
+});
+
+describe('getComposedParentElement', () => {
+  afterEach(() => {
+    document.body.replaceChildren();
+  });
+
+  function makeSlotted(mode: ShadowRootMode) {
+    const host = makeEl();
+    const root = host.attachShadow({ mode });
+    const wrapper = document.createElement('div');
+    const slot = document.createElement('slot');
+    wrapper.appendChild(slot);
+    root.appendChild(wrapper);
+    const child = document.createElement('span');
+    host.appendChild(child);
+    return { host, root, slot, child };
+  }
+
+  it('enters the assigned slot of an open shadow root', () => {
+    const { slot, child } = makeSlotted('open');
+
+    expect(getComposedParentElement(child)).toBe(slot);
+  });
+
+  it('enters the slot of a known closed shadow root, which assignedSlot hides', () => {
+    const { host, root, slot, child } = makeSlotted('closed');
+
+    expect(child.assignedSlot).toBeNull();
+    expect(getComposedParentElement(child)).toBe(host);
+    expect(getComposedParentElement(child, new Map([[host, root]]))).toBe(slot);
+  });
+
+  it('climbs to the host when no slot in the known closed root takes the element', () => {
+    const { host, root } = makeSlotted('closed');
+    const unslotted = document.createElement('span');
+    unslotted.slot = 'missing';
+    host.appendChild(unslotted);
+
+    expect(getComposedParentElement(unslotted, new Map([[host, root]]))).toBe(host);
   });
 });
 
 describe('getElementScale', () => {
   afterEach(() => {
+    vi.restoreAllMocks();
+    vi.resetModules();
     document.body.replaceChildren();
   });
 
@@ -169,8 +232,8 @@ describe('getElementScale', () => {
     expect(getElementScale(makeEl())).toEqual({ x: 1, y: 1 });
   });
 
-  // A computed `transform` is always a matrix, which is why that is the only form parsed —
-  // and why jsdom, which echoes the declared string, can still exercise the real path.
+  // A computed `transform` is always a matrix, so that is the only form parsed. jsdom
+  // echoes the declared string, so a declared matrix still exercises the real path.
   it('reads an ancestor matrix', () => {
     expect(getElementScale(makeNested('transform: matrix(2, 0, 0, 3, 0, 0)'))).toEqual({
       x: 2,
@@ -178,8 +241,8 @@ describe('getElementScale', () => {
     });
   });
 
-  // A rotated element's rect is its bounding box: read as a rect-to-layout ratio, the
-  // rotation would look like a large scale.
+  // A rotated element's rect is its bounding box. Read as a rect-to-layout ratio, the
+  // rotation would look like a scale.
   it('reads a rotation as no scale', () => {
     expect(getElementScale(makeNested('transform: matrix(0, 1, -1, 0, 0, 0)'))).toEqual({
       x: 1,
@@ -242,12 +305,43 @@ describe('getElementScale', () => {
     expect(getElementScale(leaf)).toEqual({ x: 6, y: 6 });
   });
 
+  // jsdom only. It needs `vi.resetModules()` to hand out a fresh module, which
+  // browser mode doesn't, and a browser hides a closed popover, whose transform
+  // then no longer applies.
+  it.skipIf(!isJSDOM)(
+    'treats a popover as closed where `:popover-open` does not parse',
+    async () => {
+      // Browsers from before the popover API throw a `SyntaxError` on the selector.
+      // The `popover` attribute does nothing there, so the ancestor scale still applies.
+      const matches = Element.prototype.matches;
+      const spy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function mock(
+        this: Element,
+        selector: string,
+      ) {
+        if (selector === ':popover-open') {
+          throw new DOMException(`'${selector}' is not a valid selector`, 'SyntaxError');
+        }
+        return matches.call(this, selector);
+      });
+      const child = makeNested('transform: matrix(2, 0, 0, 2, 0, 0)');
+      child.parentElement!.setAttribute('popover', 'manual');
+      // A fresh module, so the unsupported selector doesn't stay cached for later tests.
+      vi.resetModules();
+      const utils = await import('./utils');
+
+      expect(utils.getElementScale(child)).toEqual({ x: 2, y: 2 });
+      expect(utils.getElementScale(child)).toEqual({ x: 2, y: 2 });
+      // Cached after the first failure.
+      expect(spy.mock.calls.filter(([selector]) => selector === ':popover-open')).toHaveLength(1);
+    },
+  );
+
   it.skipIf(isJSDOM)('folds in a zoom, which is not a transform', () => {
     expect(getElementScale(makeNested('zoom: 2'))).toEqual({ x: 2, y: 2 });
   });
 
-  // Only a real browser resolves the shorthand forms into the matrix the walk reads, and
-  // only there does the `scale` longhand (CSS Transforms 2) have a computed value at all.
+  // Only a browser resolves transform functions such as `scale(2)` into the matrix the
+  // walk reads. jsdom also has no computed value for the `scale` longhand.
   describe.skipIf(isJSDOM)('with styles a browser has resolved', () => {
     it('reads an ancestor scale()', () => {
       expect(getElementScale(makeNested('transform: scale(2)'))).toEqual({ x: 2, y: 2 });
@@ -259,16 +353,16 @@ describe('getElementScale', () => {
       expect(scale.y).toBeCloseTo(1, 5);
     });
 
-    // Loosely, because the browser serializes the composed matrix to a few decimals and
-    // the norm of a 45° row carries that rounding through.
+    // Compared loosely, because the browser rounds the composed matrix to a few decimals
+    // and the norm of a 45° row keeps that rounding.
     it('reads the scale under a rotate()', () => {
       const scale = getElementScale(makeNested('transform: rotate(45deg) scale(2)'));
       expect(scale.x).toBeCloseTo(2, 4);
       expect(scale.y).toBeCloseTo(2, 4);
     });
 
-    // `scale`/`rotate`/`translate` do not fold into the computed `transform`, so the
-    // longhand has to be read on its own — the hover-lift pattern uses it.
+    // `scale`, `rotate`, and `translate` don't fold into the computed `transform`, so
+    // the longhand is read on its own. Hover-lift effects use it.
     it('reads the scale longhand', () => {
       expect(getElementScale(makeNested('scale: 1.5 2'))).toEqual({ x: 1.5, y: 2 });
     });
@@ -279,19 +373,21 @@ describe('getElementScale', () => {
       expect(scale.y).toBeCloseTo(1, 5);
     });
 
-    it.each([
-      ['100grad', '90deg'],
-      ['1.5707963267948966rad', '90deg'],
-      ['0.25turn', '90deg'],
-    ])('receives a computed %s rotate longhand in degrees', (declared, expected) => {
-      const child = makeNested('');
-      child.style.rotate = declared;
+    // The computed rotate is in degrees whatever unit was declared, so these
+    // read as the 90deg case below.
+    it.each(['100grad', '1.5707963267948966rad', '0.25turn'])(
+      'reads a %s rotate longhand under a non-uniform scale',
+      (declared) => {
+        const child = makeNested('transform: matrix(2, 0, 0, 1, 0, 0)');
+        child.style.rotate = declared;
+        const scale = getElementScale(child);
+        expect(scale.x).toBeCloseTo(1, 5);
+        expect(scale.y).toBeCloseTo(2, 5);
+      },
+    );
 
-      expect(getComputedStyle(child).rotate).toBe(expected);
-    });
-
-    // A rotation cannot change a scale by itself, but it reorients which axis an
-    // ancestor's scale lands on — dropped from the matrix, these come out swapped
+    // A rotation doesn't change a scale by itself, but it changes which axis an
+    // ancestor's scale lands on. Left out of the matrix, these come out swapped
     // as 2 × 1.
     it('keeps the axes straight for a rotate longhand under a non-uniform scale', () => {
       const child = makeNested('transform: matrix(2, 0, 0, 1, 0, 0)');
@@ -312,8 +408,8 @@ describe('getElementScale', () => {
       expect(scale.y).toBeCloseTo(Math.hypot(2 * Math.sin(radians), Math.cos(radians)), 4);
     });
 
-    // An off-plane axis squashes what it paints — the same flattening the `matrix3d`
-    // branch applies.
+    // A rotation out of the screen plane squashes what the element paints. The
+    // `matrix3d` branch flattens it the same way.
     it('reads an x-axis rotate longhand as its on-screen squash', () => {
       const scale = getElementScale(makeNested('rotate: x 60deg'));
       expect(scale.x).toBeCloseTo(1, 5);
@@ -328,9 +424,9 @@ describe('getElementScale', () => {
       expect(scale.y).toBeCloseTo(1, 5);
     });
 
-    // Multiplying zooms down the chain is only right because a computed `zoom` is the
-    // element's *own* value, not the effective one — which jsdom, echoing whatever was
-    // declared, cannot tell apart. An engine reporting the effective zoom would square
+    // Multiplying zooms down the chain is correct only because a computed `zoom` is the
+    // element's own value, not the effective one. jsdom echoes the declared value, so it
+    // can't tell the two apart. An engine reporting the effective zoom would square
     // this to 36.
     it('multiplies nested zooms', () => {
       const outer = makeNested('zoom: 2');

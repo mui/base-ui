@@ -10,8 +10,8 @@ import {
   insertBookmarkSeed,
   moveNode,
   removeNode,
-  type BookmarkSeed,
 } from './bookmark-bar-model';
+import type { BookmarkSeed } from './bookmark-bar-model';
 
 const seed: BookmarkSeed[] = [
   { id: 'a', name: 'A', url: 'https://a.example' },

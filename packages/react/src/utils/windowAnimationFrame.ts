@@ -1,44 +1,35 @@
-'use client';
-
 type AnimationFrameId = number;
 
 const EMPTY = null;
 
 /**
  * A single replaceable animation-frame callback tied to one window.
- * Unlike the shared utility, this schedules work in the element's owner window,
- * so closing an iframe also stops its pending work. Cleanup tolerates a closed window.
+ * Unlike the shared `AnimationFrame`, it schedules on the element's owner window,
+ * so closing an iframe also drops its pending work. `cancel` tolerates a closed window.
  */
 export class WindowAnimationFrame {
-  static request(fn: FrameRequestCallback, ownerWindow: Window) {
-    return ownerWindow.requestAnimationFrame(fn);
-  }
-
-  static cancel(id: AnimationFrameId, ownerWindow: Window) {
-    try {
-      ownerWindow.cancelAnimationFrame(id);
-    } catch {
-      // The window may have closed.
-    }
-  }
-
   constructor(private readonly ownerWindow: Window) {}
 
   currentId: AnimationFrameId | null = EMPTY;
 
-  request(fn: () => void) {
+  /** Replaces the pending callback, if any. `fn` receives the frame timestamp. */
+  request(fn: FrameRequestCallback) {
     this.cancel();
-    this.currentId = WindowAnimationFrame.request(() => {
+    this.currentId = this.ownerWindow.requestAnimationFrame((timestamp) => {
       this.currentId = EMPTY;
-      fn();
-    }, this.ownerWindow);
+      fn(timestamp);
+    });
   }
 
   cancel = () => {
     if (this.currentId !== EMPTY) {
       const id = this.currentId;
       this.currentId = EMPTY;
-      WindowAnimationFrame.cancel(id, this.ownerWindow);
+      try {
+        this.ownerWindow.cancelAnimationFrame(id);
+      } catch {
+        // The window may have closed.
+      }
     }
   };
 }

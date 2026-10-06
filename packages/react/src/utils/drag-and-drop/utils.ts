@@ -1,8 +1,12 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { contains } from '@base-ui/utils/shadowDom';
-import type { DragInput, DragPointerType, DragPosition } from '../../types/drag';
-import { getParentElement as getComposedParentElement } from '../getParentElement';
+import type {
+  DraggableInput,
+  DraggablePointerType,
+  DraggablePosition,
+} from '../../draggable/DraggableProvider';
+import { getParentElement } from '../getParentElement';
 import { getElementAtPoint } from '../getElementAtPoint';
 import {
   identityLinearTransform,
@@ -12,13 +16,12 @@ import {
   parseScaleLinearTransform,
 } from './linearTransform';
 
-/** The four modifier keys, as every event that carries them reports them. */
-export type DragModifierKeys = Pick<DragInput, 'ctrlKey' | 'shiftKey' | 'altKey' | 'metaKey'>;
+/** The four modifier key flags, as the events that carry them report them. */
+export type DragModifierKeys = Pick<DraggableInput, 'ctrlKey' | 'shiftKey' | 'altKey' | 'metaKey'>;
 
 /**
- * Wrap a cleanup so calling it more than once (or after React has already run
- * it) is a no-op. The engine's registrations and setups all rely on this
- * idempotence when they hand cleanups to consumers.
+ * Wrap a cleanup so that only the first call runs it, even if React already ran
+ * it. Registrations and setups rely on this when they return cleanups to consumers.
  */
 export function onceCleanup(cleanup: () => void): () => void {
   let done = false;
@@ -32,10 +35,11 @@ export function onceCleanup(cleanup: () => void): () => void {
 }
 
 /**
- * Resolve an element declared as a plain element, a ref, or a getter — the
- * shape shared by `dragHandle`, `container`, and `restrictToElement`'s `element`
- * — or `null` when unset. `argument` is handed to the getter form; `container`
- * passes the source element so a callback can find a container relative to it.
+ * Resolve an element given as a plain element, a ref, or a getter, or return
+ * `null` when unset. `handle`, `container`, and the `element` of
+ * `restrictToElement` use this shape. `argument` is passed to the getter.
+ * `container` passes the source element so a callback can find a container
+ * relative to it.
  */
 export function resolveElementReference<T extends Element, TArgument = void>(
   reference:
@@ -54,7 +58,35 @@ export function resolveElementReference<T extends Element, TArgument = void>(
   return reference;
 }
 
-export { getComposedParentElement };
+const NO_CLOSED_ROOTS: ReadonlyMap<Element, ShadowRoot> = new Map();
+
+/**
+ * The parent of `element` in the composed tree: its assigned slot, then its
+ * parent, then the host of its shadow root.
+ *
+ * `assignedSlot` is `null` for an element slotted into a closed shadow root, so a
+ * plain walk would jump from the element straight to its host and skip whatever
+ * wraps the `<slot>`. `closedRootsByHost` supplies the closed roots the engine
+ * knows about, such as those holding a registered drop target, and the slot is
+ * looked up in the host's root instead.
+ */
+export function getComposedParentElement(
+  element: Element,
+  closedRootsByHost: ReadonlyMap<Element, ShadowRoot> = NO_CLOSED_ROOTS,
+): Element | null {
+  if (closedRootsByHost.size > 0 && element.assignedSlot === null) {
+    const host = element.parentElement;
+    const root = host === null ? undefined : closedRootsByHost.get(host);
+    if (root !== undefined) {
+      for (const slot of root.querySelectorAll('slot')) {
+        if (slot.assignedElements().includes(element)) {
+          return slot;
+        }
+      }
+    }
+  }
+  return getParentElement(element);
+}
 
 /** The event root that can observe a node before closed-shadow retargeting. */
 export function getDragEventRoot(node: Element): Document | ShadowRoot {
@@ -62,27 +94,29 @@ export function getDragEventRoot(node: Element): Document | ShadowRoot {
   return isShadowRoot(root) ? root : ownerDocument(node);
 }
 
-const EMPTY_SHADOW_ROOTS_BY_HOST: ReadonlyMap<Element, ShadowRoot> = new Map();
-
 /**
- * Hit-test what sits under (`clientX`, `clientY`), descending into open shadow
- * roots: `elementFromPoint` on the document stops at the shadow *host*, so a drop
- * target inside a shadow tree would otherwise never be entered. Registered closed
- * roots can be supplied because their host does not expose them through
- * `Element.shadowRoot`.
+ * Hit-test the element under (`clientX`, `clientY`), descending into shadow roots.
+ * `elementFromPoint` on the document stops at the shadow host, so a drop target
+ * inside a shadow tree would never be entered. `rootsByHost` supplies registered
+ * closed roots, which their host doesn't expose through `Element.shadowRoot`.
  *
- * Guarded at both levels (see {@link getElementAtPoint}): jsdom implements
+ * Both levels go through {@link getElementAtPoint} because jsdom implements
  * `elementFromPoint` on neither `Document` nor `ShadowRoot`. This runs from the
  * activation commit, outside every containment boundary and after the pending
- * listeners are gone, so a `TypeError` here would strand the sensor and refuse
- * every later pickup. Degrade to "nothing under the pointer" instead.
+ * listeners are removed. A `TypeError` here would leave the sensor stuck and
+ * refuse every later pickup, so a missing method reports nothing under the pointer.
+ * A non-finite coordinate, which browsers reject with a `TypeError`, reports
+ * nothing for the same reason.
  */
 export function deepElementFromPoint(
   doc: Document,
   clientX: number,
   clientY: number,
-  rootsByHost: ReadonlyMap<Element, ShadowRoot> = EMPTY_SHADOW_ROOTS_BY_HOST,
+  rootsByHost: ReadonlyMap<Element, ShadowRoot>,
 ): Element | null {
+  if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) {
+    return null;
+  }
   let hit = getElementAtPoint(doc, clientX, clientY);
   let innerRoot = hit ? (hit.shadowRoot ?? rootsByHost.get(hit)) : undefined;
   while (innerRoot) {
@@ -97,30 +131,29 @@ export function deepElementFromPoint(
 }
 
 /**
- * Hit-test what sits under (`clientX`, `clientY`) in `doc`, ignoring the drag
- * preview and descending into open shadow roots (see {@link deepElementFromPoint}).
- * The preview is `pointer-events: none`, so it is normally skipped by
- * `elementFromPoint` — but consumer preview content can set `pointer-events: auto`
- * and intercept the hit, which would otherwise freeze drop-target resolution on the
- * preview itself. When the hit lands inside it, remove it from hit-testing
- * synchronously (no repaint, so no flicker) and re-resolve what is underneath.
+ * Hit-test the element under (`clientX`, `clientY`) in `doc`, ignoring the drag
+ * preview and descending into shadow roots like {@link deepElementFromPoint}.
+ * The preview has `pointer-events: none`, so `elementFromPoint` normally skips it.
+ * Consumer preview content can set `pointer-events: auto` and catch the hit, which
+ * would pin drop-target resolution to the preview. When the hit lands inside the
+ * preview, hide it synchronously and hit-test again. No repaint happens in between,
+ * so nothing flickers.
  */
 export function elementFromPointIgnoring(
   doc: Document,
   clientX: number,
   clientY: number,
   ignore: HTMLElement | null,
-  rootsByHost: ReadonlyMap<Element, ShadowRoot> = EMPTY_SHADOW_ROOTS_BY_HOST,
+  rootsByHost: ReadonlyMap<Element, ShadowRoot>,
 ): Element | null {
   const found = deepElementFromPoint(doc, clientX, clientY, rootsByHost);
   if (!found || ignore == null || !contains(ignore, found)) {
     return found;
   }
-  // Use `display: none`, not `visibility: hidden`: a descendant with inline
-  // `visibility: visible` re-shows itself and stays hit-testable, defeating the
-  // ignore. `display: none` removes the whole subtree from layout/hit-testing
-  // regardless of any descendant override. `ignore` is the preview itself, never
-  // the engine's `[popover]` wrapper around it, so hiding it does not close the
+  // Use `display: none`, not `visibility: hidden`. A descendant with inline
+  // `visibility: visible` would stay hit-testable. `display: none` removes the
+  // whole subtree from hit-testing. `ignore` is the preview itself, never the
+  // engine's `[popover]` wrapper around it, so hiding it doesn't close the
   // popover that keeps the preview in the top layer.
   const previousDisplay = ignore.style.display;
   ignore.style.display = 'none';
@@ -130,12 +163,12 @@ export function elementFromPointIgnoring(
 }
 
 /**
- * Whether a document's browsing context is gone — its iframe was removed, or
- * its popout window closed. A drag session living in such a document can never
- * receive a terminating event (every teardown listener lived in the dead
- * realm), so the sensors use this to self-heal instead of refusing every
- * future pickup. Deliberately not element connectivity: a virtualizer detaches
- * the dragged node mid-drag while its document stays perfectly alive.
+ * Whether a document's browsing context is gone, because its iframe was removed
+ * or its popout window closed. A drag session in such a document never receives
+ * an ending event, since its teardown listeners lived in the dead realm. The
+ * sensors use this check to reset instead of refusing every later pickup. It
+ * doesn't test whether the element is connected, because a virtualizer can
+ * detach the dragged node mid-drag while its document is still alive.
  */
 export function isDetachedDocument(doc: Document): boolean {
   const win = doc.defaultView;
@@ -145,8 +178,8 @@ export function isDetachedDocument(doc: Document): boolean {
 /**
  * The layout viewport size. Prefers `documentElement.clientWidth/Height` over
  * `innerWidth/innerHeight`, which include the scrollbar gutter where
- * `elementFromPoint` resolves nothing; falls back to the window size when layout
- * reports 0 (a detached document, or jsdom).
+ * `elementFromPoint` finds nothing. Falls back to the window size when layout
+ * reports 0, as in a detached document or jsdom.
  */
 export function getViewportSize(win: Window): { width: number; height: number } {
   const docEl = win.document.documentElement;
@@ -158,7 +191,7 @@ export function getViewportSize(win: Window): { width: number; height: number } 
 
 /**
  * Whether the client point (`x`, `y`) lies within `rect`, inclusive of all four
- * edges. Shared by pointer hit testing and auto-scroll.
+ * edges.
  */
 export function isPointInRect(
   x: number,
@@ -168,15 +201,15 @@ export function isPointInRect(
   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
 }
 
-export function normalizePointerType(raw: string | undefined): DragPointerType {
+export function normalizePointerType(raw: string | undefined): DraggablePointerType {
   if (raw === 'touch' || raw === 'pen') {
     return raw;
   }
   return 'mouse';
 }
 
-/** Build an `DragInput` snapshot from a pointer event. */
-export function getInput(event: MouseEvent & { pointerType?: string | undefined }): DragInput {
+/** Build a `DraggableInput` snapshot from a pointer event. */
+export function getInput(event: MouseEvent & { pointerType?: string | undefined }): DraggableInput {
   return {
     button: event.button,
     buttons: event.buttons,
@@ -185,19 +218,16 @@ export function getInput(event: MouseEvent & { pointerType?: string | undefined 
     pageX: event.pageX,
     pageY: event.pageY,
     pointerType: normalizePointerType(event.pointerType),
-    ctrlKey: event.ctrlKey,
-    shiftKey: event.shiftKey,
-    altKey: event.altKey,
-    metaKey: event.metaKey,
+    ...getModifierKeys(event),
   };
 }
 
 /**
- * Rebase a `DragInput` onto `point`, shifting the page coordinates by the same
- * delta. Shared by both sensor stacks so consumer predicates are asked about
- * the position the cursor would land on rather than the one it is leaving.
+ * Rebase a `DraggableInput` onto `point`, shifting the page coordinates by the same
+ * delta. The sensor applies `modifiers` through it, so the drop hit-test and the
+ * reported input follow the constrained point rather than the raw pointer.
  */
-export function remapInput(input: DragInput, point: DragPosition): DragInput {
+export function remapInput(input: DraggableInput, point: DraggablePosition): DraggableInput {
   if (point.x === input.clientX && point.y === input.clientY) {
     return input;
   }
@@ -210,7 +240,7 @@ export function remapInput(input: DragInput, point: DragPosition): DragInput {
   };
 }
 
-/** No modifier key held: what an input synthesized without an event reports. */
+/** No modifier key held. Used for inputs synthesized without an event. */
 export const NO_MODIFIER_KEYS: DragModifierKeys = {
   ctrlKey: false,
   shiftKey: false,
@@ -218,7 +248,7 @@ export const NO_MODIFIER_KEYS: DragModifierKeys = {
   metaKey: false,
 };
 
-/** Just the four modifier flags of an event, for handing on to a synthesized input. */
+/** The four modifier flags of an event, to copy onto a synthesized input. */
 export function getModifierKeys(event: KeyboardEvent | MouseEvent): DragModifierKeys {
   return {
     ctrlKey: event.ctrlKey,
@@ -239,17 +269,17 @@ export function modifierKeysChanged(a: DragModifierKeys, b: DragModifierKeys): b
 }
 
 /**
- * Run a consumer-supplied callback with an error boundary: a throw is caught,
- * logged with `message` and the offending element (when the boundary has one)
- * for diagnosis, and `fallback` is returned so one buggy consumer can't unwind
- * an engine dispatch or loop for everyone else.
+ * Run a consumer callback and catch what it throws. The error is logged with
+ * `message` and the element, when there is one, and `fallback` is returned. One
+ * failing callback can't abort an engine dispatch or loop for every other consumer.
  *
- * `message` states what threw and what the engine did instead — never that the
- * error follows, which the console already shows. Every one of these strings
- * ships in the production bundle, so they stay to the point.
+ * `message` says what threw and what the engine did instead. It doesn't announce
+ * the error, which the console prints next to it. These strings ship in the
+ * production bundle, so keep them short. Pass a function to build the message
+ * only when something throws.
  */
 export function containConsumerError<T>(
-  message: string,
+  message: string | (() => string),
   element: Element | null,
   call: () => T,
   fallback: T,
@@ -257,23 +287,20 @@ export function containConsumerError<T>(
   try {
     return call();
   } catch (error) {
-    reportConsumerError(message, element, error);
+    const text = typeof message === 'function' ? message() : message;
+    if (element === null) {
+      console.error(text, error);
+    } else {
+      console.error(text, element, error);
+    }
     return fallback;
   }
 }
 
-function reportConsumerError(message: string, element: Element | null, error: unknown): void {
-  if (element === null) {
-    console.error(message, error);
-  } else {
-    console.error(message, element, error);
-  }
-}
-
 /**
- * Run every cleanup, then rethrow the first error any of them raised. A plain
- * sequence would leak the remaining registrations the moment one throws — the
- * drop target would stay live after the draggable's cleanup failed.
+ * Run every cleanup, then rethrow the first error. A plain sequence would stop at
+ * the first throw and leak the remaining registrations, for example leaving a
+ * drop target live after the draggable's cleanup failed.
  */
 export function runAllCleanups(cleanups: ReadonlyArray<() => void>): void {
   let firstError: unknown;
@@ -291,11 +318,11 @@ export function runAllCleanups(cleanups: ReadonlyArray<() => void>): void {
 
 /**
  * {@link containConsumerError} for a named callback declared on a registered
- * element. One shared wording for every registry — drop targets, auto-scrollers —
- * so the diagnostic prose is written once instead of per module.
+ * element. Drop targets and auto-scrollers share this message instead of each
+ * writing their own.
  *
- * Runs per target and per auto-scroll candidate on every frame, so the message
- * is only built once something actually threw.
+ * It runs for each target and auto-scroll candidate on every frame, so the
+ * message is built only when something throws.
  */
 export function safeCallConsumer<T>(
   subject: string,
@@ -304,16 +331,12 @@ export function safeCallConsumer<T>(
   call: () => T,
   fallback: T,
 ): T {
-  try {
-    return call();
-  } catch (error) {
-    reportConsumerError(
-      `Base UI: ${subject} "${callbackName}" threw and was skipped for this drag.`,
-      element,
-      error,
-    );
-    return fallback;
-  }
+  return containConsumerError(
+    () => `Base UI: ${subject} "${callbackName}" threw and was skipped for this drag.`,
+    element,
+    call,
+    fallback,
+  );
 }
 
 /**
@@ -330,8 +353,8 @@ export function isRtlElement(element: Element): boolean {
     if (direction === 'ltr') {
       return false;
     }
-    // Some non-browser DOMs do not resolve inherited `direction`. Walking the
-    // composed ancestry preserves the browser answer without guessing a value.
+    // Some non-browser DOMs don't resolve inherited `direction`. Walking up the
+    // composed ancestors gives the browser's answer without guessing a value.
     current = getComposedParentElement(current);
   }
   return false;
@@ -341,40 +364,41 @@ export function isRtlElement(element: Element): boolean {
 export interface OverflowFlags {
   x: boolean;
   y: boolean;
-  /** `overflow` is `hidden`/`clip` on this axis, which is what stops the *page* scrolling. */
+  /**
+   * `overflow` is `hidden` or `clip` on this axis. On the root or body, this stops
+   * the page from scrolling.
+   */
   blockedX: boolean;
   blockedY: boolean;
 }
 
-// Only these make a box scrollable. Notably *not* `hidden` or `clip`: `hidden`
-// has a scrolling box the user deliberately can't reach, and `clip` has none at
-// all, so `scrollBy` is a no-op on it. Both still report
-// `scrollHeight > clientHeight`, so a scroll-extent test can't tell them apart —
-// the overflow value is the only signal. (This is why `isOverflowElement` from
-// floating-ui, which lumps all five together, can't answer this question.)
+// Only these values make a box scrollable. `hidden` has a scrolling box the user
+// can't reach, and `clip` has none, so `scrollBy` does nothing on it. Both still
+// report `scrollHeight > clientHeight`, so only the overflow value tells them
+// apart. floating-ui's `isOverflowElement` treats all five values alike, so it
+// can't be used here.
 const SCROLLABLE_OVERFLOW = new Set(['auto', 'scroll', 'overlay']);
 const BLOCKED_OVERFLOW = new Set(['hidden', 'clip']);
 
-// The shorthand is consulted alongside each longhand rather than as a fallback:
-// jsdom reports `visible` for the longhands even when a style set `overflow`
-// alone, so a `||` chain would never reach it. A real browser's two-value
-// shorthand serialization (`"hidden auto"`) matches neither set, leaving the
-// longhands to decide.
+// Check the shorthand alongside each longhand, not as a fallback. jsdom reports
+// `visible` for the longhands when a style sets only `overflow`, so a `||` chain
+// would never reach the shorthand. In a browser, a two-value shorthand such as
+// `"hidden auto"` matches neither set, so the longhands decide.
 function onAxis(values: Set<string>, longhand: string, shorthand: string): boolean {
   return values.has(longhand) || values.has(shorthand);
 }
 
 /**
- * Which axes `element` can scroll, resolved from its computed overflow. Uncached,
- * like {@link isRtlElement} — callers on hot paths keep their own per-drag cache.
+ * Which axes `element` can scroll, from its computed overflow. Not cached, like
+ * {@link isRtlElement}. Callers on hot paths keep their own per-drag cache.
  */
 export function getOverflowFlags(element: Element): OverflowFlags {
   const { overflow, overflowX, overflowY, display } =
     ownerWindow(element).getComputedStyle(element);
   const blockedX = onAxis(BLOCKED_OVERFLOW, overflowX, overflow);
   const blockedY = onAxis(BLOCKED_OVERFLOW, overflowY, overflow);
-  // An inline or `display: contents` box generates no scrolling box whatever its
-  // overflow says (the same exclusion floating-ui's `isOverflowElement` makes).
+  // An inline or `display: contents` box has no scrolling box, whatever its
+  // overflow. floating-ui's `isOverflowElement` makes the same exclusion.
   if (display === 'inline' || display === 'contents') {
     return { x: false, y: false, blockedX, blockedY };
   }
@@ -386,38 +410,63 @@ export function getOverflowFlags(element: Element): OverflowFlags {
   };
 }
 
-/** Never report a scale that would divide badly downstream. */
+/** Replace a zero, negative, or non-finite scale with `1`, so callers can divide by it. */
 function usableScale(value: number): number {
   return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
-/** CSS zoom remains cumulative even when a preview enters the top layer. */
+/**
+ * The element's own `zoom`, or `1` when it has none. Falls back to the inline
+ * declaration for engines whose computed style does not expose `zoom`.
+ */
+export function getOwnZoom(node: Element, style: CSSStyleDeclaration): number {
+  return usableScale(Number.parseFloat(style.zoom || (node as HTMLElement).style?.zoom || ''));
+}
+
+/**
+ * The product of `zoom` on the element and its ancestors. Zoom still compounds
+ * when a preview enters the top layer.
+ */
 export function getElementZoom(element: HTMLElement): number {
   const win = ownerWindow(element);
   let zoom = 1;
   for (let node: Element | null = element; node; node = getComposedParentElement(node)) {
-    const value = Number.parseFloat(win.getComputedStyle(node).zoom);
-    if (Number.isFinite(value) && value > 0) {
-      zoom *= value;
-    }
+    zoom *= getOwnZoom(node, win.getComputedStyle(node));
   }
   return zoom;
 }
 
+// Set once `:popover-open` has failed to parse. Browsers that predate the popover
+// API throw a `SyntaxError` on the selector, and a `popover` attribute does
+// nothing there, so no element can be an open popover.
+let popoverOpenUnsupported = false;
+
+/** Whether `node` is a shown popover, which renders in the top layer. */
+function isOpenPopover(node: Element): boolean {
+  if (popoverOpenUnsupported || !node.hasAttribute('popover')) {
+    return false;
+  }
+  try {
+    return node.matches(':popover-open');
+  } catch {
+    popoverOpenUnsupported = true;
+    return false;
+  }
+}
+
 /**
- * The scale a CSS transform (or a `zoom`) applies to `element`, accumulated over the element
- * and every ancestor — a zoomable canvas, a scaled preview container.
+ * The scale that CSS transforms and `zoom` apply to `element`, accumulated over the
+ * element and its ancestors, such as a zoomable canvas or a scaled preview container.
  *
- * Read from the transforms themselves rather than from the rendered rect against the layout
- * box: that ratio is only a scale while everything in the chain is axis-aligned. A *rotated*
- * element's rect is its bounding box, several times its layout box, and the ratio reports
- * that inflation as a scale. Taking the column norms of the accumulated matrix leaves a
- * rotation at 1 and still reports the scale composed with it.
+ * It reads the transforms instead of comparing the rendered rect to the layout box.
+ * That ratio is a scale only while everything in the chain is axis-aligned. A rotated
+ * element's rect is its bounding box, which is larger than its layout box, and the
+ * ratio would report the difference as a scale. The column norms of the accumulated
+ * matrix ignore rotation and still include any scale combined with it.
  *
  * Returns `1` on either axis it cannot read.
- * Set `includeZoom` to false when only transforms are escaped, as in a top-layer preview.
  */
-export function getElementScale(element: HTMLElement, includeZoom = true): DragPosition {
+export function getElementScale(element: HTMLElement): DraggablePosition {
   const win = ownerWindow(element);
   let matrix = identityLinearTransform;
   let zoom = 1;
@@ -426,12 +475,12 @@ export function getElementScale(element: HTMLElement, includeZoom = true): DragP
 
   while (node) {
     const style = win.getComputedStyle(node);
-    // CSS Transforms 2 splits `scale`/`rotate`/`translate` out of `transform`, and they do
-    // not fold into the computed `transform` — so a `scale: 1.5` (the hover-lift pattern)
-    // has to be read on its own. `rotate` too: a rotation cannot change a scale by itself,
-    // but it reorients which axis an ancestor's scale lands on, so leaving it out of the
-    // matrix would swap the axes under a non-uniform ancestor scale. Only `translate` can
-    // be ignored. Order within an element is `rotate`, then `scale`, then `transform`.
+    // The `scale`, `rotate`, and `translate` properties don't fold into the computed
+    // `transform`, so a `scale: 1.5` hover lift has to be read on its own. `rotate`
+    // doesn't change a scale by itself, but it changes which axis an ancestor's scale
+    // lands on. Leaving it out would swap the axes under a non-uniform ancestor scale.
+    // Only `translate` can be ignored. Within one element, the order is `rotate`,
+    // then `scale`, then `transform`.
     const own = escapedTransforms ? null : parseComputedLinearTransform(style.transform);
     if (own) {
       matrix = multiplyLinearTransforms(own, matrix);
@@ -444,22 +493,33 @@ export function getElementScale(element: HTMLElement, includeZoom = true): DragP
     if (rotateLonghand) {
       matrix = multiplyLinearTransforms(rotateLonghand, matrix);
     }
-    // `zoom` never reaches the matrix — it is not a transform — but it is the other way a
-    // surface is scaled, and it compounds down the tree the same way.
-    const elementZoom = Number.parseFloat(style.zoom || (node as HTMLElement).style?.zoom || '');
-    if (includeZoom && Number.isFinite(elementZoom) && elementZoom > 0) {
-      zoom *= elementZoom;
-    }
-    if (node.hasAttribute('popover') && node.matches(':popover-open')) {
+    // `zoom` is not a transform, so it stays out of the matrix. It compounds down the
+    // tree the same way, so it is multiplied in separately.
+    zoom *= getOwnZoom(node, style);
+    if (isOpenPopover(node)) {
       escapedTransforms = true;
     }
     node = getComposedParentElement(node);
   }
 
-  // Column norms: how long each unit axis comes out. A mirror (`scale(-1)`) reports its
-  // magnitude, which is the only part of it a step size can use.
+  // The column norms give the length each unit axis maps to. A mirror such as
+  // `scale(-1)` reports its magnitude, the only part a step size can use.
   return {
     x: usableScale(Math.hypot(matrix.a, matrix.b) * zoom),
     y: usableScale(Math.hypot(matrix.c, matrix.d) * zoom),
   };
+}
+
+/** Add `sheet` to `root`'s adopted style sheets unless it is already there. */
+export function adoptStyleSheet(root: DocumentOrShadowRoot, sheet: CSSStyleSheet): void {
+  if (!root.adoptedStyleSheets.includes(sheet)) {
+    root.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet];
+  }
+}
+
+/** Remove `sheet` from `root`'s adopted style sheets. */
+export function unadoptStyleSheet(root: DocumentOrShadowRoot, sheet: CSSStyleSheet): void {
+  if (root.adoptedStyleSheets.includes(sheet)) {
+    root.adoptedStyleSheets = root.adoptedStyleSheets.filter((adopted) => adopted !== sheet);
+  }
 }

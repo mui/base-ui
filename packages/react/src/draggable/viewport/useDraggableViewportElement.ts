@@ -3,69 +3,60 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDraggableContext } from '../DraggableContext';
-import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
-import { wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
+import { registerViewport } from '../../utils/drag-and-drop/registrations';
+import { wakeAutoScroll, normalizeOverflowMargin } from '../../utils/drag-and-drop/autoScroller';
 import { sameAccept } from '../../utils/drag-and-drop/dragKind';
-import type { RegisterAutoScrollerParameters } from '../../utils/drag-and-drop/autoScroller';
+import type { RegisterViewportParameters } from '../../utils/drag-and-drop/autoScroller';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 
 /**
- * Registers only the element the returned `ref` is attached to for auto-scroll.
+ * Registers the element the returned `ref` is attached to for auto-scroll.
  * Backs `Draggable.Viewport`. Nested containers need their own registration.
  *
- * The parameters are read through a stable getter on every frame, so a re-render never
- * re-registers and the freshest callbacks always apply.
+ * The engine reads the parameters through a stable getter every frame, so a
+ * re-render never re-registers and the latest callbacks always apply.
  * @internal
  */
-export function useDraggableViewportElement<TSourcePayload = unknown>(
-  parameters: UseDraggableViewportElementParameters<TSourcePayload>,
+export function useDraggableViewportElement<TSourcePayload = unknown, TDragData = unknown>(
+  parameters: UseDraggableViewportElementParameters<TSourcePayload, TDragData>,
 ): UseDraggableViewportElementReturnValue {
   useDraggableContext();
-  const getParameters = useStableCallback(
-    () => parameters as RegisterAutoScrollerParameters<unknown>,
-  );
+  // The public `registerViewport` is typed by the `accept` value, while this
+  // internal hook is typed by the payload it promises, like the component's
+  // implementation signature. So the parameters are cast to `unknown` here.
+  const getParameters = useStableCallback(() => parameters as RegisterViewportParameters<unknown>);
 
-  // Registering mid-drag arms and wakes the loop with the latest live input.
-  // The public `registerAutoScroller` is keyed on the `accept` value; this
-  // internal layer is keyed on the payload it promises (like the component's
-  // implementation signature), so the parameters are erased to `unknown` here.
-  // `disabled` rides along in the parameters (the engine reads it every frame)
-  // rather than gating the registration, which would churn the engine's registry
-  // — and its cached depth order — on every flip of the prop.
-  const ref = useRegistrationRef<HTMLElement>((node) => registerAutoScroller(node, getParameters));
+  // Registering during a drag starts and wakes the loop with the latest input.
+  // `disabled` is read from the parameters every frame instead of gating the
+  // registration. Gating would rebuild the engine's registry, and its cached
+  // depth order, every time the prop flips.
+  const ref = useRegistrationRef<HTMLElement>((node) => registerViewport(node, getParameters));
 
-  // A live parameter change must wake a loop that parked while the element was
-  // disabled or declined scrolling. Compared against the previous values — by
-  // content for `accept`, commonly an inline array — rather than trusted as
-  // effect deps, so a render that changes nothing wakes nothing. A wake is all a
-  // change needs: the loop reads the parameters through `getParameters` every
-  // frame, so no shared geometry/style cache has to be dropped for it to apply.
+  // A parameter change during a drag wakes a loop that parked while the element
+  // was disabled or declined to scroll. `accept` is often an inline array, so it
+  // is compared by content and a render that changes nothing wakes nothing. No
+  // cache needs clearing, because the loop reads the parameters through
+  // `getParameters` every frame. The wake on mount does nothing, since the
+  // registration already woke the loop.
   const { accept, onDragScroll, disabled, maxSpeed } = parameters;
-  const previousRef = React.useRef({
-    accept,
-    onDragScroll,
-    disabled,
-    maxSpeed,
-  });
+  const { top, right, bottom, left } = normalizeOverflowMargin(parameters.overflowMargin);
+  const previousAcceptRef = React.useRef(accept);
   useIsoLayoutEffect(() => {
-    const previous = previousRef.current;
-    if (
-      sameAccept(previous.accept, accept) &&
-      previous.onDragScroll === onDragScroll &&
-      previous.disabled === disabled &&
-      previous.maxSpeed === maxSpeed
-    ) {
+    if (sameAccept(previousAcceptRef.current, accept)) {
       return;
     }
-    previousRef.current = { accept, onDragScroll, disabled, maxSpeed };
+    previousAcceptRef.current = accept;
     wakeAutoScroll();
-  }, [accept, onDragScroll, disabled, maxSpeed]);
+  }, [accept]);
+  useIsoLayoutEffect(wakeAutoScroll, [onDragScroll, disabled, maxSpeed, top, right, bottom, left]);
 
   return { ref };
 }
 
-export type UseDraggableViewportElementParameters<TSourcePayload = unknown> =
-  RegisterAutoScrollerParameters<TSourcePayload>;
+export type UseDraggableViewportElementParameters<
+  TSourcePayload = unknown,
+  TDragData = unknown,
+> = RegisterViewportParameters<TSourcePayload, TDragData>;
 
 export interface UseDraggableViewportElementReturnValue {
   /** Ref callback to attach to the scroll container element. */

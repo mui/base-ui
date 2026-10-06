@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { describe, it, expect } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 
 setupDragEngineTests();
 
@@ -33,7 +33,7 @@ describe('Draggable.Target state props', () => {
       />,
     );
     const source = createElement();
-    engine.registerDraggable(source, {});
+    engine.registerSource(source, {});
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
@@ -42,16 +42,16 @@ describe('Draggable.Target state props', () => {
     expect(target.style.outlineWidth).toBe('0px');
     expect(target.style.opacity).toBe('1');
 
-    fireEvent.dragStart(source);
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(target);
-    fireEvent.dragOver(target);
+    fireDrag.dragEnter(target);
+    fireDrag.dragOver(target);
     await flushRaf();
 
     expect(target).toHaveClass('is-enabled', 'is-over', 'is-innermost');
     expect(target.style.outlineWidth).toBe('2px');
 
-    fireEvent.drop(target);
+    fireDrag.drop(target);
     await flushRaf();
 
     expect(target).toHaveClass('is-idle');

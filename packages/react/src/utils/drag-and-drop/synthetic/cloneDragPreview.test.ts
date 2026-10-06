@@ -1,10 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { installDndPolyfill } from '../../../../test/dndPolyfill';
-import { createClonedDragPreviewElement, type DragPreviewElementHandle } from './cloneDragPreview';
+import { createDragPreviewElement, measurePreviewAnchor } from './cloneDragPreview';
+import type { DragPreviewElementHandle } from './cloneDragPreview';
 
-installDndPolyfill();
+/** Measure and clone `source`, the way a pickup does. */
+function clonePreview(source: HTMLElement, container: HTMLElement | null) {
+  const anchor = measurePreviewAnchor(source, container);
+  return anchor && createDragPreviewElement(source, anchor);
+}
 
-describe('createClonedDragPreviewElement', () => {
+describe('createDragPreviewElement (clone)', () => {
   let host: HTMLElement;
   const handles: DragPreviewElementHandle[] = [];
 
@@ -14,9 +18,9 @@ describe('createClonedDragPreviewElement', () => {
   });
 
   afterEach(() => {
-    // Destroy the handles *before* removing the host: each one keeps a live
-    // MutationObserver on its ancestor chain, and `host.remove()` would trigger
-    // `reconnect()` and re-append the preview to `document.body`.
+    // Destroy the handles before removing the host. Each one observes its ancestor
+    // chain, so `host.remove()` would trigger `reconnect()` and re-append the
+    // preview to `document.body`.
     while (handles.length > 0) {
       handles.pop()!.destroy();
     }
@@ -44,7 +48,7 @@ describe('createClonedDragPreviewElement', () => {
   }
 
   function clone(source: HTMLElement, options?: { container?: HTMLElement }) {
-    const handle = track(createClonedDragPreviewElement(source, options?.container ?? null));
+    const handle = track(clonePreview(source, options?.container ?? null));
     expect(handle).not.toBeNull();
     return handle!;
   }
@@ -63,19 +67,11 @@ describe('createClonedDragPreviewElement', () => {
     expect(completeTreeQueries).toHaveLength(2);
   });
 
-  /**
-   * The engine-owned top-layer wrapper the preview mounts inside — the element
-   * whose DOM placement the injection contract is about.
-   */
-  function wrapperOf(handle: DragPreviewElementHandle): HTMLElement {
-    return handle.element.parentElement!;
-  }
-
   it('keeps the source classes so consumers can style it with their own selector', () => {
     const handle = clone(createSource());
 
-    // `.Card[data-drag-preview] { … }` only works because the clone keeps the
-    // classes and the engine writes geometry — never visuals — inline.
+    // `.Card[data-drag-preview] { … }` works because the clone keeps the classes
+    // and the engine writes only geometry inline, never visuals.
     expect(handle.element).toHaveClass('Card', 'Card--wide');
     expect(handle.element).toHaveAttribute('data-drag-preview', '');
     expect(handle.element).toHaveAttribute('aria-hidden', 'true');
@@ -89,13 +85,11 @@ describe('createClonedDragPreviewElement', () => {
 
     const handle = clone(source);
 
-    // Last child rather than next-sibling: both come after the source in tree
-    // order (so `getElementById` still resolves the real element), but last-child
-    // leaves every existing sibling's `:nth-child` index untouched.
-    expect(host.lastElementChild).toBe(wrapperOf(handle));
-    expect(Array.from(host.children)).toEqual([source, sibling, wrapperOf(handle)]);
-    // The clone itself sits inside the engine-owned top-layer wrapper.
-    expect(wrapperOf(handle).firstElementChild).toBe(handle.element);
+    // Last child, not next sibling. Both come after the source in tree order, so
+    // `getElementById` still resolves the real element, but the last position
+    // leaves every sibling's `:nth-child` index unchanged. There is no wrapper, so
+    // the clone is a sibling with the source's own tag.
+    expect(Array.from(host.children)).toEqual([source, sibling, handle.element]);
   });
 
   it('injects into an explicit container when one is given', () => {
@@ -103,7 +97,7 @@ describe('createClonedDragPreviewElement', () => {
     document.body.appendChild(container);
     try {
       const handle = clone(createSource(), { container });
-      expect(wrapperOf(handle).parentElement).toBe(container);
+      expect(handle.element.parentElement).toBe(container);
       handle.destroy();
     } finally {
       container.remove();
@@ -120,12 +114,12 @@ describe('createClonedDragPreviewElement', () => {
 
       const handle = clone(createSource(), { container: foreign });
 
-      // Viewport coordinates do not carry across documents: adopted into the
-      // frame, the preview would be offset by the frame's own position.
+      // Viewport coordinates do not carry across documents. Inside the frame, the
+      // preview would be offset by the frame's position.
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('belongs to a different document'),
       );
-      expect(wrapperOf(handle).parentElement).toBe(host);
+      expect(handle.element.parentElement).toBe(host);
     } finally {
       frame.remove();
       warnSpy.mockRestore();
@@ -139,40 +133,43 @@ describe('createClonedDragPreviewElement', () => {
     const source = document.createElement('div');
     shadow.appendChild(source);
 
-    const handle = track(createClonedDragPreviewElement(source, null))!;
+    const handle = track(clonePreview(source, null))!;
 
-    // A direct child of a shadow root has no `parentElement`; the preview hangs
-    // off the shadow root itself so it stays under the same adopted styles.
-    expect(wrapperOf(handle).parentNode).toBe(shadow);
+    // A direct child of a shadow root has no `parentElement`. The preview is
+    // appended to the shadow root itself, so it stays under the same adopted styles.
+    expect(handle.element.parentNode).toBe(shadow);
 
     // The captured ancestor chain crosses the shadow host, so tearing the host
     // out still re-homes the preview to a surviving outer ancestor.
     shadowHost.remove();
     handle.ensureConnected();
-    expect(wrapperOf(handle).parentElement).toBe(host);
+    expect(handle.element.parentElement).toBe(host);
   });
 
   it('writes only the geometry contract inline, parked off-screen', () => {
     const handle = clone(createSource());
 
-    // Geometry only — any visual property written inline would beat every
-    // consumer rule keyed on `[data-drag-preview]`.
+    // Geometry only. A visual property written inline would beat every consumer
+    // rule keyed on `[data-drag-preview]`.
     const { style } = handle.element;
     expect(style.position).toBe('fixed');
     expect(style.top).toBe('0px');
     expect(style.left).toBe('0px');
+    // A source `right` would over-constrain the box, and a right-to-left page
+    // would then drop `left`.
+    expect(style.right).toBe('auto');
+    expect(style.bottom).toBe('auto');
     // Margins are not part of the measured rect and would shift the preview off
     // its transform anchor.
     expect(style.margin).toBe('0px');
     // `elementFromPoint` must see through the preview to the drop targets below.
     expect(style.pointerEvents).toBe('none');
     expect(style.willChange).toBe('translate');
-    // Parked off-screen until the first frame positions it. `translate` rather
-    // than `transform`, so a consumer `rotate`/`scale` composes about the box.
+    // Parked off-screen until the first frame positions it. Uses `translate`, not
+    // `transform`, so a consumer `rotate`/`scale` composes about the box.
     expect(style.translate).toBe('-10000px -10000px');
-    expect(style.zIndex).toBe('2147483647');
-    // The clone keeps the box it had in the layout it just left; min/max clamps
-    // from the app's CSS must not resize it out of that box.
+    // The clone keeps its size from the source layout. Min/max constraints from
+    // the app's CSS must not resize it.
     expect(style.minWidth).toBe('0px');
     expect(style.maxWidth).toBe('none');
     expect(style.minHeight).toBe('0px');
@@ -181,9 +178,9 @@ describe('createClonedDragPreviewElement', () => {
 
   describe('sourceRect', () => {
     /**
-     * Give `source` a transformed layout: `rect` is what `getBoundingClientRect`
-     * reports (the transformed AABB) and `layout` its untransformed border box,
-     * the way a browser would report them for a scaled element.
+     * Give `source` a transformed layout, as a browser reports it for a scaled
+     * element. `rect` is what `getBoundingClientRect` returns (the transformed
+     * bounding box), and `layout` is its untransformed border box.
      */
     function mockTransformedLayout(
       source: HTMLElement,
@@ -202,8 +199,8 @@ describe('createClonedDragPreviewElement', () => {
 
     it('re-centres the untransformed size on the transformed box, so the preview does not jump', () => {
       const source = createSource();
-      // A 100x50 card at (100, 100), scaled 1.08 about its centre (150, 125):
-      // the AABB grows to 108x54 and its top-left moves to (96, 98).
+      // A 100x50 card at (100, 100), scaled 1.08 about its center (150, 125). The
+      // bounding box grows to 108x54 and its top-left moves to (96, 98).
       mockTransformedLayout(
         source,
         { x: 96, y: 98, width: 108, height: 54 },
@@ -215,10 +212,10 @@ describe('createClonedDragPreviewElement', () => {
 
       const handle = clone(source);
 
-      // The preview renders untransformed, so its rect has to be the *untransformed*
-      // box — size and origin both. Pairing the untransformed size with the
-      // transformed AABB's top-left anchored the preview against a box it doesn't
-      // own, snapping it up-and-left by 4% of the card on pickup.
+      // The preview renders untransformed, so its rect must be the untransformed
+      // box, in both size and origin. Pairing the untransformed size with the
+      // transformed box's top-left would snap the preview up and left by 4% of the
+      // card on pickup.
       expect(handle.sourceRect.width).toBe(100);
       expect(handle.sourceRect.height).toBe(50);
       expect(handle.sourceRect.x).toBe(100);
@@ -231,8 +228,8 @@ describe('createClonedDragPreviewElement', () => {
 
       const handle = clone(source);
 
-      // Not `offsetWidth`, which rounds to an integer: an untransformed source's
-      // own rect is exact, and the preview should keep its subpixel size.
+      // Not `offsetWidth`, which rounds to an integer. An untransformed source's
+      // rect is exact, and the preview keeps its subpixel size.
       expect(handle.sourceRect.x).toBe(10);
       expect(handle.sourceRect.y).toBe(20);
       expect(handle.sourceRect.width).toBe(100.5);
@@ -241,7 +238,8 @@ describe('createClonedDragPreviewElement', () => {
 
     it.each([
       ['the translate longhand', () => ({ translate: '10px 5px' })],
-      ['a translate-only transform', () => ({ transform: 'translate(10px, 5px)' })],
+      // In the matrix form a browser resolves the computed `transform` to.
+      ['a translate-only transform', () => ({ transform: 'matrix(1, 0, 0, 1, 10, 5)' })],
     ])('treats %s as untransformed, since it does not resize the box', (_label, style) => {
       const source = createSource();
       Object.assign(source.style, style());
@@ -254,9 +252,9 @@ describe('createClonedDragPreviewElement', () => {
       const handle = clone(source);
 
       // Translation moves the box without resizing it, so the rect already
-      // describes the preview's own box — origin included, since the offset is
-      // baked into it, the engine's positioning write overwrites the clone's
-      // `translate`, and its `transform` is neutralized.
+      // describes the preview's box, origin included. The rect contains the
+      // offset, the engine's positioning overwrites the clone's `translate`, and
+      // its `transform` is neutralized.
       expect(handle.sourceRect.x).toBe(20);
       expect(handle.sourceRect.y).toBe(25);
       expect(handle.sourceRect.width).toBe(100.5);
@@ -275,25 +273,32 @@ describe('createClonedDragPreviewElement', () => {
     expect(handle.element).not.toHaveAttribute('data-dragging');
   });
 
-  it('removes scripts, which would otherwise re-execute when the clone is inserted', () => {
-    // `cloneNode` does not copy a script's "already started" flag.
+  it('never inherits data-settling from a source whose previous preview is settling', () => {
+    const source = createSource();
+    source.setAttribute('data-settling', '');
+
+    const handle = clone(source);
+
+    expect(handle.element).not.toHaveAttribute('data-settling');
+  });
+
+  it('removes descendant scripts from the preview', () => {
     const handle = clone(createSource('<span>hi</span><script>window.ran = true;</script>'));
 
     expect(handle.element.querySelector('script')).toBeNull();
     expect(handle.element.querySelector('span')).not.toBeNull();
   });
 
-  it('copies live state before removing scripts, so the node zip stays aligned', () => {
-    // `copyLiveState` zips the source and clone trees by index; removing the
-    // clone's <script> first would shift every clone node after it by one, and
-    // the typed value would land on the wrong element (or nowhere).
-    const source = createSource('<script>window.ran = true;</script><input type="text" />');
-    source.querySelector<HTMLInputElement>('input')!.value = 'typed';
+  it('preserves live select state when removing scripts', () => {
+    const source = createSource(
+      '<script>window.ran = true;</script><select><option>a</option><option>b</option></select>',
+    );
+    source.querySelector('select')!.selectedIndex = 1;
 
     const handle = clone(source);
 
     expect(handle.element.querySelector('script')).toBeNull();
-    expect(handle.element.querySelector<HTMLInputElement>('input')!.value).toBe('typed');
+    expect(handle.element.querySelector('select')!.selectedIndex).toBe(1);
   });
 
   it('neuters iframes so the clone does not refetch or re-run the embedded document', () => {
@@ -303,9 +308,41 @@ describe('createClonedDragPreviewElement', () => {
 
     const frame = handle.element.querySelector('iframe')!;
     expect(frame).not.toHaveAttribute('src');
-    // `srcdoc` wins over `src`; left in place, inserting the clone would
-    // re-execute the embedded document once per drag.
+    // `srcdoc` takes precedence over `src`. Left in place, inserting the clone
+    // would load the embedded document on every drag.
     expect(frame).not.toHaveAttribute('srcdoc');
+  });
+
+  it('neuters objects and embeds so the clone does not reload or re-run them', () => {
+    const svg = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>";
+    const handle = clone(
+      createSource(`<object data="${svg}" type="image/svg+xml"></object><embed src="${svg}">`),
+    );
+
+    expect(handle.element.querySelector('object')).not.toHaveAttribute('data');
+    expect(handle.element.querySelector('embed')).not.toHaveAttribute('src');
+  });
+
+  it('loads cloned lazy images eagerly, since the preview starts off-screen', () => {
+    const handle = clone(createSource('<img alt="" loading="lazy" />'));
+
+    expect(handle.element.querySelector('img')).toHaveAttribute('loading', 'eager');
+  });
+
+  it('strips `name` from every cloned element except slots', () => {
+    const handle = clone(
+      createSource(
+        '<details name="faq" open><summary>Q</summary>A</details><form name="settings"></form>' +
+          '<slot name="icon"></slot>',
+      ),
+    );
+
+    // A named `<details>` in the source's exclusive group would close itself, and
+    // a named form would turn `document.settings` into a collection.
+    expect(handle.element.querySelector('details')).not.toHaveAttribute('name');
+    expect(handle.element.querySelector('form')).not.toHaveAttribute('name');
+    // A nameless slot would take the host's unassigned children.
+    expect(handle.element.querySelector('slot')).toHaveAttribute('name', 'icon');
   });
 
   it('strips autoplay from cloned media and blocks its preload', () => {
@@ -324,19 +361,21 @@ describe('createClonedDragPreviewElement', () => {
 
     const handle = clone(source);
 
-    // Duplicate ids would poison `getElementById`, `<label for>` and `aria-labelledby`.
-    expect(handle.element.querySelector('input')!.id).toBe('name-input-drag-preview');
-    expect(handle.element.querySelector('label')!.getAttribute('for')).toBe(
-      'name-input-drag-preview',
-    );
-    expect(handle.element.querySelector('input')!.getAttribute('aria-describedby')).toBe(
-      'hint-drag-preview',
-    );
+    const input = handle.element.querySelector('input')!;
+    const hint = handle.element.querySelector('p')!;
+    expect(input.id).not.toBe('name-input');
+    expect(hint.id).not.toBe('hint');
+    expect(handle.element.querySelector('label')!.getAttribute('for')).toBe(input.id);
+    expect(input.getAttribute('aria-describedby')).toBe(hint.id);
     expect(handle.element.querySelector('input')!.getAttribute('aria-owns')).toBe(
-      'hint-drag-preview external',
+      `${hint.id} external`,
     );
     // The real source still owns the original id.
     expect(document.getElementById('name-input')).toBe(source.querySelector('input'));
+
+    const next = clone(source);
+    expect(next.element.querySelector('input')!.id).not.toBe(input.id);
+    expect(next.element.querySelector('p')!.id).not.toBe(hint.id);
   });
 
   it('rewrites SVG paint-server references to the cloned ids', () => {
@@ -353,15 +392,18 @@ describe('createClonedDragPreviewElement', () => {
 
     const handle = clone(source);
     const path = handle.element.querySelector('path')!;
+    const cropId = handle.element.querySelector('clipPath')!.id;
+    const blurId = handle.element.querySelector('filter')!.id;
 
-    expect(handle.element.querySelector('clipPath')!.id).toBe('crop-drag-preview');
-    expect(handle.element.querySelector('filter')!.id).toBe('blur-drag-preview');
-    expect(path.getAttribute('clip-path')).toBe('url(#crop-drag-preview)');
-    expect(path.getAttribute('style')).toContain("url('#blur-drag-preview')");
-    expect(path.getAttribute('style')).toContain('url(#crop-drag-preview)');
+    expect(cropId).not.toBe('crop');
+    expect(blurId).not.toBe('blur');
+    expect(path.getAttribute('clip-path')).toBe(`url(#${cropId})`);
+    // Browsers re-serialize the rewritten declarations with their own quoting.
+    expect(path.getAttribute('style')).toMatch(new RegExp(`filter: url\\(['"]?#${blurId}['"]?\\)`));
+    expect(path.getAttribute('style')).toMatch(new RegExp(`fill: url\\(['"]?#${cropId}['"]?\\)`));
     const use = handle.element.querySelector('use')!;
-    expect(use.getAttribute('href')).toBe('#crop-drag-preview');
-    expect(use.getAttribute('xlink:href')).toBe('#blur-drag-preview');
+    expect(use.getAttribute('href')).toBe(`#${cropId}`);
+    expect(use.getAttribute('xlink:href')).toBe(`#${blurId}`);
   });
 
   it('uses an inert native placeholder instead of cloning custom-element application code', () => {
@@ -403,9 +445,9 @@ describe('createClonedDragPreviewElement', () => {
     expect(placeholder.style.order).toBe('2');
   });
 
-  it('copies live form state, which cloneNode leaves at its defaults', () => {
+  it('preserves live form state', () => {
     const source = createSource(
-      '<input type="text" /><input type="checkbox" /><select><option>a</option><option>b</option></select><textarea></textarea>',
+      '<input type="text" /><input type="checkbox" /><input type="checkbox" class="Mixed" /><select><option>a</option><option>b</option></select><textarea></textarea>',
     );
     const text = source.querySelector<HTMLInputElement>('input[type=text]')!;
     const checkbox = source.querySelector<HTMLInputElement>('input[type=checkbox]')!;
@@ -415,27 +457,28 @@ describe('createClonedDragPreviewElement', () => {
     checkbox.checked = true;
     select.selectedIndex = 1;
     textarea.value = 'drafted';
+    // A property only. Cloning doesn't carry it.
+    source.querySelector<HTMLInputElement>('.Mixed')!.indeterminate = true;
 
     const handle = clone(source);
 
-    // `cloneNode` copies the `value`/`checked` *attributes* — the defaults — not
-    // what the user actually typed or picked.
     expect(handle.element.querySelector<HTMLInputElement>('input[type=text]')!.value).toBe('typed');
     expect(handle.element.querySelector<HTMLInputElement>('input[type=checkbox]')!.checked).toBe(
       true,
     );
     expect(handle.element.querySelector('select')!.selectedIndex).toBe(1);
     expect(handle.element.querySelector('textarea')!.value).toBe('drafted');
+    expect(handle.element.querySelector<HTMLInputElement>('.Mixed')!.indeterminate).toBe(true);
   });
 
-  it('skips the value copy for file inputs, whose value cannot be set programmatically', () => {
+  it('does not assign a file input value programmatically', () => {
     const source = createSource('<input type="file" /><input type="text" />');
     const fileInput = source.querySelector<HTMLInputElement>('input[type=file]')!;
     const text = source.querySelector<HTMLInputElement>('input[type=text]')!;
     text.value = 'typed';
-    // A chosen file makes the input report `C:\fakepath\…`; assigning that to the
-    // clone throws `InvalidStateError` (jsdom enforces the same rule), which would
-    // abort the whole drag. Fake the selection through the getter.
+    // A chosen file makes the input report `C:\fakepath\…`. Assigning that to the
+    // clone throws `InvalidStateError` (jsdom enforces the same rule) and would
+    // abort the drag. Fake the selection through the getter.
     Object.defineProperty(fileInput, 'value', {
       configurable: true,
       get: () => 'C:\\fakepath\\photo.png',
@@ -463,8 +506,32 @@ describe('createClonedDragPreviewElement', () => {
     }
   });
 
+  it.each(['ancestor', 'explicit'] as const)(
+    'keeps cloned controls out of their %s form without disabling them',
+    (association) => {
+      const form = document.createElement('form');
+      form.id = 'preview-form';
+      host.appendChild(form);
+      const source = createSource('<input name="title" required>');
+      const input = source.querySelector('input')!;
+      if (association === 'ancestor') {
+        form.appendChild(source);
+      } else {
+        input.setAttribute('form', form.id);
+      }
+
+      const handle = clone(source);
+      input.value = 'Corrected after pickup';
+
+      expect(form.checkValidity()).toBe(true);
+      expect(form.elements).toHaveLength(1);
+      expect(Array.from(new FormData(form).entries())).toEqual([['title', input.value]]);
+      expect(handle.element.querySelector('input')).not.toBeDisabled();
+    },
+  );
+
   it('strips `name` from a cloned root control, which querySelectorAll never returns', () => {
-    // The draggable itself is often the control — a whole radio card, a button.
+    // The draggable itself is often the control, such as a radio card or a button.
     const source = document.createElement('input');
     source.type = 'radio';
     source.name = 'plan';
@@ -477,10 +544,10 @@ describe('createClonedDragPreviewElement', () => {
     other.value = 'basic';
     host.appendChild(other);
 
-    const handle = track(createClonedDragPreviewElement(source, null))!;
+    const handle = track(clonePreview(source, null))!;
 
-    // A named clone joins the radio group, which unchecks the real source the
-    // moment it is inserted — and leaves the group empty when it is removed.
+    // A named clone joins the radio group. Inserting it unchecks the real source,
+    // and removing it leaves the group with nothing checked.
     expect(handle.element).not.toHaveAttribute('name');
     expect(source.checked).toBe(true);
 
@@ -494,15 +561,15 @@ describe('createClonedDragPreviewElement', () => {
     const source = document.createElement('div');
     inner.appendChild(source);
 
-    const handle = track(createClonedDragPreviewElement(source, null))!;
-    expect(wrapperOf(handle).parentElement).toBe(inner);
+    const handle = track(clonePreview(source, null))!;
+    expect(handle.element.parentElement).toBe(inner);
 
-    // A React commit tears the host out *after* the callback that triggered it,
-    // so nothing calls `ensureConnected`. The observer repairs it anyway.
+    // A React commit tears the host out after the callback that triggered it, so
+    // nothing calls `ensureConnected`. The observer repairs it anyway.
     inner.remove();
     await Promise.resolve();
 
-    expect(wrapperOf(handle).parentElement).toBe(host);
+    expect(handle.element.parentElement).toBe(host);
   });
 
   it('re-homes the clone to the nearest surviving ancestor when its host is torn out', () => {
@@ -511,20 +578,47 @@ describe('createClonedDragPreviewElement', () => {
     const source = document.createElement('div');
     inner.appendChild(source);
 
-    const handle = track(createClonedDragPreviewElement(source, null))!;
-    expect(wrapperOf(handle).parentElement).toBe(inner);
+    const handle = track(clonePreview(source, null))!;
+    expect(handle.element.parentElement).toBe(inner);
 
     // A virtualizer recycling the row takes the clone's host with it.
     inner.remove();
     handle.ensureConnected();
 
-    expect(wrapperOf(handle).parentElement).toBe(host);
+    expect(handle.element.parentElement).toBe(host);
+  });
+
+  it('keeps the number of an ordered list item', () => {
+    // The clone joins the list after every item. Without its own `value`, the list
+    // would number it as its last item.
+    const list = document.createElement('ol');
+    list.start = 3;
+    list.innerHTML = '<li>a</li><li>b</li><li>c</li>';
+    host.appendChild(list);
+    const item = list.children[1] as HTMLElement;
+
+    const handle = track(clonePreview(item, null))!;
+
+    expect(handle.element.parentElement).toBe(list);
+    expect(handle.element.localName).toBe('li');
+    expect(handle.element.getAttribute('value')).toBe('4');
+  });
+
+  it('gives the clone its source number in a reversed list', () => {
+    const list = document.createElement('ol');
+    list.reversed = true;
+    list.innerHTML = '<li>a</li><li>b</li><li>c</li>';
+    host.appendChild(list);
+
+    const handle = track(clonePreview(list.children[0] as HTMLElement, null))!;
+
+    expect(handle.element.getAttribute('value')).toBe('3');
   });
 
   it('returns null when there is nothing to clone into', () => {
     const detached = document.createElement('div');
 
-    expect(createClonedDragPreviewElement(detached, null)).toBeNull();
+    expect(clonePreview(detached, null)).toBeNull();
   });
 
   it('removes the clone on destroy, idempotently', () => {

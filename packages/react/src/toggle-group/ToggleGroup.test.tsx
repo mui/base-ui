@@ -1,11 +1,12 @@
 import { expect, vi, describe, it } from 'vitest';
 import { act, screen } from '@mui/internal-test-utils';
-import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import type { TextDirection } from '@base-ui/react/direction-provider';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toggle } from '@base-ui/react/toggle';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { type Orientation } from '../internals/types';
+import type { Orientation } from '../internals/types';
 
 describe('<ToggleGroup />', () => {
   const { render } = createRenderer();

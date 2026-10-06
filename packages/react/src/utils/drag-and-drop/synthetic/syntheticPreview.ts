@@ -1,215 +1,294 @@
 import { clamp } from '@base-ui/utils/clamp';
-import { ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { contains } from '@base-ui/utils/shadowDom';
 import { getFiniteAnimations } from '../../getFiniteAnimations';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
-import { measurePreviewSource, type DragPreviewElementHandle } from './cloneDragPreview';
-import type { DragModifier, DragPosition } from '../../../types/drag';
+import { createDragPreviewElement, measurePreviewSource } from './cloneDragPreview';
+import type { DragPreviewElementHandle, PreviewAnchor } from './cloneDragPreview';
+import { copyPreviewContent, createPreviewContentContainer } from './previewContent';
+import type { PreviewContent } from './previewContent';
+import type { DraggablePosition } from '../../../draggable/DraggableProvider';
+import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
 import type { DragModifierKeys } from '../utils';
 import { applyDragModifiers } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
-import { DRAGGING_ATTR, ENDING_STYLE_ATTR } from '../dragAttributes';
+import { setSourceSettling } from '../settlingSources';
+import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
+import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
 import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
 
-const ZERO_OFFSET: DragPosition = { x: 0, y: 0 };
-/** No ancestor transform: what `getElementScale` reports for an unscaled element. */
-const DEFAULT_SCALE: DragPosition = { x: 1, y: 1 };
+const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
+/** What `getElementScale` reports for an element with no ancestor transform. */
+const DEFAULT_SCALE: DraggablePosition = { x: 1, y: 1 };
 const MIN_SETTLING_WATCHDOG_MS = 1000;
 const MAX_SETTLING_WATCHDOG_MS = 30000;
-
-// A new pickup from the same source interrupts its previous drop transition.
-// Shared across bundles for the same reason the active drag engine state is.
-const endingPreviews = getSharedSlot(
-  'dragPreview.endingSources',
-  () => new WeakMap<Element, () => void>(),
-);
 
 export interface SyntheticPreviewSourceIdentity {
   kind: symbol;
   previewKey: string | number | undefined;
-  /** The static declaration, not the value returned by `getPayload`. */
+  /** The declared payload, used to reconnect the preview after a source remounts. */
   payload: unknown;
 }
 
-interface EndingPreviewRegistration {
+/** A released preview still running its drop transition onto `source`. */
+interface EndingPreview {
   identity: SyntheticPreviewSourceIdentity;
-  sourceElement: Element;
+  readonly source: Element;
   retarget(element: HTMLElement): void;
+  finish(): void;
 }
 
-const endingPreviewRegistrations = getSharedSlot(
-  'dragPreview.endingRegistrations',
-  () => new Set<EndingPreviewRegistration>(),
-);
+// Previews still running their drop transition. A new pickup from the same source
+// interrupts the previous one. Shared across bundles, like the active drag state.
+const endingPreviews = getSharedSlot('dragPreview.ending', () => new Set<EndingPreview>());
+
+/** Whether a transition with a duration covers `translate`. */
+function transitionsTranslate(style: CSSStyleDeclaration): boolean {
+  const durations = style.transitionDuration.split(',');
+  return style.transitionProperty
+    .split(',')
+    .some(
+      (name, index) =>
+        (name.trim() === 'all' || name.trim() === 'translate') &&
+        Number.parseFloat(durations[index % durations.length]) > 0,
+    );
+}
+
+function findEndingPreview(source: Element): EndingPreview | undefined {
+  for (const entry of endingPreviews) {
+    if (entry.source === source) {
+      return entry;
+    }
+  }
+  return undefined;
+}
 
 /**
- * Follow a settling clone to a draggable that remounted as part of the drop commit.
+ * Finish previews settling onto the source or its descendants before pickup.
+ * Their state attributes affect measurement, and a child's preview would be
+ * included in a parent clone.
+ */
+export function finishEndingPreview(source: Element): void {
+  for (const entry of endingPreviews) {
+    if (contains(source, entry.source)) {
+      entry.finish();
+    }
+  }
+}
+
+/**
+ * Finish every settling clone. Test-only, so a test that ends right after a drop
+ * does not leave its clone in the document for the next one.
+ */
+export function finishAllEndingPreviewsForTests(): void {
+  for (const entry of Array.from(endingPreviews)) {
+    entry.finish();
+  }
+}
+
+/**
+ * Point a settling clone at a draggable that remounted in the drop commit.
  * A cross-container move creates a new React subtree, so the active-drag retargeting
- * path cannot connect the old and new ref callbacks itself.
+ * path cannot link the old and new ref callbacks.
  */
 export function retargetEndingPreviewSource(
   element: HTMLElement,
   identity: SyntheticPreviewSourceIdentity,
 ): void {
-  for (const registration of endingPreviewRegistrations) {
-    if (registration.sourceElement.isConnected || registration.identity.kind !== identity.kind) {
+  for (const entry of endingPreviews) {
+    if (entry.source.isConnected || entry.identity.kind !== identity.kind) {
       continue;
     }
 
     const sameDeclaredPayload =
-      identity.payload !== undefined && Object.is(registration.identity.payload, identity.payload);
+      identity.payload !== undefined && Object.is(entry.identity.payload, identity.payload);
     const samePreviewKey =
       identity.previewKey !== undefined &&
-      Object.is(registration.identity.previewKey, identity.previewKey);
+      Object.is(entry.identity.previewKey, identity.previewKey);
     if (sameDeclaredPayload || samePreviewKey) {
-      registration.retarget(element);
+      entry.retarget(element);
       return;
     }
   }
 }
 
+/** How a custom preview's content is shown, set up at pickup by `attachDragPreview`. */
+export interface PreviewContentOptions {
+  /** Where the copy of the content goes. Measured at pickup. */
+  anchor: PreviewAnchor;
+  /**
+   * Resolve the preview's offset from its first copy, once it has a size. Called again
+   * only after the content declined the preview and rendered something new.
+   */
+  resolveOffset: (element: HTMLElement) => DraggablePosition;
+}
+
+/**
+ * `modifiers` are the compiled preview-level modifiers, or `null` for none. They
+ * constrain where the preview is drawn, not the drag itself.
+ */
 export function createSyntheticPreview(
   initialSourceElement: Element,
-  sourceIdentity?: SyntheticPreviewSourceIdentity,
+  sourceIdentity: SyntheticPreviewSourceIdentity,
+  modifiers: ReadonlyArray<DraggableRootModifier> | null,
 ): SyntheticPreviewHandle {
-  // Re-pointed when a virtualizer remounts the dragged item to a fresh node, so the
-  // drag-state attribute follows the live element the way `isDragging` does.
+  // Re-pointed when a virtualizer remounts the dragged item to a new node, so the
+  // drag-state attribute follows the live element, as `isDragging` does.
   let sourceElement: Element = initialSourceElement;
   let destroyed = false;
   let preparedForDrop = false;
-  let endingCleanup: (() => void) | null = null;
+  // Whether the release dropped on a target.
+  let dropped = false;
+  // Whether the released preview is still running its drop transition.
+  let settling = false;
 
-  // The element that follows the pointer: a clone of the source, or the host a
-  // `Draggable.Preview` renders into. Either way it lives in the source's own DOM
-  // position, and the sensor drives `update`.
+  // The element that follows the pointer: a clone of the source, or a copy of a
+  // custom preview's content. It lives beside the source or in the configured
+  // `container`. The sensor moves it through `update`.
   let previewElement: DragPreviewElementHandle | null = null;
+  // The content of a custom preview and how it is shown. `null` for a clone.
+  let content: (PreviewContentOptions & PreviewContent) | null = null;
   let previewOffsetX = 0;
   let previewOffsetY = 0;
   let lastX = 0;
   let lastY = 0;
   let hasPosition = false;
-  // Opt-in preview-level `modifiers`, compiled to a non-empty list, or
-  // `null` for none. Constrains where the preview is drawn without touching the
-  // drag itself (the root's `modifiers` does that).
-  let modifiers: ReadonlyArray<DragModifier> | null = null;
   // The preview's proposed top-left on the first frame positioned with the
-  // current element and offset — the reference a preview-level axis lock or grid
-  // snaps against. Reset whenever the element or offset changes (a preview
-  // adopted mid-drag, a callback offset resolving late), so the anchor is never
-  // a proposal computed from a stale offset.
-  let initialProposed: DragPosition | null = null;
-  // The ancestor scale applied to the preview, measured once rather than per frame:
-  // `getElementScale` walks to the root reading computed styles, which is a style
-  // recalc this would otherwise pay for on every positioned frame. The scale can only
-  // change if an ancestor's transform does, which no drag does mid-flight.
+  // current offset. Preview-level axis locks and grids snap against it. Reset
+  // whenever the offset changes (a callback offset resolving late), so the anchor
+  // never comes from a stale offset.
+  let initialProposed: DraggablePosition | null = null;
+  // The ancestor scale applied to the preview. `getElementScale` walks to the root
+  // reading computed styles, so it is measured once instead of on every frame. It
+  // only changes if an ancestor transform changes, which does not happen mid-drag.
   //
-  // Size-independent, so it can be read the first time a frame needs it: a declared
-  // preview is handed over as an empty host that React fills afterwards, and the
-  // transforms above it are the same either way. Only the modifiers consume it, so the
-  // read stays behind that branch. Rendered is the one thing the read does wait for —
-  // browsers resolve computed transforms to matrices only for rendered elements, so
-  // measuring a host a consumer re-render tore out (see `ensureConnected`), or one
-  // sitting under `display: none`, would cache `1` for the rest of the drag instead of
-  // retrying once it is drawn. `getClientRects` is that signal without a size
-  // requirement: an empty host still reports its box, a hidden or detached one
-  // reports none.
-  let previewScale: DragPosition = DEFAULT_SCALE;
-  let previewScaleMeasured = false;
-  // The last coordinates written to the current preview. Axis locks and grid
-  // snaps often resolve several pointer samples to the same point; avoid
-  // invalidating style for an identical `translate`.
-  let positionedElement: HTMLElement | null = null;
-  let positionedX = 0;
-  let positionedY = 0;
-  // The modifier keys of the event behind the latest position, so preview modifiers see
-  // the same key state root modifiers do. Held here rather than passed down each frame
-  // because `positionPreviewElement` is also called from `setPreviewElement`, which has
-  // no event of its own.
+  // Only the modifiers use it, so it is read lazily in that branch. It does need a
+  // rendered element. Browsers resolve computed transforms to matrices only for
+  // rendered elements, so a preview a re-render tore out (see `ensureConnected`),
+  // or one under `display: none`, would cache `1` for the rest of the drag.
+  // `getClientRects` checks this without requiring a size.
+  let previewScale: DraggablePosition | null = null;
+  // The modifier keys of the event behind the latest position, so preview modifiers
+  // see the same key state as root modifiers. Stored here because
+  // `positionPreviewElement` also runs from `setPreviewOffset`, which has no event.
   let lastKeys: DragModifierKeys = NO_MODIFIER_KEYS;
 
   function positionPreviewElement(): void {
-    if (previewElement) {
-      // A virtualizer can recycle the source's row (and its parent) mid-drag,
-      // taking the clone's host with it. Re-home it before writing the position.
-      previewElement.ensureConnected();
-      let proposedX = lastX - previewOffsetX;
-      let proposedY = lastY - previewOffsetY;
-      initialProposed ??= { x: proposedX, y: proposedY };
-      if (modifiers) {
-        const currentPreview = previewElement;
-        const { element } = currentPreview;
-        if (!previewScaleMeasured && element.getClientRects().length > 0) {
-          previewScale = getElementScale(element);
-          previewScaleMeasured = true;
-        }
-        const constrained = applyDragModifiers(
-          modifiers,
-          { x: proposedX, y: proposedY },
-          {
-            initialPoint: initialProposed,
-            input: { x: lastX, y: lastY },
-            sourceElement: sourceElement as HTMLElement,
-            sourceRect: previewElement.sourceRect,
-            // The preview is what these modifiers move, so a step in "its own units" is
-            // measured against the preview rather than the source.
-            scale: previewScale,
-            // `point` is the top-left itself here, so the offset is zero.
-            previewOffset: ZERO_OFFSET,
-            keys: lastKeys,
-            ownerWindow: ownerWindow(element),
-            getPreviewRect: () => element.getBoundingClientRect(),
-          },
-        );
-        if (destroyed || previewElement !== currentPreview) {
-          return;
-        }
-        proposedX = constrained.x;
-        proposedY = constrained.y;
+    if (!previewElement || !hasPosition) {
+      return;
+    }
+    const currentPreview = previewElement;
+    const element = currentPreview.element;
+    // A virtualizer can recycle the source's row (and its parent) mid-drag,
+    // taking the preview's parent with it. Re-home it before writing the position.
+    currentPreview.ensureConnected();
+    let proposedX = lastX - previewOffsetX;
+    let proposedY = lastY - previewOffsetY;
+    initialProposed ??= { x: proposedX, y: proposedY };
+    if (modifiers) {
+      if (previewScale === null && element.getClientRects().length > 0) {
+        previewScale = getElementScale(element);
       }
-      // The `translate` property, not `transform`: the individual properties
-      // compose as `translate × rotate × scale × transform`, so `translate` is
-      // outermost and a consumer `rotate`/`scale` on the preview spins it about
-      // its own box. Through `transform`, the shared `transform-origin` sits at
-      // the box's *layout* position (the viewport corner — the preview is `fixed`
-      // at 0,0), so a `rotate: 4deg` would swing the translated preview around a
-      // pivot hundreds of pixels away, dozens of pixels off the pointer.
-      const element = previewElement.element;
-      proposedX /= previewElement.positionScale.x;
-      proposedY /= previewElement.positionScale.y;
-      if (element !== positionedElement || proposedX !== positionedX || proposedY !== positionedY) {
-        element.style.translate = `${proposedX}px ${proposedY}px`;
-        positionedElement = element;
-        positionedX = proposedX;
-        positionedY = proposedY;
+      const constrained = applyDragModifiers(
+        modifiers,
+        { x: proposedX, y: proposedY },
+        {
+          initialPoint: initialProposed,
+          input: { x: lastX, y: lastY },
+          sourceElement: sourceElement as HTMLElement,
+          sourceRect: currentPreview.sourceRect,
+          // These modifiers move the preview, so a step in its own units uses the
+          // preview's scale, not the source's.
+          scale: previewScale ?? DEFAULT_SCALE,
+          // `point` is the top-left itself here, so the offset is zero.
+          previewOffset: ZERO_OFFSET,
+          keys: lastKeys,
+          ownerWindow: ownerWindow(element),
+          getPreviewRect: () => element.getBoundingClientRect(),
+        },
+      );
+      if (destroyed || previewElement !== currentPreview) {
+        return;
       }
+      proposedX = constrained.x;
+      proposedY = constrained.y;
+    }
+    currentPreview.setPosition(proposedX, proposedY);
+  }
+
+  function setPreviewOffset(offset: DraggablePosition): void {
+    previewOffsetX = offset.x;
+    previewOffsetY = offset.y;
+    initialProposed = null;
+    if (!destroyed) {
+      positionPreviewElement();
     }
   }
 
+  function removePreviewElement(): void {
+    previewElement?.destroy();
+    previewElement = null;
+    previewScale = null;
+    // The offsets described the removed box. Left set, rect modifiers
+    // (`restrictToElement`, `restrictToWindowEdges`) would keep clamping against
+    // it, for example after a `Draggable.Preview` renders `null`.
+    previewOffsetX = 0;
+    previewOffsetY = 0;
+  }
+
+  function setPreviewElement(next: DragPreviewElementHandle): void {
+    const previous = previewElement;
+    previewElement = next;
+    previewScale = null;
+    positionPreviewElement();
+    previous?.destroy();
+  }
+
+  /** Show a new copy of the custom content, or remove the preview when it is empty. */
+  function showContent(root: HTMLElement | null): void {
+    if (destroyed || !content) {
+      return;
+    }
+    if (root === null) {
+      removePreviewElement();
+      return;
+    }
+    const next = createDragPreviewElement(sourceElement as HTMLElement, content.anchor, root);
+    if (!next) {
+      return;
+    }
+    if (previewElement) {
+      setPreviewElement(next);
+      return;
+    }
+    previewElement = next;
+    previewScale = null;
+    // Consumer code. A cancel from it destroys this preview.
+    const offset = content.resolveOffset(next.element);
+    if (destroyed || previewElement !== next) {
+      return;
+    }
+    setPreviewOffset(offset);
+  }
+
   function retargetSource(element: HTMLElement): void {
-    if ((destroyed && endingCleanup === null) || element === sourceElement) {
+    if ((destroyed && !settling) || element === sourceElement) {
       return;
     }
 
-    const previousSource = sourceElement;
-    previousSource.removeAttribute(DRAGGING_ATTR);
-    previousSource.removeAttribute(ENDING_STYLE_ATTR);
-    if (endingCleanup && endingPreviews.get(previousSource) === endingCleanup) {
-      endingPreviews.delete(previousSource);
+    sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
+    setSourceSettling(sourceElement, false);
+    if (settling) {
+      // A fresh drag from the destination can begin before this one settles.
+      // It owns that source now, so finish the older preview first.
+      findEndingPreview(element)?.finish();
     }
 
     sourceElement = element;
-    if (endingCleanup) {
-      // A fresh drag from the destination can begin before this one settles.
-      // It owns that source now, so finish the older preview first.
-      const interrupted = endingPreviews.get(sourceElement);
-      if (interrupted && interrupted !== endingCleanup) {
-        interrupted();
-      }
-      endingPreviews.set(sourceElement, endingCleanup);
-    }
-    sourceElement.setAttribute(DRAGGING_ATTR, '');
-    if (endingCleanup) {
-      sourceElement.setAttribute(ENDING_STYLE_ATTR, '');
+    sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
+    if (settling) {
+      setSourceSettling(sourceElement, true);
     }
   }
 
@@ -224,64 +303,54 @@ export function createSyntheticPreview(
       hasPosition = true;
       positionPreviewElement();
     },
-    setPreviewElement(preview: DragPreviewElementHandle | null, offset?: DragPosition): void {
-      if (destroyed) {
-        preview?.destroy();
+    setPreviewElement,
+    attachContent(options: PreviewContentOptions): void {
+      const parent = options.anchor.hosts[0];
+      content = {
+        ...options,
+        container: createPreviewContentContainer(ownerDocument(sourceElement), parent),
+        parent,
+        copy: null,
+      };
+    },
+    getContent(): PreviewContent | null {
+      return content;
+    },
+    syncContent(): void {
+      if (destroyed || !content) {
         return;
       }
-      previewElement?.destroy();
-      previewElement = preview;
-      positionedElement = null;
-      previewScale = DEFAULT_SCALE;
-      previewScaleMeasured = false;
-      previewOffsetX = offset?.x ?? 0;
-      previewOffsetY = offset?.y ?? 0;
-      initialProposed = null;
-      if (preview && hasPosition) {
-        positionPreviewElement();
+      if (content.update) {
+        content.update();
+      } else if (!content.copy) {
+        // The content is copied once. Later renders reach the preview only through
+        // `Draggable.updatePreview()`.
+        content.copy = copyPreviewContent(content);
+        showContent(content.copy.root);
       }
     },
+    showContent,
     markSourceDragging(): void {
-      endingPreviews.get(sourceElement)?.();
-      // Set only once the preview is built: a `[data-dragging]` rule that changes
-      // the source's geometry (or hides it outright) would otherwise corrupt the
-      // measurement the clone is sized from.
-      sourceElement.setAttribute(DRAGGING_ATTR, '');
+      finishEndingPreview(sourceElement);
+      // Set only after the preview is built. A `[data-dragging]` rule that changes
+      // the source's geometry or hides it would otherwise corrupt the measurement
+      // the clone is sized from.
+      sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
     },
     retargetSource,
-    setPreviewOffset(offset: DragPosition): void {
-      // A `Draggable.Preview` whose offset is a callback can only be resolved once React
-      // has rendered its content and the element has a size, which happens after
-      // the engine placed it. Re-anchor it then, without waiting for a pointer move
-      previewOffsetX = offset.x;
-      previewOffsetY = offset.y;
-      initialProposed = null;
-      if (!destroyed && hasPosition) {
-        positionPreviewElement();
-      }
-    },
-    removePreviewElement(): void {
-      previewElement?.destroy();
-      previewElement = null;
-      positionedElement = null;
-      // The offsets described the box that just went away. Leaving them set
-      // makes rect modifiers (`restrictToElement`, `restrictToWindowEdges`)
-      // keep clamping against a phantom preview after, say, a
-      // `Draggable.Preview` rendered `null`.
-      previewOffsetX = 0;
-      previewOffsetY = 0;
-    },
+    setPreviewOffset,
+    removePreviewElement,
     getPreviewElement(): DragPreviewElementHandle | null {
       return previewElement;
     },
-    getPreviewOffset(): DragPosition {
+    getPreviewOffset(): DraggablePosition {
       return { x: previewOffsetX, y: previewOffsetY };
-    },
-    setModifiers(next: ReadonlyArray<DragModifier> | null): void {
-      modifiers = next;
     },
     prepareForDrop(): void {
       preparedForDrop = true;
+    },
+    markDropped(): void {
+      dropped = true;
     },
     destroy(): void {
       if (destroyed) {
@@ -291,60 +360,71 @@ export function createSyntheticPreview(
       const endingPreview = previewElement;
       previewElement = null;
 
-      // Custom previews are owned by React, whose content is released with the
-      // drag session. Cloned previews are entirely engine-owned and can remain
-      // mounted until a consumer-authored drop transition finishes.
-      if (preparedForDrop && endingPreview && !endingPreview.isHost) {
+      // The engine owns the preview element in both modes, so it can stay mounted
+      // until the consumer's drop transition finishes.
+      if (preparedForDrop && endingPreview) {
         const element = endingPreview.element;
         const frame = new WindowAnimationFrame(ownerWindow(element));
-        let registration: EndingPreviewRegistration | null = null;
-
         const settlingWatchdog = new WindowTimeout(ownerWindow(element));
-        const cleanup = () => {
-          frame.cancel();
-          settlingWatchdog.clear();
-          endingPreview.destroy();
-          if (registration) {
-            endingPreviewRegistrations.delete(registration);
-          }
-          if (endingPreviews.get(sourceElement) === cleanup) {
-            endingPreviews.delete(sourceElement);
-            sourceElement.removeAttribute(DRAGGING_ATTR);
-            sourceElement.removeAttribute(ENDING_STYLE_ATTR);
-          }
-          endingCleanup = null;
+        const entry: EndingPreview = {
+          identity: sourceIdentity,
+          get source() {
+            return sourceElement;
+          },
+          retarget: retargetSource,
+          finish() {
+            if (!endingPreviews.delete(entry)) {
+              return;
+            }
+            frame.cancel();
+            settlingWatchdog.clear();
+            endingPreview.destroy();
+            sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
+            setSourceSettling(sourceElement, false);
+            settling = false;
+          },
         };
+        const cleanup = () => entry.finish();
 
-        endingCleanup = cleanup;
-        endingPreviews.get(sourceElement)?.();
-        endingPreviews.set(sourceElement, cleanup);
-        sourceElement.setAttribute(ENDING_STYLE_ATTR, '');
-        if (sourceIdentity) {
-          registration = {
-            identity: sourceIdentity,
-            sourceElement,
-            retarget(elementToAdopt) {
-              retargetSource(elementToAdopt);
-              registration!.sourceElement = elementToAdopt;
-            },
-          };
-          endingPreviewRegistrations.add(registration);
-        }
-        element.setAttribute(ENDING_STYLE_ATTR, '');
-        endingPreview.prepareForDrop?.();
+        findEndingPreview(sourceElement)?.finish();
+        settling = true;
+        endingPreviews.add(entry);
+        setSourceSettling(sourceElement, true);
 
-        // Drop-handler updates scheduled later in the release event commit before
-        // this frame. Measure then, so the destination is the source's final
-        // slot rather than the slot it occupied when the pointer came up.
+        // The ending starts in the next frame, before it paints. The release is
+        // resolved by then, so `[data-dropped]` applies along with
+        // `[data-ending-style]` and no style is computed with one but not the other.
+        // State updates that drop handlers schedule later in the release event are
+        // committed too, so measuring targets the source's final slot.
         frame.request(() => {
           endingPreview.ensureConnected();
-          if (!sourceElement.isConnected || !element.isConnected) {
+          if (!element.isConnected) {
             cleanup();
             return;
           }
-
-          const { sourceRect: destination } = measurePreviewSource(sourceElement as HTMLElement);
-          element.style.translate = `${destination.left / endingPreview.positionScale.x}px ${destination.top / endingPreview.positionScale.y}px`;
+          // Commit the position the drag left the preview at, so an ending transition
+          // animates only what changes from here.
+          const style = ownerWindow(element).getComputedStyle(element);
+          void style.translate;
+          element.setAttribute(DraggablePreviewDataAttributes.endingStyle, '');
+          if (dropped) {
+            element.setAttribute(DraggablePreviewDataAttributes.dropped, '');
+          }
+          endingPreview.prepareForDrop();
+          // Only a `translate` transition animates the move to the source's final
+          // position. Without one, the preview ends where it was released, so an
+          // ending fade runs there instead of at the source. It ends in place too when
+          // the source is gone, or renders no box while the preview does, such as one
+          // a `[data-dragging] { display: none }` rule hides: it then measures as a
+          // zero rect at the viewport corner.
+          if (
+            transitionsTranslate(style) &&
+            sourceElement.isConnected &&
+            (sourceElement.getClientRects().length > 0 || element.getClientRects().length === 0)
+          ) {
+            const { sourceRect: destination } = measurePreviewSource(sourceElement as HTMLElement);
+            endingPreview.setPosition(destination.left, destination.top);
+          }
 
           const animations =
             globalThis.BASE_UI_ANIMATIONS_DISABLED || !element.getAnimations
@@ -370,7 +450,7 @@ export function createSyntheticPreview(
       }
 
       endingPreview?.destroy();
-      sourceElement.removeAttribute(DRAGGING_ATTR);
+      sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
     },
   };
 }
@@ -379,10 +459,22 @@ export interface SyntheticPreviewHandle {
   /** `keys` are the modifier keys of the event behind this position, for preview modifiers. */
   update(clientX: number, clientY: number, keys?: DragModifierKeys): void;
   /**
-   * Adopt the preview element to position with the drag, or `null` to release it.
+   * Adopt a preview, positioning it before destroying the previous element.
    * The engine writes only its `translate`.
    */
-  setPreviewElement(preview: DragPreviewElementHandle | null, offset?: DragPosition): void;
+  setPreviewElement(preview: DragPreviewElementHandle): void;
+  /**
+   * Show a custom preview's content. The React layer renders it into
+   * `getContent().container`, and the copy is built once it has. Until then, the drag
+   * has no preview element.
+   */
+  attachContent(options: PreviewContentOptions): void;
+  /** The custom preview's content, or `null` for a clone. */
+  getContent(): PreviewContent | null;
+  /** Copy the content after its first commit, or run its pending update. */
+  syncContent(): void;
+  /** Show a new copy of the custom content, or remove the preview when `root` is `null`. */
+  showContent(root: HTMLElement | null): void;
   /**
    * Mark the source as being dragged. Called once the preview exists, so a
    * `[data-dragging]` rule can't affect the geometry the preview was measured from.
@@ -390,21 +482,20 @@ export interface SyntheticPreviewHandle {
   markSourceDragging(): void;
   /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */
   retargetSource(element: HTMLElement): void;
-  /** Re-anchor the preview once React has rendered content into it and it has a size. */
-  setPreviewOffset(offset: DragPosition): void;
+  /**
+   * Set the offset from the preview's top-left to the cursor. Called at pickup, or
+   * once the first copy of custom content has a size.
+   */
+  setPreviewOffset(offset: DraggablePosition): void;
   /** Destroy the preview element. */
   removePreviewElement(): void;
-  /** The adopted preview element, or `null`. */
+  /** The current preview element, or `null`. */
   getPreviewElement(): DragPreviewElementHandle | null;
   /** The offset from the preview's top-left to the cursor (see `setPreviewOffset`). */
-  getPreviewOffset(): DragPosition;
-  /**
-   * Install preview-level modifiers, applied to the preview's proposed
-   * position each frame. Pass `null` to remove them.
-   * See `DragPreviewSettings.modifiers`.
-   */
-  setModifiers(modifiers: ReadonlyArray<DragModifier> | null): void;
-  /** Preserve an engine-owned clone long enough to animate it back to the source after release. */
+  getPreviewOffset(): DraggablePosition;
+  /** Keep the preview long enough to animate it back to the source after release. */
   prepareForDrop(): void;
+  /** Mark the ending preview as dropped on a target, for `[data-dropped]` styles. */
+  markDropped(): void;
   destroy(): void;
 }

@@ -4,7 +4,7 @@ import type { VirtualizerRegistry } from '../../virtualizer/host';
  * What caused an item to become active. Lists that support both keyboard and pointer highlighting
  * record it so the two can be told apart when deciding whether to scroll.
  */
-export type ListHighlightReason = 'keyboard' | 'pointer' | 'none';
+export type ListHighlightReason = 'keyboard' | 'pointer' | 'imperative-action' | 'none';
 
 /**
  * The two scroll decisions a list makes when an item becomes active. They suppress the same

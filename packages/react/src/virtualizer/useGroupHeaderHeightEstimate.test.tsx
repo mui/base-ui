@@ -4,10 +4,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import type { Group } from '../internals/resolveValueLabel';
 import { useGroupedRowModels, useRowModels } from '../internals/virtualization/useRowModels';
-import {
-  useGroupHeaderHeightEstimate,
-  type GroupHeaderHeightEstimate,
-} from './useGroupHeaderHeightEstimate';
+import { useGroupHeaderHeightEstimate } from './useGroupHeaderHeightEstimate';
+import type { GroupHeaderHeightEstimate } from './useGroupHeaderHeightEstimate';
 
 interface Item {
   id: string;

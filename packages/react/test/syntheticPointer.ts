@@ -1,28 +1,49 @@
 /**
  * Pointer event helpers for synthetic-drag tests.
  *
- * `pointerdown` latches its target and later helpers dispatch on that same
- * element to mimic browser routing: the events bubble up to the document and
- * window, where the engine's pending- and active-phase listeners live.
- * Call `resetTouchTarget()` between tests to clear the latched target.
+ * `pointerdown` remembers its target, and later helpers dispatch on that element
+ * as a browser would. The events bubble up to the document and window, where the
+ * engine's pending and active phase listeners are. `setupDragEngineTests()`
+ * clears the remembered target between tests.
  *
- * Touch helpers dispatch both pointer events and the corresponding touch
- * events a real browser fires alongside them (the engine's only touch listener
- * is the active-phase `touchmove` scroll guard). Pen helpers dispatch
- * pointer events only — pen drags ignore the iPadOS-synthesised touch stream.
+ * `touchUp` and `touchCancel` also dispatch the `touchend`/`touchcancel` a real
+ * browser fires alongside the pointer event. The other helpers dispatch only
+ * pointer events. The engine's only touch listener is the active-phase `touchmove`
+ * scroll guard, which tests dispatch themselves, and pen drags ignore the touch
+ * events iPadOS generates.
  *
  * Every dispatch is wrapped in `act` because tests mount a `Draggable.Provider`
- * that subscribes to the drag session store: a raw dispatch that starts or ends a
+ * that subscribes to the drag session store. A raw dispatch that starts or ends a
  * drag would re-render React outside `act`.
  */
 import { act } from '@mui/internal-test-utils';
 
 type SyntheticPointerType = 'touch' | 'pen';
 
+export interface SyntheticPointerOptions {
+  /**
+   * The event's `timeStamp`. The sensor reads it for the press-hold elapsed time
+   * and to pair double-tap presses. Omitted, the event keeps the environment's
+   * clock, which is the real one in a browser.
+   */
+  timeStamp?: number | undefined;
+}
+
 let touchDownTarget: EventTarget | null = null;
 
-/** Dispatch `event` on `target` inside `act` so store-driven re-renders flush. */
-function dispatch(target: EventTarget, event: Event): void {
+/**
+ * Dispatch `event` on `target` inside `act` so store-driven re-renders flush.
+ * `timeStamp` is read-only and not part of the event init, so it is defined on
+ * the event, as `firePointer` does.
+ */
+function dispatch(target: EventTarget, event: Event, options: SyntheticPointerOptions = {}): void {
+  const { timeStamp } = options;
+  if (timeStamp !== undefined) {
+    if (!(timeStamp > 0)) {
+      throw new Error(`syntheticPointer: timeStamp must be greater than 0, received ${timeStamp}.`);
+    }
+    Object.defineProperty(event, 'timeStamp', { value: timeStamp });
+  }
   act(() => {
     target.dispatchEvent(event);
   });
@@ -42,7 +63,8 @@ function pointerDown(
   x: number,
   y: number,
   pointerId: number,
-): PointerEvent {
+  options?: SyntheticPointerOptions,
+): void {
   touchDownTarget = target;
   const ev = new PointerEvent('pointerdown', {
     pointerType,
@@ -54,8 +76,7 @@ function pointerDown(
     bubbles: true,
     cancelable: true,
   });
-  dispatch(target, ev);
-  return ev;
+  dispatch(target, ev, options);
 }
 
 function pointerMove(
@@ -63,20 +84,20 @@ function pointerMove(
   x: number,
   y: number,
   pointerId: number,
-): PointerEvent {
+  options?: SyntheticPointerOptions,
+): void {
   const ev = new PointerEvent('pointermove', {
     pointerType,
     pointerId,
     clientX: x,
     clientY: y,
     // A move during an active drag reports the held primary button, as a real
-    // browser does; the engine treats a `buttons === 0` move as a release.
+    // browser does. The engine treats a `buttons === 0` move as a release.
     buttons: 1,
     bubbles: true,
     cancelable: true,
   });
-  dispatch(getTouchDownTarget(), ev);
-  return ev;
+  dispatch(getTouchDownTarget(), ev, options);
 }
 
 function pointerUp(
@@ -84,6 +105,7 @@ function pointerUp(
   x: number,
   y: number,
   pointerId: number,
+  options?: SyntheticPointerOptions,
 ): void {
   const pe = new PointerEvent('pointerup', {
     pointerType,
@@ -93,28 +115,43 @@ function pointerUp(
     bubbles: true,
     cancelable: true,
   });
-  dispatch(getTouchDownTarget(), pe);
+  dispatch(getTouchDownTarget(), pe, options);
 }
 
-function pointerCancel(pointerType: SyntheticPointerType, pointerId: number): void {
+function pointerCancel(
+  pointerType: SyntheticPointerType,
+  pointerId: number,
+  options?: SyntheticPointerOptions,
+): void {
   const pe = new PointerEvent('pointercancel', {
     pointerType,
     pointerId,
     bubbles: true,
     cancelable: true,
   });
-  dispatch(getTouchDownTarget(), pe);
+  dispatch(getTouchDownTarget(), pe, options);
 }
 
-export function touchDown(target: EventTarget, x: number, y: number, pointerId = 1): PointerEvent {
-  return pointerDown('touch', target, x, y, pointerId);
+export function touchDown(
+  target: EventTarget,
+  x: number,
+  y: number,
+  pointerId = 1,
+  options?: SyntheticPointerOptions,
+): void {
+  pointerDown('touch', target, x, y, pointerId, options);
 }
 
-export function touchMove(x: number, y: number, pointerId = 1): PointerEvent {
-  return pointerMove('touch', x, y, pointerId);
+export function touchMove(
+  x: number,
+  y: number,
+  pointerId = 1,
+  options?: SyntheticPointerOptions,
+): void {
+  pointerMove('touch', x, y, pointerId, options);
 }
 
-export function makeTouch(x: number, y: number, identifier = 1): Touch {
+function makeTouch(x: number, y: number, identifier = 1): Touch {
   const base: Record<string, unknown> = {
     identifier,
     target: window,
@@ -138,7 +175,7 @@ export function makeTouch(x: number, y: number, identifier = 1): Touch {
       // used by jsdom.
     }
   }
-  // jsdom/WebKit fallback: a plain object that duck-types as Touch.
+  // In jsdom and WebKit, return a plain object that duck-types as Touch.
   return base as unknown as Touch;
 }
 
@@ -161,7 +198,7 @@ export function dispatchTouchEvent(type: string, x: number, y: number): void {
     }
   }
   if (!ev) {
-    // jsdom/WebKit fallback: synthesise a bare Event with touch arrays attached.
+    // In jsdom and WebKit, build a bare Event with the touch lists attached.
     const plain = new Event(type, { bubbles: true, cancelable: true });
     Object.defineProperties(plain, {
       touches: { value: init.touches },
@@ -173,31 +210,48 @@ export function dispatchTouchEvent(type: string, x: number, y: number): void {
   dispatch(getTouchDownTarget(), ev);
 }
 
-// Real browsers fire both `pointerup` and `touchend` on finger-lift. The engine
-// terminates gestures from the pointer stream alone (it has no `touchend`
-// listener), so the `touchend` here just mirrors real event ordering.
-export function touchUp(x: number, y: number, pointerId = 1): void {
-  pointerUp('touch', x, y, pointerId);
+// Browsers fire both `pointerup` and `touchend` when a finger lifts. The engine
+// ends gestures from pointer events only and has no `touchend` listener, so this
+// `touchend` only reproduces the real event order.
+export function touchUp(
+  x: number,
+  y: number,
+  pointerId = 1,
+  options?: SyntheticPointerOptions,
+): void {
+  pointerUp('touch', x, y, pointerId, options);
   dispatchTouchEvent('touchend', x, y);
 }
 
-export function touchCancel(pointerId = 1): void {
-  pointerCancel('touch', pointerId);
+export function touchCancel(pointerId = 1, options?: SyntheticPointerOptions): void {
+  pointerCancel('touch', pointerId, options);
   dispatchTouchEvent('touchcancel', 0, 0);
 }
 
-export function penDown(target: EventTarget, x: number, y: number, pointerId = 1): PointerEvent {
-  return pointerDown('pen', target, x, y, pointerId);
+export function penDown(
+  target: EventTarget,
+  x: number,
+  y: number,
+  pointerId = 1,
+  options?: SyntheticPointerOptions,
+): void {
+  pointerDown('pen', target, x, y, pointerId, options);
 }
 
-export function penMove(x: number, y: number, pointerId = 1): PointerEvent {
-  return pointerMove('pen', x, y, pointerId);
+export function penMove(
+  x: number,
+  y: number,
+  pointerId = 1,
+  options?: SyntheticPointerOptions,
+): void {
+  pointerMove('pen', x, y, pointerId, options);
 }
 
-export function penUp(x: number, y: number, pointerId = 1): void {
-  pointerUp('pen', x, y, pointerId);
-}
-
-export function penCancel(pointerId = 1): void {
-  pointerCancel('pen', pointerId);
+export function penUp(
+  x: number,
+  y: number,
+  pointerId = 1,
+  options?: SyntheticPointerOptions,
+): void {
+  pointerUp('pen', x, y, pointerId, options);
 }

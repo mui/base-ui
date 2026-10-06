@@ -19,6 +19,8 @@ const localPlugin = (relativePath) => path.join(baseDir, relativePath);
 const withMdx = nextMdx({
   options: {
     remarkPlugins: [
+      // Before transformMarkdownMetadata, so a stripped badge stays out of outline text too.
+      localPlugin('src/mdx/remarkHeadingTags.mjs'),
       'remark-gfm',
       [
         '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
@@ -100,7 +102,7 @@ const nextConfig = {
         as: '*.ts',
         loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
       },
-      './src/app/**/demos/**/index.ts': {
+      './src/app/**/demos/*/index.ts': {
         as: '*.ts',
         loaders: [
           {
@@ -132,7 +134,7 @@ const nextConfig = {
       use: [defaultLoaders.babel, '@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
     });
     config.module.rules.push({
-      test: /[/\\\\]demos[/\\\\](?:[^/\\\\]+[/\\\\])+index\.ts$/,
+      test: /[/\\\\]demos[/\\\\][^/\\\\]+[/\\\\]index\.ts$/,
       use: [
         defaultLoaders.babel,
         {

@@ -32,9 +32,8 @@ describe('createGetterStackRegistry', () => {
     registry.add(element, second);
     expect(registry.getActive(element)).toBe(second);
 
-    const removedEntirely = registry.remove(element, second, beforeDelete);
+    registry.remove(element, second, beforeDelete);
 
-    expect(removedEntirely).toBe(false);
     // The element stays registered, but its effective parameters changed.
     expect(beforeDelete).toHaveBeenCalledTimes(1);
     expect(onLastRemove).not.toHaveBeenCalled();
@@ -54,9 +53,8 @@ describe('createGetterStackRegistry', () => {
     registry.add(element, first);
     registry.add(element, second);
 
-    const removedEntirely = registry.remove(element, first, beforeDelete);
+    registry.remove(element, first, beforeDelete);
 
-    expect(removedEntirely).toBe(false);
     // The active getter did not change, so nothing needs refreshing.
     expect(beforeDelete).not.toHaveBeenCalled();
     expect(onLastRemove).not.toHaveBeenCalled();
@@ -78,12 +76,11 @@ describe('createGetterStackRegistry', () => {
     });
 
     registry.add(element, getter);
-    const removedEntirely = registry.remove(element, getter, () => {
+    registry.remove(element, getter, () => {
       order.push('beforeDelete');
       expect(registry.getActive(element)).toBe(getter);
     });
 
-    expect(removedEntirely).toBe(true);
     expect(order).toEqual(['onLastRemove', 'beforeDelete']);
     expect(registry.getActive(element)).toBeUndefined();
     expect(entries.has(element)).toBe(false);

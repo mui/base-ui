@@ -6,7 +6,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { RowWindow } from './geometry';
 import type { VirtualizerRow } from '../internals/virtualization/types';
-import { SCROLL_IDLE_MS, type ScrollGesture } from './useScrollGesture';
+import { SCROLL_IDLE_MS } from './useScrollGesture';
+import type { ScrollGesture } from './useScrollGesture';
 
 /**
  * Minimum number of measured rows before a static estimate is replaced with their running

@@ -1,141 +1,125 @@
 import { ownerDocument } from '@base-ui/utils/owner';
 import { getSharedSlot } from '../sharedState';
+import type { DragCleanupFn } from '../types';
 
-const LOCKED_PROPS: Array<{ style: LockedProperty; property: string; value: string }> = [
-  { style: 'touchAction', property: 'touch-action', value: 'none' },
-  { style: 'userSelect', property: 'user-select', value: 'none' },
-  { style: 'webkitUserSelect', property: '-webkit-user-select', value: 'none' },
-  { style: 'webkitTouchCallout', property: '-webkit-touch-callout', value: 'none' },
-  { style: 'overscrollBehavior', property: 'overscroll-behavior', value: 'none' },
-];
-
-interface LockedRoot {
-  /** `<html>` and `<body>`, in that order. */
-  elements: HTMLElement[];
-  /** Saved per-element styles, parallel to `elements`. */
-  saved: Array<Partial<Record<LockedProperty, { value: string | undefined; priority: string }>>>;
+/** An inline style the engine overrides, with the value it sets. */
+export interface InlineStyleOverride {
+  /** The `CSSStyleDeclaration` key, such as `webkitUserSelect`. */
+  property: string;
+  /** The CSS property name, such as `-webkit-user-select`, used for its priority. */
+  cssName: string;
+  value: string;
 }
 
+/**
+ * Override inline styles on `element` and return a cleanup that restores them.
+ *
+ * Every previous value is read before any is written, because `userSelect` and
+ * `webkitUserSelect` alias each other in some engines, and saving and setting in
+ * one pass would capture the overridden value. A key the engine doesn't
+ * implement (`webkitTouchCallout` outside WebKit, several in jsdom) reads as
+ * `undefined` and restores to an empty string. The restore skips a property
+ * whose value changed since, so a consumer's later inline style wins.
+ */
+export function overrideInlineStyles(
+  element: HTMLElement,
+  overrides: readonly InlineStyleOverride[],
+): DragCleanupFn {
+  const style = element.style;
+  const values = style as unknown as Record<string, string | undefined>;
+  const saved = overrides.map((override) => ({
+    ...override,
+    previous: values[override.property] ?? '',
+    priority: style.getPropertyPriority(override.cssName),
+  }));
+  for (const { property, value } of saved) {
+    values[property] = value;
+  }
+  return () => {
+    // Check every property before restoring any, for the same aliasing reason.
+    const unchanged = saved.filter(({ property, value }) => values[property] === value);
+    for (const { property, previous } of unchanged) {
+      values[property] = previous;
+    }
+    // Restore priorities after values because prefixed aliases can reset them.
+    for (const { cssName, previous, priority } of unchanged) {
+      if (priority) {
+        style.setProperty(cssName, previous, priority);
+      }
+    }
+  };
+}
+
+/** The inline styles the lock sets to `none` on every root it holds. */
+const LOCKED_STYLES: readonly InlineStyleOverride[] = [
+  { property: 'touchAction', cssName: 'touch-action', value: 'none' },
+  { property: 'userSelect', cssName: 'user-select', value: 'none' },
+  { property: 'webkitUserSelect', cssName: '-webkit-user-select', value: 'none' },
+  { property: 'webkitTouchCallout', cssName: '-webkit-touch-callout', value: 'none' },
+  { property: 'overscrollBehavior', cssName: 'overscroll-behavior', value: 'none' },
+];
+
 interface DragRootLockState {
-  locked: LockedRoot | null;
+  /** Restores the inline styles the lock overwrote, or `null` when unlocked. */
+  restore: DragCleanupFn[] | null;
 }
 
 const state = getSharedSlot<DragRootLockState>('dragRootLock', () => ({
-  locked: null,
+  restore: null,
 }));
 
 /**
- * Collect the `<html>`/`<body>` of `doc` and of every ancestor document up the
- * iframe chain. During an iframe touch drag the outer document can still
- * scroll/select unless its roots are locked too; a same-origin ancestor is
- * reachable via `frameElement`, and a cross-origin one throws on access — caught
- * and treated as the top of the reachable chain.
+ * Collect the `<html>` and `<body>` of `doc` and of every ancestor document up
+ * the iframe chain. During a touch drag inside an iframe, the outer document can
+ * still scroll or select text unless its roots are locked too. Same-origin
+ * ancestors are reachable through `frameElement`. A cross-origin one throws on
+ * access, so the climb stops there.
  */
 function collectLockElements(doc: Document): HTMLElement[] {
   const elements: HTMLElement[] = [];
   let current: Document | null = doc;
-  const seen = new Set<Document>();
 
-  while (current && !seen.has(current)) {
-    seen.add(current);
+  while (current) {
     elements.push(current.documentElement);
     if (current.body) {
       elements.push(current.body);
     }
-    let parentDoc: Document | null = null;
     try {
-      const hostFrame: Element | null = current.defaultView?.frameElement ?? null;
-      parentDoc = hostFrame?.ownerDocument ?? null;
+      current = current.defaultView?.frameElement?.ownerDocument ?? null;
     } catch {
-      // Cross-origin ancestor: not reachable, stop climbing.
-      parentDoc = null;
+      // Cross-origin ancestor. Stop climbing.
+      current = null;
     }
-    current = parentDoc;
   }
 
   return elements;
 }
 
-function applyRootLock(element: Element): void {
-  // Lock both `<html>` and `<body>` on the dragged element's document and every
-  // reachable ancestor document. iOS Safari and some Android browsers honour
-  // `touch-action`/`overscroll-behavior` on `body` independently of `html`;
-  // locking only one element lets scroll still leak through during a synthetic
-  // drag, and locking only the inner document lets an iframe's host page scroll.
-  const doc = ownerDocument(element);
-  const elements = collectLockElements(doc);
-
-  const saved: Array<
-    Partial<Record<LockedProperty, { value: string | undefined; priority: string }>>
-  > = [];
-  // Read all originals before writing any: `userSelect`/`webkitUserSelect` alias
-  // each other, so interleaved save+set would capture the locked value instead.
-  for (const el of elements) {
-    const elSaved: Partial<
-      Record<LockedProperty, { value: string | undefined; priority: string }>
-    > = {};
-    for (const { style, property } of LOCKED_PROPS) {
-      elSaved[style] = {
-        value: el.style[style as keyof CSSStyleDeclaration] as string | undefined,
-        priority: el.style.getPropertyPriority(property),
-      };
-    }
-    saved.push(elSaved);
-  }
-  for (const el of elements) {
-    for (const { style, value } of LOCKED_PROPS) {
-      (el.style as unknown as Record<string, string>)[style] = value;
+export function unlock(): void {
+  const restore = state.restore;
+  state.restore = null;
+  if (restore) {
+    for (const restoreRoot of restore) {
+      restoreRoot();
     }
   }
-  state.locked = { elements, saved };
-}
-
-function restoreLockedStyles(): void {
-  const locked = state.locked;
-  if (locked) {
-    for (let i = 0; i < locked.elements.length; i += 1) {
-      const el = locked.elements[i];
-      const elSaved = locked.saved[i];
-      for (const { style } of LOCKED_PROPS) {
-        const prev = elSaved[style];
-        if (prev?.value === undefined) {
-          delete (el.style as unknown as Partial<Record<string, string>>)[style];
-        } else {
-          (el.style as unknown as Record<string, string>)[style] = prev.value;
-        }
-      }
-      // Restore priorities after values because prefixed aliases can reset them.
-      for (const { style, property } of LOCKED_PROPS) {
-        const prev = elSaved[style];
-        if (prev?.priority && prev.value !== undefined) {
-          el.style.setProperty(property, prev.value, prev.priority);
-        }
-      }
-    }
-  }
-  state.locked = null;
 }
 
 /**
  * Freeze scrolling, selection and the callout menu on the dragged element's
- * document (and every reachable ancestor document) while a pointer drag runs.
- * The global lifecycle admits one pointer session, so the saved lock itself is
- * the single-holder latch; a repeated call must not replace its restoration data.
+ * document and every reachable ancestor document while a pointer drag runs.
+ * Only one pointer session runs at a time, so a saved lock means the lock is
+ * held. A repeated call returns early and keeps the original restoration data.
  */
 export function lock(element: Element): void {
-  if (state.locked !== null) {
+  if (state.restore !== null) {
     return;
   }
-  applyRootLock(element);
+  // Lock both `<html>` and `<body>`. iOS Safari and some Android browsers apply
+  // `touch-action` and `overscroll-behavior` on `body` independently of `html`,
+  // so locking only one lets scroll leak through. Locking only the inner document
+  // would let an iframe's host page scroll.
+  state.restore = collectLockElements(ownerDocument(element)).map((root) =>
+    overrideInlineStyles(root, LOCKED_STYLES),
+  );
 }
-
-export function unlock(): void {
-  restoreLockedStyles();
-}
-
-export function resetForTests(): void {
-  restoreLockedStyles();
-}
-
-type LockedProperty =
-  'touchAction' | 'userSelect' | 'webkitUserSelect' | 'webkitTouchCallout' | 'overscrollBehavior';

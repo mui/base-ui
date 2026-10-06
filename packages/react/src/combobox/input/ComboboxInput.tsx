@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { platform } from '@base-ui/utils/platform';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -13,6 +14,7 @@ import {
   FieldRootContext,
   useFieldRootContext,
 } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../internals/field-constants/constants';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
@@ -54,7 +56,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     state: fieldState,
     disabled: fieldDisabled,
     setTouched,
-    setFocused,
     validationMode,
     validation,
   } = useFieldRootContext();
@@ -89,6 +90,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = useListEmpty();
 
+  const setFocused = useSetFieldFocused(disabled, store.context.inputRef);
+
   const isInsidePopup = hasPositionerParent || inline;
   const focusManagerModal = !isInsidePopup || modal;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
@@ -97,7 +100,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
   const lastActiveIndexRef = React.useRef<number | null>(null);
-  const shouldRestoreActiveIndexRef = React.useRef(false);
+
+  // Restore the saved highlight on refocus only within the same open cycle.
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      lastActiveIndexRef.current = null;
+    }
+  }, [open]);
 
   const inputOwnsFormValue = selectionMode === 'none' && !hasPositionerParent;
 
@@ -208,12 +217,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         onFocus() {
           setFocused(true);
 
-          if (!inline || !shouldRestoreActiveIndexRef.current) {
+          if (!inline) {
             return;
           }
 
-          shouldRestoreActiveIndexRef.current = false;
           const nextActiveIndex = lastActiveIndexRef.current;
+          lastActiveIndexRef.current = null;
 
           if (
             nextActiveIndex == null ||
@@ -232,7 +241,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           const activeIndex = store.state.activeIndex;
           if (inline && activeIndex !== null && autoHighlightMode !== 'always') {
             lastActiveIndexRef.current = activeIndex;
-            shouldRestoreActiveIndexRef.current = true;
             store.context.setIndices({ activeIndex: null });
           }
 

@@ -5,8 +5,9 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 
+import type { CalendarEvent, WeekEventSegment } from '../calendarLogic';
 import {
-  AllDayRowDropPayload,
+  addDays,
   buildWeekDays,
   calAllDayRowKind,
   calDayColumnKind,
@@ -14,9 +15,7 @@ import {
   calEventCreateKind,
   calEventMoveKind,
   calEventResizeKind,
-  CalendarEvent,
   DAY_MS,
-  DayColumnDropPayload,
   diffDays,
   formatRange,
   formatTime,
@@ -27,7 +26,6 @@ import {
   resolveDropPreview,
   snapToMinutes,
   useCalendarView,
-  WeekEventSegment,
 } from '../calendarLogic';
 import styles from '../calendar.module.css';
 
@@ -44,8 +42,8 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Scroll to ~7 AM on first mount of a week so the user lands on a useful
-  // hour rather than midnight.
+  // Scroll to about 7 AM when a week first mounts, so the user starts at a useful
+  // hour instead of midnight.
   useIsoLayoutEffect(() => {
     const el = scrollRef.current;
     if (el) {
@@ -61,8 +59,8 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
       <WeekHeader days={days} todayMs={todayMs} />
       <WeekAllDayRow days={days} events={allDayEvents} weekStartMs={weekStartMs} />
       <Draggable.Viewport
-        onDragScroll={({ direction }, eventDetails) => {
-          if (direction !== 'vertical') {
+        onDragScroll={(eventDetails) => {
+          if (eventDetails.direction !== 'vertical') {
             eventDetails.cancel();
           }
         }}
@@ -83,7 +81,7 @@ export function CalendarWeekView(props: { weekStartMs: number }) {
 }
 
 // -----------------------------------------------------------------------------
-// Header (day labels)
+// Header with the day labels
 // -----------------------------------------------------------------------------
 
 function WeekHeader(props: { days: number[]; todayMs: number }) {
@@ -132,7 +130,7 @@ function WeekAllDayRow(props: { days: number[]; events: CalendarEvent[]; weekSta
     if (!dropPreview || !dropPreview.allDay) {
       return null;
     }
-    const weekEnd = weekStartMs + 7 * DAY_MS;
+    const weekEnd = addDays(weekStartMs, 7);
     if (dropPreview.start >= weekEnd || dropPreview.end <= weekStartMs) {
       return null;
     }
@@ -190,24 +188,20 @@ function WeekAllDayRow(props: { days: number[]; events: CalendarEvent[]; weekSta
 function WeekAllDayCell(props: { dayMs: number }) {
   const { dayMs } = props;
   const { dispatch, dropPreviewRef, setDropPreview, consumeDropPreview } = useCalendarView();
-  const dayMsRef = useValueAsRef(dayMs);
 
+  const createPayload = React.useMemo(() => ({ anchorMs: dayMs, allDay: true }), [dayMs]);
+  const cellPayload = React.useMemo(() => ({ dayMs }), [dayMs]);
   return (
     <Draggable.Root
       kind={calEventCreateKind}
-      payload={{
-        anchorMs: dayMsRef.current,
-        allDay: true,
-      }}
+      payload={createPayload}
       render={
         <Draggable.Target
           kind={calAllDayRowKind}
           accept={CAL_DRAG_KINDS}
-          getPayload={(): AllDayRowDropPayload => ({
-            dayMs: dayMsRef.current,
-          })}
-          onDraggableMove={({ source, target }) => {
-            const next = resolveDropPreview(source, target);
+          payload={cellPayload}
+          onDraggableMove={(eventDetails) => {
+            const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
             if (!next) {
               return;
             }
@@ -224,8 +218,8 @@ function WeekAllDayCell(props: { dayMs: number }) {
           }}
         />
       }
-      onMoveEnd={(moveEvent, moveDetails) => {
-        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'create') {
             return;
@@ -243,10 +237,9 @@ function WeekAllDayCell(props: { dayMs: number }) {
         }
       }}
       className={styles.weekAllDayCell}
-      data-cal-allday-cell
     >
-      {/* The drag source is the all-day cell itself; a clone of it would be a
-          full-width preview. The in-grid drop preview shows the range being created. */}
+      {/* The drag source is the all-day cell, so a clone would be a full-width
+          preview. The drop preview in the grid shows the range being created. */}
       <Draggable.Preview disabled />
     </Draggable.Root>
   );
@@ -257,21 +250,23 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
   const { dispatch, consumeDropPreview } = useCalendarView();
   const eventRef = useValueAsRef(event);
 
+  const movePayload = React.useMemo(
+    () => ({
+      eventId: event.id,
+      anchorStart: event.start,
+      anchorEnd: event.end,
+      allDay: event.allDay,
+      segmentOffsetMs: 0,
+    }),
+    [event.id, event.start, event.end, event.allDay],
+  );
   return (
     <Draggable.Root
       kind={calEventMoveKind}
-      // An all-day bar only moves between days: ←/→ snap to the adjacent cell,
-      // vertical arrows do nothing (the timed grid refuses all-day drags).
-
-      payload={{
-        eventId: eventRef.current.id,
-        anchorStart: eventRef.current.start,
-        anchorEnd: eventRef.current.end,
-        allDay: eventRef.current.allDay,
-        segmentOffsetMs: 0,
-      }}
-      onMoveEnd={(moveEvent, moveDetails) => {
-        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+      // An all-day bar only moves between days, because the timed grid refuses all-day drags.
+      payload={movePayload}
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'move') {
             return;
@@ -325,7 +320,7 @@ function WeekHourLabels() {
 }
 
 // -----------------------------------------------------------------------------
-// Day column (drop target + create draggable + renders timed events)
+// Day column: drop target, create draggable and timed events
 // -----------------------------------------------------------------------------
 
 interface TimedSegment {
@@ -368,10 +363,11 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
   const dayMsRef = useValueAsRef(dayMs);
   const hourPxRef = useValueAsRef(hourPx);
   const snapRef = useValueAsRef(snapMin);
+  const payload = React.useMemo(() => ({ anchorMs: dayMs, allDay: false }), [dayMs]);
 
   const segments = React.useMemo(() => getDayTimedSegments(events, dayMs), [events, dayMs]);
 
-  // Compute timed drop preview for this column (if intersecting).
+  // The timed drop preview for this column, if the preview overlaps it.
   const previewBlock = React.useMemo(() => {
     if (!dropPreview || dropPreview.allDay) {
       return null;
@@ -388,6 +384,7 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
     };
   }, [dropPreview, dayMs, hourPx]);
 
+  const columnPayload = React.useMemo(() => ({ dayMs }), [dayMs]);
   return (
     <Draggable.Root
       kind={calEventCreateKind}
@@ -395,18 +392,16 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         <Draggable.Target
           kind={calDayColumnKind}
           accept={CAL_DRAG_KINDS}
-          getPayload={(): DayColumnDropPayload => ({
-            dayMs: dayMsRef.current,
-          })}
+          payload={columnPayload}
           canDrop={({ source }) => {
-            // Don't accept all-day-only drags here — they belong in the all-day row.
+            // All-day drags belong in the all-day row.
             return !source.payload.allDay;
           }}
-          // One day divides into `DAY_MS / snap` slots; a callback because the
-          // snap setting is runtime state.
+          // One day divides into `DAY_MS / snap` slots. It's a callback because the
+          // snap setting can change at runtime.
           snap={() => ({ y: DAY_MS / (snapRef.current * MINUTE_MS) })}
-          onDraggableMove={({ source, target }) => {
-            const next = resolveDropPreview(source, target);
+          onDraggableMove={(eventDetails) => {
+            const next = resolveDropPreview(eventDetails.source, eventDetails.currentTarget);
             if (!next) {
               return;
             }
@@ -423,21 +418,23 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
           }}
         />
       }
-      getPayload={({ input, element }) => {
-        const rect = (element as HTMLElement).getBoundingClientRect();
+      payload={payload}
+      onMoveStart={(eventDetails) => {
+        const input = eventDetails.location.initial.input;
+        const rect = eventDetails.source.element.getBoundingClientRect();
         const offsetPx = input.clientY - rect.top;
         const rawMs = dayMsRef.current + offsetPx * (HOUR_MS / hourPxRef.current);
         const snapped = snapToMinutes(rawMs, snapRef.current);
-        return {
+        eventDetails.source.updatePayload({
           anchorMs: Math.max(
             dayMsRef.current,
             Math.min(dayMsRef.current + DAY_MS - MINUTE_MS, snapped),
           ),
           allDay: false,
-        };
+        });
       }}
-      onMoveEnd={(moveEvent, moveDetails) => {
-        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'create') {
             return;
@@ -455,7 +452,6 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
         }
       }}
       className={styles.weekColumn}
-      data-cal-day-column
     >
       <Draggable.Preview offset="pointer">
         <div className={styles.dragPreview}>
@@ -493,21 +489,25 @@ function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
   const top = ((segment.visibleStart - dayMs) / HOUR_MS) * hourPx;
   const height = Math.max(20, ((segment.visibleEnd - segment.visibleStart) / HOUR_MS) * hourPx);
 
+  const movePayload = React.useMemo(
+    () => ({
+      eventId: event.id,
+      anchorStart: event.start,
+      anchorEnd: event.end,
+      allDay: event.allDay,
+      // The engine handles the grab offset inside the chip through
+      // `anchor: 'source'`. Only the segment correction travels with the drag. It's
+      // non-zero for a chip that shows the part of an event after midnight.
+      segmentOffsetMs: segment.visibleStart - event.start,
+    }),
+    [event.id, event.start, event.end, event.allDay, segment.visibleStart],
+  );
   return (
     <Draggable.Root
       kind={calEventMoveKind}
-      getPayload={() => ({
-        eventId: eventRef.current.id,
-        anchorStart: eventRef.current.start,
-        anchorEnd: eventRef.current.end,
-        allDay: eventRef.current.allDay,
-        // The within-chip grab offset is the engine's (`anchor: 'source'`);
-        // only the segment correction travels with the drag, non-zero for a
-        // chip that renders the post-midnight part of an event.
-        segmentOffsetMs: segment.visibleStart - eventRef.current.start,
-      })}
-      onMoveEnd={(moveEvent, moveDetails) => {
-        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+      payload={movePayload}
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'move') {
             return;
@@ -549,22 +549,23 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
   const { dispatch, consumeDropPreview } = useCalendarView();
   const eventRef = useValueAsRef(event);
 
+  const resizePayload = React.useMemo(
+    () => ({
+      eventId: event.id,
+      edge,
+      anchorStart: event.start,
+      anchorEnd: event.end,
+      allDay: event.allDay,
+    }),
+    [event.id, edge, event.start, event.end, event.allDay],
+  );
   return (
     <Draggable.Root
       render={<span />}
       kind={calEventResizeKind}
-      // The handle is `aria-hidden`; without this it would still get
-      // `tabIndex={0}` — focusable but invisible to screen readers.
-
-      payload={{
-        eventId: eventRef.current.id,
-        edge,
-        anchorStart: eventRef.current.start,
-        anchorEnd: eventRef.current.end,
-        allDay: eventRef.current.allDay,
-      }}
-      onMoveEnd={(moveEvent, moveDetails) => {
-        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
+      payload={resizePayload}
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
           const preview = consumeDropPreview();
           if (preview?.intent !== 'resize') {
             return;
@@ -581,7 +582,7 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
       aria-hidden="true"
     >
       <Draggable.Preview offset="pointer">
-        <div className={styles.dragPreview} data-intent="resize">
+        <div className={styles.dragPreview}>
           <div className={styles.dragPreviewTitle}>{event.title}</div>
           <div className={styles.dragPreviewMeta}>
             {edge === 'start' ? 'Resize start' : 'Resize end'}

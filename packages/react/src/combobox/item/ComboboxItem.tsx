@@ -19,10 +19,8 @@ import {
   findItemIndex,
   resolveSelectedIndex,
 } from '../../internals/itemEquality';
-import {
-  useComboboxVirtualItemContext,
-  type ComboboxVirtualItemMetadata,
-} from './ComboboxVirtualItemContext';
+import { useComboboxVirtualItemContext } from './ComboboxVirtualItemContext';
+import type { ComboboxVirtualItemMetadata } from './ComboboxVirtualItemContext';
 import { useVirtualizerHost } from '../../virtualizer/host';
 import {
   useNonVirtualizedItemRegistration,

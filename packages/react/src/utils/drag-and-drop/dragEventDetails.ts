@@ -1,38 +1,56 @@
 /**
- * Builds the `eventDetails` object every drag handler receives as its second
- * argument, following Base UI's `(payload, eventDetails)` convention.
- *
- * Not `createGenericEventDetails` from Base UI: that one is typed
- * `Reason extends keyof ReasonToEventMap`, so it accepts only Base UI's canonical
- * reasons and cannot express drag-specific ones like `'missed-release'`. The
- * alternative, `createChangeEventDetails`, takes any string but carries
- * `cancel()` / `allowPropagation()` / `isCanceled` — a footgun on events that
- * have already happened and cannot be canceled. Hence this local factory:
- * `reason` and the native `event`, nothing else.
- *
- * Reasons reuse Base UI's canonical strings wherever one fits (`'escape-key'`,
- * `'imperative-action'`, `'pointer'`), so
- * `ReasonToEvent` types the native event correctly for those.
+ * Builds the `eventDetails` object of the drag lifecycle handlers, from `onMoveStart`
+ * to `onMoveEnd`. It extends Base UI's generic event details with the drag `location`,
+ * the dragged `source` and a `target`.
  */
 
-import type { DragEventDetails } from '../../types/drag';
+import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { ReasonToEvent } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIEventReason } from '../../internals/reasons';
+import type { DraggableLocationHistory } from '../../draggable/DraggableProvider';
+import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
+import type { DragEndReason, DragEventDetails, MoveEndEventDetails } from './types';
 
 /**
- * A drag with no native event behind it — a programmatic `cancelDrag()`, or a
- * teardown scheduled from a frame rather than an input. Mirrors the placeholder
- * Base UI's own factories fall back to, so `eventDetails.event` is never
- * `undefined` and consumers can read it without a guard.
+ * Creates the details the source and the monitors receive, where `target` is the
+ * innermost drop target. Each drop target receives a copy that adds its own record as
+ * `currentTarget` (see `dispatchToDropTarget`).
+ *
+ * `event` is the native event of the latest input. Without one, as with a
+ * programmatic `cancelDrag()`, the details get Base UI's placeholder event, so
+ * `eventDetails.event` is never `undefined`.
  */
-function createPlaceholderEvent(): Event {
-  return new Event('base-ui');
+export function createDragEventDetails<TReason extends BaseUIEventReason>(
+  reason: TReason,
+  event: Event | undefined,
+  location: DraggableLocationHistory,
+  source: DraggableRootRecord,
+  target: DraggableTargetRecord | null,
+): DragEventDetails<TReason> {
+  return createGenericEventDetails(reason, event as ReasonToEvent<TReason> | undefined, {
+    location,
+    source,
+    target,
+  }) as DragEventDetails<TReason>;
 }
 
-export function createDragEventDetails<TReason extends string>(
-  reason: TReason,
-  event?: Event | undefined,
-): DragEventDetails<TReason> {
-  return {
-    reason,
-    event: event ?? createPlaceholderEvent(),
-  } as DragEventDetails<TReason>;
+/**
+ * Creates the details of `onMoveEnd`. `canceled` derives from the reason, and every
+ * reason other than `'drop'` and `'outside-release'` is a cancel. `target` is the
+ * drop target that received the drop, or `null`.
+ */
+export function createMoveEndEventDetails(
+  reason: DragEndReason,
+  event: Event | undefined,
+  location: DraggableLocationHistory,
+  source: DraggableRootRecord,
+  target: DraggableTargetRecord | null,
+): MoveEndEventDetails {
+  return createGenericEventDetails(reason, event as ReasonToEvent<DragEndReason> | undefined, {
+    location,
+    source,
+    target,
+    canceled: reason !== 'drop' && reason !== 'outside-release',
+  }) as MoveEndEventDetails;
 }

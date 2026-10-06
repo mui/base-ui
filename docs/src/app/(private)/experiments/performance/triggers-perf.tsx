@@ -17,8 +17,10 @@ import tooltipDemoStyles from 'docs/src/app/(docs)/react/components/tooltip/demo
 import popoverDemoStyles from 'docs/src/app/(docs)/react/components/popover/demos/_index.module.css';
 import dialogDemoStyles from 'docs/src/app/(docs)/react/components/dialog/demos/_index.module.css';
 import previewCardDemoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/index.module.css';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
-import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
+import type { BenchmarkVariant } from './utils/benchmark';
+import PerformanceBenchmark from './utils/benchmark';
 import styles from './performance.module.css';
 
 interface Settings {

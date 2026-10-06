@@ -35,10 +35,10 @@ describe('dragRootLock', () => {
   });
 
   afterEach(() => {
-    dragRootLock.resetForTests();
-    // Restore `<html>` *and* `<body>` independently of `resetForTests`: the lock
-    // writes to both, so a regression in the module's own restore path must fail
-    // its test rather than leak body styles into every later one.
+    dragRootLock.unlock();
+    // Restore `<html>` and `<body>` without relying on `unlock`. The lock writes
+    // to both, so a bug in its restore path must fail this test instead of
+    // leaking body styles into later ones.
     restoreStyles(document.documentElement, originals.html);
     restoreStyles(document.body, originals.body);
   });
@@ -67,6 +67,21 @@ describe('dragRootLock', () => {
     expect(root.style.userSelect).toBe('text');
   });
 
+  it('keeps an inline style the page changed while the lock was held', () => {
+    const root = document.documentElement;
+    root.style.touchAction = 'pan-y';
+    root.style.overscrollBehavior = 'contain';
+
+    dragRootLock.lock(document.body);
+    // The page takes over this property mid-drag. Restoring the value saved at
+    // lock time would overwrite it.
+    root.style.touchAction = 'pinch-zoom';
+    dragRootLock.unlock();
+
+    expect(root.style.touchAction).toBe('pinch-zoom');
+    expect(root.style.overscrollBehavior).toBe('contain');
+  });
+
   it.skipIf(isJSDOM)('restores inline priorities after unlocking', () => {
     const root = document.documentElement;
     root.style.setProperty('user-select', 'text', 'important');
@@ -91,10 +106,10 @@ describe('dragRootLock', () => {
   });
 
   it('locks and restores <html> and <body> of the source and every ancestor document', () => {
-    // iOS Safari and some Android browsers honour `touch-action` on `body`
+    // iOS Safari and some Android browsers apply `touch-action` on `body`
     // independently of `html`, and an iframe drag can still scroll its host page,
-    // so the lock covers all four roots — asserting only the source's `<html>`
-    // would stay green while touch dragging in a frame kept scrolling.
+    // so the lock covers all four roots. Checking only the source's `<html>`
+    // would pass even if a touch drag in a frame still scrolled.
     const frame = document.createElement('iframe');
     document.body.appendChild(frame);
     const innerDoc = frame.contentDocument!;
@@ -104,7 +119,9 @@ describe('dragRootLock', () => {
       document.documentElement,
       document.body,
     ];
-    const before = roots.map((root) => root.style.touchAction);
+    // jsdom doesn't implement `touchAction`, which reads `undefined` until it is
+    // written. The lock restores such a property to an empty string.
+    const before = roots.map((root) => root.style.touchAction ?? '');
     innerDoc.documentElement.style.touchAction = 'pan-y';
 
     try {
@@ -131,8 +148,8 @@ describe('dragRootLock', () => {
     try {
       const innerDoc = frame.contentDocument!;
       // A cross-origin ancestor throws a `SecurityError` on `frameElement`
-      // access; the climb must treat that as the top of the reachable chain
-      // rather than letting the throw abort the whole lock.
+      // access. The climb must stop there instead of letting the throw abort the
+      // whole lock.
       Object.defineProperty(frame.contentWindow!, 'frameElement', {
         configurable: true,
         get() {
@@ -157,24 +174,5 @@ describe('dragRootLock', () => {
     } finally {
       frame.remove();
     }
-  });
-
-  it('unlock() without a matching lock() is a no-op', () => {
-    dragRootLock.unlock();
-    expect(document.documentElement.style.touchAction).toBe(originals.html.touchAction);
-  });
-
-  it('resetForTests() restores the inline styles the lock wrote', () => {
-    const root = document.documentElement;
-    root.style.touchAction = 'pan-y';
-    root.style.userSelect = 'text';
-
-    dragRootLock.lock(document.body);
-    expect(root.style.touchAction).toBe('none');
-
-    dragRootLock.resetForTests();
-
-    expect(root.style.touchAction).toBe('pan-y');
-    expect(root.style.userSelect).toBe('text');
   });
 });

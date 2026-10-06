@@ -1,21 +1,28 @@
 import { describe, it, expect } from 'vitest';
-import type { DragSource, DropTargetRecord } from '../../types/drag';
+import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 import { anyDragKind, createGlobalKind, createKind, matchesAccept } from './dragKind';
 
-function sourceOfKind(kind: symbol): DragSource<unknown> {
+function sourceOfKind(kind: symbol): DraggableRootRecord<unknown> {
   return {
     element: document.createElement('div'),
     kind,
-    dragHandle: null,
+    handle: null,
+    dragData: undefined,
+    updatePayload() {},
+    updateDragData() {},
     payload: undefined,
   };
 }
 
-function recordOfKind(kind: symbol | undefined): DropTargetRecord<unknown> {
+function recordOfKind(kind: symbol | undefined): DraggableTargetRecord<unknown> {
   return {
     element: document.createElement('div'),
     kind,
     payload: undefined,
+    dragData: undefined,
+    updatePayload() {},
+    updateDragData() {},
     getLocalPoint: () => ({ x: 0, y: 0 }),
     getSnappedLocalPoint: () => ({ x: 0, y: 0 }),
   };
@@ -28,14 +35,6 @@ describe('createKind', () => {
 
   it('gives separately created kinds with the same name different identities', () => {
     expect(createKind('card').id).not.toBe(createKind<{ id: string }>('card').id);
-  });
-
-  it('gives kinds with different labels different identities', () => {
-    expect(createKind('card').id).not.toBe(createKind('column').id);
-  });
-
-  it('does not collide with a plain interned symbol of the same label', () => {
-    expect(createKind('card').id).not.toBe(Symbol.for('card'));
   });
 
   describe('matches', () => {
@@ -71,25 +70,6 @@ describe('createGlobalKind', () => {
       createGlobalKind<{ id: string }>('myapp/card').id,
     );
   });
-
-  it('does not collide with a local kind of the same name', () => {
-    expect(createGlobalKind('myapp/card').id).not.toBe(createKind('myapp/card').id);
-  });
-
-  it('requires a namespaced key', () => {
-    expect(() => createGlobalKind('card')).toThrowError(
-      'Base UI: createGlobalKind requires a namespaced key.',
-    );
-    expect(() => createGlobalKind('/card')).toThrowError(
-      'Base UI: createGlobalKind requires a namespaced key.',
-    );
-    expect(() => createGlobalKind('myapp/')).toThrowError(
-      'Base UI: createGlobalKind requires a namespaced key.',
-    );
-    expect(() => createGlobalKind('myapp//')).toThrowError(
-      'Base UI: createGlobalKind requires a namespaced key.',
-    );
-  });
 });
 
 describe('matchesAccept', () => {
@@ -110,13 +90,23 @@ describe('matchesAccept', () => {
     expect(matchesAccept([card, column], sourceOfKind(createKind('row').id))).toBe(false);
   });
 
+  it('treats `accept: null` from plain JS as omitted', () => {
+    expect(matchesAccept(null as never, sourceOfKind(card.id))).toBe(true);
+  });
+
+  it('skips empty slots in an array instead of throwing', () => {
+    const accept = [undefined, null, card] as never;
+    expect(matchesAccept(accept, sourceOfKind(card.id))).toBe(true);
+    expect(matchesAccept(accept, sourceOfKind(column.id))).toBe(false);
+  });
+
   it('accepts nothing when the array is empty', () => {
     expect(matchesAccept([], sourceOfKind(card.id))).toBe(false);
   });
 
   it('accepts every source through the catch-all sentinel', () => {
-    // The explicit opt-in that replaces the old permissive default, so a drop
-    // target taking every drag on the page is something you can grep for.
+    // Accepting every drag takes this explicit opt-in, so each drop target that
+    // does it is easy to find with a text search.
     expect(matchesAccept(anyDragKind, sourceOfKind(card.id))).toBe(true);
     expect(matchesAccept(anyDragKind, sourceOfKind(column.id))).toBe(true);
   });

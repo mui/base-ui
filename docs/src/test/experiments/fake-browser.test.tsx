@@ -102,7 +102,7 @@ describe('FakeBrowserExperiment', () => {
   });
 
   it('restores focus outside a closing bookmark menu after paste', async () => {
-    // Menu's document-level pointer tracking updates after the synthetic click's act boundary.
+    // Menu updates its document-level pointer tracking outside the synthetic click's act() call.
     ignoreActWarnings();
     const { user } = renderExperiment();
     const scienceFolder = screen.getByRole('menuitem', { name: 'Science' });

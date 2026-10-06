@@ -1,31 +1,32 @@
 import { describe, expect, it } from 'vitest';
 import {
-  parseComputedDegrees,
   parseRotateLinearTransform,
   parseComputedLinearTransform,
   parseScaleLinearTransform,
   multiplyLinearTransforms,
 } from './linearTransform';
 
-describe('parseComputedDegrees', () => {
+describe('parseRotateLinearTransform', () => {
   it.each([
     ['1e+06deg', 1_000_000],
     ['1e-06deg', 0.000001],
     ['-2.5E-4deg', -0.00025],
     ['+3deg', 3],
-  ])('parses %s', (value, expected) => {
-    expect(parseComputedDegrees(value)).toBe(expected);
+  ])('parses the computed angle %s', (value, degrees) => {
+    const radians = (degrees * Math.PI) / 180;
+    const transform = parseRotateLinearTransform(value);
+
+    expect(transform?.a).toBeCloseTo(Math.cos(radians));
+    expect(transform?.b).toBeCloseTo(Math.sin(radians));
   });
 
   it.each(['100grad', '1rad', '0.25turn', 'Infinitydeg', '1e999deg', '1e+deg'])(
-    'rejects non-computed or invalid value %s',
+    'rejects the non-computed or invalid angle %s',
     (value) => {
-      expect(parseComputedDegrees(value)).toBeNull();
+      expect(parseRotateLinearTransform(value)).toBeNull();
     },
   );
-});
 
-describe('parseRotateLinearTransform', () => {
   it('projects a non-z-axis exponent-form rotation', () => {
     const transform = parseRotateLinearTransform('x 6e1deg');
 
@@ -63,6 +64,8 @@ describe('linear transforms', () => {
     ['none', null],
     ['Infinity', null],
     ['2 invalid', null],
+    ['2 3 invalid', null],
+    ['1 2 3 4', null],
   ])('parses the scale longhand %s', (value, expected) => {
     expect(parseScaleLinearTransform(value)).toEqual(expected);
   });

@@ -1,5 +1,6 @@
 import { describe, it, beforeAll, afterAll } from 'vitest';
-import { chromium, expect, Page, Browser } from '@playwright/test';
+import type { Page, Browser } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
 const BASE_URL = 'http://localhost:5173';
@@ -418,7 +419,7 @@ describe('e2e', () => {
         return press;
       }
 
-      /** Slide the finger 200px up — the gesture that scrolls the page down — and lift. */
+      /** Slide the finger 200px up, the gesture that scrolls the page down, and lift. */
       async function swipeUp(dispatchTouch: DispatchTouch, from: TouchPoint) {
         const steps = 10;
         for (let step = 1; step <= steps; step += 1) {
@@ -439,7 +440,7 @@ describe('e2e', () => {
             JSON.stringify({ startCount: 1, endCount: 1 }),
           );
           await expect(touchPage.getByTestId('drop-status')).toHaveText(
-            JSON.stringify({ dropCount: 1, reason: 'drop', canceled: false }),
+            JSON.stringify({ dropCount: 1, reason: 'drop', dropped: true }),
           );
           expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
         });
@@ -459,7 +460,7 @@ describe('e2e', () => {
             JSON.stringify({ startCount: 1, endCount: 1 }),
           );
           await expect(touchPage.getByTestId('drop-status')).toHaveText(
-            JSON.stringify({ dropCount: 1, reason: 'drop', canceled: false }),
+            JSON.stringify({ dropCount: 1, reason: 'drop', dropped: true }),
           );
           expect(await touchPage.evaluate(() => window.scrollY)).toBe(0);
         });

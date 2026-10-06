@@ -1,32 +1,39 @@
-import type { DragPointerType } from '../../types/drag';
+import type { DraggablePointerType } from '../../draggable/DraggableProvider';
+import type {
+  DraggableRootActivation,
+  DraggableRootActivationConfig,
+} from '../../draggable/root/DraggableRoot';
 
 const MOVEMENT_TOLERANCE_PX = 5;
 
-export const DEFAULT_ACTIVATION: Record<DragPointerType, DragActivation> = {
+const DEFAULT_ACTIVATION: Record<DraggablePointerType, DraggableRootActivation> = {
   // Distance-based so a stationary click on a clickable child doesn't become a drag.
   mouse: { type: 'distance', distance: MOVEMENT_TOLERANCE_PX },
   // Distance-based so a stylus tap doesn't briefly enter a drag session.
   pen: { type: 'distance', distance: MOVEMENT_TOLERANCE_PX },
-  // Press-hold for touch (with or without a drag handle): a distance-based
-  // activation would hijack scrolls that happen to start on a handle.
+  // Press-hold even with a drag handle, because a distance activation would
+  // hijack scrolls that start on the handle.
   touch: { type: 'press-hold', delay: 250 },
 };
 
 /**
- * The press activations for `pointerType`: every entry that addresses it, minus
- * `double-click` (handled by the `dblclick` and double-tap paths). The per-pointer
- * default applies only when no entry addresses the pointer type at all, so
- * `[{ mouse: double-click }, { touch: press-hold }]` leaves mouse with the
- * double-click alone. An empty array disables pickup.
+ * The press activations for `pointerType`. These are the entries that address
+ * it, minus `double-click`, which the `dblclick` and double-tap paths handle.
+ * The per-pointer default applies only when no entry addresses the pointer type,
+ * so `[{ mouse: double-click }, { touch: press-hold }]` leaves mouse with only
+ * the double-click. An empty `config` array disables pickup.
  */
 export function resolveActivation(
-  config: DragActivationConfig | readonly DragActivationConfig[] | undefined,
-  pointerType: DragPointerType,
-): DragActivation[] {
+  config: DraggableRootActivationConfig | readonly DraggableRootActivationConfig[] | undefined,
+  pointerType: DraggablePointerType,
+): DraggableRootActivation[] {
   if (config === undefined) {
     return [DEFAULT_ACTIVATION[pointerType]];
   }
-  const configs = normalizeConfig(config);
+  const configs = getEnabledConfigs(config, pointerType);
+  if (configs === null) {
+    return [];
+  }
   let addressed = configs.length === 0;
   const activations = configs.flatMap((activation) => {
     const specific = 'type' in activation ? activation : activation[pointerType];
@@ -41,31 +48,39 @@ export function resolveActivation(
 
 /**
  * Whether `pointerType` can pick up with a double-click (mouse) or a double-tap
- * (touch, pen). A single-value `double-click` applies to every pointer type; a
- * per-pointer map opts each type in on its own.
+ * (touch, pen). An entry with `type: 'double-click'` applies to every pointer
+ * type. A per-pointer map opts in each type separately.
  */
 export function hasDoubleClickActivation(
-  config: DragActivationConfig | readonly DragActivationConfig[] | undefined,
-  pointerType: DragPointerType,
+  config: DraggableRootActivationConfig | readonly DraggableRootActivationConfig[] | undefined,
+  pointerType: DraggablePointerType,
 ): boolean {
-  if (config === undefined) {
+  const configs = config === undefined ? null : getEnabledConfigs(config, pointerType);
+  if (configs === null) {
     return false;
   }
-  return normalizeConfig(config).some((activation) => {
+  return configs.some((activation) => {
     if ('type' in activation) {
       return activation.type === 'double-click';
     }
-    return activation[pointerType]?.type === 'double-click';
+    const specific = activation[pointerType];
+    return specific !== false && specific?.type === 'double-click';
   });
 }
 
-function normalizeConfig(
-  config: DragActivationConfig | readonly DragActivationConfig[],
-): DragActivationConfig[] {
-  if (Array.isArray(config)) {
-    return [...config] as DragActivationConfig[];
-  }
-  return [config as DragActivationConfig];
+/**
+ * The config entries as a list, or `null` when any per-pointer map turns
+ * `pointerType` off (`{ touch: false }`), which disables every form of pickup.
+ */
+function getEnabledConfigs(
+  config: DraggableRootActivationConfig | readonly DraggableRootActivationConfig[],
+  pointerType: DraggablePointerType,
+): readonly DraggableRootActivationConfig[] | null {
+  const configs: readonly DraggableRootActivationConfig[] = Array.isArray(config)
+    ? config
+    : [config as DraggableRootActivationConfig];
+  const disabled = configs.some((entry) => !('type' in entry) && entry[pointerType] === false);
+  return disabled ? null : configs;
 }
 
 function squaredDistance(a: { x: number; y: number }, b: { x: number; y: number }): number {
@@ -74,88 +89,70 @@ function squaredDistance(a: { x: number; y: number }, b: { x: number; y: number 
   return dx * dx + dy * dy;
 }
 
+/** One activation's verdict on the gesture so far. */
 export function evaluateActivation(
-  activation: DragActivation | readonly DragActivation[],
+  activation: DraggableRootActivation,
   origin: { x: number; y: number },
   current: { x: number; y: number },
   elapsedMs: number,
 ): ActivationDecision {
-  const activations = Array.isArray(activation) ? activation : [activation];
-  if (activations.length === 0) {
-    return 'cancel';
+  switch (activation.type) {
+    case 'immediate':
+      return 'activate';
+    case 'distance': {
+      const threshold = activation.distance * activation.distance;
+      return squaredDistance(origin, current) >= threshold ? 'activate' : 'pending';
+    }
+    case 'press-hold': {
+      const tolerance = activation.tolerance ?? MOVEMENT_TOLERANCE_PX;
+      if (squaredDistance(origin, current) > tolerance * tolerance) {
+        return 'cancel';
+      }
+      return elapsedMs >= activation.delay ? 'activate' : 'pending';
+    }
+    // Handled by the `dblclick` and double-tap paths, never evaluated here.
+    case 'double-click':
+    default:
+      return 'cancel';
   }
+}
 
-  let hasPending = false;
+/**
+ * Evaluate every pending activation. The gesture activates if any one of them
+ * does. Canceled ones are pruned, since a hold that exceeded its tolerance can't
+ * recover by moving back.
+ */
+export function evaluateActivations(
+  activations: readonly DraggableRootActivation[],
+  origin: { x: number; y: number },
+  current: { x: number; y: number },
+  elapsedMs: number,
+): { activate: boolean; remaining: DraggableRootActivation[] } {
+  let activate = false;
+  const remaining: DraggableRootActivation[] = [];
   for (const activation of activations) {
-    switch (activation.type) {
-      case 'immediate':
-        return 'activate';
-      case 'distance': {
-        const threshold = activation.distance * activation.distance;
-        if (squaredDistance(origin, current) >= threshold) {
-          return 'activate';
-        }
-        hasPending = true;
-        break;
-      }
-      case 'press-hold': {
-        const tolerance = activation.tolerance ?? MOVEMENT_TOLERANCE_PX;
-        const toleranceSq = tolerance * tolerance;
-        if (squaredDistance(origin, current) <= toleranceSq && elapsedMs >= activation.delay) {
-          return 'activate';
-        }
-        if (squaredDistance(origin, current) <= toleranceSq) {
-          hasPending = true;
-        }
-        break;
-      }
-      case 'double-click':
-        break;
-      default:
-        break;
+    const decision = evaluateActivation(activation, origin, current, elapsedMs);
+    if (decision === 'activate') {
+      activate = true;
+    }
+    if (decision !== 'cancel') {
+      remaining.push(activation);
     }
   }
-  return hasPending ? 'pending' : 'cancel';
+  return { activate, remaining };
 }
 
+/** The earliest press-hold deadline among `activations`, or `null` without one. */
 export function getActivationDelayMs(
-  activation: DragActivation | readonly DragActivation[],
+  activations: readonly DraggableRootActivation[],
 ): number | null {
-  const activations = Array.isArray(activation) ? activation : [activation];
-  const delays = activations
-    .filter((activation) => activation.type === 'press-hold')
-    .map((activation) => activation.delay);
-  return delays.length > 0 ? Math.min(...delays) : null;
+  let delay: number | null = null;
+  for (const activation of activations) {
+    if (activation.type === 'press-hold' && (delay === null || activation.delay < delay)) {
+      delay = activation.delay;
+    }
+  }
+  return delay;
 }
 
-/**
- * When a `pointerdown` becomes a drag. Discriminated on `type`:
- * - `immediate`: any `pointerdown` starts the drag.
- * - `distance`: the drag starts after the pointer has moved by `distance` CSS pixels.
- * - `press-hold`: the drag starts after `delay` ms of holding still; movement
- *   larger than `tolerance` CSS pixels (default 5) cancels the gesture.
- * - `double-click`: with a mouse, the drag starts on a double-click, follows the
- *   pointer without a held button, and ends on the next primary click. With touch
- *   or pen, the drag starts on the second tap of a double-tap while the pointer
- *   is still down, and ends on release.
- */
-export type DragActivation =
-  | { type: 'immediate' }
-  | { type: 'distance'; distance: number }
-  | { type: 'press-hold'; delay: number; tolerance?: number | undefined }
-  | { type: 'double-click' };
-
-/**
- * A single activation applied to all pointer types, or a per-pointer map.
- * Missing entries fall back to the per-pointer defaults. Pass an array of these
- * values to enable multiple activation methods.
- */
-export type DragActivationConfig =
-  | DragActivation
-  | {
-      mouse?: DragActivation | undefined;
-      touch?: DragActivation | undefined;
-      pen?: DragActivation | undefined;
-    };
-
-export type ActivationDecision = 'pending' | 'activate' | 'cancel';
+type ActivationDecision = 'pending' | 'activate' | 'cancel';

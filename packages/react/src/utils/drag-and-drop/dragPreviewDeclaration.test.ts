@@ -1,33 +1,24 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createDragPreviewHandle, type DragPreviewDeclaration } from './dragPreviewDeclaration';
+import { createDragPreviewHandle } from './dragPreviewDeclaration';
+import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
 
 function createDeclaration(): DragPreviewDeclaration {
-  return { render: () => null, createPreviewElement: () => null };
+  return { getSettings: () => ({}), render: () => null };
 }
 
 describe('createDragPreviewHandle', () => {
-  it('publishes a declaration and reports it', () => {
-    const handle = createDragPreviewHandle();
-    expect(handle.getDeclaration()).toBe(null);
-
-    const declaration = createDeclaration();
-    handle.declare(declaration);
-
-    expect(handle.getDeclaration()).toBe(declaration);
-  });
-
   it('warns and takes the last declaration when a second preview part declares', () => {
     const handle = createDragPreviewHandle();
     handle.declare(createDeclaration());
     const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // Warns rather than throws, matching the duplicate-`Draggable.Handle`
-    // mistake: a wrapper composing its own preview around a consumer-passed one
-    // is plausible, and white-screening production over it is out of proportion.
+    // Warns instead of throwing, like a duplicate `Draggable.Handle`. A wrapper
+    // that composes its own preview around a consumer-passed one is a plausible
+    // mistake, and crashing the app over it is out of proportion.
     const second = createDeclaration();
-    expect(() => handle.declare(second)).not.toThrow();
+    handle.declare(second);
     expect(String(spy.mock.calls[0][0])).toMatch(/more than one preview part/);
-    // Last mounted wins, so the outcome is at least deterministic.
+    // The last one mounted wins, so the outcome is deterministic.
     expect(handle.getDeclaration()).toBe(second);
 
     spy.mockRestore();
@@ -41,15 +32,15 @@ describe('createDragPreviewHandle', () => {
     expect(handle.getDeclaration()).toBe(null);
 
     const next = createDeclaration();
-    expect(() => handle.declare(next)).not.toThrow();
+    handle.declare(next);
     expect(handle.getDeclaration()).toBe(next);
   });
 
-  it('cleanup is identity-guarded, so a Strict Mode remount keeps the live declaration', () => {
+  it('keeps a newer declaration when an older cleanup runs again', () => {
     const handle = createDragPreviewHandle();
-    // Strict Mode double-invokes effects: the first part's cleanup runs *after*
-    // the remounted part has already declared. Clearing unconditionally there
-    // would drop the live declaration and leave the draggable with no preview.
+    // An older part's cleanup can run after another part has declared, for
+    // example when the earlier of two parts unmounts. Clearing unconditionally
+    // there would drop the live declaration and leave the draggable with no preview.
     const staleCleanup = handle.declare(createDeclaration());
     staleCleanup();
 

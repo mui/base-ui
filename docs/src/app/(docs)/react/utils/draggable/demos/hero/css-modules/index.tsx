@@ -2,57 +2,77 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 
 import styles from '../../hero.module.css';
 
-const CARD_WIDTH = 128;
-const CARD_HEIGHT = 40;
-
-function DraggableHeroContent() {
+export default function DraggableHero() {
   const surfaceRef = React.useRef<HTMLDivElement | null>(null);
+  const cardRef = React.useRef<HTMLDivElement | null>(null);
   const [position, setPosition] = React.useState({ x: 24, y: 24 });
 
-  return (
-    <div className={styles.Root}>
-      {/* The surface is the drop target, so a release on it ends with the `drop` reason. */}
-      <Draggable.Target
-        ref={surfaceRef}
-        trackDragOver={false}
-        className={styles.Surface}
-        onDraggableDrop={({ target }) => {
-          const surface = surfaceRef.current;
-          if (!surface) {
-            return;
-          }
+  function placeCard(x: number, y: number) {
+    const surface = surfaceRef.current;
+    const card = cardRef.current;
+    if (!surface || !card) {
+      return;
+    }
+    setPosition({
+      x: Math.max(0, Math.min(x, surface.clientWidth - card.offsetWidth)),
+      y: Math.max(0, Math.min(y, surface.clientHeight - card.offsetHeight)),
+    });
+  }
 
-          // No snap steps are declared, so this is the exact source-anchored point.
-          const point = target.getSnappedLocalPoint({ anchor: 'source' });
-          const surfaceRect = surface.getBoundingClientRect();
-          setPosition({
-            x: point.x * surfaceRect.width - surface.clientLeft,
-            y: point.y * surfaceRect.height - surface.clientTop,
-          });
-        }}
-      >
-        {/* @highlight-start */}
-        <Draggable.Root
-          modifiers={Draggable.restrictToElement(surfaceRef)}
-          // @highlight-end
-          className={styles.Card}
-          style={{ left: position.x, top: position.y, width: CARD_WIDTH, height: CARD_HEIGHT }}
-        >
-          Drag me
-          <Draggable.Preview />
-        </Draggable.Root>
-      </Draggable.Target>
-    </div>
-  );
-}
-
-export default function DraggableHero() {
   return (
     <Draggable.Provider>
-      <DraggableHeroContent />
+      <div className={styles.Root}>
+        <Draggable.Target
+          ref={surfaceRef}
+          className={styles.Surface}
+          onDraggableDrop={(eventDetails) => {
+            const surface = eventDetails.currentTarget.element;
+            const point = eventDetails.currentTarget.getSnappedLocalPoint({ anchor: 'source' });
+            const rect = surface.getBoundingClientRect();
+            placeCard(
+              point.x * rect.width - surface.clientLeft,
+              point.y * rect.height - surface.clientTop,
+            );
+          }}
+        >
+          {/* @focus-start @min 8 */}
+          {/* @highlight-start */}
+          <Draggable.Root
+            ref={cardRef}
+            modifiers={Draggable.restrictToElement(surfaceRef)}
+            // @highlight-end
+            className={styles.Card}
+            style={{ left: position.x, top: position.y }}
+            tabIndex={0}
+            aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
+            onKeyDown={(event) => {
+              if (!event.altKey) {
+                return;
+              }
+              const direction = [
+                { key: 'ArrowLeft', x: -20, y: 0 },
+                { key: 'ArrowRight', x: 20, y: 0 },
+                { key: 'ArrowUp', x: 0, y: -20 },
+                { key: 'ArrowDown', x: 0, y: 20 },
+              ].find((entry) => entry.key === event.key);
+              if (direction) {
+                event.preventDefault();
+                placeCard(position.x + direction.x, position.y + direction.y);
+              }
+            }}
+          >
+            Drag me
+          </Draggable.Root>
+          {/* @focus-end */}
+        </Draggable.Target>
+        <p role="status" style={visuallyHidden}>
+          Card position: {Math.round(position.x)}, {Math.round(position.y)}
+        </p>
+      </div>
     </Draggable.Provider>
   );
 }

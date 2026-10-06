@@ -1,16 +1,15 @@
 import * as React from 'react';
 import { describe, it, expect } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { createElement, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 import * as DraggableTargetDataAttributes from './DraggableTargetDataAttributes';
 
 setupDragEngineTests();
 
-// The engine writes these names as inlined string literals (`dropTarget.ts`), so
-// nothing links them to the exported constants that type the generated API
-// reference. Re-link every member here: renaming only one side fails CI.
+// Drive one drag through every target state so each exported attribute is
+// asserted against the element that carries it.
 describe('Draggable.Target enum sync', () => {
   const { renderDnd } = createDndRenderer();
 
@@ -31,26 +30,24 @@ describe('Draggable.Target enum sync', () => {
     const inner = screen.getByTestId('inner');
     const full = screen.getByTestId('full');
 
-    // Present for as long as the element is registered, drag or no drag.
-    expect(outer).toHaveAttribute(DraggableTargetDataAttributes.dropTarget);
     expect(screen.getByTestId('off')).toHaveAttribute(DraggableTargetDataAttributes.disabled);
     expect(outer).not.toHaveAttribute(DraggableTargetDataAttributes.dragOver);
     expect(outer).not.toHaveAttribute(DraggableTargetDataAttributes.accepting);
 
     const source = createElement();
-    engine.registerDraggable(source, { kind: testDragKind });
-    fireEvent.dragStart(source);
+    engine.registerSource(source, { kind: testDragKind });
+    fireDrag.dragStart(source);
     await flushRaf();
-    fireEvent.dragEnter(inner);
-    fireEvent.dragOver(inner);
+    fireDrag.dragEnter(inner);
+    fireDrag.dragOver(inner);
     await flushRaf();
 
-    // Every accepting target is marked from the moment the drag starts, wherever
-    // the pointer is — that is what `accepting` is for.
+    // Every accepting target is marked as soon as the drag starts, wherever the
+    // pointer is.
     expect(outer).toHaveAttribute(DraggableTargetDataAttributes.accepting);
     expect(screen.getByTestId('off')).not.toHaveAttribute(DraggableTargetDataAttributes.accepting);
 
-    // Both are over; only the deepest is `dragOverInnermost`.
+    // Both are over, and only the deepest is `dragOverInnermost`.
     expect(inner).toHaveAttribute(DraggableTargetDataAttributes.dragOver);
     expect(inner).toHaveAttribute(DraggableTargetDataAttributes.dragOverInnermost);
     expect(outer).toHaveAttribute(DraggableTargetDataAttributes.dragOver);
@@ -59,20 +56,20 @@ describe('Draggable.Target enum sync', () => {
     // A rejecting target marks itself while hovered, and only while hovered,
     // without ever entering the stack.
     expect(full).not.toHaveAttribute(DraggableTargetDataAttributes.rejected);
-    fireEvent.dragEnter(full);
-    fireEvent.dragOver(full);
+    fireDrag.dragEnter(full);
+    fireDrag.dragOver(full);
     await flushRaf();
     expect(full).toHaveAttribute(DraggableTargetDataAttributes.rejected);
     expect(full).not.toHaveAttribute(DraggableTargetDataAttributes.dragOver);
-    fireEvent.dragEnter(inner);
-    fireEvent.dragOver(inner);
+    fireDrag.dragEnter(inner);
+    fireDrag.dragOver(inner);
     await flushRaf();
     expect(full).not.toHaveAttribute(DraggableTargetDataAttributes.rejected);
 
-    fireEvent.drop(inner);
+    fireDrag.drop(inner);
     await flushRaf();
 
-    // Every drag-scoped attribute clears with the drag; a regression here would
+    // Every drag-scoped attribute clears with the drag. A regression here would
     // leave targets highlighted as valid drop zones after every drop.
     expect(outer).not.toHaveAttribute(DraggableTargetDataAttributes.accepting);
     expect(inner).not.toHaveAttribute(DraggableTargetDataAttributes.accepting);

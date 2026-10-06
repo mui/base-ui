@@ -8,16 +8,17 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './figma-board.module.css';
 
-// Stress-tests drag coordinates and preview sizing under a scaled ancestor.
-// Pointer coordinates and rects are in client pixels, so committed board
-// coordinates are divided by the scale. A top-layer preview escapes
-// `transform: scale()` but remains affected by `zoom`; the styled `scaled` clone
-// compensates only for the transform case. The toolbar reports the live
-// source and preview sizes so either mismatch is observable.
+// Tests drag coordinates and preview sizing under a scaled ancestor. Pointer
+// coordinates and rects are in client pixels, so committed board coordinates are
+// divided by the scale. A top-layer preview escapes `transform: scale()` but still
+// picks up `zoom`. The styled `scaled` clone only compensates in the transform
+// case. The toolbar shows the live source and preview sizes so you can see either
+// mismatch.
 
 interface FigmaBoardSettings {
   zoomMode: 'transform' | 'zoom';
@@ -39,20 +40,20 @@ export const settingsMetadata: SettingsMetadata<FigmaBoardSettings> = {
   },
 };
 
-const cardKind = Draggable.createKind<CardDragPayload>('figmaBoard:card');
+const cardKind = Draggable.createKind<string, CardDragPayload>('figmaBoard:card');
 const CARD_WIDTH = 200;
-// The board is a fixed-size scroll surface; cards are clamped inside it so they
-// can never be created or dropped past an edge.
+// The board is a fixed-size scroll surface. Cards are clamped inside it so they
+// can't be created or dropped past an edge.
 const SURFACE_WIDTH = 2400;
 const SURFACE_HEIGHT = 1600;
-// Approximate height of a fresh, empty card — used to clamp newly-created cards
-// before their real height has been measured.
+// Rough height of a new, empty card. Used to clamp new cards before their real
+// height is measured.
 const CARD_MIN_HEIGHT = 44;
-// Each card added from the toolbar is nudged down-right from the previous one so
-// a burst of clicks fans out instead of stacking on a single spot.
+// Each card added from the toolbar shifts down and right from the previous one,
+// so repeated clicks fan out instead of stacking.
 const NEW_CARD_CASCADE = 28;
-// The card's own type size, in board units. On screen it renders at `× zoom`,
-// which is what a preview has to match.
+// The card's font size in board units. On screen it renders at this size times
+// the zoom, and the preview has to match.
 const CARD_FONT_SIZE = 14;
 
 const MIN_ZOOM = 0.25;
@@ -75,12 +76,11 @@ interface Card {
   x: number;
   y: number;
   text: string;
-  /** Stacking order; bumped on select/drag so the active card sits on top. */
+  /** Stacking order. Bumped on select and drag so the active card sits on top. */
   z: number;
 }
 
 interface CardDragPayload {
-  id: string;
   /** Where inside the card the pointer grabbed, in client pixels. */
   grabOffsetX: number;
   grabOffsetY: number;
@@ -155,9 +155,9 @@ function FigmaBoardInner() {
     viewport.scrollTop = center.y * zoom - viewport.clientHeight / 2;
   }, [zoom]);
 
-  // Space-to-pan, the canonical canvas gesture: held space turns a press on the
-  // board into a scroll drag instead of a card drag. Suppressed while editing,
-  // where space is a literal character.
+  // Hold Space to pan, as in most canvas apps. A press on the board then scrolls
+  // it instead of dragging a card. Disabled while editing, where Space types a
+  // space.
   const editingRef = React.useRef(editingId);
   editingRef.current = editingId;
   useIsoLayoutEffect(() => {
@@ -273,8 +273,8 @@ function FigmaBoardInner() {
       return;
     }
     // Center the card in the visible area. The viewport's scroll and client sizes
-    // are client px over a scaled board, so they divide by the zoom to become
-    // board coordinates. Successive cards fan out so clicks don't pile onto one spot.
+    // are client px over a scaled board, so divide them by the zoom to get board
+    // coordinates. Each new card fans out from the previous one.
     const scale = zoomRef.current;
     const cascade = (addCascadeRef.current % 5) * NEW_CARD_CASCADE;
     addCascadeRef.current += 1;
@@ -285,7 +285,7 @@ function FigmaBoardInner() {
   });
 
   const handleSurfacePointerDown = (event: React.PointerEvent) => {
-    // Only a press on the bare surface (not a card) clears the selection.
+    // Only a press on the empty surface, not on a card, clears the selection.
     if (event.target === event.currentTarget) {
       setSelectedId(null);
       setEditingId(null);
@@ -300,10 +300,10 @@ function FigmaBoardInner() {
     if (!surface) {
       return;
     }
-    // The surface scrolls with its content, so its client rect already accounts
-    // for the scroll offset: pointer minus rect is the position on the surface —
-    // in client px, so it divides by the zoom to land in board coordinates.
-    // Offset by half the card so it's centered under the pointer.
+    // The surface scrolls with its content, so its client rect already includes
+    // the scroll offset. Pointer minus rect gives the position on the surface in
+    // client px. Divide by the zoom to get board coordinates, then offset by half
+    // the card to center it under the pointer.
     const scale = zoomRef.current;
     const rect = surface.getBoundingClientRect();
     const x = Math.round((event.clientX - rect.left) / scale - CARD_WIDTH / 2);
@@ -375,8 +375,8 @@ function FigmaBoardInner() {
         onPointerUp={handlePanPointerUp}
         onPointerCancel={handlePanPointerUp}
       >
-        {/* `transform` leaves layout at 1×, so the scroll extent has to be sized by
-            hand; `zoom` reflows and sizes itself. */}
+        {/* `transform` doesn't change the layout size, so size the scroll extent by
+            hand. `zoom` reflows and sizes itself. */}
         <div
           className={styles.sizer}
           style={
@@ -455,7 +455,7 @@ function BoardCard({
   surfaceRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
-  // Our own element ref, to read the card's height on drop.
+  // The card's own element, to read its height on drop.
   const cardRef = React.useRef<HTMLDivElement | null>(null);
 
   // While editing, focus the textarea and keep its height synced to its content
@@ -474,52 +474,56 @@ function BoardCard({
     <Draggable.Root
       ref={cardRef}
       kind={cardKind}
-      // Capture where in the card the pointer grabbed (client px). The drop maps it
-      // back to a surface position from a fresh surface rect, so it stays correct
-      // even when auto-scroll moves the board mid-drag.
-      getPayload={(feedback) => {
-        const rect = feedback.element.getBoundingClientRect();
-        return {
-          id: card.id,
-          grabOffsetX: feedback.input.clientX - rect.left,
-          grabOffsetY: feedback.input.clientY - rect.top,
-        };
+      payload={card.id}
+      // Record where in the card the pointer grabbed, in client px. The drop maps it
+      // back to a surface position using a fresh surface rect, so it stays correct
+      // when auto-scroll moves the board mid-drag.
+      onMoveStart={(eventDetails) => {
+        const rect = eventDetails.source.element.getBoundingClientRect();
+        eventDetails.source.updateDragData({
+          grabOffsetX: eventDetails.location.initial.input.clientX - rect.left,
+          grabOffsetY: eventDetails.location.initial.input.clientY - rect.top,
+        });
       }}
       disabled={editing}
       data-compensate-preview={compensatePreview ? '' : undefined}
-      // Distance activation instead of the `immediate` mouse default: a plain click
-      // — and the second click of a double-click-to-edit — must not be swallowed by
-      // a drag that commits on pointerdown. A real drag still starts after a 5px move.
-      activation={{ mouse: { type: 'distance', distance: 5 } }}
-      // Clamp the drag to the surface. A modifier
-      // governs drop resolution too, so a release off the board resolves the
-      // surface instead of cancelling. The surface rect is client-space, so this
-      // stays correct at any zoom with no conversion.
+      // Clamp the drag to the surface. Modifiers also apply to drop resolution, so
+      // a release off the board still lands on the surface instead of canceling.
+      // The surface rect is in client space, so this works at any zoom without
+      // conversion.
       modifiers={Draggable.restrictToElement(surfaceRef)}
       // Commit only a release over the surface. Escape and outside releases
       // still run the end handler but must not move the card.
-      onMoveEnd={(moveEvent, moveDetails) => {
-        if (moveDetails.reason === 'drop' && moveEvent.dropTarget !== null) {
-          const { source, location } = moveEvent;
+      onMoveEnd={(eventDetails) => {
+        if (eventDetails.target !== null) {
+          if (!eventDetails.source.dragData) {
+            return;
+          }
 
           const surface = surfaceRef.current;
           if (!surface) {
             return;
           }
-          // Re-measure the surface at drop so the result accounts for any scrolling
-          // (manual or auto) since the drag began. The rect is scaled and the grab
-          // offset was measured on the scaled card, so the whole client-space
-          // expression divides by the zoom to land back in board coordinates.
-          // `offsetHeight` is a layout value, already in board units.
+          // Measure the surface again at drop to account for any manual or auto
+          // scrolling since the drag started. The rect is scaled and the grab offset
+          // came from the scaled card, so divide the whole client-space expression
+          // by the zoom to get board coordinates. `offsetHeight` is a layout value,
+          // already in board units.
           const scale = zoomRef.current;
           const rect = surface.getBoundingClientRect();
           const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
           const newX =
-            (location.current.input.clientX - source.payload.grabOffsetX - rect.left) / scale;
+            (eventDetails.location.current.input.clientX -
+              eventDetails.source.dragData.grabOffsetX -
+              rect.left) /
+            scale;
           const newY =
-            (location.current.input.clientY - source.payload.grabOffsetY - rect.top) / scale;
+            (eventDetails.location.current.input.clientY -
+              eventDetails.source.dragData.grabOffsetY -
+              rect.top) /
+            scale;
           const position = clampToSurface(newX, newY, height);
-          onMove(source.payload.id, Math.round(position.x), Math.round(position.y));
+          onMove(eventDetails.source.payload, Math.round(position.x), Math.round(position.y));
         }
       }}
       className={(state) =>
@@ -587,9 +591,9 @@ function BoardCard({
       ) : (
         <CardText text={card.text} />
       )}
-      {/* The clone reuses the card and text markup. In transform mode the optional
-          data attribute lets CSS scale its visual properties back to the source's
-          painted size; native CSS zoom already reaches the clone without compensation. */}
+      {/* The clone reuses the card and text markup. In transform mode, the optional
+          data attribute lets CSS scale it back to the source's painted size. Native
+          CSS zoom already applies to the clone, so it needs no compensation. */}
       <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
     </Draggable.Root>
   );
@@ -614,16 +618,16 @@ interface Measurement {
 }
 
 /**
- * Live source-vs-preview comparison. Include any visual/layout scale in the
- * effective painted type size, then report it alongside the box and overflow.
+ * Live comparison of the source and its preview. The painted font size includes
+ * any visual or layout scale, and shows next to the box size and overflow.
  */
 function PreviewReadout({ zoom }: { zoom: number }) {
   const [measurement, setMeasurement] = React.useState<Measurement | null>(null);
 
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: cardKind,
-    onMove: ({ source }) => {
-      const element = source.element;
+    onMove: (eventDetails) => {
+      const element = eventDetails.source.element;
       const doc = ownerDocument(element);
       const view = doc.defaultView;
       const preview = doc.querySelector<HTMLElement>('[data-drag-preview]');

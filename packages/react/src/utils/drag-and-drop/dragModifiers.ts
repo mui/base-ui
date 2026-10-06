@@ -1,7 +1,7 @@
 /**
- * The prebuilt `modifiers`. A modifier clamps or snaps the drag point
- * each frame: on `Draggable.Root` it governs the preview, the drop hit-test and
- * the pointer hit test; on a preview part it governs the preview alone.
+ * The prebuilt `modifiers`. A modifier clamps or snaps the drag point each frame.
+ * On `Draggable.Root` it constrains the preview and the point used for hit-testing.
+ * On a preview part it constrains only the preview.
  */
 
 import { ownerWindow } from '@base-ui/utils/owner';
@@ -12,88 +12,77 @@ import {
   getElementScale,
   getViewportSize,
   resolveElementReference,
-  NO_MODIFIER_KEYS,
-  type DragModifierKeys,
 } from './utils';
+import type { DragModifierKeys } from './utils';
+import type { DraggablePosition } from '../../draggable/DraggableProvider';
 import type {
-  DragModifier,
-  DragModifierContext,
-  DragModifiers,
-  DragElementReference,
-  DragPosition,
-} from '../../types/drag';
+  DraggableRootModifier,
+  DraggableRootModifierContext,
+  DraggableRootModifiers,
+  DraggableRootElementReference,
+} from '../../draggable/root/DraggableRoot';
 
-const ZERO_OFFSET: DragPosition = { x: 0, y: 0 };
+const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
 
 /**
  * Clamp the point so the preview stays inside `rect`. The preview sits at
- * `point − previewOffset`, so both edges shift by the offset: on `Draggable.Root`
- * this contains the preview the user actually sees rather than the bare cursor;
- * on a preview part the offset is zero and `point` is the top-left itself.
+ * `point - previewOffset`, so both edges shift by the offset. On `Draggable.Root`
+ * this keeps the visible preview inside the rect, not just the cursor. On a preview
+ * part the offset is zero and `point` is the top-left corner.
  */
-function clampPointToRect(context: DragModifierContext, rect: DOMRect): DragPosition {
+function clampPointToRect(
+  context: DraggableRootModifierContext,
+  rect: Pick<DOMRect, 'left' | 'top' | 'right' | 'bottom' | 'width' | 'height'>,
+): DraggablePosition {
   const { point } = context;
-  // An element that went `display: none` (or detached) mid-drag reports a 0×0
-  // rect at the origin; clamping to it would pin the whole drag to (0, 0).
-  // Treat a zero-size rect as "no modifier" and pass the point through.
+  // An element hidden with `display: none` or detached mid-drag reports a 0×0
+  // rect at the origin. Clamping to it would pin the drag to (0, 0), so pass the
+  // point through instead.
   if (rect.width === 0 && rect.height === 0) {
     return point;
   }
   const { previewRect, previewOffset } = context;
   const width = previewRect?.width ?? 0;
   const height = previewRect?.height ?? 0;
+  // A preview larger than the rect pins to its leading edge, because `clamp`
+  // returns the lower bound when the upper one falls below it.
   return {
-    x: clamp(
-      point.x,
-      rect.left + previewOffset.x,
-      Math.max(rect.left + previewOffset.x, rect.right - width + previewOffset.x),
-    ),
-    y: clamp(
-      point.y,
-      rect.top + previewOffset.y,
-      Math.max(rect.top + previewOffset.y, rect.bottom - height + previewOffset.y),
-    ),
+    x: clamp(point.x, rect.left + previewOffset.x, rect.right - width + previewOffset.x),
+    y: clamp(point.y, rect.top + previewOffset.y, rect.bottom - height + previewOffset.y),
   };
 }
 
-/** Locks the drag to the vertical axis at its initial horizontal position. */
-export const restrictToVerticalAxis: DragModifier = ({ point, initialPoint }) => ({
+/** Locks the drag to the vertical axis. */
+export const restrictToVerticalAxis: DraggableRootModifier = ({ point, initialPoint }) => ({
   x: initialPoint.x,
   y: point.y,
 });
 
-/** Locks the drag to the horizontal axis at its initial vertical position. */
-export const restrictToHorizontalAxis: DragModifier = ({ point, initialPoint }) => ({
+/** Locks the drag to the horizontal axis. */
+export const restrictToHorizontalAxis: DraggableRootModifier = ({ point, initialPoint }) => ({
   x: point.x,
   y: initialPoint.y,
 });
 
-/** Keep the drag within the viewport. */
-export const restrictToWindowEdges: DragModifier = (context) => {
-  const { point, previewRect, previewOffset } = context;
-  const width = previewRect?.width ?? 0;
-  const height = previewRect?.height ?? 0;
-  const viewport = getViewportSize(context.ownerWindow);
-  return {
-    x: clamp(
-      point.x,
-      previewOffset.x,
-      Math.max(previewOffset.x, viewport.width - width + previewOffset.x),
-    ),
-    y: clamp(
-      point.y,
-      previewOffset.y,
-      Math.max(previewOffset.y, viewport.height - height + previewOffset.y),
-    ),
-  };
+/** Keeps the drag inside the browser viewport. */
+export const restrictToWindowEdges: DraggableRootModifier = (context) => {
+  const { width, height } = getViewportSize(context.ownerWindow);
+  return clampPointToRect(context, {
+    left: 0,
+    top: 0,
+    right: width,
+    bottom: height,
+    width,
+    height,
+  });
 };
 
 /**
- * Keep the drag within an element's bounds. Pass the element, a ref object, or a
- * function returning it. The rect is read on every constrained move, so a
- * container that scrolls or resizes between moves is tracked.
+ * Keeps the drag inside an element. Accepts the element, a ref to it, or a function
+ * returning it. The element is measured on every move, so it can scroll or resize
+ * during the drag.
  */
-export function restrictToElement(element: DragElementReference): DragModifier {
+export function restrictToElement(element: DraggableRootElementReference): DraggableRootModifier {
   return (context) => {
     const target = resolveElementReference(element, undefined);
     if (!target) {
@@ -103,26 +92,36 @@ export function restrictToElement(element: DragElementReference): DragModifier {
   };
 }
 
-/** Keep the drag within the source element's parent. */
-export const restrictToParentElement: DragModifier = (context) => {
-  // Composed parent: a draggable that is a direct child of a shadow root clamps
-  // to the host instead of silently becoming a no-op.
-  const parent = getComposedParentElement(context.sourceElement);
-  if (!parent) {
-    return context.point;
+/** Keeps the drag inside the source element's parent. */
+export const restrictToParentElement: DraggableRootModifier = (context) => {
+  // Use the composed parent, so a draggable that is a direct child of a shadow
+  // root clamps to the host instead of doing nothing.
+  let parent = getComposedParentElement(context.sourceElement);
+  while (parent) {
+    const rect = parent.getBoundingClientRect();
+    // A `display: contents` parent, such as the `<slot>` a draggable is assigned
+    // to, has no box and measures 0×0. The parent that lays the draggable out is
+    // further up.
+    if (
+      rect.width !== 0 ||
+      rect.height !== 0 ||
+      ownerWindow(parent).getComputedStyle(parent).display !== 'contents'
+    ) {
+      return clampPointToRect(context, rect);
+    }
+    parent = getComposedParentElement(parent);
   }
-  return clampPointToRect(context, parent.getBoundingClientRect());
+  return context.point;
 };
 
 /**
- * Snap the drag to a grid, anchored at the point where the drag began. Pass a
- * single number for a square grid or `{ x, y }` for a rectangular one. A
- * non-positive step leaves that axis unsnapped.
+ * Snaps the drag to a grid anchored where the drag started. Pass a number for a
+ * square grid, or `{ x, y }` for a rectangular one. A step of `0` leaves that axis free.
  *
- * The step uses the source's coordinate system. For example, `snapToGrid(20)`
- * still snaps to a 20-unit grid when the canvas is zoomed to 70%.
+ * The step is in the source's own units, so `snapToGrid(20)` still snaps to a
+ * 20-unit grid on a zoomed canvas.
  */
-export function snapToGrid(size: number | { x: number; y: number }): DragModifier {
+export function snapToGrid(size: number | { x: number; y: number }): DraggableRootModifier {
   const sizeX = typeof size === 'number' ? size : size.x;
   const sizeY = typeof size === 'number' ? size : size.y;
   return ({ point, initialPoint, scale }) => {
@@ -135,7 +134,7 @@ export function snapToGrid(size: number | { x: number; y: number }): DragModifie
   };
 }
 
-// Round the distance from the origin to the nearest grid step symmetrically:
+// Round the distance from the origin to the nearest grid step, symmetrically.
 // `Math.round` alone rounds half steps toward +∞, so a half-step drag would snap
 // a full step to the right but stay put to the left.
 function snapDelta(delta: number, step: number): number {
@@ -143,53 +142,51 @@ function snapDelta(delta: number, step: number): number {
 }
 
 /**
- * Normalize a `modifiers` declaration to a non-empty list, or `null` when
- * there is nothing to apply, so a caller can skip the work (and the drag-start
- * measurements that feed the context) entirely.
+ * Normalize a `modifiers` declaration to a non-empty list, or `null` when there
+ * is nothing to apply. A caller can then skip the work, including the drag-start
+ * measurements that feed the context.
  * @internal
  */
 export function compileDragModifiers(
-  modifiers: DragModifiers | undefined,
-): ReadonlyArray<DragModifier> | null {
+  modifiers: DraggableRootModifiers | undefined,
+): ReadonlyArray<DraggableRootModifier> | null {
   if (!modifiers) {
     return null;
   }
   if (!Array.isArray(modifiers)) {
-    return [modifiers as DragModifier];
+    return [modifiers as DraggableRootModifier];
   }
-  const list = (modifiers as ReadonlyArray<DragModifier | false | null | undefined>).filter(
-    (modifier): modifier is DragModifier => Boolean(modifier),
-  );
+  const list = modifiers.filter((modifier): modifier is DraggableRootModifier => Boolean(modifier));
   return list.length > 0 ? list : null;
 }
 
 /** The per-move inputs `applyDragModifiers` builds each modifier's context from. */
 interface ApplyDragModifiersOptions {
-  initialPoint: DragPosition;
-  input: DragPosition;
+  initialPoint: DraggablePosition;
+  input: DraggablePosition;
   sourceElement: HTMLElement;
   sourceRect: DOMRect;
-  scale: DragPosition;
-  previewOffset: DragPosition;
+  scale: DraggablePosition;
+  previewOffset: DraggablePosition;
   /** The modifier keys held by the event that produced this move. */
   keys: DragModifierKeys;
   ownerWindow: Window;
-  /** Measures the preview; invoked at most once, and only when a modifier reads `previewRect`. */
+  /** Measures the preview. Called at most once, and only when a modifier reads `previewRect`. */
   getPreviewRect: () => DOMRect | null;
 }
 
 /**
- * Run a compiled modifier list over a point, left-to-right (each constrains
- * the previous one's result). `previewRect` is measured lazily and at most once
- * per application: the common modifiers (axis locks, grid snaps) never read
- * it, so they must not pay for the layout read.
+ * Run a compiled modifier list over a point, left to right. Each modifier
+ * receives the previous one's result. `previewRect` is measured lazily, at most
+ * once per application. Axis locks and grid snaps never read it, so they don't
+ * pay for the layout read.
  * @internal
  */
 export function applyDragModifiers(
-  modifiers: ReadonlyArray<DragModifier>,
-  point: DragPosition,
+  modifiers: ReadonlyArray<DraggableRootModifier>,
+  point: DraggablePosition,
   options: ApplyDragModifiersOptions,
-): DragPosition {
+): DraggablePosition {
   let previewRect: DOMRect | null | undefined;
   const readPreviewRect = (): DOMRect | null => {
     if (previewRect === undefined) {
@@ -197,16 +194,15 @@ export function applyDragModifiers(
     }
     return previewRect;
   };
-  // Contained: modifiers run inside the pointer sensor's animation frame, where
-  // an uncaught throw would strand the drag. One
-  // unconstrained move beats a broken gesture.
+  // Modifiers run inside the pointer sensor's animation frame, where an uncaught
+  // throw would strand the drag. One unconstrained move is better than a broken gesture.
   return containConsumerError(
     'Base UI: a drag "modifiers" function threw, leaving this move unconstrained.',
     options.sourceElement,
     () => {
       let current = point;
       for (const modifier of modifiers) {
-        current = modifier({
+        const next = modifier({
           point: current,
           initialPoint: options.initialPoint,
           input: options.input,
@@ -223,6 +219,16 @@ export function applyDragModifiers(
           metaKey: options.keys.metaKey,
           ownerWindow: options.ownerWindow,
         });
+        // A `NaN` or infinite axis, such as `snapToGrid(Infinity)` produces, would
+        // make the hit-test throw on every frame. That axis keeps the modifier's
+        // input instead.
+        current =
+          Number.isFinite(next.x) && Number.isFinite(next.y)
+            ? next
+            : {
+                x: Number.isFinite(next.x) ? next.x : current.x,
+                y: Number.isFinite(next.y) ? next.y : current.y,
+              };
       }
       return current;
     },
@@ -233,86 +239,78 @@ export function applyDragModifiers(
 /** The slice of the synthetic preview handle a sensor modifier application reads. */
 interface ModifierPreviewLike {
   getPreviewElement(): { element: HTMLElement } | null;
-  getPreviewOffset(): DragPosition;
+  getPreviewOffset(): DraggablePosition;
 }
 
 /**
  * A draggable's `modifiers` compiled for one drag session, with the
- * drag-start measures every application shares.
+ * drag-start measurements every application shares.
  * @internal
  */
 export interface DragModifiersState {
-  modifiers: ReadonlyArray<DragModifier>;
+  modifiers: ReadonlyArray<DraggableRootModifier>;
   /**
-   * The (already constrained) drag-start point — the reference an axis lock or
-   * grid snaps against, and the point the session should start from.
+   * The drag-start point, already constrained. Axis locks and grid snaps anchor
+   * to it, and the session starts from it.
    */
-  initialPoint: DragPosition;
+  initialPoint: DraggablePosition;
   sourceElement: HTMLElement;
   /** The source's rect at drag start, measured before `[data-dragging]` can restyle it. */
   sourceRect: DOMRect;
   /**
-   * The scale the transforms over the source and its ancestors apply to it, measured at
-   * drag start (see `getElementScale`).
+   * The scale that transforms on the source and its ancestors apply to it, measured
+   * at drag start (see `getElementScale`).
    */
-  scale: DragPosition;
+  scale: DraggablePosition;
 }
 
 /**
  * Compile a draggable's `modifiers` for a starting drag, or `null` when it
- * declared none. Measures the source rect only when there is something to apply
- * — call before the session starts, so `[data-dragging]` styles can't corrupt
- * the measure. The start point is constrained immediately and becomes
- * `initialPoint`: the drag begins where its first frame will resolve, and axis
- * locks or grid snaps anchor there rather than at a point a rect clamp already
- * moved away from.
+ * declared none. Measures the source rect only when there is something to apply.
+ * Call it before the session starts, so `[data-dragging]` styles can't skew the
+ * measurement. The start point is constrained immediately and becomes
+ * `initialPoint`. The drag begins where its first frame will resolve, and axis
+ * locks or grid snaps anchor there instead of at a point a rect clamp already moved.
  * @internal
  */
 export function createDragModifiersState(
-  declared: DragModifiers | undefined,
+  declared: DraggableRootModifiers | undefined,
   sourceElement: HTMLElement,
-  startPoint: DragPosition,
-  options: {
-    /** The pickup event's modifier keys, for the initial apply. */
-    keys?: DragModifierKeys | undefined;
-    /** Overrides how the source is measured, for a caller that already has the rect. */
-    measureSourceRect?: (() => DOMRect) | undefined;
-  } = {},
+  startPoint: DraggablePosition,
+  /** The pickup event's modifier keys, for the initial apply. */
+  keys: DragModifierKeys,
 ): DragModifiersState | null {
   const modifiers = compileDragModifiers(declared);
   if (!modifiers) {
     return null;
   }
-  const { keys = NO_MODIFIER_KEYS, measureSourceRect } = options;
-  const sourceRect = measureSourceRect
-    ? measureSourceRect()
-    : sourceElement.getBoundingClientRect();
   const state: DragModifiersState = {
     modifiers,
     initialPoint: startPoint,
     sourceElement,
-    sourceRect,
+    sourceRect: sourceElement.getBoundingClientRect(),
     scale: getElementScale(sourceElement),
   };
-  // No preview exists yet at drag start; rect modifiers clamp the bare point. The keys
-  // are the pickup event's, so a drag begun with a modifier already held starts
-  // constrained rather than waiting for the first move.
+  // No preview exists yet at drag start, so rect modifiers clamp the bare point. The
+  // keys come from the pickup event, so a drag started with a modifier key held is
+  // constrained from its first point rather than from the first move.
   state.initialPoint = modifyDragPoint(state, startPoint, null, keys);
   return state;
 }
 
 /**
- * Apply a session's compiled modifiers to a pointer position. The preview handle supplies the measures only some
- * modifiers read: its rect, and the offset from its top-left to the cursor, so
- * rect modifiers contain the preview rather than the bare cursor.
+ * Apply a session's compiled modifiers to a pointer position. The preview handle
+ * supplies two measurements that only some modifiers read: its rect, and the offset
+ * from its top-left corner to the cursor. Rect modifiers use them to contain the
+ * preview rather than the bare cursor.
  * @internal
  */
 export function modifyDragPoint(
   state: DragModifiersState,
-  point: DragPosition,
+  point: DraggablePosition,
   preview: ModifierPreviewLike | null,
-  keys: DragModifierKeys = NO_MODIFIER_KEYS,
-): DragPosition {
+  keys: DragModifierKeys,
+): DraggablePosition {
   return applyDragModifiers(state.modifiers, point, {
     initialPoint: state.initialPoint,
     input: point,

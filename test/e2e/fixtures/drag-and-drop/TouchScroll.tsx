@@ -4,23 +4,23 @@ import { Draggable } from '@base-ui/react/draggable';
 const itemKind = Draggable.createKind('e2e-touch-scroll');
 
 /**
- * A page taller than the viewport with a press-hold draggable: a held touch must
- * pick the item up and keep the page still, while a plain swipe must scroll it
+ * A page taller than the viewport with a press-hold draggable. A held touch must
+ * pick the item up and keep the page still. A plain swipe must scroll the page
  * and never start a drag.
  */
 function TouchScrollContent() {
   const [mounted, setMounted] = React.useState(true);
   const [dropCount, setDropCount] = React.useState(0);
-  const [result, setResult] = React.useState<{ reason: string; canceled: boolean } | null>(null);
+  const [result, setResult] = React.useState<{ reason: string; dropped: boolean } | null>(null);
   const [startCount, setStartCount] = React.useState(0);
   const [endCount, setEndCount] = React.useState(0);
 
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: itemKind,
     onMoveStart: () => setStartCount((count) => count + 1),
-    onMoveEnd: (event, details) => {
+    onMoveEnd: (eventDetails) => {
       setEndCount((count) => count + 1);
-      setResult({ reason: details.reason, canceled: event.canceled });
+      setResult({ reason: eventDetails.reason, dropped: eventDetails.target !== null });
     },
   });
 

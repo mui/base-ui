@@ -61,129 +61,92 @@ Enables RTL behavior for Base UI components.
 
 ## Draggable
 
-Components and hooks for pointer-driven drag and drop: sources, targets, previews, auto-scroll
-viewports, and sortable groups.
+Drag and drop for pointer input, with drop targets, previews, sorting, and auto-scrolling.
 
 <details>
 
 <summary>Outline</summary>
 
-- Keywords: React Drag and Drop, Draggable, Drop Target, Drag Preview, Auto Scroll, Base UI
+- Keywords: React Drag and Drop, Draggable, Drop Target, Drag Preview, Sortable List, Auto Scroll, Headless React Components, Base UI
 - Sections:
   - Usage guidelines
   - Anatomy
-  - Provider
-  - Pass data along
-    - Share kinds between sources and targets
-  - Drag handle
-  - Conditional drag
+  - Kinds and payloads
+    - Matching several kinds
   - Drag events
-    - Read the location history
-  - Re-rendering the source mid-drag
-  - Activation
-    - Multiple ways to pick up
-    - Double-click pickup
-  - Movement modifiers
-    - Modifiers on the preview
-    - Write your own
-    - Gating on a modifier key
-  - Drag previews
-    - Default preview
-    - Custom previews
-    - Configure the clone
-    - Drag without a preview
-    - Position the preview
-    - Render previews elsewhere
-    - Set the drag cursor
+    - Drag source events
+    - Drop target events
   - Drop targets
-    - Choose which items to accept
-    - Drop events
-    - Attach data to a target
-    - Read where in the target the pointer landed
-    - Snap to steps
-    - Nested drop targets
-    - Track the drag-over state
-    - Accept native file drops
-    - Both a source and a target
-  - Sorting with a collision provider
-    - Reorder on drop
-    - Reorder while dragging
-  - Scrolling
-    - Which containers scroll
-    - Customize a container that already scrolls
-      - Control when it scrolls
-      - Constrain the direction
-      - Tune the speed
-    - Implement custom scrolling
-    - Nested containers
-    - Both a scroll container and a drop target
+    - Accepting drops
+    - Identifying a target
+  - Auto-scrolling
     - Scrolling the page
-  - Styling
-    - Dimming the source
-    - Sizing a custom preview
-    - Animating a drop
-    - Highlight the innermost target
-    - The drag cursor
-    - Touch and selection styles
-    - Content security policy
-    - Reduced motion
-  - Accessibility
-    - Provide an alternative to dragging
-    - Add shortcuts for frequent moves
-    - Keep the operation focused
-    - Announce state changes
-    - Keep pointer handles out of the tab order
-    - Check it
   - Testing
-    - Pick the environment first
-    - Start a pointer drag
-    - Let a frame pass
-    - Assert on what a user can observe
-    - Clean up between tests
+    - Choosing an environment
+    - Simulating a drag
+    - Waiting and asserting
+    - Cleaning up
   - Examples
-    - Draggable tabs
-    - Calendar
-    - Free dragging
-    - Kanban board
-    - File explorer
+    - Drag handle
+    - Disabling a drag
+    - Storing data during a drag
+    - Activation
+      - Double-click pickup
+    - Constraining movement
+      - Custom modifiers
+    - Drag preview
+    - Custom preview
+    - Preview position
+    - Preview container
+    - Drag cursor
+    - Styling the source and preview
+      - Animating a drop
+    - Drop position within a target
+    - Nested drop targets
+    - Styling drop targets
+    - Native file drops
+    - One element with two roles
+    - Sorting a list
+    - Sorting while dragging
+    - Auto-scroll direction
+    - Auto-scroll speed
+    - Auto-scroll outside the viewport
+    - Custom auto-scrolling
+    - Typed wrapper component
   - API reference
     - Provider
     - Root
     - Handle
     - Preview
-    - Collision provider
     - Target
     - Viewport
+    - CollisionProvider
+  - createKind
+  - createGlobalKind
+  - anyKind constant
+  - Modifiers
     - restrictToVerticalAxis
     - restrictToHorizontalAxis
     - restrictToParentElement
     - restrictToElement
     - restrictToWindowEdges
     - snapToGrid
-    - DragModifier
-    - createKind
-    - createGlobalKind
-    - Accepting any kind
   - useActiveDrag
-  - useDragMonitor
-    - Filter by kind
-    - Drag events
-  - useDragDropManager
-    - When each parameter is read
-    - `registerDraggable` method
-      - Drag preview
-    - `registerDropTarget` method
-    - `registerAutoScroller` method
-    - `registerMonitor` method
-    - `cancelDrag` method
+  - useMonitor
+  - useManager
+    - registerSource
+    - registerTarget
+    - registerViewport
+    - registerMonitor
+    - cancelDrag
 - Exports:
   - Draggable - Root
-    - Props: activation, children, className, collision, collisionElement, collisionPayload, disabled, dragCursor, getPayload, kind, modifiers, onBeforeMoveStart, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, snap, style
-    - Data Attributes: data-disabled, data-dragging, data-ending-style
+    - Props: activation, children, className, collision, collisionElement, collisionPayload, disabled, dragCursor, kind, modifiers, onBeforeMoveStart, onMove, onMoveEnd, onMoveStart, onTargetChange, payload, previewKey, render, snap, style
+    - Data Attributes: data-disabled, data-dragging, data-settling
   - Draggable - Provider
     - Props: children
   - Draggable - Viewport
-    - Props: accept, className, disabled, maxSpeed, onDragScroll, render, style
+    - Props: accept, className, disabled, maxSpeed, onDragScroll, overflowMargin, render, style
     - Data Attributes: data-disabled
   - Draggable - CollisionProvider
     - Props: canCollide, children, kind, onCollisionChange, onMoveEnd, onMoveStart
@@ -191,19 +154,14 @@ viewports, and sortable groups.
     - Parameters: key
   - Draggable - createKind
     - Parameters: name
-  - Draggable - DragCleanupFn
-  - Draggable - DraggablePayloadGetter
-    - Parameters: context
-  - Draggable - DragModifier
-    - Parameters: context
-  - Draggable - DropTargetPayloadGetter
-    - Parameters: context
   - Draggable - Handle
-    - Props: className, disabled, render, style
+    - Props: className, render, style
     - Data Attributes: data-disabled
+  - Draggable - Modifier
+    - Parameters: context
   - Draggable - Preview
     - Props: children, className, container, disabled, kind, modifiers, offset, render, style
-    - Data Attributes: data-drag-preview, data-ending-style
+    - Data Attributes: data-drag-preview, data-dropped, data-ending-style
     - CSS Variables: --drag-source-height, --drag-source-width
   - Draggable - restrictToElement
     - Parameters: element
@@ -218,16 +176,17 @@ viewports, and sortable groups.
   - Draggable - snapToGrid
     - Parameters: size
   - Draggable - Target
-    - Props: accept, canDrop, className, disabled, getPayload, kind, onDraggableDrop, onDraggableEnter, onDraggableLeave, onDraggableMove, onDraggableStart, payload, render, snap, style, trackDragOver
-    - Data Attributes: data-accepting, data-disabled, data-drag-over, data-drag-over-innermost, data-drop-target, data-rejected
+    - Props: accept, canDrop, className, disabled, kind, onDraggableDrop, onDraggableEnter, onDraggableLeave, onDraggableMove, onDraggableStart, payload, render, snap, style, trackDragOver
+    - Data Attributes: data-accepting, data-disabled, data-drag-over, data-drag-over-innermost, data-rejected
+  - Draggable - updatePreview
   - Draggable - useActiveDrag
     - Parameters: accept
-  - Draggable - useDragDropManager
-  - Draggable - useDragMonitor
+  - Draggable - useManager
+  - Draggable - useMonitor
     - Parameters: parameters
-  - DragAutoScrollHandler
-    - Parameters: event, eventDetails
-- Types: Draggable.CollisionProvider.Collision, Draggable.CollisionProvider.CollisionEvent, Draggable.CollisionProvider.MoveEndEvent, Draggable.CollisionProvider.Props, Draggable.Handle.Props, Draggable.Handle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.Target.Props, Draggable.Target.PropsWithPayload, Draggable.Target.State, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useDragDropManager.ReturnValue, Draggable.useDragMonitor.Parameters, Draggable.useDragMonitor.ReturnValue
+  - DraggableRootModifier
+    - Parameters: context
+- Types: Draggable.CollisionProvider.CollisionChangeEventDetails, Draggable.CollisionProvider.CollisionChangeEventReason, Draggable.CollisionProvider.MoveEndEventDetails, Draggable.CollisionProvider.MoveEndEventReason, Draggable.CollisionProvider.MoveStartEventDetails, Draggable.CollisionProvider.MoveStartEventReason, Draggable.CollisionProvider.Props, Draggable.Handle.Props, Draggable.Handle.Reference, Draggable.Handle.State, Draggable.Preview.Container, Draggable.Preview.Offset, Draggable.Preview.OffsetParameters, Draggable.Preview.Parameters, Draggable.Preview.Props, Draggable.Preview.RenderParameters, Draggable.Preview.Settings, Draggable.Preview.State, Draggable.Provider.Props, Draggable.Root.Activation, Draggable.Root.ActivationConfig, Draggable.Root.BeforeMoveStartEventDetails, Draggable.Root.BeforeMoveStartEventReason, Draggable.Root.ElementReference, Draggable.Root.ModifierContext, Draggable.Root.Modifiers, Draggable.Root.MoveEndEventDetails, Draggable.Root.MoveEndEventReason, Draggable.Root.MoveEventDetails, Draggable.Root.MoveEventReason, Draggable.Root.MoveStartEventDetails, Draggable.Root.MoveStartEventReason, Draggable.Root.Props, Draggable.Root.Record, Draggable.Root.State, Draggable.Root.TargetChangeEventDetails, Draggable.Root.TargetChangeEventReason, Draggable.Target.DropEventDetails, Draggable.Target.DropEventReason, Draggable.Target.EnterEventDetails, Draggable.Target.EnterEventReason, Draggable.Target.LeaveEventDetails, Draggable.Target.LeaveEventReason, Draggable.Target.LocalPoint, Draggable.Target.MoveEventDetails, Draggable.Target.MoveEventReason, Draggable.Target.Props, Draggable.Target.Record, Draggable.Target.ResolutionContext, Draggable.Target.SnapSteps, Draggable.Target.SnappedLocalPointOptions, Draggable.Target.StartEventDetails, Draggable.Target.StartEventReason, Draggable.Target.State, Draggable.Viewport.DragScrollDirection, Draggable.Viewport.DragScrollEventDetails, Draggable.Viewport.DragScrollEventReason, Draggable.Viewport.MaxSpeedContext, Draggable.Viewport.OverflowMargin, Draggable.Viewport.Props, Draggable.Viewport.State, Draggable.useActiveDrag.ReturnValue, Draggable.useManager.RegisterMonitorParameters, Draggable.useManager.RegisterSourceParameters, Draggable.useManager.RegisterTargetParameters, Draggable.useManager.RegisterViewportParameters, Draggable.useManager.ReturnValue, Draggable.useMonitor.Parameters, Draggable.useMonitor.ReturnValue
 
 </details>
 
@@ -329,7 +288,7 @@ Renders only the visible items of a large list.
     - Parameters: group
   - VirtualizerRenderGroupHeader
     - Parameters: group, groupIndex, headerProps
-- Types: Virtualizer.Actions, Virtualizer.ActiveIndex, Virtualizer.ActiveItem, Virtualizer.Group, Virtualizer.GroupHeaderElement, Virtualizer.GroupHeaderMetadata, Virtualizer.GroupHeaderProps, Virtualizer.Handle, Virtualizer.Host, Virtualizer.HostState, Virtualizer.ItemAria, Virtualizer.ItemMetadata, Virtualizer.ItemProps, Virtualizer.Layout, Virtualizer.Props, Virtualizer.Registration, Virtualizer.Registry, Virtualizer.RowProps, Virtualizer.State, VirtualizerHostContext, VirtualizerHostStateContext, VirtualizerItemMetrics, VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions
+- Types: Virtualizer.Actions, Virtualizer.ActiveIndex, Virtualizer.ActiveItem, Virtualizer.Group, Virtualizer.GroupHeaderElement, Virtualizer.GroupHeaderMetadata, Virtualizer.GroupHeaderProps, Virtualizer.Handle, Virtualizer.Host, Virtualizer.HostState, Virtualizer.ItemAria, Virtualizer.ItemMetadata, Virtualizer.ItemProps, Virtualizer.Layout, Virtualizer.Props, Virtualizer.Registration, Virtualizer.Registry, Virtualizer.RowProps, Virtualizer.State, VirtualizerCssVariables, VirtualizerDataAttributes, VirtualizerHostContext, VirtualizerHostStateContext, VirtualizerItemMetrics, VirtualizerScrollAlignment, VirtualizerScrollToIndexOptions
 
 </details>
 

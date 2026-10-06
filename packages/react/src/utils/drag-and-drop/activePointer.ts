@@ -1,14 +1,14 @@
-import type { DragInput } from '../../types/drag';
+import type { DraggableInput } from '../../draggable/DraggableProvider';
 import { getSharedSlot } from './sharedState';
 
 interface ActivePointerAccessors {
-  getInput(): DragInput | null;
-  getHitElement(): Element | null;
+  getInput(): DraggableInput | null;
   notifyScroll(): void;
 }
 
-// Optional features read the live sensor without importing its preview and
-// activation machinery. Shared across bundled copies, like the sensor state.
+// Auto-scroll reads the live pointer sensor through this slot instead of
+// importing it, so a chunk with only drop targets and viewports doesn't bundle
+// the pickup code. Bundled copies share the slot, like the sensor state.
 const slot = getSharedSlot<{ accessors: ActivePointerAccessors | null }>('activePointer', () => ({
   accessors: null,
 }));
@@ -17,14 +17,12 @@ export function setActivePointerAccessors(accessors: ActivePointerAccessors): vo
   slot.accessors = accessors;
 }
 
-export function getRawActivePointerInput(): DragInput | null {
+/** The active pointer drag's raw input, before `modifiers` apply, or `null` without one. */
+export function getRawActivePointerInput(): DraggableInput | null {
   return slot.accessors?.getInput() ?? null;
 }
 
-export function getActiveHitElement(): Element | null {
-  return slot.accessors?.getHitElement() ?? null;
-}
-
+/** Flag that something scrolled under the active pointer drag. */
 export function notifyExternalScroll(): void {
   slot.accessors?.notifyScroll();
 }

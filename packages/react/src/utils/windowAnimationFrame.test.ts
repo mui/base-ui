@@ -36,6 +36,33 @@ describe('WindowAnimationFrame', () => {
     expect(frame.currentId).toBeNull();
   });
 
+  it('passes the frame timestamp to the callback', () => {
+    const { ownerWindow, scheduled } = createFakeWindow();
+    const frame = new WindowAnimationFrame(ownerWindow);
+    const fn = vi.fn();
+
+    frame.request(fn);
+    scheduled.get(1)!(1234.5);
+
+    expect(fn).toHaveBeenCalledWith(1234.5);
+  });
+
+  it('replaces a pending callback when requested again', () => {
+    const { ownerWindow, cancelAnimationFrame, scheduled } = createFakeWindow();
+    const frame = new WindowAnimationFrame(ownerWindow);
+    const first = vi.fn();
+    const second = vi.fn();
+
+    frame.request(first);
+    frame.request(second);
+
+    expect(cancelAnimationFrame).toHaveBeenCalledWith(1);
+    expect([...scheduled.keys()]).toEqual([2]);
+    scheduled.get(2)!(0);
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledTimes(1);
+  });
+
   it('cancels through the owner window', () => {
     const { ownerWindow, cancelAnimationFrame, scheduled } = createFakeWindow();
     const frame = new WindowAnimationFrame(ownerWindow);

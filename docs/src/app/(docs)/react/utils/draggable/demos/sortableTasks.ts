@@ -3,25 +3,27 @@ import type { Draggable } from '@base-ui/react/draggable';
 
 export const INITIAL_TASKS = ['Write the spec', 'Sketch the UI', 'Set up the repo', 'Wire the API'];
 
-/** Move the dragged task next to the collision's destination; unchanged input returns `current`. */
+/** Move the dragged task next to the item under the pointer. Returns `current` if nothing moved. */
 export function moveTask(
   current: string[],
-  { source, collision }: Draggable.CollisionProvider.CollisionEvent<string>,
-  placement = collision && (collision.target.getLocalPoint().y > 0.5 ? 'after' : 'before'),
+  eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>,
+  placement = getTaskDestination(eventDetails.target)?.placement,
 ): string[] {
-  if (!collision) {
+  const target = eventDetails.target;
+  if (!target) {
     return current;
   }
-  const remaining = current.filter((task) => task !== source.payload);
-  const index = remaining.indexOf(collision.target.payload);
+  const dragged = eventDetails.source.payload;
+  const remaining = current.filter((task) => task !== dragged);
+  const index = remaining.indexOf(target.payload);
   if (index === -1) {
     return current;
   }
-  remaining.splice(index + (placement === 'after' ? 1 : 0), 0, source.payload);
+  remaining.splice(index + (placement === 'after' ? 1 : 0), 0, dragged);
   return remaining.every((task, position) => task === current[position]) ? current : remaining;
 }
 
-/** Swap a task with its neighbor for the keyboard alternative. */
+/** Swap a task with its neighbor. Used for keyboard reordering. */
 export function swapTask(current: string[], task: string, direction: 'up' | 'down'): string[] {
   const index = current.indexOf(task);
   const nextIndex = index + (direction === 'up' ? -1 : 1);
@@ -44,12 +46,12 @@ export interface TaskDestination {
 }
 
 export function getTaskDestination(
-  collision: Draggable.CollisionProvider.Collision<string> | null,
+  target: Draggable.Target.Record<string> | null,
 ): TaskDestination | null {
-  return collision
+  return target
     ? {
-        id: collision.target.payload,
-        placement: collision.target.getLocalPoint().y > 0.5 ? 'after' : 'before',
+        id: target.payload,
+        placement: target.getLocalPoint().y > 0.5 ? 'after' : 'before',
       }
     : null;
 }

@@ -7,22 +7,6 @@
   user-select: none;
 }
 
-.Root,
-.Root * {
-  box-sizing: border-box;
-  font-synthesis: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.Controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
 .Grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -34,6 +18,7 @@
 }
 
 .Slot {
+  box-sizing: border-box;
   display: flex;
   align-items: stretch;
   min-height: 8rem;
@@ -72,6 +57,7 @@
 }
 
 .Widget {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -97,6 +83,15 @@
       @media (prefers-color-scheme: dark) {
         background-color: oklch(26.9% 0 0deg);
       }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
     }
   }
 

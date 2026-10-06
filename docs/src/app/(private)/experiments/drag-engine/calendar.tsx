@@ -9,23 +9,26 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/DragPageAutoScroll';
 
+import type {
+  CalendarEvent,
+  CalendarViewMode,
+  CalendarViewContextValue,
+  DropPreview,
+} from './calendarLogic';
 import {
   addDays,
   addMonths,
   CAL_DRAG_KINDS,
   calendarReducer,
-  CalendarEvent,
-  CalendarViewMode,
   CalendarViewProvider,
-  CalendarViewContextValue,
   createSeedState,
-  DropPreview,
   startOfMonth,
   startOfWeek,
 } from './calendarLogic';
 import { CalendarMonthView } from './calendarViews/CalendarMonth';
 import { CalendarWeekView } from './calendarViews/CalendarWeek';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './calendar.module.css';
 
@@ -86,9 +89,8 @@ function CalendarExperimentInner() {
         .filter((event): event is CalendarEvent => event != null),
     [state],
   );
-  const eventsRef = useValueAsRef(events);
-  // Captured once so render code can compare without calling `Date.now()`
-  // (flagged impure during render). Refreshed on Reset.
+  // Captured once so render code can compare dates without calling `Date.now()`,
+  // which lint flags as impure during render. Refreshed on Today and Reset.
   const [todayMs, setTodayMs] = React.useState<number>(() => Date.now());
 
   // Anchor controls which month or week we're viewing. `today` resets it.
@@ -106,15 +108,13 @@ function CalendarExperimentInner() {
     return preview;
   });
 
-  // Clear preview when a calendar drag ends so a cancelled drag doesn't leave a
-  // ghost behind. This container isn't itself a draggable, so read the active
-  // source from the provider-free `Draggable.useActiveDrag` (works outside a
-  // `Draggable.Provider`, as this component is) and check it carries a calendar kind.
+  // Clear the preview when a calendar drag ends so a canceled drag doesn't leave a
+  // ghost behind. This container isn't a draggable and sits outside a
+  // `Draggable.Provider`, so read the active source with `Draggable.useActiveDrag`,
+  // which works there, and check that it has a calendar kind.
   const dragSource = Draggable.useActiveDrag();
   const isCalendarDragging =
-    dragSource != null &&
-    typeof dragSource.kind === 'string' &&
-    CAL_DRAG_KINDS.some((kind) => kind.matches(dragSource));
+    dragSource != null && CAL_DRAG_KINDS.some((kind) => kind.matches(dragSource));
   React.useEffect(() => {
     if (!isCalendarDragging) {
       setDropPreview(null);
@@ -124,7 +124,6 @@ function CalendarExperimentInner() {
   const contextValue = React.useMemo<CalendarViewContextValue>(
     () => ({
       events,
-      eventsRef,
       dispatch,
       snapMinutes: snapMin,
       weekStartsOn,
@@ -137,7 +136,6 @@ function CalendarExperimentInner() {
     }),
     [
       events,
-      eventsRef,
       snapMin,
       weekStartsOn,
       hourPx,

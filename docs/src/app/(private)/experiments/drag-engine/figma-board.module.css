@@ -1,7 +1,7 @@
 .root {
-  /* Fill the experiment's content column and own a fixed viewport-height box so
-     the large scroll surface lives inside `.viewport` instead of stretching the
-     layout (which would otherwise overlap the experiments sidebar). */
+  /* Fill the experiment's content column with a fixed viewport-height box, so
+     the large scroll surface stays inside `.viewport`. Otherwise it would
+     stretch the layout and overlap the experiments sidebar. */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -102,8 +102,8 @@
   color: var(--dnd-muted);
 }
 
-/* The one number that diverges under zoom, called out rather than colored — the
-   palette is monochrome. */
+/* The one number that differs under zoom. The palette is monochrome, so it's
+   underlined instead of colored. */
 .bad {
   color: var(--dnd-ink);
   font-weight: 600;
@@ -143,8 +143,8 @@
   background-size: 24px 24px;
 }
 
-/* `transform` leaves the element's layout box at 1×, so it comes out of flow and
-   pins to the sizer that carries the scaled scroll extent. */
+/* `transform` doesn't change the element's layout box, so take it out of flow
+   and pin it to the sizer, which holds the scaled scroll extent. */
 .surfaceTransformed {
   position: absolute;
   top: 0;
@@ -172,16 +172,16 @@
   visibility: hidden;
 }
 
-/* The preview is a clone of the card, so the source classes provide its entire
-   appearance and the data attribute adds the lifted state. */
+/* The preview is a clone of the card, so the source classes style it and the
+   data attribute adds the lifted look. */
 .card[data-drag-preview] {
   box-shadow: var(--dnd-shadow);
 }
 
 /* A top-layer preview escapes an ancestor `transform: scale()`. Give the clone its
-   unscaled layout box before reapplying the board scale from the top-left, so its
-   rendered box and everything inside it match the source. The engine writes the
-   measured client size inline, hence the two scoped `!important` overrides. */
+   unscaled layout box, then reapply the board scale from the top-left, so its box
+   and content match the source. The engine writes the measured client size
+   inline, which is why the two scoped `!important` overrides are needed. */
 .card[data-compensate-preview][data-drag-preview] {
   width: calc(var(--drag-source-width) / var(--z)) !important;
   height: calc(var(--drag-source-height) / var(--z)) !important;

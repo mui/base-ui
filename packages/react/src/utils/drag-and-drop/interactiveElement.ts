@@ -1,10 +1,10 @@
-import { isInteractiveElement } from '../isInteractiveElement';
+import { INTERACTIVE_ELEMENT_SELECTOR } from '../../floating-ui-react/utils/constants';
 import { getComposedParentElement } from './utils';
 
-// Native controls that own pointer gestures but are not covered by the shared
-// focus-oriented selector, plus ARIA widgets that may be implemented without a
-// native focusable element.
+// Extends the shared focus selector with native controls that handle their own
+// pointer gestures, and with ARIA widgets that may lack a native focusable element.
 const DRAG_INTERACTIVE_ELEMENT_SELECTOR = [
+  INTERACTIVE_ELEMENT_SELECTOR,
   'label',
   'summary',
   'audio[controls]',
@@ -24,15 +24,10 @@ const DRAG_INTERACTIVE_ELEMENT_SELECTOR = [
   '[role="textbox"]',
 ].join(',');
 
-function isDragInteractiveElement(element: Element): boolean {
-  return isInteractiveElement(element) || element.matches(DRAG_INTERACTIVE_ELEMENT_SELECTOR);
-}
-
 /**
- * Whether the press landed on an interactive control nested *inside* the node the
- * gesture would pick up by — a rename input, a row's action button — rather than
- * on that node itself. `pickupNode` is excluded from the walk, so a draggable (or
- * handle) that is itself a `<button>` stays draggable.
+ * Whether the press landed on an interactive control nested inside `pickupNode`,
+ * such as a rename input or a row's action button. The walk stops before
+ * `pickupNode`, so a draggable or handle that is itself a `<button>` stays draggable.
  */
 export function hasInteractiveAncestorWithin(target: Element, pickupNode: Element): boolean {
   for (
@@ -40,7 +35,36 @@ export function hasInteractiveAncestorWithin(target: Element, pickupNode: Elemen
     node !== null && node !== pickupNode;
     node = getComposedParentElement(node)
   ) {
-    if (isDragInteractiveElement(node) && !node.matches(':disabled')) {
+    if (node.matches(DRAG_INTERACTIVE_ELEMENT_SELECTOR) && !node.matches(':disabled')) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Whether an element between the press target and `pickupNode` holds pointer
+ * capture for `pointerId`, meaning a nested widget claimed the gesture during
+ * the press. A slider or scroll-area thumb has no interactive role for
+ * {@link hasInteractiveAncestorWithin} to find, but it takes capture on
+ * `pointerdown`. The walk stops before `pickupNode`, like the interactive check.
+ *
+ * Pass `includeTarget: false` for touch and pen, which implicitly capture the
+ * press target. Its capture then can't tell a widget from the browser.
+ */
+export function hasCapturingAncestorWithin(
+  target: Element,
+  pickupNode: Element,
+  pointerId: number,
+  includeTarget: boolean,
+): boolean {
+  for (
+    let node: Element | null = target;
+    node !== null && node !== pickupNode;
+    node = getComposedParentElement(node)
+  ) {
+    // Optional-chained because jsdom has no pointer capture.
+    if ((includeTarget || node !== target) && node.hasPointerCapture?.(pointerId)) {
       return true;
     }
   }

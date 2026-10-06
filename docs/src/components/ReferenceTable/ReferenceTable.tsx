@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useTypes, type TypesTableProps } from '@mui/internal-docs-infra/useTypes';
+import { useTypes } from '@mui/internal-docs-infra/useTypes';
+import type { TypesTableProps } from '@mui/internal-docs-infra/useTypes';
 import { ReferenceAccordion } from './ReferenceAccordion';
 import { AttributesReferenceTable } from './AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './CssVariablesReferenceTable';
@@ -59,6 +60,26 @@ function CallableReturnValue({ name, data }: { name: string; data: CallableData[
   );
 }
 
+// Parameter rows and return value rows both use `${name}-${field}` anchors. If a
+// return value property shares a parameter's name, like the `name` on the kind that
+// `createKind(name)` returns, prefix the return value rows so ids stay unique. Other
+// return values keep the plain prefix so anchors like `#ToastuseToastManager-promise`
+// don't change.
+function getReturnValueName(data: CallableData) {
+  if (data.returnValue?.kind !== 'object') {
+    return data.name;
+  }
+  const parameterNames = new Set(
+    data.expandedProperties
+      ? Object.keys(data.expandedProperties)
+      : (data.parameters ?? []).map((parameter) => parameter.name),
+  );
+  const collides = Object.keys(data.returnValue.properties).some((property) =>
+    parameterNames.has(property),
+  );
+  return collides ? `${data.name}ReturnValue` : data.name;
+}
+
 function CallableReferenceSection({
   data,
   multiple,
@@ -110,7 +131,7 @@ function CallableReferenceSection({
         </React.Fragment>
       )}
 
-      <CallableReturnValue name={data.name} data={data.returnValue} />
+      <CallableReturnValue name={getReturnValueName(data)} data={data.returnValue} />
 
       {additionalTypes && additionalTypes.length > 0 && (
         <AdditionalTypes data={additionalTypes} multiple={multiple} />

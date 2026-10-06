@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { Draggable } from '@base-ui/react/draggable';
 import {
   INITIAL_TASKS,
@@ -9,8 +10,8 @@ import {
   getTaskRow,
   getTaskDestination,
   sameTaskDestination,
-  type TaskDestination,
 } from '../../sortableTasks';
+import type { TaskDestination } from '../../sortableTasks';
 
 const taskKind = Draggable.createKind<string>('sortable-drop-task');
 
@@ -27,9 +28,11 @@ const Task = React.memo(function Task({
 }) {
   const rowRef = React.useRef<HTMLDivElement | null>(null);
   const [selfDrop, setSelfDrop] = React.useState(false);
-  const trackSelfDrop = useStableCallback((event: Draggable.MoveStartEvent<string>) => {
-    setSelfDrop(event.location.current.dropTargets[0]?.element === rowRef.current);
-  });
+  const trackSelfDrop = useStableCallback(
+    (eventDetails: Draggable.Root.TargetChangeEventDetails<string>) => {
+      setSelfDrop(eventDetails.target?.element === rowRef.current);
+    },
+  );
 
   return (
     <div data-sortable-row ref={rowRef} className="px-[9px] py-1">
@@ -43,7 +46,7 @@ const Task = React.memo(function Task({
         onTargetChange={trackSelfDrop}
         onMoveEnd={() => setSelfDrop(false)}
         render={<button type="button" aria-label={task} />}
-        className="relative box-border min-h-10 w-full cursor-grab select-none border border-neutral-900 bg-white px-4 py-2 text-sm leading-5 text-neutral-900 after:pointer-events-none after:absolute after:inset-x-[-9px] after:hidden after:h-[3px] after:bg-blue-500 data-[drop-position=before]:after:top-[-6.5px] data-[drop-position=before]:after:block data-[self-drop]:after:top-[-6.5px] data-[self-drop]:after:block data-[drop-position=after]:after:bottom-[-6.5px] data-[drop-position=after]:after:block data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-950 dark:text-white"
+        className="relative box-border min-h-10 w-full cursor-grab select-none border border-neutral-950 bg-white px-4 py-2 text-sm leading-5 text-neutral-950 after:pointer-events-none after:absolute after:inset-x-[-9px] after:hidden after:h-[3px] after:bg-blue-500 data-[drop-position=before]:after:top-[-6.5px] data-[drop-position=before]:after:block data-[self-drop]:after:top-[-6.5px] data-[self-drop]:after:block data-[drop-position=after]:after:bottom-[-6.5px] data-[drop-position=after]:after:block data-[dragging]:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-white dark:bg-neutral-950 dark:text-white"
         modifiers={Draggable.restrictToVerticalAxis}
         aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
         onKeyDown={(event) => {
@@ -61,30 +64,40 @@ const Task = React.memo(function Task({
 
 export default function SortableOnDrop() {
   const [tasks, setTasks] = React.useState(INITIAL_TASKS);
+  const [announcement, setAnnouncement] = React.useState('');
   const [destination, setDestination] = React.useState<TaskDestination | null>(null);
   const trackCollision = useStableCallback(
-    ({ collision, previousCollision }: Draggable.CollisionProvider.CollisionEvent<string>) => {
-      const next = getTaskDestination(collision);
-      if (sameTaskDestination(next, getTaskDestination(previousCollision))) {
+    (eventDetails: Draggable.CollisionProvider.CollisionChangeEventDetails<string>) => {
+      const next = getTaskDestination(eventDetails.target);
+      if (sameTaskDestination(next, getTaskDestination(eventDetails.previousTarget))) {
         return;
       }
       setDestination(next);
     },
   );
-  const reorder = useStableCallback((event: Draggable.CollisionProvider.CollisionEvent<string>) => {
-    setDestination(null);
-    setTasks((current) => moveTask(current, event));
-  });
+  const reorder = useStableCallback(
+    (eventDetails: Draggable.CollisionProvider.MoveEndEventDetails<string>) => {
+      setDestination(null);
+      setTasks((current) => moveTask(current, eventDetails));
+    },
+  );
   const swap = useStableCallback((task: string, direction: 'up' | 'down') => {
-    setTasks((current) => swapTask(current, task, direction));
+    const next = swapTask(tasks, task, direction);
+    if (next === tasks) {
+      return;
+    }
+    setTasks(next);
+    setAnnouncement(`${task} moved to position ${next.indexOf(task) + 1} of ${next.length}.`);
   });
   return (
     <Draggable.Provider>
+      {/* @highlight-start @focus @padding 1 */}
       <Draggable.CollisionProvider
         kind={taskKind}
         onCollisionChange={trackCollision}
         onMoveEnd={reorder}
       >
+        {/* @highlight-end */}
         <div className="grid w-80 max-w-full" role="group" aria-label="Tasks reordered on drop">
           {tasks.map((task) => (
             <Task
@@ -96,6 +109,9 @@ export default function SortableOnDrop() {
           ))}
         </div>
       </Draggable.CollisionProvider>
+      <span role="status" style={visuallyHidden}>
+        {announcement}
+      </span>
     </Draggable.Provider>
   );
 }

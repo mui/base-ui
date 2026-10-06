@@ -172,10 +172,6 @@
   transition: background-color 0.15s;
 }
 
-.monthDayCell:last-child {
-  border-right: 0;
-}
-
 .monthDayCell[data-outside='true'] {
   background: var(--dnd-canvas);
   color: var(--dnd-muted);
@@ -186,7 +182,7 @@
   font-weight: 700;
 }
 
-.monthDayCell[data-over] {
+.monthDayCell[data-drag-over] {
   background: var(--dnd-surface-hover);
 }
 
@@ -252,7 +248,7 @@
   opacity: 0.4;
 }
 
-/* Segments of a multi-day event run edge to edge into the neighbouring day. */
+/* Segments of a multi-day event run edge to edge into the neighboring day. */
 .monthEventBar[data-continues-before='true'] {
   margin-left: 0;
   border-left: 0;
@@ -368,7 +364,6 @@
   display: grid;
   grid-template-columns: 3.5rem repeat(7, 1fr);
   border-bottom: 1px solid var(--dnd-border);
-  min-height: 2rem;
   background: var(--dnd-surface);
 }
 
@@ -395,11 +390,7 @@
   transition: background-color 0.15s;
 }
 
-.weekAllDayCell:last-child {
-  border-right: 0;
-}
-
-.weekAllDayCell[data-over] {
+.weekAllDayCell[data-drag-over] {
   background: var(--dnd-surface-hover);
 }
 
@@ -466,7 +457,7 @@
   border-right: 0;
 }
 
-.weekColumn[data-over] {
+.weekColumn[data-drag-over] {
   background-color: var(--dnd-surface-hover);
 }
 
@@ -584,7 +575,7 @@
   color: var(--dnd-surface);
 }
 
-/* ------- Drag preview (`DragPreview` content, rendered in the Draggable.Provider) ------- */
+/* ------- Drag preview (`Draggable.Preview` content, rendered in the Draggable.Provider) ------- */
 
 .dragPreview {
   display: flex;

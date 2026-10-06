@@ -14,7 +14,7 @@ function PostDragClickContent() {
     return () => document.removeEventListener('click', handleClick, { capture: true });
   }, []);
 
-  Draggable.useDragMonitor({
+  Draggable.useMonitor({
     accept: itemKind,
     onMoveEnd: () => setEndCount((count) => count + 1),
   });

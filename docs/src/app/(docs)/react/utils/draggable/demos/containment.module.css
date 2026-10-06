@@ -7,20 +7,6 @@
   user-select: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .Widget[data-drag-preview][data-ending-style] {
-    transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
-  }
-}
-
-.Root,
-.Root * {
-  box-sizing: border-box;
-  font-synthesis: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 .Frame {
   padding: 1rem;
   border: 1px dashed oklch(70.8% 0 0deg);
@@ -28,14 +14,6 @@
   @media (prefers-color-scheme: dark) {
     border-color: oklch(55.6% 0 0deg);
   }
-}
-
-.Controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.5rem;
-  font-size: 0.875rem;
 }
 
 .Grid {
@@ -49,6 +27,7 @@
 }
 
 .Slot {
+  box-sizing: border-box;
   display: flex;
   align-items: stretch;
   min-height: 8rem;
@@ -87,6 +66,7 @@
 }
 
 .Widget {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -112,6 +92,15 @@
       @media (prefers-color-scheme: dark) {
         background-color: oklch(26.9% 0 0deg);
       }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
     }
   }
 
@@ -157,8 +146,7 @@
   font-weight: 500;
 }
 
-.WidgetBody span,
-.OutsideSlot span {
+.WidgetBody span {
   color: oklch(55.6% 0 0deg);
   font-size: 0.75rem;
   line-height: 1rem;
@@ -178,6 +166,7 @@
 }
 
 .OutsideSlot {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -190,17 +179,6 @@
   @media (prefers-color-scheme: dark) {
     border-color: oklch(37.1% 0 0deg);
     color: oklch(70.8% 0 0deg);
-  }
-
-  &[data-drag-over] {
-    border-style: solid;
-    border-color: oklch(14.5% 0 0deg);
-    background-color: oklch(97% 0 0deg);
-
-    @media (prefers-color-scheme: dark) {
-      border-color: white;
-      background-color: oklch(26.9% 0 0deg);
-    }
   }
 }
 

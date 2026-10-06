@@ -1,37 +1,24 @@
 /**
- * Cross-bundle shared state. Routes module singletons through `globalThis`
- * so a doubly-bundled engine still sees a single registry, lock counter, etc.
+ * Cross-bundle shared state. Module singletons live on `globalThis`, so two
+ * bundled copies of the engine share one registry, one lock counter, and so on.
  *
- * Each slot is a mutable object — callers mutate fields rather than reassign
- * the slot, so other copies' references remain valid.
+ * Each slot is a mutable object. Callers mutate its fields and never reassign
+ * the slot, so the references other copies hold stay valid.
  */
 
-// The global symbol is the cross-bundle protocol boundary. Bump the suffix when
-// a release changes the slot contracts so incompatible Base UI copies never cast
-// the same unchecked objects to different internal shapes.
+// Every bundled copy finds the shared slots through this global symbol. Bump the
+// version suffix when a release changes a slot's shape, so incompatible Base UI
+// copies never read the same unchecked object as different internal types.
 const ROOT_KEY = Symbol.for('@base-ui/react/drag-and-drop/v1');
 
-interface Root {
-  slots: Map<string, unknown>;
-}
-
-function getRoot(): Root {
-  const g = globalThis as { [ROOT_KEY]?: Root | undefined };
-  const existing = g[ROOT_KEY];
-  if (existing) {
-    return existing;
-  }
-  const fresh: Root = { slots: new Map() };
-  g[ROOT_KEY] = fresh;
-  return fresh;
-}
-
 export function getSharedSlot<T extends object>(name: string, factory: () => T): T {
-  const root = getRoot();
-  let slot = root.slots.get(name) as T | undefined;
+  const root = globalThis as { [ROOT_KEY]?: Map<string, object> | undefined };
+  root[ROOT_KEY] ??= new Map();
+  const slots = root[ROOT_KEY];
+  let slot = slots.get(name) as T | undefined;
   if (!slot) {
     slot = factory();
-    root.slots.set(name, slot);
+    slots.set(name, slot);
   }
   return slot;
 }

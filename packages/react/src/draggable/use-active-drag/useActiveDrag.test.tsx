@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { describe, it, expect } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { cancel, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { cancel, flushRaf, setupDragEngineTests, fireDrag } from '../../../test/dnd';
 
 setupDragEngineTests();
 
 const probeKind = Draggable.createKind<{ kind: 'probe' }>('probe');
+const probePayload = { kind: 'probe' as const };
 const otherKind = Draggable.createKind<{ n: number }>('other');
 
 function SourceProbe(props: { id?: string }) {
@@ -15,7 +16,7 @@ function SourceProbe(props: { id?: string }) {
   return (
     <Draggable.Root
       kind={probeKind}
-      getPayload={() => ({ kind: 'probe' as const })}
+      payload={probePayload}
       data-testid={`source-${props.id ?? 'noid'}`}
       data-source-kind={source?.payload.kind ?? 'none'}
     />
@@ -31,19 +32,19 @@ describe('Draggable.useActiveDrag', () => {
 
     expect(node.dataset.sourceKind).toBe('none');
 
-    fireEvent.dragStart(node);
+    fireDrag.dragStart(node);
     await flushRaf();
 
     expect(node.dataset.sourceKind).toBe('probe');
 
-    fireEvent.drop(node);
+    fireDrag.drop(node);
 
     expect(node.dataset.sourceKind).toBe('none');
   });
 
   it('observes the drag from outside the draggable, and resets on cancel', async () => {
-    // Any component can watch the active drag; nothing ties the hook to the
-    // element that started it.
+    // Any component can watch the active drag. The hook isn't tied to the element
+    // that started it.
     function SiblingObserver() {
       const source = Draggable.useActiveDrag(probeKind);
       return <div data-testid="watcher" data-active={source ? 'yes' : 'no'} />;
@@ -59,7 +60,7 @@ describe('Draggable.useActiveDrag', () => {
     const watcher = screen.getByTestId('watcher');
     expect(watcher.dataset.active).toBe('no');
 
-    fireEvent.dragStart(node);
+    fireDrag.dragStart(node);
     await flushRaf();
     expect(watcher.dataset.active).toBe('yes');
 
@@ -85,48 +86,83 @@ describe('Draggable.useActiveDrag', () => {
     const node = screen.getByTestId('source-card-3');
     const commitsBeforeDrag = commits;
 
-    fireEvent.dragStart(node);
+    fireDrag.dragStart(node);
     await flushRaf();
     expect(screen.getByTestId('other').dataset.other).toBe('none');
     cancel();
     await flushRaf();
 
     // The store published at drag start and end, but this observer's selected
-    // value stayed `null` throughout — so, with many such observers in a list,
-    // an unrelated drag costs none of them a render.
+    // value stayed `null`. With many such observers in a list, an unrelated drag
+    // re-renders none of them.
     expect(commits).toBe(commitsBeforeDrag);
   });
 
-  it('filters by accept: only an observer of the dragged kind sees the source', async () => {
-    function KindObservers() {
-      const matching = Draggable.useActiveDrag(probeKind);
-      const other = Draggable.useActiveDrag(otherKind);
-      return (
-        <div
-          data-testid="observers"
-          data-matching={matching?.payload.kind ?? 'none'}
-          data-other={other ? 'seen' : 'none'}
-        />
-      );
+  it('observes every drag when called without an argument', async () => {
+    function AnyObserver() {
+      const source = Draggable.useActiveDrag();
+      return <div data-testid="any" data-source={source?.element.dataset.testid ?? 'none'} />;
     }
 
     await renderDnd(
       <React.Fragment>
-        <SourceProbe id="card-9" />
-        <KindObservers />
+        <SourceProbe id="probe" />
+        <Draggable.Root kind={otherKind} payload={{ n: 1 }} data-testid="other" />
+        <AnyObserver />
       </React.Fragment>,
     );
-    const node = screen.getByTestId('source-card-9');
-    const observers = screen.getByTestId('observers');
+    const observer = screen.getByTestId('any');
+    expect(observer.dataset.source).toBe('none');
 
-    fireEvent.dragStart(node);
+    fireDrag.dragStart(screen.getByTestId('source-probe'));
     await flushRaf();
+    expect(observer.dataset.source).toBe('source-probe');
+    cancel();
+    await flushRaf();
+    expect(observer.dataset.source).toBe('none');
 
-    expect(observers.dataset.matching).toBe('probe');
-    expect(observers.dataset.other).toBe('none');
+    fireDrag.dragStart(screen.getByTestId('other'));
+    await flushRaf();
+    expect(observer.dataset.source).toBe('other');
+    cancel();
+    await flushRaf();
+    expect(observer.dataset.source).toBe('none');
+  });
+
+  it('does not loop when the observer renders the dragged root with an inline payload', async () => {
+    const cardKind = Draggable.createKind<{ id: string }>('card');
+    let commits = 0;
+    function Board({ id }: { id: string }) {
+      commits += 1;
+      const source = Draggable.useActiveDrag(cardKind);
+      // A new payload object on every render. Each one re-notifies the observers,
+      // which re-render this component and pass yet another object.
+      return (
+        <Draggable.Root
+          kind={cardKind}
+          payload={{ id }}
+          data-testid="card"
+          data-active={source?.payload.id ?? 'none'}
+        />
+      );
+    }
+
+    const { rerender } = await renderDnd(<Board id="a" />);
+    const card = screen.getByTestId('card');
+    const commitsBeforeDrag = commits;
+
+    fireDrag.dragStart(card);
+    await flushRaf();
+    expect(card.dataset.active).toBe('a');
+    // Strict Mode renders twice. A feedback loop renders until React throws.
+    expect(commits - commitsBeforeDrag).toBeLessThan(10);
+
+    // A payload change in a later render still reaches the observers.
+    await rerender(<Board id="b" />);
+    expect(card.dataset.active).toBe('b');
 
     cancel();
     await flushRaf();
-    expect(observers.dataset.matching).toBe('none');
+    expect(card.dataset.active).toBe('none');
   });
 });

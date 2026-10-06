@@ -8,9 +8,9 @@ import { createEventRootBinding } from './documentBinding';
 setupDragEngineTests();
 
 /**
- * Mount an iframe and return its document/window. The sensors bind their
- * listeners per owner document, so registering a draggable inside the iframe
- * must install (and later remove) listeners there, not on the top window.
+ * Mount an iframe and return its document and window. The pointer sensor binds
+ * its listeners per owner document, so registering a draggable inside the iframe
+ * must add and later remove listeners there, not on the top window.
  */
 function createIframeRealm(): { doc: Document; win: Window } {
   const iframe = document.createElement('iframe');
@@ -18,9 +18,9 @@ function createIframeRealm(): { doc: Document; win: Window } {
   registerCleanup(() => iframe.remove());
   const doc = iframe.contentDocument!;
   const win = iframe.contentWindow!;
-  // jsdom documents don't implement elementFromPoint; the sensors call it on the
-  // owner document during pickup (mirrors the stub the polyfill installs on the
-  // top document).
+  // jsdom documents don't implement `elementFromPoint`, and the sensor calls it on
+  // the owner document during pickup. This mirrors the polyfill's stub on the top
+  // document.
   doc.elementFromPoint = () => null;
   return { doc, win };
 }
@@ -56,7 +56,10 @@ function dispatchPointer(
   });
 }
 
-function callsOfType(spy: { mock: { calls: unknown[][] } }, type: 'pointerdown'): number {
+function callsOfType(
+  spy: { mock: { calls: unknown[][] } },
+  type: 'pointerdown' | 'dblclick',
+): number {
   return spy.mock.calls.filter(([eventType]) => eventType === type).length;
 }
 
@@ -78,8 +81,8 @@ describe('documentBinding', () => {
       const source = document.createElement('div');
       inner.appendChild(source);
       const onMoveStart = vi.fn();
-      engine.registerDraggable(sibling, {});
-      engine.registerDraggable(source, { activation: { type: 'immediate' }, onMoveStart });
+      engine.registerSource(sibling, {});
+      engine.registerSource(source, { activation: { type: 'immediate' }, onMoveStart });
       act(() => {
         source.dispatchEvent(
           new PointerEvent('pointerdown', {
@@ -100,7 +103,7 @@ describe('documentBinding', () => {
     },
   );
 
-  it('yields the outer bound root to an inner bound root at capture', () => {
+  it('delivers once, yielding the outer bound root to an inner bound root at capture', () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
     registerCleanup(() => host.remove());
@@ -111,15 +114,15 @@ describe('documentBinding', () => {
     const target = document.createElement('div');
     inner.appendChild(target);
 
-    // Labels rather than the roots themselves: two ShadowRoots are structurally
-    // equal to `toEqual`, so a wrong root would still pass.
+    // Record labels, not the roots. `toEqual` treats any two ShadowRoots as equal,
+    // so a wrong root would still pass.
     const deliveries: Array<['outer' | 'inner', number]> = [];
     const binding = createEventRootBinding({
       slot: 'documentBinding.test.nested',
-      shadowRootsSlot: 'documentBinding.test.nested.shadowRoots',
-      type: 'pointerdown',
-      listener: (event) => {
-        deliveries.push([event.currentTarget === outer ? 'outer' : 'inner', event.eventPhase]);
+      listeners: {
+        pointerdown: (event) => {
+          deliveries.push([event.currentTarget === outer ? 'outer' : 'inner', event.eventPhase]);
+        },
       },
     });
     binding.bind(outer);
@@ -131,13 +134,16 @@ describe('documentBinding', () => {
 
     target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
 
-    // The outer root's capture listener sees the event first, but the path
-    // crosses the inner bound root, so it yields: the inner root delivers at
-    // capture, and the outer only through its bubble fallback.
-    expect(deliveries).toEqual([
-      ['inner', Event.CAPTURING_PHASE],
-      ['outer', Event.BUBBLING_PHASE],
-    ]);
+    // The outer root's capture listener sees the event first but yields, since
+    // the path crosses the inner bound root. The inner root delivers at capture,
+    // and the outer's bubble fallback skips the delivered event.
+    expect(deliveries).toEqual([['inner', Event.CAPTURING_PHASE]]);
+
+    // A press on the inner host itself never enters the inner root, so the
+    // outer's bubble fallback is what delivers it.
+    deliveries.length = 0;
+    innerHost.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+    expect(deliveries).toEqual([['outer', Event.BUBBLING_PHASE]]);
   });
 
   it('pointer pickup works for a draggable registered in an iframe document', async () => {
@@ -145,7 +151,7 @@ describe('documentBinding', () => {
     const { doc } = createIframeRealm();
     const el = createIframeElement(doc);
     const onMoveStart = vi.fn();
-    engine.registerDraggable(el, { onMoveStart });
+    engine.registerSource(el, { onMoveStart });
 
     // Press, then move past the 5px mouse activation distance.
     dispatchPointer(el, 'pointerdown', 0, 0, { button: 0, buttons: 1 });
@@ -167,37 +173,44 @@ describe('documentBinding', () => {
     const first = createIframeElement(doc);
     const second = createIframeElement(doc);
 
-    const cleanupFirst = engine.registerDraggable(first, {});
+    const cleanupFirst = engine.registerSource(first, {});
     // Documents keep a capture path for light DOM plus a bubble fallback for
     // events deliberately deferred to an inner closed-shadow binding.
     expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
+    expect(callsOfType(addSpy, 'dblclick')).toBe(2);
 
     // A second draggable in the same document reuses the installed listeners.
-    const cleanupSecond = engine.registerDraggable(second, {});
+    const cleanupSecond = engine.registerSource(second, {});
     expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
+    expect(callsOfType(addSpy, 'dblclick')).toBe(2);
 
     // Releasing a non-last holder keeps the listeners installed.
     cleanupFirst();
     expect(callsOfType(removeSpy, 'pointerdown')).toBe(0);
+    expect(callsOfType(removeSpy, 'dblclick')).toBe(0);
 
     // The last holder tears them down.
     cleanupSecond();
     expect(callsOfType(removeSpy, 'pointerdown')).toBe(2);
+    expect(callsOfType(removeSpy, 'dblclick')).toBe(2);
   });
 
-  it('walks the composed path only once a shadow root is bound', async () => {
-    const { engine } = await renderDnd();
+  it('walks the composed path only once a shadow root is bound', () => {
     const { doc, win } = createIframeRealm();
     const addSpy = vi.spyOn(win, 'addEventListener');
-    const el = createIframeElement(doc);
-    engine.registerDraggable(el, {});
+    const binding = createEventRootBinding({
+      slot: 'documentBinding.test.composedPath',
+      listeners: { pointerdown: () => {} },
+    });
+    binding.bind(doc);
+    registerCleanup(() => binding.unbind(doc));
     const pointerListeners = addSpy.mock.calls
       .filter(([type]) => type === 'pointerdown')
       .map(([, listener]) => listener as EventListener);
     expect(pointerListeners).toHaveLength(2);
 
-    // The window wrappers see every press on the page; with nothing bound in a
-    // shadow tree there is no path to check, so none is materialized.
+    // The window wrappers see every press on the page. With no shadow root
+    // bound, there is no path to check, so none is built.
     const event = new Event('pointerdown');
     const composedPath = vi.spyOn(event, 'composedPath');
     pointerListeners.forEach((listener) => listener(event));
@@ -205,9 +218,8 @@ describe('documentBinding', () => {
 
     const host = createIframeElement(doc);
     const shadow = host.attachShadow({ mode: 'closed' });
-    const inner = doc.createElement('div');
-    shadow.appendChild(inner);
-    engine.registerDraggable(inner, {});
+    binding.bind(shadow);
+    registerCleanup(() => binding.unbind(shadow));
 
     composedPath.mockReturnValue([host]);
     pointerListeners.forEach((listener) => listener(event));

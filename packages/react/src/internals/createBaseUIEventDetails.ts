@@ -1,5 +1,5 @@
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { REASONS } from './reasons';
+import type { REASONS } from './reasons';
 
 interface ReasonToEventMap {
   [REASONS.none]: Event;
@@ -44,6 +44,20 @@ interface ReasonToEventMap {
   [REASONS.imperativeAction]: Event;
 
   [REASONS.windowResize]: UIEvent;
+  [REASONS.popupClose]: Event;
+
+  [REASONS.doubleClick]: MouseEvent | PointerEvent;
+  [REASONS.modifierKey]: KeyboardEvent;
+  [REASONS.tabKey]: KeyboardEvent;
+  [REASONS.windowBlur]: FocusEvent;
+  [REASONS.pageHidden]: Event;
+  [REASONS.pointerCanceled]: PointerEvent;
+  [REASONS.captureLost]: PointerEvent;
+  [REASONS.missedRelease]: PointerEvent;
+  [REASONS.documentDetached]: Event;
+  [REASONS.handlerError]: Event;
+  [REASONS.drop]: PointerEvent | MouseEvent;
+  [REASONS.outsideRelease]: PointerEvent | MouseEvent;
 }
 
 /**

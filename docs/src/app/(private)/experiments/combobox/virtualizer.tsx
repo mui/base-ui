@@ -3,7 +3,8 @@ import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { Virtualizer } from '@base-ui/react/virtualizer';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import type { SettingsMetadata } from '../_components/SettingsPanel';
+import { useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './virtualizer.module.css';
 
 interface Settings {

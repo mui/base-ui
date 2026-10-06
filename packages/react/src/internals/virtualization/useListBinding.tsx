@@ -5,13 +5,12 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useBaseUiId } from '../useBaseUiId';
-import {
-  useVirtualizerHost,
-  useVirtualizerHostState,
-  type VirtualizerHandle,
-  type VirtualizerHost,
-  type VirtualizerHostState,
-  type VirtualizerRegistry,
+import { useVirtualizerHost, useVirtualizerHostState } from '../../virtualizer/host';
+import type {
+  VirtualizerHandle,
+  VirtualizerHost,
+  VirtualizerHostState,
+  VirtualizerRegistry,
 } from '../../virtualizer/host';
 import type {
   VirtualizerActions,
@@ -29,11 +28,11 @@ import type {
   VirtualizerScrollToIndexOptions,
 } from '../../virtualizer/types';
 import { isGroupedItems } from '../resolveValueLabel';
-import {
-  isGroupHeaderRow,
-  type VirtualizerItemRowModel,
-  type VirtualizerRenderRowParameters,
-  type VirtualizerRowModel,
+import { isGroupHeaderRow } from './types';
+import type {
+  VirtualizerItemRowModel,
+  VirtualizerRenderRowParameters,
+  VirtualizerRowModel,
 } from './types';
 
 type ComponentName = string;

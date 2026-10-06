@@ -153,10 +153,6 @@
   }
 }
 
-/*
- * The item styles use raw values rather than the theme tokens: the cloned drag
- * preview is rendered in a body-level overlay where `--dnd-*` does not resolve.
- */
 .item {
   outline: 0;
   cursor: default;
@@ -202,7 +198,6 @@
     border: 1px solid oklch(14.5% 0 0deg);
     background-color: white;
     box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
-    opacity: 1;
 
     @media (prefers-color-scheme: dark) {
       border-color: white;

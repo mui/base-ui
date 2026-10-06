@@ -4,7 +4,7 @@
 // @ts-nocheck
 'use client';
 import { DateTime, Info } from 'luxon';
-import {
+import type {
   TemporalAdapterFormats,
   DateBuilderReturnType,
   TemporalTimezone,
@@ -53,7 +53,7 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
 
   public lib = 'luxon';
 
-  private locale: string;
+  declare private locale: string;
 
   public formats: TemporalAdapterFormats = FORMATS;
 

@@ -1,8 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import { flushRaf } from '../../../../test/dnd';
-import { createClonedDragPreviewElement } from './cloneDragPreview';
+import { createDragPreviewElement, measurePreviewAnchor } from './cloneDragPreview';
 import { createSyntheticPreview } from './syntheticPreview';
+
+/** Measure and clone `source`, the way a pickup does. */
+function clonePreview(source: HTMLElement, container: HTMLElement | null) {
+  const anchor = measurePreviewAnchor(source, container);
+  return anchor && createDragPreviewElement(source, anchor);
+}
+
+const SOURCE_IDENTITY = { kind: Symbol('test-source'), previewKey: undefined, payload: undefined };
 
 describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
   const animationsFlag = globalThis as { BASE_UI_ANIMATIONS_DISABLED?: boolean | undefined };
@@ -40,8 +48,8 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
     });
     parent.appendChild(source);
     document.body.appendChild(parent);
-    const clone = createClonedDragPreviewElement(source, null)!;
-    const preview = createSyntheticPreview(source);
+    const clone = clonePreview(source, null)!;
+    const preview = createSyntheticPreview(source, SOURCE_IDENTITY, null);
     try {
       preview.setPreviewElement(clone);
       preview.update(300, 300);
@@ -71,6 +79,98 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
     }
   });
 
+  it('cleans up instead of settling onto a source that no longer renders a box', async () => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .hidden-source[data-dragging] { display: none; }
+      .hidden-source[data-drag-preview][data-ending-style] { transition: translate 100s linear; }
+    `;
+    document.head.appendChild(style);
+    const source = document.createElement('div');
+    source.className = 'hidden-source';
+    Object.assign(source.style, {
+      position: 'fixed',
+      left: '100px',
+      top: '100px',
+      width: '120px',
+      height: '30px',
+    });
+    document.body.appendChild(source);
+    const clone = clonePreview(source, null)!;
+    const preview = createSyntheticPreview(source, SOURCE_IDENTITY, null);
+    try {
+      preview.setPreviewElement(clone);
+      preview.update(300, 300);
+      preview.markSourceDragging();
+      preview.prepareForDrop();
+      preview.destroy();
+      await flushRaf();
+      // Measuring the hidden source would send the preview to the viewport corner.
+      expect(clone.element.isConnected).toBe(false);
+      expect(source).not.toHaveAttribute('data-dragging');
+    } finally {
+      clone.destroy();
+      source.remove();
+      style.remove();
+    }
+  });
+
+  it.each([
+    ['a fade-only ending', false],
+    ['a slide that a [data-dropped] rule replaces with a fade', true],
+  ])('runs %s where the preview was released', async (_name, dropped) => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .fading-preview[data-drag-preview][data-ending-style] {
+        opacity: 0;
+        transition: ${dropped ? 'translate 100s' : 'opacity 100s'};
+      }
+      .fading-preview[data-drag-preview][data-ending-style][data-dropped] {
+        transition: opacity 100s;
+      }
+    `;
+    document.head.appendChild(style);
+    const source = document.createElement('div');
+    source.className = 'fading-preview';
+    Object.assign(source.style, {
+      position: 'fixed',
+      left: '10px',
+      top: '20px',
+      width: '100px',
+      height: '40px',
+    });
+    document.body.appendChild(source);
+    const clone = clonePreview(source, null)!;
+    const preview = createSyntheticPreview(source, SOURCE_IDENTITY, null);
+    try {
+      preview.setPreviewElement(clone);
+      preview.update(300, 300);
+      preview.markSourceDragging();
+      preview.prepareForDrop();
+      preview.destroy();
+      if (dropped) {
+        preview.markDropped();
+      }
+      await flushRaf();
+
+      expect(clone.element.style.translate).toBe('300px 300px');
+      const animations = clone.element.getAnimations();
+      expect(
+        animations.map((animation) => (animation as CSSTransition).transitionProperty),
+      ).toEqual(['opacity']);
+      for (const animation of animations) {
+        animation.finish();
+      }
+      await Promise.allSettled(animations.map((animation) => animation.finished));
+      await Promise.resolve();
+      expect(clone.element.isConnected).toBe(false);
+    } finally {
+      clone.destroy();
+      source.remove();
+      style.remove();
+    }
+  });
+
   it('keeps a clone mounted until its real CSS transition finishes', async () => {
     const style = document.createElement('style');
     style.textContent = `
@@ -92,11 +192,11 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
     document.body.appendChild(source);
 
     try {
-      const clone = createClonedDragPreviewElement(source, null);
+      const clone = clonePreview(source, null);
       expect(clone).not.toBeNull();
 
-      const preview = createSyntheticPreview(source);
-      preview.setPreviewElement(clone);
+      const preview = createSyntheticPreview(source, SOURCE_IDENTITY, null);
+      preview.setPreviewElement(clone!);
       preview.update(10, 20);
       preview.markSourceDragging();
 
@@ -104,10 +204,10 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
       preview.prepareForDrop();
       preview.destroy();
 
-      expect(clone!.element).toHaveAttribute('data-ending-style');
       expect(clone!.element.isConnected).toBe(true);
 
       await flushRaf();
+      expect(clone!.element).toHaveAttribute('data-ending-style');
       expect(clone!.element.style.translate).toBe('210px 20px');
       const animations = clone!.element.getAnimations();
       expect(animations.length).toBeGreaterThan(0);

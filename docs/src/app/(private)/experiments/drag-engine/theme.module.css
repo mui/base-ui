@@ -1,8 +1,7 @@
 /*
  * Shared palette for the drag engine experiments, mirroring the docs demos:
  * neutral oklch, sharp corners, ink borders, hard offset shadow, dark mode via
- * `prefers-color-scheme`. Raw values (not the docs Tailwind theme tokens) so the
- * tokens resolve in drag previews rendered outside the experiment's own root.
+ * `prefers-color-scheme`. Raw values, not the docs Tailwind theme tokens.
  *
  * Apply it next to the element's own class: `clsx(theme.tokens, styles.root)`.
  */

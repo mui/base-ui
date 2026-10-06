@@ -1,66 +1,104 @@
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from '../sharedState';
+import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
+import { adoptStyleSheet, getDragEventRoot, unadoptStyleSheet } from '../utils';
 
 const STRUCTURAL_SELECTOR = /[>+~]|:(?:first|last|nth|only|empty|has)\b/;
 const PSEUDO_ELEMENT = /::(before|after|marker)\b/g;
-const NODE_ATTRIBUTE = 'data-drag-preview-node';
-const ids = getSharedSlot('dragPreviewStyleIds', () => ({ next: 0 }));
+// These properties belong to the positioned clone, not its source layout.
+const PREVIEW_ROOT_PROPERTIES = new Set([
+  'position',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'box-sizing',
+  'pointer-events',
+  'will-change',
+  'translate',
+  'transform',
+  'z-index',
+]);
 
-type Properties = Map<string, Set<string>>;
-
-/**
- * Whether a stylesheet was loaded from another origin. Its rules are unreadable
- * (`cssRules` throws), but it also cannot carry the app's own structural
- * selectors — a font or icon CDN sheet has nothing to say about a `.Row` — so it
- * is skipped rather than degrading every node into a full computed-style dump.
- */
-function isCrossOriginSheet(sheet: CSSStyleSheet, win: Window, doc: Document): boolean {
-  if (!sheet.href) {
-    return false;
-  }
-  const { origin } = win.location;
-  // An opaque origin (`sandbox`, `data:`) cannot vouch for any sheet; let the
-  // `cssRules` access below decide.
-  if (!origin || origin === 'null') {
-    return false;
-  }
-  try {
-    return new URL(sheet.href, doc.baseURI).origin !== origin;
-  } catch {
-    return false;
-  }
+export function isPreviewRootProperty(name: string): boolean {
+  return (
+    PREVIEW_ROOT_PROPERTIES.has(name) ||
+    /^(?:margin|inset)(?:-|$)/.test(name) ||
+    /^(?:(?:min|max)-)?(?:width|height|inline-size|block-size)$/.test(name)
+  );
 }
 
 /**
- * Snapshot only declarations whose selectors may stop matching through the
- * preview wrapper. Ordinary class rules need no computed-style copying.
- *
- * Selectors are matched against the *source* tree and their values read from the
- * source nodes: the clone is not yet in the DOM, and even if it were, a sibling
- * position it does not share with the source (it ends up first in the wrapper,
- * and could only be appended after every existing sibling) would resolve
- * `:nth-child`, `:first-child`, `:last-child` and combinator rules to the wrong
- * value. `sourceNodes` and `cloneNodes` are the two trees in the same order, so
- * each snapshot is keyed by the clone node it is later restored onto.
+ * Properties never restored onto any node. Motion is the engine's (see
+ * `NEUTRALIZED_PROPERTIES` in `cloneDragPreview`). The clone root's inline
+ * `pointer-events: none` and `inert` reach every descendant through inheritance,
+ * and copying the source's `auto` onto a descendant would make it hit-testable
+ * and focusable again.
  */
-export function capturePreviewStyles(
-  source: HTMLElement,
-  sourceNodes: Element[],
-  clone: HTMLElement,
-  cloneNodes: Element[],
-) {
+export function isEngineOwnedProperty(name: string): boolean {
+  return (
+    name.startsWith('transition') ||
+    name.startsWith('animation') ||
+    name === 'pointer-events' ||
+    name === 'interactivity'
+  );
+}
+
+// Internal, like every `data-base-ui-` attribute. It only keys the pseudo-element
+// rules restored below.
+const NODE_ATTRIBUTE = 'data-base-ui-drag-preview-node';
+const ids = getSharedSlot('dragPreviewStyleIds', () => ({ next: 0 }));
+
+type Properties = Map<string, Map<string, string>>;
+
+/**
+ * Bound selector work before falling back to computed styles. Larger source
+ * trees get a larger budget because a full snapshot also grows with the tree.
+ */
+const MIN_RULE_BUDGET = 4096;
+const RULES_PER_SOURCE_NODE = 512;
+
+/**
+ * Snapshot only declarations whose selectors may stop matching once the clone sits
+ * at the end of the source's parent, or in the preview `container`. Ordinary class
+ * rules still match and need no copying.
+ *
+ * Selectors are matched against the source tree, and values are read from the
+ * source nodes. The clone is not in the DOM yet. Once inserted, it is the last
+ * child of its parent rather than at the source's sibling position, so
+ * `:nth-child`, `:first-child`, `:last-child` and sibling combinators would resolve
+ * to the wrong value. In a `container`, child combinators can stop matching too. `sourceNodes` and `cloneNodes` list both trees in the same
+ * order, rooted at the source and its clone, so each snapshot is keyed by the
+ * clone node it is restored onto.
+ */
+export function capturePreviewStyles(sourceNodes: Element[], cloneNodes: Element[]) {
+  const source = sourceNodes[0];
+  const clone = cloneNodes[0];
   const win = ownerWindow(source);
-  const doc = ownerDocument(source);
   const root = source.getRootNode() as Document | ShadowRoot;
   const properties = new Map<Element, Properties>();
   const clonesBySource = new Map<Element, Element>();
   for (let i = 0; i < sourceNodes.length; i += 1) {
     clonesBySource.set(sourceNodes[i], cloneNodes[i]);
   }
-  let unreadableSheet = false;
+  let needsFullSnapshot = false;
+  let inspectedRules = 0;
+  // Full snapshots scale with the dragged subtree. Give a large subtree more
+  // selector work before switching, since copying all its styles also costs more.
+  const ruleBudget = Math.max(MIN_RULE_BUDGET, sourceNodes.length * RULES_PER_SOURCE_NODE);
 
-  function add(sourceNode: Element, pseudo: string, names: Iterable<string>) {
+  function add(
+    sourceNode: Element,
+    pseudo: string,
+    names: Iterable<string>,
+    declaration?: CSSStyleDeclaration,
+  ) {
+    // A selector can match source nodes the clone left out, such as an earlier
+    // preview inside the source. They have nothing to restore onto.
+    if (!clonesBySource.has(sourceNode)) {
+      return;
+    }
     let byPseudo = properties.get(sourceNode);
     if (!byPseudo) {
       byPseudo = new Map();
@@ -68,29 +106,38 @@ export function capturePreviewStyles(
     }
     let set = byPseudo.get(pseudo);
     if (!set) {
-      set = new Set();
+      set = new Map();
       byPseudo.set(pseudo, set);
     }
     for (const name of names) {
-      set.add(name);
+      set.set(name, set.get(name) || declaration?.getPropertyPriority(name) || '');
     }
   }
 
   function readSheet(sheet: CSSStyleSheet) {
-    if (sheet.disabled || isCrossOriginSheet(sheet, win, doc)) {
+    if (sheet.disabled || needsFullSnapshot) {
       return;
     }
     try {
       readRules(sheet.cssRules);
     } catch {
-      // A same-origin sheet can still refuse to expose its rules (a sandboxed
-      // document, a browser quirk). Preserve computed styles conservatively.
-      unreadableSheet = true;
+      // A cross-origin sheet, such as one on a CDN, hides its rules. Fall back to
+      // computed styles when selectors cannot be inspected.
+      needsFullSnapshot = true;
     }
   }
 
   function readRules(rules: CSSRuleList, parentSelector?: string) {
-    for (const rule of Array.from(rules)) {
+    if (rules.length > ruleBudget - inspectedRules) {
+      needsFullSnapshot = true;
+      return;
+    }
+    for (const rule of rules) {
+      if (needsFullSnapshot || inspectedRules >= ruleBudget) {
+        needsFullSnapshot = true;
+        return;
+      }
+      inspectedRules += 1;
       let selector = parentSelector;
       if ('selectorText' in rule && 'style' in rule) {
         const styleRule = rule as CSSStyleRule;
@@ -104,10 +151,7 @@ export function capturePreviewStyles(
         if (STRUCTURAL_SELECTOR.test(selector) || shadowSelector) {
           const pseudos = Array.from(selector.matchAll(PSEUDO_ELEMENT), (match) => match[0]);
           const matchSelector = selector.replace(PSEUDO_ELEMENT, '');
-          const names = Array.from(styleRule.style);
           try {
-            // Shadow selectors cannot be queried from an element. Comparing
-            // their declared properties also covers slotted preview roots.
             const matches = shadowSelector
               ? sourceNodes
               : Array.from(source.querySelectorAll(matchSelector));
@@ -116,7 +160,7 @@ export function capturePreviewStyles(
             }
             for (const node of matches) {
               for (const pseudo of new Set(['', ...pseudos])) {
-                add(node, pseudo, names);
+                add(node, pseudo, styleRule.style, styleRule.style);
               }
             }
           } catch {
@@ -142,65 +186,146 @@ export function capturePreviewStyles(
       readSheet(sheet);
     }
   }
-  if (unreadableSheet) {
+  // Large apps can have thousands of unrelated structural selectors. Past the
+  // rule budget, snapshot the whole source subtree instead. Pickup cost then stays
+  // independent of stylesheet size without caching a stale CSSOM.
+  if (needsFullSnapshot) {
+    // Engines list a computed style's standard properties first, in one order
+    // shared by every element, then the element's custom properties. Reading a
+    // name by index costs about as much as reading its value, so the standard
+    // names are listed once and each later node only walks its custom tail.
+    let standardNames: string[] | null = null;
+    // Each node's custom properties, kept until its children compare against them.
+    // `sourceNodes` is in tree order, so a parent is always read first.
+    const customValues = new Map<Element, Map<string, string>>();
+    const readProperties = (
+      computed: CSSStyleDeclaration,
+      parentCustom: Map<string, string> | undefined,
+      custom: Map<string, string>,
+    ) => {
+      const names: string[] = [];
+      const standardCount = standardNames?.length ?? 0;
+      let start = 0;
+      if (
+        standardNames &&
+        standardCount > 0 &&
+        computed.length >= standardCount &&
+        !computed[standardCount - 1].startsWith('--') &&
+        (computed.length === standardCount || computed[standardCount].startsWith('--'))
+      ) {
+        names.push(...standardNames);
+        start = standardCount;
+      }
+      for (let i = start; i < computed.length; i += 1) {
+        const name = computed[i];
+        if (!name.startsWith('--')) {
+          names.push(name);
+          continue;
+        }
+        // Design systems declare hundreds of tokens on `:root`, and every node
+        // reports all of them. A custom property equal to the parent's is
+        // inherited. The clone's parent ends up with that same value, restored if
+        // needed, so the clone inherits it too and it needs no copy. Only the root
+        // copies every token, since a `container` above it may not be one of the
+        // source's ancestors.
+        const value = computed.getPropertyValue(name);
+        custom.set(name, value);
+        if (parentCustom?.get(name) !== value) {
+          names.push(name);
+        }
+      }
+      // Only a list with every standard name ahead of every custom one can be
+      // reused as a prefix.
+      if (standardNames === null && start === 0) {
+        const firstCustom = names.findIndex((name) => name.startsWith('--'));
+        const standard = firstCustom === -1 ? names : names.slice(0, firstCustom);
+        standardNames =
+          standard.length > 0 && !names.slice(standard.length).some((n) => !n.startsWith('--'))
+            ? standard
+            : [];
+      }
+      return names;
+    };
     for (const node of sourceNodes) {
-      add(node, '', win.getComputedStyle(node));
+      const parentCustom =
+        node === source || !node.parentElement ? undefined : customValues.get(node.parentElement);
+      const custom = new Map<string, string>();
+      if (node.childElementCount > 0) {
+        customValues.set(node, custom);
+      }
+      add(node, '', readProperties(win.getComputedStyle(node), parentCustom, custom));
       for (const pseudo of ['::before', '::after', '::marker']) {
         const computed = win.getComputedStyle(node, pseudo);
         if (computed.content !== 'none' && computed.content !== 'normal') {
-          add(node, pseudo, computed);
+          // A pseudo-element inherits from its element, whose custom properties
+          // were just read.
+          add(node, pseudo, readProperties(computed, custom, new Map()));
         }
       }
     }
   }
 
-  const snapshots = Array.from(properties, ([sourceNode, byPseudo]) => {
-    const node = clonesBySource.get(sourceNode);
-    if (!node) {
-      return [];
-    }
+  const snapshots = Array.from(properties).flatMap(([sourceNode, byPseudo]) => {
+    const node = clonesBySource.get(sourceNode)!;
     return Array.from(byPseudo, ([pseudo, names]) => {
       const computed = win.getComputedStyle(sourceNode, pseudo || null);
       return {
         node,
         pseudo,
         values: Array.from(names)
-          // Motion never carries over. The root's `transform` is neutralized by
-          // the engine as well (see `NEUTRALIZED_PROPERTIES`): restoring it
-          // inline would beat that sheet and shift the clone off its anchor.
+          // Skip what the engine owns: motion and interactivity everywhere, and
+          // the clone root's layout. Descendants and pseudo-elements get their
+          // contextual styles back.
           .filter(
-            (name) =>
-              !name.startsWith('transition') &&
-              !name.startsWith('animation') &&
-              !(node === clone && name === 'transform'),
+            ([name]) =>
+              !isEngineOwnedProperty(name) &&
+              !(node === clone && pseudo === '' && isPreviewRootProperty(name)),
           )
-          .map((name) => [name, computed.getPropertyValue(name)] as const),
+          .map(([name, priority]) => [name, computed.getPropertyValue(name), priority] as const),
       };
     });
-  }).flat();
+  });
   let sheet: CSSStyleSheet | null = null;
   let sheetRoot: Document | ShadowRoot | null = null;
+
+  function detachSheet() {
+    if (sheetRoot && sheet) {
+      unadoptStyleSheet(sheetRoot, sheet);
+    }
+  }
 
   function reconnect() {
     if (!sheet) {
       return;
     }
-    const currentRoot = clone.getRootNode();
-    const target = isShadowRoot(currentRoot) ? currentRoot : ownerDocument(clone);
-    if (sheetRoot === target && target.adoptedStyleSheets.includes(sheet)) {
+    const target = getDragEventRoot(clone);
+    if (sheetRoot !== target) {
+      detachSheet();
+      sheetRoot = target;
+    }
+    adoptStyleSheet(target, sheet);
+  }
+
+  /**
+   * A restored value is a style change on a node that is already rendered, so a
+   * descendant whose own `transition` covers it would fade in from the value its
+   * position at the end of the parent gave it. The preview must look settled on its first frame.
+   * Only transitions are finished. A running `@keyframes` inside the source, such
+   * as a spinner, keeps playing on the clone.
+   */
+  function finishTransitions() {
+    if (typeof clone.getAnimations !== 'function' || typeof win.CSSTransition !== 'function') {
       return;
     }
-    if (sheetRoot) {
-      sheetRoot.adoptedStyleSheets = sheetRoot.adoptedStyleSheets.filter(
-        (value) => value !== sheet,
-      );
+    for (const animation of clone.getAnimations({ subtree: true })) {
+      if (animation instanceof win.CSSTransition) {
+        animation.finish();
+      }
     }
-    sheetRoot = target;
-    target.adoptedStyleSheets = [...target.adoptedStyleSheets, sheet];
   }
 
   return {
-    /** Call once the clone is in its wrapper, so the diff sees its final cascade. */
+    /** Call once the clone is inserted, so the diff sees its final cascade. */
     restore() {
       // Finish all reads before writing styles, avoiding a layout per node.
       const changed = snapshots.map(({ node, pseudo, values }) => {
@@ -215,6 +340,27 @@ export function capturePreviewStyles(
           values: values.filter(([name, value]) => computed.getPropertyValue(name) !== value),
         };
       });
+      // A broad snapshot must not overwrite styles consumers apply to previews.
+      // Before writing, drop any value that changes when the marker is removed.
+      // It comes from a preview rule, not from the lost ancestry.
+      if (changed.some(({ values }) => values.length > 0)) {
+        const previewValues = changed.map(({ node, pseudo, values }) => {
+          const computed = win.getComputedStyle(node, pseudo || null);
+          return values.map(([name]) => computed.getPropertyValue(name));
+        });
+        clone.removeAttribute(DraggablePreviewDataAttributes.dragPreview);
+        try {
+          changed.forEach((entry, index) => {
+            const computed = win.getComputedStyle(entry.node, entry.pseudo || null);
+            entry.values = entry.values.filter(
+              ([name], valueIndex) =>
+                computed.getPropertyValue(name) === previewValues[index][valueIndex],
+            );
+          });
+        } finally {
+          clone.setAttribute(DraggablePreviewDataAttributes.dragPreview, '');
+        }
+      }
       const nodeIds = new Map<Element, string>();
       for (const { node, pseudo, values } of changed) {
         if (values.length === 0) {
@@ -240,20 +386,39 @@ export function capturePreviewStyles(
         } else {
           continue;
         }
-        for (const [name, value] of values) {
-          style.setProperty(name, value, pseudo ? 'important' : '');
+        for (const [name, value, priority] of values) {
+          style.setProperty(name, value, pseudo ? 'important' : priority);
+        }
+      }
+      reconnect();
+      if (!changed.some(({ values }) => values.length > 0)) {
+        snapshots.length = 0;
+        return;
+      }
+      finishTransitions();
+      // An unreadable sheet can also hold `!important` declarations. Computed
+      // styles do not expose priority, so raise only the restorations that still
+      // lose to a surviving declaration. Reads are batched before writes.
+      if (needsFullSnapshot) {
+        const important = changed.flatMap(({ node, pseudo, values }) => {
+          if (pseudo || !(node instanceof win.HTMLElement || node instanceof win.SVGElement)) {
+            return [];
+          }
+          const computed = win.getComputedStyle(node);
+          return values
+            .filter(([name, value]) => computed.getPropertyValue(name) !== value)
+            .map(([name, value]) => ({ node, name, value }));
+        });
+        for (const { node, name, value } of important) {
+          node.style.setProperty(name, value, 'important');
+        }
+        if (important.length > 0) {
+          finishTransitions();
         }
       }
       snapshots.length = 0;
-      reconnect();
     },
     reconnect,
-    destroy() {
-      if (sheetRoot) {
-        sheetRoot.adoptedStyleSheets = sheetRoot.adoptedStyleSheets.filter(
-          (value) => value !== sheet,
-        );
-      }
-    },
+    destroy: detachSheet,
   };
 }

@@ -1,4 +1,4 @@
-/** The linear part of a CSS transform; translation is deliberately omitted. */
+/** The linear part of a CSS transform, without the translation. */
 export interface LinearTransform {
   a: number;
   b: number;
@@ -34,14 +34,12 @@ export function parseComputedLinearTransform(
     return null;
   }
   const values = match[2].split(',').map(Number);
-  const [a, b, c, d] = match[1]
-    ? [values[0], values[1], values[4], values[5]]
-    : [values[0], values[1], values[2], values[3]];
-  return [a, b, c, d].every((value) => Number.isFinite(value)) ? { a, b, c, d } : null;
+  const [a, b, c, d] = match[1] ? [values[0], values[1], values[4], values[5]] : values;
+  return [a, b, c, d].every(Number.isFinite) ? { a, b, c, d } : null;
 }
 
 /** Parse a computed CSS angle, whose canonical unit is degrees. */
-export function parseComputedDegrees(value: string): number | null {
+function parseComputedDegrees(value: string): number | null {
   const match = value.match(/^([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)deg$/i);
   if (!match) {
     return null;
@@ -50,15 +48,17 @@ export function parseComputedDegrees(value: string): number | null {
   return Number.isFinite(amount) ? amount : null;
 }
 
-/** The `scale` longhand, excluding its visually irrelevant z component. */
+/** The `scale` longhand. The z component has no visible effect, so it is dropped. */
 export function parseScaleLinearTransform(scale: string): LinearTransform | null {
   if (!scale || scale === 'none') {
     return null;
   }
-  const parts = scale.trim().split(/\s+/);
-  const x = Number(parts[0]);
-  const y = parts.length > 1 ? Number(parts[1]) : x;
-  return Number.isFinite(x) && Number.isFinite(y) ? { a: x, b: 0, c: 0, d: y } : null;
+  const parts = scale.trim().split(/\s+/).map(Number);
+  if (parts.length > 3 || !parts.every(Number.isFinite)) {
+    return null;
+  }
+  const [x, y = x] = parts;
+  return { a: x, b: 0, c: 0, d: y };
 }
 
 /** Parse the `rotate` longhand, optionally requiring an in-plane rotation. */

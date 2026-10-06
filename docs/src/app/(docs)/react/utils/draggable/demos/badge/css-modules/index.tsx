@@ -2,17 +2,32 @@
 import { Draggable } from '@base-ui/react/draggable';
 
 import * as React from 'react';
-import { DashboardControls } from '../../DashboardControls';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { GripIcon } from '../../GripIcon';
-import { SLOTS, useDashboardWidgets, type SlotId, type WidgetData } from '../../dashboardWidgets';
+import { SLOTS, useDashboardWidgets } from '../../dashboardWidgets';
+import type { SlotId, WidgetData } from '../../dashboardWidgets';
 
 import styles from '../../badge.module.css';
 
 const widgetKind = Draggable.createKind<string>('draggable/preview-widget');
 
-function Widget({ widget }: { widget: WidgetData }) {
+function Widget({
+  widget,
+  onKeyDown,
+}: {
+  widget: WidgetData;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
+}) {
   return (
-    <Draggable.Root kind={widgetKind} payload={widget.id} className={styles.Widget}>
+    <Draggable.Root
+      kind={widgetKind}
+      payload={widget.id}
+      className={styles.Widget}
+      data-widget-id={widget.id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
+      onKeyDown={(event) => onKeyDown(event, widget.id)}
+    >
       <div className={styles.WidgetHeader}>
         <GripIcon className={styles.Grip} />
         <span>{widget.title}</span>
@@ -21,7 +36,7 @@ function Widget({ widget }: { widget: WidgetData }) {
         <strong>{widget.value}</strong>
         <span>{widget.detail}</span>
       </div>
-      {/* @highlight-start */}
+      {/* @highlight-start @focus @padding 1 */}
       <Draggable.Preview className={styles.Badge} offset="pointer">
         <span className={styles.BadgeValue}>{widget.value}</span>
         {widget.title}
@@ -36,11 +51,13 @@ function DockSlot({
   label,
   widget,
   onMoveWidget,
+  onWidgetKeyDown,
 }: {
   id: SlotId;
   label: string;
   widget: WidgetData | undefined;
   onMoveWidget: (widgetId: string, slot: SlotId) => void;
+  onWidgetKeyDown: (event: React.KeyboardEvent<HTMLElement>, widgetId: string) => void;
 }) {
   return (
     <Draggable.Target
@@ -50,25 +67,27 @@ function DockSlot({
       data-empty={widget ? undefined : ''}
       accept={widgetKind}
       canDrop={() => widget === undefined}
-      onDraggableDrop={({ source }) => onMoveWidget(source.payload, id)}
+      onDraggableDrop={(eventDetails) => onMoveWidget(eventDetails.source.payload, id)}
     >
-      {widget ? <Widget widget={widget} /> : <span className={styles.Empty}>Drop widget</span>}
+      {widget ? (
+        <Widget widget={widget} onKeyDown={onWidgetKeyDown} />
+      ) : (
+        <span className={styles.Empty}>Drop widget</span>
+      )}
     </Draggable.Target>
   );
 }
 
 export default function CustomPreviewDashboard() {
-  const { widgets, moveWidget, announcement } = useDashboardWidgets();
+  const { dashboardRef, widgets, moveWidget, onWidgetKeyDown, announcement } =
+    useDashboardWidgets();
 
   return (
     <Draggable.Provider>
-      <div className={styles.Root}>
-        <DashboardControls
-          className={styles.Controls}
-          widgets={widgets}
-          onMoveWidget={moveWidget}
-        />
-        <div role="status">{announcement}</div>
+      <div ref={dashboardRef} className={styles.Root}>
+        <div role="status" style={visuallyHidden}>
+          {announcement}
+        </div>
         <div className={styles.Grid}>
           {SLOTS.map((slot) => (
             <DockSlot
@@ -77,6 +96,7 @@ export default function CustomPreviewDashboard() {
               label={slot.label}
               widget={widgets.find((widget) => widget.slot === slot.id)}
               onMoveWidget={moveWidget}
+              onWidgetKeyDown={onWidgetKeyDown}
             />
           ))}
         </div>

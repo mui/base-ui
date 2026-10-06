@@ -7,33 +7,6 @@
   user-select: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .Widget[data-drag-preview][data-ending-style] {
-    transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
-  }
-}
-
-/*
- * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`, which
- * also drops the page's font smoothing and renders text heavier than the
- * Tailwind variant. Restore it so both variants render text identically.
- */
-.Root,
-.Root * {
-  box-sizing: border-box;
-  font-synthesis: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.Controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
 .Grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -45,6 +18,7 @@
 }
 
 .Slot {
+  box-sizing: border-box;
   display: flex;
   align-items: stretch;
   min-height: 8rem;
@@ -83,6 +57,7 @@
 }
 
 .Widget {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -96,6 +71,15 @@
     border-color: white;
     background-color: oklch(14.5% 0 0deg);
     color: white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 
   &[data-dragging] {
@@ -155,24 +139,11 @@
   align-items: center;
   justify-content: center;
   flex: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
   color: oklch(70.8% 0 0deg);
   cursor: grab;
 
   @media (prefers-color-scheme: dark) {
     color: oklch(55.6% 0 0deg);
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
   }
 }
 

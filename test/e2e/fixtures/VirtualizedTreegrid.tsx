@@ -5,9 +5,11 @@ import {
   Virtualizer,
   VirtualizerHostContext,
   VirtualizerHostStateContext,
-  type VirtualizerHost,
-  type VirtualizerHostState,
-  type VirtualizerItemMetadata,
+} from '@base-ui/react/virtualizer';
+import type {
+  VirtualizerHost,
+  VirtualizerHostState,
+  VirtualizerItemMetadata,
 } from '@base-ui/react/virtualizer';
 
 /**

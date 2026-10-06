@@ -1,9 +1,4 @@
 /**
- * Present while the element is registered as a drop target. Base UI also uses
- * it to resolve targets during hit testing.
- */
-export const dropTarget = 'data-drop-target';
-/**
  * Present while a matching drag source is over the target or a nested descendant.
  * Absent when `trackDragOver` is `false`.
  */
