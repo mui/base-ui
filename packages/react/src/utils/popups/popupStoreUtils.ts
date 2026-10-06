@@ -555,6 +555,29 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 }
 
 /**
+ * Syncs the controlled `open` prop to the store.
+ * In controlled mode, `state.open` holds the last open-change request instead of the open state,
+ * and a close through the prop doesn't reset it. This clears it whenever the prop closes the popup,
+ * so `true` means a request since the last controlled close (see `useOpenStateTransitions`).
+ * It runs in the commit that receives the prop, before any part renders the popup as closed.
+ *
+ * @param store The Store instance managing the popup state.
+ * @param openProp The Root's `open` prop.
+ */
+export function useOpenProp<State extends PopupStoreState<unknown>>(
+  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  openProp: boolean | undefined,
+) {
+  store.useControlledProp('openProp', openProp);
+
+  useIsoLayoutEffect(() => {
+    if (openProp === false) {
+      store.set('open', false);
+    }
+  }, [openProp, store]);
+}
+
+/**
  * Manages the mounted state of the popup.
  * Sets up the transition status listeners and handles unmounting when needed.
  * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store.
@@ -576,20 +599,6 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   onUnmount?: () => void,
   animateInitialOpen?: boolean,
 ) {
-  // In controlled mode, `state.open` holds the last open request, which a close through the `open`
-  // prop never resets. Clear it when the popup closes so the unmount below can tell a reopen
-  // request from a stale one. Uncontrolled popups don't need this: their requests are the state.
-  // Declared before `useUnmountAfterClose` so it runs first when a pending `unmount()` completes in
-  // the closing commit. Only on the open-to-closed transition: syncing every render would overwrite
-  // an open requested from a descendant layout effect before this effect runs.
-  const wasOpenRef = React.useRef(open);
-  useIsoLayoutEffect(() => {
-    if (wasOpenRef.current && !open && store.state.openProp !== undefined) {
-      store.set('open', false);
-    }
-    wasOpenRef.current = open;
-  }, [open, store]);
-
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
     ref: store.context.popupRef,
@@ -601,7 +610,8 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       // A trigger press can reopen the popup before the exit completes, writing the pressed
       // trigger and `open: true` to the store while a controlled `open` prop hasn't committed yet
       // (React 18 runs the exit completion in between). Keep that trigger instead of clearing it.
-      // `state.open` is reset when a controlled popup closes, so `true` means a request since then.
+      // `useOpenProp` resets `state.open` when a controlled popup closes, so `true` means a request
+      // since then.
       if (store.state.open) {
         store.update({ mounted: false, preventUnmountingOnClose: false });
       } else {

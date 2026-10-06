@@ -13,6 +13,7 @@ import {
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
+  useOpenProp,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -45,7 +46,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
       ),
   );
 
-  store.useControlledProp('openProp', openProp);
+  useOpenProp(store, openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useContextCallback('onOpenChange', onOpenChange);

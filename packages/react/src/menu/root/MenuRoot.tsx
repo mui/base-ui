@@ -46,6 +46,7 @@ import {
   createPopupOpenState,
   PopupHandleAttachment,
   useImplicitActiveTrigger,
+  useOpenProp,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -175,7 +176,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     return menuStore;
   }).current;
 
-  store.useControlledProp('openProp', openProp);
+  useOpenProp(store, openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);

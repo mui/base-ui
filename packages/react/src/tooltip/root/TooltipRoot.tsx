@@ -11,6 +11,7 @@ import {
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
+  useOpenProp,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -59,7 +60,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
       ),
   );
 
-  store.useControlledProp('openProp', openProp);
+  useOpenProp(store, openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useContextCallback('onOpenChange', onOpenChange);
