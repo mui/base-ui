@@ -64,10 +64,9 @@ export function registerCleanup<T extends () => void>(fn: T): T {
 /**
  * Install the standard `afterEach` for drag engine tests:
  *
- * 1. Drain the cleanup queue (LIFO).
+ * 1. Drain the cleanup queue (LIFO), which also restores `elementFromPoint` mocks.
  * 2. Remove every element created via `createElement()`.
  * 3. Force-end any in-flight drag and reset the engine state machine.
- * 4. Restore the `elementFromPoint` hit-test mock.
  *
  * Every step runs even when an earlier one throws, because global engine state
  * must be reset before the next test. The first failure is rethrown afterwards,
@@ -122,22 +121,19 @@ const DRAG_ACTIVATION_DISTANCE_PX = 6;
 let dragSource: HTMLElement | null = null;
 // The element `document.elementFromPoint` returns, standing in for the element under the pointer.
 let hitTarget: Element | null = null;
-let originalElementFromPoint: ((x: number, y: number) => Element | null) | null = null;
+let hitTestInstalled = false;
 
+// Goes through `mockElementFromPoint`, so it and a test's own mock are restored by
+// the same cleanup queue, in reverse order of installation.
 function installElementFromPoint(): void {
-  if (originalElementFromPoint) {
+  if (hitTestInstalled) {
     return;
   }
-  originalElementFromPoint = document.elementFromPoint.bind(document);
-  document.elementFromPoint = () => hitTarget;
-}
-
-function restoreElementFromPoint(): void {
-  if (originalElementFromPoint) {
-    document.elementFromPoint = originalElementFromPoint;
-    originalElementFromPoint = null;
-  }
-  hitTarget = null;
+  hitTestInstalled = true;
+  mockElementFromPoint(() => hitTarget);
+  registerCleanup(() => {
+    hitTestInstalled = false;
+  });
 }
 
 function dispatchPointer(
@@ -351,7 +347,7 @@ function resetDrag(): void {
     // aborted test can't leak them into the next one.
     resetDropTargets,
     () => {
-      restoreElementFromPoint();
+      hitTarget = null;
       dragSource = null;
     },
     // Clear the touch target the synthetic pointer helpers remember, so one test's

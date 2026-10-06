@@ -85,10 +85,10 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
         negativeOrigin = vertical || direction === 'ltr';
       }
       move(negativeOrigin ? 10 : 190);
-      await waitFor(() => expect(Math.abs(offset())).toBeGreaterThan(0));
+      await waitFor(() => expect(Math.abs(offset())).toBeGreaterThan(0), { interval: 16 });
       const scrolledTo = Math.abs(offset());
       move(negativeOrigin ? 190 : 10);
-      await waitFor(() => expect(Math.abs(offset())).toBeLessThan(scrolledTo));
+      await waitFor(() => expect(Math.abs(offset())).toBeLessThan(scrolledTo), { interval: 16 });
       act(() => engine.cancelDrag());
     },
   );
@@ -111,13 +111,12 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
         clientY: 100,
       }),
     );
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     expect(viewport.scrollLeft).toBe(0);
     act(() => {
       viewport.dir = 'rtl';
     });
-    await waitFor(() => expect(viewport.scrollLeft).toBeLessThan(0));
+    await waitFor(() => expect(viewport.scrollLeft).toBeLessThan(0), { interval: 16 });
     act(() => engine.cancelDrag());
   });
 
@@ -150,37 +149,27 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
       );
     }
     move(100);
-    await flushRaf();
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(3);
     move(250);
-    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0), { interval: 16 });
     expect(
       onDragScroll.mock.calls.some(([eventDetails]) => eventDetails.input.clientY === 250),
     ).toBe(true);
     move(281);
-    await flushRaf();
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(3);
     const stoppedAt = viewport.scrollTop;
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     expect(viewport.scrollTop).toBe(stoppedAt);
     move(250);
-    await flushRaf();
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(3);
     expect(viewport.scrollTop).toBe(stoppedAt);
     move(100);
-    await flushRaf();
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(3);
     move(250);
-    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(stoppedAt));
+    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(stoppedAt), { interval: 16 });
     act(() => engine.cancelDrag());
     const canceledAt = viewport.scrollTop;
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     expect(viewport.scrollTop).toBe(canceledAt);
   });
 
@@ -206,7 +195,7 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
       engine.registerSource(source, { activation: { type: 'immediate' } });
       engine.registerViewport(viewport, { overflowMargin: { bottom: 80 } });
       start(source);
-      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0), { interval: 16 });
       // Below the viewport, so the pointer is over neither it nor its ancestor.
       act(() =>
         firePointer.move(document.body, {
@@ -219,19 +208,19 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
         }),
       );
       const enteredMarginAt = viewport.scrollTop;
-      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(enteredMarginAt));
+      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(enteredMarginAt), {
+        interval: 16,
+      });
 
       act(() => {
         ancestor.setAttribute(attribute, 'scroll-locked');
       });
       await flushRaf();
       const lockedAt = viewport.scrollTop;
-      await flushRaf();
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(3);
       expect(viewport.scrollTop).toBe(lockedAt);
       act(() => ancestor.removeAttribute(attribute));
-      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(lockedAt));
+      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(lockedAt), { interval: 16 });
       act(() => engine.cancelDrag());
     },
   );
@@ -261,22 +250,20 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
       engine.registerSource(source, { activation: { type: 'immediate' } });
       engine.registerViewport(viewport, {});
       start(source);
-      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0), { interval: 16 });
 
       // Moving the viewport resets its scroll position.
       act(() => {
         to.appendChild(viewport);
       });
-      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+      await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0), { interval: 16 });
 
       act(() => {
         to.className = 'scroll-locked';
       });
       await flushRaf();
       const lockedAt = viewport.scrollTop;
-      await flushRaf();
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(3);
       expect(viewport.scrollTop).toBe(lockedAt);
       act(() => engine.cancelDrag());
     },
@@ -293,7 +280,7 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     engine.registerViewport(inner, { overflowMargin: { bottom: 120 } });
     engine.registerViewport(outer, {});
     start(source);
-    await waitFor(() => expect(outer.scrollTop).toBeGreaterThan(0));
+    await waitFor(() => expect(outer.scrollTop).toBeGreaterThan(0), { interval: 16 });
     expect(inner.scrollTop).toBe(0);
     act(() => engine.cancelDrag());
   });
@@ -310,7 +297,7 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     engine.registerViewport(viewport, {});
     engine.registerTarget(target, { onDraggableEnter: enter, onDraggableDrop: drop });
     start(source);
-    await waitFor(() => expect(enter).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(enter).toHaveBeenCalledTimes(1), { interval: 16 });
     expect(viewport.scrollTop).toBeGreaterThan(0);
     act(() =>
       firePointer.up(document.body, {
@@ -355,10 +342,7 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     pointer('down', source, 10, 10);
     pointer('move', overlay, 100, 190);
     expect(source).toHaveAttribute('data-dragging');
-    for (let i = 0; i < 15; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
-      await flushRaf();
-    }
+    await flushRaf(15);
 
     expect(viewport.scrollTop).toBe(0);
     act(() => engine.cancelDrag());
@@ -387,7 +371,7 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
 
     pointer('down', source, 310, 20);
     pointer('move', document.body, 100, 390);
-    await waitFor(() => expect(list.scrollTop).toBeGreaterThan(100));
+    await waitFor(() => expect(list.scrollTop).toBeGreaterThan(100), { interval: 16 });
     expect(main.scrollTop).toBe(100);
     act(() => engine.cancelDrag());
   });
@@ -407,7 +391,7 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
 
     pointer('down', source, 50, 10);
     pointer('move', document.body, 50, 300);
-    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0));
+    await waitFor(() => expect(viewport.scrollTop).toBeGreaterThan(0), { interval: 16 });
     act(() => engine.cancelDrag());
   });
 
@@ -422,7 +406,7 @@ describe.skipIf(isJSDOM)('Draggable viewport scrolling in the browser', () => {
     engine.registerViewport(inner, {});
     engine.registerViewport(outer, {});
     start(source);
-    await waitFor(() => expect(outer.scrollTop).toBeGreaterThan(0));
+    await waitFor(() => expect(outer.scrollTop).toBeGreaterThan(0), { interval: 16 });
     expect(inner.scrollTop).toBe(inner.scrollHeight - inner.clientHeight);
     engine.cancelDrag();
   });

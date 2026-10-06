@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { DragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
+import type { DragPreviewHandle } from '../preview/dragPreviewDeclaration';
 import type { DraggableContextValue } from '../DraggableContext';
 
 export interface DraggableRootContext<TPayload = unknown, TDragData = unknown> {

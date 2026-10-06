@@ -34,6 +34,7 @@ import * as dragCursor from './dragCursor';
 import {
   consumeDoubleClickFollowUp,
   suppressDoubleClickFollowUp,
+  CAPTURE,
   suppressNextClick,
   swallowEvent,
 } from './postDragClick';
@@ -101,9 +102,6 @@ const CONTEXT_MENU_SUPPRESSION_MS = 1500;
  */
 const DOUBLE_TAP_MS = 300;
 const DOUBLE_TAP_TOLERANCE_PX = 25;
-
-/** Shared listener options, so every capture listener doesn't allocate its own. */
-const CAPTURE: AddEventListenerOptions = { capture: true };
 
 /** Cursor pinned across the document during a pointer drag (see `dragCursor`). */
 const DEFAULT_DRAG_CURSOR = 'grabbing';

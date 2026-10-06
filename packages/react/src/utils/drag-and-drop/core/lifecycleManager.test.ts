@@ -5,6 +5,7 @@ import {
   cancel,
   createElement,
   flushRaf,
+  mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
   splitEnd,
@@ -243,7 +244,6 @@ describe('lifecycle manager', () => {
         ...parameters,
       });
       addDropTargetRegistration(element, getParameters);
-      registerCleanup(() => removeDropTargetRegistration(element, getParameters));
       return { element, getParameters, getRecord: () => record };
     }
 
@@ -302,9 +302,10 @@ describe('lifecycle manager', () => {
   describe('malformed registrations', () => {
     function registerRawTarget(element: Element, getParameters: () => unknown): void {
       // Plain JS can pass what the types forbid.
-      const getter = getParameters as Parameters<typeof addDropTargetRegistration>[1];
-      addDropTargetRegistration(element, getter);
-      registerCleanup(() => removeDropTargetRegistration(element, getter));
+      addDropTargetRegistration(
+        element,
+        getParameters as Parameters<typeof addDropTargetRegistration>[1],
+      );
     }
 
     it('skips a target whose parameters fail to resolve without ending the drag', () => {
@@ -735,14 +736,9 @@ describe('lifecycle manager', () => {
       expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(target);
 
       child.remove();
-      const originalEFP = document.elementFromPoint;
-      document.elementFromPoint = () => target;
-      try {
-        scheduleDropTargetParameterRefresh(target);
-        await act(async () => Promise.resolve());
-      } finally {
-        document.elementFromPoint = originalEFP;
-      }
+      mockElementFromPoint(() => target);
+      scheduleDropTargetParameterRefresh(target);
+      await act(async () => Promise.resolve());
 
       expect(onDraggableLeave).not.toHaveBeenCalled();
       expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(target);

@@ -6,6 +6,7 @@ import {
   createElement,
   flushRaf,
   lift,
+  mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
   fireDrag,
@@ -57,9 +58,9 @@ function installFrameClock() {
 // applies a full-ramp delta, capped at 64ms of scrolling, so the scroll has a
 // direction the assertions can read.
 async function runPastRamp(clock: ReturnType<typeof installFrameClock>): Promise<void> {
-  await flushRaf(3);
-  clock.advance(500);
   await flushRaf(2);
+  clock.advance(500);
+  await flushRaf();
 }
 
 // Lifts at (100, 100), the center of the 200x200 fixtures and outside any edge
@@ -74,7 +75,7 @@ async function driveTo(
 ): Promise<void> {
   await lift(source, { clientX: 100, clientY: 100 });
   fireDrag.dragOver(hit, { clientX, clientY });
-  await flushRaf(3);
+  await flushRaf(2);
 }
 
 describe('engine.registerViewport', () => {
@@ -83,7 +84,7 @@ describe('engine.registerViewport', () => {
   describe('overflow margins', () => {
     async function moveTo(scroller: HTMLElement, [clientX, clientY]: number[]): Promise<void> {
       fireDrag.dragOver(scroller, { clientX, clientY });
-      await flushRaf(3);
+      await flushRaf(2);
     }
 
     it.each([
@@ -109,9 +110,7 @@ describe('engine.registerViewport', () => {
         const onDragScroll = vi.fn();
         engine.registerSource(source, {});
         engine.registerViewport(scroller, { overflowMargin: margin, onDragScroll });
-        await lift(source, { clientX: 100, clientY: 100 });
-        fireDrag.dragOver(scroller, { clientX: x, clientY: y });
-        await flushRaf(3);
+        await driveTo(source, scroller, x, y);
         expect(onDragScroll.mock.calls.length > 0).toBe(scrolls);
         expect(
           onDragScroll.mock.calls.every(
@@ -175,9 +174,7 @@ describe('engine.registerViewport', () => {
         onDragScroll,
         ...(isBlocked ? blocked : {}),
       }));
-      await lift(source, { clientX: 100, clientY: 100 });
-
-      await moveTo(scroller, [100, 220]);
+      await driveTo(source, scroller, 100, 220);
       expect(onDragScroll).toHaveBeenCalled();
       isBlocked = true;
       await moveTo(scroller, [100, 220]);
@@ -222,9 +219,7 @@ describe('engine.registerViewport', () => {
       const scroller = makeEngageableScroller();
       engine.registerSource(source, {});
       engine.registerViewport(scroller, { overflowMargin: 160, maxSpeed: 100 });
-      await lift(source, { clientX: 100, clientY: 100 });
-      fireDrag.dragOver(scroller, { clientX: 100, clientY: 200 });
-      await flushRaf(2);
+      await driveTo(source, scroller, 100, 200);
       clock.advance(1000);
       await flushRaf();
       vi.mocked(scroller.scrollBy).mockClear();
@@ -251,9 +246,7 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       engine.registerViewport(outside, { overflowMargin: { bottom: 160 } });
       engine.registerViewport(inside, {});
-      await lift(source, { clientX: 100, clientY: 100 });
-      fireDrag.dragOver(inside, { clientX: 100, clientY: 290 });
-      await flushRaf(2);
+      await driveTo(source, inside, 100, 290);
       expect(inside.scrollBy).toHaveBeenCalled();
       expect(outside.scrollBy).not.toHaveBeenCalled();
       inside.scrollTop = inside.scrollHeight - inside.clientHeight;
@@ -272,9 +265,7 @@ describe('engine.registerViewport', () => {
       });
       engine.registerViewport(neighbour, {});
       engine.registerViewport(confined, { overflowMargin: { bottom: 30 } });
-      await lift(source, { clientX: 100, clientY: 100 });
-      fireDrag.dragOver(neighbour, { clientX: 300, clientY: 290 });
-      await flushRaf(3);
+      await driveTo(source, neighbour, 300, 290);
       expect(confined.scrollBy).toHaveBeenCalled();
       expect(neighbour.scrollBy).not.toHaveBeenCalled();
     });
@@ -300,9 +291,7 @@ describe('engine.registerViewport', () => {
             }
           },
         });
-        await lift(source, { clientX: 100, clientY: 100 });
-        fireDrag.dragOver(inner, { clientX: 100, clientY: 220 });
-        await flushRaf(2);
+        await driveTo(source, inner, 100, 220);
         expect(pan).toHaveBeenCalled();
         expect(inner.scrollBy).not.toHaveBeenCalled();
         expect(vi.mocked(outer.scrollBy).mock.calls.length > 0).toBe(!consume);
@@ -319,9 +308,7 @@ describe('engine.registerViewport', () => {
       Object.defineProperty(scroller, 'scrollLeft', { value: -400, writable: true });
       engine.registerSource(source, {});
       engine.registerViewport(scroller, { overflowMargin: { left: 30 } });
-      await lift(source, { clientX: 100, clientY: 100 });
-      fireDrag.dragOver(scroller, { clientX: -20, clientY: 100 });
-      await flushRaf(2);
+      await driveTo(source, scroller, -20, 100);
       expect(scroller.scrollBy).toHaveBeenCalledWith(
         expect.objectContaining({ left: expect.any(Number), top: 0 }),
       );
@@ -411,7 +398,7 @@ describe('engine.registerViewport', () => {
         cleanup();
       }
       fireDrag.dragOver(survivor, { clientX: 100, clientY: 100 });
-      await flushRaf(3);
+      await flushRaf(2);
       expect(observe.mock.calls.filter(([node]) => node === survivor)).toEqual([
         [survivor, expect.objectContaining({ subtree: true })],
       ]);
@@ -469,7 +456,7 @@ describe('engine.registerViewport', () => {
 
       scroller.appendChild(document.createElement('div'));
       // The mutation observer schedules the frame after the DOM update.
-      await waitFor(() => expect(measure).toHaveBeenCalled());
+      await waitFor(() => expect(measure).toHaveBeenCalled(), { interval: 16 });
     } finally {
       measure.mockRestore();
     }
@@ -584,9 +571,7 @@ describe('engine.registerViewport', () => {
     scroller.scrollBy = scrollBy;
     engine.registerSource(source, {});
     engine.registerViewport(scroller, { onDragScroll });
-    await lift(source, { clientX: 100, clientY: 100 });
-    fireDrag.dragOver(scroller, { clientX: 190, clientY: 190 });
-    await flushRaf(2);
+    await driveTo(source, scroller, 190, 190);
     expect(
       onDragScroll.mock.calls.some(([eventDetails]) => eventDetails.direction === 'horizontal'),
     ).toBe(true);
@@ -802,7 +787,7 @@ describe('engine.registerViewport', () => {
     const control = makeEngageableScroller();
     engine.registerViewport(control, {});
     fireDrag.dragOver(control, { clientX: 100, clientY: 190 });
-    await flushRaf(3);
+    await flushRaf(2);
     expect(control.scrollBy).toHaveBeenCalled();
     expect(plain.scrollBy).not.toHaveBeenCalled();
   });
@@ -910,7 +895,7 @@ describe('engine.registerViewport', () => {
     await lift(source, { clientX: 100, clientY: 10 });
     // Into the scroller's bottom edge zone (edge size 50 of its 200px height).
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 290 });
-    await flushRaf(4);
+    await flushRaf(2);
 
     expect(scroller.scrollBy).toHaveBeenCalled();
     // The callbacks see the unconstrained point the edge test used, not the
@@ -922,12 +907,7 @@ describe('engine.registerViewport', () => {
   it('still scrolls when a clamping modifier holds the physical pointer outside the container', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
-    scroller.style.overflow = 'auto';
-    scroller.scrollBy = vi.fn();
-    Object.defineProperty(scroller, 'scrollTop', { value: 400, writable: true });
-    Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
-    Object.defineProperty(scroller, 'clientHeight', { value: 200 });
+    const scroller = makeEngageableScroller();
 
     // Shaped like `restrictToElement`. The reported point is clamped into the
     // list, so pushing past its bottom moves the physical pointer outside the
@@ -938,10 +918,8 @@ describe('engine.registerViewport', () => {
     });
     engine.registerViewport(scroller, {});
 
-    await lift(source, { clientX: 100, clientY: 100 });
     // Physically past the bottom of the scroller (rect ends at 200).
-    fireDrag.dragOver(scroller, { clientX: 100, clientY: 290 });
-    await flushRaf(3);
+    await driveTo(source, scroller, 100, 290);
 
     expect(scroller.scrollBy).toHaveBeenCalled();
   });
@@ -949,12 +927,7 @@ describe('engine.registerViewport', () => {
   it('scrolls at full depth when a clamping modifier stops the drag short of the edge zone', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
-    scroller.style.overflow = 'auto';
-    scroller.scrollBy = vi.fn();
-    Object.defineProperty(scroller, 'scrollTop', { value: 400, writable: true });
-    Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
-    Object.defineProperty(scroller, 'clientHeight', { value: 200 });
+    const scroller = makeEngageableScroller();
     const seenY: number[] = [];
 
     // Shaped like `restrictToElement` with a preview 80px tall grabbed at its top.
@@ -971,9 +944,7 @@ describe('engine.registerViewport', () => {
       },
     });
 
-    await lift(source, { clientX: 100, clientY: 100 });
-    fireDrag.dragOver(scroller, { clientX: 100, clientY: 290 });
-    await flushRaf(3);
+    await driveTo(source, scroller, 100, 290);
 
     expect(scroller.scrollBy).toHaveBeenCalled();
     // The callbacks receive the point the edges were tested against, which takes
@@ -1008,15 +979,12 @@ describe('engine.registerViewport', () => {
     engine.registerViewport(listA, {});
 
     await lift(source, { clientX: 100, clientY: 100 });
-    const hitTest = vi
-      .spyOn(document, 'elementFromPoint')
-      .mockImplementation((x) => (x < 200 ? listA : listB));
-    registerCleanup(() => hitTest.mockRestore());
+    mockElementFromPoint((x) => (x < 200 ? listA : listB));
     // The physical pointer is in B's bottom edge zone, and the reported point is
     // pinned to A's bottom-right corner. B contains only the raw pointer, so it
     // must not take the vertical axis from A.
     fireDrag.dragOver(listB, { clientX: 300, clientY: 190 });
-    await flushRaf(3);
+    await flushRaf(2);
 
     expect(listA.scrollBy).toHaveBeenCalled();
     expect(listB.scrollBy).not.toHaveBeenCalled();
@@ -1163,12 +1131,12 @@ describe('engine.registerViewport', () => {
     expect(onDraggableEnter).not.toHaveBeenCalled();
 
     // The scroll moves the target under the resting pointer. jsdom moves
-    // nothing, so point the mocked `elementFromPoint` at the target without
-    // moving the pointer. Every engaged frame marks the sensor's frame dirty
+    // nothing, so point `elementFromPoint` at the target without moving the
+    // pointer. Every engaged frame marks the sensor's frame dirty
     // (`notifyExternalScroll`), so the next hit test must find the target and
-    // fire its enter. The shared teardown restores `elementFromPoint`.
-    document.elementFromPoint = () => target;
-    await flushRaf(3);
+    // fire its enter.
+    mockElementFromPoint(() => target);
+    await flushRaf(2);
     expect(onDraggableEnter).toHaveBeenCalled();
   });
 
@@ -1194,7 +1162,7 @@ describe('engine.registerViewport', () => {
     // Back into the zone. The loop engages again instead of staying parked. The
     // sensor frame flushes `onMove`, which wakes the loop for the next frame.
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 190 });
-    await flushRaf(3);
+    await flushRaf(2);
     expect(scrollByMock).toHaveBeenCalled();
   });
 
@@ -1217,12 +1185,12 @@ describe('engine.registerViewport', () => {
 
     // 200px from the bottom edge, inside the uncapped 25% zone but outside the capped one.
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 800 });
-    await flushRaf(3);
+    await flushRaf(2);
     expect(scroller.scrollBy).not.toHaveBeenCalled();
 
     // 100px from the bottom edge, inside the capped 180px zone.
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 900 });
-    await flushRaf(3);
+    await flushRaf(2);
     expect(scroller.scrollBy).toHaveBeenCalled();
   });
 
@@ -1308,7 +1276,7 @@ describe('engine.registerViewport', () => {
         } else {
           fireDrag.dragOver(hit, { clientX: x, clientY: y });
         }
-        await flushRaf(3);
+        await flushRaf(2);
       }
 
       // An app shell's `main` (html > body > div > div > main) behind a bottom
@@ -1486,9 +1454,7 @@ describe('engine.registerViewport', () => {
       engine.registerViewport(outer.element, {});
       engine.registerViewport(inner, {});
 
-      await lift(source, { clientX: 100, clientY: 100 });
-      fireDrag.dragOver(inner, { clientX: 100, clientY: 190 });
-      await flushRaf(3);
+      await driveTo(source, inner, 100, 190);
 
       expect(innerScrollBy).not.toHaveBeenCalled();
       expect(outer.scrollBy).toHaveBeenCalled();
@@ -1516,9 +1482,7 @@ describe('engine.registerViewport', () => {
       engine.registerViewport(outer.element, {});
       engine.registerViewport(inner, { onDragScroll: observe });
 
-      await lift(source, { clientX: 100, clientY: 100 });
-      fireDrag.dragOver(inner, { clientX: 100, clientY: 190 });
-      await flushRaf(3);
+      await driveTo(source, inner, 100, 190);
 
       expect(
         observe.mock.calls.some(([eventDetails]) => eventDetails.direction === 'vertical'),
@@ -1555,7 +1519,7 @@ describe('engine.registerViewport', () => {
       // the modifier test above).
       await lift(source, { clientX: 100, clientY: 50 });
       fireDrag.dragOver(inner, { clientX: 100, clientY: 90 });
-      await flushRaf(4);
+      await flushRaf(2);
       expect(innerPan).toHaveBeenCalled();
       expect(outer.scrollBy).not.toHaveBeenCalled();
 
@@ -1686,7 +1650,7 @@ describe('engine.registerViewport', () => {
 
       container.element.style.overflow = 'auto';
       fireDrag.dragOver(inner, { clientX: 100, clientY: 190 });
-      await flushRaf(3);
+      await flushRaf(2);
 
       expect(container.scrollBy).toHaveBeenCalled();
     });
@@ -2158,7 +2122,7 @@ describe('engine.registerViewport', () => {
       cleanupInner();
       await dragOver(document.documentElement, { clientX: 400, clientY: 590 });
       fireDrag.dragOver(document.documentElement, { clientX: 400, clientY: 590 });
-      await flushRaf(3);
+      await flushRaf(2);
       expect(page.scrollBy).toHaveBeenCalled();
     });
 
@@ -2181,7 +2145,7 @@ describe('engine.registerViewport', () => {
       // The left edge has all the room. The LTR check (`scrollLeft > 0`) would
       // treat the page as unscrollable and never engage.
       fireDrag.dragOver(document.documentElement, { clientX: 10, clientY: 300 });
-      await flushRaf(3);
+      await flushRaf(2);
       expect(page.scrollBy).toHaveBeenCalled();
     });
   });
@@ -2327,12 +2291,7 @@ describe('engine.registerViewport', () => {
     const { engine } = await renderDnd();
     const source = createElement();
     // Scrollable container whose top edge zone (y < 50) engages the loop.
-    const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
-    scroller.style.overflow = 'auto';
-    scroller.scrollBy = vi.fn();
-    Object.defineProperty(scroller, 'scrollTop', { value: 400, writable: true });
-    Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
-    Object.defineProperty(scroller, 'clientHeight', { value: 200 });
+    const scroller = makeEngageableScroller();
 
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {});
@@ -2344,10 +2303,11 @@ describe('engine.registerViewport', () => {
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     expect(scrollByMock).toHaveBeenCalled();
 
-    // When a consumer callback throws, the lifecycle is torn down through
-    // `reset()`. It runs `clearActiveMonitors()` without sending `onMoveEnd` to
-    // the scroll monitor, so `stopScrollLoop` never runs. Calling `reset()` here
-    // reproduces that teardown, which used to leave the loop scrolling forever.
+    // A teardown that skips the terminal `onMoveEnd` (the test `reset()`, or an
+    // engine error after the end was already latched) clears the monitors without
+    // sending `onMoveEnd` to the scroll monitor, so `stopScrollLoop` never runs.
+    // A throwing consumer callback doesn't skip it, because recovery still
+    // delivers `onMoveEnd` to monitors.
     act(() => {
       reset();
     });
@@ -2376,8 +2336,7 @@ describe('engine.registerViewport', () => {
       Object.defineProperty(scroller, 'scrollLeft', { value: scrollLeft, writable: true });
       Object.defineProperty(scroller, 'scrollWidth', { value: 1000 });
       Object.defineProperty(scroller, 'clientWidth', { value: 200 });
-      const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(scroller);
-      registerCleanup(() => hitTest.mockRestore());
+      mockElementFromPoint(() => scroller);
       return scroller;
     }
 
@@ -2541,7 +2500,7 @@ describe('engine.registerViewport', () => {
       async function expectScrollAt(x: number, y: number): Promise<void> {
         scrollByMock.mockClear();
         fireDrag.dragOver(scroller, { clientX: x, clientY: y });
-        await flushRaf(3);
+        await flushRaf(2);
         expect(scrollByMock, `edge at (${x}, ${y})`).toHaveBeenCalled();
       }
 
@@ -2614,9 +2573,7 @@ describe('engine.registerViewport', () => {
         // Engage at 0.8 depth (y=190 of the 200px box). The clock doesn't move,
         // so every engaged frame applies a 0 delta and only `advance` moves the
         // ramp forward.
-        await lift(source, { clientX: 100, clientY: 100 });
-        fireDrag.dragOver(scroller, { clientX: 100, clientY: 190 });
-        await flushRaf(3);
+        await driveTo(source, scroller, 100, 190);
         const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
         expect(scrollByMock).toHaveBeenCalled();
 
@@ -2639,10 +2596,10 @@ describe('engine.registerViewport', () => {
 
         // Leaving the edge zone resets the engagement start.
         fireDrag.dragOver(scroller, { clientX: 100, clientY: 100 });
-        await flushRaf(3);
+        await flushRaf(2);
         // On re-entry the ramp starts over instead of resuming at full speed.
         fireDrag.dragOver(scroller, { clientX: 100, clientY: 190 });
-        await flushRaf(3);
+        await flushRaf(2);
         scrollByMock.mockClear();
         clock.advance(200);
         await flushRaf(2);
@@ -2672,10 +2629,10 @@ describe('engine.registerViewport', () => {
       // a 0 delta and only the measured frame's time counts.
       async function measureAt(clientY: number): Promise<number> {
         fireDrag.dragOver(scroller, { clientX: 100, clientY });
-        await flushRaf(3);
+        await flushRaf(2);
         scrollByMock.mockClear();
         clock.advance(FRAME_MS);
-        await flushRaf(2);
+        await flushRaf();
         return maxVerticalDelta(scroller);
       }
 
@@ -2836,9 +2793,7 @@ describe('engine.registerViewport', () => {
         },
       });
 
-      await lift(source, { clientX: 100, clientY: 100 });
-      fireDrag.dragOver(viewport, { clientX: 100, clientY: 190 });
-      await flushRaf(3);
+      await driveTo(source, viewport, 100, 190);
       clock.advance(1000);
       await flushRaf(2);
 
@@ -3024,9 +2979,7 @@ describe('engine.registerViewport', () => {
         });
         engine.registerViewport(inner, { onDragScroll });
 
-        await lift(source, { clientX: 100, clientY: 100 });
-        fireDrag.dragOver(inner, { clientX: 190, clientY: 190 });
-        await flushRaf(3);
+        await driveTo(source, inner, 190, 190);
 
         return { outerScrollBy };
       }
@@ -3136,12 +3089,12 @@ describe('engine.registerViewport', () => {
       // under a stationary pointer. Canceling is the opposite signal and keeps
       // the surface engaged so its speed can ramp up from 0.
       pan.mockClear();
-      await flushRaf(3);
+      await flushRaf(2);
       expect(pan).not.toHaveBeenCalled();
 
       // Fresh input wakes it again.
       fireDrag.dragOver(viewport, { clientX: 100, clientY: 195 });
-      await flushRaf(3);
+      await flushRaf(2);
       expect(pan).toHaveBeenCalled();
     });
 
@@ -3193,7 +3146,7 @@ describe('engine.registerViewport', () => {
         // in 7 frames and 30 frames pan about 1200px, well past the 620px that
         // brings the target under the pointer.
         touchDown(source, 200, 380);
-        for (let frame = 0; frame < 30; frame += 1) {
+        for (let frame = 0; frame < 30 && !onDraggableEnter.mock.calls.length; frame += 1) {
           clock.advance(64);
           // eslint-disable-next-line no-await-in-loop
           await flushRaf();

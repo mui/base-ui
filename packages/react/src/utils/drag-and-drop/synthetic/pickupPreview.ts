@@ -12,8 +12,9 @@ import type {
 import type { DraggableRootModifiers } from '../../../draggable/root/DraggableRoot';
 
 /**
- * The preview settings for one drag, resolved from the preview part declared
- * inside the draggable or, without one, from its registration.
+ * The preview settings for one drag, resolved from the registration's `preview`,
+ * which a `Draggable.Preview` part feeds too. Without one, the engine clones the
+ * source.
  * @internal
  */
 export interface ResolvedDragPreview {

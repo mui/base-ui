@@ -145,7 +145,41 @@ describe('syntheticDrag activation', () => {
     expect(endDetails.location.current.input.clientY).toBe(80);
   });
 
-  it('cancels when pointerup fires before activation', async () => {
+  it.each([
+    {
+      name: 'pointerup fires',
+      interrupt: () => {
+        vi.advanceTimersByTime(20);
+        touchUp(50, 50);
+      },
+    },
+    {
+      // App switch, soft keyboard, or overlay. The candidate must be abandoned.
+      name: 'the window blurs',
+      interrupt: () => {
+        window.dispatchEvent(new Event('blur'));
+      },
+    },
+    {
+      name: 'the tab is hidden',
+      interrupt: () => {
+        Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+        try {
+          document.dispatchEvent(new Event('visibilitychange'));
+        } finally {
+          // Deleting the own property exposes the real getter again.
+          Reflect.deleteProperty(document, 'visibilityState');
+        }
+      },
+    },
+    {
+      name: 'the pointer moves past tolerance',
+      // 30px, well past the 5px tolerance.
+      interrupt: () => {
+        touchMove(80, 50);
+      },
+    },
+  ])('cancels a pending press-hold when $name before activation', async ({ interrupt }) => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
@@ -157,82 +191,7 @@ describe('syntheticDrag activation', () => {
     vi.useFakeTimers();
     try {
       touchDown(el, 50, 50);
-      vi.advanceTimersByTime(20);
-      touchUp(50, 50);
-      vi.advanceTimersByTime(120);
-    } finally {
-      vi.useRealTimers();
-    }
-    await flushRaf();
-
-    expect(onMoveStart).not.toHaveBeenCalled();
-  });
-
-  it('cancels a pending press-hold when the window blurs before activation', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    engine.registerSource(el, {
-      activation: { type: 'press-hold', delay: 100, tolerance: 5 },
-      onMoveStart,
-    });
-
-    vi.useFakeTimers();
-    try {
-      touchDown(el, 50, 50);
-      // The window blurs (app switch, soft keyboard, overlay) before the
-      // press-hold timer fires, so the candidate must be abandoned.
-      window.dispatchEvent(new Event('blur'));
-      vi.advanceTimersByTime(120);
-    } finally {
-      vi.useRealTimers();
-    }
-    await flushRaf();
-
-    expect(onMoveStart).not.toHaveBeenCalled();
-  });
-
-  it('cancels a pending press-hold when the tab is hidden before activation', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    engine.registerSource(el, {
-      activation: { type: 'press-hold', delay: 100, tolerance: 5 },
-      onMoveStart,
-    });
-
-    vi.useFakeTimers();
-    try {
-      touchDown(el, 50, 50);
-      Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
-      try {
-        document.dispatchEvent(new Event('visibilitychange'));
-      } finally {
-        // Deleting the own property exposes the real getter again.
-        Reflect.deleteProperty(document, 'visibilityState');
-      }
-      vi.advanceTimersByTime(120);
-    } finally {
-      vi.useRealTimers();
-    }
-    await flushRaf();
-
-    expect(onMoveStart).not.toHaveBeenCalled();
-  });
-
-  it('cancels when pointer moves past tolerance before activation', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const onMoveStart = vi.fn();
-    engine.registerSource(el, {
-      activation: { type: 'press-hold', delay: 100, tolerance: 5 },
-      onMoveStart,
-    });
-
-    vi.useFakeTimers();
-    try {
-      touchDown(el, 50, 50);
-      touchMove(80, 50); // 30px, well past the 5px tolerance
+      interrupt();
       vi.advanceTimersByTime(120);
     } finally {
       vi.useRealTimers();

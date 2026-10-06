@@ -10,7 +10,7 @@ import {
   dragEnter,
   flushRaf,
   lift,
-  registerCleanup,
+  mockElementFromPoint,
   setupDragEngineTests,
   fireDrag,
   dragOver,
@@ -89,17 +89,12 @@ describe('Draggable.Target', () => {
     }
   });
 
-  it('marks the element as a drop target once attached', async () => {
-    await renderDnd(<Draggable.Target accept={Draggable.anyKind} data-testid="target" />);
-    const el = screen.getByTestId('target');
-    expect(el).toHaveAttribute('data-base-ui-drop-target', '');
-  });
-
-  it('removes the drop-target attribute on unmount', async () => {
+  it('marks the element as a drop target once attached and unmarks it on unmount', async () => {
     const { unmount } = await renderDnd(
       <Draggable.Target accept={Draggable.anyKind} data-testid="target" />,
     );
     const el = screen.getByTestId('target');
+    expect(el).toHaveAttribute('data-base-ui-drop-target', '');
     unmount();
     expect(el).not.toHaveAttribute('data-base-ui-drop-target');
   });
@@ -250,8 +245,7 @@ describe('Draggable.Target', () => {
 
     // Raw pointer events rather than `fireDrag`, which starts every drag with
     // nothing under the pointer. This test needs a target under the pickup point.
-    const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(nestedSource);
-    registerCleanup(() => hitTest.mockRestore());
+    mockElementFromPoint(() => nestedSource);
 
     touchDown(nestedSource, 10, 10);
     await flushRaf();
@@ -288,8 +282,7 @@ describe('Draggable.Target', () => {
     engine.registerMonitor({ onMoveStart: monitorStart });
 
     // Raw pointer events, because `fireDrag` starts every drag with nothing under the pointer.
-    const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(nestedSource);
-    registerCleanup(() => hitTest.mockRestore());
+    mockElementFromPoint(() => nestedSource);
 
     touchDown(nestedSource, 10, 10);
     await flushRaf();
@@ -375,15 +368,7 @@ describe('Draggable.Target', () => {
     // `fireDrag`'s hit test latches the exact node the last drag step named,
     // which is about to be unmounted. Re-point it at whichever node currently
     // renders the testid so the mid-drag refresh resolves the remounted element.
-    const seen: Element[] = [];
-    const hitTest = vi.spyOn(document, 'elementFromPoint').mockImplementation(() => {
-      const el = screen.queryByTestId('target');
-      if (el && el !== first && !seen.includes(el)) {
-        seen.push(el);
-      }
-      return el;
-    });
-    registerCleanup(() => hitTest.mockRestore());
+    mockElementFromPoint(() => screen.queryByTestId('target'));
 
     await rerender(<Fixture swapped />);
     await flushRaf();

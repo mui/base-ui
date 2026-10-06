@@ -27,7 +27,7 @@ import { getSharedSlot } from '../sharedState';
 import type { DragCleanupFn } from '../types';
 
 /** Shared listener options, so every capture listener doesn't allocate its own. */
-const CAPTURE: AddEventListenerOptions = { capture: true };
+export const CAPTURE: AddEventListenerOptions = { capture: true };
 
 /**
  * Backstop for when neither a compatibility click nor a new press arrives.

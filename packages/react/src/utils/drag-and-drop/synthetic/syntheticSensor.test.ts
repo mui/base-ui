@@ -349,8 +349,7 @@ describe('syntheticDrag sensor', () => {
     mockElementFromPoint(() => hit.current);
 
     penDown(src, 50, 50, 7);
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     const changesBefore = onTargetChange.mock.calls.length;
 
     // A live reorder or virtualizer unmounts the dragged element mid-drag.
@@ -373,8 +372,7 @@ describe('syntheticDrag sensor', () => {
         bubbles: true,
       }),
     );
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
 
     // The move was processed after the removal, and the engine re-resolved the
     // drop target under the new point.
@@ -1623,10 +1621,7 @@ describe('syntheticDrag sensor', () => {
     const onDrop = vi.fn();
     engine.registerSource(el, {});
     engine.registerTarget(target, { snap: { x: 8 }, onDraggableDrop: onDrop });
-    const spy = vi
-      .spyOn(document, 'elementFromPoint')
-      .mockImplementation((_x: number, y: number) => (y >= 200 ? target : null));
-    registerCleanup(() => spy.mockRestore());
+    mockElementFromPoint((_x, y) => (y >= 200 ? target : null));
 
     // Press at x 30. The default 5px pen distance commits activation at x 40.
     // The grab offset must reflect the press, since the user took hold at 30 and
@@ -1853,8 +1848,7 @@ describe('syntheticDrag sensor', () => {
     await flushRaf();
 
     touchMove(30, 30);
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
 
     // Check the position, not only that the monitor was called, since stale or
     // wrong coordinates would pass a bare `toHaveBeenCalled`. The call count
@@ -2327,34 +2321,14 @@ describe('syntheticDrag sensor', () => {
 
     // A second finger lands on the same draggable. The active session ignores
     // it, so there is no second drag and no extra `onMoveStart`.
-    const secondFinger = new PointerEvent('pointerdown', {
-      pointerType: 'touch',
-      pointerId: 2,
-      clientX: 60,
-      clientY: 60,
-      button: 0,
-      buttons: 1,
-      bubbles: true,
-      cancelable: true,
-    });
-    dispatch(el, secondFinger);
+    touchDown(el, 60, 60, 2);
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);
 
     // A move from the second finger must not update the drag, which tracks
     // `pointerId === 1`.
-    const secondMove = new PointerEvent('pointermove', {
-      pointerType: 'touch',
-      pointerId: 2,
-      clientX: 80,
-      clientY: 80,
-      buttons: 1,
-      bubbles: true,
-      cancelable: true,
-    });
-    dispatch(getTouchDownTarget(), secondMove);
-    await flushRaf();
-    await flushRaf();
+    touchMove(80, 80, 2);
+    await flushRaf(2);
     expect(
       onMove.mock.calls.map(([eventDetails]) => eventDetails.location.current.input.clientX),
     ).not.toContain(80);
@@ -2483,8 +2457,7 @@ describe('syntheticDrag sensor', () => {
 
     /** The lock waits for the frame after the lift (see `commitActivation`). */
     async function flushLockFrames(): Promise<void> {
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
     }
 
     function mouseUp(target: EventTarget, x: number, y: number): void {
@@ -2691,17 +2664,14 @@ describe('syntheticDrag sensor', () => {
       const { src, tgtB, onTargetChange, efp, state } = await setupStationaryDrag();
 
       touchDown(src, 10, 10);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       const efpCalls = efp.mock.calls.length;
       const changes = onTargetChange.mock.calls.length;
 
       // Simulate a reorder sliding a new element under the stationary point.
       state.hit = tgtB;
-      await flushRaf();
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(3);
 
       // No pointer move and no scroll, so no re-resolution and no target-stack churn.
       expect(efp.mock.calls.length).toBe(efpCalls);
@@ -2714,8 +2684,7 @@ describe('syntheticDrag sensor', () => {
       const { src, tgtB, onTargetChange, efp, state } = await setupStationaryDrag();
 
       touchDown(src, 10, 10);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       const efpCalls = efp.mock.calls.length;
       const changes = onTargetChange.mock.calls.length;
@@ -2723,8 +2692,7 @@ describe('syntheticDrag sensor', () => {
       // Content scrolls a new element under the stationary point.
       state.hit = tgtB;
       dispatch(document, new Event('scroll'));
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       // The scroll forced one re-resolution, which moved the target stack.
       expect(efp.mock.calls.length).toBe(efpCalls + 1);
@@ -2764,8 +2732,7 @@ describe('syntheticDrag sensor', () => {
         mockElementFromPoint(() => hit.current);
 
         touchDown(src, 10, 10);
-        await flushRaf();
-        await flushRaf();
+        await flushRaf(2);
         expect(onDraggableEnter).not.toHaveBeenCalled();
 
         // Scrolling a container inside the shadow root slides the target under
@@ -2774,8 +2741,7 @@ describe('syntheticDrag sensor', () => {
         // re-arms the resolution frame.
         hit.current = inner;
         dispatch(scroller, new Event('scroll'));
-        await flushRaf();
-        await flushRaf();
+        await flushRaf(2);
 
         expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
@@ -2800,8 +2766,7 @@ describe('syntheticDrag sensor', () => {
       mockElementFromPoint(() => hit.current);
 
       touchDown(src, 10, 10);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       engine.registerTarget(inner, { onDraggableEnter });
       await Promise.resolve();
@@ -2809,8 +2774,7 @@ describe('syntheticDrag sensor', () => {
 
       hit.current = inner;
       dispatch(scroller, new Event('scroll'));
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       expect(onDraggableEnter).toHaveBeenCalledOnce();
 
@@ -2843,13 +2807,11 @@ describe('syntheticDrag sensor', () => {
       mockElementFromPoint(() => hit.current);
 
       touchDown(src, 10, 10);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       hit.current = inner;
       dispatch(scroller, new Event('scroll'));
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
@@ -2860,8 +2822,7 @@ describe('syntheticDrag sensor', () => {
       const { src, tgtB, onTargetChange, efp, state } = await setupStationaryDrag();
 
       touchDown(src, 10, 10);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       const efpCalls = efp.mock.calls.length;
       const changes = onTargetChange.mock.calls.length;
@@ -2869,8 +2830,7 @@ describe('syntheticDrag sensor', () => {
       // A real move opens the gate and re-resolves.
       state.hit = tgtB;
       touchMove(10, 40);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       expect(efp.mock.calls.length).toBeGreaterThan(efpCalls);
       expect(onTargetChange.mock.calls.length).toBe(changes + 1);
@@ -2882,8 +2842,7 @@ describe('syntheticDrag sensor', () => {
       const { src, tgtB, onTargetChange, efp, state } = await setupStationaryDrag();
 
       touchDown(src, 10, 10);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       const efpCalls = efp.mock.calls.length;
       const changes = onTargetChange.mock.calls.length;
@@ -2895,8 +2854,7 @@ describe('syntheticDrag sensor', () => {
       // be entered.
       state.hit = tgtB;
       touchMove(10, 10);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       expect(efp.mock.calls.length).toBeGreaterThan(efpCalls);
       expect(onTargetChange.mock.calls.length).toBe(changes + 1);
@@ -3759,8 +3717,7 @@ describe('syntheticDrag sensor', () => {
 
       pointerDown(source);
       pointerMove(40, 1);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       const request = vi.spyOn(WindowAnimationFrame.prototype, 'request');
       registerCleanup(() => request.mockRestore());

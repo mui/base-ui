@@ -152,11 +152,7 @@ describe.skipIf(isJSDOM)('Draggable.Preview (cascade)', () => {
         ] as unknown as Animation[];
       try {
         fireDrag.drop(screen.getByTestId('drag'));
-        await act(async () => {
-          await new Promise((resolve) => {
-            requestAnimationFrame(resolve);
-          });
-        });
+        await flushRaf();
         expect(getComputedStyle(preview).transitionDuration).toBe(endingDurations);
         expect(getComputedStyle(preview).transitionDelay).toBe(endingDelays);
       } finally {

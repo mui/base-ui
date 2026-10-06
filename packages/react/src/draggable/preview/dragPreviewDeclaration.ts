@@ -1,10 +1,5 @@
 import { warn } from '@base-ui/utils/warn';
-import type * as React from 'react';
-import type {
-  DraggablePreviewParameters,
-  DraggablePreviewSettings,
-  DraggablePreviewRenderParameters,
-} from '../../draggable/preview/DraggablePreview';
+import type { DraggablePreviewParameters, DraggablePreviewSettings } from './DraggablePreview';
 
 /**
  * What a mounted preview part tells its draggable. The part renders nothing in
@@ -17,14 +12,12 @@ export interface DragPreviewDeclaration<TPayload = unknown, TDragData = unknown>
   getSettings: () => DraggablePreviewSettings;
   /**
    * Resolves the preview content at drag start. Returning `null` or `false`
-   * declines the preview for this drag.
-   *
-   * `render: null` declares a clone of the source, which the engine builds without React.
-   * Read synchronously at drag start, before React can run, which is why the
-   * choice lives here instead of being signaled by mounting.
+   * declines the preview for this drag. `undefined` declares a clone of the source,
+   * which the engine builds without React. Read synchronously at drag start, before
+   * React can run, which is why the choice lives here instead of being signaled by
+   * mounting.
    */
-  render:
-    ((parameters: DraggablePreviewRenderParameters<TPayload, TDragData>) => React.ReactNode) | null;
+  render: DraggablePreviewParameters<TPayload, TDragData>['render'];
 }
 
 /**
@@ -35,7 +28,8 @@ export interface DragPreviewDeclaration<TPayload = unknown, TDragData = unknown>
 export interface DragPreviewHandle<TPayload = unknown, TDragData = unknown> {
   /**
    * Publish a declaration and return its cleanup. The cleanup checks identity, so
-   * a Strict Mode remount cannot clear a declaration it did not install.
+   * an older part's cleanup, running after a newer part declared, cannot clear the
+   * newer declaration.
    * @internal
    */
   declare: (declaration: DragPreviewDeclaration<TPayload, TDragData>) => () => void;
@@ -90,7 +84,7 @@ export function createDragPreviewHandle<
         return current?.getSettings().container;
       },
       get render() {
-        return current?.render ?? undefined;
+        return current?.render;
       },
     },
   };

@@ -66,6 +66,19 @@ function createSource(): HTMLElement {
   return source;
 }
 
+/**
+ * Queue `requestAnimationFrame` callbacks instead of running them, so a test steps
+ * each frame by hand. `afterEach` restores the real `requestAnimationFrame`.
+ */
+function queueAnimationFrames(): FrameRequestCallback[] {
+  const frames: FrameRequestCallback[] = [];
+  vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    frames.push(callback);
+    return frames.length;
+  });
+  return frames;
+}
+
 afterEach(() => {
   // `destroy()` is idempotent (asserted below), so re-destroying a handle a
   // test already tore down is safe.
@@ -120,7 +133,7 @@ describe('syntheticPreview', () => {
     handle.retargetSource(newNode);
 
     // A CSS-only `[data-dragging]` dim would otherwise stop applying the moment the
-    // row was recycled, while `isDragging` kept tracking it.
+    // row was recycled, while `Draggable.Root`'s `dragging` kept tracking it.
     expect(oldNode).not.toHaveAttribute('data-dragging');
     expect(newNode).toHaveAttribute('data-dragging');
 
@@ -155,11 +168,7 @@ describe('syntheticPreview', () => {
 
     it('keeps a cloned preview mounted through its authored drop transition', async () => {
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
+      const frames = queueAnimationFrames();
       const source = createSource();
       source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
       const handle = createHandle(source);
@@ -206,11 +215,7 @@ describe('syntheticPreview', () => {
       // A fade-only ending would otherwise jump to the source on its first frame
       // and fade there.
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
+      const frames = queueAnimationFrames();
       const source = createSource();
       source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
       const handle = createHandle(source);
@@ -244,11 +249,7 @@ describe('syntheticPreview', () => {
       // A drop that remounts the item without a matching identity leaves nothing to
       // move onto, but an ending fade still runs.
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
+      const frames = queueAnimationFrames();
       const source = createSource();
       const handle = createHandle(source);
       const preview = createPreviewElement(120, 30, true);
@@ -272,11 +273,7 @@ describe('syntheticPreview', () => {
     });
 
     it('marks the ending preview when the release dropped on a target', () => {
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
+      const frames = queueAnimationFrames();
       const outside = createHandle(createSource());
       const returning = createPreviewElement(120, 30, true);
       document.body.appendChild(returning.element);
@@ -304,11 +301,7 @@ describe('syntheticPreview', () => {
 
     it.each(['duration', 'iterations'])('ignores animations with infinite %s', (property) => {
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
+      const frames = queueAnimationFrames();
       const source = createSource();
       const handle = createHandle(source);
       const preview = createPreviewElement(120, 30, true);
@@ -332,11 +325,7 @@ describe('syntheticPreview', () => {
     it('cleans up a settling preview whose animation stays paused', () => {
       vi.useFakeTimers();
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
+      const frames = queueAnimationFrames();
       const source = createSource();
       source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
       const handle = createHandle(source);
@@ -371,11 +360,7 @@ describe('syntheticPreview', () => {
 
     it('settles on a matching source that remounts in another container', async () => {
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
+      const frames = queueAnimationFrames();
       const identity = {
         kind: Symbol.for('card'),
         previewKey: 'card-a',
@@ -432,11 +417,7 @@ describe('syntheticPreview', () => {
     });
 
     it('does not retarget a settling source without an unambiguous identity', () => {
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
+      const frames = queueAnimationFrames();
       const kind = Symbol.for('untitled-card');
       const source = createSource();
       const handle = createSyntheticPreview(
@@ -469,11 +450,7 @@ describe('syntheticPreview', () => {
     });
 
     it('settles a copy of custom content like a clone', () => {
-      const frames: FrameRequestCallback[] = [];
-      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-        frames.push(callback);
-        return frames.length;
-      });
+      const frames = queueAnimationFrames();
       const source = createSource();
       const handle = createHandle(source);
       const preview = createPreviewElement(100, 25, false);

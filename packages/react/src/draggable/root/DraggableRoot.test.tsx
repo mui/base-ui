@@ -10,6 +10,7 @@ import {
   dragOver,
   flushRaf,
   lift,
+  mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
   splitEnd,
@@ -71,19 +72,13 @@ describe('Draggable.Root', () => {
     }
   });
 
-  it('applies the gesture styles once attached', async () => {
-    await renderDnd(<TestDraggable />);
+  it('applies the gesture styles once attached and restores them on unmount', async () => {
+    const { unmount } = await renderDnd(<TestDraggable />);
     const el = screen.getByTestId('drag');
     // The engine applies gesture styles to the handle so a press can't select
     // text or fire the touch callout.
     expect(el.style.touchAction).toBe('manipulation');
     expect(el.style.userSelect).toBe('none');
-  });
-
-  it('restores the gesture styles on unmount', async () => {
-    const { unmount } = await renderDnd(<TestDraggable />);
-    const el = screen.getByTestId('drag');
-    expect(el.style.touchAction).toBe('manipulation');
     unmount();
     expect(el.style.touchAction).toBe('');
     expect(el.style.userSelect).toBe('');
@@ -514,8 +509,7 @@ describe('Draggable.Root', () => {
 
     // `fireDrag` dispatches on the source, which is now detached, so drive the rest
     // of the gesture with raw pointer events at the target.
-    const hitTest = vi.spyOn(document, 'elementFromPoint').mockImplementation(() => target);
-    registerCleanup(() => hitTest.mockRestore());
+    mockElementFromPoint(() => target);
     const pointer = { pointerType: 'mouse', pointerId: 1, clientX: 100, clientY: 250 } as const;
     firePointer.move(target, { ...pointer, buttons: 1, timeStamp: 100 });
     await flushRaf();
@@ -1347,8 +1341,8 @@ describe('Draggable.Root', () => {
 
     it('renders a single preview part under Strict Mode', async () => {
       // Strict Mode runs the declaring layout effect, its cleanup, then the effect
-      // again. Only the identity guard in the cleanup keeps that from triggering the
-      // one-preview warning on mount.
+      // again. The cleanup clears the first declaration, so the second one doesn't
+      // trigger the one-preview warning on mount.
       rtlRender(
         <React.StrictMode>
           <Draggable.Root kind={testDragKind} data-testid="drag">

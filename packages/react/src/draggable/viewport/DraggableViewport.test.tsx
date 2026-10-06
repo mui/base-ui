@@ -10,6 +10,7 @@ import {
   createElement,
   flushRaf,
   lift,
+  mockElementFromPoint,
   registerCleanup,
   setupDragEngineTests,
   fireDrag,
@@ -65,12 +66,11 @@ describe('Draggable.Viewport', () => {
     await lift(source, { clientX: 300, clientY: 300 });
   }
 
-  // Delivers pointer coordinates and flushes the three frames they pass through:
-  // the sensor's frame, the lifecycle's rAF-coalesced `onMove`, and the woken
-  // loop frame. `fireDrag` resolves the engine's hit test onto `target`.
+  // Delivers pointer coordinates and flushes the two frames they pass through:
+  // the sensor's frame, where `onMove` runs (`dragOver` flushes it), and the
+  // woken loop frame. `fireDrag` resolves the engine's hit test onto `target`.
   async function dragTo(target: HTMLElement, clientX: number, clientY: number): Promise<void> {
     await dragOver(target, { clientX, clientY });
-    await flushRaf();
     await flushRaf();
   }
 
@@ -91,8 +91,7 @@ describe('Draggable.Viewport', () => {
     await dragTo(scroller, 100, 120);
     expect(scrollBy).not.toHaveBeenCalled();
     await rerender(<Scroller scrollByMock={scrollBy} overflowMargin={{ bottom: 30 }} />);
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     expect(scrollBy).not.toHaveBeenCalled();
     await dragTo(scroller, 100, 50);
     await dragTo(scroller, 100, 120);
@@ -160,15 +159,13 @@ describe('Draggable.Viewport', () => {
       inner.style.direction = 'rtl';
       releaseOuter();
     });
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     expect(computedStyle).toHaveBeenCalledWith(inner);
 
     // A later mutation still invalidates the survivor's cached styles.
     computedStyle.mockClear();
     inner.style.direction = 'ltr';
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     expect(computedStyle).toHaveBeenCalledWith(inner);
     fireDrag.drop(source);
   });
@@ -242,8 +239,7 @@ describe('Draggable.Viewport', () => {
     act(() => {
       scroller.appendChild(document.createElement('div'));
     });
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
 
     expect(measure).toHaveBeenCalled();
     expect(computedStyle).not.toHaveBeenCalled();
@@ -266,8 +262,7 @@ describe('Draggable.Viewport', () => {
     act(() => {
       scroller.classList.add('restyled');
     });
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
 
     expect(computedStyle).toHaveBeenCalled();
     fireDrag.drop(source);
@@ -487,8 +482,7 @@ describe('Draggable.Viewport', () => {
       await flushRaf();
       scrollBy.mockClear();
       shouldScroll.mockClear();
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
       expect(scrollBy).not.toHaveBeenCalled();
       // `disabled` is checked before the consumer's `shouldScroll` is called,
       // including for new input that arrives while disabled.
@@ -512,8 +506,7 @@ describe('Draggable.Viewport', () => {
       expect(screen.getByTestId('scroller')).toBe(el);
       expect(el).not.toHaveAttribute('data-disabled');
 
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
       expect(shouldScroll).toHaveBeenCalled();
       expect(shouldScroll.mock.calls[0][0].element).toBe(el);
       expect(scrollBy).toHaveBeenCalled();
@@ -557,8 +550,7 @@ describe('Draggable.Viewport', () => {
     // No new pointer input. The post-commit refresh must drop the cached
     // `overflow: hidden` result and wake the parked loop at the same coordinates.
     await rerender(<RestyledScroller open />);
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
 
     expect(screen.getByTestId('scroller')).toBe(scroller);
     expect(scrollBy).toHaveBeenCalled();
@@ -598,9 +590,7 @@ describe('Draggable.Viewport', () => {
         screen.getByTestId('ancestor').className = 'scroll-locked';
       });
       scrollBy.mockClear();
-      await flushRaf();
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(3);
       expect(scrollBy).not.toHaveBeenCalled();
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('registered on an element that does not scroll'),
@@ -657,8 +647,7 @@ describe('Draggable.Viewport', () => {
       scroller.appendChild(document.createElement('div'));
       await Promise.resolve();
     });
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
 
     expect(scrollBy).toHaveBeenCalled();
     fireDrag.drop(source);
@@ -684,10 +673,7 @@ describe('Draggable.Viewport', () => {
 
     await liftOutside(source);
     await dragTo(first, 100, 95);
-    const hitTest = vi
-      .spyOn(document, 'elementFromPoint')
-      .mockImplementation(() => screen.getByTestId('scroller'));
-    registerCleanup(() => hitTest.mockRestore());
+    mockElementFromPoint(() => screen.getByTestId('scroller'));
     expect(scrollBy).not.toHaveBeenCalled();
 
     await rerender(<Draggable.Viewport ref={ref} render={<section />} data-testid="scroller" />);
@@ -700,8 +686,7 @@ describe('Draggable.Viewport', () => {
       replacement.style.overflow = 'auto';
       await Promise.resolve();
     });
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
 
     expect(scrollBy).toHaveBeenCalled();
     fireDrag.drop(source);

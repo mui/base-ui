@@ -73,8 +73,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
     // Onto the target's center, with any preview between the
     // cursor and the target.
     pointer('pointermove', source, 50, 225);
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
 
     expect(onDraggableEnter).toHaveBeenCalled();
 
@@ -110,8 +109,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
     pointer('pointerdown', source, 50, 25);
     await flushRaf();
     pointer('pointermove', source, 50, 225);
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
 
     expect(onDraggableEnter).toHaveBeenCalledTimes(1);
 
@@ -149,8 +147,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       pointer('pointerdown', source, 50, 25);
       await flushRaf();
       pointer('pointermove', source, 50, 225);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
       pointer('pointerup', source, 50, 225);
       await flushRaf();
 
@@ -180,8 +177,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
     pointer('pointerdown', source, 50, 25);
     await flushRaf();
     pointer('pointermove', source, 50, 225);
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     pointer('pointerup', source, 50, 225);
     await flushRaf();
 
@@ -221,8 +217,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
     await flushRaf();
     // (40, 225) sits inside `inner`, which sits inside `outer`.
     pointer('pointermove', source, 40, 225);
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     pointer('pointerup', source, 40, 225);
     await flushRaf();
 
@@ -250,8 +245,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
     await flushRaf();
     // Well clear of both boxes.
     pointer('pointermove', source, 400, 400);
-    await flushRaf();
-    await flushRaf();
+    await flushRaf(2);
     pointer('pointerup', source, 400, 400);
     await flushRaf();
 
@@ -284,8 +278,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       await flushRaf();
       // A quarter across and three-fifths down the 100×50 box at (0, 200).
       pointer('pointermove', source, 25, 230);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
       pointer('pointerup', source, 25, 230);
       await flushRaf();
 
@@ -315,8 +308,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       pointer('pointerdown', source, 10, 20);
       await flushRaf();
       pointer('pointermove', source, 35, 233);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
       pointer('pointerup', source, 35, 233);
       await flushRaf();
 
@@ -353,8 +345,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       await flushRaf();
       // (40, 225): 40% across the outer box, half across the inner one.
       pointer('pointermove', source, 40, 225);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       const { targets } = onMove.mock.calls.at(-1)![0].location.current;
       expect(targets).toHaveLength(2);
@@ -388,8 +379,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       pointer('pointermove', source, 50, 225);
       await flushRaf();
       pointer('pointermove', source, 80, 240);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
 
       expect(measure).not.toHaveBeenCalled();
       measure.mockRestore();
@@ -411,8 +401,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       pointer('pointerdown', source, 50, 25);
       await flushRaf();
       pointer('pointermove', source, 50, 225);
-      await flushRaf();
-      await flushRaf();
+      await flushRaf(2);
       pointer('pointerup', source, 50, 225);
       await flushRaf();
 

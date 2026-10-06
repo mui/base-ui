@@ -13,7 +13,7 @@ import type {
 } from '../DraggableProvider';
 import { useDraggableContext } from '../DraggableContext';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
-import type { DragPreviewDeclaration } from '../../utils/drag-and-drop/dragPreviewDeclaration';
+import type { DragPreviewDeclaration } from './dragPreviewDeclaration';
 import type { DraggableRootModifiers, DraggableRootRecord } from '../root/DraggableRoot';
 import * as DraggablePreviewDataAttributes from './DraggablePreviewDataAttributes';
 
@@ -88,10 +88,11 @@ export function DraggablePreview<TPayload = unknown, TDragData = unknown>(
     );
   }
 
-  // Tell the draggable what its preview is: `render` to own the content, or `null`
-  // for a clone of the source. The settings are read through `getProps` at drag start.
+  // Tell the draggable what its preview is: `render` to own the content, or no
+  // `render` for a clone of the source. The settings are read through `getProps` at
+  // drag start.
   const declaration = React.useMemo<DragPreviewDeclaration<TPayload, TDragData>>(
-    () => ({ getSettings: getProps, render: useClone ? null : render }),
+    () => ({ getSettings: getProps, render: useClone ? undefined : render }),
     [getProps, render, useClone],
   );
   useIsoLayoutEffect(

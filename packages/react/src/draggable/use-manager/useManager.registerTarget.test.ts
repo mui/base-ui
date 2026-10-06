@@ -31,42 +31,19 @@ const slotKind = Draggable.createKind('card-slot');
 describe('engine.registerTarget', () => {
   const { renderDnd } = createDndRenderer();
 
-  it('sets the internal drop target marker on the element', async () => {
+  it('sets the internal drop target marker on the element and removes it on cleanup', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const cleanup = engine.registerTarget(el, {});
     expect(el.getAttribute('data-base-ui-drop-target')).toBe('');
     cleanup();
-  });
-
-  it('removes data attribute on cleanup', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const cleanup = engine.registerTarget(el, {});
-    cleanup();
     expect(el.hasAttribute('data-base-ui-drop-target')).toBe(false);
   });
 
-  it('canDrop returning false prevents the element from being a target', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const target = createElement();
-    const onDraggableEnter = vi.fn();
-    engine.registerSource(source, {});
-    engine.registerTarget(target, {
-      canDrop: () => false,
-      onDraggableEnter,
-    });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    await dragOver(target);
-
-    expect(onDraggableEnter).not.toHaveBeenCalled();
-  });
-
-  it('disabled prevents the element from being a target', async () => {
+  it.each([
+    ['canDrop returning false', { canDrop: () => false }],
+    ['disabled', { disabled: true }],
+  ])('%s prevents the element from being a target', async (_label, blocking) => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
@@ -74,7 +51,7 @@ describe('engine.registerTarget', () => {
     const onDrop = vi.fn();
     engine.registerSource(source, {});
     engine.registerTarget(target, {
-      disabled: true,
+      ...blocking,
       onDraggableEnter,
       onDraggableDrop: onDrop,
     });
@@ -89,7 +66,10 @@ describe('engine.registerTarget', () => {
     expect(onDrop).not.toHaveBeenCalled();
   });
 
-  it('nested targets: a disabled inner target is skipped and the outer claims the drop', async () => {
+  it.each([
+    ['a disabled inner target', { disabled: true }],
+    ['an inner target whose canDrop is false', { canDrop: () => false }],
+  ])('nested targets: %s is skipped and the outer claims the drop', async (_label, blocking) => {
     const { engine } = await renderDnd();
     const source = createElement();
     const outer = createElement();
@@ -101,7 +81,7 @@ describe('engine.registerTarget', () => {
 
     engine.registerSource(source, {});
     engine.registerTarget(outer, { onDraggableDrop: outerOnDrop });
-    engine.registerTarget(inner, { disabled: true, onDraggableDrop: innerOnDrop });
+    engine.registerTarget(inner, { ...blocking, onDraggableDrop: innerOnDrop });
 
     fireDrag.dragStart(source);
     await flushRaf();
@@ -109,8 +89,8 @@ describe('engine.registerTarget', () => {
     await dragOver(inner);
     fireDrag.drop(inner);
 
-    // The disabled inner target never enters the stack (like `canDrop: () =>
-    // false`), so the outer accepting target is the innermost and gets onDrop.
+    // The blocked inner target never enters the active stack, so the outer
+    // accepting target is the innermost and gets onDrop.
     expect(innerOnDrop).not.toHaveBeenCalled();
     expect(outerOnDrop).toHaveBeenCalledTimes(1);
     expect(outerOnDrop).toHaveBeenCalledWith(
@@ -157,65 +137,47 @@ describe('engine.registerTarget', () => {
     cancel();
   });
 
-  it('disabling a hovered target mid-drag dispatches its onDraggableLeave on the next resolution', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const target = createElement();
-    const onDraggableEnter = vi.fn();
-    const onDraggableLeave = vi.fn();
-    let disabled = false;
-    engine.registerSource(source, {});
-    // The engine reads the getter on every resolution, so flipping `disabled`
-    // needs no re-registration. The React layer's params work the same way.
-    engine.registerTarget(target, () => ({ disabled, onDraggableEnter, onDraggableLeave }));
+  it.each([
+    ['disabling a hovered target', (isBlocked: () => boolean) => ({ disabled: isBlocked() })],
+    [
+      'a canDrop flipping to false',
+      (isBlocked: () => boolean) => ({ canDrop: () => !isBlocked() }),
+    ],
+  ])(
+    '%s mid-hover dispatches its onDraggableLeave on the next resolution',
+    async (_label, blocking) => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const target = createElement();
+      const onDraggableEnter = vi.fn();
+      const onDraggableLeave = vi.fn();
+      let blocked = false;
+      engine.registerSource(source, {});
+      // The engine reads the getter and runs `canDrop` on every resolution, so the
+      // flip needs no re-registration. The React layer's params work the same way.
+      engine.registerTarget(target, () => ({
+        ...blocking(() => blocked),
+        onDraggableEnter,
+        onDraggableLeave,
+      }));
 
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    await dragOver(target);
-    expect(onDraggableEnter).toHaveBeenCalledTimes(1);
-    expect(onDraggableLeave).not.toHaveBeenCalled();
+      fireDrag.dragStart(source);
+      await flushRaf();
+      fireDrag.dragEnter(target);
+      await dragOver(target);
+      expect(onDraggableEnter).toHaveBeenCalledTimes(1);
+      expect(onDraggableLeave).not.toHaveBeenCalled();
 
-    disabled = true;
-    // Nothing re-resolves until new input arrives. The next pointer move over
-    // the now-disabled target drops it from the stack and delivers its leave.
-    await dragOver(target);
+      blocked = true;
+      // Nothing re-resolves until new input arrives. The next pointer move over
+      // the now-blocked target drops it from the stack and delivers its leave.
+      await dragOver(target);
 
-    expect(onDraggableLeave).toHaveBeenCalledTimes(1);
+      expect(onDraggableLeave).toHaveBeenCalledTimes(1);
 
-    cancel();
-  });
-
-  it('a canDrop flipping to false mid-hover dispatches onDraggableLeave on the next resolution', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const target = createElement();
-    const onDraggableEnter = vi.fn();
-    const onDraggableLeave = vi.fn();
-    let allowed = true;
-    engine.registerSource(source, {});
-    // `canDrop` re-runs on every resolution, so a flip needs no re-registration.
-    engine.registerTarget(target, {
-      canDrop: () => allowed,
-      onDraggableEnter,
-      onDraggableLeave,
-    });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    await dragOver(target);
-    expect(onDraggableEnter).toHaveBeenCalledTimes(1);
-    expect(onDraggableLeave).not.toHaveBeenCalled();
-
-    allowed = false;
-    // The next pointer move re-resolves against the flipped predicate.
-    await dragOver(target, { clientX: 1 });
-
-    expect(onDraggableLeave).toHaveBeenCalledTimes(1);
-
-    cancel();
-  });
+      cancel();
+    },
+  );
 
   it('does not invoke canDrop when accept already rejected the source', async () => {
     const { engine } = await renderDnd();
@@ -550,38 +512,6 @@ describe('engine.registerTarget', () => {
       inner,
       outer,
     ]);
-  });
-
-  it('nested targets: an inner target whose canDrop is false is skipped and the outer claims onDrop', async () => {
-    const { engine } = await renderDnd();
-    const source = createElement();
-    const outer = createElement();
-    const inner = createElement();
-    outer.appendChild(inner);
-
-    const outerOnDrop = vi.fn();
-    const innerOnDrop = vi.fn();
-
-    engine.registerSource(source, {});
-    engine.registerTarget(outer, { onDraggableDrop: outerOnDrop });
-    engine.registerTarget(inner, { canDrop: () => false, onDraggableDrop: innerOnDrop });
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(inner);
-    await dragOver(inner);
-    fireDrag.drop(inner);
-
-    // Inner rejected the drop, so it drops out of the active stack and the
-    // outer accepting target becomes the innermost. It receives onDrop.
-    expect(innerOnDrop).not.toHaveBeenCalled();
-    expect(outerOnDrop).toHaveBeenCalledTimes(1);
-    expect(outerOnDrop).toHaveBeenCalledWith(
-      expect.objectContaining({
-        currentTarget: expect.objectContaining({ element: outer }),
-        reason: 'drop',
-      }),
-    );
   });
 
   it("canDrop returning 'reject' refuses the drop for the whole subtree instead of falling through", async () => {
@@ -1553,8 +1483,7 @@ describe('engine.registerTarget', () => {
       const onMoveEnd = vi.fn();
       engine.registerSource(source, { onMoveEnd });
 
-      const cleanup = registerTargetRaw(target, () => undefined as never);
-      registerCleanup(cleanup);
+      registerTargetRaw(target, () => undefined as never);
 
       await lift(source);
       await dragEnter(target);
@@ -1571,11 +1500,10 @@ describe('engine.registerTarget', () => {
       const onDraggableDrop = vi.fn();
       engine.registerSource(source, { kind: cardKind });
       vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const cleanup = registerTargetRaw(target, () => ({
+      registerTargetRaw(target, () => ({
         accept: null as never,
         onDraggableDrop,
       }));
-      registerCleanup(cleanup);
 
       await lift(source);
       await dragEnter(target);

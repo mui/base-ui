@@ -19,13 +19,15 @@ setupDragEngineTests();
 describe('engine.registerSource', () => {
   const { renderDnd } = createDndRenderer();
 
-  it('applies gesture styles to the element', async () => {
+  it('applies gesture styles to the element and restores them on cleanup', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const cleanup = engine.registerSource(el, {});
     expect(el.style.touchAction).toBe('manipulation');
     expect(el.style.userSelect).toBe('none');
     cleanup();
+    expect(el.style.touchAction).toBe('');
+    expect(el.style.userSelect).toBe('');
   });
 
   it('refreshes an imperative disabled getter on the next pointerdown', async () => {
@@ -68,15 +70,6 @@ describe('engine.registerSource', () => {
     expect(first.style.touchAction).toBe('');
     expect(second.style.touchAction).toBe('manipulation');
     firePointer.up(second, { pointerType: 'mouse', button: 0, buttons: 0, timeStamp: 200 });
-  });
-
-  it('restores styles on cleanup', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const cleanup = engine.registerSource(el, {});
-    cleanup();
-    expect(el.style.touchAction).toBe('');
-    expect(el.style.userSelect).toBe('');
   });
 
   it.skipIf(isJSDOM)('restores inline gesture style priorities on cleanup', async () => {

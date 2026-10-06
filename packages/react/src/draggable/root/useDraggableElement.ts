@@ -10,8 +10,8 @@ import {
   syncActiveDragSourcePayload,
 } from '../../utils/drag-and-drop/dragSource';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
-import { createDragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
-import type { DragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
+import { createDragPreviewHandle } from '../preview/dragPreviewDeclaration';
+import type { DragPreviewHandle } from '../preview/dragPreviewDeclaration';
 import type {
   RegisterSourceParameters,
   RegisterTargetParameters,
