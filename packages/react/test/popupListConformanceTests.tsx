@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import type { createRenderer } from '#test-utils';
@@ -390,6 +390,8 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           const { user } = await renderList();
           await openWithMouse(user);
 
+          // Real browser input (vitest/browser) updates React state outside Testing Library's act.
+          // eslint-disable-next-line testing-library/no-unnecessary-act
           await act(async () => {
             await userEvent.hover(getItem(1));
           });
@@ -963,6 +965,8 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           await openWithMouse(user);
 
           // `force` clicks at the button's position even when a backdrop covers it.
+          // Real browser input (vitest/browser) updates React state outside Testing Library's act.
+          // eslint-disable-next-line testing-library/no-unnecessary-act
           await act(async () => {
             await userEvent.click(screen.getByTestId('after'), { force: true });
           });
