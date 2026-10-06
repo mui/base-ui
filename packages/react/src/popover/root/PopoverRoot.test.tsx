@@ -1801,6 +1801,56 @@ describe('<Popover.Root />', () => {
           expect(screen.queryByText('Content')).toBe(null);
         });
       });
+
+      it('clears the active trigger when `unmount` is called right after a controlled close', async () => {
+        let setOpenExternal!: (open: boolean) => void;
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          setOpenExternal = setOpen;
+          const actionsRef = React.useRef<Popover.Root.Actions | null>(null);
+
+          // Runs before the Root re-renders with the synced `open` prop, so the unmount is deferred
+          // to the closing commit.
+          React.useEffect(() => {
+            if (!open) {
+              actionsRef.current?.unmount();
+            }
+          }, [open]);
+
+          return (
+            <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
+              <Popover.Trigger>Trigger 1</Popover.Trigger>
+              <Popover.Trigger>Trigger 2</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+        await user.click(trigger1);
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        await act(async () => setOpenExternal(false));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        await act(async () => setOpenExternal(true));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      });
     });
 
     describe('prop: modal', () => {
