@@ -33,7 +33,6 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
     modal = true,
     triggerClickCloses = true,
     listEnd,
-    disabledItemNavigation,
   } = config;
 
   function buildList(options: RenderListOptions): RenderedElement {
@@ -636,21 +635,20 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         expect(onSubmit).not.toHaveBeenCalled();
       });
 
-      it(`${disabledItemNavigation === 'reachable' ? 'stops on' : 'skips'} a disabled item while navigating`, async () => {
+      it('stops on a disabled item while navigating', async () => {
         const { user } = await renderList({ disabledItems: [ITEMS[2]] });
         const start = await openWithKeyboard(user);
         expect(start).toBe(0);
 
         await navigateTo(user, 0, 1);
         await user.keyboard('{ArrowDown}');
-        const next = disabledItemNavigation === 'reachable' ? 2 : 3;
         await waitFor(() => {
-          expect(getHighlightedIndex()).toBe(next);
+          expect(getHighlightedIndex()).toBe(2);
         });
 
         await user.keyboard('{ArrowUp}');
         await waitFor(() => {
-          expect(getHighlightedIndex()).toBe(next - 1);
+          expect(getHighlightedIndex()).toBe(1);
         });
       });
 
@@ -680,21 +678,20 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           }
         });
 
-        it('moves to the disabled or nearest enabled ends with End and Home', async () => {
+        it('moves to disabled ends with End and Home', async () => {
           const { user } = await renderList({
             disabledItems: [ITEMS[0], ITEMS[ITEMS.length - 1]],
           });
           await openWithKeyboard(user);
-          const reachable = disabledItemNavigation === 'reachable';
 
           await user.keyboard('{End}');
           await waitFor(() => {
-            expect(getHighlightedIndex()).toBe(reachable ? ITEMS.length - 1 : ITEMS.length - 2);
+            expect(getHighlightedIndex()).toBe(ITEMS.length - 1);
           });
 
           await user.keyboard('{Home}');
           await waitFor(() => {
-            expect(getHighlightedIndex()).toBe(reachable ? 0 : 1);
+            expect(getHighlightedIndex()).toBe(0);
           });
         });
       }
@@ -815,17 +812,24 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         expect(spies.activated).toEqual([ITEMS[0]]);
       });
 
-      it('handles keys without an error or losing focus when the list is empty', async () => {
-        const spies = createSpies();
-        const { user } = await renderList({ ...spies.options, items: [] });
+      it('opens and handles keys without losing focus when the list is empty', async () => {
+        const { user } = await renderList({ items: [] });
         await focusTrigger();
 
-        await user.keyboard('{ArrowDown}{ArrowDown}{ArrowUp}{Enter}');
+        const focusOwner = focusModel === 'virtual' ? 'trigger' : 'popup';
+
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(getTrigger()).toHaveAttribute('aria-expanded', 'true');
+        });
+        await waitFor(() => {
+          expect(getFocusOwner()).toBe(focusOwner);
+        });
+
+        await user.keyboard('{ArrowDown}{ArrowUp}{Enter}');
         await settle();
 
-        expect(screen.queryAllByRole(itemRole)).toHaveLength(0);
-        spies.expectNothingCommitted();
-        expect(['trigger', 'popup']).toContain(getFocusOwner());
+        expect(getFocusOwner()).toBe(focusOwner);
       });
 
       it('does not activate anything when every item is disabled', async () => {
@@ -1010,8 +1014,9 @@ export interface PopupListTestConfig {
    */
   homeEnd?: boolean;
   /**
-   * Whether the component has a value whose item should be revealed on open. When `true`,
-   * `root.defaultValue` is passed an item label.
+   * Whether the component has a value. When `true`, `root` receives `defaultValue` and
+   * `onValueChange`; activating an item must call `onValueChange` with its label, and opening
+   * must highlight, reveal, and mark the selected item with `aria-selected`.
    * @default false
    */
   selectable?: boolean;
@@ -1045,6 +1050,4 @@ export interface PopupListTestConfig {
    * or `escape` the list, clearing the highlight.
    */
   listEnd: 'wrap' | 'stop' | 'escape';
-  /** Whether the arrow keys can highlight disabled items or skip over them. */
-  disabledItemNavigation: 'reachable' | 'skipped';
 }

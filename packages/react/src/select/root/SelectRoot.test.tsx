@@ -18,6 +18,7 @@ import {
   popupConformanceTests,
   popupListConformanceTests,
   wait,
+  waitSingleFrame,
 } from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -414,7 +415,6 @@ describe('<Select.Root />', () => {
       itemRole: 'option',
       selectable: true,
       listEnd: 'stop',
-      disabledItemNavigation: 'reachable',
     });
   });
 
@@ -7174,9 +7174,8 @@ describe('<Select.Root />', () => {
 
     async function settleFrames() {
       await act(async () => {
-        await new Promise((resolve) => {
-          requestAnimationFrame(() => requestAnimationFrame(resolve));
-        });
+        await waitSingleFrame();
+        await waitSingleFrame();
       });
     }
 
@@ -7219,29 +7218,62 @@ describe('<Select.Root />', () => {
     });
 
     it('keeps the highlighted item visible while keyboard navigation grows the popup', async () => {
-      const { user } = await render(<AlignedSelect />);
+      // An early selected item near the bottom of the viewport opens the popup short, so
+      // navigating down has to grow it toward its max height.
+      const { user } = await render(
+        <div style={{ position: 'fixed', left: 20, bottom: 160 }}>
+          <Select.Root defaultValue="Item 1">
+            <Select.Trigger data-testid="trigger" style={{ height: 30 }}>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup data-testid="popup" style={{ maxHeight: 400 }}>
+                  {items.map((item) => (
+                    <Select.Item key={item} value={item} style={{ height: 30 }}>
+                      <Select.ItemText>{item}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>,
+      );
       await act(async () => {
         screen.getByTestId('trigger').focus();
       });
       await user.keyboard('{ArrowDown}');
       await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'Item 15' })).toHaveFocus();
-      });
-
-      for (let i = 0; i < 10; i += 1) {
-        // eslint-disable-next-line no-await-in-loop
-        await user.keyboard('{ArrowDown}');
-      }
-      const item = screen.getByRole('option', { name: 'Item 25' });
-      await waitFor(() => {
-        expect(item).toHaveFocus();
+        expect(screen.getByRole('option', { name: 'Item 1' })).toHaveFocus();
       });
       await settleFrames();
+      const positioner = screen.getByTestId('positioner');
+      const initialHeight = positioner.getBoundingClientRect().height;
 
-      const popupRect = screen.getByTestId('popup').getBoundingClientRect();
-      const itemRect = item.getBoundingClientRect();
-      expect(itemRect.top).toBeGreaterThanOrEqual(popupRect.top - 1);
-      expect(itemRect.bottom).toBeLessThanOrEqual(popupRect.bottom + 1);
+      function isInsidePopup(name: string) {
+        const popupRect = screen.getByTestId('popup').getBoundingClientRect();
+        const itemRect = screen.getByRole('option', { name }).getBoundingClientRect();
+        return itemRect.top >= popupRect.top - 1 && itemRect.bottom <= popupRect.bottom + 1;
+      }
+
+      async function navigate(from: number, to: number) {
+        await user.keyboard('{ArrowDown}'.repeat(to - from));
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: `Item ${to}` })).toHaveFocus();
+        });
+        await settleFrames();
+      }
+
+      // While there is room to grow, the popup grows instead of scrolling its first items away.
+      await navigate(1, 9);
+      expect(positioner.getBoundingClientRect().height).toBeGreaterThan(initialHeight);
+      expect(isInsidePopup('Item 0')).toBe(true);
+      expect(isInsidePopup('Item 9')).toBe(true);
+
+      await navigate(9, 25);
+      expect(positioner.getBoundingClientRect().height).toBeGreaterThan(initialHeight + 100);
+      expect(isInsidePopup('Item 25')).toBe(true);
     });
   });
 

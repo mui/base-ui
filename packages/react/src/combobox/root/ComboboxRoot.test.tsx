@@ -220,7 +220,6 @@ describe('<Combobox.Root />', () => {
     modal: false,
     triggerClickCloses: false,
     listEnd: 'escape',
-    disabledItemNavigation: 'reachable',
   });
 
   describe('IME composition', () => {

@@ -214,7 +214,7 @@ describe('<Select.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      fireEvent.click(trigger, { detail: 1 });
+      fireEvent.click(trigger);
 
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).toBe(null);
