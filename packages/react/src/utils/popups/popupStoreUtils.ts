@@ -584,12 +584,19 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       store.set('preventUnmountingOnClose', preventUnmountOnClose),
     animateInitialOpen,
     onUnmount() {
-      store.update({
-        activeTriggerId: null,
-        activeTriggerElement: null,
-        mounted: false,
-        preventUnmountingOnClose: false,
-      });
+      // A trigger press can reopen the popup before the exit completes, writing the pressed
+      // trigger and `open: true` to the store while a controlled `open` prop hasn't committed yet
+      // (React 18 runs the exit completion in between). Keep that trigger instead of clearing it.
+      if (store.state.open) {
+        store.update({ mounted: false, preventUnmountingOnClose: false });
+      } else {
+        store.update({
+          activeTriggerId: null,
+          activeTriggerElement: null,
+          mounted: false,
+          preventUnmountingOnClose: false,
+        });
+      }
       onUnmount?.();
       store.context.onOpenChangeComplete?.(false);
     },
