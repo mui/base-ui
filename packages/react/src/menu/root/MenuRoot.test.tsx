@@ -26,6 +26,7 @@ import {
   popupListConformanceTests,
   resetBrowserPointer,
   wait,
+  waitSingleFrame,
 } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
@@ -138,6 +139,58 @@ describe('<Menu.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'menu',
+  });
+
+  describe.skipIf(isJSDOM)('hover opening', () => {
+    it('stays open while the pointer crosses the gap from the trigger to the popup', async () => {
+      await render(
+        <Menu.Root modal={false}>
+          <Menu.Trigger data-testid="trigger" openOnHover delay={0}>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner sideOffset={24}>
+              <Menu.Popup data-testid="popup">
+                <Menu.Item data-testid="item">One</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      enterWithMouse(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      await act(async () => {
+        await waitSingleFrame();
+        await waitSingleFrame();
+      });
+
+      const triggerRect = trigger.getBoundingClientRect();
+      const item = screen.getByTestId('item');
+      const itemRect = item.getBoundingClientRect();
+      expect(itemRect.top - triggerRect.bottom).toBeGreaterThanOrEqual(20);
+      const x = Math.min(triggerRect.right, itemRect.right) - 5;
+
+      fireEvent.mouseLeave(trigger, {
+        clientX: x,
+        clientY: triggerRect.bottom + 1,
+        relatedTarget: document.body,
+      });
+      for (let y = triggerRect.bottom + 4; y < itemRect.top; y += 4) {
+        fireEvent.mouseMove(document.body, { clientX: x, clientY: y });
+      }
+      enterWithMouse(item, { clientX: x, clientY: itemRect.top + 2 });
+      await act(async () => {
+        await waitSingleFrame();
+        await waitSingleFrame();
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('popup')).toBeVisible();
+    });
   });
 
   describe('opening', () => {

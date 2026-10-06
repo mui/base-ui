@@ -5493,6 +5493,46 @@ describe('<Select.Root />', () => {
   });
 
   describe('typeahead', () => {
+    it('matches an item by its label when the rendered text differs', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="us" label="United States">
+                  <Select.ItemText>Option 1</Select.ItemText>
+                </Select.Item>
+                <Select.Item value="fr" label="France">
+                  <Select.ItemText>Option 2</Select.ItemText>
+                </Select.Item>
+                <Select.Item value="ca" label="Canada">
+                  <Select.ItemText>Option 3</Select.ItemText>
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Option 1' })).toHaveFocus();
+      });
+
+      // Only the label matches; the rendered text is "Option 2".
+      await user.keyboard('fr');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Option 2' })).toHaveFocus();
+      });
+    });
+
     it('starts a new search after focus leaves the select', async () => {
       const { user } = await render(
         <div>

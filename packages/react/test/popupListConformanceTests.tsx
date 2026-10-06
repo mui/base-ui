@@ -5,7 +5,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM } from '@base-ui/utils/testUtils';
 import { resetBrowserPointer } from './resetBrowserPointer';
-import { waitSingleFrame } from './wait';
+import { wait, waitSingleFrame } from './wait';
 
 const ITEMS = Array.from({ length: 12 }, (_, index) => `Item ${index}`);
 const ITEM_HEIGHT = 30;
@@ -89,6 +89,11 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       throw new Error(`Popup list conformance: ${highlighted.length} items are highlighted.`);
     }
     return highlighted.length ? ITEMS.indexOf(highlighted[0].textContent ?? '') : -1;
+  }
+
+  function getHighlightedText() {
+    return screen.queryAllByRole(itemRole).find((item) => item.hasAttribute('data-highlighted'))
+      ?.textContent;
   }
 
   function getFocusOwner() {
@@ -742,7 +747,43 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
             expect(isFullyVisible(getItem(9))).toBe(true);
           });
         });
+
+        it('starts a new typeahead search after a pause', async () => {
+          const items = ['Alpha', 'Bravo', 'Charlie'];
+          const { user } = await renderList({ items });
+          await focusTrigger();
+          await user.keyboard('{ArrowDown}');
+          await waitForOpen();
+
+          await user.keyboard('b');
+          await waitFor(() => {
+            expect(getHighlightedText()).toBe('Bravo');
+          });
+
+          // Longer than the typeahead reset delay, so `c` is a new search and not `bc`.
+          await act(async () => {
+            await wait(1000);
+          });
+          await user.keyboard('c');
+
+          await waitFor(() => {
+            expect(getHighlightedText()).toBe('Charlie');
+          });
+        });
       }
+
+      it('prevents the default scrolling of navigation keys', async () => {
+        const { user } = await renderList();
+        await expectFocusOnItem(await openWithKeyboard(user));
+
+        for (const key of homeEnd
+          ? ['ArrowDown', 'ArrowUp', 'End', 'Home']
+          : ['ArrowDown', 'ArrowUp']) {
+          const target = document.activeElement ?? document.body;
+          // `fireEvent` returns `false` when a handler prevented the default action.
+          expect(fireEvent.keyDown(target, { key })).toBe(false);
+        }
+      });
     });
 
     describe('list boundaries', () => {
