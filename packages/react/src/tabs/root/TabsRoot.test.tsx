@@ -268,17 +268,33 @@ describe('<Tabs.Root />', () => {
       const tabElements = screen.getAllByRole('tab');
       const tabPanelElements = screen.getAllByRole('tabpanel', { hidden: true });
 
-      await Promise.allSettled(
-        tabValues.map(async (value, index) => {
-          expect(tabPanelElements[index]).toHaveAttribute('aria-labelledby', tabElements[index].id);
+      for (let index = 0; index < tabValues.length; index += 1) {
+        expect(tabPanelElements[index]).toHaveAttribute('aria-labelledby', tabElements[index].id);
 
-          await act(() => {
-            tabElements[index].click();
-          });
+        // eslint-disable-next-line no-await-in-loop
+        await act(async () => {
+          tabElements[index].click();
+        });
 
-          expect(tabPanelElements[index]).not.toHaveAttribute('hidden');
-        }),
+        expect(tabElements[index]).toHaveAttribute('aria-selected', 'true');
+        expect(tabPanelElements[index]).not.toHaveAttribute('hidden');
+      }
+    });
+
+    it('should support a function as the default value', async () => {
+      const functionValue = () => 1;
+
+      await render(
+        <Tabs.Root defaultValue={functionValue}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={functionValue} />
+          </Tabs.List>
+        </Tabs.Root>,
       );
+
+      const tabElements = screen.getAllByRole('tab');
+      expect(tabElements[1]).toHaveAttribute('aria-selected', 'true');
     });
   });
 
