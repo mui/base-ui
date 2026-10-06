@@ -37,6 +37,16 @@ describe('<Fieldset.Legend />', () => {
     expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'legend-id');
   });
 
+  it('reflects the disabled state', () => {
+    render(
+      <Fieldset.Root disabled>
+        <Fieldset.Legend data-testid="legend">Legend</Fieldset.Legend>
+      </Fieldset.Root>,
+    );
+
+    expect(screen.getByTestId('legend')).toHaveAttribute('data-disabled');
+  });
+
   it('updates and clears the legend association', async () => {
     function App() {
       const [legendId, setLegendId] = React.useState('legend-a');
