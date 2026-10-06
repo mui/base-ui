@@ -12,7 +12,14 @@ import {
   ignoreActWarnings,
   reactMajor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  isJSDOM,
+  popupConformanceTests,
+  popupListConformanceTests,
+  wait,
+  waitSingleFrame,
+} from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { REASONS } from '../../internals/reasons';
@@ -374,6 +381,40 @@ describe('<Select.Root />', () => {
       triggerMouseAction: 'click',
       expectedPopupRole: 'listbox',
       alwaysMounted: 'only-after-open',
+    });
+
+    // The suite owns the scroller geometry, which item-aligned positioning would override.
+    popupListConformanceTests({
+      createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle, onItemClick }) => (
+        <Select.Root {...root}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup data-testid="popup">
+                <Select.List data-testid="scroller" style={scrollerStyle}>
+                  {items.map((item) => (
+                    <Select.Item
+                      key={item}
+                      value={item}
+                      disabled={disabledItems.includes(item)}
+                      style={itemStyle}
+                      onClick={onItemClick}
+                    >
+                      <Select.ItemText>{item}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      ),
+      render,
+      itemRole: 'option',
+      selectable: true,
+      listEnd: 'stop',
     });
   });
 
@@ -5452,6 +5493,84 @@ describe('<Select.Root />', () => {
   });
 
   describe('typeahead', () => {
+    it('matches an item by its label when the rendered text differs', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="us" label="United States">
+                  <Select.ItemText>Option 1</Select.ItemText>
+                </Select.Item>
+                <Select.Item value="fr" label="France">
+                  <Select.ItemText>Option 2</Select.ItemText>
+                </Select.Item>
+                <Select.Item value="ca" label="Canada">
+                  <Select.ItemText>Option 3</Select.ItemText>
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Option 1' })).toHaveFocus();
+      });
+
+      // Only the label matches; the rendered text is "Option 2".
+      await user.keyboard('fr');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Option 2' })).toHaveFocus();
+      });
+    });
+
+    it('starts a new search after focus leaves the select', async () => {
+      const { user } = await render(
+        <div>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="banana">banana</Select.Item>
+                  <Select.Item value="avocado">avocado</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button data-testid="outside">outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('b');
+      expect(screen.getByTestId('value').textContent).toBe('banana');
+
+      // Leaving and returning within the typeahead timeout must not continue the "b" search.
+      await act(async () => {
+        screen.getByTestId('outside').focus();
+        trigger.focus();
+      });
+      await user.keyboard('a');
+
+      expect(screen.getByTestId('value').textContent).toBe('avocado');
+    });
+
     it.skipIf(isJSDOM)(
       'does not trigger selection when Space is pressed during text navigation',
       async () => {
@@ -7015,6 +7134,306 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('groups', () => {
+    it('navigates across groups without stopping on labels or separators', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Group>
+                  <Select.GroupLabel>Fruits</Select.GroupLabel>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="banana">banana</Select.Item>
+                </Select.Group>
+                <Select.Separator />
+                <Select.Group>
+                  <Select.GroupLabel>Vegetables</Select.GroupLabel>
+                  <Select.Item value="carrot">carrot</Select.Item>
+                  <Select.Item value="leek">leek</Select.Item>
+                </Select.Group>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'apple' })).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'carrot' })).toHaveFocus();
+      });
+
+      await user.keyboard('{End}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'leek' })).toHaveFocus();
+      });
+
+      await user.keyboard('{Home}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'apple' })).toHaveFocus();
+      });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('item-aligned popup interaction', () => {
+    const items = Array.from({ length: 30 }, (_, index) => `Item ${index}`);
+
+    function AlignedSelect() {
+      return (
+        <div style={{ paddingTop: 240 }}>
+          <Select.Root defaultValue="Item 15">
+            <Select.Trigger data-testid="trigger" style={{ height: 30 }}>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup data-testid="popup" style={{ maxHeight: 200 }}>
+                  {items.map((item) => (
+                    <Select.Item key={item} value={item} style={{ height: 30 }}>
+                      {item}
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>
+      );
+    }
+
+    async function settleFrames() {
+      await act(async () => {
+        await waitSingleFrame();
+        await waitSingleFrame();
+      });
+    }
+
+    function getPopupGeometry() {
+      const popup = screen.getByTestId('popup');
+      const rect = popup.getBoundingClientRect();
+      return { top: rect.top, height: rect.height, scrollTop: popup.scrollTop };
+    }
+
+    it('does not move the popup or its list when hovering items at its edges', async () => {
+      const { user } = await render(<AlignedSelect />);
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Item 15' })).toHaveFocus();
+      });
+      await settleFrames();
+      const before = getPopupGeometry();
+      const popupRect = screen.getByTestId('popup').getBoundingClientRect();
+      const options = screen.getAllByRole('option');
+      const topEdgeItem = options.find((option) => {
+        return option.getBoundingClientRect().bottom > popupRect.top;
+      })!;
+      const bottomEdgeItem = options
+        .filter((option) => {
+          return option.getBoundingClientRect().top < popupRect.bottom;
+        })
+        .at(-1)!;
+
+      for (const item of [bottomEdgeItem, topEdgeItem]) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.hover(item);
+        // eslint-disable-next-line no-await-in-loop
+        await waitFor(() => {
+          expect(item).toHaveAttribute('data-highlighted');
+        });
+        // eslint-disable-next-line no-await-in-loop
+        await settleFrames();
+        expect(getPopupGeometry()).toEqual(before);
+      }
+    });
+
+    it('keeps the highlighted item visible while keyboard navigation grows the popup', async () => {
+      // An early selected item near the bottom of the viewport opens the popup short, so
+      // navigating down has to grow it toward its max height.
+      const { user } = await render(
+        <div style={{ position: 'fixed', left: 20, bottom: 160 }}>
+          <Select.Root defaultValue="Item 1">
+            <Select.Trigger data-testid="trigger" style={{ height: 30 }}>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup data-testid="popup" style={{ maxHeight: 400 }}>
+                  {items.map((item) => (
+                    <Select.Item key={item} value={item} style={{ height: 30 }}>
+                      <Select.ItemText>{item}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>,
+      );
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Item 1' })).toHaveFocus();
+      });
+      await settleFrames();
+      const positioner = screen.getByTestId('positioner');
+      const initialHeight = positioner.getBoundingClientRect().height;
+
+      function isInsidePopup(name: string) {
+        const popupRect = screen.getByTestId('popup').getBoundingClientRect();
+        const itemRect = screen.getByRole('option', { name }).getBoundingClientRect();
+        return itemRect.top >= popupRect.top - 1 && itemRect.bottom <= popupRect.bottom + 1;
+      }
+
+      async function navigate(from: number, to: number) {
+        await user.keyboard('{ArrowDown}'.repeat(to - from));
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: `Item ${to}` })).toHaveFocus();
+        });
+        await settleFrames();
+      }
+
+      // While there is room to grow, the popup grows instead of scrolling its first items away.
+      await navigate(1, 9);
+      expect(positioner.getBoundingClientRect().height).toBeGreaterThan(initialHeight);
+      expect(isInsidePopup('Item 0')).toBe(true);
+      expect(isInsidePopup('Item 9')).toBe(true);
+
+      await navigate(9, 25);
+      expect(positioner.getBoundingClientRect().height).toBeGreaterThan(initialHeight + 100);
+      expect(isInsidePopup('Item 25')).toBe(true);
+    });
+  });
+
+  describe('opening', () => {
+    it('does not carry an ArrowUp opening over to a later pointer opening', async () => {
+      // A selected item claims the keyboard opening, so the ArrowUp is never consumed.
+      function Test() {
+        const [value, setValue] = React.useState<string | null>('b');
+        return (
+          <div>
+            <button data-testid="clear" onClick={() => setValue(null)}>
+              Clear
+            </button>
+            <Select.Root value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner alignItemWithTrigger={false}>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                    <Select.Item value="c">c</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+      });
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      await user.click(screen.getByTestId('clear'));
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toHaveFocus();
+      });
+      await act(async () => {
+        await wait(50);
+      });
+
+      expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
+    });
+  });
+
+  describe('closing', () => {
+    it.skipIf(isJSDOM)(
+      'keeps the highlight on the item while the popup animates out',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const { user } = await render(
+          <React.Fragment>
+            <style>
+              {`@keyframes select-test-exit { to { opacity: 0; } }
+              .select-test-exit[data-ending-style] { animation: select-test-exit 10s; }`}
+            </style>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner alignItemWithTrigger={false}>
+                  <Select.Popup className="select-test-exit" data-testid="popup">
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>,
+        );
+
+        await act(async () => {
+          screen.getByTestId('trigger').focus();
+        });
+        await user.keyboard('{ArrowDown}');
+        const optionA = await screen.findByRole('option', { name: 'a' });
+        const optionB = screen.getByRole('option', { name: 'b' });
+        await waitFor(() => {
+          expect(optionA).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(optionB).toHaveFocus();
+        });
+
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(optionB).toHaveAttribute('data-highlighted');
+
+        // Items moving under the pointer while the popup fades out don't take the highlight.
+        fireEvent.mouseMove(optionA, {
+          movementX: 1,
+          movementY: 1,
+        });
+        expect(optionB).toHaveAttribute('data-highlighted');
+      },
+    );
+  });
+
   describe('trigger render cost', () => {
     it('does not re-render the trigger while navigating the list', async () => {
       let triggerRenders = 0;
@@ -7113,6 +7532,22 @@ describe('<Select.Root />', () => {
 
       act(() => actionsRef.current!.highlightItem('previous'));
       await waitFor(() => expect(screen.getByRole('option', { name: 'One' })).toHaveFocus());
+    });
+
+    it('enters the list from the end with `previous` when nothing is highlighted', async () => {
+      const actionsRef = React.createRef<Select.Root.Actions>();
+      const { user } = await render(<TestSelect actionsRef={actionsRef} />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const listbox = await screen.findByRole('listbox');
+      await waitFor(() => expect(listbox).toHaveFocus());
+
+      act(() => actionsRef.current!.highlightItem('none'));
+      act(() => actionsRef.current!.highlightItem('previous'));
+
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Three' })).toHaveAttribute('data-highlighted'),
+      );
     });
 
     it('returns focus to the popup when the highlight is cleared', async () => {
