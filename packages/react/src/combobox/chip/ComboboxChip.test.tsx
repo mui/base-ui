@@ -407,6 +407,32 @@ describe('<Combobox.Chip />', () => {
       expect(handleValueChange).toHaveBeenCalledWith(['banana'], expect.anything());
     });
 
+    it('focuses the next chip after removing a chip rendered from the value', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultValue={['apple', 'banana', 'cherry']}>
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  {value.map((item) => (
+                    <Combobox.Chip key={item} data-testid={`chip-${item}`}>
+                      {item}
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      await act(async () => screen.getByTestId('chip-banana').focus());
+      await user.keyboard('{Delete}');
+
+      expect(screen.getByTestId('chip-cherry')).toHaveFocus();
+    });
+
     it('mirrors chip keyboard navigation in RTL mode', async () => {
       const { user } = await render(
         <DirectionProvider direction="rtl">

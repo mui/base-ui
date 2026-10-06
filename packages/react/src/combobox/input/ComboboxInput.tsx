@@ -187,7 +187,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         id,
         onFocus() {
           setFocused(true);
-          comboboxChipsContext?.setHighlightedChipIndex(undefined);
 
           if (!inline) {
             return;
@@ -392,8 +391,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           const nextIndex = handleKeyDown(event);
-
-          comboboxChipsContext?.setHighlightedChipIndex(nextIndex);
 
           if (nextIndex !== undefined) {
             comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
