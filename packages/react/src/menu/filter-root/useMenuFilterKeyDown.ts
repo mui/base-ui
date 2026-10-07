@@ -121,7 +121,8 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
   const direction = useDirection();
 
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
-    const activeItem = store.state.highlightedItem;
+    const open = store.select('open');
+    const activeItem = open ? store.state.highlightedItem : null;
     const action = getMenuFilterKeyAction(event, {
       orientation,
       rtl: direction === 'rtl',
@@ -129,6 +130,24 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
       activeItemOpensSubmenu: activeItem?.hasAttribute('aria-haspopup') ?? false,
       hasValue,
     });
+
+    if (!open) {
+      const trigger = store.select('activeTriggerElement');
+      const parent = store.state.parent;
+      if (
+        store.select('mounted') &&
+        trigger &&
+        (parent.type === undefined || parent.type === 'menubar') &&
+        (action === 'navigate' || action === 'enter-list') &&
+        isMainOrientationKey(event.key, 'vertical')
+      ) {
+        // Reopen through the original trigger, so the closing input cannot become the anchor.
+        stopEvent(event);
+        const KeyboardEventConstructor = ownerWindow(trigger).KeyboardEvent;
+        trigger.dispatchEvent(new KeyboardEventConstructor(event.type, event.nativeEvent));
+      }
+      return;
+    }
 
     switch (action) {
       case 'edit':

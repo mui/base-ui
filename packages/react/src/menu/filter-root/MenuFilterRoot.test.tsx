@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
 import {
   act,
@@ -103,6 +103,168 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   describe('filtering', () => {
+    describe.skipIf(isJSDOM)('reopening during the exit animation', () => {
+      beforeEach(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+      });
+
+      function TestMenu(props: Menu.Root.Props) {
+        return (
+          <Menu.FilterProvider>
+            <Menu.Root {...props}>
+              <Menu.Trigger>Other actions</Menu.Trigger>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="filter-menu-keyboard-close-test">
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <style>{`
+              .filter-menu-keyboard-close-test[data-ending-style] {
+                animation: filter-menu-keyboard-close-test 10s linear;
+              }
+              @keyframes filter-menu-keyboard-close-test {
+                from { opacity: 1; }
+                to { opacity: 0; }
+              }
+            `}</style>
+          </Menu.FilterProvider>
+        );
+      }
+
+      async function openThenClose(user: ReturnType<typeof userEvent.setup>) {
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await act(async () => trigger.focus());
+        await user.keyboard('[ArrowDown]');
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        const popup = screen.getByRole('dialog');
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard('[Escape]');
+        expect(popup).toHaveAttribute('data-ending-style');
+        const exitAnimations = popup.getAnimations();
+        expect(exitAnimations.length).toBeGreaterThan(0);
+        expect(exitAnimations[0].playState).not.toBe('finished');
+        return { trigger, input, popup, exitAnimations };
+      }
+
+      it.each([
+        { source: 'input', key: 'ArrowDown', controlled: false },
+        { source: 'input', key: 'ArrowUp', controlled: false },
+        { source: 'trigger', key: 'ArrowDown', controlled: false },
+        { source: 'trigger', key: 'ArrowUp', controlled: false },
+        { source: 'input', key: 'ArrowDown', controlled: true },
+        { source: 'input', key: 'ArrowUp', controlled: true },
+        { source: 'trigger', key: 'ArrowDown', controlled: true },
+        { source: 'trigger', key: 'ArrowUp', controlled: true },
+        { source: 'input', key: 'ArrowDown', controlled: false, horizontal: true },
+        { source: 'input', key: 'ArrowUp', controlled: false, horizontal: true },
+      ])(
+        'reopens from $source with $key (controlled: $controlled)',
+        async ({ source, key, controlled, horizontal }) => {
+          const onOpenChange = vi.fn();
+          function TestComponent() {
+            const [open, setOpen] = React.useState(false);
+            return (
+              <TestMenu
+                open={controlled ? open : undefined}
+                orientation={horizontal ? 'horizontal' : 'vertical'}
+                onOpenChange={(nextOpen, details) => {
+                  onOpenChange(nextOpen, details);
+                  setOpen(nextOpen);
+                }}
+              />
+            );
+          }
+          const { user } = await render(<TestComponent />);
+          const { trigger, input, popup, exitAnimations } = await openThenClose(user);
+
+          if (source === 'trigger') {
+            await act(async () => trigger.focus());
+          }
+          const keyTarget = source === 'input' ? input : trigger;
+          expect(keyTarget).toHaveFocus();
+          fireEvent.keyDown(keyTarget, { key });
+          expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true]);
+          expect(onOpenChange.mock.lastCall?.[1].trigger).toBe(trigger);
+          expect(onOpenChange.mock.lastCall?.[1].reason).toBe('list-navigation');
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+          expect(screen.getByRole('button', { name: 'Other actions' })).toHaveAttribute(
+            'aria-expanded',
+            'false',
+          );
+          await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
+          await act(async () => {
+            exitAnimations.forEach((animation) => animation.finish());
+          });
+          expect(screen.getByRole('dialog')).toBe(popup);
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        },
+      );
+
+      it.each(['canceled', 'declined'])(
+        'respects a %s reopening through the trigger',
+        async (mode) => {
+          const onOpenChange = vi.fn();
+          function TestComponent() {
+            const [open, setOpen] = React.useState(false);
+            return (
+              <TestMenu
+                open={open}
+                onOpenChange={(nextOpen, details) => {
+                  onOpenChange(nextOpen, details);
+                  if (nextOpen && onOpenChange.mock.calls.length > 1) {
+                    if (mode === 'canceled') {
+                      details.cancel();
+                    }
+                    return;
+                  }
+                  setOpen(nextOpen);
+                }}
+              />
+            );
+          }
+          const { user } = await render(<TestComponent />);
+          const { trigger, input, popup, exitAnimations } = await openThenClose(user);
+          fireEvent.keyDown(input, { key: 'ArrowDown' });
+          expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true]);
+          expect(onOpenChange.mock.lastCall?.[1].trigger).toBe(trigger);
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+          expect(popup).toHaveAttribute('data-ending-style');
+          await act(async () => {
+            exitAnimations.forEach((animation) => animation.finish());
+          });
+          await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+        },
+      );
+
+      it.each([
+        { key: 'ArrowDown', shiftKey: true },
+        { key: 'ArrowUp', ctrlKey: true },
+        { key: 'ArrowDown', altKey: true },
+        { key: 'ArrowUp', metaKey: true },
+        { key: 'ArrowDown', keyCode: 229 },
+        { key: 'ArrowLeft' },
+        { key: 'ArrowRight' },
+      ])('does not reopen for text editing or composition keys: %j', async (event) => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(<TestMenu onOpenChange={onOpenChange} />);
+        const { trigger, input } = await openThenClose(user);
+        fireEvent.keyDown(input, event);
+        expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+    });
+
     it('highlights the first item while keeping input focus when opened with the keyboard', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
