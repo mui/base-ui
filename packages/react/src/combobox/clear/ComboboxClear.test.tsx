@@ -244,8 +244,8 @@ describe('<Combobox.Clear />', () => {
 
     await waitFor(() => {
       expect(clear).toHaveClass('hidden');
-      expect(clear).not.toHaveAttribute('data-visible');
     });
+    expect(clear).not.toHaveAttribute('data-visible');
     expect(screen.getByRole('dialog')).not.toBe(null);
     expect(screen.getByTestId('input')).toHaveFocus();
     expect(screen.getByTestId('trigger')).toHaveTextContent('None');
