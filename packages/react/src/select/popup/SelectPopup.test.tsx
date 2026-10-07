@@ -1730,6 +1730,9 @@ describe('<Select.Popup />', () => {
     initialFocus: false,
     triggerRole: 'combobox',
     alwaysMounted: true,
+    // Known gap: an item press closes the Select through its own `setOpen`, which skips the
+    // open-change event that records the close type, so `finalFocus` receives '' rather than 'mouse'.
+    mouseCloseType: '',
     createComponent: ({ children, finalFocus }) => (
       <Select.Root>
         <Select.Trigger>Open</Select.Trigger>

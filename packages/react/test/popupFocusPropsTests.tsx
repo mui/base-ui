@@ -16,6 +16,7 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
     initialFocus: testInitialFocus = true,
     triggerRole = 'button',
     alwaysMounted = false,
+    mouseCloseType = 'mouse',
   } = config;
 
   function Test(props: { popupProps?: PopupFocusProps; withPopupInputs?: boolean }) {
@@ -59,13 +60,17 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
     }
   }
 
-  async function closeWithPointer(user: Awaited<ReturnType<typeof render>>['user']) {
+  async function findClickableClose() {
     const close = await screen.findByText('Close');
     // Positioners ignore pointer events until they have been positioned.
     await waitFor(() => {
       expect(getComputedStyle(close).pointerEvents).not.toBe('none');
     });
-    await user.click(close);
+    return close;
+  }
+
+  async function closeWithPointer(user: Awaited<ReturnType<typeof render>>['user']) {
+    await user.click(await findClickableClose());
   }
 
   if (testInitialFocus) {
@@ -79,38 +84,49 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
         });
       });
 
-      it.each([
-        {
-          name: 'a ref',
-          initialFocus: ({ inside }: FocusTargets) => inside,
-          focused: 'inside-2',
-        },
-        {
-          name: 'a function returning an element',
-          initialFocus:
-            ({ inside }: FocusTargets) =>
-            () =>
-              inside.current,
-          focused: 'inside-2',
-        },
-        {
-          name: 'a function returning true',
-          initialFocus: () => () => true,
-          focused: 'inside-1',
-        },
-        {
-          name: 'a function returning null',
-          initialFocus: () => () => null,
-          focused: 'inside-1',
-        },
-      ])('focuses the right element when given $name', async ({ initialFocus, focused }) => {
-        const { user } = await render(<Test withPopupInputs popupProps={{ initialFocus }} />);
+      it('focuses the element of a ref', async () => {
+        const { user } = await render(
+          <Test withPopupInputs popupProps={{ initialFocus: ({ inside }) => inside }} />,
+        );
 
         await user.click(getTrigger());
         await waitFor(() => {
-          expect(screen.getByTestId(focused)).toHaveFocus();
+          expect(screen.getByTestId('inside-2')).toHaveFocus();
         });
       });
+
+      it.each([
+        {
+          name: 'an element',
+          returns: ({ inside }: FocusTargets) => inside.current,
+          focused: 'inside-2',
+        },
+        // `true` and `null` keep the default target, so the spy proves the function was consulted.
+        { name: 'true', returns: () => true, focused: 'inside-1' },
+        { name: 'null', returns: () => null, focused: 'inside-1' },
+      ])(
+        'focuses the right element when a function returns $name',
+        async ({ returns, focused }) => {
+          const initialFocusSpy = vi.fn();
+          const { user } = await render(
+            <Test
+              withPopupInputs
+              popupProps={{
+                initialFocus: (targets) => (openType: InteractionType) => {
+                  initialFocusSpy(openType);
+                  return returns(targets);
+                },
+              }}
+            />,
+          );
+
+          await user.click(getTrigger());
+          await waitFor(() => {
+            expect(screen.getByTestId(focused)).toHaveFocus();
+          });
+          expect(initialFocusSpy).toHaveBeenCalledTimes(1);
+        },
+      );
 
       it('does not move focus when `false`', async () => {
         const { user } = await render(
@@ -219,40 +235,50 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
       });
     });
 
-    it.each([
-      {
-        name: 'a ref',
-        finalFocus: ({ outside }: FocusTargets) => outside,
-        focused: 'outside-target',
-      },
-      {
-        name: 'a function returning an element',
-        finalFocus:
-          ({ outside }: FocusTargets) =>
-          () =>
-            outside.current,
-        focused: 'outside-target',
-      },
-      {
-        name: 'a function returning true',
-        finalFocus: () => () => true,
-        focused: 'trigger',
-      },
-      {
-        name: 'a function returning null',
-        finalFocus: () => () => null,
-        focused: 'trigger',
-      },
-    ])('focuses the right element when given $name', async ({ finalFocus, focused }) => {
-      const { user } = await render(<Test popupProps={{ finalFocus }} />);
+    it('focuses the element of a ref', async () => {
+      const { user } = await render(<Test popupProps={{ finalFocus: ({ outside }) => outside }} />);
 
       await user.click(getTrigger());
       await closeWithPointer(user);
 
       await waitFor(() => {
-        expect(focused === 'trigger' ? getTrigger() : screen.getByTestId(focused)).toHaveFocus();
+        expect(screen.getByTestId('outside-target')).toHaveFocus();
       });
     });
+
+    it.each([
+      {
+        name: 'an element',
+        returns: ({ outside }: FocusTargets) => outside.current,
+        getFocused: () => screen.getByTestId('outside-target'),
+      },
+      // `true` and `null` keep the default target, so the spy proves the function was consulted.
+      { name: 'true', returns: () => true, getFocused: getTrigger },
+      { name: 'null', returns: () => null, getFocused: getTrigger },
+    ])(
+      'focuses the right element when a function returns $name',
+      async ({ returns, getFocused }) => {
+        const finalFocusSpy = vi.fn();
+        const { user } = await render(
+          <Test
+            popupProps={{
+              finalFocus: (targets) => (closeType: InteractionType) => {
+                finalFocusSpy(closeType);
+                return returns(targets);
+              },
+            }}
+          />,
+        );
+
+        await user.click(getTrigger());
+        await closeWithPointer(user);
+
+        await waitFor(() => {
+          expect(getFocused()).toHaveFocus();
+        });
+        expect(finalFocusSpy).toHaveBeenCalledTimes(1);
+      },
+    );
 
     it('does not move focus when `false`', async () => {
       const { user } = await render(<Test popupProps={{ finalFocus: false }} />);
@@ -267,6 +293,7 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
       expect(getTrigger()).not.toHaveFocus();
       if (!alwaysMounted) {
         // The focused close control was removed, so focus falls back to the body.
+        // eslint-disable-next-line vitest/no-conditional-expect -- a kept-mounted close control is not removed, so focus doesn't fall back
         expect(document.body).toHaveFocus();
       }
     });
@@ -290,11 +317,18 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
       const trigger = getTrigger();
 
       await user.click(trigger);
-      await closeWithPointer(user);
+      // user-event's synthetic clicks carry no pointer type, so the mouse press is dispatched
+      // directly.
+      const close = await findClickableClose();
+      fireEvent.pointerDown(close, { pointerType: 'mouse' });
+      fireEvent.click(close, { detail: 1 });
+      await waitFor(() => {
+        expectClosed();
+      });
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
-      expect(finalFocusSpy).toHaveBeenCalledTimes(1);
+      expect(finalFocusSpy).toHaveBeenNthCalledWith(1, mouseCloseType);
 
       await user.click(trigger);
       await screen.findByText('Close');
@@ -303,7 +337,7 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
       await waitFor(() => {
         expect(screen.getByTestId('outside-target')).toHaveFocus();
       });
-      expect(finalFocusSpy).toHaveBeenLastCalledWith('keyboard');
+      expect(finalFocusSpy).toHaveBeenNthCalledWith(2, 'keyboard');
       expect(finalFocusSpy).toHaveBeenCalledTimes(2);
     });
   });
@@ -367,4 +401,10 @@ export interface PopupFocusPropsTestsConfig {
    * @default false
    */
   alwaysMounted?: boolean;
+  /**
+   * The close type passed to a `finalFocus` function when the "Close" control is clicked with a
+   * mouse. Only set it to document a popup whose close control doesn't report the pointer type.
+   * @default 'mouse'
+   */
+  mouseCloseType?: InteractionType;
 }

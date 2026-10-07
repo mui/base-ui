@@ -437,6 +437,18 @@ describe('<Popover.Root />', () => {
     });
 
     describe('prop: defaultOpen', () => {
+      it('remains uncontrolled, so a trigger click closes it', async () => {
+        const { user } = await render(<TestPopover rootProps={{ defaultOpen: true }} />);
+
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        await user.click(screen.getByTestId('trigger'));
+
+        await waitFor(() => {
+          expect(screen.queryByText('Content')).toBe(null);
+        });
+      });
+
       it('does not close after hovering out of a popup opened without trigger hover', async () => {
         await render(
           <TestPopover rootProps={{ defaultOpen: true }} triggerProps={{ openOnHover: true }} />,

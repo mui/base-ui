@@ -1,4 +1,5 @@
 import type * as React from 'react';
+import { describe } from 'vitest';
 import type { MuiRenderResult, RenderOptions } from '@mui/internal-test-utils';
 import { createDescribe } from '@mui/internal-test-utils';
 import { testPropForwarding } from './conformanceTests/propForwarding';
@@ -35,7 +36,8 @@ export interface BaseUiConformanceTestsOptions {
   refInstanceof: abstract new (...args: any[]) => unknown;
   /**
    * The element the render-prop and prop-forwarding tests render in place of the default one.
-   * Rendering a `button` also sets `nativeButton` on components that accept it.
+   * Rendering a `button` also sets `nativeButton` on components that accept it, and for those
+   * components the tests run again with a `div` and `nativeButton={false}`.
    * @default 'div'
    */
   testRenderPropWith?: keyof React.JSX.IntrinsicElements;
@@ -58,6 +60,19 @@ function describeConformanceFn(
   testRefForwarding(minimalElement, getOptions);
   testRenderProp(minimalElement, getOptions);
   testClassName(minimalElement, getOptions);
+
+  const { button = false, testRenderPropWith } = getOptions();
+  if (button && testRenderPropWith === 'button') {
+    // Button parts also support rendering a non-button element with `nativeButton={false}`.
+    describe('with a non-native button', () => {
+      const getNonNativeOptions = (): BaseUiConformanceTestsOptions => ({
+        ...getOptions(),
+        testRenderPropWith: 'div',
+      });
+      testPropForwarding(minimalElement, getNonNativeOptions);
+      testRenderProp(minimalElement, getNonNativeOptions);
+    });
+  }
 }
 
 export const describeConformance = createDescribe('Base UI component API', describeConformanceFn);

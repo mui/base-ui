@@ -4,7 +4,6 @@ import setupVitest from '@mui/internal-test-utils/setupVitest';
 import '../packages/react/test/addVitestMatchers';
 import '@testing-library/jest-dom/vitest';
 import { reset as resetBuiltError } from '@base-ui/utils/error';
-import { reset as resetBuiltWarning } from '@base-ui/utils/warn';
 import { resetAnimationFrameScheduler as resetBuiltScheduler } from '@base-ui/utils/useAnimationFrame';
 
 declare global {
@@ -13,7 +12,6 @@ declare global {
 }
 
 let resetSourceError = () => {};
-let resetSourceWarning = () => {};
 let resetSourceScheduler = () => {};
 
 setupVitest();
@@ -23,8 +21,6 @@ beforeAll(async () => {
   // can be loaded as separate instances, so reset the source copy too.
   // eslint-disable-next-line import/no-relative-packages
   ({ reset: resetSourceError } = await import('../packages/utils/src/error'));
-  // eslint-disable-next-line import/no-relative-packages
-  ({ reset: resetSourceWarning } = await import('../packages/utils/src/warn'));
   ({ resetAnimationFrameScheduler: resetSourceScheduler } = await import(
     // eslint-disable-next-line import/no-relative-packages
     '../packages/utils/src/useAnimationFrame'
@@ -34,10 +30,9 @@ beforeAll(async () => {
 afterEach(() => {
   vi.resetAllMocks();
   globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  // `warn` and `error` share one log-once store, so this also clears deduplicated warnings.
   resetBuiltError();
   resetSourceError();
-  resetBuiltWarning();
-  resetSourceWarning();
   // Drop animation frame callbacks that were scheduled but never ran (e.g. under fake timers torn
   // down before the frame fired). The scheduler is process-global, so without this they would leak
   // into a later test and run there against stale state.

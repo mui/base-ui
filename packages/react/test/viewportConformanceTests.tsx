@@ -276,7 +276,7 @@ export function viewportConformanceTests(config: ViewportTestConfig) {
         });
 
         expect(viewport).toHaveAttribute('data-transitioning', '');
-        expect(viewport).toHaveAttribute('data-activation-direction', 'right down');
+        expect(getActivationDirectionTokens(viewport)).toEqual(['right', 'down']);
         expect(previousContainer).toHaveAttribute('inert');
         expect(previousContainer!.textContent).toBe('Content 0');
         expect(previousContainer!.style.getPropertyValue('--popup-width')).toMatch(
@@ -318,10 +318,10 @@ export function viewportConformanceTests(config: ViewportTestConfig) {
         await activateTrigger(screen.getByTestId('trigger2'), user);
 
         await waitFor(() => {
-          expect(screen.getByTestId('viewport')).toHaveAttribute(
-            'data-activation-direction',
-            'left up',
-          );
+          expect(getActivationDirectionTokens(screen.getByTestId('viewport'))).toEqual([
+            'left',
+            'up',
+          ]);
         });
       });
 
@@ -582,6 +582,14 @@ export function viewportConformanceTests(config: ViewportTestConfig) {
       });
     });
   });
+}
+
+/**
+ * `data-activation-direction` is a space-separated token list matched with `~=` selectors, so
+ * compare its tokens rather than the exact string.
+ */
+function getActivationDirectionTokens(viewport: HTMLElement) {
+  return (viewport.getAttribute('data-activation-direction') ?? '').split(' ').filter(Boolean);
 }
 
 function getMorphAnimationStyles(duration: string) {

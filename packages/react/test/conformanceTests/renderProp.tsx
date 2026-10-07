@@ -51,9 +51,7 @@ export function testRenderProp(
         }),
       );
 
-      if (wrappingAllowed) {
-        expect(screen.queryByTestId('base-ui-wrapper')).not.toBe(null);
-      }
+      expect(screen.queryAllByTestId('base-ui-wrapper')).toHaveLength(wrappingAllowed ? 1 : 0);
       expect(screen.queryByTestId('wrapped')).not.toBe(null);
       expect(screen.queryByTestId('wrapped')).toHaveAttribute('data-test-value', testValue);
     });
@@ -68,9 +66,7 @@ export function testRenderProp(
         }),
       );
 
-      if (wrappingAllowed) {
-        expect(screen.queryByTestId('base-ui-wrapper')).not.toBe(null);
-      }
+      expect(screen.queryAllByTestId('base-ui-wrapper')).toHaveLength(wrappingAllowed ? 1 : 0);
       expect(screen.queryByTestId('wrapped')).not.toBe(null);
       expect(screen.queryByTestId('wrapped')).toHaveAttribute('data-test-value', testValue);
     });

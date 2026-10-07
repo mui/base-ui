@@ -394,6 +394,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
               await waitForPopupClosed();
               // Focus returns to the element that opened the popup.
               await waitFor(() => {
+                // eslint-disable-next-line vitest/no-conditional-expect -- only popups with a Close part can be closed from inside
                 expect(openTrigger2).toHaveFocus();
               });
             } else {
@@ -408,16 +409,25 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
               globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
               try {
+                const onOpenChange = vi.fn();
                 const { user } = await render(
-                  <Fixture mode={mode} handle={getHandle()} withViewport />,
+                  <Fixture
+                    mode={mode}
+                    handle={getHandle()}
+                    rootProps={{ onOpenChange }}
+                    withViewport
+                  />,
                 );
 
-                await openWith(primaryInteraction, user, getTrigger(1));
+                await openWith(switchInteraction, user, getTrigger(1));
                 await waitForContent('1');
 
-                await switchTrigger(primaryInteraction, user, getTrigger(1), getTrigger(2));
+                await switchTrigger(switchInteraction, user, getTrigger(1), getTrigger(2));
                 await waitForContent('2');
 
+                // The trigger changed while the popup stayed open, rather than closing and reopening.
+                expect(onOpenChange).toHaveBeenCalled();
+                expect(onOpenChange.mock.calls.map(([open]) => open)).not.toContain(false);
                 // An inline scale would override CSS transitions on the popup.
                 expect(screen.getByTestId('popup').style.scale).toBe('');
               } finally {

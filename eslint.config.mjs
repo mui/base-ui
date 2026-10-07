@@ -209,7 +209,6 @@ export default defineConfig(
       ],
       'base-ui-test/no-chai-style': 'error',
       'base-ui-test/no-event-init-spies': 'error',
-      'base-ui-test/no-flush-after-render': 'error',
       'base-ui-test/no-standalone-user-event-setup': 'error',
       'base-ui-test/no-tests-in-foreach': 'error',
       'base-ui-test/wait-for-single-expect': 'error',
@@ -226,22 +225,18 @@ export default defineConfig(
     },
   },
   {
-    name: 'Shared test suites',
+    name: 'Base UI React tests',
+    // `#test-utils` exists only in @base-ui/react; @base-ui/utils tests can't depend on it.
     files: [
+      `packages/react/**/*${EXTENSION_TEST_FILE}`,
       'packages/react/test/describeConformance.tsx',
       'packages/react/test/conformanceTests/*.tsx',
       'packages/react/test/*Tests.tsx',
     ],
     rules: {
-      // Shared suites branch on their config (for example, popups that stay mounted).
-      'vitest/no-conditional-expect': 'off',
-    },
-  },
-  {
-    name: 'Base UI React test imports',
-    // `#test-utils` exists only in @base-ui/react; @base-ui/utils tests can't depend on it.
-    files: [`packages/react/**/*${EXTENSION_TEST_FILE}`],
-    rules: {
+      // Assumes the async `#test-utils` renderer: awaiting the synchronous
+      // `@mui/internal-test-utils` renderer (used by @base-ui/utils tests) flushes nothing.
+      'base-ui-test/no-flush-after-render': 'error',
       'no-restricted-imports': [
         'error',
         {

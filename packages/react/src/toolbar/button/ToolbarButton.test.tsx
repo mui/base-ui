@@ -697,8 +697,51 @@ describe('<Toolbar.Button />', () => {
     });
 
     describe('AlertDialog', () => {
-      // AlertDialog.Trigger is Dialog.Trigger, so rendering, interactions and the disabled state are
-      // covered by the Dialog block. This keeps the modal case, where focus moves into a modal popup.
+      // AlertDialog.Trigger is Dialog.Trigger, so rendering and the disabled state are covered by the
+      // Dialog block. That block uses `modal={false}`, so the modal cases live here: opening moves
+      // focus into a modal popup, and closing must return it to the Toolbar.Button trigger.
+      it('handles interactions', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(
+          <Toolbar.Root>
+            <AlertDialog.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button render={<AlertDialog.Trigger />} />
+              <AlertDialog.Portal>
+                <AlertDialog.Backdrop />
+                <AlertDialog.Popup>
+                  <AlertDialog.Title>title text</AlertDialog.Title>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByText('title text')).toBe(null);
+
+        const trigger = screen.getByRole('button');
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+
+        await user.keyboard('[Enter]');
+        expect(screen.queryByText('title text')).not.toBe(null);
+        expect(onOpenChange).toHaveBeenCalledTimes(1);
+        expect(onOpenChange).toHaveBeenNthCalledWith(1, true, expect.anything());
+
+        await waitFor(() => {
+          expect(screen.getByRole('alertdialog')).toHaveFocus();
+        });
+
+        await user.keyboard('[Escape]');
+        expect(screen.queryByText('title text')).toBe(null);
+        expect(onOpenChange).toHaveBeenCalledTimes(2);
+        expect(onOpenChange).toHaveBeenNthCalledWith(2, false, expect.anything());
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      });
+
       it('prevents composite keydowns from escaping', async () => {
         const { user } = await render(
           <Toolbar.Root>

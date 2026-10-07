@@ -4559,10 +4559,10 @@ describe('<Combobox.Root />', () => {
     expect(screen.getByRole('option', { name: 'c' })).not.toBe(null);
   });
 
-  it('does not open the popup on browser autofill with insertReplacementText', async () => {
+  it('does not open or filter the popup on browser autofill with insertReplacementText', async () => {
     const items = ['a', 'b', 'c'];
-    await render(
-      <Combobox.Root name="test" items={items}>
+    const { user } = await render(
+      <Combobox.Root name="test" items={items} defaultValue="b">
         <Combobox.Input />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -4582,12 +4582,23 @@ describe('<Combobox.Root />', () => {
 
     const input = screen.getByRole('combobox');
 
-    // Firefox reports autofill on the visible input as `insertReplacementText`.
-    fireEvent.input(input, { target: { value: 'b' }, inputType: 'insertReplacementText' });
+    // Firefox reports autofill on the visible input as `insertReplacementText`. The
+    // autofilled text matches the selected label, so it must not count as a typed query
+    // that filters the list once the popup opens.
+    fireEvent.input(input, { target: { value: 'B' }, inputType: 'insertReplacementText' });
     await flushMicrotasks();
 
-    expect(input).toHaveValue('b');
+    expect(input).toHaveValue('B');
     expect(screen.queryByRole('listbox')).toBe(null);
+
+    await user.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.toBe(null);
+    });
+    expect(screen.getByRole('option', { name: 'a' })).not.toBe(null);
+    expect(screen.getByRole('option', { name: 'b' })).not.toBe(null);
+    expect(screen.getByRole('option', { name: 'c' })).not.toBe(null);
   });
 
   it('should handle browser autofill with object values', async () => {

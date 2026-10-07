@@ -196,67 +196,64 @@ describe('<AlertDialog.Root />', () => {
   });
 
   describe('handle-backed roots', () => {
-    it.skipIf(isJSDOM)(
-      'keeps pointer dismissal disabled when the root remounts after being unmounted while open',
-      async () => {
-        const testDialog = AlertDialog.createHandle();
+    it('rewires the trigger and keeps pointer dismissal disabled after the root remounts while open', async () => {
+      const testDialog = AlertDialog.createHandle();
 
-        function App() {
-          const [mounted, setMounted] = React.useState(true);
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
 
-          return (
-            <div>
-              <AlertDialog.Trigger handle={testDialog} id="trigger">
-                Trigger
-              </AlertDialog.Trigger>
-              {!mounted && (
-                <button type="button" onClick={() => setMounted(true)}>
-                  Remount root
-                </button>
-              )}
+        return (
+          <div>
+            <AlertDialog.Trigger handle={testDialog} id="trigger">
+              Trigger
+            </AlertDialog.Trigger>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
 
-              {mounted && (
-                <AlertDialog.Root handle={testDialog}>
-                  <AlertDialog.Portal>
-                    <AlertDialog.Popup>
-                      Alert dialog content
-                      <button type="button" onClick={() => setMounted(false)}>
-                        Unmount root
-                      </button>
-                    </AlertDialog.Popup>
-                  </AlertDialog.Portal>
-                </AlertDialog.Root>
-              )}
-            </div>
-          );
-        }
+            {mounted && (
+              <AlertDialog.Root handle={testDialog}>
+                <AlertDialog.Portal>
+                  <AlertDialog.Popup>
+                    Alert dialog content
+                    <button type="button" onClick={() => setMounted(false)}>
+                      Unmount root
+                    </button>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
+            )}
+          </div>
+        );
+      }
 
-        const { user } = await render(<App />);
-        const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
 
-        await user.click(trigger);
+      await user.click(trigger);
 
-        let popup = await screen.findByRole('alertdialog');
-        expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+      let popup = await screen.findByRole('alertdialog');
+      expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
 
-        await user.click(within(popup).getByRole('button', { name: 'Unmount root' }));
-        expect(screen.queryByRole('alertdialog')).toBe(null);
+      await user.click(within(popup).getByRole('button', { name: 'Unmount root' }));
+      expect(screen.queryByRole('alertdialog')).toBe(null);
 
-        await user.click(screen.getByRole('button', { name: 'Remount root' }));
-        expect(screen.queryByRole('alertdialog')).toBe(null);
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      expect(screen.queryByRole('alertdialog')).toBe(null);
 
-        await user.click(trigger);
+      await user.click(trigger);
 
-        popup = await screen.findByRole('alertdialog');
-        expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+      popup = await screen.findByRole('alertdialog');
+      expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
 
-        await user.click(screen.getByRole('presentation', { hidden: true }));
-        await flushMicrotasks();
+      await user.click(screen.getByRole('presentation', { hidden: true }));
+      await flushMicrotasks();
 
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-        expect(testDialog.isOpen).toBe(true);
-      },
-    );
+      expect(screen.queryByRole('alertdialog')).not.toBe(null);
+      expect(testDialog.isOpen).toBe(true);
+    });
 
     it('enforces alert dialog state for handle-backed roots', async () => {
       const handle = AlertDialog.createHandle();

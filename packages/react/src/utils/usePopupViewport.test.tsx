@@ -7,27 +7,29 @@ describe('getActivationDirection', () => {
     expect(getActivationDirection(null)).toBe(undefined);
   });
 
+  // The value is a space-separated token list (matched with `~=` selectors), so compare tokens
+  // rather than the exact string.
   it.each([
-    { offset: { horizontal: 100, vertical: 100 }, expected: 'right down' },
-    { offset: { horizontal: -100, vertical: -100 }, expected: 'left up' },
-    { offset: { horizontal: 100, vertical: -100 }, expected: 'right up' },
-    { offset: { horizontal: -100, vertical: 100 }, expected: 'left down' },
-    // An axis within tolerance keeps its slot as an empty token.
-    { offset: { horizontal: 100, vertical: 0 }, expected: 'right ' },
-    { offset: { horizontal: -100, vertical: 0 }, expected: 'left ' },
-    { offset: { horizontal: 0, vertical: 100 }, expected: ' down' },
-    { offset: { horizontal: 0, vertical: -100 }, expected: ' up' },
-    { offset: { horizontal: 0, vertical: 0 }, expected: ' ' },
+    { offset: { horizontal: 100, vertical: 100 }, expected: ['right', 'down'] },
+    { offset: { horizontal: -100, vertical: -100 }, expected: ['left', 'up'] },
+    { offset: { horizontal: 100, vertical: -100 }, expected: ['right', 'up'] },
+    { offset: { horizontal: -100, vertical: 100 }, expected: ['left', 'down'] },
+    // An axis within tolerance contributes no token.
+    { offset: { horizontal: 100, vertical: 0 }, expected: ['right'] },
+    { offset: { horizontal: -100, vertical: 0 }, expected: ['left'] },
+    { offset: { horizontal: 0, vertical: 100 }, expected: ['down'] },
+    { offset: { horizontal: 0, vertical: -100 }, expected: ['up'] },
+    { offset: { horizontal: 0, vertical: 0 }, expected: [] },
     // The tolerance is 5px and exclusive.
-    { offset: { horizontal: 5, vertical: 5 }, expected: ' ' },
-    { offset: { horizontal: -5, vertical: -5 }, expected: ' ' },
-    { offset: { horizontal: 5.5, vertical: -5.5 }, expected: 'right up' },
-    { offset: { horizontal: 6, vertical: 6 }, expected: 'right down' },
-    { offset: { horizontal: -6, vertical: -6 }, expected: 'left up' },
-  ] satisfies Array<{ offset: Offset; expected: string }>)(
-    'returns $expected for $offset.horizontal, $offset.vertical',
+    { offset: { horizontal: 5, vertical: 5 }, expected: [] },
+    { offset: { horizontal: -5, vertical: -5 }, expected: [] },
+    { offset: { horizontal: 5.5, vertical: -5.5 }, expected: ['right', 'up'] },
+    { offset: { horizontal: 6, vertical: 6 }, expected: ['right', 'down'] },
+    { offset: { horizontal: -6, vertical: -6 }, expected: ['left', 'up'] },
+  ] satisfies Array<{ offset: Offset; expected: string[] }>)(
+    'returns [$expected] for $offset.horizontal, $offset.vertical',
     ({ offset, expected }) => {
-      expect(getActivationDirection(offset)).toBe(expected);
+      expect(getActivationDirection(offset)?.split(' ').filter(Boolean)).toEqual(expected);
     },
   );
 });

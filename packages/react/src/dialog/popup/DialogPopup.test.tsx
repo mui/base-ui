@@ -60,19 +60,41 @@ describe('<Dialog.Popup />', () => {
     });
   });
 
-  popupFocusPropsTests({
-    render,
-    createComponent: ({ children, ...focusProps }) => (
-      <Dialog.Root modal={false}>
-        <Dialog.Trigger>Open</Dialog.Trigger>
-        <Dialog.Portal>
-          <Dialog.Popup {...focusProps}>
-            {children}
-            <Dialog.Close>Close</Dialog.Close>
-          </Dialog.Popup>
-        </Dialog.Portal>
-      </Dialog.Root>
-    ),
+  // A modal dialog traps focus and marks the rest of the page inert, so it resolves the focus props
+  // through a different path than a non-modal one.
+  describe('modal', () => {
+    popupFocusPropsTests({
+      render,
+      createComponent: ({ children, ...focusProps }) => (
+        <Dialog.Root>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Backdrop />
+            <Dialog.Popup {...focusProps}>
+              {children}
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      ),
+    });
+  });
+
+  describe('non-modal', () => {
+    popupFocusPropsTests({
+      render,
+      createComponent: ({ children, ...focusProps }) => (
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup {...focusProps}>
+              {children}
+              <Dialog.Close>Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      ),
+    });
   });
 
   describe('prop: initialFocus', () => {
