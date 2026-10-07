@@ -1,8 +1,8 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { createRenderer, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Fieldset } from '@base-ui/react/fieldset';
-import { describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Fieldset.Legend />', () => {
   const { render, renderToString } = createRenderer();
@@ -14,8 +14,8 @@ describe('<Fieldset.Legend />', () => {
     },
   }));
 
-  it('should set aria-labelledby on the fieldset automatically', () => {
-    render(
+  it('should set aria-labelledby on the fieldset automatically', async () => {
+    await render(
       <Fieldset.Root>
         <Fieldset.Legend data-testid="legend">Legend</Fieldset.Legend>
       </Fieldset.Root>,
@@ -27,8 +27,8 @@ describe('<Fieldset.Legend />', () => {
     );
   });
 
-  it('should set aria-labelledby on the fieldset with custom id', () => {
-    render(
+  it('should set aria-labelledby on the fieldset with custom id', async () => {
+    await render(
       <Fieldset.Root>
         <Fieldset.Legend id="legend-id" />
       </Fieldset.Root>,
@@ -67,7 +67,7 @@ describe('<Fieldset.Legend />', () => {
       );
     }
 
-    render(<App />);
+    await render(<App />);
 
     expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'legend-a');
     fireEvent.click(screen.getByRole('button', { name: 'Change id' }));
@@ -76,11 +76,11 @@ describe('<Fieldset.Legend />', () => {
     expect(screen.getByRole('group')).not.toHaveAttribute('aria-labelledby');
   });
 
-  it('throws a descriptive error when rendered outside <Fieldset.Root>', () => {
+  it('throws a descriptive error when rendered outside <Fieldset.Root>', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     try {
-      expect(() => render(<Fieldset.Legend />)).toThrow(
+      await expect(render(<Fieldset.Legend />)).rejects.toThrow(
         'Base UI: FieldsetRootContext is missing. Fieldset parts must be placed within <Fieldset.Root>.',
       );
     } finally {
