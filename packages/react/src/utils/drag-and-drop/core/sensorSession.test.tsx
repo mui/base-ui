@@ -101,7 +101,6 @@ describe('sensor session startup', () => {
     const kind = Draggable.createKind('offset-error');
     expect(() =>
       createPreviewAndStartSession({
-        element,
         dragSource: createDragSource(element, kind.id, undefined, null),
         initialInput: getInput(new MouseEvent('pointerdown', { clientX: 10, clientY: 10 })),
         initialTarget: element,
@@ -110,7 +109,6 @@ describe('sensor session startup', () => {
         onForceCleanup: vi.fn(),
         isPickupCurrent: () => true,
         draggableParameters: {
-          element,
           kind,
           preview: {
             offset() {
@@ -331,30 +329,6 @@ describe('sensor session startup', () => {
     expect(replacement).not.toHaveBeenCalled();
     expect(nextProp).not.toHaveBeenCalled();
   });
-
-  it.each(['updatePayload', 'updateDragData'] as const)(
-    'does not restore a canceled source when a subscriber reacts to %s',
-    async (method) => {
-      const { engine } = await renderDnd();
-      const element = createElement();
-      const onMoveStart = vi.fn();
-      engine.registerSource(element, { onMoveStart });
-      await lift(element);
-      const source = onMoveStart.mock.calls[0][0].source;
-      const unsubscribe = dragSessionStore.subscribe((session) => {
-        if (session) {
-          engine.cancelDrag();
-        }
-      });
-      try {
-        act(() => source[method]('updated'));
-        expect(dragSessionStore.state).toBeNull();
-        expect(dragSourceStore.state).toBeNull();
-      } finally {
-        unsubscribe();
-      }
-    },
-  );
 
   it.each(['modifier', 'preview'])('honors cancellation in the %s callback', async (callback) => {
     const { engine } = await renderDnd();

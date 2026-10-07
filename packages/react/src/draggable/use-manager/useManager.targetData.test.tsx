@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { act, screen } from '@testing-library/react';
-import { useStore } from '@base-ui/utils/store';
 import { describe, it, expect } from 'vitest';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer } from '../../../test/dndEngine';
-import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { registerTarget } from '../../utils/drag-and-drop/registrations';
 import {
   cancel,
@@ -92,6 +90,11 @@ describe('drop target imperative data', () => {
     await dragEnter(target);
     expect(current!.dragData).toBeUndefined();
     expect(finished.dragData).toBe(42);
+    // The finished record still writes the registration's payload, but not this drag's data.
+    finished.updatePayload('from finished record');
+    finished.updateDragData(7);
+    expect(current!.payload).toBe('from finished record');
+    expect(current!.dragData).toBeUndefined();
     cancel();
   });
 
@@ -168,46 +171,6 @@ describe('drop target imperative data', () => {
     await dragEnter(screen.getByTestId('target'));
     expect(current!.payload).toBe('changed');
     cancel();
-  });
-
-  it('publishes repeated target updates to React session consumers', async () => {
-    function Observer() {
-      const target = useStore(dragSessionStore, (session) => session?.location.current.targets[0]);
-      return <span data-testid="observer">{`${target?.payload}:${target?.dragData}`}</span>;
-    }
-    const { engine } = await renderDnd(<Observer />);
-    const source = createElement();
-    const target = createElement();
-    let current: DraggableTargetRecord<string, number> | undefined;
-    engine.registerSource(source, { kind: sourceKind });
-    engine.registerTarget(target, {
-      accept: sourceKind,
-      kind: targetKind,
-      payload: 'initial',
-      onDraggableEnter: ({ currentTarget: record }) => {
-        current = record;
-      },
-    });
-    await lift(source);
-    await dragEnter(target);
-    act(() => current!.updatePayload('first'));
-    expect(screen.getByTestId('observer')).toHaveTextContent('first:undefined');
-    act(() => current!.updateDragData(1));
-    expect(screen.getByTestId('observer')).toHaveTextContent('first:1');
-    act(() => current!.updatePayload('second'));
-    expect(screen.getByTestId('observer')).toHaveTextContent('second:1');
-    act(() => current!.updateDragData(2));
-    expect(screen.getByTestId('observer')).toHaveTextContent('second:2');
-    const previous = current!;
-    cancel();
-    expect(screen.getByTestId('observer')).toHaveTextContent('undefined:undefined');
-    await lift(source);
-    await dragEnter(target);
-    expect(screen.getByTestId('observer')).toHaveTextContent('second:undefined');
-    act(() => previous.updatePayload('third'));
-    expect(screen.getByTestId('observer')).toHaveTextContent('third:undefined');
-    act(() => previous.updateDragData(3));
-    expect(screen.getByTestId('observer')).toHaveTextContent('third:undefined');
   });
 
   it('keeps separate data for elements registered with the same getter', async () => {

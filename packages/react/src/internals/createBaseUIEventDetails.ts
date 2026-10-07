@@ -44,7 +44,6 @@ interface ReasonToEventMap {
   [REASONS.imperativeAction]: Event;
 
   [REASONS.windowResize]: UIEvent;
-  [REASONS.popupClose]: Event;
 
   [REASONS.doubleClick]: MouseEvent | PointerEvent;
   [REASONS.modifierKey]: KeyboardEvent;

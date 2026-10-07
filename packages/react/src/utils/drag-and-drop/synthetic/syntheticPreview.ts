@@ -417,10 +417,6 @@ export function createSyntheticPreview(
         // committed too, so measuring targets the source's final slot.
         frame.request(() => {
           endingPreview.ensureConnected();
-          if (!element.isConnected) {
-            cleanup();
-            return;
-          }
           // Commit the position the drag left the preview at, so an ending transition
           // animates only what changes from here.
           const style = ownerWindow(element).getComputedStyle(element);

@@ -30,8 +30,7 @@ import {
   getShallowSnapshot,
   safeCallConsumer,
 } from './utils';
-import { resetParticipantPayload, syncParticipantPayload } from './participantData';
-import { dragSessionStore, notifyDragTargetUpdated } from './dragSessionStore';
+import { syncParticipantPayload } from './participantData';
 
 /**
  * Marks every registered drop target so the hit-test walk can find them with one selector.
@@ -47,7 +46,6 @@ type ShadowRootChangeListener = (root: ShadowRoot, registered: boolean) => void;
 
 /** A registration's `dragData`, scoped to one drag and one target kind. */
 interface TargetDragData {
-  source: DraggableRootRecord;
   kind: symbol | undefined;
   value: unknown;
 }
@@ -116,9 +114,9 @@ interface DropTargetState {
   registrationKeys: WeakMap<Element, WeakMap<DropTargetGetter, object>>;
   /**
    * Each registration's `dragData` for the active drag, by registration key,
-   * replaced when its target kind changes. Emptied when the drag ends, because a
-   * mounted target keeps its key alive and a leftover entry would retain the
-   * finished drag's source.
+   * replaced when its target kind changes. Emptied when the drag ends, so the next
+   * drag starts from `undefined`, and a mounted target, which keeps its key alive,
+   * doesn't retain the finished drag's data.
    */
   dragData: WeakMap<object, TargetDragData>;
   recordRegistrations: WeakMap<DraggableTargetRecord, RecordRegistration>;
@@ -308,19 +306,13 @@ function getRegistrationKey(element: Element, getParameters: DropTargetGetter): 
 }
 
 /**
- * Release a registration's payload and `dragData` once `element` no longer holds
- * `getParameters`, so registering the pair again starts from the declared payload.
+ * Drop a registration's key once `element` no longer holds `getParameters`. Its
+ * payload and `dragData` are stored under the key, so registering the pair again
+ * starts from the declared payload.
  */
 function releaseRegistrationKey(element: Element, getParameters: DropTargetGetter): void {
-  if (state.registry.get(element)?.includes(getParameters)) {
-    return;
-  }
-  const keys = state.registrationKeys.get(element);
-  const key = keys?.get(getParameters);
-  if (key !== undefined) {
-    keys!.delete(getParameters);
-    resetParticipantPayload(key);
-    state.dragData.delete(key);
+  if (!state.registry.get(element)?.includes(getParameters)) {
+    state.registrationKeys.get(element)?.delete(getParameters);
   }
 }
 
@@ -405,13 +397,13 @@ function getTargetDragData(
   kind: symbol | undefined,
 ): TargetDragData {
   // Resolution can resume after its drag ended, when a consumer cancels mid-walk.
-  // Don't cache the finished drag's source.
+  // Don't cache that data, or the next drag would start from it.
   if (source !== state.sessionSource) {
-    return { source, kind, value: undefined };
+    return { kind, value: undefined };
   }
   let data = state.dragData.get(registrationKey);
-  if (data === undefined || data.source !== source || data.kind !== kind) {
-    data = { source, kind, value: undefined };
+  if (data === undefined || data.kind !== kind) {
+    data = { kind, value: undefined };
     state.dragData.set(registrationKey, data);
   }
   return data;
@@ -427,15 +419,7 @@ export function syncDropTargetPayload(
   if (!element) {
     return;
   }
-  const { changed } = syncParticipantPayload(
-    getRegistrationKey(element, getParameters),
-    kind,
-    payload,
-  );
-  const source = dragSessionStore.state?.source;
-  if (source && changed) {
-    notifyDragTargetUpdated(source, element);
-  }
+  syncParticipantPayload(getRegistrationKey(element, getParameters), kind, payload);
 }
 
 /** Internal registration hook that captures geometry before consumers can mutate the layout. */
@@ -509,11 +493,7 @@ function resolveDropTargetOutcome(
 
   const kind = registration.kind?.id;
   const registrationKey = getRegistrationKey(element, getRegistration);
-  const { data: payloadState } = syncParticipantPayload(
-    registrationKey,
-    kind,
-    registration.payload,
-  );
+  const payloadState = syncParticipantPayload(registrationKey, kind, registration.payload);
   const data = getTargetDragData(registrationKey, source, kind);
   const record: DraggableTargetRecord = {
     element,
@@ -522,22 +502,13 @@ function resolveDropTargetOutcome(
       return payloadState.payload;
     },
     updatePayload(nextPayload) {
-      if (payloadState.update(nextPayload)) {
-        const activeSource = dragSessionStore.state?.source;
-        notifyDragTargetUpdated(
-          activeSource && holds.getActive(element) === getRegistration ? activeSource : source,
-          element,
-        );
-      }
+      payloadState.update(nextPayload);
     },
     get dragData() {
       return data.value;
     },
     updateDragData(nextDragData) {
-      if (!Object.is(data.value, nextDragData)) {
-        data.value = nextDragData;
-        notifyDragTargetUpdated(source, element);
-      }
+      data.value = nextDragData;
     },
     ...pointReaders,
   };

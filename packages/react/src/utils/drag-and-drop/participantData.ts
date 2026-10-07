@@ -17,23 +17,24 @@ export function setParticipantOwner(registration: object, owner: object): void {
 }
 
 /**
- * Returns the payload store of a registration, synced with `declaredPayload`, and
- * whether the sync changed it. The store is created when missing or when `kind`
- * changed. It belongs to the registration and outlives any one drag.
+ * Returns the payload store of a registration, synced with `declaredPayload`. The
+ * store is created when missing or when `kind` changed. It belongs to the
+ * registration and outlives any one drag.
  */
 export function syncParticipantPayload(
   registration: object,
   kind: symbol | undefined,
   declaredPayload: unknown,
-): { data: ParticipantPayload; changed: boolean } {
+): ParticipantPayload {
   const owner = state.owners.get(registration) ?? registration;
   const existing = state.payloads.get(owner);
   if (existing && existing.kind === kind) {
-    return { data: existing.data, changed: existing.data.sync(declaredPayload) };
+    existing.data.sync(declaredPayload);
+    return existing.data;
   }
   const data = createParticipantPayload(declaredPayload);
   state.payloads.set(owner, { kind, data });
-  return { data, changed: false };
+  return data;
 }
 
 function createParticipantPayload(initialPayload: unknown): ParticipantPayload {
@@ -56,9 +57,4 @@ function createParticipantPayload(initialPayload: unknown): ParticipantPayload {
     },
   };
   return data;
-}
-
-/** Release an imperative registration's data when it unregisters. */
-export function resetParticipantPayload(registration: object): void {
-  state.payloads.delete(registration);
 }

@@ -18,7 +18,6 @@ describe('FakeBrowserExperiment', () => {
   const { render } = createRenderer();
 
   beforeEach(() => {
-    vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', true);
     vi.stubGlobal(
       'ResizeObserver',
       class ResizeObserver {
@@ -32,9 +31,7 @@ describe('FakeBrowserExperiment', () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
     vi.unstubAllGlobals();
-    Reflect.deleteProperty(HTMLElement.prototype, 'getAnimations');
   });
 
   function renderExperiment() {

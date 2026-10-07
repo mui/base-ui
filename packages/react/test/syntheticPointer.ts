@@ -6,11 +6,8 @@
  * engine's pending and active phase listeners are. `setupDragEngineTests()`
  * clears the remembered target between tests.
  *
- * `touchUp` and `touchCancel` also dispatch the `touchend`/`touchcancel` a real
- * browser fires alongside the pointer event. The other helpers dispatch only
- * pointer events. The engine's only touch listener is the active-phase `touchmove`
- * scroll guard, which tests dispatch themselves, and pen drags ignore the touch
- * events iPadOS generates.
+ * The helpers dispatch only pointer events. The engine's only touch listener is the
+ * active-phase `touchmove` scroll guard, which tests dispatch themselves.
  *
  * Every dispatch is wrapped in `act` because tests mount a `Draggable.Provider`
  * that subscribes to the drag session store. A raw dispatch that starts or ends a
@@ -152,68 +149,6 @@ export function touchMove(
   pointerMove('touch', x, y, pointerId, options);
 }
 
-function makeTouch(x: number, y: number, identifier = 1): Touch {
-  const base: Record<string, unknown> = {
-    identifier,
-    target: window,
-    clientX: x,
-    clientY: y,
-    pageX: x,
-    pageY: y,
-    screenX: x,
-    screenY: y,
-    radiusX: 1,
-    radiusY: 1,
-    rotationAngle: 0,
-    force: 1,
-  };
-  if (typeof Touch === 'function') {
-    try {
-      return new Touch(base as unknown as TouchInit);
-    } catch {
-      // WebKit exposes `Touch` as a function but does not make its constructor
-      // available to page script. Fall through to the same structural value
-      // used by jsdom.
-    }
-  }
-  // In jsdom and WebKit, return a plain object that duck-types as Touch.
-  return base as unknown as Touch;
-}
-
-export function dispatchTouchEvent(type: string, x: number, y: number): void {
-  const touch = makeTouch(x, y);
-  const init: TouchEventInit = {
-    touches: type === 'touchend' || type === 'touchcancel' ? [] : [touch],
-    targetTouches: type === 'touchend' || type === 'touchcancel' ? [] : [touch],
-    changedTouches: [touch],
-    bubbles: true,
-    cancelable: true,
-  };
-  let ev: Event | undefined;
-  if (typeof TouchEvent === 'function') {
-    try {
-      ev = new TouchEvent(type, init);
-    } catch {
-      // WebKit also rejects a structural Touch in the TouchEvent constructor.
-      // Fall through to an Event carrying the same observable touch lists.
-    }
-  }
-  if (!ev) {
-    // In jsdom and WebKit, build a bare Event with the touch lists attached.
-    const plain = new Event(type, { bubbles: true, cancelable: true });
-    Object.defineProperties(plain, {
-      touches: { value: init.touches },
-      targetTouches: { value: init.targetTouches },
-      changedTouches: { value: init.changedTouches },
-    });
-    ev = plain;
-  }
-  dispatch(getTouchDownTarget(), ev);
-}
-
-// Browsers fire both `pointerup` and `touchend` when a finger lifts. The engine
-// ends gestures from pointer events only and has no `touchend` listener, so this
-// `touchend` only reproduces the real event order.
 export function touchUp(
   x: number,
   y: number,
@@ -221,12 +156,10 @@ export function touchUp(
   options?: SyntheticPointerOptions,
 ): void {
   pointerUp('touch', x, y, pointerId, options);
-  dispatchTouchEvent('touchend', x, y);
 }
 
 export function touchCancel(pointerId = 1, options?: SyntheticPointerOptions): void {
   pointerCancel('touch', pointerId, options);
-  dispatchTouchEvent('touchcancel', 0, 0);
 }
 
 export function penDown(

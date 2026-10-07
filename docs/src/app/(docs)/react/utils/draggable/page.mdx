@@ -1378,7 +1378,7 @@ The manager and its methods are stable, so you can list them as effect dependenc
 
 ### registerSource
 
-Registers a drag source. `kind` is required here. It accepts the options of [`<Draggable.Root>`](#root) except `collision`, `collisionElement`, `collisionPayload`, and `snap`. It also takes `handle` to restrict pickup to an element, and `preview` to configure the preview:
+Registers a drag source. `kind` is required here. It accepts the options of [`<Draggable.Root>`](#root) except `collision`, `collisionElement`, and `snap`. It also takes `handle` to restrict pickup to an element, and `preview` to configure the preview:
 
 ```tsx title="Registering a source"
 manager.registerSource(element, () => ({

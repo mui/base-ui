@@ -12,14 +12,12 @@ import type { DragPreviewElementHandle } from './cloneDragPreview';
 function createPreviewElement(
   width = 0,
   height = 0,
-  isClone = false,
 ): DragPreviewElementHandle & { destroyed: boolean } {
   const element = document.createElement('div');
   element.getBoundingClientRect = () => new DOMRect(0, 0, width, height);
   const sourceRect = new DOMRect(0, 0, width, height);
   return {
     element,
-    isClone,
     anchor: { sourceRect, sourceScale: { x: 1, y: 1 }, hosts: [], inContainer: false, slot: null },
     destroyed: false,
     setPosition(x, y) {
@@ -172,7 +170,7 @@ describe('syntheticPreview', () => {
       const source = createSource();
       source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
       const handle = createHandle(source);
-      const preview = createPreviewElement(120, 30, true);
+      const preview = createPreviewElement(120, 30);
       // The authored ending transition that animates the move to the source.
       preview.element.style.transitionProperty = 'translate';
       preview.element.style.transitionDuration = '200ms';
@@ -219,7 +217,7 @@ describe('syntheticPreview', () => {
       const source = createSource();
       source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
       const handle = createHandle(source);
-      const preview = createPreviewElement(120, 30, true);
+      const preview = createPreviewElement(120, 30);
       preview.element.style.transitionProperty = 'opacity, translate';
       preview.element.style.transitionDuration = '200ms, 0s';
       document.body.appendChild(preview.element);
@@ -252,7 +250,7 @@ describe('syntheticPreview', () => {
       const frames = queueAnimationFrames();
       const source = createSource();
       const handle = createHandle(source);
-      const preview = createPreviewElement(120, 30, true);
+      const preview = createPreviewElement(120, 30);
       preview.element.style.transitionProperty = 'translate';
       preview.element.style.transitionDuration = '200ms';
       document.body.appendChild(preview.element);
@@ -275,7 +273,7 @@ describe('syntheticPreview', () => {
     it('marks the ending preview when the release dropped on a target', () => {
       const frames = queueAnimationFrames();
       const outside = createHandle(createSource());
-      const returning = createPreviewElement(120, 30, true);
+      const returning = createPreviewElement(120, 30);
       document.body.appendChild(returning.element);
       outside.setPreviewElement(returning);
       outside.prepareForDrop();
@@ -285,7 +283,7 @@ describe('syntheticPreview', () => {
       expect(returning.element).not.toHaveAttribute('data-dropped');
 
       const onTarget = createHandle(createSource());
-      const dropped = createPreviewElement(120, 30, true);
+      const dropped = createPreviewElement(120, 30);
       document.body.appendChild(dropped.element);
       onTarget.setPreviewElement(dropped);
       onTarget.prepareForDrop();
@@ -304,7 +302,7 @@ describe('syntheticPreview', () => {
       const frames = queueAnimationFrames();
       const source = createSource();
       const handle = createHandle(source);
-      const preview = createPreviewElement(120, 30, true);
+      const preview = createPreviewElement(120, 30);
       document.body.appendChild(preview.element);
       preview.element.getAnimations = () =>
         [
@@ -329,7 +327,7 @@ describe('syntheticPreview', () => {
       const source = createSource();
       source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
       const handle = createHandle(source);
-      const preview = createPreviewElement(120, 30, true);
+      const preview = createPreviewElement(120, 30);
       document.body.appendChild(preview.element);
       preview.element.getAnimations = () =>
         [
@@ -369,7 +367,7 @@ describe('syntheticPreview', () => {
       const source = createSource();
       const handle = createSyntheticPreview(source, identity, null);
       activeHandles.push(handle);
-      const preview = createPreviewElement(120, 30, true);
+      const preview = createPreviewElement(120, 30);
       preview.element.style.transitionProperty = 'translate';
       preview.element.style.transitionDuration = '200ms';
       document.body.appendChild(preview.element);
@@ -426,7 +424,7 @@ describe('syntheticPreview', () => {
         null,
       );
       activeHandles.push(handle);
-      const preview = createPreviewElement(120, 30, true);
+      const preview = createPreviewElement(120, 30);
       document.body.appendChild(preview.element);
       preview.element.getAnimations = () => [];
 
@@ -449,11 +447,11 @@ describe('syntheticPreview', () => {
       expect(preview.destroyed).toBe(true);
     });
 
-    it('settles a copy of custom content like a clone', () => {
+    it('finishes settling on the first frame when animations are disabled', () => {
       const frames = queueAnimationFrames();
       const source = createSource();
       const handle = createHandle(source);
-      const preview = createPreviewElement(100, 25, false);
+      const preview = createPreviewElement(100, 25);
       document.body.appendChild(preview.element);
       handle.setPreviewElement(preview);
       handle.prepareForDrop();

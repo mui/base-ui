@@ -97,7 +97,6 @@ export function createRegisterSource(
       lastCSPContext = cspContext;
       normalized = {
         ...params,
-        element,
         styleNonce: cspContext.nonce,
         disableStyleElements: cspContext.disableStyleElements,
         onGenerateDragPreview: publishPreview,

@@ -60,7 +60,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     collision = true,
     collisionElement,
     snap,
-    collisionPayload = payload,
     disabled,
     activation,
     dragCursor,
@@ -123,7 +122,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     collisionContext
       ? {
           context: collisionContext,
-          payload: collisionPayload,
+          payload,
           enabled: collision,
           element: collisionElement,
           snap,
@@ -214,11 +213,6 @@ type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
           context: DraggableTargetResolutionContext<NoInfer<TPayload>, NoInfer<TDragData>>,
         ) => DraggableTargetSnapSteps | undefined)
       | undefined;
-    /**
-     * The payload reported by the collision provider when another item is dragged over this one.
-     * Defaults to `payload`.
-     */
-    collisionPayload?: DraggablePayload<TPayload> | undefined;
     /**
      * Returns the element measured for collisions, for example a padded row wrapper
      * so that the gaps between items count too. Defaults to the root's own element.

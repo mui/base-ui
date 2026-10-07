@@ -6,13 +6,12 @@ import type { DraggableKind, DraggableAccept } from '../../draggable/DraggablePr
 import type { AcceptedDragPayload, AcceptedDragData, DraggablePayload } from './types';
 
 /**
- * Parameters accepted by `Draggable.Root` and `registerSource`, except the element.
- * `onGenerateDragPreview` is omitted because the engine overwrites it to publish the
- * preview it built.
+ * Parameters accepted by `Draggable.Root` and `registerSource`. `onGenerateDragPreview`
+ * is omitted because the engine overwrites it to publish the preview it built.
  */
 export type RegisterSourceParameters<TPayload = undefined, TDragData = unknown> = Omit<
   DraggableConfig<TPayload, TDragData>,
-  'element' | 'onGenerateDragPreview' | 'styleNonce' | 'disableStyleElements'
+  'onGenerateDragPreview' | 'styleNonce' | 'disableStyleElements'
 >;
 
 /** Public drop-target parameters, whose `accept` declaration is required. */

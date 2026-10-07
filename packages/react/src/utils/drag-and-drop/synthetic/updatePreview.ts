@@ -64,7 +64,7 @@ export function updatePreview(): void {
  */
 function refreshClone(handle: SyntheticPreviewHandle, source: HTMLElement): void {
   const current = handle.getPreviewElement();
-  if (!current?.isClone || !source.isConnected) {
+  if (!current || !source.isConnected) {
     return;
   }
   const dragState = [DraggableRootDataAttributes.dragging, DraggableRootDataAttributes.settling]

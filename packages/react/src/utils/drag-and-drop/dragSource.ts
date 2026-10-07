@@ -26,7 +26,7 @@ export function createDragSource(
   dragHandle: Element | null,
 ): DraggableRootRecord {
   const registration = getRegistration(element);
-  const { data } = syncParticipantPayload(registration ?? {}, kind, initialPayload);
+  const data = syncParticipantPayload(registration ?? {}, kind, initialPayload);
   let dragData: unknown;
 
   const source: DraggableRootRecord = {

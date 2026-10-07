@@ -7,11 +7,15 @@
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { ReasonToEvent } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { BaseUIEventReason } from '../../internals/reasons';
 import type { DraggableLocationHistory } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
-import type { DragEndReason, DragEventDetails, MoveEndEventDetails } from './types';
+import type {
+  DragEndReason,
+  DragEventDetails,
+  DropTargetChangeReason,
+  MoveEndEventDetails,
+} from './types';
 
 /**
  * Creates the details the source and the monitors receive, where `target` is the
@@ -22,7 +26,7 @@ import type { DragEndReason, DragEventDetails, MoveEndEventDetails } from './typ
  * programmatic `cancelDrag()`, the details get Base UI's placeholder event, so
  * `eventDetails.event` is never `undefined`.
  */
-export function createDragEventDetails<TReason extends BaseUIEventReason>(
+export function createDragEventDetails<TReason extends DropTargetChangeReason>(
   reason: TReason,
   event: Event | undefined,
   location: DraggableLocationHistory,

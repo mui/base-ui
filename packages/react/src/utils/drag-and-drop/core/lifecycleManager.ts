@@ -63,12 +63,10 @@ interface LifecycleSession {
   /** See {@link getActiveDragLocation}. */
   getLocation: () => DraggableLocationHistory;
   /**
-   * Whether `cancel` may run. Set before the start dispatches and cleared when
-   * the end sequence begins (see `disarmSessionHooks`).
+   * Whether `cancel` and `refresh` may run. Set before the start dispatches and
+   * cleared when the end sequence begins (see `disarmSessionHooks`).
    */
-  cancelArmed: boolean;
-  /** Whether `refresh` may run. Set once the monitors are active and cleared with `cancelArmed`. */
-  refreshArmed: boolean;
+  armed: boolean;
 }
 
 interface LifecycleState {
@@ -109,7 +107,7 @@ export function getActiveDragLocation(): DraggableLocationHistory | null {
  */
 export function refreshDropTargets(): void {
   const session = state.session;
-  if (session?.refreshArmed) {
+  if (session?.armed) {
     session.refresh(false);
   }
 }
@@ -120,7 +118,7 @@ export function scheduleDropTargetParameterRefresh(
   rehitTest = false,
 ): void {
   const session = state.session;
-  if (session?.refreshArmed) {
+  if (session?.armed) {
     session.scheduleRefresh(element ?? null, rehitTest);
   }
 }
@@ -148,7 +146,7 @@ export function isHoveredDropTarget(element: Element): boolean {
  */
 export function cancelLifecycleDrag(): void {
   const session = state.session;
-  if (session?.cancelArmed) {
+  if (session?.armed) {
     session.cancel();
   }
 }
@@ -356,18 +354,13 @@ export function start(parameters: StartParameters): DragSessionController | null
       queueMicrotask(() => {
         queuedRefresh = null;
         // The drag may have ended before this job runs.
-        if (
-          !tornDown &&
-          session.refreshArmed &&
-          (job.targets === null || walksThrough(job.targets))
-        ) {
+        if (!tornDown && session.armed && (job.targets === null || walksThrough(job.targets))) {
           session.refresh(job.rehitTest);
         }
       });
     },
     isHovered: (element) => hoveredDropTargets.some((record) => record.element === element),
-    cancelArmed: false,
-    refreshArmed: false,
+    armed: false,
   };
 
   /**
@@ -375,8 +368,7 @@ export function start(parameters: StartParameters): DragSessionController | null
    * sequence starts, only it updates the stack.
    */
   function disarmSessionHooks(): void {
-    session.cancelArmed = false;
-    session.refreshArmed = false;
+    session.armed = false;
   }
 
   /**
@@ -590,7 +582,7 @@ export function start(parameters: StartParameters): DragSessionController | null
   }
 
   // Re-resolve the stack after a registration or parameter change (see
-  // `session.refresh`, and `refreshArmed` below for when it can run).
+  // `session.refresh`, and `armed` below for when it can run).
   //
   // A registration change (`rehitTest`) hit-tests again at the pointer position
   // instead of walking up from `lastTarget`, because a target that mounts over a
@@ -999,7 +991,12 @@ export function start(parameters: StartParameters): DragSessionController | null
   // resolution. The sensors record their session only after `start()` returns,
   // so a `cancelDrag()` from a resolver, `onGenerateDragPreview` or `onMoveStart`
   // can reach the session only through this hook (see `cancelLifecycleDrag`).
-  session.cancelArmed = true;
+  // A consumer that unregisters an initial drop target during these dispatches
+  // gets its refresh queued instead of lost. The refresh waits for `onMoveStart`
+  // (see `startDispatched`), so the target is still published and entered with
+  // the rest of the initial stack, and then leaves it, with its
+  // `onDraggableLeave`, right after that dispatch.
+  session.armed = true;
   state.session = session;
 
   // Consumer code may throw here. `activateMonitors` runs the monitor getters,
@@ -1010,14 +1007,6 @@ export function start(parameters: StartParameters): DragSessionController | null
   // before rethrowing.
   try {
     activateMonitors(source);
-
-    // Armed before the initial resolution and the synchronous
-    // `onGenerateDragPreview` dispatch, so a consumer that unregisters an initial
-    // drop target during either gets its refresh queued instead of lost. The
-    // refresh waits for `onMoveStart` (see `startDispatched`), so the target is
-    // still published and entered with the rest of the initial stack, and then
-    // leaves it, with its `onDraggableLeave`, right after that dispatch.
-    session.refreshArmed = true;
 
     // Resolve the stack under the pickup point now that the cancel is armed and
     // the monitors are active. A `cancelDrag()` from a resolver then behaves

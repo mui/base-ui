@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 
 import * as React from 'react';
-import { Draggable } from '@base-ui/react/draggable';
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
@@ -200,15 +199,8 @@ describe('draggable demos', () => {
   });
 
   describe('closing tabs', () => {
-    function Demo() {
-      return (
-        <Draggable.Provider>
-          <ControlledAddCloseExample />
-        </Draggable.Provider>
-      );
-    }
     it('focuses the next tab after deleting the focused middle tab', async () => {
-      const { user } = await renderDnd(<Demo />);
+      const { user } = await renderDnd(<ControlledAddCloseExample />);
       await user.click(screen.getByRole('tab', { name: 'Activity' }));
       await user.keyboard('{Delete}');
       await waitFor(() => expect(screen.getByRole('tab', { name: 'Reports' })).toHaveFocus());
@@ -217,7 +209,7 @@ describe('draggable demos', () => {
     });
 
     it('focuses the previous tab at the end and Add tab after the last removal', async () => {
-      const { user } = await renderDnd(<Demo />);
+      const { user } = await renderDnd(<ControlledAddCloseExample />);
       await user.click(screen.getByRole('tab', { name: 'Notes' }));
       await user.keyboard('{Delete}');
       await waitFor(() => expect(screen.getByRole('tab', { name: 'Reports' })).toHaveFocus());
@@ -491,10 +483,6 @@ describe('draggable demos', () => {
   ] as const)('scrolling with %s', (_name, Demo) => {
     it('settles the preview on the inserted card instead of the next tray card', async () => {
       vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
-      const originalScrollIntoView = Object.getOwnPropertyDescriptor(
-        HTMLElement.prototype,
-        'scrollIntoView',
-      );
       Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
         configurable: true,
         value: vi.fn(),
@@ -516,11 +504,7 @@ describe('draggable demos', () => {
         expect(screen.getByText('Cancel the trial')).not.toHaveAttribute('data-settling');
         await flushRaf();
       } finally {
-        if (originalScrollIntoView) {
-          Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', originalScrollIntoView);
-        } else {
-          Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
-        }
+        Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
       }
     });
   });

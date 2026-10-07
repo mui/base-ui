@@ -914,34 +914,6 @@ describe('Draggable.CollisionProvider', () => {
     expect(changed.mock.lastCall?.[0].target).toBeNull();
   });
 
-  it('does not call a pickup handler to read destination identity', async () => {
-    const pickup = vi.fn(() => 'b');
-    const ended = vi.fn();
-    await renderDnd(
-      <Draggable.CollisionProvider kind={kind} onMoveEnd={ended}>
-        <Draggable.Root kind={kind} payload="a" data-testid="a">
-          <Draggable.Preview disabled />
-        </Draggable.Root>
-        <Draggable.Root
-          kind={kind}
-          payload="b"
-          onMoveStart={pickup}
-          collisionPayload="b"
-          data-testid="b"
-        >
-          <Draggable.Preview disabled />
-        </Draggable.Root>
-      </Draggable.CollisionProvider>,
-    );
-    const b = screen.getByTestId('b');
-    b.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
-    await lift(screen.getByTestId('a'));
-    await dragOver(b, { clientY: 180 });
-    drop(b, { clientY: 180 });
-    expect(ended.mock.lastCall?.[0].target.payload).toBe('b');
-    expect(pickup).not.toHaveBeenCalled();
-  });
-
   it('finds a matching group through nested providers of another kind', async () => {
     const otherKind = Draggable.createKind<string>('other-collision-kind');
     const outer = vi.fn();

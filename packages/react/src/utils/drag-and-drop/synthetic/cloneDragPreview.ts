@@ -138,8 +138,6 @@ function ensureNeutralizerStyles(host: PreviewHost): void {
 export interface DragPreviewElementHandle {
   /** The preview element, which follows the pointer in the top layer. */
   readonly element: HTMLElement;
-  /** `true` for a clone of the source, `false` for a copy of custom preview content. */
-  readonly isClone: boolean;
   /** Where the preview was built, reused when it is rebuilt mid-drag. */
   readonly anchor: PreviewAnchor;
   /** Move the preview's top-left corner to these viewport coordinates. */
@@ -522,17 +520,6 @@ function remapInlineStyleUrls(node: Element, remap: (value: string) => string): 
       if (next !== value) {
         style.setProperty(name, next, style.getPropertyPriority(name));
       }
-    }
-  }
-  // A DOM without CSSOM support for a property (jsdom lacks most SVG ones) keeps it
-  // out of `style`, leaving the reference in the attribute. Real browsers
-  // re-serialize the attribute from the declarations above, so this never runs
-  // there.
-  const attribute = node.getAttribute('style');
-  if (attribute !== null) {
-    const next = remap(attribute);
-    if (next !== attribute) {
-      node.setAttribute('style', next);
     }
   }
 }
@@ -1575,7 +1562,6 @@ export function createDragPreviewElement(
 
   return {
     element,
-    isClone,
     anchor,
     setPosition(x, y) {
       position = { x, y };

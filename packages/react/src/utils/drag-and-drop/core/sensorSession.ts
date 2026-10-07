@@ -31,7 +31,6 @@ export interface CreatePreviewSessionParameters {
   draggableParameters: DraggableConfig<any, any>;
   /** The source prepared for `onBeforeMoveStart`, carried unchanged into the session. */
   dragSource: DraggableRootRecord;
-  element: HTMLElement;
   initialInput: DraggableInput;
   initialTarget: Element | null;
   /**
@@ -89,7 +88,6 @@ export function createPreviewAndStartSession(
   const {
     draggableParameters,
     dragSource,
-    element,
     initialInput,
     initialTarget,
     initialEvent,
@@ -98,6 +96,7 @@ export function createPreviewAndStartSession(
     onForceCleanup,
     isPickupCurrent,
   } = parameters;
+  const element = dragSource.element;
 
   let preview: SyntheticPreviewHandle | null = null;
   let locked = false;

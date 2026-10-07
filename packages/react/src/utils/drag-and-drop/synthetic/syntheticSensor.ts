@@ -972,7 +972,6 @@ function commitActivation(): void {
     const result = createPreviewAndStartSession({
       draggableParameters: parameters,
       dragSource,
-      element,
       initialInput: startInput,
       // The `pointermove` that crossed the activation threshold.
       initialEvent: pending.lastNativeEvent,

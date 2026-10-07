@@ -144,7 +144,6 @@ export function registerDraggableElement(
 }
 
 export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
-  element: HTMLElement;
   /** CSP nonce for the drag cursor stylesheet, set by the React layer. @internal */
   styleNonce?: string | undefined;
   /** Whether the React layer has disabled runtime style elements. @internal */

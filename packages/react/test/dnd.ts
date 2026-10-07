@@ -22,11 +22,9 @@ import type { DragDropEventDetails, MoveEndEventDetails } from '../src/utils/dra
 // Fake elements
 // ---------------------------------------------------------------------------
 
-const createdElements: HTMLElement[] = [];
-
 /**
  * Create a `<div>` appended to `document.body` with a controlled bounding rect.
- * `cleanupElements()` removes it after the test.
+ * The cleanup queue removes it after the test.
  */
 export function createElement(
   rect: { top?: number; height?: number; left?: number; width?: number } = {},
@@ -35,15 +33,8 @@ export function createElement(
   const { top = 0, height = 100, left = 0, width = 200 } = rect;
   el.getBoundingClientRect = () => new DOMRect(left, top, width, height);
   document.body.appendChild(el);
-  createdElements.push(el);
+  registerCleanup(() => el.remove());
   return el;
-}
-
-function cleanupElements(): void {
-  for (const el of createdElements) {
-    el.remove();
-  }
-  createdElements.length = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -64,9 +55,9 @@ export function registerCleanup<T extends () => void>(fn: T): T {
 /**
  * Install the standard `afterEach` for drag engine tests:
  *
- * 1. Drain the cleanup queue (LIFO), which also restores `elementFromPoint` mocks.
- * 2. Remove every element created via `createElement()`.
- * 3. Force-end any in-flight drag and reset the engine state machine.
+ * 1. Drain the cleanup queue (LIFO), which also restores `elementFromPoint` mocks
+ *    and removes every element created via `createElement()`.
+ * 2. Force-end any in-flight drag and reset the engine state machine.
  *
  * Every step runs even when an earlier one throws, because global engine state
  * must be reset before the next test. The first failure is rethrown afterwards,
@@ -74,7 +65,7 @@ export function registerCleanup<T extends () => void>(fn: T): T {
  */
 export function setupDragEngineTests(): void {
   afterEach(() => {
-    runAllCleanups([...cleanupQueue.splice(0).reverse(), cleanupElements, resetDrag]);
+    runAllCleanups([...cleanupQueue.splice(0).reverse(), resetDrag]);
   });
 }
 
@@ -96,14 +87,7 @@ export function setupDragEngineTests(): void {
 // (`describe.skipIf(isJSDOM)`) driven by raw pointer events. The synthetic
 // sensor's "documented pointer-drag recipe" tests show how.
 
-interface DragEventInput {
-  clientX?: number | undefined;
-  clientY?: number | undefined;
-  altKey?: boolean | undefined;
-  ctrlKey?: boolean | undefined;
-  shiftKey?: boolean | undefined;
-  metaKey?: boolean | undefined;
-}
+type DragEventInput = Pick<PointerEventInit, 'clientX' | 'clientY' | 'shiftKey'>;
 
 const DRAG_POINTER_ID = 1;
 const PRESSED = { button: 0, buttons: 1 };
@@ -146,14 +130,8 @@ function dispatchPointer(
     new PointerEvent(type, {
       pointerType: 'mouse',
       pointerId: DRAG_POINTER_ID,
-      clientX: input.clientX ?? 0,
-      clientY: input.clientY ?? 0,
-      button: button.button,
-      buttons: button.buttons,
-      altKey: input.altKey ?? false,
-      ctrlKey: input.ctrlKey ?? false,
-      shiftKey: input.shiftKey ?? false,
-      metaKey: input.metaKey ?? false,
+      ...input,
+      ...button,
       bubbles: true,
       cancelable: true,
     }),

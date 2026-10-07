@@ -17,7 +17,6 @@ import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoo
 import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
 import { restrictToVerticalAxis } from '../dragModifiers';
 import {
-  dispatchTouchEvent,
   getTouchDownTarget,
   penDown,
   penMove,
@@ -2371,7 +2370,7 @@ describe('syntheticDrag sensor', () => {
     // A second finger lifting inside the dragged element dispatches a `touchend`
     // for that finger. The drag follows the pointer stream (filtered by
     // `pointerId`), so a stray touch event must not end it at the wrong spot.
-    dispatchTouchEvent('touchend', 80, 80);
+    dispatch(getTouchDownTarget(), new Event('touchend', { bubbles: true, cancelable: true }));
     expect(onMoveEnd).not.toHaveBeenCalled();
 
     // The dragging finger's pointerup still ends the drag.

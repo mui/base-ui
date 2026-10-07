@@ -5,7 +5,6 @@ import type {
   DraggableLocationHistory,
 } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
-import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
 import { getSharedSlot } from './sharedState';
 
 /**
@@ -31,8 +30,6 @@ interface DragSessionSlot {
   sourceVersion: number;
   targetListeners: Map<Element, Set<() => void>>;
   allTargetListeners: Set<() => void>;
-  /** The live record each published target snapshot was copied from. */
-  targetSnapshotOrigins: WeakMap<DraggableTargetRecord, DraggableTargetRecord>;
 }
 
 const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
@@ -42,7 +39,6 @@ const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
   sourceVersion: 0,
   targetListeners: new Map<Element, Set<() => void>>(),
   allTargetListeners: new Set<() => void>(),
-  targetSnapshotOrigins: new WeakMap<DraggableTargetRecord, DraggableTargetRecord>(),
 }));
 
 /**
@@ -53,48 +49,14 @@ export const dragSessionStore: ReadonlyStore<DragSessionState | null> = slot.sto
 
 export const dragSourceStore: ReadonlyStore<DraggableRootRecord | null> = slot.sourceStore;
 
-/** Publish an imperative data update to subscribers of the active source. */
+/**
+ * Publish an imperative data update of the active source to `dragSourceStore`.
+ * Records read their payload and drag data live, so the session isn't republished.
+ */
 export function notifyDragSourceUpdated(source: DraggableRootRecord): void {
-  const session = slot.store.state;
-  if (session?.source !== source) {
-    return;
-  }
-  slot.store.setState({ ...session });
-  // A session subscriber can synchronously cancel or start another drag, so
-  // check the source again before publishing it.
   if (slot.store.state?.source === source) {
     slot.sourceStore.setState({ ...source });
   }
-}
-
-/** Publish changed target data without resolving the hover stack again. */
-export function notifyDragTargetUpdated(source: DraggableRootRecord, element: Element): void {
-  const session = slot.store.state;
-  if (session?.source !== source) {
-    return;
-  }
-  // A target in none of the stacks has no published snapshot to refresh.
-  const { initial, current, previous } = session.location;
-  if (
-    ![initial, current, previous].some((entry) =>
-      entry.targets.some((target) => target.element === element),
-    )
-  ) {
-    return;
-  }
-  const location = cloneLocationHistory(session.location);
-  for (const entry of [location.initial, location.current, location.previous]) {
-    entry.targets = entry.targets.map((target) => {
-      if (target.element !== element) {
-        return target;
-      }
-      const original = slot.targetSnapshotOrigins.get(target) ?? target;
-      const snapshot = { ...original };
-      slot.targetSnapshotOrigins.set(snapshot, original);
-      return snapshot;
-    });
-  }
-  setDragSession({ ...session, location });
 }
 
 /** Writes the session. Only the lifecycle calls it, and `index.ts` doesn't export it. */
