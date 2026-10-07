@@ -184,6 +184,15 @@ export interface FloatingFocusManagerProps {
     | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
+   * Called with the element that received initial focus, right after it was focused.
+   *
+   * Runs in the same animation frame as the focus itself, once the floating element has been
+   * positioned, so imperative follow-ups such as selecting an input's text don't cause the page
+   * to scroll. Not called when `initialFocus` is `false` or when focus was already inside the
+   * floating element.
+   */
+  onInitiallyFocused?: ((element: HTMLElement | SVGElement) => void) | undefined;
+  /**
    * Determines the element to focus when the floating element is closed.
    *
    * - `false`: Do not move focus.
@@ -266,6 +275,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     children,
     disabled = false,
     initialFocus = true,
+    onInitiallyFocused: onInitiallyFocusedProp,
     returnFocus = true,
     explicitReturnFocus,
     restoreFocus = false,
@@ -295,6 +305,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
   const initialFocusRef = useValueAsRef(initialFocus);
+  const onInitiallyFocused = useStableCallback(onInitiallyFocusedProp);
   const returnFocusRef = useValueAsRef(returnFocus);
   // Read through a ref so a mid-open change can't re-run the return-focus effect, whose cleanup
   // would move focus while the floating element is still open.
@@ -736,6 +747,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       void enqueueFocus(elToFocus, {
         sync: openedByVirtualPress,
         preventScroll: elToFocus === floatingFocusElement,
+        onFocused: onInitiallyFocused,
         shouldFocus() {
           // If the floating element has closed before this runs — e.g. tabbing out of a
           // kept-mounted popup — don't pull focus back onto the initial element after it has
@@ -763,6 +775,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floatingFocusElement,
     getTabbableContent,
     initialFocusRef,
+    onInitiallyFocused,
     openInteractionTypeRef,
     openRef,
     dataRef,
