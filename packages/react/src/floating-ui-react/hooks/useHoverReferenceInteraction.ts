@@ -182,8 +182,10 @@ export function useHoverReferenceInteraction(
         instance.restTimeoutPending = false;
       } else {
         isHoverCloseActiveRef.current = false;
-        // Opening makes a hover open still waiting on its rest delay redundant. Left pending, the
-        // timer would reopen a retained popup after a controlled close in the meantime.
+        // Opening makes pending hover work redundant: a hover open still waiting on its rest
+        // delay would reopen a retained popup after a controlled close, and a close delay
+        // started when the pointer left after one would close the popup once it reopens.
+        instance.openChangeTimeout.clear();
         instance.restTimeout.clear();
         instance.restTimeoutPending = false;
       }

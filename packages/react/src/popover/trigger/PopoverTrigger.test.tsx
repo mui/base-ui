@@ -297,12 +297,12 @@ describe('<Popover.Trigger />', () => {
 
     let setOpen: (nextOpen: boolean) => void = () => {};
 
-    function ControlledPopover(props: { keepMounted?: boolean }) {
+    function ControlledPopover(props: { keepMounted?: boolean; closeDelay?: number }) {
       const [isOpen, setIsOpen] = React.useState(false);
       setOpen = setIsOpen;
       return (
         <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
-          <Popover.Trigger openOnHover delay={100}>
+          <Popover.Trigger openOnHover delay={100} closeDelay={props.closeDelay}>
             Open
           </Popover.Trigger>
           <Popover.Portal keepMounted={props.keepMounted}>
@@ -399,6 +399,40 @@ describe('<Popover.Trigger />', () => {
       await flushMicrotasks();
 
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    describe('with a closeDelay', () => {
+      // Strict Mode remounts the popup, which disposes of the shared hover timers and hides the
+      // leftover close timer this covers.
+      const { clock: nonStrictClock, render: renderNonStrict } = createRenderer({ strict: false });
+
+      nonStrictClock.withFakeTimers();
+
+      it('does not close a popover reopened within the closeDelay after a controlled close while the pointer left the trigger', async () => {
+        await renderNonStrict(<ControlledPopover closeDelay={500} />);
+        const trigger = screen.getByRole('button', { name: 'Open' });
+
+        enterWithMouse(trigger);
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+        await act(async () => setOpen(false));
+        await flushMicrotasks();
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+        fireEvent.mouseLeave(trigger);
+        nonStrictClock.tick(60);
+
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+        nonStrictClock.tick(600);
+        await flushMicrotasks();
+
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
     });
   });
 
