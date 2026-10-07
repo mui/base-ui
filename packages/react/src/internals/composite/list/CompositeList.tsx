@@ -21,7 +21,13 @@ interface CompositeListItem<Metadata> {
  * Provides context for a list of items in a composite component.
  */
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
-  const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
+  const {
+    children,
+    elementsRef,
+    itemCount: itemCountProp,
+    labelsRef,
+    onMapChange: onMapChangeProp,
+  } = props;
 
   const onMapChange = useStableCallback(onMapChangeProp);
 
@@ -60,10 +66,23 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   const syncRefs = useStableCallback((items: readonly CompositeListItem<Metadata>[]) => {
     const nextMap = new Map<Element, CompositeMetadata<Metadata>>();
+    const itemCount = items.reduce(
+      (count, item) => Math.max(count, item.index + 1),
+      itemCountProp ?? 0,
+    );
 
     elementsRef.current.length = 0;
     if (labelsRef) {
       labelsRef.current.length = 0;
+    }
+
+    if (itemCountProp !== undefined) {
+      elementsRef.current.length = itemCountProp;
+      elementsRef.current.fill(null);
+      if (labelsRef) {
+        labelsRef.current.length = itemCountProp;
+        labelsRef.current.fill(null);
+      }
     }
 
     items.forEach((item) => {
@@ -82,7 +101,11 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       }
     });
 
-    nextIndexRef.current = elementsRef.current.length;
+    elementsRef.current.length = itemCount;
+    if (labelsRef) {
+      labelsRef.current.length = itemCount;
+    }
+    nextIndexRef.current = itemCount;
 
     return nextMap;
   });
@@ -183,7 +206,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
         labelsRef.current = [];
       }
     };
-  }, [elementsRef, labelsRef, syncRefs]);
+  }, [elementsRef, itemCountProp, labelsRef, syncRefs]);
 
   useIsoLayoutEffect(() => {
     if (isDirtyRef.current) {
@@ -321,6 +344,10 @@ export interface CompositeListProps<Metadata> {
    * `useListNavigation`'s `listRef` prop.
    */
   elementsRef: React.RefObject<Array<HTMLElement | null>>;
+  /**
+   * The logical number of items when some items are not registered in the DOM.
+   */
+  itemCount?: number | undefined;
   /**
    * A ref to the list of element labels, ordered by their index.
    * `useTypeahead`'s `listRef` prop.

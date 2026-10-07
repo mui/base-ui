@@ -6,10 +6,16 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 export interface ComboboxDerivedItemsContext {
   query: string;
   hasItems: boolean;
+  isGrouped: boolean;
   filteredItems: any[];
   /**
-   * `filteredItems` flattened across groups and projected to selection values. Identical to the
-   * items themselves unless `items` is a `createItems()` collection.
+   * `filteredItems` flattened across groups, before projection to selection values. This is what
+   * the list renders, so the built-in virtualizer windows this rather than the values below.
+   */
+  flatFilteredItems: any[];
+  /**
+   * `filteredItems` flattened across groups and projected to selection values. Identical to
+   * `flatFilteredItems` unless `items` is a `createItems()` collection with `itemToValue`.
    */
   flatFilteredValues: any[];
 }

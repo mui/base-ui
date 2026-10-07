@@ -1,0 +1,300 @@
+'use client';
+import { Draggable } from '@base-ui/react/draggable';
+
+import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { GripIcon } from '../../GripIcon';
+import { DragPageAutoScroll } from '../../DragPageAutoScroll';
+
+import styles from '../../scrolling-hero.module.css';
+
+type Zone = 'plain' | 'slow';
+
+interface Task {
+  id: string;
+  label: string;
+}
+
+const taskKind = Draggable.createKind<Task>('task');
+
+const INITIAL_TASKS: Record<Zone, Task[]> = {
+  plain: [
+    { id: 'plants', label: 'Water the plants' },
+    { id: 'reply', label: 'Reply to Alex' },
+    { id: 'dentist', label: 'Book a dentist' },
+    { id: 'invoice', label: 'Send the invoice' },
+    { id: 'sprint', label: 'Plan the sprint' },
+    { id: 'bank', label: 'Call the bank' },
+    { id: 'groceries', label: 'Buy groceries' },
+    { id: 'desk', label: 'Clean the desk' },
+    { id: 'flights', label: 'Book the flights' },
+    { id: 'draft', label: 'Review the draft' },
+    { id: 'budget', label: 'Update the budget' },
+    { id: 'standup', label: 'Move the standup' },
+    { id: 'keys', label: 'Copy the keys' },
+    { id: 'photos', label: 'Sort the photos' },
+    { id: 'router', label: 'Reboot the router' },
+    { id: 'gift', label: 'Wrap the gift' },
+  ],
+  slow: [
+    { id: 'rent', label: 'Pay the rent' },
+    { id: 'resume', label: 'Update resume' },
+    { id: 'backup', label: 'Back up the laptop' },
+    { id: 'docs', label: 'Read the docs' },
+    { id: 'bug', label: 'Fix the bug' },
+    { id: 'tests', label: 'Write the tests' },
+    { id: 'team', label: 'Email the team' },
+    { id: 'supplies', label: 'Order supplies' },
+    { id: 'changelog', label: 'Write the changelog' },
+    { id: 'deps', label: 'Bump the deps' },
+    { id: 'flaky', label: 'Fix the flaky test' },
+    { id: 'release', label: 'Tag the release' },
+    { id: 'metrics', label: 'Check the metrics' },
+    { id: 'onboard', label: 'Onboard the intern' },
+    { id: 'retro', label: 'Book the retro' },
+    { id: 'archive', label: 'Archive the branch' },
+  ],
+};
+
+const ZONE_LABELS: Record<Zone, string> = { plain: 'Default', slow: 'maxSpeed={150}' };
+
+const UPCOMING = ['Renew passport', 'Cancel the trial', 'Refill the coffee', 'Label the boxes'];
+
+// Find the insertion slot closest to the pointer, including slots scrolled out
+// of view.
+function resolveDrop(container: HTMLElement, clientY: number): { index: number; slotY: number } {
+  // The drag preview is a clone of the card, so it has `data-card` too. Skip it,
+  // since it follows the pointer and isn't a real slot.
+  const cards = Array.from(
+    container.querySelectorAll<HTMLElement>('[data-card]:not([data-drag-preview])'),
+  );
+  if (cards.length === 0) {
+    return { index: 0, slotY: container.getBoundingClientRect().top };
+  }
+
+  const slotYs = [cards[0].getBoundingClientRect().top];
+  for (let i = 1; i < cards.length; i += 1) {
+    const prev = cards[i - 1].getBoundingClientRect();
+    const curr = cards[i].getBoundingClientRect();
+    slotYs.push((prev.bottom + curr.top) / 2);
+  }
+  slotYs.push(cards[cards.length - 1].getBoundingClientRect().bottom);
+
+  let index = 0;
+  let bestDy = Infinity;
+  for (let i = 0; i < slotYs.length; i += 1) {
+    const dy = Math.abs(clientY - slotYs[i]);
+    if (dy < bestDy) {
+      bestDy = dy;
+      index = i;
+    }
+  }
+  return { index, slotY: slotYs[index] };
+}
+
+function Card({
+  task,
+  draggable,
+  onKeyDown,
+}: {
+  task: Task;
+  draggable?: boolean;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>, task: Task) => void;
+}) {
+  return (
+    <Draggable.Root
+      kind={taskKind}
+      payload={task}
+      previewKey={task.id}
+      disabled={!draggable}
+      data-card
+      data-id={task.id}
+      tabIndex={0}
+      aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
+      onKeyDown={(event) => onKeyDown(event, task)}
+      className={styles.Card}
+    >
+      <GripIcon className={styles.Grip} />
+      {task.label}
+    </Draggable.Root>
+  );
+}
+
+function DropZone({
+  label,
+  tasks,
+  maxSpeed,
+  onInsert,
+  onCardKeyDown,
+}: {
+  label: string;
+  tasks: Task[];
+  // Unset on the plain list, which keeps the default auto-scroll speed.
+  maxSpeed?: number;
+  onInsert: (task: Task, index: number) => void;
+  onCardKeyDown: (event: React.KeyboardEvent<HTMLElement>, task: Task) => void;
+}) {
+  const listRef = React.useRef<HTMLDivElement | null>(null);
+  // Y offset of the drop line within the list's scrolled content.
+  const [dropLineTop, setDropLineTop] = React.useState<number | null>(null);
+
+  return (
+    <Draggable.Target
+      className={styles.Zone}
+      accept={taskKind}
+      onDraggableMove={(eventDetails) => {
+        const container = listRef.current;
+        if (!container) {
+          return;
+        }
+        const { slotY } = resolveDrop(container, eventDetails.location.current.input.clientY);
+        setDropLineTop(slotY - container.getBoundingClientRect().top + container.scrollTop);
+      }}
+      onDraggableLeave={() => setDropLineTop(null)}
+      onDraggableDrop={(eventDetails) => {
+        const container = listRef.current;
+        if (container) {
+          const { index } = resolveDrop(container, eventDetails.location.current.input.clientY);
+          onInsert(eventDetails.source.payload, index);
+        }
+        setDropLineTop(null);
+      }}
+    >
+      <span className={styles.Label}>{label}</span>
+      {/* @highlight-start @focus */}
+      <Draggable.Viewport ref={listRef} className={styles.Cards} maxSpeed={maxSpeed}>
+        {tasks.map((task) => (
+          <Card key={task.id} task={task} onKeyDown={onCardKeyDown} />
+        ))}
+        {dropLineTop != null && (
+          <div className={styles.DropLine} style={{ top: dropLineTop }} aria-hidden="true" />
+        )}
+      </Draggable.Viewport>
+      {/* @highlight-end */}
+    </Draggable.Target>
+  );
+}
+
+export default function AutoScrollBoard() {
+  const [tasks, setTasks] = React.useState<Record<Zone, Task[]>>(INITIAL_TASKS);
+  // Index into `UPCOMING`, so the tray always holds another card to drag.
+  const [handedOut, setHandedOut] = React.useState(0);
+  const [message, setMessage] = React.useState('');
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  // Id of the card just dropped, so the effect below can scroll it into view.
+  const droppedIdRef = React.useRef<string | null>(null);
+  const focusMovedCardRef = React.useRef(false);
+
+  const pending: Task = {
+    id: `new-${handedOut}`,
+    label: UPCOMING[handedOut % UPCOMING.length],
+  };
+
+  function insert(zone: Zone, task: Task, index: number, sourceZone?: Zone) {
+    droppedIdRef.current = task.id;
+    setTasks((current) => {
+      const next = { ...current };
+      if (sourceZone) {
+        next[sourceZone] = next[sourceZone].filter((entry) => entry.id !== task.id);
+      }
+      next[zone] = [...next[zone].slice(0, index), task, ...next[zone].slice(index)];
+      return next;
+    });
+    if (!sourceZone) {
+      setHandedOut((count) => count + 1);
+    }
+    setMessage(
+      `${task.label} ${sourceZone ? 'moved' : 'added'} to ${ZONE_LABELS[zone]} at position ${index + 1}.`,
+    );
+  }
+
+  function onCardKeyDown(event: React.KeyboardEvent<HTMLElement>, task: Task, zone?: Zone) {
+    if (!event.altKey) {
+      return;
+    }
+    let destination = zone;
+    let index = zone ? tasks[zone].findIndex((entry) => entry.id === task.id) : 0;
+    switch (event.key) {
+      case 'ArrowLeft':
+        destination = 'plain';
+        break;
+      case 'ArrowRight':
+        destination = 'slow';
+        break;
+      case 'ArrowUp':
+        index -= 1;
+        break;
+      case 'ArrowDown':
+        index += 1;
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    if (
+      !destination ||
+      (destination === zone &&
+        (event.key === 'ArrowLeft' ||
+          event.key === 'ArrowRight' ||
+          index < 0 ||
+          index >= tasks[destination].length))
+    ) {
+      return;
+    }
+    index = Math.min(index, tasks[destination].length);
+    focusMovedCardRef.current = true;
+    insert(destination, task, index, zone);
+  }
+
+  // The list reflows around the drop, which can push the new card out of view.
+  // Scroll it back into view.
+  useIsoLayoutEffect(() => {
+    const id = droppedIdRef.current;
+    if (id == null) {
+      return;
+    }
+    droppedIdRef.current = null;
+    const card = rootRef.current?.querySelector<HTMLElement>(
+      `[data-id="${id}"]:not([data-drag-preview])`,
+    );
+    card?.scrollIntoView({ block: 'nearest' });
+    if (focusMovedCardRef.current) {
+      focusMovedCardRef.current = false;
+      card?.focus();
+    }
+  }, [tasks]);
+
+  return (
+    <Draggable.Provider>
+      <DragPageAutoScroll accept={taskKind} />
+      <div ref={rootRef} className={styles.Root}>
+        <p className={styles.Hint}>
+          Drag the card into either list, at the slot you want. Both lists scroll near their edges;
+          the second list scrolls more slowly.
+        </p>
+        <div className={styles.Tray}>
+          <Card key={pending.id} task={pending} draggable onKeyDown={onCardKeyDown} />
+        </div>
+        <div className={styles.Columns}>
+          <DropZone
+            label={ZONE_LABELS.plain}
+            tasks={tasks.plain}
+            onInsert={(task, index) => insert('plain', task, index)}
+            onCardKeyDown={(event, task) => onCardKeyDown(event, task, 'plain')}
+          />
+          <DropZone
+            label={ZONE_LABELS.slow}
+            tasks={tasks.slow}
+            maxSpeed={150}
+            onInsert={(task, index) => insert('slow', task, index)}
+            onCardKeyDown={(event, task) => onCardKeyDown(event, task, 'slow')}
+          />
+        </div>
+        <p role="status" style={visuallyHidden}>
+          {message}
+        </p>
+      </div>
+    </Draggable.Provider>
+  );
+}

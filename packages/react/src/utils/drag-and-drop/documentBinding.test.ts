@@ -1,0 +1,228 @@
+import { describe, it, expect, vi } from 'vitest';
+import { act } from '@mui/internal-test-utils';
+import { createDndRenderer } from '#test-utils';
+import { flushRaf, registerCleanup, setupDragEngineTests } from '../../../test/dnd';
+import { dragSessionStore } from './dragSessionStore';
+import { createEventRootBinding } from './documentBinding';
+
+setupDragEngineTests();
+
+/**
+ * Mount an iframe and return its document and window. The pointer sensor binds
+ * its listeners per owner document, so registering a draggable inside the iframe
+ * must add and later remove listeners there, not on the top window.
+ */
+function createIframeRealm(): { doc: Document; win: Window } {
+  const iframe = document.createElement('iframe');
+  document.body.appendChild(iframe);
+  registerCleanup(() => iframe.remove());
+  const doc = iframe.contentDocument!;
+  const win = iframe.contentWindow!;
+  // jsdom documents don't implement `elementFromPoint`, and the sensor calls it on
+  // the owner document during pickup. This mirrors the polyfill's stub on the top
+  // document.
+  doc.elementFromPoint = () => null;
+  return { doc, win };
+}
+
+function createIframeElement(doc: Document): HTMLElement {
+  const el = doc.createElement('div');
+  el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+  doc.body.appendChild(el);
+  return el;
+}
+
+/** Dispatch a mouse pointer event inside `act` so store-driven re-renders flush. */
+function dispatchPointer(
+  target: EventTarget,
+  type: string,
+  x: number,
+  y: number,
+  buttons: { button: number; buttons: number },
+): void {
+  act(() => {
+    target.dispatchEvent(
+      new PointerEvent(type, {
+        pointerType: 'mouse',
+        pointerId: 1,
+        clientX: x,
+        clientY: y,
+        button: buttons.button,
+        buttons: buttons.buttons,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+  });
+}
+
+function callsOfType(
+  spy: { mock: { calls: unknown[][] } },
+  type: 'pointerdown' | 'dblclick',
+): number {
+  return spy.mock.calls.filter(([eventType]) => eventType === type).length;
+}
+
+describe('documentBinding', () => {
+  const { renderDnd } = createDndRenderer();
+
+  it.each(['open', 'closed'] as const)(
+    'picks up inside a closed root nested in an %s root',
+    async (mode) => {
+      const { engine } = await renderDnd();
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      registerCleanup(() => host.remove());
+      const outer = host.attachShadow({ mode });
+      const sibling = document.createElement('div');
+      const innerHost = document.createElement('div');
+      outer.append(sibling, innerHost);
+      const inner = innerHost.attachShadow({ mode: 'closed' });
+      const source = document.createElement('div');
+      inner.appendChild(source);
+      const onMoveStart = vi.fn();
+      engine.registerSource(sibling, {});
+      engine.registerSource(source, { activation: { type: 'immediate' }, onMoveStart });
+      act(() => {
+        source.dispatchEvent(
+          new PointerEvent('pointerdown', {
+            bubbles: true,
+            composed: true,
+            button: 0,
+            buttons: 1,
+            pointerId: 1,
+            pointerType: 'mouse',
+            clientX: 10,
+            clientY: 10,
+          }),
+        );
+      });
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
+      expect(onMoveStart.mock.calls[0][0].source.element).toBe(source);
+      engine.cancelDrag();
+    },
+  );
+
+  it('delivers once, yielding the outer bound root to an inner bound root at capture', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    registerCleanup(() => host.remove());
+    const outer = host.attachShadow({ mode: 'open' });
+    const innerHost = document.createElement('div');
+    outer.appendChild(innerHost);
+    const inner = innerHost.attachShadow({ mode: 'open' });
+    const target = document.createElement('div');
+    inner.appendChild(target);
+
+    // Record labels, not the roots. `toEqual` treats any two ShadowRoots as equal,
+    // so a wrong root would still pass.
+    const deliveries: Array<['outer' | 'inner', number]> = [];
+    const binding = createEventRootBinding({
+      slot: 'documentBinding.test.nested',
+      listeners: {
+        pointerdown: (event) => {
+          deliveries.push([event.currentTarget === outer ? 'outer' : 'inner', event.eventPhase]);
+        },
+      },
+    });
+    binding.bind(outer);
+    binding.bind(inner);
+    registerCleanup(() => {
+      binding.unbind(inner);
+      binding.unbind(outer);
+    });
+
+    target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+
+    // The outer root's capture listener sees the event first but yields, since
+    // the path crosses the inner bound root. The inner root delivers at capture,
+    // and the outer's bubble fallback skips the delivered event.
+    expect(deliveries).toEqual([['inner', Event.CAPTURING_PHASE]]);
+
+    // A press on the inner host itself never enters the inner root, so the
+    // outer's bubble fallback is what delivers it.
+    deliveries.length = 0;
+    innerHost.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+    expect(deliveries).toEqual([['outer', Event.BUBBLING_PHASE]]);
+  });
+
+  it('pointer pickup works for a draggable registered in an iframe document', async () => {
+    const { engine } = await renderDnd();
+    const { doc } = createIframeRealm();
+    const el = createIframeElement(doc);
+    const onMoveStart = vi.fn();
+    engine.registerSource(el, { onMoveStart });
+
+    // Press, then move past the 5px mouse activation distance.
+    dispatchPointer(el, 'pointerdown', 0, 0, { button: 0, buttons: 1 });
+    dispatchPointer(el, 'pointermove', 6, 0, { button: -1, buttons: 1 });
+    await flushRaf();
+
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+    expect(onMoveStart.mock.calls[0][0].source.element).toBe(el);
+
+    dispatchPointer(el, 'pointerup', 6, 0, { button: 0, buttons: 0 });
+    expect(dragSessionStore.getSnapshot()).toBeNull();
+  });
+
+  it('ref-counts the per-document listeners and removes them with the last holder', async () => {
+    const { engine } = await renderDnd();
+    const { doc, win } = createIframeRealm();
+    const addSpy = vi.spyOn(win, 'addEventListener');
+    const removeSpy = vi.spyOn(win, 'removeEventListener');
+    const first = createIframeElement(doc);
+    const second = createIframeElement(doc);
+
+    const cleanupFirst = engine.registerSource(first, {});
+    // Documents keep a capture path for light DOM plus a bubble fallback for
+    // events deliberately deferred to an inner closed-shadow binding.
+    expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
+    expect(callsOfType(addSpy, 'dblclick')).toBe(2);
+
+    // A second draggable in the same document reuses the installed listeners.
+    const cleanupSecond = engine.registerSource(second, {});
+    expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
+    expect(callsOfType(addSpy, 'dblclick')).toBe(2);
+
+    // Releasing a non-last holder keeps the listeners installed.
+    cleanupFirst();
+    expect(callsOfType(removeSpy, 'pointerdown')).toBe(0);
+    expect(callsOfType(removeSpy, 'dblclick')).toBe(0);
+
+    // The last holder tears them down.
+    cleanupSecond();
+    expect(callsOfType(removeSpy, 'pointerdown')).toBe(2);
+    expect(callsOfType(removeSpy, 'dblclick')).toBe(2);
+  });
+
+  it('walks the composed path only once a shadow root is bound', () => {
+    const { doc, win } = createIframeRealm();
+    const addSpy = vi.spyOn(win, 'addEventListener');
+    const binding = createEventRootBinding({
+      slot: 'documentBinding.test.composedPath',
+      listeners: { pointerdown: () => {} },
+    });
+    binding.bind(doc);
+    registerCleanup(() => binding.unbind(doc));
+    const pointerListeners = addSpy.mock.calls
+      .filter(([type]) => type === 'pointerdown')
+      .map(([, listener]) => listener as EventListener);
+    expect(pointerListeners).toHaveLength(2);
+
+    // The window wrappers see every press on the page. With no shadow root
+    // bound, there is no path to check, so none is built.
+    const event = new Event('pointerdown');
+    const composedPath = vi.spyOn(event, 'composedPath');
+    pointerListeners.forEach((listener) => listener(event));
+    expect(composedPath).not.toHaveBeenCalled();
+
+    const host = createIframeElement(doc);
+    const shadow = host.attachShadow({ mode: 'closed' });
+    binding.bind(shadow);
+    registerCleanup(() => binding.unbind(shadow));
+
+    composedPath.mockReturnValue([host]);
+    pointerListeners.forEach((listener) => listener(event));
+    expect(composedPath).toHaveBeenCalledTimes(2);
+  });
+});

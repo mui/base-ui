@@ -11,6 +11,7 @@ export * from './context-menu';
 export * from './csp-provider';
 export * from './dialog';
 export * from './direction-provider';
+export * from './draggable';
 export * from './drawer';
 export * from './field';
 export * from './fieldset';
@@ -40,5 +41,6 @@ export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';
 export * from './use-render';
+export * from './virtualizer';
 
 export type * from './types';
