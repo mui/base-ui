@@ -1,5 +1,16 @@
 # Versions
 
+## 0.5.0
+
+_Oct 8, 2026_
+
+- Add Shadow DOM-safe `closest` (#5450) by @atomiks
+- Add hydration hooks, `isHTMLElement`, and `lruMemoize` (#5542) by @romgrk
+- Prevent `visuallyHidden` from overflowing in RTL (#5661) by @cpruijsen
+- Store function default values without calling them in `useControlled` (#5886) by @michaldudak
+- Fix the direction in `ReactStore`'s controlled-mode switch warning (#5888) by @michaldudak
+- Improve `useId` state initialization and React 17 fallback behavior (#5526) by @sai6855
+
 ## 0.4.0
 
 _Sep 4, 2026_
