@@ -361,6 +361,54 @@ describe('<ContextMenu.Root />', () => {
     }
   });
 
+  it('does not let a queued before-guard redirect override a newer item focus', async () => {
+    await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>Surface</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.Item>One</ContextMenu.Item>
+              <ContextMenu.Item>Two</ContextMenu.Item>
+              <ContextMenu.Item>Three</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    fireEvent.contextMenu(screen.getByText('Surface'), { clientX: 20, clientY: 20, button: 2 });
+    const menu = await screen.findByRole('menu');
+    const [first, , last] = screen.getAllByRole('menuitem');
+
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        last.focus();
+      });
+      expect(last).toHaveFocus();
+
+      const beforeGuard = menu.previousElementSibling as HTMLElement;
+      expect(beforeGuard).toHaveAttribute('data-type', 'inside');
+
+      // Shift+Tabbing past the first item lands on the guard, which queues a redirect for the next frame.
+      await act(async () => {
+        beforeGuard.focus();
+      });
+      fireEvent.mouseMove(first);
+      expect(first).toHaveFocus();
+
+      await act(async () => {
+        vi.advanceTimersToNextFrame();
+      });
+
+      expect(first).toHaveFocus();
+      expect(first).toHaveAttribute('data-highlighted');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   describe.skipIf(isJSDOM)('prop: collisionAvoidance', () => {
     const popupHeight = 100;
     const popupWidth = 150;
