@@ -52,7 +52,7 @@ The element joins the toolbar's keyboard navigation and keeps the behavior of th
 </Toolbar.Root>
 ```
 
-- **Alert Dialog, Dialog, Menu, Popover, and Select**: pass the trigger to the `render` prop of `<Toolbar.Button>`, as shown above.
+- **Popups with a trigger**, such as Alert Dialog, Dialog, Drawer, Menu, Popover, and Select: pass the trigger to the `render` prop of `<Toolbar.Button>`, as shown above. Set `disabled` on `<Toolbar.Button>` rather than on the trigger, so the button stays in the toolbar's keyboard navigation.
 - **Tooltip**: pass `<Toolbar.Button>` to the `render` prop of `<Tooltip.Trigger>` instead.
 - **Number Field**: pass `<NumberField.Input>` to the `render` prop of `<Toolbar.Input>`, and keep it inside `<NumberField.Root>` and `<NumberField.Group>` with the increment and decrement buttons.
 
