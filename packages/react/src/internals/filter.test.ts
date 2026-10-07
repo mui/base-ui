@@ -1,4 +1,4 @@
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, vi } from 'vitest';
 import { getFilter, getTextMatcher } from './filter';
 
 describe('getFilter', () => {
@@ -21,6 +21,32 @@ describe('getFilter', () => {
 
     expect(contains('Résumé', 'resume')).toBe(true);
   });
+
+  it.each([
+    { name: 'short hyphen runs', punctuation: '-', count: 10 },
+    { name: 'long hyphen runs', punctuation: '-', count: 100 },
+    { name: 'whitespace runs', punctuation: ' ', count: 100 },
+    { name: 'supplementary punctuation runs', punctuation: '\u{10100}', count: 100 },
+  ])(
+    'keeps comparison counts linear for unmatched labels surrounded by $name',
+    ({ punctuation, count }) => {
+      const compare = vi.fn(
+        new Intl.Collator('en', {
+          usage: 'search',
+          sensitivity: 'base',
+          ignorePunctuation: true,
+        }).compare,
+      );
+      vi.spyOn(Intl.Collator.prototype, 'compare', 'get').mockReturnValue(compare);
+      const contains = getFilter({ locale: 'en' }).contains;
+      const padding = punctuation.repeat(count);
+      const text = `${padding}alpha${padding}`;
+
+      expect(contains(text, 'bravo')).toBe(false);
+      expect(compare.mock.calls.length).toBeLessThan(text.length * 3);
+      expect(contains(text, 'alpha')).toBe(true);
+    },
+  );
 
   describe.each(['contains', 'startsWith', 'endsWith'] as const)('%s', (method) => {
     function label(text: string) {
@@ -95,6 +121,13 @@ describe('getFilter', () => {
     it('matches punctuation participating in a locale-specific letter', () => {
       expect(getFilter({ locale: 'ca' })[method](label('col·legi'), 'coŀlegi')).toBe(true);
       expect(getFilter({ locale: 'ca' })[method](label('coŀlegi'), 'col·legi')).toBe(true);
+    });
+
+    it('preserves meaningful trailing punctuation at a candidate boundary', () => {
+      const match = getFilter({ locale: 'ca' })[method];
+
+      expect(match(label('l·'), 'ŀ')).toBe(true);
+      expect(match(label('·l·'), 'ŀ')).toBe(true);
     });
 
     it('matches an empty query and a query containing only ignored characters', () => {

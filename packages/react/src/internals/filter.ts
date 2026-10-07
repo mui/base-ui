@@ -55,6 +55,16 @@ export function getTextMatcher(options: GetFilterParameters = {}): TextMatcher {
 
     let end = method === 'endsWith' ? text.length : 0;
     for (let start = 0; start <= text.length; start += 1) {
+      // A contains match can start after ignored leading punctuation. Keep internal and
+      // trailing punctuation intact because it can participate in locale-specific letters.
+      if (method === 'contains' && start < text.length && lengths[start + 1] === lengths[start]) {
+        const character = String.fromCodePoint(text.codePointAt(start)!);
+        if (collator.compare(character, '') === 0) {
+          start += character.length - 1;
+          continue;
+        }
+      }
+
       while (end < text.length && lengths[end] - lengths[start] < queryLength) {
         end += 1;
       }
