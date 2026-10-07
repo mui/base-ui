@@ -12,13 +12,11 @@ import {
 import type { DragPreviewElementHandle, PreviewAnchor } from './cloneDragPreview';
 import { copyPreviewContent, createPreviewContentContainer } from './previewContent';
 import type { PreviewContent } from './previewContent';
-import { updatePreviewContent } from './updatePreviewContent';
 import type { ResolvedDragPreview } from './pickupPreview';
 import type { DraggableInput, DraggablePosition } from '../../../draggable/DraggableProvider';
 import type {
   DraggablePreviewOffset,
   DraggablePreviewOffsetParameters,
-  DraggablePreviewRenderParameters,
 } from '../../../draggable/preview/DraggablePreview';
 import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
 import type { DragModifierKeys } from '../utils';
@@ -439,39 +437,6 @@ export function createSyntheticPreview(
     setPreviewOffset(offset);
   }
 
-  /**
-   * Clone the source again. The clone is built while the source is marked as
-   * dragged, so its drag-state attributes are lifted for the duration. Otherwise a
-   * `[data-dragging]` rule, such as a dimmed source, would be copied into the
-   * clone's style snapshot. Nothing renders in between.
-   */
-  function refreshClone(): void {
-    const current = previewElement;
-    if (!current || !sourceElement.isConnected) {
-      return;
-    }
-    const source = sourceElement;
-    const dragState = [DraggableRootDataAttributes.dragging, DraggableRootDataAttributes.settling]
-      .map((name) => [name, source.getAttribute(name)] as const)
-      .filter(([, value]) => value !== null);
-    for (const [name] of dragState) {
-      source.removeAttribute(name);
-    }
-    let next;
-    try {
-      next = createDragPreviewElement(source, current.anchor);
-    } finally {
-      for (const [name, value] of dragState) {
-        source.setAttribute(name, value!);
-      }
-    }
-    if (next && previewElement === current) {
-      setPreviewElement(next);
-    } else {
-      next?.destroy();
-    }
-  }
-
   function retargetSource(element: HTMLElement): void {
     if ((destroyed && !settling) || element === sourceElement) {
       return;
@@ -633,27 +598,7 @@ export function createSyntheticPreview(
       // the clone is sized from.
       sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
     },
-    refresh(parameters: DraggablePreviewRenderParameters): void {
-      if (destroyed) {
-        return;
-      }
-      const attached = content;
-      if (!attached) {
-        refreshClone();
-        return;
-      }
-      // Runs after the content's next commit (see `syncContent`).
-      attached.update = () => {
-        attached.update = undefined;
-        updatePreviewContent(attached, {
-          onRoot: showContent,
-          onRootChange(ownStyle) {
-            previewElement?.updateContentStyle(ownStyle);
-          },
-        });
-      };
-      attached.render?.(parameters);
-    },
+    showContent,
     retargetSource,
     setPreviewOffset,
     getPreviewElement(): DragPreviewElementHandle | null {
@@ -694,16 +639,21 @@ export function createSyntheticPreview(
 export interface DragPreview {
   /** `keys` are the modifier keys of the event behind this position, for preview modifiers. */
   update(clientX: number, clientY: number, keys?: DragModifierKeys): void;
-  /**
-   * Build the preview again for `Draggable.updatePreview()`. A clone of the source is
-   * cloned again. Custom content renders again with `parameters`, and the copy takes
-   * what changed after its next commit.
-   */
-  refresh(parameters: DraggablePreviewRenderParameters): void;
   /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */
   retargetSource(element: HTMLElement): void;
   /** The current preview element, or `null`. */
   getPreviewElement(): DragPreviewElementHandle | null;
+  /**
+   * Adopt a preview, positioning it before destroying the previous element.
+   * The engine writes only its `translate`. `Draggable.updatePreview()` replaces a
+   * clone through it.
+   */
+  setPreviewElement(preview: DragPreviewElementHandle): void;
+  /**
+   * Show a new copy of the custom content, or remove the preview when `root` is
+   * `null`. `Draggable.updatePreview()` shows an updated copy through it.
+   */
+  showContent(root: HTMLElement | null): void;
   /** The offset from the preview's top-left to the cursor. */
   getPreviewOffset(): DraggablePosition;
   /**
@@ -727,11 +677,6 @@ export interface DragPreview {
  * internal seam, which its tests drive with a stand-in element.
  */
 export interface SyntheticPreviewHandle extends DragPreview {
-  /**
-   * Adopt a preview, positioning it before destroying the previous element.
-   * The engine writes only its `translate`.
-   */
-  setPreviewElement(preview: DragPreviewElementHandle): void;
   /**
    * Show a custom preview's content. Until its first copy, the drag has no preview
    * element.
