@@ -1,4 +1,4 @@
-import { expect, describe, it, afterEach } from 'vitest';
+import { expect, describe, it, afterEach, vi } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { Toolbar } from '@base-ui/react/toolbar';
@@ -1709,6 +1709,43 @@ describe('<Select.Popup />', () => {
   });
 
   describe('prop: finalFocus', () => {
+    it('passes the close type to a function', async () => {
+      const finalFocus = vi.fn(() => true);
+
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup finalFocus={finalFocus}>
+                <Select.Item value="1">Item 1</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      const item = await screen.findByRole('option', { name: 'Item 1' });
+
+      // A mouse press on an item closes the popup.
+      fireEvent.pointerDown(item, { pointerType: 'mouse' });
+      fireEvent.click(item, { detail: 1 });
+      await waitFor(() => {
+        expect(finalFocus).toHaveBeenCalledTimes(1);
+      });
+      expect(finalFocus).toHaveBeenNthCalledWith(1, 'mouse');
+
+      await user.click(trigger);
+      await screen.findByRole('listbox');
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(finalFocus).toHaveBeenCalledTimes(2);
+      });
+      expect(finalFocus).toHaveBeenNthCalledWith(2, 'keyboard');
+    });
+
     it('should focus the trigger by default when closed', async () => {
       await render(
         <div>
