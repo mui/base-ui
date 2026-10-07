@@ -117,8 +117,8 @@ describe('<Drawer.Popup />', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('popup')).toHaveFocus();
-      expect(screen.getByTestId('popup-input')).not.toHaveFocus();
     });
+    expect(screen.getByTestId('popup-input')).not.toHaveFocus();
   });
 
   it('leaves focus on the trigger when initial focus is disabled', async () => {
@@ -332,11 +332,11 @@ describe('<Drawer.Popup />', () => {
       const childPopup = screen.getByTestId('child-popup');
 
       await waitFor(() => {
-        expect(childPopup.offsetHeight).toBeGreaterThan(childPopup.scrollHeight);
         expect(parentPopup.style.getPropertyValue('--drawer-frontmost-height')).toBe(
           `${childPopup.offsetHeight}px`,
         );
       });
+      expect(childPopup.offsetHeight).toBeGreaterThan(childPopup.scrollHeight);
     },
   );
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import type { createRenderer } from '#test-utils';
@@ -290,9 +290,10 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
         await waitForClosed();
         expect(spies.activated).toEqual([ITEMS[6]]);
-        if (selectable) {
-          expect(spies.onValueChange.mock.calls.map(([value]) => value)).toEqual([ITEMS[6]]);
-        }
+        // `onValueChange` is only passed to selectable lists.
+        expect(spies.onValueChange.mock.calls.map(([value]) => value)).toEqual(
+          selectable ? [ITEMS[6]] : [],
+        );
       });
 
       it('lets the pointer take the highlight back after keyboard navigation', async () => {
@@ -358,10 +359,10 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         // An enabled item must reach the same callbacks, so disconnected handlers cannot pass.
         await user.click(getItem(2));
         expect(onItemClick).toHaveBeenCalledTimes(1);
-        if (selectable) {
-          expect(onValueChange).toHaveBeenCalledTimes(1);
-          expect(onValueChange.mock.calls[0][0]).toBe(ITEMS[2]);
-        }
+        // `onValueChange` is only passed to selectable lists.
+        expect(onValueChange.mock.calls.map(([value]) => value)).toEqual(
+          selectable ? [ITEMS[2]] : [],
+        );
       });
 
       it('ignores right clicks on the trigger and on items', async () => {
@@ -390,6 +391,8 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           const { user } = await renderList();
           await openWithMouse(user);
 
+          // Real browser input (vitest/browser) updates React state outside Testing Library's act.
+          // eslint-disable-next-line testing-library/no-unnecessary-act
           await act(async () => {
             await userEvent.hover(getItem(1));
           });
@@ -474,11 +477,18 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           expect(getHighlightedIndex()).toBe(ITEMS.length - 1);
         });
         await expectFocusOnItem(ITEMS.length - 1);
-        if (!isJSDOM) {
-          await waitFor(() => {
-            expect(isFullyVisible(getItem(ITEMS.length - 1))).toBe(true);
-          });
-        }
+      });
+
+      it.skipIf(isJSDOM)('scrolls the last item into view when opening with ArrowUp', async () => {
+        const { user } = await renderList();
+        await focusTrigger();
+
+        await user.keyboard('{ArrowUp}');
+        await waitForOpen();
+
+        await waitFor(() => {
+          expect(isFullyVisible(getItem(ITEMS.length - 1))).toBe(true);
+        });
       });
 
       it('opens past a disabled first item', async () => {
@@ -596,11 +606,10 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
           await waitForClosed();
           expect(spies.activated).toEqual([ITEMS[start + 1]]);
-          if (selectable) {
-            expect(spies.onValueChange.mock.calls.map(([value]) => value)).toEqual([
-              ITEMS[start + 1],
-            ]);
-          }
+          // `onValueChange` is only passed to selectable lists.
+          expect(spies.onValueChange.mock.calls.map(([value]) => value)).toEqual(
+            selectable ? [ITEMS[start + 1]] : [],
+          );
           await waitFor(() => {
             expect(getTrigger()).toHaveFocus();
           });
@@ -668,22 +677,30 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           await waitFor(() => {
             expect(getHighlightedIndex()).toBe(ITEMS.length - 1);
           });
-          if (!isJSDOM) {
-            await waitFor(() => {
-              expect(isFullyVisible(getItem(ITEMS.length - 1))).toBe(true);
-            });
-          }
 
           await user.keyboard('{Home}');
           await waitFor(() => {
             expect(getHighlightedIndex()).toBe(0);
           });
-          if (!isJSDOM) {
+        });
+
+        it.skipIf(isJSDOM)(
+          'scrolls the last and first items into view with End and Home',
+          async () => {
+            const { user } = await renderList();
+            await openWithKeyboard(user);
+
+            await user.keyboard('{End}');
+            await waitFor(() => {
+              expect(isFullyVisible(getItem(ITEMS.length - 1))).toBe(true);
+            });
+
+            await user.keyboard('{Home}');
             await waitFor(() => {
               expect(isFullyVisible(getItem(0))).toBe(true);
             });
-          }
-        });
+          },
+        );
 
         it('moves to disabled ends with End and Home', async () => {
           const { user } = await renderList({
@@ -803,6 +820,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           await expectNoHighlight();
         } else {
           await waitFor(() => {
+            // eslint-disable-next-line vitest/no-conditional-expect -- where the highlight lands depends on the suite's `listEnd`
             expect(getHighlightedIndex()).toBe(expected);
           });
         }
@@ -824,15 +842,31 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           await expectNoHighlight();
         } else {
           await waitFor(() => {
+            // eslint-disable-next-line vitest/no-conditional-expect -- where the highlight lands depends on the suite's `listEnd`
             expect(getHighlightedIndex()).toBe(expected);
           });
-          if (!isJSDOM) {
-            await waitFor(() => {
-              expect(isFullyVisible(getItem(expected))).toBe(true);
-            });
-          }
         }
       });
+
+      // Only wrapping moves the highlight to an item that may be scrolled out of view.
+      it.skipIf(isJSDOM || listEnd !== 'wrap')(
+        'scrolls the first item into view when wrapping past the last item',
+        async () => {
+          const { user } = await renderList();
+          await focusTrigger();
+          await user.keyboard('{ArrowUp}');
+          await waitForOpen();
+          await waitFor(() => {
+            expect(getHighlightedIndex()).toBe(ITEMS.length - 1);
+          });
+
+          await user.keyboard('{ArrowDown}');
+
+          await waitFor(() => {
+            expect(isFullyVisible(getItem(0))).toBe(true);
+          });
+        },
+      );
 
       it('keeps a single item reachable', async () => {
         const spies = createSpies();
@@ -963,6 +997,8 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           await openWithMouse(user);
 
           // `force` clicks at the button's position even when a backdrop covers it.
+          // Real browser input (vitest/browser) updates React state outside Testing Library's act.
+          // eslint-disable-next-line testing-library/no-unnecessary-act
           await act(async () => {
             await userEvent.click(screen.getByTestId('after'), { force: true });
           });

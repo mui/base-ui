@@ -601,8 +601,6 @@ describe('<Drawer.Root />', () => {
     const handleOpenChange = vi.fn();
     await render(<TestCase onOpenChange={handleOpenChange} />);
 
-    await flushMicrotasks();
-
     const viewport = screen.getByTestId('viewport');
     const popup = screen.getByTestId('popup');
 
@@ -660,7 +658,6 @@ describe('<Drawer.Root />', () => {
       </div>,
     );
 
-    await flushMicrotasks();
     expect(screen.queryByTestId('payload')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Trigger 1' }));
@@ -845,7 +842,6 @@ describe('<Drawer.Root />', () => {
 
   it('resets the active snap point when closing', async () => {
     await render(<SnapPointResetCase />);
-    await flushMicrotasks();
 
     const closeButton = screen.getByTestId('close');
     fireEvent.click(closeButton);
@@ -857,7 +853,6 @@ describe('<Drawer.Root />', () => {
 
   it('resets to the default snap point when provided', async () => {
     await render(<DefaultSnapPointResetCase />);
-    await flushMicrotasks();
 
     expect(screen.getByTestId('active-snap').textContent).toBe('300px');
 
@@ -872,7 +867,6 @@ describe('<Drawer.Root />', () => {
   it('provides event details when snap point changes', async () => {
     const handleSnapPointChange = vi.fn();
     await render(<SnapPointChangeDetailsCase onSnapPointChange={handleSnapPointChange} />);
-    await flushMicrotasks();
 
     const closeButton = screen.getByTestId('close');
     fireEvent.click(closeButton);
@@ -886,7 +880,6 @@ describe('<Drawer.Root />', () => {
 
   it('does not reset snap point when a close is canceled', async () => {
     await render(<CanceledCloseSnapPointResetCase />);
-    await flushMicrotasks();
 
     expect(screen.getByTestId('active-snap').textContent).toBe('1');
 
@@ -1071,7 +1064,6 @@ describe('<Drawer.Root />', () => {
 
     try {
       await render(<CanceledSwipeCloseCase />);
-      await flushMicrotasks();
 
       const viewport = screen.getByTestId('viewport');
       const popup = screen.getByTestId('popup');
@@ -1102,7 +1094,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<ControlledAlwaysOpenCase onOpenChange={handleOpenChange} />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1141,7 +1132,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<ControlledSwipeCloseSnapPointCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1163,7 +1153,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<CanceledSwipeCloseSnapPointCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1258,7 +1247,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointSequentialSkipCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1341,7 +1329,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointSequentialSkipCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1367,7 +1354,6 @@ describe('<Drawer.Root />', () => {
 
     try {
       await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
-      await flushMicrotasks();
 
       const viewport = screen.getByTestId('viewport');
       const popup = screen.getByTestId('popup');
@@ -1396,7 +1382,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1666,9 +1651,10 @@ describe('<Drawer.Root />', () => {
       const env = setupSwipeTestEnv();
 
       try {
-        await render(
-          <SnapPointGestureCase initialSnapPoint="100px" rejectClose snapToSequentialPoints />,
-        );
+        // Start from a non-default snap point. Root's open change handler resets the snap point
+        // to the default ('100px') even when the parent rejects the close, so only a
+        // non-default starting point shows that the rejected dismissal restores it.
+        await render(<SnapPointGestureCase initialSnapPoint="300px" rejectClose />);
         const viewport = screen.getByTestId('viewport');
         env.pointAt(screen.getByTestId('popup'));
 
@@ -1682,7 +1668,7 @@ describe('<Drawer.Root />', () => {
           await waitSingleFrame();
         });
 
-        expect(screen.getByTestId('active-snap').textContent).toBe('100px');
+        expect(screen.getByTestId('active-snap').textContent).toBe('300px');
         expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
       } finally {
         env.cleanup();

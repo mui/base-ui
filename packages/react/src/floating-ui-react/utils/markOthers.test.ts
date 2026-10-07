@@ -294,6 +294,7 @@ test('does not recurse infinitely with target inside anchor in shadow root', () 
   anchor.appendChild(target);
   shadowRoot.appendChild(anchor);
 
+  // Infinite recursion would throw a RangeError here instead of returning.
   const cleanup = markOthers([target], { ariaHidden: true });
 
   // The host contains the target, so it must not have been hidden.

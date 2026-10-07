@@ -4,7 +4,7 @@ import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/i
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
-import { isJSDOM, useTestInteractions } from '#test-utils';
+import { createRenderer, isJSDOM, useTestInteractions } from '#test-utils';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -855,6 +855,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
   });
 
   describe('prop: capture', () => {
+    const { render: renderWithUser } = createRenderer({ strict: false });
+
     describe('normalizeProp', () => {
       test('undefined', () => {
         const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } = normalizeProp();
@@ -975,9 +977,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
     describe('prop: capture.outsidePress', () => {
       test('when true', async () => {
-        const user = userEvent.setup();
-
-        render(
+        const { user } = await renderWithUser(
           <Overlay>
             <NestedDialog id="outer">
               <NestedDialog id="inner">{null}</NestedDialog>
@@ -1002,9 +1002,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
     describe('prop: capture.escapeKey', () => {
       test('when false', async () => {
-        const user = userEvent.setup();
-
-        render(
+        const { user } = await renderWithUser(
           <Overlay>
             <NestedDialog id="outer">
               <NestedDialog id="inner">{null}</NestedDialog>

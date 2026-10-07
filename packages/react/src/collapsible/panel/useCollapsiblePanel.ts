@@ -147,6 +147,13 @@ export function useCollapsiblePanel(
   }, [markActivityResumeAnimationSuppressed, restorePendingTemporaryStyle]);
 
   useIsoLayoutEffect(() => {
+    // A render function can remove the panel on close. Clear one-shot open animation
+    // suppression even without an element, so the next open animates normally.
+    if (!open) {
+      shouldPreventMountAnimationRef.current = false;
+      shouldPreventActivityResumeAnimationRef.current = false;
+    }
+
     const panel = panelRef.current;
     if (!panel) {
       return undefined;
@@ -225,9 +232,6 @@ export function useCollapsiblePanel(
     // deferred ending phase applies closed styles. This keeps close transitions
     // starting from a measured pixel value, including interrupted opens.
     if (!open && mounted && (transitionStatus === 'idle' || transitionStatus === 'starting')) {
-      shouldPreventMountAnimationRef.current = false;
-      shouldPreventActivityResumeAnimationRef.current = false;
-
       if (animationType === 'none') {
         setDimensions(EMPTY_DIMENSIONS, false);
         setMounted(false);
@@ -308,6 +312,10 @@ export function useCollapsiblePanel(
 
     const panel = panelRef.current;
     if (!panel) {
+      // A render function can drop the panel element while it closes. There is nothing left
+      // to animate, so finish closing instead of staying in the ending phase.
+      setMounted(false);
+      setDimensions(EMPTY_DIMENSIONS, false);
       return undefined;
     }
 
