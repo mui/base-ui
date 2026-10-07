@@ -12,7 +12,7 @@ export default function OutsideScrollDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black/20 dark:bg-black/50 transition-opacity duration-[600ms] ease-[var(--ease-out-fast)] data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-[350ms] data-ending-style:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 overflow-y-auto overscroll-contain">
-          <div className="flex min-h-full items-center justify-center overflow-clip">
+          <div className="flex min-h-full items-center overflow-clip">
             <Dialog.Popup
               ref={popupRef}
               initialFocus={popupRef}
