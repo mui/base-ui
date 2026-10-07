@@ -19,7 +19,7 @@ export function useSelectRootStoreContext() {
   const store = React.useContext(SelectRootStoreContext);
   if (store === undefined) {
     throw new Error(
-      'Base UI: Select parts were rendered outside <Select.Root>. They cannot access the Select store. Wrap the parts in <Select.Root>.',
+      'Base UI: SelectRootStoreContext is missing. Select parts must be placed within <Select.Root>.',
     );
   }
   return store;

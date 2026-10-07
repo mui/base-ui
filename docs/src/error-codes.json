@@ -57,7 +57,7 @@
   "57": "Base UI: SelectItemContext is missing. SelectItem parts must be placed within <Select.Item>.",
   "58": "Base UI: <Select.Portal> is missing.",
   "59": "Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.",
-  "60": "Base UI: Select parts were rendered outside <Select.Root>. They cannot access the Select store. Wrap the parts in <Select.Root>.",
+  "60": "Base UI: SelectRootStoreContext is missing. Select parts must be placed within <Select.Root>.",
   "61": "Base UI: SelectFloatingContext is missing. Select parts must be placed within <Select.Root>.",
   "62": "Base UI: SliderRootContext is missing. Slider parts must be placed within <Slider.Root>.",
   "63": "Base UI: SwitchRootContext is missing. Switch parts must be placed within <Switch.Root>.",

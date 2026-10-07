@@ -19,7 +19,7 @@ describe('<Select.Trigger />', () => {
 
     try {
       await expect(render(<Select.Trigger />)).rejects.toThrow(
-        'Base UI: Select parts were rendered outside <Select.Root>. They cannot access the Select store. Wrap the parts in <Select.Root>.',
+        'Base UI: SelectRootStoreContext is missing. Select parts must be placed within <Select.Root>.',
       );
     } finally {
       errorSpy.mockRestore();
