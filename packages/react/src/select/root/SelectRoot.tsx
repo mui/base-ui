@@ -373,18 +373,32 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     focusItemOnHover: highlightItemOnHover,
   });
 
+  // Open changes requested by Select's own parts (an item press, the trigger, a window resize)
+  // don't go through the floating root, so dispatch them here like the floating hooks do.
+  // Otherwise `FloatingFocusManager` never learns how the popup closed and passes `finalFocus`
+  // an empty interaction type.
+  const setOpenFromPart = useStableCallback(
+    (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
+      setOpen(nextOpen, eventDetails);
+
+      if (!eventDetails.isCanceled) {
+        floatingContext.dispatchOpenChange(nextOpen, eventDetails);
+      }
+    },
+  );
+
   React.useImperativeHandle(
     actionsRef,
     () => ({
       unmount: handleUnmount,
       close: () => {
         if (store.state.open) {
-          setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+          setOpenFromPart(false, createChangeEventDetails(REASONS.imperativeAction));
         }
       },
       highlightItem: listNavigation.highlightItem,
     }),
-    [handleUnmount, setOpen, store, listNavigation.highlightItem],
+    [handleUnmount, setOpenFromPart, store, listNavigation.highlightItem],
   );
 
   const typeahead = useTypeahead(floatingContext, {
@@ -450,7 +464,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   store.useContextCallback('setValue', setValue);
-  store.useContextCallback('setOpen', setOpen);
+  store.useContextCallback('setOpen', setOpenFromPart);
   store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
