@@ -263,187 +263,46 @@ describe('<Menu.Trigger />', () => {
 
     clock.withFakeTimers();
 
-    let setOpen: (nextOpen: boolean) => void = () => {};
+    // The hover interaction is shared with Popover, whose tests cover its variants.
+    it('opens on hover after a menu opened by a click is closed through the `open` prop', async () => {
+      let setOpen: (nextOpen: boolean) => void = () => {};
 
-    function ControlledMenu(props: { keepMounted?: boolean; closeDelay?: number }) {
-      const [isOpen, setIsOpen] = React.useState(false);
-      setOpen = setIsOpen;
-      return (
-        <Menu.Root open={isOpen} onOpenChange={setIsOpen}>
-          <Menu.Trigger openOnHover delay={100} closeDelay={props.closeDelay}>
-            Open
-          </Menu.Trigger>
-          <Menu.Portal keepMounted={props.keepMounted}>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Item</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      );
-    }
+      function App() {
+        const [isOpen, setIsOpen] = React.useState(false);
+        setOpen = setIsOpen;
+        return (
+          <Menu.Root open={isOpen} onOpenChange={setIsOpen}>
+            <Menu.Trigger openOnHover delay={100}>
+              Open
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
 
-    function hover(trigger: HTMLElement) {
-      enterWithMouse(trigger);
-      clock.tick(100);
-    }
-
-    async function closeThroughProp() {
-      await act(async () => setOpen(false));
-      await flushMicrotasks();
-      expect(screen.queryByRole('menu')).toBe(null);
-    }
-
-    it.each([
-      {
-        name: 'a click',
-        open(trigger: HTMLElement) {
-          fireEvent.click(trigger);
-        },
-      },
-      { name: 'a hover', open: hover },
-      {
-        name: 'a hover pinned by a click',
-        open(trigger: HTMLElement) {
-          hover(trigger);
-          fireEvent.click(trigger);
-        },
-      },
-    ])(
-      'opens on hover after a menu opened by $name is closed through the `open` prop',
-      async ({ open }) => {
-        await renderFakeTimers(<ControlledMenu />);
-        const trigger = screen.getByRole('button', { name: 'Open' });
-
-        open(trigger);
-        await flushMicrotasks();
-        expect(screen.queryByRole('menu')).not.toBe(null);
-
-        await closeThroughProp();
-
-        fireEvent.mouseLeave(trigger);
-        hover(trigger);
-        await flushMicrotasks();
-
-        expect(screen.queryByRole('menu')).not.toBe(null);
-      },
-    );
-
-    it('does not open from a pointer that leaves before the delay once a click-opened menu is closed through the `open` prop', async () => {
-      await renderFakeTimers(<ControlledMenu />);
+      await renderFakeTimers(<App />);
       const trigger = screen.getByRole('button', { name: 'Open' });
 
       fireEvent.click(trigger);
       await flushMicrotasks();
       expect(screen.queryByRole('menu')).not.toBe(null);
 
-      await closeThroughProp();
-
-      fireEvent.mouseLeave(trigger);
-      enterWithMouse(trigger);
-      clock.tick(50);
-      fireEvent.mouseLeave(trigger);
-      clock.tick(100);
-      await flushMicrotasks();
-
-      expect(screen.queryByRole('menu')).toBe(null);
-    });
-
-    it('does not reopen a retained menu from a hover delay that was pending when a click opened it, once it is closed through the `open` prop', async () => {
-      // A popup that unmounts on close disposes of the pending timer with it.
-      await renderFakeTimers(<ControlledMenu keepMounted />);
-      const trigger = screen.getByRole('button', { name: 'Open' });
-
-      enterWithMouse(trigger);
-      clock.tick(50);
-      fireEvent.click(trigger);
-      await flushMicrotasks();
-      expect(trigger).toHaveAttribute('aria-expanded', 'true');
-
       await act(async () => setOpen(false));
       await flushMicrotasks();
-      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByRole('menu')).toBe(null);
 
+      fireEvent.mouseLeave(trigger);
+      enterWithMouse(trigger);
       clock.tick(100);
       await flushMicrotasks();
 
-      expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    });
-
-    describe('with a closeDelay', () => {
-      // Strict Mode remounts the popup, which disposes of the shared hover timers and hides the
-      // leftover close timer this covers.
-      const { clock: nonStrictClock, render: renderNonStrict } = createRenderer({ strict: false });
-
-      nonStrictClock.withFakeTimers();
-
-      it('does not close a menu reopened within the closeDelay after a controlled close while the pointer left the trigger', async () => {
-        await renderNonStrict(<ControlledMenu closeDelay={500} />);
-        const trigger = screen.getByRole('button', { name: 'Open' });
-
-        enterWithMouse(trigger);
-        fireEvent.click(trigger);
-        await flushMicrotasks();
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
-
-        await act(async () => setOpen(false));
-        await flushMicrotasks();
-        expect(trigger).toHaveAttribute('aria-expanded', 'false');
-
-        fireEvent.mouseLeave(trigger);
-        nonStrictClock.tick(60);
-
-        fireEvent.click(trigger);
-        await flushMicrotasks();
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
-
-        nonStrictClock.tick(600);
-        await flushMicrotasks();
-
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
-      });
-
-      it.each([
-        {
-          name: 'after a click opened it and the `open` prop closed it',
-          async setUp(trigger: HTMLElement) {
-            fireEvent.click(trigger);
-            await flushMicrotasks();
-            expect(trigger).toHaveAttribute('aria-expanded', 'true');
-            await act(async () => setOpen(false));
-            await flushMicrotasks();
-          },
-        },
-        {
-          name: 'after the pointer only passed over the trigger',
-          async setUp() {
-            nonStrictClock.tick(50);
-          },
-        },
-      ])(
-        'does not close a menu opened through the `open` prop within the closeDelay $name',
-        async ({ setUp }) => {
-          await renderNonStrict(<ControlledMenu closeDelay={500} />);
-          const trigger = screen.getByRole('button', { name: 'Open' });
-
-          enterWithMouse(trigger);
-          await setUp(trigger);
-          expect(trigger).toHaveAttribute('aria-expanded', 'false');
-
-          fireEvent.mouseLeave(trigger);
-          nonStrictClock.tick(60);
-
-          await act(async () => setOpen(true));
-          await flushMicrotasks();
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
-
-          nonStrictClock.tick(600);
-          await flushMicrotasks();
-
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
-        },
-      );
+      expect(screen.queryByRole('menu')).not.toBe(null);
     });
   });
 

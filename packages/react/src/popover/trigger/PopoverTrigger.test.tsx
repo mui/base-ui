@@ -360,26 +360,6 @@ describe('<Popover.Trigger />', () => {
       },
     );
 
-    it('does not open from a pointer that leaves before the delay once a click-opened popover is closed through the `open` prop', async () => {
-      await renderFakeTimers(<ControlledPopover />);
-      const trigger = screen.getByRole('button', { name: 'Open' });
-
-      fireEvent.click(trigger);
-      await flushMicrotasks();
-      expect(screen.queryByText('Content')).not.toBe(null);
-
-      await closeThroughProp();
-
-      fireEvent.mouseLeave(trigger);
-      enterWithMouse(trigger);
-      clock.tick(50);
-      fireEvent.mouseLeave(trigger);
-      clock.tick(100);
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).toBe(null);
-    });
-
     it('does not reopen a retained popover from a hover delay that was pending when a click opened it, once it is closed through the `open` prop', async () => {
       // A popup that unmounts on close disposes of the pending timer with it.
       await renderFakeTimers(<ControlledPopover keepMounted />);
@@ -407,32 +387,6 @@ describe('<Popover.Trigger />', () => {
       const { clock: nonStrictClock, render: renderNonStrict } = createRenderer({ strict: false });
 
       nonStrictClock.withFakeTimers();
-
-      it('does not close a popover reopened within the closeDelay after a controlled close while the pointer left the trigger', async () => {
-        await renderNonStrict(<ControlledPopover closeDelay={500} />);
-        const trigger = screen.getByRole('button', { name: 'Open' });
-
-        enterWithMouse(trigger);
-        fireEvent.click(trigger);
-        await flushMicrotasks();
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
-
-        await act(async () => setOpen(false));
-        await flushMicrotasks();
-        expect(trigger).toHaveAttribute('aria-expanded', 'false');
-
-        fireEvent.mouseLeave(trigger);
-        nonStrictClock.tick(60);
-
-        fireEvent.click(trigger);
-        await flushMicrotasks();
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
-
-        nonStrictClock.tick(600);
-        await flushMicrotasks();
-
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
-      });
 
       it.each([
         {

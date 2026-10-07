@@ -12,7 +12,14 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, isScrollLocked, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  enterWithMouse,
+  isJSDOM,
+  isScrollLocked,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
@@ -101,41 +108,10 @@ describe('<Popover.Root />', () => {
     });
 
     describe('controlled open', () => {
-      it.skipIf(isJSDOM).each([
-        {
-          name: 'a click',
-          async open(user: Awaited<ReturnType<typeof render>>['user'], trigger: HTMLElement) {
-            await user.click(trigger);
-          },
-        },
-        {
-          name: 'a hover',
-          async open(user: Awaited<ReturnType<typeof render>>['user'], trigger: HTMLElement) {
-            await user.hover(trigger);
-          },
-        },
-      ])(
-        'ignores the pointer leaving while a popover opened by $name animates out after `open` was set to false',
-        async ({ open }) => {
-          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      describe('with a closeDelay', () => {
+        clock.withFakeTimers();
 
-          // Long enough that a slow run can't finish the close before the pointer leaves.
-          const closeTransitionMs = 10_000;
-          const style = `
-            @keyframes popover-prop-close-leave {
-              from {
-                opacity: 1;
-              }
-              to {
-                opacity: 0.01;
-              }
-            }
-
-            .animation-test-indicator[data-ending-style] {
-              animation: popover-prop-close-leave ${closeTransitionMs}ms linear forwards;
-            }
-          `;
-
+        it('does not report a hover close whose delay expires after `open` was set to false', async () => {
           const handleChange = vi.fn();
           let setOpen: (nextOpen: boolean) => void = () => {};
 
@@ -143,47 +119,42 @@ describe('<Popover.Root />', () => {
             const [open, setOpenState] = React.useState(false);
             setOpen = setOpenState;
             return (
-              <React.Fragment>
-                {/* eslint-disable-next-line react/no-danger */}
-                <style dangerouslySetInnerHTML={{ __html: style }} />
-                <TestPopover
-                  rootProps={{
-                    open,
-                    onOpenChange: (nextOpen, details) => {
-                      handleChange(nextOpen, details.reason);
-                      setOpenState(nextOpen);
-                    },
-                  }}
-                  triggerProps={{ openOnHover: true, delay: 1 }}
-                  popupProps={{ className: 'animation-test-indicator' }}
-                />
-              </React.Fragment>
+              <TestPopover
+                rootProps={{
+                  open,
+                  onOpenChange: (nextOpen, details) => {
+                    handleChange(nextOpen, details.reason);
+                    setOpenState(nextOpen);
+                  },
+                }}
+                triggerProps={{ openOnHover: true, delay: 100, closeDelay: 500 }}
+                // Unmounting the popup would dispose of the pending close timer with it.
+                portalProps={{ keepMounted: true }}
+              />
             );
           }
 
-          const { user } = await render(<App />);
+          await render(<App />);
           const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-          await open(user, trigger);
-          await waitFor(() => {
-            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-open');
-          });
+          enterWithMouse(trigger);
+          clock.tick(100);
+          await flushMicrotasks();
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
+          // Leaving an open popover starts its close delay.
+          fireEvent.mouseLeave(trigger);
           await act(async () => setOpen(false));
-          await waitFor(() => {
-            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
-          });
-          const callsBeforeLeaving = handleChange.mock.calls.length;
+          await flushMicrotasks();
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+          const callsBeforeExpiry = handleChange.mock.calls.length;
 
-          await user.unhover(trigger);
-          await act(async () => {
-            await wait(100);
-          });
+          clock.tick(500);
+          await flushMicrotasks();
 
-          expect(handleChange.mock.calls.slice(callsBeforeLeaving)).toEqual([]);
-          expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
-        },
-      );
+          expect(handleChange.mock.calls.slice(callsBeforeExpiry)).toEqual([]);
+        });
+      });
 
       it('should call onChange when the open state changes', async () => {
         const handleChange = vi.fn();
