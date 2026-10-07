@@ -1462,7 +1462,7 @@ React.useEffect(() => {
 
 ### refresh
 
-Applies a change to an element's options right away. Base UI calls the options function each time it needs a value, so most changes apply on their own. A few are read only at certain moments, so call `refresh(element)` after changing one of these:
+Applies a change to an element's options right away. Base UI calls the options function each time it needs a value, so most changes apply on their own. A few are read only at certain moments, so call `refresh(element)` after changing one of these:
 
 - A source's `disabled` or `handle`. Otherwise the styles a source has while idle, which prevent text selection and the long-press menu on it or its handle, are updated only on the next press.
 - A source's `payload` during its drag, so [`useActiveDrag()`](#useactivedrag) returns the new value.
