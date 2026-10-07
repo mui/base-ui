@@ -1,0 +1,11 @@
+@layer components {
+  .MdBlogArticle > *:first-child {
+    margin-top: 0;
+  }
+
+  .MdBlogArticleBreakout {
+    @media (min-width: 48rem) {
+      margin-inline: -0.75rem;
+    }
+  }
+}

@@ -1,0 +1,12 @@
+@layer components {
+  .DiagramBlogRoot {
+    overflow-x: auto;
+    padding: var(--space-20);
+  }
+
+  .DiagramBlogContent > svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}

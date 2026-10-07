@@ -88,7 +88,7 @@ describe('docs MDX pipeline', () => {
     const metadataIndex = names.indexOf(
       '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
     );
-    const headingTagsIndex = names.findIndex((name) => name.endsWith('/remarkHeadingTags.mjs'));
+    const headingTagsIndex = names.findIndex((name) => name.endsWith('/remarkPreprocess.mjs'));
 
     expect(metadataIndex).not.toBe(-1);
     expect(headingTagsIndex).toBeGreaterThan(metadataIndex);
