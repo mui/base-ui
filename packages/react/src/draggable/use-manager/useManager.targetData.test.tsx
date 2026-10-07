@@ -3,7 +3,7 @@ import { act, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer } from '../../../test/dndEngine';
-import { registerTarget } from '../../utils/drag-and-drop/registrations';
+import { registerTarget } from '../../utils/drag-and-drop/dropTarget';
 import {
   cancel,
   createElement,

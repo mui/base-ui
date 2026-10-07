@@ -1,11 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import * as dragCursor from './dragCursor';
-import {
-  addDropTargetRegistration,
-  removeDropTargetRegistration,
-  resetForTests as resetDropTargets,
-} from '../dropTarget';
+import { registerTarget, resetForTests as resetDropTargets } from '../dropTarget';
+import { anyDragKind as anyKind } from '../dragKind';
 
 const DRAGGING_CLASS = 'baseui-dragging';
 const STYLE_CLASS = 'baseui-dragging-styles';
@@ -246,8 +243,7 @@ describe('dragCursor', () => {
       const target = document.createElement('div');
       target.style.cursor = 'pointer';
       shadow.appendChild(target);
-      const getParameters = () => ({});
-      addDropTargetRegistration(target, getParameters);
+      const unregister = registerTarget(target, () => ({ accept: anyKind }));
 
       try {
         dragCursor.lock(document.body, 'grabbing');
@@ -257,7 +253,7 @@ describe('dragCursor', () => {
         expect(getComputedStyle(target).cursor).toBe('pointer');
         expect(shadow.adoptedStyleSheets).toHaveLength(0);
       } finally {
-        removeDropTargetRegistration(target, getParameters);
+        unregister();
         host.remove();
       }
     });
@@ -269,17 +265,15 @@ describe('dragCursor', () => {
       const target = document.createElement('div');
       target.style.cursor = 'pointer';
       shadow.appendChild(target);
-      const getParameters = () => ({});
-
       try {
         dragCursor.lock(document.body, 'grabbing');
         expect(getComputedStyle(target).cursor).toBe('pointer');
 
-        addDropTargetRegistration(target, getParameters);
+        const unregister = registerTarget(target, () => ({ accept: anyKind }));
         expect(getComputedStyle(target).cursor).toBe('grabbing');
 
         // Unregistering leaves the root as it was found.
-        removeDropTargetRegistration(target, getParameters);
+        unregister();
         expect(getComputedStyle(target).cursor).toBe('pointer');
 
         dragCursor.unlock();
@@ -294,15 +288,14 @@ describe('dragCursor', () => {
       const shadow = host.attachShadow({ mode: 'open' });
       const target = document.createElement('div');
       shadow.appendChild(target);
-      const getParameters = () => ({});
-      addDropTargetRegistration(target, getParameters);
+      const unregister = registerTarget(target, () => ({ accept: anyKind }));
 
       try {
         dragCursor.lock(document.body, 'grabbing', { disableStyleElements: true });
         expect(shadow.adoptedStyleSheets).toHaveLength(0);
         dragCursor.unlock();
       } finally {
-        removeDropTargetRegistration(target, getParameters);
+        unregister();
         host.remove();
       }
     });

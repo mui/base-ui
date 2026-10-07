@@ -3,7 +3,7 @@ import { isJSDOM } from '#test-utils';
 import { getSharedSlot } from './sharedState';
 import { createKind } from './dragKind';
 import { createRegisterSource } from './useRegisterSource';
-import { registerTarget } from './registrations';
+import { registerTarget } from './dropTarget';
 import {
   createElement,
   dragEnter,
@@ -50,7 +50,7 @@ describe('separate copies of the engine', () => {
       vi.resetModules();
       const copyA = await import('./useRegisterSource');
       vi.resetModules();
-      const copyB = await import('./registrations');
+      const copyB = await import('./dropTarget');
       // Neither copy is the one this file imported.
       expect(copyA.createRegisterSource).not.toBe(createRegisterSource);
       expect(copyB.registerTarget).not.toBe(registerTarget);

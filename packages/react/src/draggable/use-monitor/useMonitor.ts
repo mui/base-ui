@@ -1,7 +1,7 @@
 'use client';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { registerMonitor } from '../../utils/drag-and-drop/registrations';
+import { registerMonitor } from '../../utils/drag-and-drop/monitor';
 import type { AcceptedDragPayload, AcceptedDragData } from '../../utils/drag-and-drop/types';
 import type { DraggableAccept, DraggableKind } from '../DraggableProvider';
 import type {

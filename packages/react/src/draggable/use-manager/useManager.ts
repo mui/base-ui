@@ -1,7 +1,8 @@
 'use client';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
-import { registerMonitor, registerTarget } from '../../utils/drag-and-drop/registrations';
+import { registerMonitor } from '../../utils/drag-and-drop/monitor';
+import { registerTarget } from '../../utils/drag-and-drop/dropTarget';
 import { registerViewport, wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
 import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
 import { refreshDragSource } from '../../utils/drag-and-drop/dragSource';
@@ -38,7 +39,7 @@ function refresh(element: HTMLElement): void {
 export function useManager(): UseDraggableManagerReturnValue {
   // Preview content renders through the `Draggable.Provider` nearest this hook call.
   // Registrations and sensors are global, so the stateless registrations are
-  // re-exposed as methods (see `registrations.ts` and `autoScroller.ts`).
+  // re-exposed as methods (see `dropTarget.ts`, `monitor.ts` and `autoScroller.ts`).
   const registerSource = useRegisterSource();
   const engine = useRefWithInit((): InternalDragEngine => ({
     registerSource,

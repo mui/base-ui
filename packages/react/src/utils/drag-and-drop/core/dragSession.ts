@@ -61,8 +61,8 @@ export interface DragSession {
   onEnd(listener: () => void): DragCleanupFn;
   /**
    * Called while `element` unregisters and `getParameters` is still readable. A
-   * target still owed `onDraggableLeave` leaves the stack and gets its leave,
-   * through `getParameters` if need be. Any other unregister joins the coalesced
+   * target still owed `onDraggableLeave` gets it, through `getParameters` once the
+   * registry no longer holds the element. Any other unregister joins the coalesced
    * refresh.
    */
   releaseTarget(element: Element, getParameters: DropTargetGetter): void;

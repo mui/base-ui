@@ -22,8 +22,7 @@ import type {
   DraggableTargetRecord,
   DraggableTargetResolutionContext,
 } from '../target/DraggableTarget';
-import { registerTarget } from '../../utils/drag-and-drop/registrations';
-import { resolveCollision } from '../../utils/drag-and-drop/dropTarget';
+import { registerTarget, resolveCollision } from '../../utils/drag-and-drop/dropTarget';
 import type {
   CollisionResolutionRegistration,
   DropTargetParameters,

@@ -1,5 +1,5 @@
 import { matchesAccept } from './dragKind';
-import type { DraggableAccept } from '../../draggable/DraggableProvider';
+import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
 import type {
   DraggableRootMoveEndEventDetails,
   DraggableRootMoveEventDetails,
@@ -7,9 +7,18 @@ import type {
   DraggableRootRecord,
   DraggableRootTargetChangeEventDetails,
 } from '../../draggable/root/DraggableRoot';
-import type { DraggableEventDetailsMap } from './types';
+import type {
+  AcceptedDragData,
+  AcceptedDragPayload,
+  DragCleanupFn,
+  DraggableEventDetailsMap,
+} from './types';
+import type {
+  DragParametersWithInferredAccept,
+  RegisterMonitorParameters,
+} from './registrationTypes';
 import { getSharedSlot } from './sharedState';
-import { containConsumerError, getShallowSnapshot } from './utils';
+import { containConsumerError, getShallowSnapshot, onceCleanup } from './utils';
 
 /** Returns a monitor's latest parameters. Read on each dispatch. */
 type MonitorGetter = () => MonitorParameters<any, any>;
@@ -24,6 +33,19 @@ export function addMonitor(getMonitor: MonitorGetter): void {
 
 export function removeMonitor(getMonitor: MonitorGetter): void {
   state.allMonitors.delete(getMonitor);
+}
+
+// The type argument is the `accept` value, like in every other API that takes `accept`.
+export function registerMonitor<
+  TAccept extends DraggableAccept<unknown> = DraggableKind<unknown, unknown>,
+>(
+  getMonitor: () => DragParametersWithInferredAccept<
+    RegisterMonitorParameters<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>,
+    TAccept
+  >,
+): DragCleanupFn {
+  addMonitor(getMonitor);
+  return onceCleanup(() => removeMonitor(getMonitor));
 }
 
 export interface MonitorDispatch {

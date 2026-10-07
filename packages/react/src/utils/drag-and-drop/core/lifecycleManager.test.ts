@@ -19,21 +19,18 @@ import type {
   DropTargetChangeEventDetails,
   MoveEndEventDetails,
 } from '../types';
-import {
-  addDropTargetRegistration,
-  getDropTargetShadowRootsByHost,
-  removeDropTargetRegistration,
-} from '../dropTarget';
+import { getDropTargetShadowRootsByHost, registerTarget } from '../dropTarget';
+import type { DropTargetParameters } from '../dropTarget';
 import { elementFromPointIgnoring } from '../utils';
 import { addMonitor, removeMonitor } from '../monitor';
-import { registerTarget } from '../registrations';
+
 import { cancelDrag } from '../synthetic/pickupRecognizer';
 import { createDragSource } from '../dragSource';
 import { dragSessionStore } from '../dragSessionStore';
 import { start } from './lifecycleManager';
 import { getActiveSession, resetForTests } from './dragSession';
 import type { DragSessionController, SourceHandlers } from './lifecycleManager';
-import { createKind } from '../dragKind';
+import { anyDragKind as anyKind, createKind } from '../dragKind';
 
 setupDragEngineTests();
 
@@ -50,6 +47,19 @@ function hitTest(clientX: number, clientY: number): Element | null {
 
 const TEST_KIND = createKind('lifecycle-test');
 
+/**
+ * Registers a target through the engine's real seam, so an unregister runs the
+ * production leave path. `accept` defaults to every kind.
+ */
+function addTarget(
+  element: HTMLElement,
+  getParameters: () => DropTargetParameters<any, any, any, any>,
+): () => void {
+  const unregister = registerTarget(element, () => ({ accept: anyKind, ...getParameters() }));
+  registerCleanup(unregister);
+  return unregister;
+}
+
 describe('lifecycle manager', () => {
   const { renderDnd } = createDndRenderer();
 
@@ -58,7 +68,7 @@ describe('lifecycle manager', () => {
     const target = createElement();
     const onDraggableLeave = vi.fn();
     const getTarget = () => ({ accept: TEST_KIND, onDraggableLeave });
-    addDropTargetRegistration(target, getTarget);
+    addTarget(target, getTarget);
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
     const grabOffset = { x: 12, y: 8 };
@@ -134,8 +144,8 @@ describe('lifecycle manager', () => {
       },
     });
     const outerParameters = () => ({ accept: TEST_KIND, onDraggableLeave: outerLeave });
-    addDropTargetRegistration(inner, innerParameters);
-    addDropTargetRegistration(outer, outerParameters);
+    addTarget(inner, innerParameters);
+    addTarget(outer, outerParameters);
     const handle = startDragWithHandlers({}, inner);
     expect(() => handle!.drop(makeInput(), inner)).toThrow('leave failed');
     expect(outerLeave).toHaveBeenCalledTimes(1);
@@ -218,11 +228,10 @@ describe('lifecycle manager', () => {
   });
 
   describe('malformed registrations', () => {
-    function registerRawTarget(element: Element, getParameters: () => unknown): void {
+    function registerRawTarget(element: HTMLElement, getParameters: () => unknown): void {
       // Plain JS can pass what the types forbid.
-      addDropTargetRegistration(
-        element,
-        getParameters as Parameters<typeof addDropTargetRegistration>[1],
+      registerCleanup(
+        registerTarget(element, getParameters as Parameters<typeof registerTarget>[1]),
       );
     }
 
@@ -298,7 +307,7 @@ describe('lifecycle manager', () => {
       changed
         ? { accept: other, onDraggableLeave: newLeave }
         : { accept: TEST_KIND, onDraggableLeave: previousLeave };
-    addDropTargetRegistration(target, getTarget);
+    addTarget(target, getTarget);
     const handle = startDragWithHandlers({}, target);
     changed = true;
     handle!.update(makeInput(), target, new Event('pointermove'), 'pointer');
@@ -318,7 +327,7 @@ describe('lifecycle manager', () => {
       changed
         ? { kind: nextKind, payload: { count: 1 }, onDraggableLeave: newLeave }
         : { kind: originalKind, payload: { title: 'Original' }, onDraggableLeave: previousLeave };
-    addDropTargetRegistration(target, getTarget);
+    addTarget(target, getTarget);
     const handle = startDragWithHandlers({}, target);
     changed = true;
     handle!.update(makeInput(), null, new Event('pointermove'), 'pointer');
@@ -446,7 +455,7 @@ describe('lifecycle manager', () => {
         onDraggableEnter,
         onDraggableLeave,
       });
-      addDropTargetRegistration(under, getUnderParams);
+      addTarget(under, getUnderParams);
 
       const source = createElement();
       under.appendChild(source);
@@ -500,8 +509,8 @@ describe('lifecycle manager', () => {
       // Innermost first, which is the order the stack is resolved and entered in.
       const getInnerParams = () => ({ onDraggableEnter: innerEnter, onDraggableLeave: innerLeave });
       const getOuterParams = () => ({ onDraggableEnter: outerEnter, onDraggableLeave: outerLeave });
-      addDropTargetRegistration(inner, getInnerParams);
-      addDropTargetRegistration(outer, getOuterParams);
+      addTarget(inner, getInnerParams);
+      addTarget(outer, getOuterParams);
 
       const source = createElement();
       inner.appendChild(source);
@@ -587,7 +596,7 @@ describe('lifecycle manager', () => {
       host.appendChild(child);
       let disabled = true;
       const getTarget = () => ({ disabled });
-      addDropTargetRegistration(target, getTarget);
+      addTarget(target, getTarget);
       let handle: DragSessionController | null = null;
       act(() => {
         handle = startDragWithHandlers({}, child);
@@ -607,7 +616,7 @@ describe('lifecycle manager', () => {
       const newTarget = createElement();
       const canDrop = vi.fn(() => true);
       const getTarget = () => ({ canDrop });
-      addDropTargetRegistration(newTarget, getTarget);
+      addTarget(newTarget, getTarget);
       let handle: DragSessionController | null = null;
       act(() => {
         handle = startDragWithHandlers({}, previousTarget);
@@ -630,8 +639,8 @@ describe('lifecycle manager', () => {
       const targetB = createElement();
       const getTargetA = vi.fn(() => ({}));
       const getTargetB = vi.fn(() => ({}));
-      addDropTargetRegistration(targetA, getTargetA);
-      addDropTargetRegistration(targetB, getTargetB);
+      addTarget(targetA, getTargetA);
+      addTarget(targetB, getTargetB);
 
       let first: DragSessionController | null = null;
       act(() => {
@@ -666,7 +675,7 @@ describe('lifecycle manager', () => {
       target.appendChild(child);
       const onDraggableLeave = vi.fn();
       const getTarget = () => ({ onDraggableLeave });
-      addDropTargetRegistration(target, getTarget);
+      addTarget(target, getTarget);
 
       let handle: DragSessionController | null = null;
       act(() => {
@@ -1096,7 +1105,7 @@ describe('lifecycle manager', () => {
           throw new Error('boom from onDraggableEnter');
         },
       });
-      addDropTargetRegistration(target, getTargetParams);
+      addTarget(target, getTargetParams);
       const getMonitor = () => ({ onMoveEnd: monitorEnd });
       addMonitor(getMonitor);
       registerCleanup(() => removeMonitor(getMonitor));
@@ -1165,7 +1174,7 @@ describe('lifecycle manager', () => {
       const onDraggableEnter = vi.fn();
       const onDraggableLeave = vi.fn();
       const getTargetParams = () => ({ onDraggableEnter, onDraggableLeave });
-      addDropTargetRegistration(target, getTargetParams);
+      addTarget(target, getTargetParams);
 
       const handle = startDragWithHandlers({
         onMove: () => {
@@ -1212,7 +1221,7 @@ describe('lifecycle manager', () => {
         onDraggableDrop: targetOnDrop,
         onDraggableLeave: targetOnDragLeave,
       });
-      addDropTargetRegistration(target, getTargetParams);
+      addTarget(target, getTargetParams);
       const getMonitor = () => ({
         onMoveEnd: splitEnd(monitorDrop, monitorEnd),
       });
@@ -1262,7 +1271,7 @@ describe('lifecycle manager', () => {
         },
         onDraggableLeave: targetOnDragLeave,
       });
-      addDropTargetRegistration(target, getTargetParams);
+      addTarget(target, getTargetParams);
       const getMonitor = () => ({
         onMoveEnd: splitEnd(monitorDrop, monitorEnd),
       });
@@ -1288,7 +1297,7 @@ describe('lifecycle manager', () => {
       const targetOnDragLeave = vi.fn();
       const monitorEnd = vi.fn();
       const getTargetParams = () => ({ onDraggableLeave: targetOnDragLeave });
-      addDropTargetRegistration(target, getTargetParams);
+      addTarget(target, getTargetParams);
       const getMonitor = () => ({ onMoveEnd: monitorEnd });
       addMonitor(getMonitor);
       registerCleanup(() => removeMonitor(getMonitor));
@@ -1368,8 +1377,7 @@ describe('lifecycle manager', () => {
     it('a throwing onTargetChange tears the session down', () => {
       // Only a stack change reaches `onTargetChange`, hence the real drop target.
       const targetEl = createElement();
-      const getParameters = () => ({});
-      addDropTargetRegistration(targetEl, getParameters);
+      const unregister = addTarget(targetEl, () => ({}));
 
       const handle = startDragWithHandlers({
         onTargetChange: () => {
@@ -1381,7 +1389,7 @@ describe('lifecycle manager', () => {
         handle!.update(makeInput(), targetEl, new Event('pointermove'), 'pointer'),
       ).toThrow('boom from onTargetChange');
 
-      removeDropTargetRegistration(targetEl, getParameters);
+      unregister();
       expectEngineRecovered();
     });
 

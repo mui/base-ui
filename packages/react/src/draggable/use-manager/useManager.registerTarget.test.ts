@@ -16,7 +16,7 @@ import {
 } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
-import { registerTarget as registerTargetRaw } from '../../utils/drag-and-drop/registrations';
+import { registerTarget as registerTargetRaw } from '../../utils/drag-and-drop/dropTarget';
 import { anyDragKind } from '../../utils/drag-and-drop/dragKind';
 import type { MoveEventDetails } from '../../utils/drag-and-drop/types';
 import type { DraggableTargetRecord } from '../target/DraggableTarget';

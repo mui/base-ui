@@ -4,7 +4,7 @@ import type {
   DropTargetChangeEventDetails,
   DropTargetEventReasonMap,
 } from './types';
-import { dispatchToDropTarget, isActiveDropTargetRegistration } from './dropTarget';
+import { dispatchToDropTarget } from './dropTarget';
 import type { DropTargetEventName, DropTargetGetter } from './dropTarget';
 
 /**
@@ -54,9 +54,8 @@ export interface HoverLedger {
     shouldContinue: () => boolean,
   ): void;
   /**
-   * Keep `getParameters` readable while `element` leaves the registry, so the leave
-   * it is owed can still go out. Does nothing when another hold on `element` takes
-   * over, since the element stays registered.
+   * Keep `getParameters` readable after `element` leaves the registry, so the leave
+   * it is owed can still go out. Unused while another hold keeps the element registered.
    */
   retain(element: Element, getParameters: DropTargetGetter): void;
 }
@@ -163,9 +162,7 @@ export function createHoverLedger(): HoverLedger {
       }
     },
     retain(element, getParameters) {
-      if (isActiveDropTargetRegistration(element, getParameters)) {
-        retained.set(element, getParameters);
-      }
+      retained.set(element, getParameters);
     },
   };
 }

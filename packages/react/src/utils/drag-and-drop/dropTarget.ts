@@ -1,5 +1,6 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui/utils/clamp';
+import { warn } from '@base-ui/utils/warn';
 import type { DraggableAccept, DraggableKind } from '../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import type {
@@ -28,6 +29,7 @@ import {
   getComposedParentElement,
   getOrCreate,
   getShallowSnapshot,
+  onceCleanup,
   safeCallConsumer,
 } from './utils';
 import { syncParticipantPayload } from './participantData';
@@ -211,18 +213,6 @@ export function trackDropTargetShadowRoots(
 }
 
 /**
- * Whether `getParameters` is the hold `element` dispatches through. Inside the
- * `beforeDelete` callback of {@link removeDropTargetRegistration}, it tells an
- * element leaving the registry from one whose released hold promoted another.
- */
-export function isActiveDropTargetRegistration(
-  element: Element,
-  getParameters: DropTargetGetter,
-): boolean {
-  return holds.getActive(element) === getParameters;
-}
-
-/**
  * The key a registration's payload and `dragData` are stored under. Not the getter
  * alone: cells sharing `() => cellParameters` each need their own state, and
  * unregistering one must not reset the others.
@@ -242,29 +232,77 @@ function releaseRegistrationKey(element: Element, getParameters: DropTargetGette
   }
 }
 
-/**
- * Push a hold onto `element`'s stack. Pass the same `getParameters` to
- * {@link removeDropTargetRegistration} to release it.
- */
-export function addDropTargetRegistration(element: Element, getParameters: DropTargetGetter): void {
-  holds.add(element, getParameters);
-}
-
-/**
- * Release one hold on `element`. `beforeDelete` runs while the registration is
- * still readable, so the caller can refresh the lifecycle and deliver
- * `onDraggableLeave` (see `getterStackRegistry`).
- */
-export function removeDropTargetRegistration(
-  element: Element,
-  getParameters: DropTargetGetter,
-  beforeDelete?: () => void,
-): void {
-  try {
-    holds.remove(element, getParameters, beforeDelete);
-  } finally {
-    releaseRegistrationKey(element, getParameters);
+export function registerTarget<
+  TSourcePayload = unknown,
+  TTargetPayload = unknown,
+  TDragData = unknown,
+  TTargetDragData = unknown,
+>(
+  element: HTMLElement,
+  getParameters: () => DropTargetParameters<
+    TSourcePayload,
+    TTargetPayload,
+    TDragData,
+    TTargetDragData
+  >,
+): DragCleanupFn {
+  if (process.env.NODE_ENV !== 'production') {
+    // An omitted `accept` silently takes every drag and hands foreign payloads to
+    // handlers typed for its own. A throw, from the getter or a plain-JS `accept`
+    // getter, is swallowed: this dev-only check must not break registration, and the
+    // dispatch path already reports it.
+    let missingAccept = false;
+    let hasKind = false;
+    try {
+      const parameters = getParameters();
+      // A getter written in plain JS can return `undefined`, and `accept: null`
+      // takes every drag like an omitted one.
+      missingAccept = parameters != null && parameters.accept == null;
+      hasKind = missingAccept && Boolean(parameters.kind);
+    } catch {
+      // Reported on dispatch.
+    }
+    if (missingAccept) {
+      // Only reachable from plain JS or a cast: the types require `accept`, and
+      // `Draggable.Target` always passes one.
+      if (hasKind) {
+        warn(
+          'registerTarget() was called with `kind` but no `accept`, so the target takes every drag on the page. ' +
+            '`kind` is what this target is; `accept` is which sources it takes. ' +
+            'Add `accept` with the kinds this target should receive, or drop `kind` if the target needs no identity of its own. ' +
+            'See https://base-ui.com/react/utils/draggable.',
+        );
+      } else {
+        warn(
+          'registerTarget() was called without `accept`, so the target takes every drag on the page ' +
+            'and hands foreign payloads to its handlers. ' +
+            'Add `accept` with the kinds this target should receive, or ' +
+            '`accept: Draggable.anyKind` to accept every drag on purpose. ' +
+            'See https://base-ui.com/react/utils/draggable.',
+        );
+      }
+    }
   }
+
+  holds.add(element, getParameters);
+
+  // A virtualizer can replace the hovered target's node mid-drag, so re-resolve the
+  // stack to let the new node enter it. Runs on every registration: an element that
+  // re-registers from its own `onDraggableLeave` keeps its entry but must still
+  // rejoin the stack before the next pointer update.
+  getActiveSession()?.scheduleTargetRefresh(null, true);
+
+  return onceCleanup(() => {
+    try {
+      // The session can still read the registration of an element that leaves the
+      // registry, to deliver a leave it is owed.
+      holds.remove(element, getParameters, () => {
+        getActiveSession()?.releaseTarget(element, getParameters);
+      });
+    } finally {
+      releaseRegistrationKey(element, getParameters);
+    }
+  });
 }
 
 /**
