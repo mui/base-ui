@@ -7,7 +7,7 @@ import { Slider } from '@base-ui/react/slider';
 import { createDndRenderer, testDragKind } from '../../../../test/dndEngine';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import { penDown, penMove, touchDown, touchMove, touchUp } from '../../../../test/syntheticPointer';
-import { cancelDrag } from './syntheticSensor';
+import { cancelDrag } from './pickupRecognizer';
 
 setupDragEngineTests();
 

@@ -556,3 +556,53 @@ export function unadoptStyleSheet(root: DocumentOrShadowRoot, sheet: CSSStyleShe
     root.adoptedStyleSheets = root.adoptedStyleSheets.filter((adopted) => adopted !== sheet);
   }
 }
+
+/** Whether the primary button is still down. `buttons` is a bitmask, and bit 0 is the primary. */
+export function isPrimaryHeld(event: PointerEvent): boolean {
+  return event.buttons % 2 !== 0;
+}
+
+/** Installed only while a gesture is alive (see `onPointerDown` and `startDrag`). */
+export function preventContextMenu(event: Event): void {
+  event.preventDefault();
+}
+
+/**
+ * Block the native HTML5 drag that a natively draggable descendant (`<img>`,
+ * `<a href>`) starts from the same press. `draggable="false"` on the source
+ * doesn't cover a nested `<img>` or `<a>`, so the pending and active phases
+ * cancel `dragstart` directly.
+ */
+export function preventNativeDragStart(event: Event): void {
+  event.preventDefault();
+}
+
+/**
+ * Run a pointer capture operation and swallow the `DOMException`
+ * (`InvalidStateError` or `NotFoundError`) it throws when the pointer is no
+ * longer active, or when the OS or another listener already released capture.
+ * The check uses the element's own realm, since an iframe or popout has its own
+ * `DOMException`. Any other error is rethrown.
+ */
+export function swallowPointerCaptureError(element: Element, operation: () => void): void {
+  try {
+    operation();
+  } catch (err) {
+    if (!(err instanceof ownerWindow(element).DOMException)) {
+      throw err;
+    }
+  }
+}
+
+export function releasePointerCaptureSafely(element: Element, pointerId: number): void {
+  swallowPointerCaptureError(element, () => {
+    if (element.hasPointerCapture?.(pointerId)) {
+      element.releasePointerCapture(pointerId);
+    }
+  });
+}
+
+export function setPointerCaptureSafely(element: Element, pointerId: number): void {
+  // Optional-chained so jsdom (no pointer capture) no-ops instead of throwing.
+  swallowPointerCaptureError(element, () => element.setPointerCapture?.(pointerId));
+}

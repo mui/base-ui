@@ -20,7 +20,7 @@ import type { InlineStyleOverride } from './synthetic/dragRootLock';
 import { getSharedSlot } from './sharedState';
 import { getOrCreate, onceCleanup } from './utils';
 import { addDraggableRegistration, resolveDragHandle } from './draggableRegistry';
-import { bindPointerListeners } from './synthetic/syntheticSensor';
+import { bindPointerListeners } from './synthetic/pickupRecognizer';
 import {
   getPreviewSourceIdentity,
   retargetEndingPreviewSource,

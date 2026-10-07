@@ -29,7 +29,7 @@ import {
 import { elementFromPointIgnoring } from '../utils';
 import { addMonitor, removeMonitor } from '../monitor';
 import { registerTarget } from '../registrations';
-import { cancelDrag } from '../synthetic/syntheticSensor';
+import { cancelDrag } from '../synthetic/pickupRecognizer';
 import { createDragSource } from '../dragSource';
 import { dragSessionStore } from '../dragSessionStore';
 import { start } from './lifecycleManager';

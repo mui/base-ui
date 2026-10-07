@@ -10,6 +10,7 @@ import {
   resetForTests as resetDragSession,
 } from '../src/utils/drag-and-drop/core/dragSession';
 import { resetForTests as resetSyntheticSensor } from '../src/utils/drag-and-drop/synthetic/syntheticSensor';
+import { resetForTests as resetPickupRecognizer } from '../src/utils/drag-and-drop/synthetic/pickupRecognizer';
 import { resetForTests as resetDropTargets } from '../src/utils/drag-and-drop/dropTarget';
 import { unlock as resetDragRootLock } from '../src/utils/drag-and-drop/synthetic/dragRootLock';
 import { unlock as resetDragCursor } from '../src/utils/drag-and-drop/synthetic/dragCursor';
@@ -309,7 +310,12 @@ function resetDrag(): void {
     // aborts mid-drag would otherwise leave the overlay rendering its preview.
     () =>
       act(() =>
-        runAllCleanups([resetDragSession, resetSyntheticSensor, clearPublishedDragPreview]),
+        runAllCleanups([
+          resetDragSession,
+          resetSyntheticSensor,
+          resetPickupRecognizer,
+          clearPublishedDragPreview,
+        ]),
       ),
     // Global state the sensors set but `resetDragSession()` doesn't clear. Without this, a
     // test that fails mid-drag would leave the next test with scrolling locked,
