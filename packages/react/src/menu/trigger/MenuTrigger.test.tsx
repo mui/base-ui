@@ -403,6 +403,47 @@ describe('<Menu.Trigger />', () => {
 
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
       });
+
+      it.each([
+        {
+          name: 'after a click opened it and the `open` prop closed it',
+          async setUp(trigger: HTMLElement) {
+            fireEvent.click(trigger);
+            await flushMicrotasks();
+            expect(trigger).toHaveAttribute('aria-expanded', 'true');
+            await act(async () => setOpen(false));
+            await flushMicrotasks();
+          },
+        },
+        {
+          name: 'after the pointer only passed over the trigger',
+          async setUp() {
+            nonStrictClock.tick(50);
+          },
+        },
+      ])(
+        'does not close a menu opened through the `open` prop within the closeDelay $name',
+        async ({ setUp }) => {
+          await renderNonStrict(<ControlledMenu closeDelay={500} />);
+          const trigger = screen.getByRole('button', { name: 'Open' });
+
+          enterWithMouse(trigger);
+          await setUp(trigger);
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+          fireEvent.mouseLeave(trigger);
+          nonStrictClock.tick(60);
+
+          await act(async () => setOpen(true));
+          await flushMicrotasks();
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+          nonStrictClock.tick(600);
+          await flushMicrotasks();
+
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        },
+      );
     });
   });
 

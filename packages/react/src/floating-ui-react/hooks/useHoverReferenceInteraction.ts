@@ -182,10 +182,9 @@ export function useHoverReferenceInteraction(
         instance.restTimeoutPending = false;
       } else {
         isHoverCloseActiveRef.current = false;
-        // Opening makes pending hover work redundant: a hover open still waiting on its rest
-        // delay would reopen a retained popup after a controlled close, and a close delay
-        // started when the pointer left after one would close the popup once it reopens.
-        instance.openChangeTimeout.clear();
+        // An open supersedes a hover open still waiting on its rest delay, including one pending
+        // on another trigger. Left pending, the timer would reopen a retained popup after a
+        // controlled close.
         instance.restTimeout.clear();
         instance.restTimeoutPending = false;
       }
@@ -203,6 +202,13 @@ export function useHoverReferenceInteraction(
     }
 
     function closeWithDelay(event: MouseEvent, runElseBranch = true) {
+      // The popup can already be closed here, through a controlled `open` or because a hover
+      // open was still pending. A close timer started now would close it once it reopens.
+      if (!store.select('open')) {
+        instance.openChangeTimeout.clear();
+        return;
+      }
+
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
       if (closeDelay) {
         instance.openChangeTimeout.start(closeDelay, () => {
