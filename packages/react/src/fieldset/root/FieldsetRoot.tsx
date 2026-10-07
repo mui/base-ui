@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FieldsetRootContext, useFieldsetRootContext } from './FieldsetRootContext';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 
@@ -22,7 +24,20 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     ...elementProps
   } = componentProps;
 
-  const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
+  // `Fieldset.Legend` registers its id in a layout effect, which never runs on the server, so
+  // the root generates the legend's id up front and points `aria-labelledby` at it until
+  // registration has settled. Mirrors how `LabelableProvider` keeps `Field.Label` associated
+  // during SSR. Layout effects run child-first, so by the time this one runs the legend has
+  // already registered (or there is none), and both updates land in the same render.
+  const defaultLegendId = useBaseUiId();
+  const [registeredLegendId, setLegendId] = React.useState<string | undefined>(undefined);
+  const [legendRegistrationSettled, setLegendRegistrationSettled] = React.useState(false);
+
+  useIsoLayoutEffect(() => {
+    setLegendRegistrationSettled(true);
+  }, []);
+
+  const legendId = registeredLegendId ?? (legendRegistrationSettled ? undefined : defaultLegendId);
 
   const parentDisabled = useFieldsetRootContext(true)?.disabled;
   const disabled = parentDisabled || disabledProp;
@@ -46,10 +61,11 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   const contextValue: FieldsetRootContext = React.useMemo(
     () => ({
       legendId,
+      defaultLegendId,
       setLegendId,
       disabled,
     }),
-    [legendId, setLegendId, disabled],
+    [legendId, defaultLegendId, setLegendId, disabled],
   );
 
   return (
