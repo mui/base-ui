@@ -48,23 +48,6 @@ Working with Tooltip is a common example.
 </Dialog.Root>
 ```
 
-A part can also render a part from another component directly.
-For example, `<Tabs.List>` can render `<ScrollArea.Viewport>` when the tab list itself needs the viewport overflow values for a [gradient scroll fade](/react/components/scroll-area#gradient-scroll-fade).
-This keeps the mask on the same element that receives the scroll state:
-
-```tsx title="index.tsx"
-<Tabs.Root defaultValue="overview">
-  <ScrollArea.Root>
-    {/* @highlight */}
-    <Tabs.List render={<ScrollArea.Viewport />}>
-      <Tabs.Tab value="overview">Overview</Tabs.Tab>
-      <Tabs.Indicator />
-    </Tabs.List>
-  </ScrollArea.Root>
-  <Tabs.Panel value="overview">...</Tabs.Panel>
-</Tabs.Root>
-```
-
 ## How props are merged
 
 When the `render` prop receives an element, the part's props and the element's props are merged onto a single element.
