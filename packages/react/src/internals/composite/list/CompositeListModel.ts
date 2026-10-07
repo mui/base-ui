@@ -144,6 +144,8 @@ export class CompositeListModel<Metadata> {
 
     this.syncRefs(items);
 
+    // The observer's roots follow from the nodes' ancestry, which React only changes by
+    // remounting them as new nodes, so an unchanged node order keeps the observer.
     if (!isSameNodeOrder(this.observedNodes, automaticNodes)) {
       this.observe(automaticNodes);
     }
@@ -335,12 +337,12 @@ function createMetadataMap<Metadata>(items: readonly CompositeListItem<Metadata>
 }
 
 function getCompositeListSnapshot<Metadata>(
-  registrations: Map<Element, CompositeListRegistration<Metadata>> | null,
+  registrations: Map<Element, CompositeListRegistration<Metadata>>,
 ) {
   const items: CompositeListItem<Metadata>[] = [];
   const automaticItems: CompositeListItem<Metadata>[] = [];
 
-  registrations?.forEach((registration, node) => {
+  registrations.forEach((registration, node) => {
     if (!node.isConnected) {
       return;
     }
