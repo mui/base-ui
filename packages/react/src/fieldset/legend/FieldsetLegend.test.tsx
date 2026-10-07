@@ -37,8 +37,8 @@ describe('<Fieldset.Legend />', () => {
     expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'legend-id');
   });
 
-  it('reflects the disabled state', () => {
-    render(
+  it('reflects the disabled state', async () => {
+    await render(
       <Fieldset.Root disabled>
         <Fieldset.Legend data-testid="legend">Legend</Fieldset.Legend>
       </Fieldset.Root>,
