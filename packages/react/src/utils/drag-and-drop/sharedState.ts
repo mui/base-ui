@@ -1,14 +1,11 @@
 /**
- * Cross-bundle shared state. Module singletons live on `globalThis`, so two
- * bundled copies of the engine share one registry, one lock counter, and so on.
- *
- * Each slot is a mutable object. Callers mutate its fields and never reassign
- * the slot, so the references other copies hold stay valid.
+ * Cross-bundle shared state. Module singletons live on `globalThis`, so two bundled
+ * copies of the engine share them. Callers mutate a slot's fields and never reassign
+ * the slot, so references held by other copies stay valid.
  */
 
-// Every bundled copy finds the shared slots through this global symbol. Bump the
-// version suffix when a release changes a slot's shape, so incompatible Base UI
-// copies never read the same unchecked object as different internal types.
+// Bump the version suffix when a release changes a slot's shape, so incompatible
+// Base UI copies never share a slot.
 const ROOT_KEY = Symbol.for('@base-ui/react/drag-and-drop/v1');
 
 export function getSharedSlot<T extends object>(name: string, factory: () => T): T {

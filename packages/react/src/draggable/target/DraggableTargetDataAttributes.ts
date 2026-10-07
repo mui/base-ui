@@ -1,10 +1,10 @@
 /**
- * Present while a matching drag source is over the target or a nested descendant.
+ * Present while a matching drag source is over the target or a nested target.
  * Absent when `trackDragOver` is `false`.
  */
 export const dragOver = 'data-drag-over';
 /**
- * Present while the target is the innermost one under the source.
+ * Present while the target is the innermost one under the pointer.
  * Absent when `trackDragOver` is `false`.
  */
 export const dragOverInnermost = 'data-drag-over-innermost';
@@ -15,9 +15,8 @@ export const dragOverInnermost = 'data-drag-over-innermost';
  */
 export const accepting = 'data-accepting';
 /**
- * Present while `canDrop` returns `'reject'` for the current position. Use it
- * to display feedback such as a full column. Absent when `trackDragOver` is
- * `false`.
+ * Present while `canDrop` returns `'reject'` for the current position. Use it to show
+ * feedback, such as a full column. Absent when `trackDragOver` is `false`.
  */
 export const rejected = 'data-rejected';
 /**

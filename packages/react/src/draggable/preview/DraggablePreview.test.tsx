@@ -67,7 +67,6 @@ describe('Draggable.Preview', () => {
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
     fireDrag.dragStart(source);
 
-    // The only element added among the source's siblings is the preview itself.
     const list = screen.getByTestId('list');
     const previews = list.querySelectorAll(':scope > [data-drag-preview]');
     expect(previews).toHaveLength(1);
@@ -137,10 +136,8 @@ describe('Draggable.Preview', () => {
       source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
       fireDrag.dragStart(source);
 
-      // The settings are removed from the spread props before rendering. A missed
-      // one would show up here as an `offset` or `container` attribute.
       // Function-valued settings like `modifiers` never serialize to attributes, so
-      // React's unknown-prop console error, which fails the test, covers them.
+      // React's unknown-prop error, which fails the test, covers them.
       const preview = screen.getByTestId('preview');
       expect(preview.hasAttribute('offset')).toBe(false);
       expect(preview.hasAttribute('container')).toBe(false);
@@ -165,8 +162,8 @@ describe('Draggable.Preview', () => {
     source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
     fireDrag.dragStart(source);
 
-    // With `disabled` there is no preview element to insert, so resolving the
-    // reference would run consumer code for nothing.
+    // With `disabled` there is nothing to insert, so resolving it would run consumer
+    // code for nothing.
     expect(container).not.toHaveBeenCalled();
     expect(document.querySelector('[data-drag-preview]')).toBeNull();
   });
@@ -191,10 +188,9 @@ describe('Draggable.Preview', () => {
   });
 
   it('throws when the nearest Draggable.Provider does not wrap the Draggable.Root', () => {
-    // The engine publishes through the provider above the root. A provider between
-    // the root and the part never receives the content, and without the render
-    // error the drag would fail mid-gesture. React 18 in dev also logs the uncaught
-    // render error through `console.error`.
+    // A provider between the root and the part never receives the content, so
+    // without this error the drag would fail mid-gesture. React also logs the
+    // uncaught error through `console.error` in dev.
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
       expect(() =>
@@ -214,9 +210,8 @@ describe('Draggable.Preview', () => {
   });
 
   it('keeps the preview alive and moving after the source unmounts mid-drag', async () => {
-    // The part declares the preview instead of rendering it in place, so the
-    // preview outlives the source component. A virtualizer or a live reorder can
-    // unmount the dragged row mid-drag, and the overlay content must survive it.
+    // The part declares the preview rather than rendering it in place, so it
+    // outlives the source, as when a virtualizer unmounts the dragged row.
     function Fixture(props: { withRow: boolean }) {
       return (
         <DraggableProvider>
@@ -240,9 +235,8 @@ describe('Draggable.Preview', () => {
     expect(screen.queryByTestId('drag')).toBeNull();
     expect(screen.getByText('Preview content')).toBeInTheDocument();
 
-    // The drag is still live, so another move repositions the preview. The move
-    // goes to `document` because `fireDrag` dispatches on the source, which is now
-    // detached and out of reach of the engine's document-level listener.
+    // Dispatch on `document`: `fireDrag` targets the detached source, which can't
+    // reach the engine's document listener.
     const host = document.querySelector('[data-base-ui-drag-preview]') as HTMLElement;
     const before = host.style.translate;
     await act(async () => {
@@ -336,10 +330,9 @@ describe('Draggable.Preview', () => {
   });
 
   it("drops another provider's stale preview when a drop and the next pickup share one flush", async () => {
-    // Every provider's overlay reads one shared store and renders only what was
-    // published with its own context. The drop clears A's content and B's pickup
-    // publishes B's. When both land in the same React flush, provider A must still
-    // see the change, or its content stays on screen for all of B's drag.
+    // Each provider's overlay renders only what was published with its own context
+    // to one shared store. When A's drop and B's pickup land in one flush, A must
+    // still see its content cleared, or it stays on screen for B's whole drag.
     rtlRender(
       <React.Fragment>
         <DraggableProvider>
@@ -424,8 +417,7 @@ describe('Draggable.Preview', () => {
     it('shows state changes from inside the content on Draggable.updatePreview()', async () => {
       await hoverTarget(true);
       expect(screen.getByTestId('preview')).toHaveTextContent('Over a target');
-      // Only the copy is in the document, and it is still the one element that follows
-      // the pointer.
+      // Still a single copy following the pointer.
       expect(document.querySelectorAll('[data-drag-preview]')).toHaveLength(1);
 
       cancel();
@@ -611,8 +603,8 @@ describe('Draggable.Preview', () => {
   });
 
   it('keeps the preview when its provider unmounts mid-drag', async () => {
-    // The content unmounts with its provider. The preview is a copy the engine owns,
-    // so it keeps its last content until the drag ends.
+    // The content unmounts with its provider, but the engine owns the copy, so it
+    // keeps its last content until the drag ends.
     function Fixture(props: { mounted: boolean }) {
       return props.mounted ? (
         <DraggableProvider>

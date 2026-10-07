@@ -142,7 +142,6 @@ export function retargetEndingPreviewSource(
 export interface PreviewContentOptions {
   /** Where the copy of the content goes. Measured at pickup. */
   anchor: PreviewAnchor;
-  /** The consumer's function that renders the content. */
   renderContent: NonNullable<ResolvedDragPreview['render']>;
   /**
    * Resolve the preview's offset from its first copy, once it has a size. Called again
@@ -154,11 +153,8 @@ export interface PreviewContentOptions {
 export type AttachedPreviewContent = PreviewContentOptions & PreviewContent;
 
 /**
- * Resolve a `DraggablePreviewOffset` (the `'source'`/`'pointer'` presets, a fixed
- * `DraggablePosition`, or a callback) into a concrete pointer-relative offset.
- *
- * Defaults to `'source'`, which keeps the grab point the preview was picked up by,
- * so a cloned preview lifts off the element without shifting.
+ * Resolve a `DraggablePreviewOffset` into a pointer-relative offset. The default
+ * `'source'` keeps the grab point, so a clone lifts off without shifting.
  */
 function resolveDragPreviewOffset(
   offset: DraggablePreviewOffset | undefined,
@@ -180,19 +176,11 @@ function resolveDragPreviewOffset(
 }
 
 /**
- * Build the element that follows the pointer, unless the draggable opted out.
- *
- * Without custom content, the source is cloned into a sanitized preview that keeps
- * its classes and live state. With custom content, the React layer renders it into
- * a detached element, and the preview is a copy of it, built once it has rendered.
- * Both are measured now, before `data-dragging` lands on the source, so the clone
- * never inherits it and the usual `[data-dragging] { opacity: .4 }` rule dims the
- * source alone.
- *
- * `pressInput` is the original press, and `input` is the pointer state the pickup
- * committed on. Distance activation commits on a later `pointermove`, so the
- * default `'source'` offset is measured from the press. Otherwise crossing the
- * threshold would shift the preview in the gesture's direction.
+ * Build the clone or custom-content copy that follows the pointer, unless the draggable
+ * opted out. Both are measured before `data-dragging` lands on the source, so a
+ * `[data-dragging]` rule dims the source alone. The default `'source'` offset uses
+ * `pressInput`, not `input`: distance activation commits on a later `pointermove`, so
+ * the preview would otherwise shift in the gesture's direction.
  */
 function attachDragPreview(
   preview: SyntheticPreviewHandle,
@@ -213,10 +201,8 @@ function attachDragPreview(
   const resolveOffset = (container: HTMLElement) =>
     resolveDragPreviewOffset(settings.offset, {
       container,
-      // The rect the preview occupies. For a transformed source, this is the
-      // untransformed box the clone is anchored on (see `measurePreviewSource`), not
-      // the transformed one from `getBoundingClientRect`, so the clone lifts off
-      // where the source sits.
+      // The untransformed box the preview is anchored on (see
+      // `measurePreviewSource`), so the clone lifts off where the source sits.
       sourceRect: anchor.sourceRect,
       input: isSourceOffset ? pressInput : input,
     });
@@ -258,12 +244,9 @@ function attachDragPreview(
 }
 
 /**
- * Build the preview of a pickup from its resolved settings, and mark the source as
- * being dragged. A disabled preview gets no element. The preview is undone when
- * consumer code it runs, such as an `offset` function, throws.
- *
- * `pressInput` is the original press, and `input` is the pointer state the pickup
- * committed on (see `attachDragPreview`).
+ * Build a pickup's preview and mark the source as dragged. A disabled preview gets
+ * no element. The preview is undone if consumer code it runs (an `offset` function)
+ * throws. See `attachDragPreview` for `input` and `pressInput`.
  */
 export function createDragPreview(
   source: HTMLElement,
@@ -279,8 +262,7 @@ export function createDragPreview(
   );
   try {
     attachDragPreview(preview, source, settings, input, pressInput);
-    // Only after the preview is built. A `[data-dragging]` rule that resizes or
-    // hides the source would otherwise corrupt the measurement it was built from.
+    // After the preview is built (see `markSourceDragging`).
     preview.markSourceDragging();
   } catch (error) {
     preview.end(false);
@@ -308,9 +290,7 @@ export function createSyntheticPreview(
   // Whether the released preview is still running its drop transition.
   let settling = false;
 
-  // The element that follows the pointer: a clone of the source, or a copy of a
-  // custom preview's content. It lives beside the source or in the configured
-  // `container`. The sensor moves it through `update`.
+  // A clone of the source, or a copy of a custom preview's content.
   let previewElement: DragPreviewElementHandle | null = null;
   // The content of a custom preview and how it is shown. `null` for a clone.
   let content: AttachedPreviewContent | null = null;
@@ -319,23 +299,16 @@ export function createSyntheticPreview(
   let lastX = 0;
   let lastY = 0;
   let hasPosition = false;
-  // The preview's proposed top-left on the first frame positioned with the
-  // current offset. Preview-level axis locks and grids snap against it. Reset
-  // whenever the offset changes (a callback offset resolving late), so the anchor
-  // never comes from a stale offset.
+  // The proposed top-left on the first frame with the current offset, which preview
+  // axis locks and grids snap against. Reset when the offset changes (a callback
+  // offset resolving late).
   let initialProposed: DraggablePosition | null = null;
-  // The ancestor scale applied to the preview. `getElementScale` walks to the root
-  // reading computed styles, so it is measured once instead of on every frame. It
-  // only changes if an ancestor transform changes, which does not happen mid-drag.
-  //
-  // Only the modifiers use it, so it is read lazily in that branch. It does need a
-  // rendered element. Browsers resolve computed transforms to matrices only for
-  // rendered elements, so a preview a re-render tore out (see `ensureConnected`),
-  // or one under `display: none`, would cache `1` for the rest of the drag.
-  // `getClientRects` checks this without requiring a size.
+  // The preview's ancestor scale, cached since `getElementScale` walks to the root, and
+  // read lazily for modifiers. It waits for a rendered preview (`getClientRects`), since
+  // transforms resolve to matrices only on rendered elements and a torn-out or
+  // `display: none` preview would cache `1`.
   let previewScale: DraggablePosition | null = null;
-  // The modifier keys of the event behind the latest position, so preview modifiers
-  // see the same key state as root modifiers. Stored here because
+  // The modifier keys of the latest positioning event, stored because
   // `positionPreviewElement` also runs from `setPreviewOffset`, which has no event.
   let lastKeys: DragModifierKeys = NO_MODIFIER_KEYS;
 
@@ -345,8 +318,7 @@ export function createSyntheticPreview(
     }
     const currentPreview = previewElement;
     const element = currentPreview.element;
-    // A virtualizer can recycle the source's row (and its parent) mid-drag,
-    // taking the preview's parent with it. Re-home it before writing the position.
+    // A virtualizer can recycle the preview's parent mid-drag.
     currentPreview.ensureConnected();
     let proposedX = lastX - previewOffsetX;
     let proposedY = lastY - previewOffsetY;
@@ -395,9 +367,8 @@ export function createSyntheticPreview(
     previewElement?.destroy();
     previewElement = null;
     previewScale = null;
-    // The offsets described the removed box. Left set, rect modifiers
-    // (`restrictToElement`, `restrictToWindowEdges`) would keep clamping against
-    // it, for example after a `Draggable.Preview` renders `null`.
+    // The offsets described the removed box. Left set, rect modifiers such as
+    // `restrictToElement` would keep clamping against it.
     previewOffsetX = 0;
     previewOffsetY = 0;
   }
@@ -496,11 +467,9 @@ export function createSyntheticPreview(
       endingPreviews.add(entry);
       setSourceSettling(sourceElement, true);
 
-      // The ending starts in the next frame, before it paints. The release is
-      // resolved by then, so `[data-dropped]` applies along with
-      // `[data-ending-style]` and no style is computed with one but not the other.
-      // State updates that drop handlers schedule later in the release event are
-      // committed too, so measuring targets the source's final slot.
+      // Start the ending in the next frame, before paint. The release is resolved by
+      // then, so `[data-dropped]` lands with `[data-ending-style]`, and drop
+      // handlers' state updates are committed, so the source is in its final slot.
       frame.request(() => {
         endingPreview.ensureConnected();
         // Commit the position the drag left the preview at, so an ending transition
@@ -512,12 +481,11 @@ export function createSyntheticPreview(
           element.setAttribute(DraggablePreviewDataAttributes.dropped, '');
         }
         endingPreview.prepareForDrop();
-        // Only a `translate` transition animates the move to the source's final
-        // position. Without one, the preview ends where it was released, so an
-        // ending fade runs there instead of at the source. It ends in place too when
-        // the source is gone, or renders no box while the preview does, such as one
-        // a `[data-dragging] { display: none }` rule hides: it then measures as a
-        // zero rect at the viewport corner.
+        // Move to the source only under a `translate` transition, so an ending fade
+        // without one runs where the preview was released. Also stay put when the
+        // source is gone or renders no box while the preview does (a
+        // `[data-dragging] { display: none }` rule), since it would measure as a zero
+        // rect at the viewport corner.
         if (
           transitionsTranslate(style) &&
           sourceElement.isConnected &&
@@ -593,9 +561,6 @@ export function createSyntheticPreview(
     },
     markSourceDragging(): void {
       finishEndingPreview(sourceElement);
-      // Set only after the preview is built. A `[data-dragging]` rule that changes
-      // the source's geometry or hides it would otherwise corrupt the measurement
-      // the clone is sized from.
       sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
     },
     showContent,
@@ -613,11 +578,10 @@ export function createSyntheticPreview(
       }
       if (drop) {
         preparedForDrop = true;
-        // A preview without an element, such as custom content that never
-        // rendered, has nothing to settle. Its `[data-dragging]` goes when it is
-        // destroyed, so that waits for the end of the session. A rule that resizes
-        // or hides the source then still applies while drop handlers measure local
-        // points against the layout under the pointer.
+        // A preview without an element (custom content that never rendered) has
+        // nothing to settle. It is destroyed at session end instead, so
+        // `[data-dragging]` rules still apply while drop handlers measure against
+        // the layout under the pointer.
         const session = getActiveSession();
         if (previewElement === null && session !== null) {
           void session.onEnd(destroy);
@@ -632,21 +596,16 @@ export function createSyntheticPreview(
   };
 }
 
-/**
- * The drag preview, as the sensor, the session and the React layer use it once
- * `createDragPreview` has built it.
- */
+/** The built drag preview, as the sensor, session and React layer use it. */
 export interface DragPreview {
   /** `keys` are the modifier keys of the event behind this position, for preview modifiers. */
   update(clientX: number, clientY: number, keys?: DragModifierKeys): void;
   /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */
   retargetSource(element: HTMLElement): void;
-  /** The current preview element, or `null`. */
   getPreviewElement(): DragPreviewElementHandle | null;
   /**
-   * Adopt a preview, positioning it before destroying the previous element.
-   * The engine writes only its `translate`. `Draggable.updatePreview()` replaces a
-   * clone through it.
+   * Adopt a preview, positioned before the previous one is destroyed.
+   * `Draggable.updatePreview()` replaces a clone through it.
    */
   setPreviewElement(preview: DragPreviewElementHandle): void;
   /**
@@ -689,7 +648,8 @@ export interface SyntheticPreviewHandle extends DragPreview {
   setPreviewOffset(offset: DraggablePosition): void;
   /**
    * Mark the source as being dragged. Called once the preview exists, so a
-   * `[data-dragging]` rule can't affect the geometry the preview was measured from.
+   * `[data-dragging]` rule that resizes or hides the source can't corrupt the
+   * measurement the preview was built from.
    */
   markSourceDragging(): void;
 }

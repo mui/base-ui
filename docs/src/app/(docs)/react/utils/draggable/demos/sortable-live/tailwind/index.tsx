@@ -16,8 +16,7 @@ import { useSortableAnimation } from '../../useSortableAnimation';
 
 const taskKind = Draggable.createKind<string>('sortable-live-task');
 
-// Memoized with stable handlers, so a reorder only moves DOM nodes instead of
-// re-rendering every item on each collision change.
+// Memoized with stable handlers, so a reorder moves DOM nodes without re-rendering every item.
 const Task = React.memo(function Task({
   task,
   onSwap,

@@ -3,16 +3,15 @@ type TimeoutId = number;
 const EMPTY = 0 as TimeoutId;
 
 /**
- * A single replaceable timeout tied to one window.
- * Unlike the shared `Timeout`, it schedules on the element's owner window, so
- * closing an iframe also drops its pending work. `clear` tolerates a closed window.
+ * A single replaceable timeout. Unlike the shared `Timeout`, it schedules on the
+ * element's owner window, so closing an iframe drops its work.
  */
 export class WindowTimeout {
   constructor(private readonly ownerWindow: Window) {}
 
   currentId: TimeoutId = EMPTY;
 
-  /** Whether a timeout is armed and has not fired or been cleared. A method, as on `Timeout`. */
+  /** A method, as on `Timeout`. */
   isStarted(): boolean {
     return this.currentId !== EMPTY;
   }

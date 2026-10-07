@@ -9,15 +9,12 @@ const store = getSharedSlot(
 );
 
 /**
- * The sources whose preview is settling into place after a drop. Mirrors
- * `[data-settling]` for React, so a `Draggable.Root` can expose it as `state.settling`.
+ * Sources whose preview is settling after a drop. Mirrors `[data-settling]` for
+ * `Draggable.Root`'s `state.settling`.
  */
 export const settlingSourcesStore: ReadonlyStore<ReadonlySet<Element>> = store;
 
-/**
- * Mark `element` as settling or not, on the DOM and in the store. The engine is the
- * only writer of `[data-settling]`, so the two always agree.
- */
+/** The engine is the only writer of `[data-settling]`, so the DOM and the store agree. */
 export function setSourceSettling(element: Element, settling: boolean): void {
   element.toggleAttribute(DraggableRootDataAttributes.settling, settling);
   if (store.state.has(element) === settling) {

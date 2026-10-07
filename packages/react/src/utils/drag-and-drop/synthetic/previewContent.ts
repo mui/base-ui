@@ -11,15 +11,13 @@ const CDATA_SECTION_NODE = 4;
 const COMMENT_NODE = 8;
 
 /**
- * A custom preview's content: the detached element React renders it into, and the
- * copy of it the engine shows. The engine copies the content once, after its first
- * commit. `Draggable.updatePreview()` brings the copy up to date later.
+ * A custom preview's content and the engine's copy of it. The copy is made after
+ * the first commit, and only `Draggable.updatePreview()` updates it later.
  */
 export interface PreviewContent {
   /**
-   * The detached element React renders the content into, with the same tag as the
-   * element the copy goes into. It never enters the document, so the content can't
-   * be seen or measured there.
+   * The detached element React renders into (see `createPreviewContentContainer`).
+   * It never enters the document, so the content can't be seen or measured there.
    */
   container: HTMLElement;
   /** The element the copy goes into, whose root decides which ids the copy keeps. */
@@ -27,13 +25,13 @@ export interface PreviewContent {
   /** The latest copy, or `null` until the content has rendered. */
   copy: PreviewContentCopy | null;
   /**
-   * Publishes the content again with the given `source` and `location`, for
-   * `Draggable.updatePreview()`. Set by the React layer when it publishes the content.
+   * Re-renders the content with a new `source` and `location`, for
+   * `Draggable.updatePreview()`. Set by the React layer.
    */
   render?: ((parameters: DraggablePreviewRenderParameters) => void) | undefined;
   /**
-   * Brings the copy up to date. `Draggable.updatePreview()` sets it, and the engine
-   * runs it after the next commit of the content instead of doing nothing.
+   * Brings the copy up to date. Set by `Draggable.updatePreview()` and run after the
+   * content's next commit.
    */
   update?: (() => void) | undefined;
 }
@@ -54,11 +52,9 @@ export interface PreviewContentCopy {
 }
 
 /**
- * Create the detached element React renders a custom preview into. It takes the tag
- * and namespace of the element the copy is inserted into. React then checks the
- * content's nesting against the place it appears in, so a `<div>` preview for a
- * `<tbody>` gets React's own warning (React checks tables and selects, not lists),
- * and content for an SVG parent is created in the SVG namespace.
+ * The detached element React renders a custom preview into. It takes the tag and
+ * namespace of the copy's parent, so React validates nesting against it (a `<div>`
+ * in a `<tbody>` warns), and SVG content gets the SVG namespace.
  */
 export function createPreviewContentContainer(doc: Document, parent: Node | undefined) {
   return (
@@ -78,10 +74,10 @@ export function isCopiedNode(node: Node): boolean {
 }
 
 /**
- * The content element the preview element copies. One HTML root element becomes the
- * preview element itself, so its tag is the one the consumer chose. `null` when the
- * content is several nodes, text, or an SVG root, which can't enter the top layer, so
- * the copy wraps it in a `div`. `undefined` when the content rendered nothing.
+ * The content element the preview copies. A single HTML root becomes the preview
+ * itself, keeping the consumer's tag. `null` for several nodes, text, or an SVG root
+ * (which can't enter the top layer), which the copy wraps in a `div`. `undefined`
+ * when the content rendered nothing.
  */
 export function getPreviewRootSource(container: HTMLElement): Element | null | undefined {
   const nodes = Array.from(container.childNodes).filter(
@@ -98,10 +94,9 @@ export function getPreviewRootSource(container: HTMLElement): Element | null | u
 }
 
 /**
- * Copy `node` and its subtree into `copy`, pairing every copied node. The copy is
- * sanitized while it is still detached, so the document never holds an unsafe node,
- * even for the time of one call. Collects the copied elements in `elements`, whose
- * references the caller remaps once every id is known.
+ * Copy `node` and its subtree into `copy`, pairing every copied node. Sanitizes while
+ * detached, so the document never holds an unsafe node. The caller remaps references
+ * in `elements` once every id is known.
  */
 export function copyContentNode(node: Node, copy: PreviewContentCopy, elements: Element[]): Node {
   const result = node.cloneNode(false);
@@ -125,10 +120,9 @@ export function copyContentNode(node: Node, copy: PreviewContentCopy, elements: 
 /** Copy the content of `container` from scratch. */
 export function copyPreviewContent(content: PreviewContent): PreviewContentCopy {
   const { container, parent } = content;
-  // The content renders off-document, so its ids only collide with the page when the
-  // page already uses them. Only those are rewritten, so `#id` selectors and
-  // `getElementById` still reach the copy otherwise. An id the preview itself holds
-  // is its own.
+  // Off-document content only collides with ids the page already uses, so only those
+  // are rewritten and `#id` selectors still reach the copy otherwise. An id the
+  // current preview holds is its own.
   const pageRoot = parent?.getRootNode() as Partial<NonElementParentNode> | undefined;
   const copy: PreviewContentCopy = {
     root: null,

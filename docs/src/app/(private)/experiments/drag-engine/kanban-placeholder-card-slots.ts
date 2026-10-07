@@ -1,16 +1,12 @@
 import { ownerWindow } from '@base-ui/utils/owner';
 
-// Within a column, the candidate insertion slots are:
-//   - index 0, above the first card
-//   - index 1 to n-1, in the middle of the gap between two cards
-//   - index n, below the last card
-// Measure insertion slots without the placeholder's displacement so the preview
-// and release keep resolving to the same position while the pointer is still.
+// Insertion slots sit above the first card, mid-gap between cards, and below the last
+// card. They're measured without the placeholder's displacement, so the preview and the
+// release resolve to the same slot while the pointer is still.
 export function findClosestSlot(columnEl: HTMLElement, clientY: number): number {
   const body = columnEl.querySelector('[data-column-body]') as HTMLElement | null;
   const scope = body ?? columnEl;
-  // The drag preview is a clone of the card, so it has `data-card` too. Skip it,
-  // since it follows the pointer and isn't a real slot.
+  // Skip the drag preview: it's a clone of a card, so it has `data-card` too.
   const cardEls = Array.from(
     scope.querySelectorAll('[data-card]:not([data-drag-preview])'),
   ) as HTMLElement[];

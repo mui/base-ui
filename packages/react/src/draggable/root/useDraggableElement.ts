@@ -22,9 +22,8 @@ import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dra
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import { settlingSourcesStore } from '../../utils/drag-and-drop/settlingSources';
 
-// Reads the element from `ref` at selection time, so `dragging` follows the node
-// behind the ref when a virtualizer swaps it. Declared at module scope so its
-// identity is stable, which keeps `useStore` on its fast path.
+// Reads the element from the ref at selection time, so `dragging` follows a node a
+// virtualizer swaps. Module-scoped so `useStore` stays on its fast path.
 type ElementRef = { readonly current: Element | null };
 function selectIsDragging(source: DraggableRootRecord | null, r: ElementRef): boolean {
   return source?.element === r.current;
@@ -51,34 +50,27 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
 ): UseDraggableElementReturnValue<TPayload, TDragData> {
   const registerSource = useRegisterSource();
   const payloadOwner = useRefWithInit(() => ({})).current;
-  // The `dragging` selector reads the live element behind this ref.
   const elementRef = React.useRef<HTMLElement | null>(null);
-  // Apply the committed parameters, as `manager.refresh` does: the gesture styles
-  // follow `disabled` and the handle, and a changed `payload` reaches
-  // `useActiveDrag()`. Both only act on a real change. Layout effects run after
-  // every ref of the commit has attached, so a handle swapped in the same commit
-  // as an inline `ref` change is already in place.
+  // Apply the committed parameters after every commit, as `manager.refresh` does
+  // (see `refreshDragSource`). It only acts on real changes. Layout effects run after
+  // every ref of the commit has attached, so a handle swapped in the same commit is in place.
   const refreshSource = useRefWithInit(() => () => {
     if (elementRef.current) {
       refreshDragSource(elementRef.current);
     }
   }).current;
   useIsoLayoutEffect(refreshSource);
-  // Every mounted handle node in mount order. Only the first one drives pickup. The
-  // rest are tracked so that unmounting the first falls back to another handle
-  // instead of making the whole element draggable.
+  // Mounted handles in mount order. Only the first drives pickup. The rest are kept so
+  // unmounting it falls back to another handle, not to the whole element.
   const attachedHandlesRef = React.useRef<HTMLElement[]>([]);
   // `null` when no `Draggable.Handle` is mounted, so the whole element is the handle.
   const getAttachedHandle = useRefWithInit(
     () => () => attachedHandlesRef.current[0] ?? null,
   ).current;
 
-  // The link a `Draggable.Preview` declares into. Created once, so carrying it on
-  // context never re-registers anything.
   const previewHandle = useRefWithInit(createDragPreviewHandle<TPayload, TDragData>).current;
 
-  // The engine compares these field by field before re-normalizing, so both
-  // accessors keep one identity for the hook's lifetime.
+  // Both accessors keep one identity, since the engine compares parameters field by field.
   const internalParameters: RegisterSourceParameters<TPayload, TDragData> = {
     ...parameters,
     handle: getAttachedHandle,
@@ -97,9 +89,8 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     if (!collisionConfig?.enabled) {
       return unregisterSource;
     }
-    // Rebuilt only after a render. The provider reads this getter at least twice
-    // per frame for each participant it walks, and the engine snapshots
-    // registrations by identity.
+    // Rebuilt only after a render, so the provider can reuse its registration for this
+    // participant across frames (see `DraggableCollisionProvider`).
     let lastCollisionOptions: typeof options | null = null;
     let participant: CollisionParticipant | null = null;
     const unregisterCollision = collisionConfig.context.register(
@@ -114,7 +105,7 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
         participant = {
           kind: currentOptions.parameters.kind,
           payload: collision?.payload,
-          // The provider accepts only this participant's source kind.
+          // The cast holds because the provider disables participants of another kind.
           snap: collision?.snap as CollisionParticipant['snap'],
           // A disabled source is still a destination. Only `collision={false}` opts out.
           disabled: !collision?.enabled,
@@ -132,13 +123,11 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     };
   });
 
-  // The last non-null node this ref held. React detaches the old node before
-  // attaching the new one, so `elementRef.current` is already `null` when the new
-  // node arrives and can't reveal an `a -> b` swap.
+  // The last non-null node. React detaches the old node before attaching the new one,
+  // so `elementRef` is already `null` then and can't reveal an `a -> b` swap.
   const lastNodeRef = React.useRef<HTMLElement | null>(null);
 
-  // Forward the attached node to both the engine registration and the local ref.
-  // Stable, so this merged callback is created once.
+  // Stable merged ref for `elementRef` and the engine registration.
   const ref = useRefWithInit(() => (node: HTMLElement | null) => {
     elementRef.current = node;
     if (node) {
@@ -169,8 +158,8 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     registrationRef(elementRef.current);
   }).current;
 
-  // The gesture styles follow a handle that attaches or detaches without this
-  // component rendering.
+  // Refreshes the gesture setup itself, since a handle can attach or detach without
+  // this component rendering.
   const registerHandle = useRefWithInit(() => (node: HTMLElement) => {
     const handles = attachedHandlesRef.current;
     handles.push(node);
@@ -201,10 +190,9 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
       return;
     }
     reconcile();
-    // `reconcile` is stable, so only the keys below retrigger.
-    // `collision.element` is left out because it is often an inline arrow.
-    // Re-registering the source and its participant on every render would reset
-    // the hovered target mid-drag. It is read once, at registration.
+    // `reconcile` is stable. `collision.element` is left out because it's often an
+    // inline arrow, and re-registering on every render would reset the hovered target
+    // mid-drag. It's read once, at registration.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collisionOptions?.context, collisionOptions?.enabled]);
 
@@ -239,8 +227,8 @@ export interface UseDraggableElementReturnValue<TPayload = undefined, TDragData 
   /** Whether this element's preview is settling into place after a drop. */
   settling: boolean;
   /**
-   * Attach the child that is the drag handle, and return the function that detaches
-   * it. Pickup is restricted to the handle. Without one, the whole source is
+   * Attaches a drag handle and returns the function that detaches it. Pickup is
+   * restricted to the first attached handle. Without one, the whole source is
    * draggable. Stable.
    */
   registerHandle: (node: HTMLElement) => () => void;

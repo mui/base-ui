@@ -22,8 +22,7 @@ const INITIAL_PINS: Pin[] = [
   { id: 'research', label: 'Research', x: 190, y: 110 },
 ];
 
-// Well below the visible area. To reach it, hold the pointer at the bottom edge
-// and let the canvas pan.
+// Below the visible area. Hold the pointer at the bottom edge to pan down to it.
 const ARCHIVE = { x: 60, y: 520 };
 
 const PIN_CLASS =
@@ -109,8 +108,8 @@ export default function CanvasPan() {
           }}
           accept={pinKind}
           className="relative box-border h-[260px] touch-none overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-neutral-950 dark:focus-visible:outline-white border border-neutral-200 dark:border-neutral-700"
-          // Write the camera straight to the DOM instead of state. Base UI looks for
-          // drop targets again on the next frame, which can run before React re-renders.
+          // Write the camera to the DOM, not state. Base UI looks for drop targets again
+          // on the next frame, which can run before React re-renders.
           // @highlight-start @focus
           onDragScroll={(eventDetails) => {
             eventDetails.cancel();
@@ -186,8 +185,7 @@ export default function CanvasPan() {
                 }}
               >
                 {pin.label}
-                {/* The preview is a clone of the pin. Keep it inside the board rather
-                  than letting it trail off over the page. */}
+                {/* Keep the preview inside the board so it doesn't trail over the page. */}
                 <Draggable.Preview modifiers={Draggable.restrictToElement(viewportRef)} />
               </Draggable.Root>
             ))}

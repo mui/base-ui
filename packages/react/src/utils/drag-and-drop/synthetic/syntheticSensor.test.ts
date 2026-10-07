@@ -201,10 +201,9 @@ describe('syntheticDrag sensor', () => {
     penDown(el, 50, 50, 7);
     await flushRaf();
 
-    // Capture is anchored on the body, never the dragged element, so the
-    // gesture survives that element being unmounted mid-drag (live reorder,
-    // virtualizer recycle). Pen has no implicit capture, so without this the
-    // events would stop as soon as the stylus drifts off the target.
+    // Capture is anchored on the body, not the dragged element, so the gesture
+    // survives that element unmounting mid-drag. Pen has no implicit capture, so
+    // without it the events would stop once the stylus drifts off the target.
     expect(setPointerCapture).toHaveBeenCalledWith(7);
     expect(elSetPointerCapture).not.toHaveBeenCalled();
 
@@ -214,10 +213,8 @@ describe('syntheticDrag sensor', () => {
   it('releases pointer capture from the body anchor when an active drag ends', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
-    // Stub the pointer-capture API jsdom omits, on the body (the capture
-    // anchor). The engine only calls `releasePointerCapture` when
-    // `hasPointerCapture` reports the pointer is captured, so report capture
-    // once it has been set.
+    // Stub jsdom's missing pointer-capture API on the body, the capture anchor.
+    // The engine releases only when `hasPointerCapture` reports capture.
     let captured = false;
     const setPointerCapture = vi.fn(() => {
       captured = true;
@@ -278,7 +275,6 @@ describe('syntheticDrag sensor', () => {
     await flushRaf();
     touchUp(60, 60);
 
-    // The teardown swallowed the capture-release error and completed the drop.
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
   });
@@ -321,10 +317,8 @@ describe('syntheticDrag sensor', () => {
     }
 
     expect(onError).toHaveBeenCalled();
-    // The throw surfaces, but the drag still ends. The sensor ends the lifecycle
-    // in a `finally`, so the end events still fire and a new drag can start.
-    // Otherwise one throw in the sensor's teardown would leave `isActive()` true
-    // for the rest of the page's life.
+    // The sensor ends the lifecycle in a `finally`. Otherwise one throw in its
+    // teardown would leave the engine active for the rest of the page's life.
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(dragSessionStore.getSnapshot()).toBe(null);
   });
@@ -354,10 +348,8 @@ describe('syntheticDrag sensor', () => {
     // A live reorder or virtualizer unmounts the dragged element mid-drag.
     src.remove();
 
-    // Capture is anchored on the body, so pointer events retarget there and
-    // bubble to the document, where the active listeners are. The move is still
-    // observed after the original target is detached. Dispatching on the
-    // document mimics that routing.
+    // With capture on the body, events still reach the document listeners after
+    // the original target is detached. Dispatching on the document mimics that.
     hit.current = tgt;
     dispatch(
       document,
@@ -388,7 +380,6 @@ describe('syntheticDrag sensor', () => {
       }),
     );
 
-    // The gesture completes as a real drop over the target, not a teardown.
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(onDrop.mock.calls[0][0].target.element).toBe(tgt);
@@ -457,10 +448,9 @@ describe('syntheticDrag sensor', () => {
     expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
   });
 
-  // jsdom only. A real browser fires `blur` on the iframe window when the frame
-  // is removed, and the sensor's blur listener ends the session, so the
-  // detached-document branch can't be reached. jsdom fires no blur and keeps
-  // the realm alive, which lets this test hold a session over a dead document.
+  // jsdom only. A browser fires `blur` on a removed iframe's window, which ends
+  // the session before the detached-document branch is reached. jsdom fires no
+  // blur, so the session outlives its document.
   it.skipIf(!isJSDOM)(
     'recovers from a drag stranded in a detached document (iframe removed mid-drag)',
     async () => {
@@ -489,7 +479,6 @@ describe('syntheticDrag sensor', () => {
         onMoveEnd,
       });
 
-      // Start a pointer drag inside the iframe...
       dispatch(
         iframeEl,
         new PointerEvent('pointerdown', {
@@ -505,8 +494,8 @@ describe('syntheticDrag sensor', () => {
       );
       await flushRaf();
 
-      // ...then kill its browsing context. Every listener that could end the
-      // gesture lived in the dead realm, so the session can't end on its own.
+      // Every listener that could end the gesture lived in the iframe's realm, so
+      // the session can't end on its own.
       iframe.remove();
       // jsdom keeps `defaultView` alive on a removed iframe's document; a real
       // browser nulls it, which is what the sensor's detached-document check reads.
@@ -535,7 +524,6 @@ describe('syntheticDrag sensor', () => {
       expect(onMoveStart).toHaveBeenCalledTimes(1);
       expect(onMoveStart.mock.calls[0][0].source.element).toBe(topEl);
 
-      // The fresh drag completes normally.
       dispatch(
         topEl,
         new PointerEvent('pointerup', {
@@ -621,16 +609,14 @@ describe('syntheticDrag sensor', () => {
     touchDown(src, 50, 50, 7);
     await flushRaf();
 
-    // Touch implicitly captures to the `pointerdown` element. The engine's
-    // `setPointerCapture(body)` moves capture and makes that element fire
-    // `lostpointercapture` right before the first move. The event targets the
-    // original element, not the body anchor, so it must not cancel the drag.
+    // Touch implicitly captures to the `pointerdown` element, so moving capture to
+    // the body fires `lostpointercapture` there right before the first move. It
+    // doesn't target the body anchor, so it must not cancel the drag.
     dispatch(src, new PointerEvent('lostpointercapture', { pointerId: 7, bubbles: true }));
     // A real capture loss cancels on the next frame, so let that frame run.
     await flushRaf();
     expect(onMoveEnd).not.toHaveBeenCalled();
 
-    // The drag survives and drops normally over the target.
     touchUp(60, 60, 7);
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onDrop).toHaveBeenCalledTimes(1);
@@ -650,14 +636,11 @@ describe('syntheticDrag sensor', () => {
 
     dispatch(window, new Event('blur'));
 
-    // Blur cancels the drag. `onMoveEnd` fires with a cancel reason and no
-    // targets.
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][0].location.current.targets).toEqual([]);
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
     expect(onMoveEnd.mock.calls[0][0].reason).toBe('window-blur');
 
-    // The engine is idle again, so a fresh drag can start and drop.
     touchDown(el, 50, 50);
     await flushRaf();
     touchUp(60, 60);
@@ -742,9 +725,8 @@ describe('syntheticDrag sensor', () => {
     const el = createElement();
     engine.registerSource(el, {});
 
-    // A quick tap lifts before the press-hold activates, so no drag starts. A
-    // clean `pointerup` can't trigger a browser `contextmenu`, so the pending
-    // suppression must not linger and swallow a later deliberate long-press.
+    // A quick tap lifts before the press-hold activates. A clean `pointerup` can't
+    // trigger `contextmenu`, so the pending suppression must not linger.
     touchDown(el, 50, 50);
     touchUp(50, 50);
 
@@ -778,8 +760,7 @@ describe('syntheticDrag sensor', () => {
 
     touchDown(el, 50, 50);
     await flushRaf();
-    // A clean finger lift can't make the browser fire `contextmenu`, so the
-    // suppression must not linger and swallow a later deliberate long-press.
+    // A clean finger lift can't fire `contextmenu`, so the suppression must not linger.
     touchUp(60, 60);
 
     const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
@@ -796,12 +777,10 @@ describe('syntheticDrag sensor', () => {
     // fake timers can expire it without waiting the real 1.5s.
     vi.useFakeTimers();
     try {
-      // A browser cancellation keeps the suppression armed for Android's late
-      // `contextmenu` (asserted by the sibling tests above)...
       touchDown(el, 50, 50);
       touchCancel();
 
-      // ...but not past its window. After 1.5s it disarms itself, so a later
+      // The suppression a cancel keeps armed disarms after 1.5s, so a later
       // deliberate long-press menu shows again.
       vi.advanceTimersByTime(1500);
 
@@ -864,7 +843,6 @@ describe('syntheticDrag sensor', () => {
     expect(eventDetails.input.clientY).toBe(50);
     expect(eventDetails.event).toBeInstanceOf(PointerEvent);
     expect(eventDetails.trigger).toBe(trigger);
-    // Not canceled, so the drag started right after.
     expect(onMoveStart).toHaveBeenCalledTimes(1);
 
     penUp(60, 50);
@@ -962,10 +940,8 @@ describe('syntheticDrag sensor', () => {
       onMoveStart,
     }));
 
-    // The consumer's throw escapes the sensor after its cleanup ran and is
-    // reported as an uncaught error from the `pointerdown` listener. Swallow the
-    // window error event and its console report so the expected throw doesn't
-    // fail the run.
+    // The throw escapes the `pointerdown` listener after the sensor's cleanup.
+    // Swallow the uncaught error and its console report.
     const onError = (event: Event) => event.preventDefault();
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     window.addEventListener('error', onError);
@@ -1086,9 +1062,8 @@ describe('syntheticDrag sensor', () => {
       onMoveStart,
     }));
 
-    // The throw escapes the sensor after its cleanup ran and surfaces as an
-    // uncaught error from the `pointerdown` listener. Swallow the window error
-    // event and its console report so the expected throw doesn't fail the run.
+    // The throw escapes the `pointerdown` listener after the sensor's cleanup.
+    // Swallow the uncaught error and its console report.
     const onError = (event: Event) => event.preventDefault();
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     window.addEventListener('error', onError);
@@ -1132,9 +1107,8 @@ describe('syntheticDrag sensor', () => {
     expect(onMoveStart).not.toHaveBeenCalled();
     // No pending phase, so the source was never reserved.
     expect(el.hasAttribute('draggable')).toBe(false);
-    // Unlike during a pending gesture, a long-press `contextmenu` isn't
-    // suppressed either. The press behaves like an ordinary touch on a static
-    // element.
+    // Unlike a pending gesture, the press doesn't suppress a long-press
+    // `contextmenu` either.
     const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
     dispatch(el, contextMenu);
     expect(contextMenu.defaultPrevented).toBe(false);
@@ -1195,9 +1169,8 @@ describe('syntheticDrag sensor', () => {
     engine.registerSource(el, () => ({ handle: () => handle, onMoveStart }));
 
     penDown(handleA, 10, 10);
-    // The draggable swaps its handle during the press. The press that armed this
-    // gesture isn't on the new handle, so the commit re-checks the handle, like
-    // the `disabled` re-check above.
+    // The draggable swaps its handle mid-press, so the commit re-checks the handle
+    // as it re-checks `disabled`.
     handle = handleB;
     penMove(20, 10); // clears the threshold
     await flushRaf();
@@ -1484,8 +1457,7 @@ describe('syntheticDrag sensor', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    // Default pen activation is `distance: 5px`, so the gesture stays pending
-    // until the stylus clears the threshold.
+    // The default 5px pen distance keeps the gesture pending.
     engine.registerSource(el, { onMoveStart });
 
     penDown(el, 50, 50);
@@ -1494,8 +1466,7 @@ describe('syntheticDrag sensor', () => {
     // The pending phase was torn down, so the source is no longer reserved.
     expect(el.hasAttribute('draggable')).toBe(false);
 
-    // The abandoned candidate can't activate later. Clearing the distance
-    // threshold after Escape does nothing.
+    // Clearing the distance threshold after Escape can't revive the candidate.
     penMove(60, 50);
     await flushRaf();
     expect(onMoveStart).not.toHaveBeenCalled();
@@ -1509,10 +1480,9 @@ describe('syntheticDrag sensor', () => {
 
     penDown(el, 50, 50);
 
-    // The stylus lifted without a `pointerup` or `pointercancel` reaching the
-    // engine (the release happened over another window). This move clears the
-    // 5px threshold, but `buttons === 0` means the press is already over, so it
-    // must clear the candidate instead of activating it.
+    // The stylus lifted over another window, so no `pointerup` or `pointercancel`
+    // reached the engine. This move clears the 5px threshold, but `buttons === 0`
+    // means the press is over, so it must clear the candidate instead.
     dispatch(
       getTouchDownTarget(),
       new PointerEvent('pointermove', {
@@ -1536,7 +1506,6 @@ describe('syntheticDrag sensor', () => {
     dispatch(el, contextMenu);
     expect(contextMenu.defaultPrevented).toBe(true);
 
-    // A later move can't resurrect it either.
     penMove(80, 50);
     await flushRaf();
     expect(onMoveStart).not.toHaveBeenCalled();
@@ -1646,8 +1615,7 @@ describe('syntheticDrag sensor', () => {
     const el = createElement();
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
-    // Default pen activation is `distance: 5px`, so the gesture stays pending
-    // until the stylus clears the threshold.
+    // The default 5px pen distance keeps the gesture pending.
     engine.registerSource(el, { onMoveStart, onMoveEnd });
 
     penDown(el, 50, 50);
@@ -1655,10 +1623,8 @@ describe('syntheticDrag sensor', () => {
       cancelDrag();
     });
 
-    // Nothing activated, so no end event fires, but the candidate is gone. The
-    // source is released and clearing the threshold does nothing. A consumer
-    // that cancels when, say, a dialog opens must not see the next move start a
-    // drag.
+    // Nothing activated, so no end event fires, but the candidate is gone. A
+    // consumer that cancels when a dialog opens must not see the next move drag.
     expect(onMoveEnd).not.toHaveBeenCalled();
     expect(el.hasAttribute('draggable')).toBe(false);
     penMove(60, 50);
@@ -1699,10 +1665,8 @@ describe('syntheticDrag sensor', () => {
     touchDown(el, 50, 50);
     await flushRaf();
 
-    // The button came up, but no `pointerup` or `pointercancel` reached the
-    // engine (an OS pointer hand-off can swallow it). The next move reports
-    // `buttons === 0`, which ends the drag as a cancel, since a release the
-    // engine never saw isn't a deliberate drop.
+    // An OS pointer hand-off can swallow the `pointerup`. The next move reports
+    // `buttons === 0` and cancels, since an unseen release isn't a deliberate drop.
     dispatch(
       getTouchDownTarget(),
       new PointerEvent('pointermove', {
@@ -1721,9 +1685,8 @@ describe('syntheticDrag sensor', () => {
     const [details] = onMoveEnd.mock.calls[0];
     expect(details.target).toBeNull();
     expect(details.reason).toBe('missed-release');
-    // Constrained like every reported input. The axis lock pins x at the
-    // activation x, so the cancel doesn't report a raw coordinate the drag never
-    // reported while live.
+    // The axis lock still applies, so the cancel doesn't report an x the live drag
+    // never reported.
     expect(details.location.current.input.clientX).toBe(50);
     expect(details.location.current.input.clientY).toBe(60);
   });
@@ -1784,9 +1747,8 @@ describe('syntheticDrag sensor', () => {
         expect.objectContaining({ reason: 'page-hidden', event: visibilityChange }),
       );
     } finally {
-      // Restore in `finally` so a failed assertion can't leave the document stuck
-      // `hidden` and cascade into every later test. Deleting the own properties
-      // exposes the real getters again.
+      // Restore in `finally` so a failed assertion can't leave the document
+      // `hidden` for later tests. Deleting the own properties exposes the real getters.
       Reflect.deleteProperty(document, 'visibilityState');
       Reflect.deleteProperty(document, 'hidden');
     }
@@ -1849,12 +1811,8 @@ describe('syntheticDrag sensor', () => {
     touchMove(30, 30);
     await flushRaf(2);
 
-    // Check the position, not only that the monitor was called, since stale or
-    // wrong coordinates would pass a bare `toHaveBeenCalled`. The call count
-    // isn't checked, because the frame loop can re-resolve a stationary pointer.
-    // The test checks the last event and that no event reports a point the
-    // pointer never visited. The first event is the pickup-position resolve, at
-    // 10,10.
+    // The frame loop can re-resolve a stationary pointer, so check positions, not
+    // the call count. The first event is the pickup resolve at 10,10.
     expect(onMove).toHaveBeenCalled();
     const sampled = ['10,10', '30,30'];
     for (const [details] of onMove.mock.calls) {
@@ -1906,7 +1864,7 @@ describe('syntheticDrag sensor', () => {
       const { engine } = await renderDnd();
       const el = createElement();
       const onMoveStart = vi.fn();
-      // The default pen activation is a 5px distance, so the gesture stays pending.
+      // The default 5px pen distance keeps the gesture pending.
       engine.registerSource(el, { onMoveStart });
 
       penDown(el, 50, 50);
@@ -1942,10 +1900,9 @@ describe('syntheticDrag sensor', () => {
       engine.registerSource(el, { onMoveStart });
 
       penDown(el, 50, 50);
-      // The primary button comes up while another is still held. The browser
-      // reports a `pointermove` whose `buttons` lost the primary bit, never a
-      // `pointerup` for button 0. The press is over, so the candidate must not
-      // stay armed and block every later `pointerdown`.
+      // The primary button comes up while another is held. The browser reports a
+      // `pointermove` without the primary bit, never a `pointerup` for button 0, so
+      // the candidate must not stay armed and block every later `pointerdown`.
       dispatch(
         getTouchDownTarget(),
         new PointerEvent('pointermove', {
@@ -1960,12 +1917,10 @@ describe('syntheticDrag sensor', () => {
       );
       expect(el.hasAttribute('draggable')).toBe(false);
 
-      // The abandoned candidate cannot activate later...
       penMove(60, 50);
       await flushRaf();
       expect(onMoveStart).not.toHaveBeenCalled();
 
-      // ...and a fresh pickup still drags.
       penDown(el, 50, 50);
       penMove(60, 50);
       await flushRaf();
@@ -2194,10 +2149,9 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
       expect(onMoveStart).toHaveBeenCalledTimes(1);
 
-      // The primary button comes up while the right button is still held. The
-      // browser reports a `pointermove` whose `buttons` lost the primary bit,
-      // never a `pointerup` for button 0. The user released on purpose, so this
-      // drops at that position instead of canceling.
+      // The primary comes up while the right button is held, reported only as a
+      // `pointermove` without the primary bit. The release is deliberate, so this
+      // drops instead of canceling.
       dispatch(
         el,
         new PointerEvent('pointermove', {
@@ -2220,7 +2174,6 @@ describe('syntheticDrag sensor', () => {
       expect(details.location.current.input.clientX).toBe(80);
       expect(details.location.current.input.clientY).toBe(90);
 
-      // The gesture fully released the engine, so a fresh pickup starts and drops.
       dispatch(
         el,
         new PointerEvent('pointerdown', {
@@ -2313,13 +2266,11 @@ describe('syntheticDrag sensor', () => {
     });
     engine.registerMonitor({ onMove });
 
-    // First finger lands and immediately activates.
     touchDown(el, 50, 50, 1);
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);
 
-    // A second finger lands on the same draggable. The active session ignores
-    // it, so there is no second drag and no extra `onMoveStart`.
+    // A second finger on the same draggable must not start a second drag.
     touchDown(el, 60, 60, 2);
     await flushRaf();
     expect(onMoveStart).toHaveBeenCalledTimes(1);
@@ -2373,7 +2324,6 @@ describe('syntheticDrag sensor', () => {
     dispatch(getTouchDownTarget(), new Event('touchend', { bubbles: true, cancelable: true }));
     expect(onMoveEnd).not.toHaveBeenCalled();
 
-    // The dragging finger's pointerup still ends the drag.
     touchUp(50, 50, 1);
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
   });
@@ -2407,7 +2357,6 @@ describe('syntheticDrag sensor', () => {
     expect(onMoveStart).toHaveBeenCalledWith(expect.objectContaining({ reason: 'pointer' }));
     expect(onMoveStart.mock.calls[0][0].location.current.input.pointerType).toBe('mouse');
 
-    // Pointerup on the original target ends the drag via the synthetic path.
     dispatch(
       el,
       new PointerEvent('pointerup', {
@@ -2424,11 +2373,9 @@ describe('syntheticDrag sensor', () => {
 
   describe('drag cursor', () => {
     /**
-     * The cursor forced across the document while a drag is active, or `null`
-     * when none is pinned. The engine keeps one scoped `html.baseui-dragging *`
-     * rule and toggles the `baseui-dragging` class and the `--drag-cursor`
-     * variable per drag, so the active cursor is read from the document root,
-     * not from the stylesheet text.
+     * The cursor forced across the document during a drag, or `null` when none is
+     * pinned. Read from the root's class and `--drag-cursor` variable, since the
+     * engine toggles those per drag and keeps one fixed scoped rule.
      */
     function activeCursorRule(): string | null {
       const root = document.documentElement;
@@ -2493,10 +2440,8 @@ describe('syntheticDrag sensor', () => {
       const el = createElement();
       engine.registerSource(el, { activation: { mouse: { type: 'immediate' } } });
 
-      // The lock is deferred a frame so its document-wide style invalidation
-      // doesn't land on the frame that builds the clone. If the drag ends before
-      // that frame, the callback must do nothing. Otherwise it applies after
-      // teardown and `grabbing` stays on the page for good.
+      // If the drag ends before the deferred lock frame, the callback must do
+      // nothing, or `grabbing` would stay on the page for good.
       mouseDown(el, 50, 50);
       mouseUp(el, 50, 50);
       await flushLockFrames();
@@ -2537,7 +2482,6 @@ describe('syntheticDrag sensor', () => {
       await flushLockFrames();
       expect(activeCursorRule()).not.toBeNull();
 
-      // Escape cancels the active drag.
       dispatch(window, new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       expect(activeCursorRule()).toBeNull();
     });
@@ -2635,11 +2579,9 @@ describe('syntheticDrag sensor', () => {
     });
   });
 
-  // The active-phase frame re-resolves the drop target from the last pointer
-  // sample. A stationary pointer must not keep re-resolving. Otherwise a reorder
-  // that slides a new element under the old point re-fires `onMove`, the
-  // consumer reorders again, and the loop runs away (biased forward and down-right).
-  // Resolution only runs when the pointer moves or content scrolls.
+  // The drop target is re-resolved only when the pointer moves or content scrolls.
+  // Otherwise a reorder that slides a new element under a stationary pointer
+  // re-fires `onMove`, the consumer reorders again, and the loop runs away.
   describe('idle-frame gating', () => {
     async function setupStationaryDrag() {
       const { engine } = await renderDnd();
@@ -2693,7 +2635,6 @@ describe('syntheticDrag sensor', () => {
       dispatch(document, new Event('scroll'));
       await flushRaf(2);
 
-      // The scroll forced one re-resolution, which moved the target stack.
       expect(efp.mock.calls.length).toBe(efpCalls + 1);
       expect(onTargetChange.mock.calls.length).toBe(changes + 1);
 
@@ -2734,10 +2675,8 @@ describe('syntheticDrag sensor', () => {
         await flushRaf(2);
         expect(onDraggableEnter).not.toHaveBeenCalled();
 
-        // Scrolling a container inside the shadow root slides the target under
-        // the stationary pointer. `scroll` doesn't bubble and isn't composed, so
-        // only the shadow root capture listener added at drag start sees it and
-        // re-arms the resolution frame.
+        // `scroll` doesn't bubble and isn't composed, so only the shadow root's
+        // capture listener added at drag start sees it and re-arms the resolution frame.
         hit.current = inner;
         dispatch(scroller, new Event('scroll'));
         await flushRaf(2);
@@ -2781,9 +2720,8 @@ describe('syntheticDrag sensor', () => {
     });
 
     it('keeps watching a shadow root while any of its targets is still registered', async () => {
-      // Watched roots are ref-counted per registration. One root holds many
-      // targets, and only the last one leaving removes it. Releasing a sibling
-      // must not stop the root from being watched.
+      // Watched roots are ref-counted per registration, so only the last target
+      // leaving stops the watch.
       const { engine } = await renderDnd();
       const src = createElement();
       const host = createElement();
@@ -2846,11 +2784,9 @@ describe('syntheticDrag sensor', () => {
       const efpCalls = efp.mock.calls.length;
       const changes = onTargetChange.mock.calls.length;
 
-      // The gate opens on pointer activity, not on a coordinate change. A browser
-      // can report a move at the same coordinates as before (sub-pixel movement,
-      // coalesced samples), and that is still a real move. It must re-resolve, or
-      // a target that appeared under the pointer since the last frame would never
-      // be entered.
+      // The gate opens on pointer activity, not a coordinate change. A browser can
+      // report a real move at the same coordinates (sub-pixel movement), and a
+      // target that appeared under the pointer since the last frame must be entered.
       state.hit = tgtB;
       touchMove(10, 10);
       await flushRaf(2);
@@ -2984,9 +2920,8 @@ describe('syntheticDrag sensor', () => {
       expect(seen.length).toBeGreaterThan(applicationsBeforeKey);
       expect(seen.at(-1)).toBe(true);
       // The sensor frame also flushes its lifecycle update, so consumers see the
-      // modifier change without another frame of delay.
-      // The reported input and `eventDetails.event` both come from the key press, so
-      // a consumer reading either sees Shift down.
+      // change without another frame of delay. The input and `eventDetails.event`
+      // both come from the key press.
       expect(reported.at(-1)).toEqual({ input: true, event: true, reason: 'modifier-key' });
 
       pressKey('keyup', false);
@@ -3417,10 +3352,9 @@ describe('syntheticDrag sensor', () => {
       // sensor's teardown, through the owner window's `setTimeout`.
       vi.useFakeTimers();
       try {
-        // Escape cancels while the button is still down, so the sensor's own
-        // listeners are gone and it never sees the release. The window must not
-        // expire before the user lets go, or the drag turns into a click on the
-        // control it was picked up from.
+        // Escape cancels while the button is down, so the sensor never sees the
+        // release. The window must not expire before the user lets go, or the drag
+        // becomes a click on the control it was picked up from.
         dispatch(
           document,
           new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
@@ -3569,10 +3503,9 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
       touchUp(50, 50);
 
-      // No compatibility click follows. Browsers only fire one when the press and
-      // release share a target, so a drag released over a different element, the
-      // usual case on a canvas, produces none. The suppression must not stay armed
-      // waiting for it.
+      // Browsers fire a compatibility click only when press and release share a
+      // target, so a drag released over another element gets none. The suppression
+      // must not stay armed waiting for it.
       const button = createElement();
       dispatch(
         button,

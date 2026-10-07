@@ -33,9 +33,8 @@ function createPreviewElement(
   };
 }
 
-// Teardown runs in `afterEach`, not at the end of each test, so a failed assertion
-// cannot skip cleanup and break later tests (a leaked `data-dragging` on
-// `document.body`, a handle left alive).
+// Teardown runs in `afterEach` so a failed assertion can't skip it and leak state,
+// such as `data-dragging` on `document.body`, into later tests.
 const activeHandles: Array<{ end(drop: boolean): void }> = [];
 const attachedSources: HTMLElement[] = [];
 
@@ -64,10 +63,7 @@ function createSource(): HTMLElement {
   return source;
 }
 
-/**
- * Queue `requestAnimationFrame` callbacks instead of running them, so a test steps
- * each frame by hand. `afterEach` restores the real `requestAnimationFrame`.
- */
+/** Queue `requestAnimationFrame` callbacks so a test steps each frame by hand. */
 function queueAnimationFrames(): FrameRequestCallback[] {
   const frames: FrameRequestCallback[] = [];
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
@@ -78,8 +74,8 @@ function queueAnimationFrames(): FrameRequestCallback[] {
 }
 
 afterEach(() => {
-  // `destroy()` is idempotent (asserted below), so re-destroying a handle a
-  // test already tore down is safe.
+  // `end` is a no-op on a destroyed handle, so ending one a test already tore
+  // down is safe.
   while (activeHandles.length > 0) {
     activeHandles.pop()!.end(false);
   }
@@ -477,14 +473,12 @@ describe('preview modifiers', () => {
     handle.update(100, 100);
     expect(preview.element.style.translate).toBe('100px 100px');
 
-    // x is pinned to the anchor; y still follows the pointer.
     handle.update(400, 250);
     expect(preview.element.style.translate).toBe('100px 250px');
   });
 
-  // Connected does not mean rendered. Under `display: none`, a browser resolves no
-  // computed transforms (`transform` reads back as `none`), so a measurement there
-  // would cache 1 for the rest of the drag. Only a browser can test this, since
+  // Under `display: none`, a browser resolves no computed transforms, so measuring
+  // there would cache a scale of 1 for the rest of the drag. Browser only, since
   // jsdom renders nothing.
   it.skipIf(isJSDOM)('does not latch the scale while the preview host is hidden', () => {
     const preview = createPreviewElement(50, 30);
@@ -512,8 +506,7 @@ describe('preview modifiers', () => {
   });
 
   // A preview modifier has the same signature as a root modifier, so it must see the
-  // same key state. Otherwise one modifier would behave differently depending on
-  // where it is attached.
+  // same key state, or one modifier would behave differently depending on where it's attached.
   it('passes the modifier keys of the update through to the modifiers', () => {
     const preview = createPreviewElement(50, 30);
     const seen: boolean[] = [];

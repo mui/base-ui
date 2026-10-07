@@ -25,29 +25,12 @@ import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import { COMPUTED_MATRIX, getOwnLinearTransform } from '../linearTransform';
 
 /**
- * Properties the preview must not inherit from the source. The engine moves the
- * preview by writing `translate` every frame. A source `transition` covering it
- * would ease each write so the preview trails the pointer, and a running
- * `@keyframes` on it sits in the animation origin and would pin the preview.
- *
- * `transform` is neutralized for its geometry, not its timing. Its translation
- * components (a source grabbed mid-FLIP) would shift the clone off the grab anchor
- * and double-count the offset already in the measured rect.
- *
- * `rotate` and `scale` are not neutralized. The individual properties compose as
- * `translate × rotate × scale × transform`, so the engine's `translate` stays
- * outermost and they turn or scale the preview about its own box without moving
- * it. Consumers style the preview with them (`.Card[data-drag-preview] { rotate: 4deg }`,
- * Tailwind's `rotate-4`), and a source that has them keeps its look on the clone.
- * The unlayered engine rule below beats every declaration in a cascade layer,
- * including all Tailwind v4 utilities, so neutralizing them here would lock
- * layered CSS out of that styling hook. For the same reason, it neutralizes
- * motion only until the drop. `translate` needs no rule, because the
- * engine's inline write beats any author value.
- *
- * The clone inherits these from class rules and from the source's inline style.
- * The sheet below clears the first and `removeProperty` the second, and both
- * derive their property list from this one.
+ * Properties the clone must not inherit. The engine writes `translate` every frame, so a
+ * `transition` would make the preview trail the pointer and an `animation` would pin it.
+ * A `transform` (a source grabbed mid-FLIP) is already in the measured rect and would
+ * shift the clone off the grab anchor. `rotate` and `scale` stay: they don't move the
+ * preview (see `writePosition`), and clearing them in the unlayered neutralizer would
+ * lock out consumers' layered CSS.
  */
 const MOTION_PROPERTIES = ['transition', 'animation'];
 const NEUTRALIZED_PROPERTIES = [...MOTION_PROPERTIES, 'transform'];
@@ -57,35 +40,20 @@ const NEUTRALIZED_PROPERTIES = [...MOTION_PROPERTIES, 'transform'];
 const OWN_OFFSET_PROPERTIES = ['margin-top', 'margin-left', 'translate'];
 
 /**
- * Keyed on a clone's `PREVIEW_ELEMENT_ATTRIBUTE`, so it reaches only the clone's
- * root, not its descendants, which keep their own `transform` and motion. A custom
- * preview's root inherits nothing from the source, so it keeps its own too (see
- * `neutralizeTranslateTransition`).
- *
- * At specificity (0,1,0) it beats the source's own `.Card { transition }` on
- * source order, while a consumer rule keyed on the public attribute
- * (`.Card[data-drag-preview] { transition: box-shadow .3s }`) still wins. An
- * inline declaration would force that consumer rule to use `!important`. The
- * `:not()` is wrapped in `:where()` to keep that specificity.
- *
- * Motion is neutralized only until the drop. Being unlayered, the rule would
- * otherwise beat an ending transition in a cascade layer, such as Tailwind's
- * `data-ending-style:transition-[translate]`, and the preview would jump back.
- * `prepareForDrop` suppresses motion the preview shares with the source instead.
- *
- * The UA `[popover]` chrome is not reset here either, for the same reason. The
- * engine restores the values it changed inline instead (see
- * `readPopoverSensitiveStyles`).
+ * Reaches only the clone's root, not its descendants or a custom preview's root (see
+ * `neutralizeTranslateTransition`). At (0,1,0), with `:where()` hiding the `:not()`, it
+ * beats the source's `.Card { transition }` on source order, yet a consumer's
+ * `.Card[data-drag-preview]` still wins without `!important`. Motion is cleared only
+ * until the drop, or this unlayered rule would beat a layered ending transition and the
+ * preview would jump back (`prepareForDrop` handles shared source motion instead).
  */
 const NEUTRALIZER_CSS =
   `[${PREVIEW_ELEMENT_ATTRIBUTE}="clone"]{transform:none}` +
   `[${PREVIEW_ELEMENT_ATTRIBUTE}="clone"]:where(:not([${DraggablePreviewDataAttributes.endingStyle}])){${MOTION_PROPERTIES.map((p) => `${p}:none`).join(';')}}`;
 
 /**
- * A constructable stylesheet, not a `<style>` element, because the CSSOM path is
- * exempt from CSP `style-src`. Built once per document or shadow root and kept in
- * the shared slot. A shadow root needs its own because document styles do not
- * cross the shadow boundary.
+ * Constructable sheets, since CSP `style-src` doesn't apply to them. One per
+ * document or shadow root, since document styles don't cross shadow boundaries.
  */
 const neutralizerSheets = getSharedSlot(
   'dragPreviewNeutralizerSheets',
@@ -103,9 +71,9 @@ function hasActiveMotion(property: string, style: CSSStyleDeclaration): boolean 
 }
 
 /**
- * Whether a popover is open. A polyfilled `showPopover` in a browser without the
- * Popover API leaves `:popover-open` unparseable, and `matches` throws. The
- * polyfill keeps its own state, so the preview is treated as open.
+ * A polyfilled `showPopover` in a browser without the Popover API leaves
+ * `:popover-open` unparseable, so `matches` throws. The polyfill keeps its own
+ * state, so the preview is treated as open.
  */
 function isPopoverOpen(element: HTMLElement): boolean {
   try {
@@ -116,10 +84,8 @@ function isPopoverOpen(element: HTMLElement): boolean {
 }
 
 function ensureNeutralizerStyles(host: PreviewHost): void {
-  // `isShadowRoot` is realm-safe. A shadow root inside an iframe or popout has its
-  // own `ShadowRoot` constructor, so a plain `instanceof` would fail and the sheet
-  // would land on the iframe document instead. The preview would then keep the
-  // source's transitions.
+  // `isShadowRoot` is realm-safe. `instanceof` fails for a shadow root in an iframe
+  // or popout, so the sheet would land on the document and miss the preview.
   const target = isShadowRoot(host) ? host : getDragEventRoot(host);
   if (!('adoptedStyleSheets' in target)) {
     return;
@@ -129,9 +95,8 @@ function ensureNeutralizerStyles(host: PreviewHost): void {
     created.replaceSync(NEUTRALIZER_CSS);
     return created;
   });
-  // Re-adopt on every call instead of tracking which roots already have it. An app
-  // that assigns a new `adoptedStyleSheets` array (on a theme switch, say) drops
-  // the sheet, and the next preview would carry the source's transitions again.
+  // Re-adopt every time. An app that assigns a new `adoptedStyleSheets` array (on a
+  // theme switch, say) drops the sheet.
   adoptStyleSheet(target, sheet);
 }
 
@@ -144,15 +109,12 @@ export interface DragPreviewElementHandle {
   setPosition(x: number, y: number): void;
   /**
    * Re-home the preview if its parent was torn out mid-drag (a virtualizer recycling
-   * the row, a `dangerouslySetInnerHTML` parent re-rendering). Cheap enough to call
-   * every frame. The common path is an `isConnected` read, plus a `:popover-open`
-   * match for a top-layer preview.
+   * the row). Cheap enough to call every frame.
    */
   ensureConnected(): void;
   /**
-   * Replace the root's own inline style with `ownStyle`, then put the engine's
-   * attributes and declarations back on top. Refresh geometry and motion after the
-   * write, using the new cascade.
+   * Replace the root's own inline style with `ownStyle`, put the engine's attributes
+   * and declarations back on top, and re-measure against the new cascade.
    */
   updateContentStyle(ownStyle: string): void;
   destroy(): void;
@@ -167,9 +129,8 @@ const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
 const previewIds = getSharedSlot('dragPreviewIds', () => ({ next: 0 }));
 
 /**
- * The node the preview is appended to. A draggable that is a direct child of a
- * shadow root has no `parentElement`. Appending to the shadow root keeps the
- * preview under the same styles.
+ * The node the preview is appended to. A direct child of a shadow root has no
+ * `parentElement`, so the shadow root is used, which keeps the same styles.
  */
 function hostOf(node: Node): PreviewHost | null {
   const parent = node.parentNode;
@@ -180,10 +141,9 @@ function hostOf(node: Node): PreviewHost | null {
 }
 
 /**
- * A custom element cannot be cloned inertly in its live document. `cloneNode`
- * runs its constructor, and connecting the preview runs its lifecycle callbacks.
- * Undefined custom-element names are unsafe too, since a definition registered
- * during the drag would upgrade the connected clone.
+ * A custom element can't be cloned inertly: `cloneNode` runs its constructor, and
+ * connecting runs its lifecycle callbacks. An undefined name counts too, since a
+ * definition registered mid-drag would upgrade the clone.
  */
 function isCustomElementCandidate(element: Element): boolean {
   return (
@@ -193,10 +153,9 @@ function isCustomElementCandidate(element: Element): boolean {
 }
 
 /**
- * The computed properties copied onto a custom element's placeholder. They cover
- * its box, its painted surface, and its place in a parent flex or grid layout.
- * The placeholder has no shadow content, so the other few hundred computed
- * properties would only cost a `setProperty` each.
+ * Copied onto a custom element's placeholder: its box, painted surface, and place in
+ * a flex or grid parent. The placeholder has no shadow content, so the other few
+ * hundred computed properties would only cost a `setProperty` each.
  */
 const PLACEHOLDER_STYLE_PROPERTIES = [
   'display',
@@ -269,9 +228,8 @@ const PLACEHOLDER_STYLE_PROPERTIES = [
 ];
 
 /**
- * Clone a tree, replacing custom elements with inert `div` placeholders. The
- * copied computed styles approximate the host box without running the element's
- * constructor, upgrade, or lifecycle callbacks.
+ * Clone a tree, replacing custom elements with inert `div` placeholders styled with
+ * their computed box (see `isCustomElementCandidate`).
  */
 function cloneWithoutCustomElements(
   source: HTMLElement,
@@ -321,9 +279,9 @@ function cloneWithoutCustomElements(
 }
 
 /**
- * Neutralizes copied nodes so they can't act as the originals. The clone of a source
- * uses it once. The copy of a custom preview applies it again to every node and
- * attribute that changes while it mirrors the React-rendered content.
+ * Neutralizes copied nodes so they can't act as the originals. A source clone runs
+ * it once. A custom preview's copy runs it again on every node and attribute that
+ * changes.
  */
 export interface PreviewSanitizer {
   /**
@@ -361,19 +319,17 @@ const ARIA_REFERENCE_ATTRIBUTES = [
 
 export interface PreviewSanitizerOptions {
   /**
-   * Whether a copied `id` can stay as it is. By default every id is rewritten, since
-   * a clone duplicates its source's ids by construction. The copy of custom content
-   * keeps an id unless the page already uses it.
+   * Whether a copied `id` can stay. By default every id is rewritten, since a clone
+   * duplicates its source's. Custom content keeps an id the page doesn't use.
    */
   keepId?: ((id: string) => boolean) | undefined;
 }
 
 export function createPreviewSanitizer(options: PreviewSanitizerOptions = {}): PreviewSanitizer {
   const { keepId } = options;
-  // Duplicate ids would break `getElementById`, `<label for>` and
-  // `aria-labelledby`. Rewrite them, then update references inside the copy.
-  // As a result, `#id` selectors do not style the preview. Classes and
-  // `[data-drag-preview]` are the supported styling hooks.
+  // Duplicate ids break `getElementById`, `<label for>` and `aria-labelledby`, so
+  // they get a suffix and references inside the copy follow. `#id` selectors don't
+  // style the preview as a result.
   const rewritten = new Map<string, string>();
   const idSuffix = `-drag-preview-${previewIds.next}`;
   previewIds.next += 1;
@@ -392,13 +348,13 @@ export function createPreviewSanitizer(options: PreviewSanitizerOptions = {}): P
       switch (node.localName) {
         case 'iframe':
           node.removeAttribute('src');
-          // `srcdoc` takes precedence over `src`. Left in place, inserting the copy
-          // would load the embedded document, scripts included, on every drag.
+          // `srcdoc` wins over `src` and would load the document, scripts included,
+          // on every drag.
           node.removeAttribute('srcdoc');
           break;
         case 'object':
-          // Like an iframe, an `<object>` or `<embed>` would fetch its resource again
-          // and run an HTML or SVG document's scripts on every drag.
+          // An `<object>` or `<embed>` would refetch its resource and run its
+          // scripts on every drag.
           node.removeAttribute('data');
           node.setAttribute('form', '');
           break;
@@ -408,8 +364,8 @@ export function createPreviewSanitizer(options: PreviewSanitizerOptions = {}): P
         case 'button':
         case 'fieldset':
         case 'output':
-          // An empty owner keeps the enabled appearance without adding controls to
-          // the source's form or its constraint validation, including `form="id"`.
+          // An empty owner keeps the enabled look without joining the source's form
+          // or its validation, even through `form="id"`.
           node.setAttribute('form', '');
           break;
         case 'embed':
@@ -421,8 +377,8 @@ export function createPreviewSanitizer(options: PreviewSanitizerOptions = {}): P
           node.setAttribute('preload', 'none');
           break;
         case 'img':
-          // A lazy image waits until it nears the viewport, and the preview is
-          // parked off-screen until its first frame, so it would flash empty.
+          // A lazy image wouldn't load while the preview is parked off-screen, so it
+          // would flash empty.
           if (node.hasAttribute('loading')) {
             node.setAttribute('loading', 'eager');
           }
@@ -431,20 +387,18 @@ export function createPreviewSanitizer(options: PreviewSanitizerOptions = {}): P
           break;
       }
 
-      // A copied control still belongs to the source's form, so it would be
-      // submitted with the real one. A checked radio with the same `name` would also
-      // uncheck the original when inserted, an open `<details>` in the source's
-      // exclusive accordion would close itself, and a named `<form>` would turn
-      // `document[name]` into a collection. A `<slot>` keeps its name, since a
-      // nameless slot would take the host's unassigned children.
+      // A shared `name` would let a checked radio uncheck the original, an open
+      // `<details>` close the source's accordion, or a named `<form>` turn
+      // `document[name]` into a collection. A `<slot>` keeps it, since a nameless
+      // slot would take the host's unassigned children.
       if (node.localName !== 'slot') {
         node.removeAttribute('name');
       }
     },
     rewriteId(node) {
       const id = node.getAttribute('id');
-      // An id rewritten once stays rewritten, even after the page stops using it, so
-      // the references already remapped to it keep pointing at it.
+      // An id rewritten once stays rewritten, so references already remapped to it
+      // keep working.
       if (id && (rewritten.has(id) || !keepId?.(id))) {
         const next = `${id}${idSuffix}`;
         rewritten.set(id, next);
@@ -506,9 +460,8 @@ function sanitize(clone: HTMLElement, cloneNodes: Element[]): void {
 }
 
 /**
- * Rewrite `url(#id)` references in an inline style through the CSSOM. A strict
- * CSP without `'unsafe-inline'` blocks `setAttribute('style', …)`, but not
- * `style.setProperty`.
+ * Goes through the CSSOM, since a strict CSP without `'unsafe-inline'` blocks
+ * `setAttribute('style', …)` but not `style.setProperty`.
  */
 function remapInlineStyleUrls(node: Element, remap: (value: string) => string): void {
   const style = (node as Partial<ElementCSSInlineStyle>).style;
@@ -525,11 +478,10 @@ function remapInlineStyleUrls(node: Element, remap: (value: string) => string): 
 }
 
 /**
- * Copy the state an element holds outside its attributes: field values and checked
- * states set through properties, `indeterminate`, a select's selection, an open
- * `<details>`, and canvas pixels. Cloning keeps only some of it, and none of it
- * changes through a mutation. Uses the source window's constructors, since a
- * draggable in an iframe or popout has its own.
+ * Copy state held outside attributes: field values, checkedness, a select's
+ * selection, an open `<details>`, canvas pixels. Cloning keeps only some of it, and
+ * no mutation reports it. Uses the source window's constructors for iframes and
+ * popouts.
  */
 export function copyElementState(
   from: Element,
@@ -558,23 +510,22 @@ export function copyElementState(
       to.open = from.open;
     }
   } else if (from instanceof win.HTMLCanvasElement && to instanceof win.HTMLCanvasElement) {
-    // `drawImage` works on a detached canvas and is far cheaper than a `toDataURL()`
-    // round-trip.
+    // `drawImage` works on a detached canvas and is far cheaper than `toDataURL()`.
     try {
       const context = to.getContext('2d');
       context?.clearRect(0, 0, to.width, to.height);
       context?.drawImage(from, 0, 0);
     } catch {
-      // A tainted, WebGL or transferred-to-offscreen canvas cannot be read. Leave
-      // the copy blank rather than failing the whole drag.
+      // A tainted, WebGL or offscreen-transferred canvas can't be read. Leave the
+      // copy blank rather than fail the drag.
     }
   }
 }
 
 /**
- * Copy the state cloning leaves out (see `copyElementState`). Source and clone lists
- * are paired before sanitization removes nodes. Scroll offsets need layout, so the
- * returned function applies them after insertion.
+ * Copy the state cloning leaves out (see `copyElementState`). Runs before
+ * sanitization removes nodes, so the lists still pair up. Scroll offsets need
+ * layout, so the returned function applies them after insertion.
  */
 function copyLiveState(
   sourceNodes: Element[],
@@ -632,9 +583,8 @@ function writeInlineDeclarations(
 }
 
 /**
- * Set a scroll offset without animating it. Under `scroll-behavior: smooth`, a
- * `scrollTop` write starts a smooth scroll, so the preview would show the top of
- * the scroller and a mid-drag re-home would scroll it again.
+ * Under `scroll-behavior: smooth`, a `scrollTop` write animates, so the preview
+ * would show the top of the scroller and scroll again on each re-home.
  */
 function scrollInstantly(node: HTMLElement, top: number, left: number): void {
   if (typeof node.scrollTo === 'function') {
@@ -657,14 +607,10 @@ const TABLE_ROW_PARTS = new Set([
 ]);
 
 /**
- * `position: fixed` blockifies a table row or row group, so its cells lay out in
- * an anonymous table that sizes them to their content instead of the source's
- * columns. Pin each cell to its used width. This is exact under
- * `border-collapse: collapse`. Under separated borders, the anonymous table adds
- * the outer `border-spacing`, so the cells land within that spacing.
- *
- * Reads the widths now and returns a function that writes them once the clone is
- * inserted, or `null` when the source is not a row or row group.
+ * `position: fixed` blockifies a table row or row group, so its cells lay out in an
+ * anonymous table sized to their content. Pin each cell to its used width (exact under
+ * `border-collapse: collapse`; separated borders add the outer `border-spacing`).
+ * Returns a writer to run once the clone is inserted, or `null` for a non-row source.
  */
 function captureTableCellWidths(
   source: Element,
@@ -719,8 +665,8 @@ function prepareDragPreviewClone(
     sourceNodes = queriedSourceNodes;
     cloneNodes = getSubtreeElements(element);
   }
-  // A preview inside the source, in a `container` the source holds, would be copied
-  // into the next one. `Draggable.updatePreview()` would then nest previews.
+  // Drop previews in a `container` inside the source, or `Draggable.updatePreview()`
+  // would nest them.
   const previewNodes = new Set<Element>();
   for (const node of cloneNodes) {
     if (node !== element && node.hasAttribute(PREVIEW_ELEMENT_ATTRIBUTE)) {
@@ -739,12 +685,10 @@ function prepareDragPreviewClone(
   const applyPostInsertion = copyLiveState(sourceNodes, cloneNodes, win);
   sanitize(element, cloneNodes);
   element.removeAttribute(DraggableRootDataAttributes.dragging);
-  // Present on a source whose previous preview is still settling. A
-  // `[data-settling] { color: transparent }` placeholder rule would otherwise hide
-  // the preview's text for the whole drag.
+  // Set while the previous preview settles. A
+  // `[data-settling] { color: transparent }` rule would hide the preview's text.
   element.removeAttribute(DraggableRootDataAttributes.settling);
-  // The clone joins the list after every item, so an ordered list would number it
-  // as its last item. Pin the source's own number instead.
+  // The clone is appended last, so an `<ol>` would number it as the last item.
   if (!element.hasAttribute('value')) {
     const ordinal = getListItemOrdinal(source);
     if (ordinal !== null) {
@@ -785,10 +729,8 @@ function getListItemOrdinal(item: Element): number | null {
 }
 
 /**
- * Whether a computed `transform` only translates, which leaves the box's size
- * untouched. Browsers resolve the computed `transform` of a rendered element to
- * matrix form, so a pure translation is an identity matrix with only the offset
- * components (`m41`/`m42`/`m43`) free.
+ * Whether a computed `transform` only translates. Computed transforms resolve to
+ * matrix form, so that is an identity matrix apart from `m41`/`m42`/`m43`.
  */
 function isTranslationOnly(transform: string): boolean {
   const matrix = transform.match(COMPUTED_MATRIX);
@@ -797,8 +739,7 @@ function isTranslationOnly(transform: string): boolean {
   }
   const values = matrix[2].split(',').map(Number);
   if (matrix[1]) {
-    // Column-major order. The diagonal is at indices 0, 5, 10 and 15, and the
-    // translation at 12 to 14.
+    // Column-major: the diagonal is at 0, 5, 10 and 15, the translation at 12 to 14.
     return (
       values.length === 16 &&
       values.every((value, i) => (i >= 12 && i <= 14) || value === (i % 5 === 0 ? 1 : 0))
@@ -831,10 +772,9 @@ function getUntransformedSourceRect(
     return fallback();
   }
 
-  // An affine transform maps the rectangle's center to the center of its
-  // transformed axis-aligned bounding box. Undo that displacement around the real
-  // transform origin. Unlike plain re-centering, this also works for a top-left or
-  // other custom origin.
+  // An affine transform maps the box's center to the center of its transformed
+  // bounding box. Undo that displacement around the real `transform-origin`, which
+  // plain re-centering gets wrong for a non-center origin.
   const centerX = width / (2 * ancestorScale.x);
   const centerY = height / (2 * ancestorScale.y);
   const relativeX = centerX - originX;
@@ -851,11 +791,10 @@ function getUntransformedSourceRect(
 }
 
 /**
- * The source's border-box size in its own CSS pixels, before any transform.
- * `offsetWidth`/`offsetHeight` round to integers, so the size comes from the
- * computed box, which keeps the subpixels. It is trusted only when it agrees with
- * the rounded one. It is `auto` on an inline box, and Chromium leaves a classic
- * scrollbar out of the computed content width.
+ * The source's untransformed border-box size in its own CSS pixels. The computed
+ * size keeps the subpixels `offsetWidth`/`offsetHeight` round off, but is trusted
+ * only within 1px of them: it is `auto` on an inline box, and Chromium leaves a
+ * classic scrollbar out of the computed content width.
  */
 function getUntransformedBorderBox(
   source: HTMLElement,
@@ -892,23 +831,15 @@ export function measurePreviewSource(source: HTMLElement): {
   sourceRect: DOMRect;
   scale: DraggablePosition;
 } {
-  // `getBoundingClientRect` includes the source's own transform. The clone
-  // neutralizes `transform` but re-applies the individual `rotate`/`scale`
-  // properties to the box it is given, so a transformed source must be measured
-  // from its untransformed border box.
-  //
-  // CSS Transforms 2 splits `scale`, `rotate` and `translate` out of `transform`,
-  // and they do not fold into the computed `transform`. A source styled
-  // `scale: 1.5` (a hover lift) reads as untransformed unless each property is
-  // checked. Sizing from the transformed bounding box would then compound the
-  // re-applied scale to about 2.25x.
+  // `getBoundingClientRect` includes the source's own transform, and the clone keeps
+  // `rotate`/`scale`, so a transformed source is measured from its untransformed
+  // border box. The individual properties don't fold into the computed `transform`,
+  // so each is checked. Otherwise a `scale: 1.5` hover lift would compound to 2.25x.
   const win = ownerWindow(source);
   const rect = source.getBoundingClientRect();
   const sourceStyle = win.getComputedStyle(source);
-  // Translation is excluded, whether from `translate` or a translate-only
-  // `transform`. It moves the box without resizing it, so the rect's dimensions
-  // are already right. They are also exact, while `offsetWidth` rounds to an
-  // integer and would lose the preview's subpixel size.
+  // Translation doesn't resize the box, so it is ignored. The rect's size is then
+  // right, and keeps the subpixels `offsetWidth` rounds off.
   const hasTransform =
     (sourceStyle.transform !== '' &&
       sourceStyle.transform !== 'none' &&
@@ -922,11 +853,9 @@ export function measurePreviewSource(source: HTMLElement): {
   const layoutSize = hasTransform ? getUntransformedBorderBox(source, sourceStyle) : null;
   const width = layoutSize ? layoutSize.width * ancestorScale.x : rect.width;
   const height = layoutSize ? layoutSize.height * ancestorScale.y : rect.height;
-  // Everything downstream, such as the default `'source'` offset and the
-  // `--drag-source-*` variables, must describe the box the preview has. Otherwise
-  // the preview is anchored to a different box and jumps on pickup. So the
-  // untransformed size is paired with the position found by undoing the source's
-  // transform around its computed `transform-origin`.
+  // Pair the untransformed size with the position found by undoing the transform.
+  // The `'source'` offset and `--drag-source-*` variables must describe the
+  // preview's box, or it jumps on pickup.
   const sourceRect = hasTransform
     ? getUntransformedSourceRect(rect, width, height, sourceStyle, win, ancestorScale)
     : rect;
@@ -941,11 +870,10 @@ export interface PreviewAnchor {
   /** The source's ancestor scale at pickup, `zoom` included. */
   sourceScale: DraggablePosition;
   /**
-   * The nodes the preview can be appended to, nearest first: the `container` or the
-   * source's parent, then their ancestors. It ends at `documentElement` (or a shadow
-   * root), which outlives any subtree the app tears down. A preview built or re-homed
-   * mid-drag uses the first one still connected, which keeps as much of the original
-   * cascade as possible.
+   * Where the preview can go, nearest first: the `container` or the source's parent,
+   * then their ancestors up to `documentElement`, which outlives any subtree the app
+   * tears down. A preview built or re-homed mid-drag uses the first one still
+   * connected, keeping as much of the cascade as possible.
    */
   hosts: PreviewHost[];
   /** Whether the preview goes into a `container` instead of beside the source. */
@@ -958,20 +886,16 @@ export interface PreviewAnchor {
 }
 
 /**
- * Measure where the preview goes and the box it starts from. Runs at pickup, before
- * `data-dragging` lands on the source, whose rules could otherwise change the box.
- *
- * Returns `null` when there is nowhere to insert the preview (a detached or
- * parentless source). The drag then runs without one.
+ * Runs at pickup, before `data-dragging` rules can change the source's box. Returns
+ * `null` for a detached or parentless source, and the drag runs without a preview.
  */
 export function measurePreviewAnchor(
   source: HTMLElement,
   requestedContainer: HTMLElement | null,
 ): PreviewAnchor | null {
   let container = requestedContainer;
-  // The preview is measured and positioned in the source's document. Viewport
-  // coordinates do not carry across documents, so a container in another document
-  // would offset the preview by the frame's position. Render it in place instead.
+  // Viewport coordinates don't carry across documents, so a container in another
+  // document would offset the preview by the frame's position.
   if (container && ownerDocument(container) !== ownerDocument(source)) {
     if (process.env.NODE_ENV !== 'production') {
       warn(
@@ -1005,9 +929,8 @@ export function measurePreviewAnchor(
 }
 
 /**
- * The children lists accept. React checks the content's nesting against tables and
- * selects (see `createPreviewContentContainer`), but not against lists, so a custom
- * preview root that is invalid in a list gets a warning from Base UI instead.
+ * The children lists accept. React validates nesting in tables and selects (see
+ * `createPreviewContentContainer`) but not lists, so Base UI warns for those.
  */
 const LIST_CHILDREN: Record<string, readonly string[]> = {
   ul: ['li'],
@@ -1027,8 +950,8 @@ function getTransitionSignature(computed: CSSStyleDeclaration): string {
 }
 
 /**
- * Whether a computed property belongs to the engine on the preview element, so a
- * change the top layer brings to it is expected rather than restored.
+ * Whether the engine owns a property on the preview, so a change the top layer
+ * brings to it is expected rather than restored.
  */
 function isEnginePositionedProperty(name: string): boolean {
   return (
@@ -1040,31 +963,12 @@ function isEnginePositionedProperty(name: string): boolean {
 }
 
 /**
- * Build the element that follows the pointer and append it to the source's parent,
- * so inherited properties, descendant selectors and child combinators still apply.
- * It is a clone of the source, or `content`, a copy of a custom preview's rendered
- * content.
- *
- * The preview has no wrapper. A clone keeps the source's tag, so a `<tr>` preview is
- * a `<tr>` in the same `<tbody>` and the document stays valid HTML. It is appended
- * as the last child rather than next to the source, so `:nth-child` keeps matching
- * every sibling during the drag, unless a live reorder moves one after it. It still
- * shifts `:last-child`, `:only-child` and `:nth-last-child` on the siblings, which a
- * `container` avoids. A clone is unaffected either way. Its structural styles were
- * snapshotted from the source, and `restore()` re-applies whatever the new position
- * changed.
- *
- * `popover="manual"` promotes the preview to the top layer. Its box renders above
- * the page while the node stays in place in the DOM. The viewport becomes the
- * containing block, so a transformed ancestor cannot offset the preview, and no
- * ancestor can clip it or trap it in a stacking context. `manual` never
- * light-dismisses or takes focus, so Escape still cancels the drag.
- *
- * Browsers without the Popover API fall back to a plain `position: fixed` element,
- * which is correct outside transformed or clipping ancestors.
- *
- * Returns `null` when no host is left to insert into, or when a clone's source is
- * no longer connected. The drag then runs without a preview.
+ * Build the element that follows the pointer: a clone of the source, or a copy of custom
+ * `content`. Appending it unwrapped to the source's parent keeps inherited styles and
+ * child selectors applying and a `<tr>` valid, but shifts the siblings' `:last-child`
+ * (a `container` avoids that). `popover="manual"` lifts it into the top layer, past
+ * ancestor transforms and clips, without light-dismiss or taking focus, so Escape still
+ * cancels the drag. Returns `null` when no host is connected, or a clone's source is not.
  */
 export function createDragPreviewElement(
   source: HTMLElement,
@@ -1083,19 +987,17 @@ export function createDragPreviewElement(
   const clone = isClone ? prepareDragPreviewClone(source, win) : undefined;
   const element = content ?? clone!.element;
 
-  // Keyed on the host, not the source. With a container in another root, such as a
-  // shadow tree, a sheet adopted into the source's root would not reach the preview,
-  // and it would keep the source's transitions.
+  // Keyed on the host, not the source: a sheet adopted into the source's root would
+  // miss a `container` in another shadow tree.
   ensureNeutralizerStyles(host);
 
   const { sourceRect, sourceScale } = anchor;
   const width = sourceRect.width / sourceScale.x;
   const height = sourceRect.height / sourceScale.y;
 
-  // Every inline declaration the engine writes on the preview, so it can write them
-  // again after the copy of custom content replaced the element's `style` attribute.
-  // The popover corrections are kept apart (see `openInTopLayer`), since they
-  // depend on the consumer's styles and are measured again when those change.
+  // The engine's inline declarations, rewritten after custom content replaces the
+  // root's `style`. Popover corrections are kept apart (see `popoverCorrections`),
+  // since they are re-measured when the consumer's styles change.
   const engineStyles = new Map<string, [value: string, priority: string]>();
   function setEngineStyle(name: string, value: string, priority = ''): void {
     engineStyles.set(name, [value, priority]);
@@ -1122,11 +1024,10 @@ export function createDragPreviewElement(
 
   function applyEngineAttributes(): void {
     element.setAttribute(PREVIEW_ELEMENT_ATTRIBUTE, isClone ? 'clone' : 'content');
-    // The public styling hook, on the clone or on the root of the custom content.
+    // The public styling hook.
     element.setAttribute(DraggablePreviewDataAttributes.dragPreview, '');
     element.setAttribute('aria-hidden', 'true');
-    // Without it, a cloned `tabindex="0"` would be tabbable. The preview must never
-    // be focusable or hit-tested.
+    // Keeps a cloned `tabindex="0"` out of the tab order.
     element.setAttribute('inert', '');
     if (!anchor.inContainer && anchor.slot !== null) {
       element.setAttribute('slot', anchor.slot);
@@ -1135,22 +1036,19 @@ export function createDragPreviewElement(
     }
   }
 
-  // The content's transition during the drag, while it covers `translate`. At the
-  // drop, it is compared with the ending one (see `prepareForDrop`).
+  // The content's drag transition, if it covers `translate`, compared with the
+  // ending one at the drop (see `prepareForDrop`).
   let dragTransition: string | null = null;
 
-  // The content's own inline `transition-duration` and `transition-delay` while
-  // `neutralizeTranslateTransition` overrides them, so the drop can put them back.
-  // `null` when nothing is overridden.
+  // The content's own inline transition timing that `neutralizeTranslateTransition`
+  // overrode, for the drop to put back. `null` when nothing is overridden.
   let ownTransitionTiming: InlineDeclaration[] | null = null;
 
   /**
-   * The engine writes `translate` on the root of a custom preview every frame, so a
-   * transition covering it would ease or delay each write and the preview would
-   * trail the pointer. Zero the duration and delay of that transition until the
-   * drop, and keep any other, such as a `box-shadow` transition, along with the
-   * root's own `transform`. `all` covers `translate`, so it is zeroed too. Runs on
-   * the preview's final cascade, since an app's `[popover]` rule can add one.
+   * A custom root's transition covering `translate` (or `all`) would make the
+   * preview trail the pointer. Zero its duration and delay until the drop. Other
+   * transitions and the root's own `transform` stay. Runs on the final cascade,
+   * since an app's `[popover]` rule can add a transition.
    */
   function neutralizeTranslateTransition(): void {
     if (isClone || ownTransitionTiming !== null) {
@@ -1201,8 +1099,8 @@ export function createDragPreviewElement(
     writeInlineDeclarations(element.style, timing);
   }
 
-  // The custom root's own inline `margin` and `translate`, which the engine's
-  // declarations replace. `readOwnOffset` puts them back to measure them.
+  // The custom root's own inline `margin` and `translate`, which the engine
+  // replaces. `readOwnOffset` puts them back to measure them.
   let ownOffsetStyle: InlineDeclaration[] = [];
   function captureOwnOffsetStyle(): void {
     ownOffsetStyle = readInlineDeclarations(element.style, OWN_OFFSET_PROPERTIES);
@@ -1211,28 +1109,25 @@ export function createDragPreviewElement(
   applyEngineAttributes();
   captureOwnOffsetStyle();
 
-  // Geometry only. Every visual property stays in the cascade so that a consumer
-  // rule keyed on `[data-drag-preview]` wins without `!important`.
+  // Geometry only. Visual properties stay in the cascade, so a consumer
+  // `[data-drag-preview]` rule wins without `!important`.
   setEngineStyle('position', 'fixed');
   setEngineStyle('top', '0px');
   setEngineStyle('left', '0px');
-  // A source `right` or `inset-inline-end` would over-constrain the box. In a
-  // right-to-left page the browser then drops `left` and pins it to the right.
+  // A source `right` or `inset-inline-end` would over-constrain the box, and a
+  // right-to-left page would then drop `left` and pin it to the right.
   setEngineStyle('right', 'auto');
   setEngineStyle('bottom', 'auto');
-  // Margins are not part of the measured rect and would shift the preview off
-  // its transform anchor.
+  // Margins aren't in the measured rect and would shift the preview off its anchor.
   setEngineStyle('margin', '0px');
   setEngineStyle('box-sizing', 'border-box');
   // `elementFromPoint` must see through the preview to the drop targets below.
   setEngineStyle('pointer-events', 'none');
   setEngineStyle('will-change', 'translate');
-  // Only takes effect without the Popover API. The top layer paints above every
-  // stacking context anyway.
+  // Only matters without the Popover API. The top layer is above every stacking
+  // context.
   setEngineStyle('z-index', '2147483647');
-  // Park off-screen until the first frame positions it. Uses `translate`, not
-  // `transform`, so positioning composes outside a consumer `rotate`/`scale`
-  // (see `writePosition`) and overwrites any `translate` the source had.
+  // Off-screen until the first frame positions it (see `writePosition`).
   setEngineStyle('translate', '-10000px -10000px');
   // A clone keeps the size it had in the source layout. Custom content sizes itself.
   if (isClone) {
@@ -1242,16 +1137,14 @@ export function createDragPreviewElement(
     setEngineStyle('max-width', 'none');
     setEngineStyle('min-height', '0px');
     setEngineStyle('max-height', 'none');
-    // Remove these instead of overwriting them. The clone carries the source's
-    // `style` attribute, and an inline declaration would beat `NEUTRALIZER_CSS`.
+    // Removed, not overwritten: an inline declaration would beat `NEUTRALIZER_CSS`.
     for (const property of NEUTRALIZED_PROPERTIES) {
       element.style.removeProperty(property);
     }
   }
 
-  // Read from the source while the clone is still detached. Inserting the clone
-  // would make it the parent's last child and snapshot `:last-child` rules at a
-  // position the source does not hold.
+  // Read while the clone is detached, since inserting it last changes which
+  // `:last-child` rules the source matches.
   const contextualStyles = clone && capturePreviewStyles(clone.sourceNodes, clone.clonesBySource);
   const applyTableCellWidths = clone && captureTableCellWidths(source, clone.clonesBySource, win);
 
@@ -1268,16 +1161,15 @@ export function createDragPreviewElement(
     }
   }
 
-  // The source's own motion at pickup, before `data-dragging` lands on it. The
-  // neutralizer stops at the drop, so `prepareForDrop` compares the preview's
-  // ending motion against it.
+  // The source's motion at pickup, before `data-dragging`. The neutralizer stops at
+  // the drop, so `prepareForDrop` compares the ending motion against it.
   const sourceMotion = new Map<string, string>();
 
   /**
-   * A contextual motion rule from the source can outrank the shared neutralizer.
-   * Suppress motion the preview shares with the source, but keep motion a preview
-   * rule sets. Runs after the clone is connected, so its computed style reflects its
-   * real cascade, and before the contextual snapshot is restored.
+   * A contextual source rule can outrank the neutralizer. Suppress motion the
+   * preview shares with the source, and keep motion a preview rule sets. Runs once
+   * connected, so the computed style is the real cascade, and before the contextual
+   * snapshot is restored.
    */
   function neutralizeInheritedMotion(): void {
     const sourceStyle = win.getComputedStyle(source);
@@ -1300,15 +1192,10 @@ export function createDragPreviewElement(
   }
 
   /**
-   * The computed values the top layer could change: everything but the geometry,
-   * motion and custom properties the engine owns. The browser's `[popover]` rules
-   * add a border, padding, `overflow: auto`, `color: CanvasText` and an opaque
-   * `Canvas` background, and an app's own `[popover]` or `:popover-open` rules can
-   * add more. A reset stylesheet can't remove them without beating the consumer's
-   * styles too. Unlayered, it would beat every cascade layer, Tailwind's utilities
-   * included, and a layer declared from an adopted sheet is ordered after the
-   * document's layers. So the values are read before the element becomes a popover,
-   * and any value the popover changed is written back inline.
+   * The computed values the top layer could change, minus what the engine owns, read
+   * before the element becomes a popover so changed ones are written back inline. A reset
+   * sheet for the UA and app `[popover]` chrome would beat the consumer's styles, layered
+   * or not (an adopted sheet's layer sorts after the document's).
    */
   function readPopoverSensitiveStyles(): Map<string, string> {
     const computed = win.getComputedStyle(element);
@@ -1322,21 +1209,16 @@ export function createDragPreviewElement(
     return values;
   }
 
-  // The values `openInTopLayer` wrote back after the popover changed them, each with
-  // the value the popover gave the property, so a later rule can be told apart.
+  // The values `openInTopLayer` wrote back, each with the popover's value, so a
+  // later rule can be told apart.
   const popoverCorrections = new Map<string, [correction: string, popoverValue: string]>();
 
   /**
-   * Keep a popover correction only while the property still shows the value the
-   * popover gave it. A rule that sets it since, such as an ending style or a class
-   * the content gained, takes over. A single read, without leaving the top layer:
-   * leaving it would apply the new styles without their transitions, so a fade-out
-   * on the drop would not run. A property the popover reaches only after a restyle
-   * is not corrected.
-   *
-   * `inline` is whether the corrections are still written on the element. After the
-   * content replaced the root's inline style, they are not, and removing them would
-   * remove the content's own declarations.
+   * Keep a popover correction only while the property still has the popover's value, so
+   * a later rule (an ending style, a new class) takes over. Re-measures in place: leaving
+   * the top layer would apply the new styles without their transitions and skip a drop
+   * fade-out. `inline` is `false` once the content replaced the root's inline style, so
+   * the content's own declarations aren't removed with the corrections.
    */
   function refreshPopoverCorrections(inline: boolean): void {
     if (popoverCorrections.size === 0) {
@@ -1368,8 +1250,8 @@ export function createDragPreviewElement(
       element.showPopover();
       usesPopover = true;
     } catch {
-      // `showPopover` throws on a disconnected node. Fall back to the plain fixed
-      // element and drop the attribute, which would otherwise keep it `display: none`.
+      // `showPopover` throws on a disconnected node. Fall back to a plain fixed
+      // element, without the attribute that would keep it `display: none`.
       element.removeAttribute('popover');
       usesPopover = false;
       return;
@@ -1393,7 +1275,6 @@ export function createDragPreviewElement(
     // follows `zoom`.
     const positionScale = isClone ? sourceScale : { x: zoom, y: zoom };
     scale = { x: positionScale.x / zoom, y: positionScale.y / zoom };
-    // Expose the source's size to the preview content.
     setEngineStyle(
       DraggablePreviewCssVars.dragSourceWidth,
       `${sourceRect.width / positionScale.x}px`,
@@ -1406,16 +1287,10 @@ export function createDragPreviewElement(
 
   /**
    * Re-apply the ancestor scale through `transform`, which the engine owns on a clone
-   * (see `NEUTRALIZED_PROPERTIES`). `scale` and `rotate` stay free for consumer
-   * styling. Without an ancestor scale, `transform` stays clear.
-   *
-   * The individual `rotate` and `scale` properties compose outside `transform`, while
-   * the ancestor scale belongs outside them, where it was in the source's layout. A
-   * uniform scale commutes with them, so the order doesn't matter.
-   *
-   * Not supported: a non-uniform ancestor scale, such as `scale(2, 1)`, combined with
-   * the preview's own `rotate` or non-uniform `scale`. The ancestor scale then applies
-   * inside them, so the preview is skewed. This is expected.
+   * (see `NEUTRALIZED_PROPERTIES`), leaving `scale` and `rotate` to consumers. The
+   * ancestor scale then applies inside them rather than outside, which is harmless while
+   * it is uniform. Not supported: a non-uniform one skews a preview with its own `rotate`
+   * or non-uniform `scale`.
    */
   function applyAncestorScale(): void {
     origin = { x: 0, y: 0 };
@@ -1434,9 +1309,8 @@ export function createDragPreviewElement(
     }
   }
 
-  // The custom root's own `margin` and `translate`, in its CSS pixels. The engine
-  // overrides both to position the preview, so they shift it from its offset
-  // instead, as they would shift an element in place.
+  // The custom root's own `margin` and `translate`, in CSS pixels. The engine
+  // overrides both, so they are added to the position instead.
   let ownOffset: DraggablePosition = { x: 0, y: 0 };
 
   function readOwnOffset(): void {
@@ -1472,11 +1346,10 @@ export function createDragPreviewElement(
   }
 
   /**
-   * Write `translate`, not `transform`. The individual properties compose as
-   * `translate × rotate × scale × transform`, so `translate` is outermost and a
-   * consumer `rotate`/`scale` turns the preview about its own box. The ancestor
-   * scale in `transform` happens around `transform-origin`, which moves the box's
-   * top-left corner by `(1 - scale) × origin`, so the translation subtracts it.
+   * Write `translate`, not `transform`. Transforms compose as
+   * `translate × rotate × scale × transform`, so a consumer `rotate`/`scale` turns
+   * the preview about its own box. The ancestor scale in `transform` moves the
+   * top-left by `(1 - scale) × origin`, so the translation subtracts it.
    */
   function writePosition(): void {
     if (!position) {
@@ -1490,28 +1363,23 @@ export function createDragPreviewElement(
     }
   }
 
-  // Appended as the last child, so every sibling keeps its `:nth-child` index (see
-  // above). It comes after the source in tree order, so `getElementById` still
-  // finds the real element.
+  // Last, after the source in tree order, so `getElementById` still finds the source.
   //
-  // Not supported: an `<ol reversed>` without `start` numbers its items from their
-  // count, so an `<li>` preview in it renumbers every item by one during the drag.
-  // This is expected. A list that needs stable numbers sets `start`, or the preview
-  // goes in a `container` outside the list.
+  // Not supported: an `<ol reversed>` without `start` counts the preview, so every
+  // item renumbers by one during the drag. Set `start`, or use a `container`.
   host.appendChild(element);
   // The source-size variables first, since preview rules can depend on them.
   updatePositionScale();
   if (isClone) {
     neutralizeInheritedMotion();
   }
-  // Restored before the element becomes a popover. The snapshot tells a preview
-  // rule from a lost contextual one by dropping `data-drag-preview`, and the
-  // browser's `[popover]` chrome would show through in that comparison.
+  // Before the popover opens. The snapshot drops `data-drag-preview` to tell preview
+  // rules from lost contextual ones, and the `[popover]` chrome would skew that.
   contextualStyles?.restore();
   applyTableCellWidths?.();
-  // An element that is a popover already, such as the clone of an open popover
-  // source, looks like one in the page, so the popover changes nothing to correct.
-  // Closed, it measures as `display: none`, which a correction would keep.
+  // An element that is already a popover (the clone of an open popover source) has
+  // nothing to correct. Closed, it measures as `display: none`, which a correction
+  // would keep.
   openInTopLayer(!element.hasAttribute('popover'));
   neutralizeTranslateTransition();
   readOwnOffset();
@@ -1524,18 +1392,15 @@ export function createDragPreviewElement(
       return;
     }
     if (!element.isConnected) {
-      // The nearest host still in the document keeps as much of the original
-      // cascade as possible. The body is the fallback.
       const survivor =
         anchor.hosts.find((node) => node.isConnected) ?? doc.body ?? doc.documentElement;
       survivor.appendChild(element);
     } else if (!usesPopover || isPopoverOpen(element)) {
       return;
     }
-    // Any DOM move closes an open popover and sends it back to `display: none`.
-    // That includes reordering a connected ancestor, even though the preview is
-    // connected again by the time the observer runs. Reopen it before restoring
-    // state, because `scrollTop` written into a `display: none` subtree clamps to 0.
+    // Any DOM move, even reordering a connected ancestor, closes the popover and
+    // hides it. Reopen it before restoring state, since `scrollTop` in a
+    // `display: none` subtree clamps to 0.
     if (usesPopover) {
       openInTopLayer(false);
     }
@@ -1543,18 +1408,15 @@ export function createDragPreviewElement(
     applyAncestorScale();
     writePosition();
     contextualStyles?.reconnect();
-    // Re-appending resets descendant scroll positions to 0. Restore the captured
-    // offsets, in the same order as the first insertion, so a scrolled preview
-    // keeps its scroll after a mid-drag re-home.
+    // Re-appending resets descendant scroll positions.
     clone?.applyPostInsertion();
   }
 
-  // A React commit that recycles the preview's parent, such as a virtualizer
-  // scrolling the row out or a keyed remount, detaches it after the engine
-  // callback that triggered the commit. No synchronous check at the call site can
-  // see that. The observer fires in the microtask after the commit, so the preview
-  // is repaired even while the pointer is still. It watches `childList` on the
-  // whole chain, because detaching an ancestor does not mutate the preview's parent.
+  // A React commit that recycles the preview's parent (a virtualizer, a keyed
+  // remount) detaches it after the engine callback returns, where no check at the
+  // call site sees it. The observer repairs it in the next microtask, even while the
+  // pointer is still. It watches the whole chain, since detaching an ancestor
+  // doesn't mutate the preview's parent.
   const observer = new win.MutationObserver(reconnect);
   for (const node of anchor.hosts.slice(anchor.hosts.indexOf(host))) {
     observer.observe(node, { childList: true });
@@ -1572,16 +1434,14 @@ export function createDragPreviewElement(
       if (destroyed) {
         return;
       }
-      // Start over from the content's own inline style. The engine's declarations
-      // go back on top, and the transition and popover corrections are measured
-      // again, since the content's new styles may have changed them.
+      // The new styles may change the transition and popover corrections, so both
+      // are re-measured.
       ownTransitionTiming = null;
       dragTransition = null;
       engineStyles.delete('transition-duration');
       engineStyles.delete('transition-delay');
       element.style.cssText = ownStyle;
-      // After the root's own style, since it also reads what the engine's
-      // declarations replace.
+      // Before the engine's declarations replace the root's own offset.
       captureOwnOffsetStyle();
       applyEngineAttributes();
       for (const [name, [value, priority]] of engineStyles) {
@@ -1594,24 +1454,23 @@ export function createDragPreviewElement(
       writePosition();
     },
     prepareForDrop() {
-      // Runs once `data-ending-style` is set, which lifts the neutralizer. The first
-      // read below starts the ending transitions, so the motion they need comes
-      // back first.
+      // Runs once `data-ending-style` lifts the neutralizer. The first read below
+      // starts the ending transitions, so their motion comes back first.
       restoreTranslateTransition();
-      // The drop animates the way the clone's does: with a transition that applies
-      // once `[data-ending-style]` is set. A transition the content already had
-      // during the drag, such as a `transition: all` meant for hover effects, keeps
-      // the preview from flying back, so it stays off for `translate`. Other
-      // properties it covers, such as an ending fade, still run.
+      // Like a clone, the drop animates with a transition under
+      // `[data-ending-style]`. One the content already had during the drag (a hover
+      // `transition: all`) must not fly the preview back, so it stays off for
+      // `translate`. The other properties it covers, such as an ending fade, still
+      // run.
       if (
         dragTransition !== null &&
         getTransitionSignature(win.getComputedStyle(element)) === dragTransition
       ) {
         neutralizeTranslateTransition();
       }
-      // Allow a distinct ending or preview rule, layered or not, without reviving the
-      // motion the preview shares with the source. Source motion that was already
-      // suppressed inline is cleared first so the comparison sees the cascade.
+      // Allow a distinct ending or preview rule without reviving motion shared with
+      // the source. Inline suppressions are cleared first so the comparison sees the
+      // cascade.
       if (sourceMotion.size > 0) {
         for (const property of sourceMotion.keys()) {
           removeEngineStyle(property);
@@ -1627,8 +1486,8 @@ export function createDragPreviewElement(
       // Ending styles can set what the popover corrections pinned, such as a
       // background.
       refreshPopoverCorrections(true);
-      // Ending styles can change the preview's `rotate`, `scale` or
-      // `transform-origin`, which the ancestor scale and its offset depend on.
+      // Ending styles can change `transform-origin`, which the ancestor scale's
+      // offset depends on.
       applyAncestorScale();
     },
     destroy() {

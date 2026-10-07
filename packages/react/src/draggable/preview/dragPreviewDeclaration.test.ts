@@ -12,9 +12,8 @@ describe('createDragPreviewHandle', () => {
     handle.declare(createDeclaration());
     const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // Warns instead of throwing, like a duplicate `Draggable.Handle`. A wrapper
-    // that composes its own preview around a consumer-passed one is a plausible
-    // mistake, and crashing the app over it is out of proportion.
+    // Warns instead of throwing, like a duplicate `Draggable.Handle`: a wrapper adding
+    // its own preview around a consumer's is a plausible mistake.
     const second = createDeclaration();
     handle.declare(second);
     expect(String(spy.mock.calls[0][0])).toMatch(/more than one preview part/);
@@ -38,9 +37,8 @@ describe('createDragPreviewHandle', () => {
 
   it('keeps a newer declaration when an older cleanup runs again', () => {
     const handle = createDragPreviewHandle();
-    // An older part's cleanup can run after another part has declared, for
-    // example when the earlier of two parts unmounts. Clearing unconditionally
-    // there would drop the live declaration and leave the draggable with no preview.
+    // An older part's cleanup can run after another part declared, as when the
+    // earlier of two parts unmounts. Clearing unconditionally would leave no preview.
     const staleCleanup = handle.declare(createDeclaration());
     staleCleanup();
 

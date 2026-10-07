@@ -45,8 +45,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   TTargetPayload = unknown,
 >(
   componentProps: Omit<DraggableTargetPropsBase<TSourcePayload, TTargetPayload>, 'accept'> & {
-    // Documented on the public props below. This implementation signature is
-    // replaced by the overloads, so its docs never ship.
+    // Documented on `DraggableTargetProps`. The overloads replace this signature.
     accept?: DraggableAccept<TSourcePayload> | undefined;
     payload?: TTargetPayload | undefined;
   },
@@ -57,9 +56,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
     className,
     render,
     style,
-    // Drop target props. Listed explicitly because whatever stays in
-    // `elementProps` is spread onto the `<div>`, where an engine parameter would
-    // land as an attribute.
+    // Drop target props
     kind,
     accept,
     canDrop,
@@ -80,9 +77,8 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
   const context = useDraggableContext();
   /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
-    // `kind` is what this target is, and `accept` is what it takes. Mistaking one for
-    // the other compiles, and the omitted `accept` falls back to the provider's
-    // default kind, so the target silently ignores the sources it was meant for.
+    // Passing `kind` instead of `accept` compiles, and the target then silently takes
+    // only the provider's default kind.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
       if (kind !== undefined && accept === undefined) {
@@ -95,8 +91,7 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
       }
     }, [kind, accept]);
   }
-  // A new object per render is fine, because `useDraggableTargetElement` reads it
-  // through a ref and never compares it.
+  // A new object per render is fine: it's read through a ref and never compared.
   const params = {
     kind,
     accept: accept ?? context.defaultKind,
@@ -129,12 +124,11 @@ export const DraggableTarget = React.forwardRef(function DraggableTarget<
     props: elementProps,
     stateAttributesMapping,
   });
-  // Overloaded, unlike `Draggable.Root`, so a declared `TTargetPayload` can't omit `payload`
-  // and leave `currentTarget.payload` typed while the engine delivers `undefined`.
-  // The fallback's target payload is `undefined`, not `unknown`, because `kind` is typed
-  // from it. A payload-carrying `kind={column}` with no `payload` is then rejected here.
-  // Otherwise it would compile, and `column.matches(target)` would narrow to a payload
-  // that is `undefined` at runtime.
+  // Overloaded, unlike `Draggable.Root`, so a declared `TTargetPayload` can't omit
+  // `payload` and leave `currentTarget.payload` typed while the engine delivers `undefined`.
+  // The fallback types `kind` from an `undefined` target payload, not `unknown`, so a
+  // payload-carrying `kind={column}` without `payload` fails to compile instead of letting
+  // `column.matches(target)` narrow to a payload that is `undefined` at runtime.
 }) as {
   <TTargetDragData = unknown>(
     props: DraggableTargetProps<undefined, undefined, unknown, TTargetDragData>,
@@ -348,25 +342,17 @@ export interface DraggableTargetRecord<TTargetPayload = unknown, TDragData = unk
   /** Stores data for this target for the rest of the current drag. */
   updateDragData(dragData: TDragData): void;
   /**
-   * Returns where the pointer is within this target, as a fraction of its size on
-   * each axis. `0` is the left or top edge, and `1` is the right or bottom edge.
-   * Use it when a drop means a value spread across the target, such as a time in a day column:
-   *
-   * ```tsx
-   * <Draggable.Target
-   *   accept={eventKind}
-   *   onDraggableDrop={(eventDetails) => {
-   *     schedule(eventDetails.currentTarget.getLocalPoint().y * MINUTES_PER_DAY);
-   *   }}
-   * />
-   * ```
-   *
-   * The value isn't clamped, since an outer target can have the pointer outside its
-   * own box while a nested target is under it. A target with no size reports `0` on both axes.
+   * Returns where the pointer is within this target, as a fraction of its size on each axis:
+   * `0` at the left or top edge, `1` at the right or bottom edge. Use it when a drop means a
+   * value spread across the target, such as a time in a day column. The value isn't clamped,
+   * since the pointer can be outside an outer target's box while a nested target is under it.
+   * A target with no size reports `0` on both axes.
    */
   getLocalPoint: () => DraggableTargetLocalPoint;
   /**
-   * Returns `getLocalPoint()` rounded to the target's `snap` steps and clamped between `0` and `1`:
+   * Returns `getLocalPoint()` rounded to the target's `snap` steps and clamped between `0` and `1`.
+   * An axis without steps returns its clamped fraction. Pass `{ anchor: 'source' }` to snap the
+   * dragged element's top-left corner instead of the pointer.
    *
    * ```tsx
    * <Draggable.Target
@@ -379,9 +365,6 @@ export interface DraggableTargetRecord<TTargetPayload = unknown, TDragData = unk
    *   }}
    * />
    * ```
-   *
-   * Pass `{ anchor: 'source' }` to snap the dragged element's top-left corner instead
-   * of the pointer. An axis without steps returns its clamped fraction.
    */
   getSnappedLocalPoint: (
     options?: DraggableTargetSnappedLocalPointOptions,

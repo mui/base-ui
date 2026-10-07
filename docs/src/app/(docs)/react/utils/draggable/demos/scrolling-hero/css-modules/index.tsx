@@ -61,11 +61,9 @@ const ZONE_LABELS: Record<Zone, string> = { plain: 'Default', slow: 'maxSpeed={1
 
 const UPCOMING = ['Renew passport', 'Cancel the trial', 'Refill the coffee', 'Label the boxes'];
 
-// Find the insertion slot closest to the pointer, including slots scrolled out
-// of view.
+// Find the insertion slot closest to the pointer, including slots scrolled out of view.
 function resolveDrop(container: HTMLElement, clientY: number): { index: number; slotY: number } {
-  // The drag preview is a clone of the card, so it has `data-card` too. Skip it,
-  // since it follows the pointer and isn't a real slot.
+  // Skip the drag preview: it's a clone of a card, so it has `data-card` too.
   const cards = Array.from(
     container.querySelectorAll<HTMLElement>('[data-card]:not([data-drag-preview])'),
   );
@@ -248,7 +246,6 @@ export default function AutoScrollBoard() {
   }
 
   // The list reflows around the drop, which can push the new card out of view.
-  // Scroll it back into view.
   useIsoLayoutEffect(() => {
     const id = droppedIdRef.current;
     if (id == null) {

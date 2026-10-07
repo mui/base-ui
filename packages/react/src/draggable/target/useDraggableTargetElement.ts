@@ -46,10 +46,8 @@ const untrackedTargetStateStore = new Store(0);
 
 /**
  * Registers the element the returned `ref` is attached to as a drop target, and
- * tracks whether a matching source is over it. Backs `Draggable.Target`.
- *
- * The parameters are read through a ref on every dispatch, so a re-render never
- * re-registers and the latest callbacks always apply.
+ * tracks whether a matching source is over it. Backs `Draggable.Target`. The parameters
+ * are read on every dispatch, so a re-render never re-registers.
  * @internal
  */
 export function useDraggableTargetElement(
@@ -75,12 +73,10 @@ export function useDraggableTargetElement(
   const ref = useMergedRefs(elementRef, targetStateStore.setElement, registrationRef);
 
   // Re-resolve for a stationary pointer when `disabled`, `accept`, or `canDrop`
-  // changes identity. Changes hidden behind a stable callback show up on the next
-  // input.
-  // Refresh only on a real change. `accept` is compared by content so an inline
-  // array doesn't re-resolve every render. A refresh on mount would resolve a
-  // same-commit remount halfway through registering and fire a spurious
-  // leave/enter pair.
+  // changes. Changes hidden behind a stable callback show up on the next input.
+  // `accept` is compared by content, so an inline array doesn't refresh every render.
+  // Skipped on mount: a refresh then would resolve a same-commit remount halfway
+  // through registering and fire a spurious leave/enter pair.
   const { disabled, accept, canDrop } = parameters;
   const previousRef = React.useRef({ disabled, accept, canDrop });
   useIsoLayoutEffect(() => {
@@ -93,11 +89,9 @@ export function useDraggableTargetElement(
       return;
     }
     previousRef.current = { disabled, accept, canDrop };
-    // Parameter changes re-resolve from the last event target rather than
-    // hit-testing the live DOM again. An inline `canDrop` often changes identity
-    // after its own `onMove` updates preview state. Hit-testing the shifted content
-    // again can enter another target, update preview state again, and start a
-    // synchronous render/refresh loop.
+    // Re-resolves from the last event target without hit-testing again. An inline
+    // `canDrop` often changes after its own `onMove` updates state, and hit-testing
+    // the shifted content could enter another target and start a synchronous loop.
     getActiveSession()?.scheduleTargetRefresh(elementRef.current);
   }, [disabled, accept, canDrop]);
 

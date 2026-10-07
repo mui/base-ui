@@ -63,11 +63,8 @@ describe('activation', () => {
 
     it('press-hold defaults tolerance to 5px when omitted', () => {
       const activation = { type: 'press-hold', delay: 250 } as const;
-      // Movement under the 5px default keeps the hold alive. It stays pending
-      // before the delay and activates once the delay elapses.
       expect(evaluateActivation(activation, { x: 0, y: 0 }, { x: 4, y: 0 }, 100)).toBe('pending');
       expect(evaluateActivation(activation, { x: 0, y: 0 }, { x: 4, y: 0 }, 250)).toBe('activate');
-      // Movement over the default cancels, as an explicit `tolerance: 5` would.
       expect(evaluateActivation(activation, { x: 0, y: 0 }, { x: 6, y: 0 }, 100)).toBe('cancel');
     });
   });

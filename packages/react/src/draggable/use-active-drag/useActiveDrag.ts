@@ -25,10 +25,9 @@ export function useActiveDrag<TAccept extends DraggableAccept<unknown> | undefin
 ): UseActiveDragReturnValue<AcceptedDragPayload<TAccept>, AcceptedDragData<TAccept>>;
 export function useActiveDrag(accept?: undefined): UseActiveDragReturnValue;
 export function useActiveDrag(accept?: DraggableAccept<unknown>): UseActiveDragReturnValue {
-  // Filtering inside the selector keeps a rejected drag at `null` across store
-  // updates. A drag of another kind can start, end, or retarget without
-  // re-rendering any consumer that rejects it. An inline `accept` array only
-  // re-runs the selector once per render.
+  // Filtering in the selector keeps the result `null` for drags of other kinds, so
+  // they can start, end, or retarget without re-rendering this consumer. An inline
+  // `accept` array only re-runs the selector once per render.
   return useStore(dragSourceStore, selectAcceptedDragSource, accept);
 }
 

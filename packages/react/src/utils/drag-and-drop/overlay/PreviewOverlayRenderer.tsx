@@ -8,9 +8,7 @@ import type { DragPreviewState } from './dragPreviewStore';
 import { useDraggableContext } from '../../../draggable/DraggableContext';
 import type { DraggableContextValue } from '../../../draggable/DraggableContext';
 
-// Module-level, so its identity is stable for `useStore`'s selector fast path. The
-// provider context is passed as an argument and matches only previews published
-// from its subtree.
+// Module-level, so its identity is stable for `useStore`'s selector fast path.
 function selectPreviewState(
   state: DragPreviewState | null,
   context: DraggableContextValue,
@@ -19,17 +17,10 @@ function selectPreviewState(
 }
 
 /**
- * Renders the content a `Draggable.Preview` declared for the active drag.
- *
- * The content renders into a detached element, never into the document. The engine
- * copies it once into the preview element it inserted beside the drag source (or into
- * the configured `container`), the same way it clones a source. Later renders reach
- * the copy through `Draggable.updatePreview()`. The copy is engine-owned, which lets
- * the preview outlive a source that a virtualizer unmounts mid-drag, or the provider
- * itself.
- *
- * Renders only previews published through its own `Draggable.Provider`, so the
- * content stays in that React tree while the drag itself is global.
+ * Renders the active drag's `Draggable.Preview` content (see `DragPreviewState`) when
+ * this `Draggable.Provider` published it, so it stays in that React tree although the
+ * store is global. The engine owns the copy it makes, so the preview outlives a source
+ * or provider that unmounts mid-drag.
  */
 export function PreviewOverlayRenderer(): React.ReactNode {
   const previewContext = useDraggableContext();

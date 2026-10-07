@@ -57,15 +57,10 @@ export function registerCleanup<T extends () => void>(fn: T): T {
 }
 
 /**
- * Install the standard `afterEach` for drag engine tests:
- *
- * 1. Drain the cleanup queue (LIFO), which also restores `elementFromPoint` mocks
- *    and removes every element created via `createElement()`.
- * 2. Force-end any in-flight drag and reset the engine state machine.
- *
- * Every step runs even when an earlier one throws, because global engine state
- * must be reset before the next test. The first failure is rethrown afterwards,
- * so a broken cleanup fails its own test instead of leaking into later ones.
+ * Install the standard `afterEach` for drag engine tests: drain the cleanup queue (which
+ * restores `elementFromPoint` mocks and removes `createElement()` elements), then force-end
+ * any in-flight drag. Every step runs even if one throws (see `runAllCleanups`), so a broken
+ * cleanup fails its own test instead of leaking engine state into later ones.
  */
 export function setupDragEngineTests(): void {
   afterEach(() => {
@@ -77,19 +72,10 @@ export function setupDragEngineTests(): void {
 // Drag gestures
 // ---------------------------------------------------------------------------
 //
-// The engine listens only to pointer events and resolves drop targets with
-// `document.elementFromPoint`. `fireDrag` describes a drag as HTML5 drag-event
-// steps: start on a source, enter or hover a target, and drop. It replays each
-// step as the matching mouse pointer gesture and points `elementFromPoint` at
-// the element the step names.
-//
-// This can't catch hit-testing bugs. `elementFromPoint` returns whatever element
-// the test named, and drops carry no meaningful coordinates. A drop that routes
-// correctly here can still resolve a different target in a real browser, where
-// the hit-test uses layout. Nested target resolution, edge zones, collision, and
-// anything else that depends on real geometry need a browser test
-// (`describe.skipIf(isJSDOM)`) driven by raw pointer events. The synthetic
-// sensor's "documented pointer-drag recipe" tests show how.
+// `fireDrag` replays HTML5-style drag steps as mouse pointer gestures and points
+// `document.elementFromPoint` at the element each step names, so it can't catch hit-testing
+// bugs. Layout-dependent behavior needs a browser test (`describe.skipIf(isJSDOM)`) with raw
+// pointer events, like the synthetic sensor's "documented pointer-drag recipe" tests.
 
 type DragEventInput = Pick<PointerEventInit, 'clientX' | 'clientY' | 'shiftKey'>;
 
@@ -98,21 +84,18 @@ const PRESSED = { button: 0, buttons: 1 };
 const MOVING = { button: -1, buttons: 1 };
 const RELEASED = { button: 0, buttons: 0 };
 
-// How far `dragStart` nudges the pointer to clear the engine's mouse activation
-// distance (5px). A native drag only starts past the OS threshold, so the
-// gesture replays that movement to start the synthetic drag.
+// How far `dragStart` moves to clear the engine's 5px mouse activation distance.
 const DRAG_ACTIVATION_DISTANCE_PX = 6;
 
-// The source element of the active drag. Mouse move/up events are dispatched
-// here and propagate to the document and window, where the engine's
-// active-phase listeners live.
+// Source of the active drag. Move and up events are dispatched on it and bubble to
+// the engine's document and window listeners.
 let dragSource: HTMLElement | null = null;
 // The element `document.elementFromPoint` returns, standing in for the element under the pointer.
 let hitTarget: Element | null = null;
 let hitTestInstalled = false;
 
-// Goes through `mockElementFromPoint`, so it and a test's own mock are restored by
-// the same cleanup queue, in reverse order of installation.
+// Uses `mockElementFromPoint` so this mock and a test's own are restored by the same
+// cleanup queue, in reverse order.
 function installElementFromPoint(): void {
   if (hitTestInstalled) {
     return;
@@ -157,9 +140,9 @@ function moveTo(target: Element | null, input: DragEventInput = {}): void {
  */
 export const fireDrag = {
   /**
-   * Press on `source`, move past the activation distance, then settle back onto
-   * the press point so the drag is positioned exactly where the gesture began.
-   * Nothing is under the pointer until a `dragEnter`/`dragOver` routes a target.
+   * Press on `source`, move past the activation distance, then move back so the drag
+   * sits at the press point. Nothing is under the pointer until `dragEnter` or
+   * `dragOver` names a target.
    */
   dragStart(source: HTMLElement, input: DragEventInput = {}): void {
     act(() => {
@@ -212,9 +195,8 @@ export const fireDrag = {
 };
 
 /**
- * Flush `frames` requestAnimationFrame ticks, one at a time.
- * Uses rAF directly so it works both in JSDOM (where rAF is mapped to
- * setTimeout) and in real browsers (where rAF runs on the next paint frame).
+ * Flush `frames` animation frames, one at a time, inside `act`. Works in JSDOM,
+ * where rAF is mapped to `setTimeout`, and in real browsers.
  */
 export async function flushRaf(frames = 1): Promise<void> {
   for (let i = 0; i < frames; i += 1) {
@@ -259,10 +241,9 @@ export async function lift(
   const { expectNoDrag = false, ...overrides } = input ?? {};
   fireDrag.dragStart(element, overrides);
   await flushRaf();
-  // `dragStart` clears the default 5px mouse activation with a fixed
-  // `DRAG_ACTIVATION_DISTANCE_PX` move. A fixture with a larger activation distance
-  // wouldn't start a drag, and the caller's `not.toHaveBeenCalled()` assertions
-  // would pass for the wrong reason. Throw instead.
+  // `dragStart` only moves `DRAG_ACTIVATION_DISTANCE_PX`. A fixture with a larger
+  // activation distance wouldn't start a drag, and the caller's
+  // `not.toHaveBeenCalled()` assertions would pass for the wrong reason.
   if (!expectNoDrag && getActiveSession() === null) {
     throw new Error(
       'lift(): no drag session started after the activation move. ' +
@@ -303,11 +284,10 @@ export function cancel(): void {
  */
 function resetDrag(): void {
   runAllCleanups([
-    // Force-ending an active drag updates React state, such as `dragging` and
-    // custom preview portals, on consumers that are still mounted. Flush those
-    // updates inside `act` so teardown doesn't trigger the "not wrapped in
-    // act(...)" warning. The published preview is React state too. A test that
-    // aborts mid-drag would otherwise leave the overlay rendering its preview.
+    // These update React state on still-mounted consumers (`dragging`, preview
+    // portals, the published preview), so run them in `act` to avoid the "not
+    // wrapped in act(...)" warning. A test that aborts mid-drag would otherwise
+    // leave the overlay rendering its preview.
     () =>
       act(() =>
         runAllCleanups([
@@ -317,29 +297,24 @@ function resetDrag(): void {
           clearPublishedDragPreview,
         ]),
       ),
-    // Global state the sensors set but `resetDragSession()` doesn't clear. Without this, a
-    // test that fails mid-drag would leave the next test with scrolling locked,
-    // the drag cursor set, or its first click swallowed.
+    // Global state `resetDragSession` doesn't clear. A test that fails mid-drag would
+    // otherwise leave scrolling locked, the drag cursor set, or the next click swallowed.
     resetDragRootLock,
     resetDragCursor,
     resetPostDragClick,
-    // A drop keeps the clone mounted until the frame after it, or until its ending
-    // transition finishes. A test that ends right after `drop()` would otherwise
-    // leave it in the document, and its ancestor observer would re-home it to the
-    // body when the test's container is removed.
+    // A dropped clone stays mounted until the next frame or its ending transition. A
+    // test that ends right after `drop()` would leave it behind, and its ancestor
+    // observer would re-home it to the body when the container is removed.
     finishAllEndingPreviewsForTests,
-    // The session's end stops the scroll loop, but a test that fails mid-drag can
-    // leave the scroll monitor installed. Retire it so the next test starts clean.
+    // A test that fails mid-drag can leave the scroll monitor installed.
     resetAutoScroller,
-    // Clear any drop targets still registered on detached nodes, so a failed or
-    // aborted test can't leak them into the next one.
+    // Drop targets still registered on detached nodes would leak into the next test.
     resetDropTargets,
     () => {
       hitTarget = null;
       dragSource = null;
     },
-    // Clear the touch target the synthetic pointer helpers remember, so one test's
-    // gesture can't redirect the next test's touch and pen events.
+    // Otherwise one test's touch target redirects the next test's touch and pen events.
     resetTouchTarget,
   ]);
 }

@@ -9,9 +9,8 @@ import type { BaseUIGenericEventDetails } from '../../internals/createBaseUIEven
 import type { REASONS } from '../../internals/reasons';
 
 /**
- * The engine's internal drag types: the shared building blocks of the public event
- * types, the reason unions, and the dispatch maps. Public types live on the part
- * that owns them, such as `Draggable.Root.Record` in `DraggableRoot.tsx`.
+ * Building blocks of the public drag event types, reason unions, and dispatch maps.
+ * Public types live on the part that owns them, such as `Draggable.Root.Record`.
  */
 
 export type DragCleanupFn = () => void;
@@ -20,8 +19,8 @@ export type DragCleanupFn = () => void;
  * The payload type declared by `accept`. An array produces a union, and an omitted
  * `accept` produces `unknown`.
  */
-// Distributive on purpose, so array entries and an `accept` that is itself a union,
-// such as a wrapper forwarding `DraggableAccept<T>`, resolve to the union of their payloads.
+// Distributive on purpose, so array entries and a union `accept` (such as a wrapper
+// forwarding `DraggableAccept<T>`) resolve to the union of their payloads.
 export type AcceptedDragPayload<TAccept> =
   TAccept extends DraggableAcceptedKind<infer TPayload, any>
     ? TPayload
@@ -41,7 +40,6 @@ export type AcceptedDragData<TAccept> =
         : never
       : unknown;
 
-/** A draggable's payload value. */
 // `NoInfer` because the payload type is inferred from `kind`. Without it, a `payload`
 // that doesn't match the kind would widen `TPayload` instead of being rejected.
 export type DraggablePayload<TPayload> = NoInfer<TPayload>;
@@ -145,9 +143,8 @@ export interface DropTargetLeaveEventDetailsProperties<
 }
 
 /**
- * The details every drag handler of a source and a monitor receives: the event `reason`,
- * the native `event`, the drag `location`, the dragged `source` and the `target` it is over.
- * These events can't be canceled. Use `onBeforeMoveStart` to prevent a drag from starting.
+ * The details every drag handler of a source and a monitor receives. These events
+ * can't be canceled. Use `onBeforeMoveStart` to prevent a drag from starting.
  */
 export type DragEventDetails<
   TReason extends string,
@@ -231,17 +228,10 @@ export type DragDropEventDetails<
 /** The `canceled` flag the details of a drag's end add to the drag event details. */
 export interface DragEndEventDetailsProperties extends DragEventDetailsProperties {
   /**
-   * Whether the drag was canceled rather than released, for example with Escape or
-   * `cancelDrag()`. A release outside any drop target is not a cancel.
-   *
-   * Other Base UI events describe what happened through `reason` alone. A drag also
-   * has this flag because more cancel reasons may be added, and a check against a
-   * fixed list of them would miss the new ones. Read `canceled` to tell a cancel from
-   * a release, and `reason` to tell a drop (`'drop'`) from a release outside any drop
-   * target (`'outside-release'`).
-   *
-   * This differs from `isCanceled` on the details of `onBeforeMoveStart` and
-   * `onDragScroll`, which reports whether a handler called `cancel()`.
+   * Whether the drag was canceled, for example with Escape or `cancelDrag()`. A release
+   * outside any drop target is not a cancel. Prefer this flag to matching `reason` against
+   * cancel reasons, which may grow. Not to be confused with `isCanceled` in the details of
+   * `onBeforeMoveStart` and `onDragScroll`, which reports whether a handler called `cancel()`.
    */
   canceled: boolean;
 }

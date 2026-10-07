@@ -1,10 +1,9 @@
 /**
- * The pointer events sensor. It drives drags from mouse, touch and pen input
- * instead of the native HTML5 drag and drop API, which behaves inconsistently
- * across desktop and tablets. `pickupRecognizer.ts` decides when a press becomes a
- * drag and hands it to `startDrag`. From there this module moves the preview,
- * feeds the lifecycle, and ends the drag on release or cancel. The lifecycle
- * (target resolution, consumer dispatch) lives in `core/lifecycleManager.ts`.
+ * The pointer events sensor. It drives mouse, touch and pen drags without the
+ * native HTML5 drag and drop API, which is inconsistent across desktop and
+ * tablets. `pickupRecognizer.ts` hands an activated press to `startDrag`. From
+ * there this module moves the preview, feeds the lifecycle
+ * (`core/lifecycleManager.ts`), and ends the drag on release or cancel.
  */
 
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
@@ -62,25 +61,19 @@ const state = getSharedSlot<SyntheticDragState>('syntheticDrag', () => ({
 const DEFAULT_DRAG_CURSOR = 'grabbing';
 
 /**
- * Where the pointer stands when the active phase is torn down. This decides how
- * the drag's compatibility click is suppressed:
+ * Where the pointer stands at teardown, which decides how the drag's click is suppressed:
  *
- * - `released` means the pointer is already up, so any click is imminent.
- * - `held` means the button is still down (an Escape cancel, a blur), so the
- *   click only arrives when the user lets go.
- * - `none` means the drag produces no click, and arming would eat an unrelated one.
+ * - `released`: the pointer is up, so any click is imminent.
+ * - `held`: the button is still down (Escape, blur), so the click comes on release.
+ * - `none`: no click is coming, and arming would eat an unrelated one.
  */
 type PointerAtTeardown = 'released' | 'held' | 'none';
 
 /**
- * Tear down the active phase. As in `clearPending` (`pickupRecognizer.ts`), the
- * contextmenu suppression armed at `pointerdown` is only released on a clean drop.
- * A browser cancellation (`pointercancel` or blur) keeps it armed, because on
- * Android a long-press fires `pointercancel` and then the `contextmenu`. The 1.5s
- * timer disarms it afterwards.
- *
- * Pass `drop` when a release ends the drag, so the preview settles onto the source
- * instead of being removed at once.
+ * Tear down the active phase. Pass `releaseContextMenuSuppression` only for a clean
+ * drop (see `clearPending` in `pickupRecognizer.ts`). Pass `drop` when a release
+ * ends the drag, so the preview settles onto the source instead of being removed
+ * at once.
  */
 function clearActive(
   releaseContextMenuSuppression: boolean = false,
@@ -95,8 +88,7 @@ function clearActive(
   // `dragRootLock` held and block every future drag.
   state.active = null;
 
-  // The gesture activated, so the compatibility click after the release comes
-  // from the drag, not from a click the user meant.
+  // The click after the release comes from the drag, not from the user.
   if (pointerAtTeardown !== 'none' && session.heldPointer) {
     suppressNextClick(
       session.element,
@@ -114,8 +106,7 @@ function clearActive(
     ]);
   } finally {
     if (releaseContextMenuSuppression) {
-      // Release only the suppression this gesture armed (see `clearPending`
-      // in `pickupRecognizer.ts`).
+      // Release only the suppression this gesture armed.
       session.contextMenuSuppression?.();
     }
     // Both do nothing when the lock was skipped (touch) or already released.
@@ -125,19 +116,17 @@ function clearActive(
 }
 
 /**
- * Where the pointer stands for each cancel reason. The map has no fallback on
- * purpose. `held` arms a window-level click suppression for up to five seconds,
- * so each new {@link DragCanceledReason} must choose explicitly.
+ * Where the pointer stands for each cancel reason. There is no fallback on
+ * purpose: `held` arms a click suppression for up to five seconds, so each new
+ * {@link DragCanceledReason} must choose explicitly.
  */
 const POINTER_AT_CANCEL: Record<DragCanceledReason, PointerAtTeardown> = {
   // This cancel fires because the button came up.
   [REASONS.missedRelease]: 'released',
   // A canceled pointer never produces a compatibility click.
   [REASONS.pointerCanceled]: 'none',
-  // Raised by another gesture's press (see `recoverActiveSession`), or when a
-  // start callback removes the source's iframe (see `startDrag`). In a dead
-  // realm `ownerWindow` falls back to the top-level window, so arming would swallow
-  // the next press's click on the wrong document.
+  // In a dead realm `ownerWindow` falls back to the top-level window, so arming
+  // would swallow the next click on the wrong document.
   [REASONS.documentDetached]: 'none',
   // The rest interrupt a gesture whose button is still down.
   [REASONS.escapeKey]: 'held',
@@ -151,10 +140,9 @@ const POINTER_AT_CANCEL: Record<DragCanceledReason, PointerAtTeardown> = {
 
 /**
  * Tear down the active phase for the way the drag ended. The session calls it once
- * through `sensor.release`: when a drop or a cancel begins its end sequence, before
- * any terminal event, or at teardown after a handler error or a test reset. It does
- * nothing before `start()` returns, while the sensor hasn't recorded the pickup.
- * `createPreviewAndStartSession` undoes that pickup instead.
+ * through `sensor.release`, before any terminal event, or at teardown after a
+ * handler error or a test reset. Before `start()` returns there is nothing to
+ * release, and `createPreviewAndStartSession` undoes the pickup instead.
  */
 function releaseActive(cancelReason?: DragCanceledReason): void {
   const active = state.active;
@@ -165,16 +153,14 @@ function releaseActive(cancelReason?: DragCanceledReason): void {
     clearActive(false, POINTER_AT_CANCEL[cancelReason]);
     return;
   }
-  // A clean release frees the contextmenu suppression, and the pointer is already
-  // up, so the drag's click is imminent. A double-click session holds no pointer,
-  // so nothing is armed for it.
+  // A clean drop frees the contextmenu suppression, and the drag's click is
+  // imminent. A double-click session holds no pointer, so no click is armed.
   clearActive(true, 'released', true);
 }
 
 /**
- * Cancel the active drag. The session releases the gesture through
- * {@link releaseActive} before the terminal events, and still ends the drag when
- * that teardown throws.
+ * Cancel the active drag. The session tears down through {@link releaseActive} and
+ * still ends the drag if that throws.
  */
 function cancelActive(
   input: DraggableInput | undefined,
@@ -185,13 +171,10 @@ function cancelActive(
 }
 
 /**
- * Start the drag of a press the recognizer activated (see `pickupRecognizer.ts`). It
- * builds the preview, starts the session and binds the active phase's listeners.
- * Returns whether the drag started: `false` when the lifecycle refuses, or when
- * consumer code ends the press on the way. The recognizer then abandons the press.
- *
- * `parameters` and `dragSource` are what `onBeforeMoveStart` saw. `pointerEvent` is
- * the pointer event a frame reports until the first move.
+ * Start the drag of an activated press: build the preview, start the session and bind
+ * the active listeners. Returns `false` when the lifecycle refuses or consumer code ends
+ * the press on the way, so the recognizer abandons it. `parameters` and `dragSource` are
+ * what `onBeforeMoveStart` saw; `pointerEvent` is what a frame reports until the first move.
  */
 export function startDrag(
   pending: PendingSession,
@@ -216,8 +199,8 @@ export function startDrag(
   // input, and the preview seed all agree with what the first frame resolves.
   const startInput = modifiers ? remapInput(lastInput, modifiers.initialPoint) : lastInput;
 
-  // Resolve the initial drop target from the point. The `pointerdown` target
-  // may be a child of the draggable that isn't a drop target.
+  // Hit-test the point. The `pointerdown` target may be a child of the draggable
+  // that isn't a drop target.
   const doc = ownerDocument(element);
   const initialTarget = deepElementFromPoint(
     doc,
@@ -226,9 +209,8 @@ export function startDrag(
     getDropTargetShadowRootsByHost(),
   );
 
-  // `createPreviewAndStartSession` allocates the preview, the lock and the
-  // lifecycle, and undoes them on a throw or a lifecycle refusal. Only the
-  // pending press is left, which the recognizer abandons when this returns `false`.
+  // Undoes the preview, lock and lifecycle on a throw or refusal, leaving only the
+  // pending press, which the recognizer abandons when this returns `false`.
   const result = createPreviewAndStartSession({
     draggableParameters: parameters,
     dragSource,
@@ -271,17 +253,12 @@ export function startDrag(
     preview,
     lastInput,
     lastNativeEvent: pending.lastNativeEvent,
-    // A double-click pickup holds no pointer, and its `dblclick` isn't a
-    // `PointerEvent` in every browser. Until the first move, a frame that runs
-    // for a scroll reports the press of the second click.
     lastPointerEvent: pointerEvent,
     lastMoveReason: REASONS.pointer,
     modifiers,
-    // Resolve on the first active frame to confirm the entered target and fire
-    // the first `onMove`. That frame clears it, so later stationary frames skip
-    // the work. A double-click pickup waits for the first `pointermove`
-    // instead. Its `onMove` would otherwise report the `dblclick`, which isn't
-    // a `PointerEvent` in every browser.
+    // The first frame confirms the entered target and fires the first `onMove`. A
+    // double-click pickup waits for the first `pointermove`, so `onMove` never
+    // reports the `dblclick`, which isn't a `PointerEvent` in every browser.
     frameDirty: pending.heldPointer,
     rafFrame: new WindowAnimationFrame(win),
     terminalFrameQueued: false,
@@ -291,10 +268,8 @@ export function startDrag(
   };
   state.active = activeRef;
 
-  // A start callback can remove the source iframe after the pending blur
-  // listener is gone but before the active listeners below exist. End the
-  // lifecycle now instead of waiting for a later `pointerdown` to find the dead
-  // document.
+  // A start callback can remove the source iframe between the pending and active
+  // listeners. End now rather than wait for a later press to find the dead document.
   if (isDetachedDocument(doc)) {
     cancelActive(undefined, REASONS.documentDetached, pending.lastNativeEvent);
     return false;
@@ -306,22 +281,19 @@ export function startDrag(
     setPointerCaptureSafely(captureTarget, pointerId);
   }
 
-  // Pin the cursor for the duration of the drag. Skipped for touch, which has
-  // no cursor. `false` opts out so a consumer can manage the cursor itself.
+  // Touch has no cursor. `dragCursor: false` lets the consumer manage it.
   const cursor = parameters.dragCursor ?? DEFAULT_DRAG_CURSOR;
   if (cursor && pointerType !== 'touch') {
-    // The lock toggles a class on `<html>` that enables a universal-selector
-    // rule, which invalidates style for the whole document. Wait for the frame
-    // after the lift, so the lift paints before that cost. A single frame isn't
-    // enough. Its callback runs in the same rendering update that paints the
-    // lift, and the sensor's own frame forces the style recalc there through
-    // `elementFromPoint`.
+    // The lock's `<html>` class enables a universal-selector rule that restyles the
+    // whole document, so wait until the lift has painted. One frame isn't enough:
+    // it runs in the lift's rendering update, where the sensor's `elementFromPoint`
+    // would force the recalc.
     const cursorFrame = new WindowAnimationFrame(win);
     activeRef.listeners.push(cursorFrame.cancel);
     cursorFrame.request(() => {
       cursorFrame.request(() => {
-        // The session's teardown cancels the frame. The identity check also
-        // stops a stale callback from locking the cursor for a newer session.
+        // Teardown cancels the frame. The check also keeps a stale callback from
+        // locking the cursor for a newer session.
         if (state.active === activeRef) {
           dragCursor.lock(element, cursor, {
             nonce: parameters.styleNonce,
@@ -332,25 +304,16 @@ export function startDrag(
     });
   }
 
-  // The active `pointermove` listener is on the document. The body-anchor
-  // capture sends every event for this `pointerId` to `body`, so the listener
-  // sees the whole gesture, even after a virtualizer or live reorder unmounts
-  // the dragged element. Touch ignores pointer capture, so it also needs a
-  // `{ passive: false }` `touchmove` listener on the document to cancel the
-  // scroll that the `touch-action` lock doesn't cover. The window capture
-  // listeners further down handle `pointerup` and `pointercancel`, since they
-  // run before any document listener.
-  activeRef.listeners.push(
-    // Capture phase, like the pending phase and the window listeners below. A
-    // third-party bubble listener that calls `stopPropagation()` on
-    // `pointermove` (analytics shims, other gesture libraries) must not freeze
-    // the preview and target resolution.
-    addEventListener(doc, 'pointermove', onActivePointerMove, CAPTURE),
-  );
+  // The body-anchor capture routes every event for this `pointerId` to `body`, so
+  // a document listener sees the whole gesture, even after a virtualizer or live
+  // reorder unmounts the dragged element. Capture phase, so a third-party
+  // `stopPropagation()` can't freeze the preview.
+  activeRef.listeners.push(addEventListener(doc, 'pointermove', onActivePointerMove, CAPTURE));
   if (pointerType !== 'mouse') {
     activeRef.listeners.push(
-      // A detached press target keeps receiving touch events without a document
-      // propagation path. Keep both listeners until this gesture ends.
+      // Touch events ignore pointer capture. Cancel the scroll the `touch-action`
+      // lock misses on the document, and on the press target, which still gets
+      // touch events after a detach cuts its path to the document.
       addEventListener(target, 'touchmove', preventActiveTouchScroll, {
         passive: false,
         capture: true,
@@ -359,11 +322,8 @@ export function startDrag(
         passive: false,
         capture: true,
       }),
-      // Guard the press target for the whole touch or pen drag, for the same
-      // detached-target case as `startContextMenuSuppression` (`pickupRecognizer.ts`). The source element
-      // is an ancestor at pickup, so a listener there adds nothing. A mouse
-      // context menu comes from a separate button while capture is on `body`, so
-      // the window listener below sees it.
+      // A detached press target still gets the touch `contextmenu` (see
+      // `startContextMenuSuppression`). A mouse menu reaches the window listener.
       addEventListener(target, 'contextmenu', preventContextMenu, CAPTURE),
     );
   }
@@ -374,18 +334,14 @@ export function startDrag(
     addEventListener(win, 'blur', onActiveBlur),
     addEventListener(doc, 'visibilitychange', onActiveVisibilityChange),
     addEventListener(win, 'contextmenu', preventContextMenu, CAPTURE),
-    // `scroll` doesn't bubble, but a capture listener on the document sees
-    // scrolling in any descendant container, including auto-scroll's
-    // `scrollBy`. The next frame then re-resolves the target under a stationary
-    // pointer.
+    // `scroll` doesn't bubble, but document capture sees any descendant container
+    // scroll, including auto-scroll's.
     addEventListener(doc, 'scroll', notifyExternalScroll, { capture: true, passive: true }),
   );
 
-  // `scroll` isn't composed either, so the document listener misses containers
-  // inside a shadow root. Wheel-scrolling a drop area in a shadow root under a
-  // stationary pointer would leave the target and its indicator stale until the
-  // pointer moved. Listen on each shadow root that holds a drop target, and
-  // update the set as targets mount or unmount during the drag.
+  // `scroll` isn't composed, so the document misses containers in a shadow root
+  // and the target would go stale under a still pointer. Listen on each shadow
+  // root that holds a drop target, tracking mounts during the drag.
   activeRef.listeners.push(
     trackDropTargetShadowRoots((shadowRoot) =>
       addEventListener(shadowRoot, 'scroll', notifyExternalScroll, {
@@ -395,30 +351,21 @@ export function startDrag(
     ),
   );
 
-  // Release and hand-off listeners go on the window in the capture phase, the
-  // earliest point any listener sees the event, so a third-party
-  // `stopPropagation()` can't leave the drag stuck. The body-anchor capture
-  // routes `pointerup` here wherever the pointer is released. If the OS takes
-  // the pointer instead (Android soft keyboard, tab switch, a sibling frame
-  // stealing capture), `pointercancel` ends the drag. `lostpointercapture` has
-  // its own handler, because the capture redirect above makes touch and pen
-  // fire a spurious one on the original element.
+  // Window capture is the earliest any listener sees an event, so a third-party
+  // `stopPropagation()` can't leave the drag stuck.
   activeRef.listeners.push(
     addEventListener(win, 'pointerup', onActivePointerUp, CAPTURE),
     addEventListener(win, 'pointercancel', onActivePointerCancel, CAPTURE),
     addEventListener(win, 'lostpointercapture', onActiveLostPointerCapture, CAPTURE),
-    // Keep blocking native HTML5 drags from natively draggable descendants, as
-    // in the pending phase.
+    // Keep blocking native drags, as in the pending phase.
     addEventListener(win, 'dragstart', preventNativeDragStart, CAPTURE),
   );
 
   if (!activeRef.heldPointer) {
     activeRef.listeners.push(
-      // The press before the drop click must not also focus or press the
-      // destination, such as a button taking focus or a menu that opens on
-      // `pointerdown`.
-      // Canceling `pointerdown` also suppresses the compatibility `mousedown`,
-      // and the `click` that completes the drop still fires.
+      // The drop click's press must not also focus or press the destination (a
+      // menu opening on `pointerdown`). Canceling `pointerdown` suppresses the
+      // compatibility `mousedown`, and the drop's `click` still fires.
       addEventListener(win, 'pointerdown', onDoubleClickPress, CAPTURE),
       addEventListener(win, 'mousedown', onDoubleClickPress, CAPTURE),
       addEventListener(win, 'click', onDoubleClickDrop, CAPTURE),
@@ -449,8 +396,7 @@ function onDoubleClickDrop(event: MouseEvent): void {
   }
   // This click completes the move, so it must not also open or edit the destination.
   swallowEvent(event);
-  // The user may have double-clicked to drop. The rest of that double-click must
-  // not pick up the item under the pointer again, often the one just dropped.
+  // The user may have double-clicked to drop (see `suppressDoubleClickFollowUp`).
   suppressDoubleClickFollowUp(active.element);
   dropActiveAtPointer(event);
 }
@@ -462,9 +408,8 @@ function scheduleActiveFrame(active: ActiveSession): void {
 }
 
 /**
- * Apply the draggable's `modifiers` to a pointer input. The result drives both
- * the drop hit-test and the preview, so a modifier affects target resolution,
- * not only the visual.
+ * Apply the draggable's `modifiers` to a pointer input. The result drives both the
+ * hit-test and the preview, so modifiers affect target resolution too.
  */
 function modifyActiveInput(active: ActiveSession, input: DraggableInput): DraggableInput {
   if (!active.modifiers) {
@@ -487,9 +432,8 @@ function onActiveFrame(): void {
     return;
   }
 
-  // Only re-resolve when the pointer moved or content scrolled under it (see
-  // `frameDirty`). Otherwise the loop stops here. The move and scroll listeners
-  // restart it, so an idle drag costs no frames.
+  // The loop stops here unless something changed (see `frameDirty`). The
+  // listeners restart it, so an idle drag costs no frames.
   if (!active.frameDirty) {
     return;
   }
@@ -498,10 +442,9 @@ function onActiveFrame(): void {
   // `scrollBy` and set the flag again for the next frame.
   active.frameDirty = false;
 
-  // Hit-test before moving the preview. The hit-test skips the preview through
-  // its `ignore` argument, not its position, and calling `elementFromPoint` right
-  // after the transform write would force a synchronous style pass every frame.
-  // Both still happen before the next paint.
+  // Hit-test before moving the preview, which the hit-test ignores anyway.
+  // `elementFromPoint` right after the transform write would force a synchronous
+  // style pass every frame.
   const input = modifyActiveInput(
     active,
     withCurrentPageOffset(active.lastInput, ownerWindow(active.element)),
@@ -514,17 +457,14 @@ function onActiveFrame(): void {
   if (state.active !== active) {
     return;
   }
-  // A consumer callback that re-rendered synchronously may have removed the
-  // preview's host. `update` reattaches it (`ensureConnected`) before writing
-  // the position. The preview's own observer handles a React commit deferred
-  // past this frame.
+  // `update` reattaches a host that a synchronous re-render removed. The
+  // preview's own observer handles a commit deferred past this frame.
   active.preview.update(input.clientX, input.clientY, input);
 }
 
 /**
- * `input` with its page coordinates read from the current scroll position. The
- * page can scroll under a still pointer, from auto-scroll or the wheel, and the
- * frame then re-runs with the last sample, whose own `pageX`/`pageY` are stale.
+ * `input` with page coordinates from the current scroll position. A scroll under a
+ * still pointer re-runs the frame with the last sample, whose `pageX`/`pageY` are stale.
  */
 function withCurrentPageOffset(input: DraggableInput, win: Window): DraggableInput {
   const pageX = input.clientX + win.scrollX;
@@ -535,8 +475,7 @@ function withCurrentPageOffset(input: DraggableInput, win: Window): DraggableInp
   return { ...input, pageX, pageY };
 }
 
-// Block native scroll during a touch drag. The pointer handlers
-// (`onActivePointer*`) own the coordinates and the end of the drag.
+// Block native scroll during a touch drag. The pointer handlers drive the drag.
 function preventActiveTouchScroll(event: Event): void {
   if (event.cancelable) {
     event.preventDefault();
@@ -564,11 +503,8 @@ function onActivePointerMove(pointerEvent: PointerEvent): void {
     queueTerminalCancel(active, input, REASONS.missedRelease, pointerEvent);
     return;
   }
-  // Chorded release. Lifting the primary button while another is held fires
-  // `pointermove` (a `buttons` change), not `pointerup`, and the later
-  // `pointerup` reports the last button, which `onActivePointerUp` ignores. The
-  // user lifted the primary button on purpose, so this drops at the current
-  // position instead of canceling.
+  // Chorded release (see `onPendingPointerMove`). The user lifted the primary
+  // button on purpose, so drop rather than cancel.
   if (active.heldPointer && !isPrimaryHeld(pointerEvent)) {
     dropActiveAtPointer(pointerEvent);
     return;
@@ -578,10 +514,8 @@ function onActivePointerMove(pointerEvent: PointerEvent): void {
   active.lastPointerEvent = pointerEvent;
   active.lastMoveReason = REASONS.pointer;
   active.frameDirty = true;
-  // Replace the queued frame only when it holds a terminal fallback. An earlier
-  // `buttons === 0` sample or a lost capture may have queued one, and this
-  // held-button sample shows that signal was transient. If `onActiveFrame` is
-  // already queued, setting `frameDirty` is enough.
+  // This held-button sample shows a queued terminal cancel was transient, so
+  // replace it. A queued `onActiveFrame` only needs `frameDirty`.
   if (active.terminalFrameQueued || active.rafFrame.currentId === null) {
     active.terminalFrameQueued = false;
     active.rafFrame.request(onActiveFrame);
@@ -608,8 +542,6 @@ function dropActiveAtPointer(pointerEvent: PointerEvent | MouseEvent): void {
   }
   const input = modifyActiveInput(active, getInput(pointerEvent));
   const target = hitTestUnderPreview(active.element, active.preview, input.clientX, input.clientY);
-  // The session releases the gesture through `releaseActive` before the terminal
-  // events.
   active.controller.drop(input, target, pointerEvent);
 }
 
@@ -628,14 +560,10 @@ function onActiveLostPointerCapture(pointerEvent: PointerEvent): void {
   if (!active || pointerEvent.pointerId !== active.pointerId) {
     return;
   }
-  // `startDrag` moves capture to the body anchor with `setPointerCapture`.
-  // Touch and pen implicitly capture to the `pointerdown` element, so the
-  // original element fires `lostpointercapture` right before the first move.
-  // The engine caused that, not the OS, and canceling on it would end every
-  // touch or pen drag as soon as the finger moved. Only cancel once the anchor
-  // itself has lost capture (tab switch, soft keyboard, a sibling frame taking
-  // the pointer). This listener is on `window`, so check both the event target
-  // and the current capture state.
+  // Moving touch and pen's implicit capture to the body anchor fires
+  // `lostpointercapture` on the press target, which must not cancel. Only cancel
+  // once the anchor itself lost capture (tab switch, soft keyboard, a sibling
+  // frame taking the pointer).
   if (
     getTarget(pointerEvent) !== active.captureTarget ||
     active.captureTarget.hasPointerCapture?.(pointerEvent.pointerId)
@@ -666,12 +594,8 @@ function queueTerminalCancel(
 }
 
 /**
- * Keep the session's modifier keys current, and re-run the frame when they change.
- *
- * Modifiers are applied per frame from `lastInput`, and a frame only runs when
- * something moved. Without this, a key-gated modifier (a 45° snap on Shift)
- * would wait for the next pointer move. Only a real change schedules a frame, so
- * typing during a drag costs nothing.
+ * Keep the session's modifier keys current, and re-run the frame when they change,
+ * so a key-gated modifier (a 45° snap on Shift) doesn't wait for a pointer move.
  */
 function syncActiveModifierKeys(event: KeyboardEvent): void {
   const active = state.active;
@@ -683,9 +607,8 @@ function syncActiveModifierKeys(event: KeyboardEvent): void {
     return;
   }
   active.lastInput = { ...active.lastInput, ...keys };
-  // Report the key event, since the new key flags came from it. Otherwise
-  // `eventDetails.event.shiftKey` and `location.current.input.shiftKey` would
-  // disagree in the same `onMove`.
+  // Report the key event, or `eventDetails.event.shiftKey` and
+  // `location.current.input.shiftKey` would disagree in the same `onMove`.
   active.lastNativeEvent = event;
   active.lastMoveReason = REASONS.modifierKey;
   active.frameDirty = true;
@@ -704,8 +627,7 @@ function onActiveKeyDown(keyEvent: KeyboardEvent): void {
   if (keyEvent.key !== 'Escape') {
     return;
   }
-  // The cancel consumes Escape. Otherwise the same keydown would also close an
-  // enclosing dialog or popover.
+  // Consume Escape so it doesn't also close an enclosing dialog or popover.
   swallowEvent(keyEvent);
   cancelActive(undefined, REASONS.escapeKey, keyEvent);
 }
@@ -723,12 +645,10 @@ function onActiveVisibilityChange(event: Event): void {
 }
 
 /**
- * The active pointer drag's physical pointer position, before `modifiers` are
- * applied, or `null` when no pointer drag is running. The session snapshot only
- * updates when the drop-target stack changes, while this tracks every pointer
- * sample, so a consumer that engages mid-drag can use it right away. Auto-scroll
- * reads it so a modifier can't hold the drag point outside a scroll container
- * the user is pushing against.
+ * The pointer's raw position before `modifiers`, or `null` when no pointer drag is
+ * running. Unlike the session snapshot, which only updates when the drop-target
+ * stack changes, it tracks every sample. Auto-scroll reads it so a modifier can't
+ * keep the drag point out of a container the user is pushing against.
  */
 function getRawActivePointerInput(): DraggableInput | null {
   return state.active?.lastInput ?? null;
@@ -736,20 +656,16 @@ function getRawActivePointerInput(): DraggableInput | null {
 
 /**
  * Flag that something scrolled under the active drag, so the next frame
- * re-resolves the target under a stationary pointer. Bound to the document's
- * capture-phase `scroll` and to each shadow root that holds a drop target.
- * Auto-scroll also calls it on each frame it scrolls, which covers a container
- * in a shadow root without a drop target. Does nothing when no pointer drag is
- * active.
+ * re-resolves the target. Auto-scroll also calls it, which covers a container in
+ * a shadow root without a drop target.
  */
 function notifyExternalScroll(): void {
   const active = state.active;
   if (!active) {
     return;
   }
-  // A frame that runs only for the scroll reports the pointer. The event and
-  // reason of the last frame could be a modifier key pressed long before. A
-  // frame already pending for a move or a key keeps its own.
+  // A scroll-only frame reports the pointer, not a modifier key pressed long
+  // before. A frame already pending for a move or a key keeps its own event.
   if (!active.frameDirty) {
     active.lastNativeEvent = active.lastPointerEvent;
     active.lastMoveReason = REASONS.pointer;
@@ -758,13 +674,7 @@ function notifyExternalScroll(): void {
   scheduleActiveFrame(active);
 }
 
-/**
- * Whether a new gesture may start as far as the active phase is concerned. A drag
- * whose document lost its browsing context (iframe removed, popout closed) can't
- * end on its own, because its ending listeners all lived in the dead realm, and it
- * would block every later drag. The next press anywhere cancels it and proceeds. A
- * live drag still blocks.
- */
+/** The active phase's half of `recoverDetachedSession` (`pickupRecognizer.ts`). */
 export function recoverActiveSession(event: Event): boolean {
   const active = state.active;
   if (active && isDetachedDocument(ownerDocument(active.element))) {
@@ -774,8 +684,7 @@ export function recoverActiveSession(event: Event): boolean {
 }
 
 export function resetForTests(): void {
-  // Skip click suppression so the reset leaves no `click` listener armed for the
-  // next test.
+  // Arm no click suppression, so no `click` listener leaks into the next test.
   clearActive(false, 'none');
 }
 
@@ -790,20 +699,14 @@ interface ActiveSession {
   preview: DragPreview;
   lastInput: DraggableInput;
   /**
-   * The native event `lastInput` was read from. It is passed to
-   * `controller.update` so move handlers get a real `eventDetails.event` with
-   * modifier keys and `pointerType`. It starts as the activation move, so it is
-   * real from the first frame.
-   *
-   * It is a `KeyboardEvent` when a modifier key drove the frame (see
-   * `syncActiveModifierKeys`), because `lastInput`'s key flags came from that
-   * press and the older `pointermove` would contradict them.
+   * The native event `lastInput` was read from, reported to move handlers as
+   * `eventDetails.event`. It starts as the activation move, and is a
+   * `KeyboardEvent` when a modifier key drove the frame (see `syncActiveModifierKeys`).
    */
   lastNativeEvent: PointerEvent | MouseEvent | KeyboardEvent;
   /**
-   * The last pointer event, first the activation event, or the second press of a
-   * double-click, and then each `pointermove`. A frame driven only by a scroll
-   * reports it (see `notifyExternalScroll`).
+   * The activation event (for a double-click, its second press), then each
+   * `pointermove`. Scroll-only frames report it (see `notifyExternalScroll`).
    */
   lastPointerEvent: PointerEvent | MouseEvent;
   /** Why `lastNativeEvent` caused the next movement frame. */
@@ -811,34 +714,25 @@ interface ActiveSession {
   /** Compiled `modifiers`, or `null` when the draggable declared none. */
   modifiers: DragModifiersState | null;
   /**
-   * Set when the pointer reports activity, a modifier key changes, or something
-   * scrolls. Cleared each time `onActiveFrame` re-resolves.
-   *
-   * Gating on pointer events rather than coordinate changes means a stationary
-   * pointer re-resolves nothing, so a reorder that slides a new element under it
-   * can't re-fire `onMove` in a loop. Any real move re-resolves, even one with
-   * the same coordinates as the last. A scroll, from auto-scroll's `scrollBy` or
-   * the user, forces one re-resolution, so content moving under a stationary
-   * pointer is still tracked.
+   * Set by a pointer event, a modifier key change or a scroll, and cleared when
+   * `onActiveFrame` re-resolves. Gating on events rather than coordinate changes
+   * keeps a reorder that slides a new element under a still pointer from
+   * re-firing `onMove` in a loop, while a scroll still forces one re-resolution.
    */
   frameDirty: boolean;
   rafFrame: WindowAnimationFrame;
   /**
-   * Whether `rafFrame` holds a deferred terminal callback (a missed release or a
-   * lost capture) instead of `onActiveFrame`. A held-button move must replace
-   * that callback, but not a queued `onActiveFrame`. A 120 to 240 Hz pointer
-   * sends several moves between two paints, and canceling and re-requesting the
-   * frame for each is wasted work.
+   * Whether `rafFrame` holds a deferred terminal cancel (missed release, lost
+   * capture) instead of `onActiveFrame`. A held-button move replaces only the
+   * cancel, so a 120 to 240 Hz pointer doesn't re-request the frame on every move.
    */
   terminalFrameQueued: boolean;
   listeners: DragCleanupFn[];
   /** See {@link PendingSession.gestureCleanups}; released when the drag ends. */
   gestureCleanups: DragCleanupFn[];
   /**
-   * The contextmenu suppression this gesture armed (touch and pen only), carried
-   * over from the pending phase. Only a clean drop releases it. A cancel leaves
-   * it armed for the `contextmenu` Android fires after `pointercancel` (see
-   * `clearActive`).
+   * See {@link PendingSession.contextMenuSuppression}. Only a clean drop releases
+   * it (see `clearPending`).
    */
   contextMenuSuppression: DragCleanupFn | null;
 }

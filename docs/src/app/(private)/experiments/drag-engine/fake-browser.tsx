@@ -248,8 +248,7 @@ function useOverflowCount(
     );
   });
 
-  // Items can change without changing the measure row's size (for example a rename
-  // that keeps the same width), so re-measure on every item change.
+  // Items can change without resizing the measure row, so re-measure on every change.
   useIsoLayoutEffect(measure, [items, measure]);
 
   useIsoLayoutEffect(() => {
@@ -1029,9 +1028,7 @@ function MoveDestinationItem({
   );
 }
 
-/**
- * Rendered inside the "Move to" submenu popup so the folder scan only runs while it is open.
- */
+/** Rendered inside the "Move to" submenu so the folder scan only runs while it's open. */
 function MoveDestinations({ nodeId }: { nodeId: string }) {
   const { tree } = useBookmarkBarContext();
 

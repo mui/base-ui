@@ -60,11 +60,10 @@ function CallableReturnValue({ name, data }: { name: string; data: CallableData[
   );
 }
 
-// Parameter rows and return value rows both use `${name}-${field}` anchors. If a
-// return value property shares a parameter's name, like the `name` on the kind that
-// `createKind(name)` returns, prefix the return value rows so ids stay unique. Other
-// return values keep the plain prefix so anchors like `#ToastuseToastManager-promise`
-// don't change.
+// Parameter and return value rows both use `${name}-${field}` anchors. When a return
+// value property shares a parameter's name (like `name` on the kind `createKind(name)`
+// returns), use `${name}ReturnValue` so ids stay unique. Otherwise keep `name` so
+// existing anchors like `#ToastuseToastManager-promise` don't change.
 function getReturnValueName(data: CallableData) {
   if (data.returnValue?.kind !== 'object') {
     return data.name;

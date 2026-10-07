@@ -24,10 +24,7 @@ const DRAG_INTERACTIVE_ELEMENT_SELECTOR = [
   '[role="textbox"]',
 ].join(',');
 
-/**
- * Whether `test` holds for `target` or one of its composed ancestors below
- * `pickupNode`. The walk stops before `pickupNode`.
- */
+/** Whether `test` holds for `target` or a composed ancestor strictly below `pickupNode`. */
 function someNodeBelow(
   target: Element,
   pickupNode: Element,
@@ -46,9 +43,8 @@ function someNodeBelow(
 }
 
 /**
- * Whether the press landed on an interactive control nested inside `pickupNode`,
- * such as a rename input or a row's action button. The walk stops before
- * `pickupNode`, so a draggable or handle that is itself a `<button>` stays draggable.
+ * Whether the press landed on an interactive control nested inside `pickupNode`, such
+ * as a rename input. `pickupNode` itself isn't checked, so a `<button>` handle works.
  */
 export function hasInteractiveAncestorWithin(target: Element, pickupNode: Element): boolean {
   return someNodeBelow(
@@ -59,14 +55,10 @@ export function hasInteractiveAncestorWithin(target: Element, pickupNode: Elemen
 }
 
 /**
- * Whether an element between the press target and `pickupNode` holds pointer
- * capture for `pointerId`, meaning a nested widget claimed the gesture during
- * the press. A slider or scroll-area thumb has no interactive role for
- * {@link hasInteractiveAncestorWithin} to find, but it takes capture on
- * `pointerdown`. The walk stops before `pickupNode`, like the interactive check.
- *
- * Pass `includeTarget: false` for touch and pen, which implicitly capture the
- * press target. Its capture then can't tell a widget from the browser.
+ * Whether an element between the press target and `pickupNode` holds capture for
+ * `pointerId`, meaning a nested widget claimed the gesture (such as a scroll-area thumb,
+ * which has no interactive role). Pass `includeTarget: false` for touch and pen: they
+ * implicitly capture the press target, so its capture can't tell a widget from the browser.
  */
 export function hasCapturingAncestorWithin(
   target: Element,

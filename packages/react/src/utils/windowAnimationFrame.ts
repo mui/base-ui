@@ -3,16 +3,15 @@ type AnimationFrameId = number;
 const EMPTY = null;
 
 /**
- * A single replaceable animation-frame callback tied to one window.
- * Unlike the shared `AnimationFrame`, it schedules on the element's owner window,
- * so closing an iframe also drops its pending work. `cancel` tolerates a closed window.
+ * A single replaceable animation-frame callback. Unlike the shared `AnimationFrame`,
+ * it schedules on the element's owner window, so closing an iframe drops its work.
  */
 export class WindowAnimationFrame {
   constructor(private readonly ownerWindow: Window) {}
 
   currentId: AnimationFrameId | null = EMPTY;
 
-  /** Replaces the pending callback, if any. `fn` receives the frame timestamp. */
+  /** Replaces the pending callback, if any. */
   request(fn: FrameRequestCallback) {
     this.cancel();
     this.currentId = this.ownerWindow.requestAnimationFrame((timestamp) => {

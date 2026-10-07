@@ -136,9 +136,9 @@ describe('Draggable.CollisionProvider', () => {
   });
 
   it('keeps a hovered item registered when an inline ref changes identity', async () => {
-    // A new ref callback on every render makes React detach and re-attach the
-    // same node. Re-registering it would make the item leave and re-enter, and a
-    // handler that sets state would re-render with another new ref, forever.
+    // A new ref callback each render detaches and re-attaches the node.
+    // Re-registering would make the item leave and re-enter, and a state-setting
+    // handler would then loop forever.
     const changed = vi.fn();
     function List() {
       const [over, setOver] = React.useState<string | null>(null);
@@ -642,9 +642,8 @@ describe('Draggable.CollisionProvider', () => {
     b.getBoundingClientRect = () => new DOMRect(0, 100, 100, 100);
     await lift(screen.getByTestId('a'));
     await dragOver(b, { clientY: 180 });
-    // The change re-rendered the list with new resolver identities. A
-    // re-registration of the hovered row would have reported a leave (`null`)
-    // and then the same collision again.
+    // The change re-rendered with new resolver identities. Re-registering the
+    // hovered row would report a leave (`null`), then the same collision again.
     await dragOver(b, { clientY: 181 });
     expect(changed).toHaveBeenCalledTimes(2);
     expect(changed.mock.calls.every(([eventDetails]) => eventDetails.target !== null)).toBe(true);

@@ -31,11 +31,9 @@ export function createRegisterSource(
   ): DragCleanupFn => {
     const initial = get();
 
-    // Checked before any side effect. Only the returned cleanup releases the
-    // static setup and the registry entry, so a later throw would leak a
-    // half-registered element. The types require `kind`, so this only catches
-    // plain JS or a cast, which would otherwise fail with a bare `TypeError`
-    // deep in the engine.
+    // Checked before any side effect: only the returned cleanup releases the setup,
+    // so a later throw would leak a half-registered element. Catches plain JS or a
+    // cast, which would otherwise hit a bare `TypeError` deep in the engine.
     if (initial.kind == null) {
       throw new Error(
         'Base UI: registerSource() was called without a `kind`, so the drag source ' +
@@ -46,12 +44,10 @@ export function createRegisterSource(
       );
     }
 
-    // Defined for every source, because whether a drag has React content to
-    // publish is known only once the sensor resolves the preview at drag start.
+    // Defined for every source: whether a drag has React content to publish is
+    // known only once the sensor resolves the preview at drag start.
     const publishPreview = (payload: DraggablePreviewRenderParameters<TPayload, TDragData>) => {
-      // The sensor set up the preview before starting this session. Only custom
-      // content needs React. The engine builds a clone without it, and attaches no
-      // content to a disabled preview.
+      // Only custom content needs React. A clone or a disabled preview has no content.
       const session = getActiveSession();
       const handle = session?.preview;
       const content = handle?.getContent();
@@ -59,9 +55,8 @@ export function createRegisterSource(
         return;
       }
       if (!content.render) {
-        // The overlay renders whatever the store holds. Clear it with the session, so
-        // a provider that unmounted mid-drag doesn't keep the content and its
-        // detached host in memory until the next pickup.
+        // Clear the store with the session, so a provider that unmounted mid-drag
+        // doesn't keep the content and its detached host alive until the next pickup.
         void session.onEnd(clearPublishedDragPreview);
       }
       content.render = publishPreview as (parameters: DraggablePreviewRenderParameters) => void;
@@ -70,8 +65,8 @@ export function createRegisterSource(
       if (getActiveSession()?.preview !== handle) {
         return;
       }
-      // Content that resolves to nothing declines the preview. The engine then has
-      // nothing to copy and shows no preview until a later render returns content.
+      // Content that resolves to nothing shows no preview until a later render
+      // returns some.
       publishDragPreview(getPreviewContext(), {
         node: node === false ? null : node,
         container: content.container,
@@ -79,13 +74,9 @@ export function createRegisterSource(
       });
     };
 
-    // The spread passes most parameters through, and only the preview and CSP
-    // fields are overridden. The lifecycle reads this getter on every event, so
-    // `normalized` is rebuilt only when its inputs change. The check compares
-    // field by field against a shallow copy of the last parameters, not by
-    // identity. An imperative getter may mutate and return the same object every
-    // time, and only the copy can tell a changed call from an unchanged one. The
-    // comparison still costs less than rebuilding the object's 20 or so fields.
+    // The lifecycle reads this getter on every event, so `normalized` is rebuilt only
+    // when its inputs change. Compare against a shallow copy of the last parameters,
+    // not by identity: an imperative getter may mutate and return the same object.
     let lastParams: RegisterSourceParameters<TPayload, TDragData> | null = null;
     let lastCSPContext: CSPContextValue | null = null;
     let normalized: DraggableConfig<TPayload, TDragData> | null = null;
@@ -119,10 +110,8 @@ export function createRegisterSource(
 }
 
 /**
- * Returns the registration function `Draggable.Root` calls, bound to the nearest
- * `Draggable.Provider` and CSP context. It is stable across renders.
- *
- * It lives apart from `useManager`, which adds the stateless registrations, so the
+ * The stable registration function `Draggable.Root` calls, bound to the nearest
+ * `Draggable.Provider` and CSP context. Kept apart from `useManager` so the
  * auto-scroller stays out of every bundle that contains a `Draggable.Root`.
  */
 export function useRegisterSource(): ReturnType<typeof createRegisterSource> {

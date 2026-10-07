@@ -14,13 +14,11 @@ interface DocumentBindingEntry {
 }
 
 interface DocumentBinding {
-  /** Bind `root`, and return the function that releases this binding. */
   bind(root: DragEventRoot): DragCleanupFn;
 }
 
 interface CreateEventRootBindingOptions {
   slot: string;
-  /** The listener for each event type, keyed by type. */
   listeners: Record<string, (event: Event) => void>;
 }
 
@@ -35,9 +33,8 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
     () => new Map<EventTarget, ShadowRoot>(),
   );
   /**
-   * Events already delivered. An event from inside a bound shadow root reaches
-   * that root's capture wrapper and then the bubble fallback of every bound root
-   * above it, so it must be delivered only once.
+   * An event from inside a bound shadow root reaches that root's capture wrapper and
+   * then the bubble fallback of every bound root above it, so deliver it only once.
    */
   const delivered = getSharedSlot<WeakSet<Event>>(`${slot}.delivered`, () => new WeakSet<Event>());
 
@@ -49,9 +46,8 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
   };
 
   const crossesBoundShadowRoot = (event: Event, currentRoot: DragEventRoot): boolean => {
-    // The window wrappers below call this for every event of a bound type on the
-    // page while any binding exists. `composedPath()` builds the whole ancestor
-    // chain, so skip it when no shadow root is bound.
+    // The window wrappers call this for every bound-type event on the page, and
+    // `composedPath()` builds the whole ancestor chain, so skip it when possible.
     if (boundShadowRoots.size === 0) {
       return false;
     }

@@ -52,8 +52,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     className,
     render,
     style,
-    // Drag source props. Destructured so they stay out of `elementProps`, which
-    // is spread onto the `<div>` as attributes.
+    // Drag source props
     kind,
     payload,
     previewKey,
@@ -76,8 +75,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
 
   const draggableContext = useDraggableContext();
 
-  // The engine compares registrations field by field before re-normalizing, so a
-  // new object on every render is fine.
+  // A new object per render is fine: the engine compares registrations field by field.
   const params = {
     kind: kind ?? draggableContext.defaultKind,
     payload,
@@ -140,8 +138,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     () => ({
       registerHandle,
       previewHandle,
-      // The engine publishes preview content through the provider seen from here.
-      // `Draggable.Preview` compares its own nearest provider against it.
       previewContext: draggableContext,
       disabled: disabled ?? false,
     }),
@@ -159,9 +155,8 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<
     <DraggableRootContext.Provider value={contextValue}>{element}</DraggableRootContext.Provider>
   );
   // One generic signature, as in `Select.Root`. `Props` requires `payload` when the
-  // kind declares one, so `kind={card}` without a payload is a type error instead of
-  // an `undefined` payload at runtime. A generic wrapper can spread its
-  // `Props<Payload>` through because the argument infers from the same alias.
+  // kind declares one, so `kind={card}` without a payload is a type error. A generic
+  // wrapper can spread its `Props<Payload>` through, since both infer from the same alias.
 }) as <TPayload = undefined, TDragData = unknown>(
   props: DraggableRootProps<TPayload, TDragData>,
 ) => React.JSX.Element;
@@ -191,8 +186,7 @@ type DraggableRootPropsBase<TPayload, TDragData = unknown> = Omit<
   // - `draggable` would start native dragging alongside the pointer sensor.
   'children' | 'draggable'
 > &
-  // A `Draggable.Preview` rendered inside this component declares the preview, and a
-  // `Draggable.Handle` declares the handle. Neither is a prop.
+  // `Draggable.Preview` and `Draggable.Handle` children declare the preview and handle.
   Omit<RegisterSourceParameters<TPayload, TDragData>, 'preview' | 'handle' | 'kind'> & {
     children?: React.ReactNode | undefined;
     /**
@@ -370,7 +364,6 @@ export type DraggableRootMoveEndEventDetails<
 /**
  * Why a drag ended. More cancel reasons may be added, so handle unknown values too.
  * Read `eventDetails.canceled` to tell a cancel from a release.
- *
  * - `'drop'`: Released over a drop target that accepted it.
  * - `'outside-release'`: Released outside any accepting drop target.
  * - `'escape-key'` / `'tab-key'`: The user pressed Escape or Tab.
@@ -388,12 +381,11 @@ export type DraggableRootMoveEndEventReason = DraggableRootMoveEndEventDetails['
  * When a `pointerdown` becomes a drag, selected by `type`:
  * - `immediate`: any `pointerdown` starts the drag.
  * - `distance`: the drag starts after the pointer has moved by `distance` CSS pixels.
- * - `press-hold`: the drag starts after `delay` ms of holding still. Movement
- *   larger than `tolerance` CSS pixels (default 5) cancels the gesture.
- * - `double-click`: with a mouse, the drag starts on a double-click, follows the
- *   pointer without a held button, and ends on the next primary click. With touch
- *   or pen, the drag starts on the second tap of a double-tap while the pointer
- *   is still down, and ends on release.
+ * - `press-hold`: the drag starts after `delay` ms of holding still. Moving more than
+ *   `tolerance` CSS pixels (default 5) cancels it.
+ * - `double-click`: a mouse drag starts on a double-click, follows the pointer with no
+ *   button held, and ends on the next primary click. A touch or pen drag starts on the
+ *   second tap of a double-tap and ends on release.
  */
 export type DraggableRootActivation =
   | { type: 'immediate' }

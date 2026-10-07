@@ -17,9 +17,8 @@ export interface PreviewContentUpdateCallbacks {
    */
   onRoot: (root: HTMLElement | null) => void;
   /**
-   * The copy's root has new attributes. The engine owns some of the root's attributes
-   * and inline styles, so it writes them back on top of `ownStyle`, the root's own
-   * inline style in the content.
+   * The copy's root has new attributes. The engine writes its own back on top of
+   * `ownStyle`, the root's inline style in the content.
    */
   onRootChange: (ownStyle: string) => void;
 }
@@ -28,19 +27,16 @@ export interface PreviewContentUpdateCallbacks {
 // that leaves them alone doesn't make the engine write its own state again.
 const rootAttributes = new WeakMap<Node, string>();
 
-// Attributes are sanitized on elements of a document without a browsing context, which
-// load nothing. One per page document, created on first use.
+// Attributes are sanitized in a document without a browsing context, which loads
+// nothing. One per page document.
 const inertDocuments = new WeakMap<Document, Document>();
 
 /**
- * Bring the copy of a custom preview's content up to date with what React rendered
- * since. Each content node is paired with its copy, and only what changed is written,
- * so transitions inside the copy run as they would in place, and images don't load
- * again. The root is kept, so the preview stays open in the top layer. A new kind of
- * root, such as content that now renders several nodes, is copied from scratch.
- *
- * Field state and canvas pixels are copied too. A scroll position inside the content
- * is not.
+ * Bring the copy of a custom preview's content up to date. Only what changed is
+ * written, so transitions in the copy run as they would in place and images don't
+ * reload. The root is kept, so the preview stays in the top layer. A new kind of
+ * root (content that now renders several nodes) is copied from scratch. Field state
+ * and canvas pixels are copied, scroll positions are not.
  */
 export function updatePreviewContent(
   content: PreviewContent,
@@ -67,8 +63,7 @@ export function updatePreviewContent(
       // The engine writes its own attributes and the inline style back right after.
       syncAttributes(rootSource, root, copy, true);
       callbacks.onRootChange((rootSource as Partial<ElementCSSInlineStyle>).style?.cssText ?? '');
-      // The root's own style came back from the content as is, so its `url(#id)`
-      // references point at the original ids again.
+      // `ownStyle` has the original `url(#id)` references again.
       copy.sanitizer.remapReferences(root);
     }
     syncChildren(rootSource, root, copy, added);
@@ -128,14 +123,10 @@ function syncNode(source: Node, target: Node, copy: PreviewContentCopy, added: E
 }
 
 /**
- * Make the attributes of `target` those of `source`, sanitized by the rules the copy
- * was built with. They are sanitized on an inert element first, so the copy in the
- * page never holds an unsafe value, even for one call. A radio given a page group's
- * `name` would uncheck the page's radio at once.
- *
- * The inline style goes through the CSSOM, since a strict CSP without
- * `'unsafe-inline'` blocks `setAttribute('style', …)`. On the root, the engine writes
- * it, and the root keeps the `popover` attribute that holds it in the top layer.
+ * Make `target`'s attributes match `source`'s, sanitized on an inert element first so the
+ * page never holds an unsafe value (a radio given a page group's `name` would uncheck the
+ * page's radio). The inline style goes through the CSSOM for CSP (see
+ * `remapInlineStyleUrls`); on the root, the engine writes it and keeps `popover`.
  */
 function syncAttributes(
   source: Element,

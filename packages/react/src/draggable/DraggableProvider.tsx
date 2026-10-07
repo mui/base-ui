@@ -11,9 +11,8 @@ import type { DraggableTargetRecord } from './target/DraggableTarget';
 
 /**
  * Groups the drag sources, drop targets, and viewports of an interaction.
- * It provides the default kind used by parts that declare none, and gives custom
- * previews access to React context. Required above the Draggable parts and
- * `useManager`. Doesn't render its own HTML element.
+ * Required above the Draggable parts and `useManager`. Custom previews render inside it.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/utils/draggable#provider)
  */
@@ -42,8 +41,8 @@ export type DraggablePointerType = 'mouse' | 'pen' | 'touch';
 /** The pointer state at the moment a drag event fires. */
 export interface DraggableInput {
   /**
-   * `MouseEvent.button` semantics: 0 = primary, 1 = middle, 2 = secondary.
-   * Move-derived events (`onMove`, `onTargetChange`) carry `-1`, as no button changed.
+   * The button that changed, as in `MouseEvent.button`: `0` primary, `1` middle, `2` secondary.
+   * Move-derived events, such as `onMove` and `onTargetChange`, carry `-1`.
    * Read `buttons` for what is held mid-drag.
    */
   button: number;
@@ -76,9 +75,8 @@ export interface DraggablePosition {
 }
 
 /**
- * The pointer state and the drop targets under the pointer at one moment. It is the type
- * of `location.current`, `location.previous`, and `location.initial`. The `location` itself,
- * on the event details, is a `DraggableLocationHistory`.
+ * The pointer state and the drop targets under the pointer at one moment.
+ * The type of `location.initial`, `location.current`, and `location.previous`.
  */
 export interface DraggableLocation {
   /** The pointer state. */
@@ -102,8 +100,8 @@ export interface DraggableLocationHistory {
   previous: DraggableLocation;
 }
 
-// Phantom members that make a kind invariant in its types. They exist only in the type
-// system, and are named so that a mismatch error explains itself.
+// Type-only members that make a kind invariant in its type parameters. Their names make
+// a mismatch error explain itself.
 declare class DragKindPayload<TPayload, TDragData> {
   private payloadType: (payload: TPayload) => TPayload;
   private dragDataType: (dragData: TDragData) => TDragData;
@@ -111,15 +109,12 @@ declare class DragKindPayload<TPayload, TDragData> {
 
 /**
  * A kind of draggable item or drop target, created with `Draggable.createKind` or
- * `Draggable.createGlobalKind`. Its payload type is declared once and types
- * `source.payload` and `target.payload` everywhere the kind is used.
- *
- * Without type arguments, `Draggable.Kind` fits any kind, for example in a list of kinds
- * or a wrapper's props. `Draggable.Kind<Card>` fits only the kinds whose payload is `Card`.
+ * `Draggable.createGlobalKind`. Its payload type types `source.payload` and `target.payload`
+ * everywhere the kind is used. Without type arguments, `Draggable.Kind` fits any kind;
+ * `Draggable.Kind<Card>` fits only the kinds whose payload is `Card`.
  */
-// The type arguments default to `any` so an omitted one means "any kind". An `unknown`
-// default can't do that, because invariant parameters would then only match kinds
-// declared with `unknown` themselves.
+// The type arguments default to `any` so an omitted one means "any kind". With invariant
+// parameters, an `unknown` default would only match kinds declared with `unknown`.
 export interface DraggableKind<in out TPayload = any, in out TDragData = any>
   extends DragKindPayload<TPayload, TDragData>, DraggableAcceptedKind<TPayload, TDragData> {}
 

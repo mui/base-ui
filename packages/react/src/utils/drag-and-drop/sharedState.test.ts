@@ -41,9 +41,9 @@ describe('separate copies of the engine', () => {
   });
 
   // An app can bundle the engine twice, for example through a plugin that ships
-  // its own copy. Each fresh import below evaluates a whole new module graph,
-  // like a second bundle, and only the shared slots connect the copies. jsdom
-  // only, because browser mode serves every import from one module graph.
+  // its own copy. Each fresh import below acts as a second bundle, connected to
+  // the others only through the shared slots. jsdom only, because browser mode
+  // serves every import from one module graph.
   it.skipIf(!isJSDOM)(
     'drops a source registered through one copy onto a target registered through another',
     async () => {

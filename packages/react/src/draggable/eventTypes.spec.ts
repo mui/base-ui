@@ -113,7 +113,6 @@ expectType<Draggable.LocationHistory, (typeof TargetMove)['location']>(TargetMov
 expectType<Draggable.Root.Record<Payload, DragData>, (typeof TargetMove)['source']>(
   TargetMove.source,
 );
-// `target` is the innermost target under the pointer, this target or one nested inside it.
 expectType<Draggable.Target.Record, (typeof TargetMove)['target']>(TargetMove.target);
 expectType<
   Draggable.Target.Record<TargetPayload, TargetDragData>,
@@ -130,7 +129,6 @@ expectType<
   typeof TargetEnter
 >(TargetEnter);
 expectType<Draggable.Target.EnterEventReason, (typeof TargetEnter)['reason']>(TargetEnter.reason);
-// `target` is the innermost target under the pointer, this target or one nested inside it.
 expectType<Draggable.Target.Record, (typeof TargetEnter)['target']>(TargetEnter.target);
 expectType<
   Draggable.Target.Record<TargetPayload, TargetDragData>,
@@ -169,7 +167,6 @@ expectType<Draggable.Target.DropEventReason, (typeof TargetDrop)['reason']>(Targ
 expectType<Draggable.Root.Record<Payload, DragData>, (typeof TargetDrop)['source']>(
   TargetDrop.source,
 );
-// `target` is the innermost target under the pointer, this target or one nested inside it.
 expectType<Draggable.Target.Record, (typeof TargetDrop)['target']>(TargetDrop.target);
 expectType<
   Draggable.Target.Record<TargetPayload, TargetDragData>,

@@ -33,13 +33,11 @@ describe('<Draggable.Handle />', () => {
       }
 
       const { rerender } = await renderDnd(<Card withFirst />);
-      // `warn()` logs each message once, and the log resets before each test, so
-      // re-mounts can't raise the count.
+      // `warn()` logs each message once per test, so re-mounts can't raise the count.
       expect(warnSpy).toHaveBeenCalledTimes(1);
       expect(warnSpy.mock.calls[0][0]).toMatch(/more than one mounted Draggable\.Handle/);
 
-      // After handle A unmounts, pickup is restricted to handle B instead of the
-      // whole card.
+      // Pickup falls back to handle B, not the whole card.
       await rerender(<Card withFirst={false} />);
       const card = screen.getByTestId('card');
       card.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -82,9 +80,6 @@ describe('<Draggable.Handle />', () => {
     await lift(handleA);
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(card);
 
-    // Swapping the handle while the root is the active source must not tear down
-    // the registration during the gesture. The drag continues, and the gesture
-    // styles move to the new handle at once.
     await rerender(<Card handleId="handle-b" />);
     const handleB = screen.getByTestId('handle-b');
 
@@ -112,10 +107,9 @@ describe('<Draggable.Handle />', () => {
   });
 
   it('does not re-register a hovered root when an inline ref changes identity', async () => {
-    // A new ref callback on every render makes React detach and re-attach the
-    // same handle node. Re-registering the root each time would make it leave and
-    // re-enter as a collision item, and a handler that sets state would re-render
-    // with another new ref, forever.
+    // A new ref callback every render makes React re-attach the handle node.
+    // Re-registering the root would make it leave and re-enter as a collision item,
+    // and handlers that set state would loop forever.
     const kind = Draggable.createKind<string>('handle-collision');
     const changed = vi.fn();
     function List() {

@@ -4,8 +4,7 @@ import * as React from 'react';
 import type { DraggableKind } from './DraggableProvider';
 
 /**
- * Created once per `Draggable.Provider`. Its identity also marks the provider's
- * preview boundary. The engine publishes custom preview content with the value
+ * One per `Draggable.Provider`. Custom preview content is published under the value
  * seen from the source, and only that provider's overlay renders it.
  */
 export interface DraggableContextValue {

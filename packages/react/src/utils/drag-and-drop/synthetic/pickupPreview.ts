@@ -1,8 +1,7 @@
 /**
- * The pickup: the drag preview is resolved and built from a draggable's
- * parameters, the root lock is taken, and the lifecycle session starts with a live
- * getter for the draggable's handlers. The pointer sensor calls it when a gesture
- * activates, and the session releases what it acquires (see `sensor.release`).
+ * The pickup: build the drag preview, take the root lock, and start the lifecycle
+ * session. The pointer sensor runs it when a gesture activates, and the session
+ * releases what it acquires (see `sensor.release`).
  */
 
 import type * as React from 'react';
@@ -33,8 +32,7 @@ import type {
 
 /**
  * The preview settings for one drag, resolved from the registration's `preview`,
- * which a `Draggable.Preview` part feeds too. Without one, the engine clones the
- * source.
+ * which a `Draggable.Preview` part feeds too.
  * @internal
  */
 export interface ResolvedDragPreview {
@@ -48,10 +46,8 @@ export interface ResolvedDragPreview {
 }
 
 /**
- * Read the drag's preview settings once, at drag start. The engine builds the
- * preview element synchronously from them, before React can run. A
- * `Draggable.Preview` part reaches the engine through `preview` too (see
- * `DragPreviewHandle.preview`).
+ * Read once at drag start. The engine builds the preview synchronously from these,
+ * before React can run.
  */
 function resolveDragPreview(
   parameters: DraggableConfig<any, any>,
@@ -85,9 +81,8 @@ export interface CreatePreviewSessionParameters {
   /** Why the pickup started (see `StartParameters.startReason`). */
   startReason: DragStartReason;
   /**
-   * Where the user pressed. The grab offset anchors here, not at `initialInput`,
-   * because the activation threshold puts the committed input a few pixels past
-   * the press.
+   * Where the user pressed. The grab offset anchors here, since the activation
+   * threshold puts `initialInput` a few pixels past the press.
    */
   pressPoint: { x: number; y: number };
   /** What the sensor lends the session (see `StartParameters.sensor`). */
@@ -118,13 +113,10 @@ export interface PreviewSessionHandle {
 }
 
 /**
- * Build the engine-managed preview for a pickup and start the lifecycle session.
- *
- * On success, returns the session and the preview it owns. When the pickup throws
- * or the lifecycle refuses to start (a drag is already running or the pickup was
- * canceled), everything acquired here is undone. The preview is destroyed and the
- * root lock is released, so the sensor only cleans up its own pre-pickup state. A
- * throw is re-thrown after the undo.
+ * Build the preview for a pickup and start the lifecycle session. When the pickup
+ * throws or the lifecycle refuses to start (a drag is already running or the
+ * pickup was canceled), the preview and root lock are released here, so the sensor
+ * only cleans up its own pre-pickup state. A throw is re-thrown after the undo.
  */
 export function createPreviewAndStartSession(
   parameters: CreatePreviewSessionParameters,
@@ -155,22 +147,19 @@ export function createPreviewAndStartSession(
   };
 
   try {
-    // A source grabbed again while its previous clone is still settling carries
-    // `data-dragging` and `data-settling`. Finish that clone first, so the source
-    // is measured and cloned without the styles keyed on them.
+    // A source whose previous clone is still settling carries `data-dragging` and
+    // `data-settling`. Finish that clone so the source is measured without them.
     finishEndingPreview(element);
-    // Measured before the preview is built and before `markSourceDragging()`
-    // below. A `[data-dragging]` rule that resizes or hides the source would
-    // otherwise corrupt the grab offset that anchors
-    // `getSnappedLocalPoint({ anchor: 'source' })` for the whole drag.
+    // Measured before `markSourceDragging()`, whose `[data-dragging]` rules could
+    // corrupt the grab offset behind `getSnappedLocalPoint({ anchor: 'source' })`.
     const pickupRect = element.getBoundingClientRect();
     const grabOffset = {
       x: pressPoint.x - pickupRect.left,
       y: pressPoint.y - pickupRect.top,
     };
-    // The press as an input, so the preview's default `'source'` offset can anchor
-    // on it. The preview measures its own untransformed box, so it cannot reuse
-    // `grabOffset`, which is relative to the transformed rect above.
+    // For the preview's default `'source'` offset. The preview anchors on its
+    // untransformed box, so it can't reuse `grabOffset`, which is relative to the
+    // transformed rect.
     const pressInput: DraggableInput = {
       ...initialInput,
       clientX: pressPoint.x,
@@ -190,9 +179,8 @@ export function createPreviewAndStartSession(
     );
     dragRootLock.lock(element);
     locked = true;
-    // Place the preview at the current input so the first frame does not leave it
-    // parked off-screen. The pickup event's modifier keys go with it, so a preview
-    // modifier gated on a key applies from the first placement.
+    // Place the preview now so the first frame doesn't leave it off-screen. The
+    // pickup's modifier keys go along, for key-gated preview modifiers.
     preview.update(initialInput.clientX, initialInput.clientY, initialInput);
 
     if (!isPickupCurrent()) {
@@ -200,16 +188,11 @@ export function createPreviewAndStartSession(
       return null;
     }
 
-    // Read the draggable's latest parameters on each dispatch, so a source that
-    // re-renders mid-drag runs its current handlers. Falls back to the last
-    // compatible snapshot if the element unregisters or changes kind mid-drag.
-    // The kind is fixed for the session, and `dragSource` handles payload changes.
-    //
-    // Read `dragSource.element`, not the start-time `element`. A virtualizer can
-    // remount the source to a new node mid-drag, which registers the new element
-    // and re-points `dragSource.element` at it (see `retargetDragSource`). The old
-    // element's registration is gone, so only the live node resolves the current
-    // handlers.
+    // Read the latest parameters on each dispatch, so a source that re-renders
+    // mid-drag runs its current handlers. Falls back to the last snapshot if the
+    // element unregisters or changes kind (the kind is fixed for the session). Reads
+    // `dragSource.element`, not `element`: a virtualizer remount re-points it at the
+    // new node (see `retargetDragSource`), and only that node is registered.
     let latest: DraggableConfig<any, any> = draggableParameters;
     const getLatestParameters = (): DraggableConfig<any, any> => {
       const current = getRegistration(dragSource.element)?.();
@@ -240,7 +223,6 @@ export function createPreviewAndStartSession(
       sensor,
     });
     if (!session) {
-      // The lifecycle refused (a drag is already running or pickup was canceled).
       undo();
       return null;
     }

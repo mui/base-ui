@@ -15,9 +15,8 @@ type CaptureMethod = 'setPointerCapture' | 'hasPointerCapture' | 'releasePointer
 
 /**
  * Synthetic pointer events have no active pointer to capture, and jsdom has no
- * pointer capture at all. A minimal model stands in for the browser's, one
- * capturing element per pointer, so the slider's `setPointerCapture` and the
- * sensor's check see the same state in both environments.
+ * pointer capture at all. This model (one capturing element per pointer) gives the
+ * slider's `setPointerCapture` and the sensor's check the same state everywhere.
  */
 const captures = new Map<number, Element>();
 const fakeCapture: Record<CaptureMethod, (this: Element, pointerId: number) => unknown> = {

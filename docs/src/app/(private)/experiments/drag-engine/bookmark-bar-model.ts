@@ -351,9 +351,7 @@ export function updateNode(
   return { ...tree, nodes: { ...tree.nodes, [id]: nextNode } };
 }
 
-/**
- * Returns `id` followed by its ancestors, nearest first, stopping before the root.
- */
+/** Returns `id` followed by its ancestors, nearest first, stopping before the root. */
 export function getAncestorIds(tree: BookmarkTree, id: ParentId): string[] {
   const ids: string[] = [];
   for (let current = id; current !== ROOT_ID;) {
@@ -375,9 +373,7 @@ export function isSelfOrDescendant(
   return getAncestorIds(tree, parentId).includes(sourceId);
 }
 
-/**
- * Folders that `excludeId` can move into, meaning every folder except itself and its descendants.
- */
+/** Folders that `excludeId` can move into: every folder except itself and its descendants. */
 export function getFolderDestinations(
   tree: BookmarkTree,
   excludeId: string | null,

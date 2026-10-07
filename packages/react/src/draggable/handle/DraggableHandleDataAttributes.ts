@@ -1,5 +1,4 @@
 /**
- * Present while the handle's `Draggable.Root` is disabled. A handle follows
- * the disabled state of its root.
+ * Present while the handle's `Draggable.Root` is disabled.
  */
 export const disabled = 'data-disabled';

@@ -180,7 +180,6 @@ describe('engine.registerSource', () => {
 
   it('a nested draggable wins pickup over its draggable ancestor', async () => {
     const { engine } = await renderDnd();
-    // Register an outer draggable and an inner draggable nested inside it.
     const outer = createElement();
     const inner = document.createElement('div');
     outer.appendChild(inner);
@@ -189,8 +188,7 @@ describe('engine.registerSource', () => {
     engine.registerSource(outer, { onMoveStart: onOuterStart });
     engine.registerSource(inner, { onMoveStart: onInnerStart });
 
-    // The gesture begins on the inner element. Pickup resolves the innermost
-    // registered ancestor, so the inner draggable claims the drag.
+    // Pickup resolves the innermost registered ancestor.
     fireDrag.dragStart(inner);
     await flushRaf();
 
@@ -325,9 +323,8 @@ describe('engine.registerSource', () => {
   });
 
   it('releasing a non-last merged-ref hold keeps the surviving hook active', async () => {
-    // Two registrations on one node, as with merged refs, registered A then B.
-    // B unmounts, for example inside a conditional wrapper, while A stays. The
-    // next drag must read A's parameters, not B's stale ones.
+    // Two holds on one node, as with merged refs. After B unmounts, the next drag
+    // must read A's parameters, not B's stale ones.
     const { engine } = await renderDnd();
     const el = createElement();
     const onDragStartA = vi.fn();
@@ -362,7 +359,6 @@ describe('engine.registerSource', () => {
       'Base UI: registerSource() was called without a `kind`',
     );
 
-    // Nothing was registered and no gesture styles were applied.
     expect(getRegistration(el)).toBeUndefined();
     expect(el.style.touchAction || '').toBe('');
     expect(el.style.userSelect || '').toBe('');

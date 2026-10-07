@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 
-// -----------------------------------------------------------------------------
-// Domain types
-// -----------------------------------------------------------------------------
+// --- Domain types ---
 
 export type EventId = string;
 
@@ -14,10 +12,7 @@ export interface CalendarEvent {
   start: number;
   /** ms timestamp, exclusive. */
   end: number;
-  /**
-   * `true` for all-day events. Their start and end sit on local midnight, so
-   * they span whole calendar days.
-   */
+  /** All-day events start and end on local midnight. */
   allDay: boolean;
 }
 
@@ -28,13 +23,8 @@ export interface CalendarState {
   order: EventId[];
 }
 
-// -----------------------------------------------------------------------------
-// Drag kinds and payloads
-// -----------------------------------------------------------------------------
+// --- Drag kinds and payloads ---
 
-// Sources set `kind` on `Draggable.Root`, and drop targets and monitors list the kinds
-// they take in `accept`. Each kind carries the payload type that its side of the drag
-// reads. Labels are namespaced because they're global to the page.
 export const calEventMoveKind = Draggable.createKind<EventMoveDragPayload>(
   'baseUiPlusCalendar/event-move',
 );
@@ -59,15 +49,14 @@ export const CAL_DRAG_KINDS = [calEventMoveKind, calEventResizeKind, calEventCre
 
 export interface EventMoveDragPayload {
   eventId: EventId;
-  /** Snapshot at drag start so the reducer can preserve duration. */
+  /** Event bounds at drag start, used to keep the duration. */
   anchorStart: number;
   anchorEnd: number;
   allDay: boolean;
   /**
-   * How far, in ms, the grabbed chip's top sits past the event's start. Only
-   * non-zero for a segment of an event that crosses midnight. The engine handles
-   * the grab offset inside the chip, since `getSnappedLocalPoint({ anchor: 'source' })`
-   * reports where the chip's top edge lands, already on the grid.
+   * How far, in ms, the grabbed chip's top sits past the event's start. Non-zero only
+   * for a segment of an event that crosses midnight. The grab offset inside the chip is
+   * handled by `getSnappedLocalPoint({ anchor: 'source' })`.
    */
   segmentOffsetMs: number;
 }
@@ -103,9 +92,7 @@ export type CalendarDragSource =
   EventMoveDragPayload | EventResizeDragPayload | EventCreateDragPayload;
 export type CalendarDropPayload = DayCellDropPayload | DayColumnDropPayload | AllDayRowDropPayload;
 
-// -----------------------------------------------------------------------------
-// Drop preview state, used only by the UI to draw the ghost during a drag
-// -----------------------------------------------------------------------------
+// --- Drop preview, the ghost drawn during a drag ---
 
 export interface DropPreview {
   start: number;
@@ -115,9 +102,7 @@ export interface DropPreview {
   intent: 'move' | 'resize' | 'create';
 }
 
-// -----------------------------------------------------------------------------
-// Reducer
-// -----------------------------------------------------------------------------
+// --- Reducer ---
 
 export type CalendarAction =
   | { type: 'MOVE_EVENT'; id: EventId; newStart: number; newAllDay?: boolean }
@@ -160,8 +145,8 @@ export function calendarReducer(state: CalendarState, action: CalendarAction): C
         // The preview already supplies an exclusive end boundary.
         nextEnd = event.allDay ? startOfDay(action.newTime) : action.newTime;
       }
-      // If the dragged edge crossed the other one, keep a minimum duration of one
-      // day or `MIN_TIMED_DURATION_MS` so the event stays valid.
+      // If the dragged edge crossed the other one, keep a minimum duration of one day
+      // or `MIN_TIMED_DURATION_MS`.
       if (nextEnd <= nextStart) {
         if (event.allDay) {
           if (action.edge === 'start') {
@@ -202,9 +187,7 @@ export function calendarReducer(state: CalendarState, action: CalendarAction): C
   }
 }
 
-// -----------------------------------------------------------------------------
-// Date math
-// -----------------------------------------------------------------------------
+// --- Date math ---
 
 export const MINUTE_MS = 60 * 1000;
 export const HOUR_MS = 60 * MINUTE_MS;
@@ -264,11 +247,7 @@ export function snapToMinutes(ms: number, stepMinutes: number): number {
   return Math.round(ms / step) * step;
 }
 
-/**
- * Build a 6-row by 7-column grid covering the month of `monthMs`. Always returns
- * 42 cells so the height stays the same across months. Months that fit in 5 rows
- * get an extra week from the next month, like most calendar UIs.
- */
+/** Build a 6x7 grid around the month of `monthMs`. Always 42 cells, so the height never changes. */
 export function buildMonthGrid(monthMs: number, weekStartsOn: 0 | 1 = 1): number[] {
   const monthStart = startOfMonth(monthMs);
   const gridStart = startOfWeek(monthStart, weekStartsOn);
@@ -287,19 +266,15 @@ export function buildWeekDays(weekStartMs: number): number[] {
   return days;
 }
 
-// -----------------------------------------------------------------------------
-// Event utilities
-// -----------------------------------------------------------------------------
+// --- Event utilities ---
 
 /** Inclusive day count an event spans. A 1h event = 1, a 2-day event = 2. */
 export function spanDays(event: { start: number; end: number; allDay: boolean }): number {
   if (event.allDay) {
     return Math.max(1, diffDays(event.end, event.start));
   }
-  // For timed events, count the local midnights crossed, plus one.
   const startDay = startOfDay(event.start);
-  // `end` is exclusive. Subtract 1ms so an event ending at midnight doesn't count
-  // the next day.
+  // `end` is exclusive, so an event ending at midnight doesn't count the next day.
   const endDay = startOfDay(event.end - 1);
   return Math.max(1, diffDays(endDay, startDay) + 1);
 }
@@ -318,11 +293,7 @@ export function makeEventId(): EventId {
   return `evt-${Date.now().toString(36)}-${idCounter}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-/**
- * Build a seed week of events around `today`. Mixes timed events of different
- * lengths, all-day events and multi-day events so every drag operation has
- * something to act on.
- */
+/** Seed events around `today`, mixing timed, all-day and multi-day events. */
 export function createSeedState(today: number): CalendarState {
   const monday = startOfWeek(today);
   const events: Record<EventId, CalendarEvent> = {};
@@ -398,9 +369,7 @@ export function createSeedState(today: number): CalendarState {
   return { events, order };
 }
 
-// -----------------------------------------------------------------------------
-// Drop resolution
-// -----------------------------------------------------------------------------
+// --- Drop resolution ---
 
 function isCalendarDropTarget(
   target: Draggable.Target.Record,
@@ -413,10 +382,9 @@ function isCalendarDropTarget(
 }
 
 /**
- * Turn the drop target under the pointer into a start, end and allDay that the
- * reducer can apply. There is no DOM measurement or rounding here. The day
- * columns declare `snap`, so `getSnappedLocalPoint` returns an on-grid fraction
- * of the rect the engine already measured.
+ * Turn the drop target under the pointer into the start, end and `allDay` the reducer
+ * applies. No measuring or rounding: the day columns declare `snap`, so
+ * `getSnappedLocalPoint` is already on the grid.
  */
 export function resolveDropPreview(
   source: Draggable.Root.Record<CalendarDragSource>,
@@ -426,9 +394,8 @@ export function resolveDropPreview(
     return null;
   }
 
-  // The on-grid time under the pointer, or under the grabbed chip's top edge
-  // with the `'source'` anchor. Capped so the last slot stays inside the day.
-  // Shared by all kinds.
+  // On-grid time under the pointer, or under the grabbed chip's top edge with the
+  // `'source'` anchor. Capped so the last slot stays inside the day.
   const timedMsAt = (dayMs: number, anchor?: 'source'): number => {
     const fraction = dropTarget.getSnappedLocalPoint({ anchor }).y;
     return Math.min(dayMs + DAY_MS - MINUTE_MS, dayMs + fraction * DAY_MS);
@@ -472,9 +439,8 @@ export function resolveDropPreview(
       };
     }
     if (calDayColumnKind.matches(dropTarget)) {
-      // Week view. The source anchor reports where the chip's top edge lands,
-      // already snapped, so the chip stays under the pointer instead of jumping
-      // its top to the cursor.
+      // Week view. The `'source'` anchor keeps the grab offset, so the chip's top
+      // doesn't jump to the cursor.
       const start = timedMsAt(targetDayMs, 'source') - sourcePayload.segmentOffsetMs;
       return {
         start,
@@ -561,9 +527,8 @@ export function resolveDropPreview(
       }
       return null;
     }
-    // Timed create. The anchor is in one column and the drop can be in any
-    // column. Both ends are already on the grid, because the anchor snapped when
-    // the gesture started and the column's `snap` handles the pointer.
+    // Timed create, possibly across columns. Both ends are on the grid: the anchor
+    // snapped at gesture start, and the column's `snap` handles the pointer.
     if (calDayColumnKind.matches(dropTarget)) {
       const pointerMs = timedMsAt(targetDayMs);
       const lo = Math.min(sourcePayload.anchorMs, pointerMs);
@@ -581,9 +546,7 @@ export function resolveDropPreview(
   return null;
 }
 
-// -----------------------------------------------------------------------------
-// Month-view track layout
-// -----------------------------------------------------------------------------
+// --- Month-view track layout ---
 
 export interface WeekEventSegment {
   eventId: EventId;
@@ -591,7 +554,7 @@ export interface WeekEventSegment {
   startCol: number;
   /** Number of columns the bar spans, from 1 to 7. */
   span: number;
-  /** Track index, meaning the row inside the week. */
+  /** Row inside the week. */
   track: number;
   /** Continues from previous week. */
   continuesFromBefore: boolean;
@@ -599,11 +562,7 @@ export interface WeekEventSegment {
   continuesAfter: boolean;
 }
 
-/**
- * Greedy track assignment. Events sorted by start, longest first, get the lowest
- * free track. Runs once per week so a multi-day event that crosses weeks lands on
- * the same track in each week and looks continuous.
- */
+/** Greedy track assignment: events sorted by start, longest first, take the lowest free track. */
 export function layoutWeekSegments(
   events: CalendarEvent[],
   weekStartMs: number,
@@ -626,8 +585,7 @@ export function layoutWeekSegments(
     const startMs = Math.max(event.start, weekStartMs);
     const endMs = Math.min(event.end, weekEndMs);
     const startCol = Math.max(0, Math.min(6, diffDays(startMs, weekStartMs)));
-    // The end is exclusive, and sits on midnight for all-day events, so find the
-    // last day with content using `end - 1ms`.
+    // `end` is exclusive, so the last day with content holds `end - 1ms`.
     const lastDay = diffDays(endMs - 1, weekStartMs);
     const endCol = Math.max(startCol, Math.min(6, lastDay));
     const span = endCol - startCol + 1;
@@ -650,9 +608,7 @@ export function layoutWeekSegments(
   return segments;
 }
 
-// -----------------------------------------------------------------------------
-// Context shared by the views, for drag UI and view config
-// -----------------------------------------------------------------------------
+// --- View context ---
 
 export interface CalendarViewContextValue {
   events: CalendarEvent[];
@@ -663,8 +619,8 @@ export interface CalendarViewContextValue {
   /** Pixels per hour in the week view. */
   hourPx: number;
   /**
-   * Captured when the experiment mounts, so render code can compare dates without
-   * calling `Date.now()`, which lint flags as impure. Updates on Today and Reset.
+   * Captured on mount so render code can compare dates without `Date.now()`, which
+   * lint flags as impure. Updates on Today and Reset.
    */
   todayMs: number;
   dropPreview: DropPreview | null;
@@ -686,9 +642,7 @@ export function useCalendarView(): CalendarViewContextValue {
   return ctx;
 }
 
-// -----------------------------------------------------------------------------
-// Formatting helpers
-// -----------------------------------------------------------------------------
+// --- Formatting helpers ---
 
 const TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
   hour: 'numeric',

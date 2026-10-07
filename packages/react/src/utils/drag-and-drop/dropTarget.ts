@@ -32,10 +32,7 @@ import {
 } from './utils';
 import { syncParticipantPayload } from './participantData';
 
-/**
- * Marks every registered drop target so the hit-test walk can find them with one selector.
- * The `data-base-ui-` prefix means it's internal, not a styling hook.
- */
+/** Marks every registered drop target for the resolution walk. Internal, not a styling hook. */
 const DROP_TARGET_ATTR = 'data-base-ui-drop-target';
 
 type AnyDropTargetParameters = DropTargetParameters<any, any, any, any>;
@@ -58,17 +55,13 @@ interface RecordRegistration {
 }
 
 /**
- * Shared across bundle copies. When the engine is bundled twice, the copy that
- * registers a target, the copy that started the drag, and the copy that
- * dispatches to targets can all differ.
+ * Shared across bundle copies, since the copies that register a target, start the
+ * drag and dispatch to targets can all differ.
  */
 interface DropTargetState {
   /** Each registered target element's stack of parameter getters (see `getterStackRegistry`). */
   registry: Map<Element, DropTargetGetter[]>;
-  /**
-   * How many registered drop targets live in each shadow root, so the sensor can
-   * read the set without walking the registry (see {@link retainShadowRoot}).
-   */
+  /** Registered drop targets per shadow root (see {@link retainShadowRoot}). */
   shadowRoots: Map<ShadowRoot, number>;
   /**
    * The shadow roots each registered element was counted against, so the release
@@ -88,21 +81,17 @@ interface DropTargetState {
    */
   registrationKeys: WeakMap<Element, WeakMap<DropTargetGetter, object>>;
   /**
-   * Each registration's `dragData` for the active drag, by registration key,
-   * replaced when its target kind changes. Emptied when the drag ends, so the next
-   * drag starts from `undefined`, and a mounted target, which keeps its key alive,
-   * doesn't retain the finished drag's data.
+   * Each registration's `dragData` for the active drag, reset when its target kind
+   * changes. Emptied when the drag ends, so the next drag starts from `undefined`
+   * and a still-mounted target doesn't retain the finished drag's data.
    */
   dragData: WeakMap<object, TargetDragData>;
   recordRegistrations: WeakMap<DraggableTargetRecord, RecordRegistration>;
   /**
-   * The frozen copy of each parameters object a getter has returned.
-   * A record keeps a copy rather than the object itself because a getter can return
-   * one object and mutate it in place (`() => targetOptions`), which would rewrite
-   * the parameters `dispatchToDropTarget` falls back to for that record. Resolution
-   * creates a record per walked target per frame, but the React layer returns the
-   * same parameters object until the target re-renders. Share its shallow copy
-   * across records while its fields remain unchanged.
+   * A shallow copy of each parameters object a getter has returned, shared across
+   * records while its fields don't change. A record can't keep the object itself:
+   * a getter that mutates one object in place (`() => targetOptions`) would rewrite
+   * the parameters `dispatchToDropTarget` falls back to.
    */
   registrationSnapshots: WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>;
 }
@@ -125,8 +114,8 @@ const holds = createGetterStackRegistry<Element, DropTargetGetter>({
     element.setAttribute(DROP_TARGET_ATTR, '');
     retainShadowRoot(element);
   },
-  // Runs before `beforeDelete`, so the attribute is already gone when the
-  // caller refreshes the lifecycle and the refreshed stack excludes this element.
+  // Runs before `beforeDelete`, so the stack the caller refreshes there already
+  // excludes this element.
   onLastRemove: (element) => {
     element.removeAttribute(DROP_TARGET_ATTR);
     releaseShadowRoot(element);
@@ -134,15 +123,11 @@ const holds = createGetterStackRegistry<Element, DropTargetGetter>({
 });
 
 /**
- * Ref-count each shadow root a target lives in, including ancestor roots, so the
- * pointer sensor can read the set in O(1) on the pickup frame.
+ * Ref-count each shadow root a target lives in, ancestor roots included, so the
+ * sensor reads the set in O(1) at pickup instead of walking every target.
  *
- * `scroll` does not compose, so a scroll inside a shadow tree never reaches the
- * sensor's document-level listener. The sensor has to bind one listener per root.
- * Deriving the set at pickup would cost a `getRootNode()` walk per registered target,
- * on the frame that also builds the clone and places the preview, and the set is
- * empty in almost every app. It's a count rather than a set because one root holds many
- * targets, and only the last one to leave retires it.
+ * `scroll` doesn't compose, so the sensor binds one listener per root. A count, not
+ * a set, because one root holds many targets and only the last to leave retires it.
  */
 function retainShadowRoot(element: Element): void {
   const roots: ShadowRoot[] = [];
@@ -230,11 +215,9 @@ export function trackDropTargetShadowRoots(
 }
 
 /**
- * Whether `getParameters` is the hold `element` dispatches through.
- *
- * Inside the unregister callback of {@link removeDropTargetRegistration}, it tells
- * an element leaving the registry from one whose released hold promoted another.
- * See `getterStackRegistry`.
+ * Whether `getParameters` is the hold `element` dispatches through. Inside the
+ * `beforeDelete` callback of {@link removeDropTargetRegistration}, it tells an
+ * element leaving the registry from one whose released hold promoted another.
  */
 export function isActiveDropTargetRegistration(
   element: Element,
@@ -244,20 +227,17 @@ export function isActiveDropTargetRegistration(
 }
 
 /**
- * Close the session by dropping the drag's per-target data. The lifecycle calls it
- * on teardown. Records already handed out keep their own reference to their data.
+ * Drops the drag's per-target `dragData` on teardown. Records already handed out
+ * keep their own.
  */
 export function endDropTargetSession(): void {
   state.dragData = new WeakMap<object, TargetDragData>();
 }
 
 /**
- * The key a registration's payload and `dragData` are stored under.
- *
- * The getter alone can't be the key. One getter can register several elements,
- * such as cells sharing `() => cellParameters`, and each cell needs its own
- * `updatePayload()` and `updateDragData()` state. Unregistering one cell must not
- * reset the others either.
+ * The key a registration's payload and `dragData` are stored under. Not the getter
+ * alone: cells sharing `() => cellParameters` each need their own state, and
+ * unregistering one must not reset the others.
  */
 function getRegistrationKey(element: Element, getParameters: DropTargetGetter): object {
   const keys = getOrCreate(state.registrationKeys, element, () => new WeakMap());
@@ -265,9 +245,8 @@ function getRegistrationKey(element: Element, getParameters: DropTargetGetter): 
 }
 
 /**
- * Drop a registration's key once `element` no longer holds `getParameters`. Its
- * payload and `dragData` are stored under the key, so registering the pair again
- * starts from the declared payload.
+ * Drop the key once `element` no longer holds `getParameters`, so registering the
+ * pair again starts from the declared payload.
  */
 function releaseRegistrationKey(element: Element, getParameters: DropTargetGetter): void {
   if (!state.registry.get(element)?.includes(getParameters)) {
@@ -276,19 +255,17 @@ function releaseRegistrationKey(element: Element, getParameters: DropTargetGette
 }
 
 /**
- * Register `element` as a drop target with a live parameters getter, pushing it
- * onto the element's stack of holds. Pass the same `getParameters` to
- * {@link removeDropTargetRegistration} so each hold releases its own getter.
+ * Push a hold onto `element`'s stack. Pass the same `getParameters` to
+ * {@link removeDropTargetRegistration} to release it.
  */
 export function addDropTargetRegistration(element: Element, getParameters: DropTargetGetter): void {
   holds.add(element, getParameters);
 }
 
 /**
- * Drop one registration hold on `element`, removing {@link DROP_TARGET_ATTR} only
- * when the last hold is released. `beforeDelete` runs before the registry entry
- * is deleted, so a caller can refresh the lifecycle and dispatch `onDraggableLeave`
- * while the registration is still readable.
+ * Release one hold on `element`. `beforeDelete` runs while the registration is
+ * still readable, so the caller can refresh the lifecycle and deliver
+ * `onDraggableLeave` (see `getterStackRegistry`).
  */
 export function removeDropTargetRegistration(
   element: Element,
@@ -303,9 +280,8 @@ export function removeDropTargetRegistration(
 }
 
 /**
- * Clear every drop-target registration so a detached target left registered by a
- * failed or aborted test can't leak into the next one. Test-only. The test
- * harness's `resetDrag()` in `test/dnd.ts` calls it.
+ * Test-only. Clears every registration so a target a failed test left registered
+ * can't leak into the next one.
  */
 export function resetForTests(): void {
   for (const element of state.registry.keys()) {
@@ -326,8 +302,8 @@ export function resetForTests(): void {
 type ConsumerCallbackName = 'canDrop' | 'snap' | 'getParameters';
 
 /**
- * A throwing callback costs the target its registration for this dispatch, so one
- * buggy target can't break drag resolution for every other target on the page.
+ * A throwing callback costs only its own target, for this dispatch, so one buggy
+ * target can't break resolution for the rest.
  */
 function safeCall<T>(
   callbackName: ConsumerCallbackName,
@@ -339,9 +315,8 @@ function safeCall<T>(
 }
 
 /**
- * The third outcome of `resolveDropTargetOutcome`. The target's `canDrop` returned
- * `'reject'`, which refuses the drop instead of abstaining. The walk turns it into
- * an empty stack.
+ * `resolveDropTargetOutcome`'s result when `canDrop` returns `'reject'`, refusing
+ * the drop instead of abstaining. The walk turns it into an empty stack.
  */
 const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
 
@@ -349,7 +324,7 @@ function snapshotRegistration(registration: AnyDropTargetParameters): AnyDropTar
   return getShallowSnapshot(state.registrationSnapshots, registration, registration);
 }
 
-/** The registration's `dragData` for this drag, starting from `undefined` for a new drag or kind. */
+/** The registration's `dragData` for this drag, starting from `undefined` per drag and kind. */
 function getTargetDragData(
   registrationKey: object,
   source: DraggableRootRecord,
@@ -403,10 +378,9 @@ export function captureDropTargetCollision(
 }
 
 /**
- * Resolve one element against the active drag. Returns a `DraggableTargetRecord`
- * when the element is registered, not `disabled`, and passes both `accept` and
- * `canDrop`. Returns `null` when it abstains, and {@link DROP_REJECTED} when its
- * `canDrop` refuses the drop.
+ * Resolve one element against the active drag: a record when it is registered,
+ * enabled, and passes `accept` and `canDrop`, {@link DROP_REJECTED} when `canDrop`
+ * rejects, and `null` otherwise.
  */
 function resolveDropTargetOutcome(
   element: Element,
@@ -416,29 +390,24 @@ function resolveDropTargetOutcome(
   if (!getRegistration) {
     return null;
   }
-  // A throwing getter is contained by the caller, `getDropTargetsOver`, which
-  // treats it like an unregistered target.
+  // `getDropTargetsOver` contains a throwing getter.
   const registration = getRegistration();
-  // A disabled target is not a candidate. Like a failed `canDrop`, the walk falls
-  // through to ancestor targets. A getter written in plain JS can also return
-  // `undefined`.
+  // Like a failed `canDrop`, a disabled target lets the walk fall through to
+  // ancestors. A plain-JS getter can also return `undefined`.
   if (registration == null || registration.disabled) {
     return null;
   }
-  // Cheap kind filter first, before allocating the feedback object. This runs per
-  // walked target per frame, and most targets fail here.
+  // Cheap kind filter first: this runs per walked target per frame, and most fail here.
   const source = feedback.source;
   if (!matchesAccept(registration.accept, source)) {
     return null;
   }
-  // The point readers measure lazily, so building them before `canDrop` costs
-  // nothing unless it reads one. The record reuses them, so a point read here is
-  // not measured again.
+  // The point readers measure lazily, and the record reuses them, so a point
+  // `canDrop` reads isn't measured again.
   const fullFeedback = { ...feedback, element } as DraggableTargetResolutionContext;
   const pointReaders = createLocalPointReaders(element, fullFeedback, registration.snap);
   Object.assign(fullFeedback, pointReaders);
 
-  // Then `canDrop`. A throw costs only this target and doesn't abort the walk.
   const canDropVerdict = registration.canDrop
     ? safeCall('canDrop', element, () => registration.canDrop!(fullFeedback), false)
     : true;
@@ -479,11 +448,9 @@ function resolveDropTargetOutcome(
 }
 
 /**
- * Quantize one axis of a local point. Clamps to `[0, 1]`, then rounds to the
- * nearest of `steps` equal fractions. `Math.round` is symmetric around every step
- * midpoint, so drags have no directional bias. `ceil` or `floor` would shift every
- * drop one way. A missing, non-integer, or non-positive count leaves the axis
- * unquantized.
+ * Clamp one axis to `[0, 1]` and round it to the nearest of `steps` equal fractions.
+ * `Math.round`, not `floor` or `ceil`, so drops have no directional bias. A missing,
+ * non-integer or non-positive `steps` only clamps.
  */
 function snapAxis(value: number, steps: number | undefined): number {
   const clamped = clamp(value, 0, 1);
@@ -497,20 +464,11 @@ function snapAxis(value: number, steps: number | undefined): number {
 type DropTargetFeedback = Pick<DraggableTargetResolutionContext, 'input' | 'source'>;
 
 /**
- * Build the record's `getLocalPoint` and `getSnappedLocalPoint`, deferring the
- * measurement until one of them is read.
- *
- * Resolution walks the DOM from `elementFromPoint` up through the ancestors and
- * measures no rect. Computing the point eagerly would cost every drag a
- * `getBoundingClientRect()` per resolved target, only to serve the drags that read
- * it. The two readers share one measurement, and a `snap` callback runs at most once
- * per record, on the first snapped read. Layout is final by then, so a step count
- * derived at runtime (visible hours, a zoom level) is safe.
- *
- * The point is fixed at resolution but the element is not. A caller holding a
- * record past its frame gets the old pointer position against the element's current
- * rect. `payload` works the same way, resolved once and read later. The grab offset
- * is captured now because a record can outlive its drag and the session slot.
+ * Builds the record's local-point readers. They share one `getBoundingClientRect()`, taken
+ * on the first read rather than per resolved target per frame, and `snap` runs at most once.
+ * The pointer is fixed at resolution but the rect isn't, so a record read after its frame
+ * pairs the old pointer with the current rect. The grab offset is captured now because a
+ * record can outlive its drag.
  */
 function createLocalPointReaders(
   element: Element,
@@ -523,8 +481,8 @@ function createLocalPointReaders(
   let rect: DOMRect | null = null;
   function localPoint(offsetX: number, offsetY: number): DraggableTargetLocalPoint {
     rect ??= element.getBoundingClientRect();
-    // Zero on an axis with no extent, which is what an empty or detached element
-    // measures as, rather than dividing by it.
+    // Zero on an axis with no extent (an empty or detached element) instead of
+    // dividing by zero.
     return {
       x: rect.width === 0 ? 0 : (clientX - offsetX - rect.left) / rect.width,
       y: rect.height === 0 ? 0 : (clientY - offsetY - rect.top) / rect.height,
@@ -554,8 +512,8 @@ function createLocalPointReaders(
   const getSnappedLocalPoint = (
     options?: DraggableTargetSnappedLocalPointOptions,
   ): DraggableTargetLocalPoint => {
-    // Documented fallback. If no session was live at resolution, there is no grab
-    // offset, and `'source'` anchors on the pointer instead of failing.
+    // Documented fallback: with no session at resolution there is no grab offset,
+    // so `'source'` anchors on the pointer.
     const anchor = options?.anchor === 'source' && grabOffset !== null ? 'source' : 'pointer';
     let memo = snappedMemos[anchor];
     if (memo === undefined) {
@@ -575,22 +533,11 @@ function createLocalPointReaders(
 }
 
 /**
- * Walk up the composed tree from `target` and collect every registered,
- * non-disabled drop target whose `accept` and `canDrop` both pass.
- * Innermost first, in bubbling order.
- *
- * Uses one composed walk (`getComposedParentElement`) instead of `closest()`.
- * `closest()` follows the light-DOM parent chain straight through a shadow host,
- * so it skips a shadow-tree target that wraps the `<slot>` the node is assigned to
- * whenever a light-DOM ancestor is also a target. Entering the assigned slot before
- * climbing, and leaving through the host afterwards, visits every ancestor in the
- * order events bubble.
- *
- * A `canDrop` returning `'reject'` ends the walk with an empty stack. The rejecting
- * target refuses the drop outright, so accepting descendants are discarded and no
- * ancestor can claim the drop. A container-level rule such as a capacity limit then
- * holds without every child repeating it. `onReject` reports the rejecting element
- * so the lifecycle can set `data-rejected` on it.
+ * Collects the registered, enabled drop targets from `target` up the composed tree whose
+ * `accept` and `canDrop` pass, innermost first. Not `closest()`, which skips a shadow-tree
+ * target wrapping the `<slot>` the node is assigned to. A `canDrop` returning `'reject'`
+ * empties the stack and reports the element to `onReject`, so a container rule such as a
+ * capacity limit holds without every child repeating it.
  */
 export function getDropTargetsOver(
   target: Element | null,
@@ -604,17 +551,13 @@ export function getDropTargetsOver(
     node !== null;
     node = getComposedParentElement(node, state.shadowRootsByHost)
   ) {
-    // Check the attribute, not the registry. While a target unregisters, its entry
-    // outlives the attribute because `onLastRemove` runs before `beforeDelete`. Its
-    // `onDraggableLeave` can still dispatch from the refresh, but the refreshed
-    // stack must already exclude it.
+    // Check the attribute, not the registry. An unregistering target loses the
+    // attribute first, so the refresh that delivers its leave already excludes it.
     if (!node.hasAttribute(DROP_TARGET_ATTR)) {
       continue;
     }
-    // The consumer callbacks are contained one by one, but the parameters they
-    // come with can be malformed too, for example a non-kind `accept` from plain
-    // JS. A throw here would repeat on every frame and on the release, and leave
-    // the drag stuck, so it costs only this target.
+    // Malformed parameters, such as a non-kind `accept` from plain JS, can throw
+    // too. Uncontained, that would repeat every frame and leave the drag stuck.
     const element = node;
     const outcome = safeCall(
       'getParameters',
@@ -638,18 +581,10 @@ export function getDropTargetsOver(
 export type DropTargetEventName = keyof DropTargetEventReasonMap & keyof DropTargetParameters;
 
 /**
- * Deliver `eventName` to the target behind `record` through the element's active
- * registration, or through `fallback` when the element has unregistered. The hover
- * ledger passes the registration it kept for a target still owed a leave.
- *
- * A drop goes through the registration that resolved the record. The source's
- * `onMoveEnd` hears about the drop first and may unmount targets synchronously,
- * and the drop must still reach the target it landed on.
- *
- * `eventDetails` are the round's details as the source sees them. The target
- * receives a copy with its own record as `currentTarget`. `target` stays the round's
- * innermost target, like in a source's handlers. Every caller builds the details
- * with `location.current.targets[0]`, which is `null` only for a leave.
+ * Delivers `eventName` through the element's active registration, or through `fallback`
+ * (the hover ledger's retained one) once it has unregistered. A drop uses the registration
+ * that resolved the record, since the source's `onMoveEnd` runs first and may unmount the
+ * target. The handler gets its own record as `currentTarget`; `target` stays the innermost.
  */
 export function dispatchToDropTarget<K extends DropTargetEventName>(
   record: DraggableTargetRecord,
@@ -666,13 +601,13 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   if (!getRegistration) {
     return;
   }
-  // Same containment as `getDropTargetsOver`. A throwing getter costs this
-  // target its event and doesn't unwind the dispatch sequence.
+  // A throwing getter costs this target its event without unwinding the dispatch.
   const registration = safeCall('getParameters', record.element, getRegistration, null);
   if (registration == null) {
     return;
   }
-  // A leave can outlive the kind contract that produced its record.
+  // A leave can outlive the `accept` or `kind` that produced its record. It then
+  // goes through the record's snapshot.
   const compatible =
     matchesAccept(registration.accept, source) && registration.kind?.id === record.kind;
   const parameters = compatible ? registration : resolvedRegistration?.snapshot;
@@ -681,7 +616,6 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   }
   const handler = parameters[eventName] as
     ((eventDetails: DropTargetEventDetails<DropTargetEventReasonMap[K]>) => void) | undefined;
-  // The round's details, with this target's own record as `currentTarget`.
   handler?.({ ...eventDetails, currentTarget: record } as DropTargetEventDetails<
     DropTargetEventReasonMap[K]
   >);

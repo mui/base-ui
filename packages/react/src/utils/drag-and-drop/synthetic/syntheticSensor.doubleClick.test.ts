@@ -131,7 +131,6 @@ describe('syntheticDrag double-click activation', () => {
     expect(onMoveStart).toHaveBeenCalledTimes(1);
     expect(onDoubleClick).not.toHaveBeenCalled();
 
-    // A new double-click picks it up again.
     fireEvent.click(source, { detail: 1, button: 0 });
     fireEvent.click(source, { detail: 2, button: 0 });
     fireEvent.doubleClick(source, { detail: 2, button: 0 });

@@ -2,10 +2,8 @@
  * The drag in progress, as the rest of the engine sees it.
  *
  * `start()` in `lifecycleManager.ts` creates the session and is its only writer.
- * Drop targets, monitors, auto-scroll, payload sync and the preview's React content
- * read it here instead of each keeping a copy of the source or inferring the phase.
- * The module holds only the shared slot, so reading the session doesn't load the
- * lifecycle or the sensor.
+ * This module holds only the shared slot, so readers don't load the lifecycle or
+ * the sensor.
  */
 
 import type {
@@ -19,9 +17,8 @@ import type { DragCleanupFn } from '../types';
 import { getSharedSlot } from '../sharedState';
 
 /**
- * - `starting`: from pickup until the first snapshot is published. Monitors engage,
- *   the initial stack resolves and the source's `onGenerateDragPreview` runs. No
- *   target has received an event yet.
+ * - `starting`: from pickup until the first publish. Monitors engage, the initial
+ *   stack resolves and `onGenerateDragPreview` runs. No target has an event yet.
  * - `live`: from the first publish until the end sequence begins.
  * - `ending`: a drop, a cancel or error recovery is delivering the terminal events.
  */
@@ -30,8 +27,8 @@ export type DragSessionPhase = 'starting' | 'live' | 'ending';
 export interface DragSession {
   readonly phase: DragSessionPhase;
   /**
-   * The source every event of the drag reports. It is mutated in place, not
-   * replaced, when a virtualizer remounts the source (see `retargetDragSource`).
+   * Mutated in place, not replaced, when a virtualizer remounts the source (see
+   * `retargetDragSource`).
    */
   readonly source: DraggableRootRecord;
   /**
@@ -57,16 +54,16 @@ export interface DragSession {
    */
   cancel(): void;
   /**
-   * Runs `listener` once when the session ends, whatever the cause: a drop, a
-   * cancel, a handler error or a test reset. Unlike a monitor's `onMoveEnd`, it
-   * also runs when the session ends without terminal events.
+   * Runs `listener` once when the session ends, including after a handler error or
+   * a test reset that sends no terminal events. Runs it now if the session has
+   * already ended.
    */
   onEnd(listener: () => void): DragCleanupFn;
   /**
-   * Tells the session that `element` is unregistering, while `getParameters` is
-   * still readable. A target still owed `onDraggableLeave` gets it, through
-   * `getParameters` if need be, and leaves the stack right away. Any other
-   * unregister joins the coalesced refresh.
+   * Called while `element` unregisters and `getParameters` is still readable. A
+   * target still owed `onDraggableLeave` leaves the stack and gets its leave,
+   * through `getParameters` if need be. Any other unregister joins the coalesced
+   * refresh.
    */
   releaseTarget(element: Element, getParameters: DropTargetGetter): void;
   /**
@@ -89,7 +86,6 @@ const slot = getSharedSlot<DragSessionSlot>('dragSession', () => ({
   abort: null,
 }));
 
-/** The drag in progress, or `null` when none is. */
 export function getActiveSession(): DragSession | null {
   return slot.session;
 }

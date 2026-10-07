@@ -11,27 +11,12 @@ import { useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './infinite-canvas.module.css';
 
-// An infinite canvas. The camera is a CSS `transform` on the content layer, and
-// nothing in the tree has a scroll offset. `Draggable.Viewport` handles this case
-// through `onDragScroll`. The engine finds the edge and reports the delta, and the
-// canvas applies it to its own camera.
+// An infinite canvas: the camera is a CSS `transform` on the content layer, with no scroll
+// offset, and `onDragScroll` edge deltas pan it. The bins start out of view, so this tests
+// that the engine hit-tests again when the surface moves under a still pointer.
 //
-// The bins sit far outside the starting view, so the only way to reach one is to
-// hold the pointer at an edge and let the canvas pan. No other experiment tests
-// this. When the surface moves under a pointer that is standing still, the engine
-// has to check again what is under it. Without that the bin never lights up and
-// the drop never lands.
-//
-// Try the `Camera` setting. `onDragScroll` runs inside the engine's frame loop,
-// which hit-tests on the next frame:
-//
-//   ref     the callback writes `content.style.transform` itself, so the DOM is
-//           already at the new position when the engine hit-tests. This is what
-//           the API docs describe.
-//   state   the callback calls `setCamera`, and React commits whenever it can.
-//           It usually lands in time and looks identical, which hides the lag.
-//           The readout below shows the gap between the camera the callback has
-//           accumulated and the one the DOM is painting.
+// `Camera` setting: `ref` writes the transform in the callback, ready for the next frame's
+// hit test; `state` calls `setCamera`. The readout shows the drift between the two.
 
 interface InfiniteCanvasSettings {
   camera: 'ref' | 'state';
@@ -68,8 +53,6 @@ const INITIAL_NOTES: Note[] = [
   { id: 'c', label: 'Prototype', x: 140, y: 300 },
 ];
 
-// Placed well outside the starting viewport on every side, so each one can only
-// be reached by panning.
 const BINS: Bin[] = [
   { id: 'north', label: 'North bin', x: 240, y: -700 },
   { id: 'south', label: 'South bin', x: 240, y: 1100 },
@@ -84,8 +67,7 @@ function InfiniteCanvasContent() {
   const [hovered, setHovered] = React.useState<string>('—');
 
   const contentRef = React.useRef<HTMLDivElement | null>(null);
-  // The source of truth for the camera. `onDragScroll` updates it synchronously in
-  // both modes. The only difference is whether the DOM follows in the same call.
+  // Source of truth for the camera, updated synchronously in both modes.
   const cameraRef = React.useRef({ x: 0, y: 0 });
   const dragStartCameraRef = React.useRef({ x: 0, y: 0 });
   const [camera, setCamera] = React.useState({ x: 0, y: 0 });
@@ -219,9 +201,8 @@ function InfiniteCanvasContent() {
                 if (eventDetails.reason !== 'outside-release') {
                   return;
                 }
-                // The note has to end up under the pointer, but the content layer
-                // moved under it. A note painted at `content - camera` needs both the
-                // pointer's client delta and the camera's delta.
+                // The content layer panned during the drag, so add the camera's delta
+                // to the pointer's.
                 const dx =
                   eventDetails.location.current.input.clientX -
                   eventDetails.location.initial.input.clientX;

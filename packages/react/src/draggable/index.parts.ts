@@ -27,8 +27,7 @@ export {
   snapToGrid,
 } from '../utils/drag-and-drop/dragModifiers';
 
-// The types every part uses. Types that belong to one part live on its namespace,
-// such as `Draggable.Root.Record` or `Draggable.Target.Record`.
+// Shared types. Part-specific ones live on the part's namespace, such as `Draggable.Root.Record`.
 export type {
   DraggableAccept as Accept,
   DraggableAcceptedKind as AcceptedKind,

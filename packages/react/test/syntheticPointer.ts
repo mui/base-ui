@@ -1,17 +1,8 @@
 /**
- * Pointer event helpers for synthetic-drag tests.
- *
- * `pointerdown` remembers its target, and later helpers dispatch on that element
- * as a browser would. The events bubble up to the document and window, where the
- * engine's pending and active phase listeners are. `setupDragEngineTests()`
- * clears the remembered target between tests.
- *
- * The helpers dispatch only pointer events. The engine's only touch listener is the
- * active-phase `touchmove` scroll guard, which tests dispatch themselves.
- *
- * Every dispatch is wrapped in `act` because tests mount a `Draggable.Provider`
- * that subscribes to the drag session store. A raw dispatch that starts or ends a
- * drag would re-render React outside `act`.
+ * Pointer event helpers for synthetic-drag tests. Later events dispatch on the `pointerdown`
+ * target, as in a browser, and bubble to the engine's document and window listeners. Every
+ * dispatch runs in `act`, since starting or ending a drag re-renders `Draggable.Provider`.
+ * Only pointer events are dispatched; `touchmove` scroll-guard tests dispatch their own.
  */
 import { act } from '@mui/internal-test-utils';
 import { setEventTimeStamp } from './pointer';
@@ -20,9 +11,9 @@ type SyntheticPointerType = 'touch' | 'pen';
 
 export interface SyntheticPointerOptions {
   /**
-   * The event's `timeStamp`. The sensor reads it for the press-hold elapsed time
-   * and to pair double-tap presses. Omitted, the event keeps the environment's
-   * clock, which is the real one in a browser.
+   * The event's `timeStamp`, which the sensor reads for press-hold timing and
+   * double-tap pairing. When omitted, the event uses the environment's clock, which
+   * is the real one in a browser.
    */
   timeStamp?: number | undefined;
 }
@@ -31,8 +22,6 @@ let touchDownTarget: EventTarget | null = null;
 
 /**
  * Dispatch `event` on `target` inside `act` so store-driven re-renders flush.
- * `timeStamp` is read-only and not part of the event init, so it is defined on
- * the event, as `firePointer` does.
  */
 export function dispatch(
   target: EventTarget,
@@ -89,8 +78,7 @@ function pointerMove(
     pointerId,
     clientX: x,
     clientY: y,
-    // A move during an active drag reports the held primary button, as a real
-    // browser does. The engine treats a `buttons === 0` move as a release.
+    // A real browser reports the held button. The engine treats `buttons === 0` as a release.
     buttons: 1,
     bubbles: true,
     cancelable: true,

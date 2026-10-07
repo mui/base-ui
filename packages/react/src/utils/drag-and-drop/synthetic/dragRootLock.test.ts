@@ -36,9 +36,8 @@ describe('dragRootLock', () => {
 
   afterEach(() => {
     dragRootLock.unlock();
-    // Restore `<html>` and `<body>` without relying on `unlock`. The lock writes
-    // to both, so a bug in its restore path must fail this test instead of
-    // leaking body styles into later ones.
+    // Restore without relying on `unlock`, so a bug in its restore path fails this
+    // test instead of leaking styles into later ones.
     restoreStyles(document.documentElement, originals.html);
     restoreStyles(document.body, originals.body);
   });
@@ -108,8 +107,7 @@ describe('dragRootLock', () => {
   it('locks and restores <html> and <body> of the source and every ancestor document', () => {
     // iOS Safari and some Android browsers apply `touch-action` on `body`
     // independently of `html`, and an iframe drag can still scroll its host page,
-    // so the lock covers all four roots. Checking only the source's `<html>`
-    // would pass even if a touch drag in a frame still scrolled.
+    // so the lock covers all four roots.
     const frame = document.createElement('iframe');
     document.body.appendChild(frame);
     const innerDoc = frame.contentDocument!;

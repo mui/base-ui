@@ -13,12 +13,10 @@ import { useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './figma-board.module.css';
 
-// Tests drag coordinates and preview sizing under a scaled ancestor. Pointer
-// coordinates and rects are in client pixels, so committed board coordinates are
-// divided by the scale. A top-layer preview escapes `transform: scale()` but still
-// picks up `zoom`. The styled `scaled` clone only compensates in the transform
-// case. The toolbar shows the live source and preview sizes so you can see either
-// mismatch.
+// Tests drag coordinates and preview sizing under a scaled ancestor. Pointer coordinates
+// are client pixels, so commits divide by the scale. A top-layer preview escapes
+// `transform: scale()` but still picks up `zoom`. The toolbar shows live source and
+// preview sizes to expose either mismatch.
 
 interface FigmaBoardSettings {
   zoomMode: 'transform' | 'zoom';
@@ -42,18 +40,13 @@ export const settingsMetadata: SettingsMetadata<FigmaBoardSettings> = {
 
 const cardKind = Draggable.createKind<string, CardDragPayload>('figmaBoard:card');
 const CARD_WIDTH = 200;
-// The board is a fixed-size scroll surface. Cards are clamped inside it so they
-// can't be created or dropped past an edge.
 const SURFACE_WIDTH = 2400;
 const SURFACE_HEIGHT = 1600;
-// Rough height of a new, empty card. Used to clamp new cards before their real
-// height is measured.
+// Rough height of an empty card, for clamping before the real height is measured.
 const CARD_MIN_HEIGHT = 44;
-// Each card added from the toolbar shifts down and right from the previous one,
-// so repeated clicks fan out instead of stacking.
+// Offset between cards added from the toolbar, so repeated clicks fan out.
 const NEW_CARD_CASCADE = 28;
-// The card's font size in board units. On screen it renders at this size times
-// the zoom, and the preview has to match.
+// In board units. On screen it renders at this size times the zoom, and the preview must match.
 const CARD_FONT_SIZE = 14;
 
 const MIN_ZOOM = 0.25;
@@ -124,12 +117,11 @@ function FigmaBoardInner() {
   const zCounterRef = React.useRef(INITIAL_CARDS.length);
   const idCounterRef = React.useRef(INITIAL_CARDS.length);
   const addCascadeRef = React.useRef(0);
-  // Event handlers run outside render, so they read the zoom from a ref rather
-  // than closing over a value that may be a frame stale.
+  // Handlers read the zoom from a ref, since a closed-over value can be a frame stale.
   const zoomRef = React.useRef(zoom);
   zoomRef.current = zoom;
-  // Board point to re-center on after a zoom change, so zooming holds the middle
-  // of the viewport still instead of drifting toward the origin.
+  // Board point to re-center on after a zoom change, so zooming holds the viewport's
+  // middle still instead of drifting toward the origin.
   const recenterRef = React.useRef<{ x: number; y: number } | null>(null);
 
   const setZoom = useStableCallback((next: number) => {
@@ -155,9 +147,8 @@ function FigmaBoardInner() {
     viewport.scrollTop = center.y * zoom - viewport.clientHeight / 2;
   }, [zoom]);
 
-  // Hold Space to pan, as in most canvas apps. A press on the board then scrolls
-  // it instead of dragging a card. Disabled while editing, where Space types a
-  // space.
+  // Hold Space to pan: a press then scrolls the board instead of dragging a card.
+  // Off while editing, where Space types a space.
   const editingRef = React.useRef(editingId);
   editingRef.current = editingId;
   useIsoLayoutEffect(() => {
@@ -272,9 +263,8 @@ function FigmaBoardInner() {
     if (!viewport) {
       return;
     }
-    // Center the card in the visible area. The viewport's scroll and client sizes
-    // are client px over a scaled board, so divide them by the zoom to get board
-    // coordinates. Each new card fans out from the previous one.
+    // Center the card in the visible area. Scroll and client sizes are client px over a
+    // scaled board, so divide them by the zoom.
     const scale = zoomRef.current;
     const cascade = (addCascadeRef.current % 5) * NEW_CARD_CASCADE;
     addCascadeRef.current += 1;
@@ -300,10 +290,8 @@ function FigmaBoardInner() {
     if (!surface) {
       return;
     }
-    // The surface scrolls with its content, so its client rect already includes
-    // the scroll offset. Pointer minus rect gives the position on the surface in
-    // client px. Divide by the zoom to get board coordinates, then offset by half
-    // the card to center it under the pointer.
+    // The surface's client rect already includes the scroll offset. Divide by the zoom
+    // for board coordinates, then center the card under the pointer.
     const scale = zoomRef.current;
     const rect = surface.getBoundingClientRect();
     const x = Math.round((event.clientX - rect.left) / scale - CARD_WIDTH / 2);
@@ -363,9 +351,7 @@ function FigmaBoardInner() {
         hold <kbd className={styles.kbd}>Space</kbd> or the middle button to pan
       </p>
 
-      {/* Auto-scroll the board while dragging near its edges. Its thresholds are
-          client px, so at 25% they cover four times as much board as at 100%.
-          `viewportRef` is also read for the preview modifier and the add-card math. */}
+      {/* Edge thresholds are client px, so at 25% they cover four times as much board. */}
       <Draggable.Viewport
         className={clsx(styles.viewport, panning && styles.viewportPanning)}
         ref={viewportRef}
@@ -385,8 +371,7 @@ function FigmaBoardInner() {
               : undefined
           }
         >
-          {/* The whole surface is a drop target, so a pointer release anywhere on the
-              board counts as a real drop rather than a cancel. */}
+          {/* The whole surface is a drop target, so a release anywhere on it is a drop. */}
           <Draggable.Target
             className={clsx(styles.surface, zoomMode === 'transform' && styles.surfaceTransformed)}
             ref={surfaceRef}
@@ -475,9 +460,7 @@ function BoardCard({
       ref={cardRef}
       kind={cardKind}
       payload={card.id}
-      // Record where in the card the pointer grabbed, in client px. The drop maps it
-      // back to a surface position using a fresh surface rect, so it stays correct
-      // when auto-scroll moves the board mid-drag.
+      // Record where the pointer grabbed the card, in client px, for the drop math.
       onMoveStart={(eventDetails) => {
         const rect = eventDetails.source.element.getBoundingClientRect();
         eventDetails.source.updateDragData({
@@ -487,13 +470,10 @@ function BoardCard({
       }}
       disabled={editing}
       data-compensate-preview={compensatePreview ? '' : undefined}
-      // Clamp the drag to the surface. Modifiers also apply to drop resolution, so
-      // a release off the board still lands on the surface instead of canceling.
-      // The surface rect is in client space, so this works at any zoom without
-      // conversion.
+      // Modifiers also apply to drop resolution, so a release off the board still lands
+      // on the surface. The rect is in client space, so this works at any zoom.
       modifiers={Draggable.restrictToElement(surfaceRef)}
-      // Commit only a release over the surface. Escape and outside releases
-      // still run the end handler but must not move the card.
+      // Escape also runs the end handler, so commit only a release over the surface.
       onMoveEnd={(eventDetails) => {
         if (eventDetails.target !== null) {
           if (!eventDetails.source.dragData) {
@@ -504,11 +484,9 @@ function BoardCard({
           if (!surface) {
             return;
           }
-          // Measure the surface again at drop to account for any manual or auto
-          // scrolling since the drag started. The rect is scaled and the grab offset
-          // came from the scaled card, so divide the whole client-space expression
-          // by the zoom to get board coordinates. `offsetHeight` is a layout value,
-          // already in board units.
+          // Re-measure the surface to account for scrolling during the drag. The rect and
+          // the grab offset are both client px, so divide the whole expression by the
+          // zoom. `offsetHeight` is a layout value, already in board units.
           const scale = zoomRef.current;
           const rect = surface.getBoundingClientRect();
           const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
@@ -591,9 +569,8 @@ function BoardCard({
       ) : (
         <CardText text={card.text} />
       )}
-      {/* The clone reuses the card and text markup. In transform mode, the optional
-          data attribute lets CSS scale it back to the source's painted size. Native
-          CSS zoom already applies to the clone, so it needs no compensation. */}
+      {/* In transform mode, `data-compensate-preview` lets CSS scale the clone back to
+          the source's painted size. CSS `zoom` already applies to the clone. */}
       <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
     </Draggable.Root>
   );
@@ -617,10 +594,7 @@ interface Measurement {
   previewClips: boolean;
 }
 
-/**
- * Live comparison of the source and its preview. The painted font size includes
- * any visual or layout scale, and shows next to the box size and overflow.
- */
+/** Live comparison of the source and its preview: painted font size, box size and overflow. */
 function PreviewReadout({ zoom }: { zoom: number }) {
   const [measurement, setMeasurement] = React.useState<Measurement | null>(null);
 
@@ -666,7 +640,6 @@ function PreviewReadout({ zoom }: { zoom: number }) {
     return <p className={styles.readout}>Drag a card to compare it with its preview.</p>;
   }
 
-  // The card's type is 14px in board units, so on screen it renders at 14 × zoom.
   const expectedFontSize = Math.round(CARD_FONT_SIZE * zoom * 10) / 10;
   const typeMatches = measurement.previewFontSize === expectedFontSize;
 

@@ -2,34 +2,30 @@ import { warn } from '@base-ui/utils/warn';
 import type { DraggablePreviewParameters, DraggablePreviewSettings } from './DraggablePreview';
 
 /**
- * What a mounted preview part tells its draggable. The part renders nothing in
- * place. It only declares the preview, which the engine resolves once at drag
- * start and the overlay renders. This lets the preview outlive the source
- * component when a virtualizer or a live reorder unmounts it mid-drag.
+ * What a mounted `Draggable.Preview` tells its draggable. It renders nothing in place:
+ * the engine resolves the declaration at drag start and the overlay renders it, so the
+ * preview outlives a source that a virtualizer or a live reorder unmounts mid-drag.
  */
 export interface DragPreviewDeclaration<TPayload = unknown, TDragData = unknown> {
   /** The part's current preview settings, read once at drag start. */
   getSettings: () => DraggablePreviewSettings;
   /**
-   * Resolves the preview content at drag start. Returning `null` or `false`
-   * declines the preview for this drag. `undefined` declares a clone of the source,
-   * which the engine builds without React. Read synchronously at drag start, before
-   * React can run, which is why the choice lives here instead of being signaled by
-   * mounting.
+   * Resolves the preview content at drag start. Returning `null` or `false` declines
+   * the preview for this drag. `undefined` declares a clone, which the engine builds
+   * without React. Read synchronously at drag start, before React can run, so the
+   * choice can't be signaled by mounting.
    */
   render: DraggablePreviewParameters<TPayload, TDragData>['render'];
 }
 
 /**
- * The link between a draggable and the preview part rendered inside it. Its identity
- * is stable for the draggable's lifetime, so it can be passed through context
- * without re-registering.
+ * Links a draggable to the `Draggable.Preview` inside it. Stable for the draggable's
+ * lifetime, so passing it through context never re-registers anything.
  */
 export interface DragPreviewHandle<TPayload = unknown, TDragData = unknown> {
   /**
-   * Publish a declaration and return its cleanup. The cleanup checks identity, so
-   * an older part's cleanup, running after a newer part declared, cannot clear the
-   * newer declaration.
+   * Publishes a declaration and returns its cleanup. The cleanup only clears its own
+   * declaration, so a stale part's late cleanup can't clear a newer one.
    * @internal
    */
   declare: (declaration: DragPreviewDeclaration<TPayload, TDragData>) => () => void;
@@ -51,10 +47,9 @@ export function createDragPreviewHandle<
     declare(declaration) {
       if (process.env.NODE_ENV !== 'production') {
         if (current !== null) {
-          // Warn instead of throwing, like a duplicate `Draggable.Handle`. A wrapper
-          // that composes its own clone preview around a consumer-passed `Preview` is
-          // a plausible mistake, and crashing the app over it is out of proportion.
-          // The last declaration wins, so the outcome is deterministic.
+          // Warn rather than throw, like a duplicate `Draggable.Handle`. A wrapper adding
+          // its own preview around a consumer's is a plausible mistake, and the last
+          // declaration wins, so the outcome is deterministic.
           warn(
             'A Draggable.Root contains more than one preview part. ' +
               'A draggable has one preview, so the last one mounted wins and the others are ignored. ' +

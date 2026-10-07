@@ -12,11 +12,8 @@ import { useExperimentSettings } from '../_components/SettingsPanel';
 import theme from './theme.module.css';
 import styles from './line-chart-annotations.module.css';
 
-// Moves the rendered annotations directly instead of drawing a drag preview.
-// `onMove` updates state, so a canceled drag restores the snapshot taken at pickup.
-// Modifiers still constrain the reported input. Angle snapping works in screen
-// pixels. A modifier snaps endpoint drags, and annotation creation calls the same
-// helper outside a drag session.
+// Drags move the annotations themselves instead of a drag preview. State follows the
+// pointer, so a canceled drag restores the snapshot taken at pickup.
 
 interface LineChartAnnotationsSettings {
   snapToDataPoints: boolean;
@@ -30,9 +27,7 @@ export const settingsMetadata: SettingsMetadata<LineChartAnnotationsSettings> = 
   },
 };
 
-// ---------------------------------------------------------------------------
-// The chart
-// ---------------------------------------------------------------------------
+// --- The chart ---
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const SERIES = [32, 41, 38, 55, 78, 71, 84, 79, 96, 88, 104, 121];
@@ -75,8 +70,7 @@ function yInvert(py: number): number {
   return Y_MAX - ((py - PLOT_TOP) / PLOT_HEIGHT) * (Y_MAX - Y_MIN);
 }
 
-/** The series, its gridlines and its axes. It never handles a drag. */
-// Static, so memoized: a drag updates the annotations every frame, not the chart.
+/** The series, gridlines and axes. Memoized: a drag updates the annotations, never the chart. */
 const Chart = React.memo(function Chart() {
   const points = SERIES.map((value, index) => `${xScale(index)},${yScale(value)}`).join(' ');
   return (
@@ -134,9 +128,7 @@ const Chart = React.memo(function Chart() {
   );
 });
 
-// ---------------------------------------------------------------------------
-// The annotation model
-// ---------------------------------------------------------------------------
+// --- The annotation model ---
 
 type AnnotationType =
   'horizontal-line' | 'vertical-line' | 'line' | 'arrow' | 'parallel-channel' | 'comment';
@@ -228,9 +220,7 @@ const INITIAL_ANNOTATIONS: Annotation[] = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Moving an annotation
-// ---------------------------------------------------------------------------
+// --- Moving an annotation ---
 
 function clampX(x: number): number {
   return clamp(x, X_MIN, X_MAX);
@@ -251,7 +241,7 @@ function movePoint(point: DataPoint, dx: number, dy: number, snap: boolean): Dat
 /** Holding Shift snaps a line to one of eight rays, 45° apart. */
 const ANGLE_STEP = Math.PI / 4;
 
-/** An axis-aligned box, in the caller's pixel space. */
+/** An axis-aligned box, in pixels or chart values depending on the caller. */
 interface Bounds {
   left: number;
   right: number;
@@ -259,10 +249,7 @@ interface Bounds {
   bottom: number;
 }
 
-/**
- * How far the ray from `pivot` along `unit` can travel before it leaves `bounds`.
- * This is the standard slab test. An axis only limits the ray if the ray moves along it.
- */
+/** How far the ray from `pivot` along `unit` can travel before it leaves `bounds` (slab test). */
 function distanceToBounds(pivot: PxPoint, unit: PxPoint, bounds: Bounds): number {
   let limit = Infinity;
   if (unit.x > 0) {
@@ -279,21 +266,10 @@ function distanceToBounds(pivot: PxPoint, unit: PxPoint, bounds: Bounds): number
 }
 
 /**
- * Snap `point` onto the nearest ray from `pivot` at a multiple of 45°, and keep it
- * inside `bounds`.
- *
- * Works in pixels, not chart values, because the user sees the angle on screen. The
- * axes cover 11 months against 110 units, so 45° in chart values would look like a
- * different angle once drawn.
- *
- * The point is projected onto the ray, not rotated onto it. The line follows how far
- * the pointer reaches in that direction instead of keeping the length it had when the
- * snap started. The nearest ray is never more than 22.5° away, so the projection is
- * always forward and the line never flips.
- *
- * When the line runs out of room, it gets shorter along the ray. Clamping each axis
- * separately would slide the endpoint off the ray and break the angle. For example,
- * a -45° drag into the top edge would end up at -36.87°.
+ * Snap `point` onto the nearest 45° ray from `pivot`, inside `bounds`.
+ * Works in pixels: the axes have different scales and the user sees the on-screen angle.
+ * Projecting onto the ray (always forward, as it is within 22.5°) follows the pointer's reach.
+ * Out of room, the line shortens along the ray; clamping each axis would break the angle.
  */
 function snapToAngle(point: PxPoint, pivot: PxPoint, bounds: Bounds): PxPoint {
   const dx = point.x - pivot.x;
@@ -360,8 +336,8 @@ function offsetPoint(point: DataPoint, delta: DataPoint): DataPoint {
 }
 
 /**
- * The delta to move a whole shape by. Clamping the delta makes the shape slide along
- * the plot edge. Clamping each point separately would deform it.
+ * The delta to move a whole shape by, clamped as one so the shape slides along the plot
+ * edge instead of deforming.
  */
 function shiftDelta(points: DataPoint[], dx: number, dy: number, snap: boolean): DataPoint {
   const xs = points.map((point) => point.x);
@@ -453,12 +429,9 @@ function dragAnnotation(
   const { snapshot, handle } = payload;
   const input = location.current.input;
 
-  // An endpoint goes to the reported input position, not to its pickup position plus
-  // a delta. This keeps the 45° modifier snap exact. The engine constrains the input,
-  // the input is the endpoint, and no grab offset pushes the result back off the ray.
-  // The handle also stays under the cursor, at the cost of a small jump when grabbed
-  // off-center. Everything else moves by a delta, which keeps a whole shape rigid
-  // while its body is dragged.
+  // An endpoint goes to the constrained input position, not pickup plus delta, so no grab
+  // offset pushes it off the 45° ray. The cost is a small jump when grabbed off-center.
+  // Everything else moves by a delta, which keeps a whole shape rigid.
   if (plotRect !== null && (handle === 'start' || handle === 'end') && hasEndpoints(snapshot)) {
     return withEndpoint(
       snapshot,
@@ -467,8 +440,7 @@ function dragAnnotation(
         x: xInvert(input.clientX - plotRect.left),
         y: yInvert(input.clientY - plotRect.top),
       },
-      // Skip month snapping while Shift is held. Rounding x to a month would move the
-      // endpoint off the ray it just snapped to.
+      // Skip month snapping with Shift: rounding x would move the endpoint off the ray.
       snap && !input.shiftKey,
     );
   }
@@ -479,9 +451,7 @@ function dragAnnotation(
   return moveAnnotation(snapshot, handle, dx, dy, snap);
 }
 
-// ---------------------------------------------------------------------------
-// Describing an annotation
-// ---------------------------------------------------------------------------
+// --- Describing an annotation ---
 
 function formatValue(value: number): string {
   return value.toFixed(1);
@@ -512,9 +482,7 @@ function describeAnnotation(annotation: Annotation): string {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Shared drag wiring
-// ---------------------------------------------------------------------------
+// --- Shared drag wiring ---
 
 interface AnnotationsContextValue {
   snap: boolean;
@@ -535,11 +503,8 @@ function useAnnotationsContext(): AnnotationsContextValue {
 }
 
 /**
- * AG Charts' Shift gesture as a modifier. It snaps the drag point to the nearest 45°
- * ray from the other end of the annotation.
- *
- * A modifier constrains the input that the engine reports, so the pointer and any
- * later hit test use the same snapped point instead of each computing the snap.
+ * AG Charts' Shift gesture: snaps the drag point to the nearest 45° ray from the
+ * annotation's other end. As a modifier, the snapped point is also what hit tests use.
  */
 function angleSnapModifier(
   getGeometry: () => { pivot: PxPoint; bounds: Bounds } | null,
@@ -553,11 +518,7 @@ function angleSnapModifier(
   };
 }
 
-/**
- * One grabbable part of one annotation. Every handle in this experiment goes through
- * here, whether it's a line, an endpoint or a comment box, so the drag logic lives in
- * one place.
- */
+/** One grabbable part of an annotation: a line, an endpoint or a comment box. */
 function AnnotationDraggable(props: {
   annotation: Annotation;
   handle: AnnotationHandle;
@@ -586,13 +547,11 @@ function AnnotationDraggable(props: {
     <Draggable.Root
       kind={annotationKind}
       aria-label={label}
-      // Save the annotation at pickup. After this, state follows the pointer and the
-      // original is lost.
+      // Snapshot the annotation at pickup, since state follows the pointer afterward.
       onMoveStart={(eventDetails) => {
         eventDetails.source.updateDragData({ handle, snapshot: annotation });
       }}
-      // A press can also select, or edit a comment, so the drag waits for 3px of
-      // movement.
+      // A press can also select or edit, so the drag waits for 3px of movement.
       activation={{ mouse: { type: 'distance', distance: 3 } }}
       modifiers={modifiers}
       disabled={disabled}
@@ -631,8 +590,7 @@ function AnnotationDraggable(props: {
       onPointerDown={() => select(annotation.id)}
     >
       {children}
-      {/* No preview. The annotation itself moves, because a line has to redraw as
-          its endpoint moves. A copy of the endpoint would leave the line behind. */}
+      {/* No preview: the annotation itself moves, so a line redraws with its endpoint. */}
       <Draggable.Preview disabled />
     </Draggable.Root>
   );
@@ -706,9 +664,7 @@ function AnnotationHandlePoint(props: {
   );
 }
 
-// ---------------------------------------------------------------------------
-// The annotation views
-// ---------------------------------------------------------------------------
+// --- The annotation views ---
 
 function toPx(point: DataPoint): PxPoint {
   return { x: xScale(point.x), y: yScale(point.y) };
@@ -724,10 +680,8 @@ const PLOT_BOUNDS: Bounds = {
 
 /**
  * The 45° snap for one endpoint handle, pivoting on the annotation's other end.
- *
- * The pivot comes from the annotation this closure was built with. That's safe
- * because the drag never moves the pivot end. Only the plot's position is read on
- * each move, because the modifier works in client pixels and the page can scroll.
+ * The pivot can come from render since the drag never moves it. The plot's rect is
+ * read on each move because the modifier works in client pixels and the page can scroll.
  */
 function useEndpointAngleSnap(
   annotation: SegmentAnnotation | ChannelAnnotation,
@@ -743,8 +697,7 @@ function useEndpointAngleSnap(
     }
     return {
       pivot: { x: rect.left + pivot.x, y: rect.top + pivot.y },
-      // The endpoint's range in client pixels. `top` holds the largest value in the
-      // range, which becomes the smallest y once scaled.
+      // `top` holds the range's largest value, which is the smallest y once scaled.
       bounds: {
         left: rect.left + xScale(range.left),
         right: rect.left + xScale(range.right),
@@ -993,8 +946,7 @@ function CommentView({
   );
 }
 
-// Memoized: a drag replaces only the dragged annotation, so the others keep their
-// props and skip rendering on every frame.
+// Memoized: a drag replaces only the dragged annotation, so the others skip rendering.
 const AnnotationView = React.memo(function AnnotationView({
   annotation,
   selected,
@@ -1018,9 +970,7 @@ const AnnotationView = React.memo(function AnnotationView({
   }
 });
 
-// ---------------------------------------------------------------------------
-// Creating annotations
-// ---------------------------------------------------------------------------
+// --- Creating annotations ---
 
 const TOOLS: { type: AnnotationType; label: string }[] = [
   { type: 'horizontal-line', label: 'Horizontal line' },
@@ -1097,17 +1047,12 @@ function createAnnotation(
   }
 }
 
-// ---------------------------------------------------------------------------
-// The experiment
-// ---------------------------------------------------------------------------
+// --- The experiment ---
 
 /**
- * Whether Shift is down. The ref serves the pointer handlers and the state drives the
- * hint.
- *
- * Only annotation creation needs this. Placing the second point takes two clicks with
- * no drag session in between, so no engine event carries the key. During a real drag,
- * `shiftKey` is on the modifier context and on `location.current.input`.
+ * Whether Shift is down: the ref for pointer handlers, the state for the hint. Only
+ * creation needs it, because placing points isn't a drag and no engine event carries
+ * the key.
  */
 function useShiftKey(elementRef: React.RefObject<HTMLElement | null>): {
   shiftRef: React.RefObject<boolean>;
@@ -1250,11 +1195,7 @@ function LineChartAnnotationsContent() {
     setTool(null);
   });
 
-  /**
-   * Snap the second point of a two-point creation to 45° from the first while Shift is
-   * held. This is the endpoint modifier's gesture applied by hand, because placing a
-   * point isn't a drag and no engine session exists to run a modifier.
-   */
+  /** While Shift is held, snap a creation's second point to 45° from the first. */
   const snapToPendingAngle = useStableCallback((point: DataPoint, from: DataPoint): DataPoint => {
     if (!shiftRef.current) {
       return point;
@@ -1335,9 +1276,8 @@ function LineChartAnnotationsContent() {
           ref={plotRef}
           style={{ width: CHART_WIDTH, height: CHART_HEIGHT }}
         >
-          {/* The chart sits under the annotation overlay, which lets pointer events
-              through where it has nothing to grab. A press that reaches the chart is
-              a press on empty space. */}
+          {/* The overlay lets presses through where it has nothing to grab, so a press
+              that reaches the chart is on empty space. */}
           <div
             className={styles.chartLayer}
             onPointerDown={() => {

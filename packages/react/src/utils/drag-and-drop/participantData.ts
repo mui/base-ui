@@ -17,9 +17,8 @@ export function setParticipantOwner(registration: object, owner: object): void {
 }
 
 /**
- * Returns the payload store of a registration, synced with `declaredPayload`. The
- * store is created when missing or when `kind` changed. It belongs to the
- * registration and outlives any one drag.
+ * The registration's payload store, synced with `declaredPayload`. Recreated when
+ * `kind` changes, and outlives any one drag.
  */
 export function syncParticipantPayload(
   registration: object,

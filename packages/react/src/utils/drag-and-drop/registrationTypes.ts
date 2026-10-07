@@ -5,10 +5,7 @@ import type { MonitorParameters } from './monitor';
 import type { DraggableKind, DraggableAccept } from '../../draggable/DraggableProvider';
 import type { AcceptedDragPayload, AcceptedDragData, DraggablePayload } from './types';
 
-/**
- * Parameters accepted by `Draggable.Root` and `registerSource`. `onGenerateDragPreview`
- * is omitted because the engine overwrites it to publish the preview it built.
- */
+/** Parameters accepted by `Draggable.Root` and `registerSource`. */
 export type RegisterSourceParameters<TPayload = undefined, TDragData = unknown> = Omit<
   DraggableConfig<TPayload, TDragData>,
   'onGenerateDragPreview' | 'styleNonce' | 'disableStyleElements'
@@ -36,9 +33,8 @@ export type RegisterTargetParameters<
 };
 
 /**
- * Adds `accept`, typed as the inferred kinds so the callbacks get their payload
- * types. It is optional when the accepted payload and drag data are `unknown`, and
- * required otherwise.
+ * Adds `accept`, typed as the inferred kinds so the callbacks get their payload types.
+ * Optional when the accepted payload and drag data are `unknown`, required otherwise.
  */
 export type DragParametersWithInferredAccept<
   TParameters,
@@ -56,9 +52,7 @@ export type DragObserverAccept<TSourcePayload, TDragData = unknown> = [unknown, 
   ? { accept?: DraggableAccept<TSourcePayload, TDragData> | undefined }
   : { accept: DraggableAccept<TSourcePayload, TDragData> };
 
-/**
- * Adds a required `accept`, typed as the inferred kinds.
- */
+/** Adds a required `accept`, typed as the inferred kinds. */
 export type DragParametersWithRequiredAccept<
   TParameters,
   TAccept extends DraggableAccept<unknown>,
@@ -68,9 +62,8 @@ export type DragParametersWithRequiredAccept<
 };
 
 /**
- * {@link DraggableManager} with a single `registerSource` signature where `payload`
- * is optional. `Draggable.Root` enforces the payload requirement in its own props and
- * forwards one parameters shape, so it doesn't need the overloads.
+ * {@link DraggableManager} with a single `registerSource` signature where `payload` is
+ * optional. `Draggable.Root` enforces the payload requirement in its own props.
  */
 export interface InternalDragEngine extends Omit<
   DraggableManager,
@@ -97,9 +90,7 @@ export interface InternalDragEngine extends Omit<
   ) => () => void;
 }
 
-/**
- * The options of `Draggable.Viewport` and `registerViewport`.
- */
+/** The options of `Draggable.Viewport` and `registerViewport`. */
 export type RegisterViewportParameters<
   TSourcePayload = unknown,
   TDragData = unknown,
@@ -111,18 +102,16 @@ export type RegisterMonitorParameters<
 > = MonitorParameters<TSourcePayload, TDragData> & DragObserverAccept<TSourcePayload, TDragData>;
 
 /**
- * The page-wide drag manager returned by `useManager`.
- *
- * Each `register*` method takes a function returning the options, and returns a
- * cleanup function that unregisters.
+ * The page-wide drag manager returned by `useManager`. Each `register*` method takes
+ * a function returning the options.
  */
 export interface DraggableManager {
   /**
    * Registers an element as a drag source, with the options of `Draggable.Root`.
    * Returns a cleanup function that unregisters it.
    */
-  // Overloaded so `payload` both drives inference and stays required once the
-  // caller declares a `TPayload` of their own, mirroring `Draggable.Root.Props`.
+  // Overloaded so `payload` drives inference and stays required once the caller
+  // declares a `TPayload`, like `Draggable.Root.Props`.
   registerSource: {
     <TPayload, TDragData = unknown>(
       element: HTMLElement,
@@ -194,11 +183,9 @@ export interface DraggableManager {
    */
   cancelDrag: () => void;
   /**
-   * Applies a change to an element's options right away. Call it after the values
-   * returned by the element's options function have changed.
-   *
-   * Most changes don't need it, because Base UI calls the options function each
-   * time it needs a value. Call `refresh` when one of these changes:
+   * Applies a change to an element's options right away. Most changes don't need it,
+   * because Base UI calls the options function each time it needs a value. Call `refresh`
+   * when one of these changes:
    *
    * - A source's `disabled` or `handle`. Otherwise its idle styles, which prevent
    *   text selection and the long-press menu on the source or its handle, are

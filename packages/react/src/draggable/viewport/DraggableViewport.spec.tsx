@@ -71,12 +71,12 @@ type DragScrollHandler<TPayload = unknown> = NonNullable<
 />;
 // @ts-expect-error a speed is a number, not a CSS length.
 <Draggable.Viewport maxSpeed="300px" />;
-// @ts-expect-error axis selection now uses onDragScroll.
+// @ts-expect-error axis selection uses onDragScroll.
 <Draggable.Viewport allowedAxis="vertical" />;
 
-// @ts-expect-error scroll interception now uses onDragScroll.
+// @ts-expect-error scroll interception uses onDragScroll.
 <Draggable.Viewport canScroll={() => false} />;
-// @ts-expect-error custom movement now uses onDragScroll.
+// @ts-expect-error custom movement uses onDragScroll.
 <Draggable.Viewport applyScroll={() => {}} />;
 <Draggable.Viewport
   className={(state) => {

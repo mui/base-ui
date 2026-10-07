@@ -25,19 +25,17 @@ import type {
 export const ZERO_OFFSET: DraggablePosition = { x: 0, y: 0 };
 
 /**
- * Clamp the point so the preview stays inside `rect`. The preview sits at
- * `point - previewOffset`, so both edges shift by the offset. On `Draggable.Root`
- * this keeps the visible preview inside the rect, not just the cursor. On a preview
- * part the offset is zero and `point` is the top-left corner.
+ * Clamps the point so the preview, not just the cursor, stays inside `rect`. The
+ * preview sits at `point - previewOffset`, so both bounds shift by the offset. On
+ * a preview part the offset is zero and `point` is the top-left corner.
  */
 function clampPointToRect(
   context: DraggableRootModifierContext,
   rect: Pick<DOMRect, 'left' | 'top' | 'right' | 'bottom' | 'width' | 'height'>,
 ): DraggablePosition {
   const { point } = context;
-  // An element hidden with `display: none` or detached mid-drag reports a 0×0
-  // rect at the origin. Clamping to it would pin the drag to (0, 0), so pass the
-  // point through instead.
+  // A `display: none` or detached element reports a 0×0 rect at the origin, and
+  // clamping to it would pin the drag to (0, 0).
   if (rect.width === 0 && rect.height === 0) {
     return point;
   }
@@ -85,8 +83,7 @@ export function restrictToElement(element: DraggableRootElementReference): Dragg
 
 /** Keeps the drag inside the source element's parent. */
 export const restrictToParentElement: DraggableRootModifier = (context) => {
-  // Use the composed parent, so a draggable that is a direct child of a shadow
-  // root clamps to the host instead of doing nothing.
+  // The composed parent lets a direct child of a shadow root clamp to the host.
   let parent = getComposedParentElement(context.sourceElement);
   while (parent) {
     const rect = parent.getBoundingClientRect();
@@ -125,17 +122,15 @@ export function snapToGrid(size: number | { x: number; y: number }): DraggableRo
   };
 }
 
-// Round the distance from the origin to the nearest grid step, symmetrically.
-// `Math.round` alone rounds half steps toward +∞, so a half-step drag would snap
-// a full step to the right but stay put to the left.
+// Rounds symmetrically. `Math.round` alone rounds half steps toward +∞, so a
+// half-step drag would snap a full step right but stay put going left.
 function snapDelta(delta: number, step: number): number {
   return Math.sign(delta) * Math.round(Math.abs(delta) / step) * step;
 }
 
 /**
- * Normalize a `modifiers` declaration to a non-empty list, or `null` when there
- * is nothing to apply. A caller can then skip the work, including the drag-start
- * measurements that feed the context.
+ * Normalizes a `modifiers` declaration to a non-empty list, or `null` when there
+ * is nothing to apply, so callers can skip the drag-start measurements too.
  * @internal
  */
 export function compileDragModifiers(
@@ -167,10 +162,9 @@ interface ApplyDragModifiersOptions {
 }
 
 /**
- * Run a compiled modifier list over a point, left to right. Each modifier
- * receives the previous one's result. `previewRect` is measured lazily, at most
- * once per application. Axis locks and grid snaps never read it, so they don't
- * pay for the layout read.
+ * Runs the modifiers left to right, each receiving the previous result.
+ * `previewRect` is measured lazily, at most once, so axis locks and grid snaps
+ * skip the layout read.
  * @internal
  */
 export function applyDragModifiers(
@@ -210,9 +204,8 @@ export function applyDragModifiers(
           metaKey: options.keys.metaKey,
           ownerWindow: options.ownerWindow,
         });
-        // A `NaN` or infinite axis, such as `snapToGrid(Infinity)` produces, would
-        // make the hit-test throw on every frame. That axis keeps the modifier's
-        // input instead.
+        // A `NaN` or infinite axis, as from `snapToGrid(Infinity)`, would make the
+        // hit-test throw every frame, so that axis keeps the modifier's input.
         current =
           Number.isFinite(next.x) && Number.isFinite(next.y)
             ? next
@@ -227,7 +220,7 @@ export function applyDragModifiers(
   );
 }
 
-/** The slice of the synthetic preview handle a sensor modifier application reads. */
+/** The slice of the synthetic preview handle `modifyDragPoint` reads. */
 interface ModifierPreviewLike {
   getPreviewElement(): { element: HTMLElement } | null;
   getPreviewOffset(): DraggablePosition;
@@ -260,12 +253,10 @@ export interface DragModifiersState {
 }
 
 /**
- * Compile a draggable's `modifiers` for a starting drag, or `null` when it
- * declared none. Measures the source rect only when there is something to apply.
- * Call it before the session starts, so `[data-dragging]` styles can't skew the
- * measurement. The start point is constrained immediately and becomes
- * `initialPoint`. The drag begins where its first frame will resolve, and axis
- * locks or grid snaps anchor there instead of at a point a rect clamp already moved.
+ * Compiles a draggable's `modifiers`, or returns `null` when it declared none. Call it
+ * before the session starts so `[data-dragging]` styles can't skew the source measurement.
+ * The start point is constrained into `initialPoint`, so axis locks and grid snaps anchor
+ * where the first frame resolves, not at a point a rect clamp would move.
  * @internal
  */
 export function createDragModifiersState(
@@ -286,17 +277,16 @@ export function createDragModifiersState(
     sourceRect: source.element.getBoundingClientRect(),
     scale: getElementScale(source.element),
   };
-  // No preview exists yet at drag start, so rect modifiers clamp the bare point. The
-  // keys come from the pickup event, so a drag started with a modifier key held is
-  // constrained from its first point rather than from the first move.
+  // No preview exists yet, so rect modifiers clamp the bare point. The pickup
+  // event's keys constrain a drag started with a modifier key held from its first
+  // point rather than from the first move.
   state.initialPoint = modifyDragPoint(state, startPoint, null, keys);
   return state;
 }
 
 /**
- * Apply a session's compiled modifiers to a pointer position. The preview handle
- * supplies two measurements that only some modifiers read: its rect, and the offset
- * from its top-left corner to the cursor. Rect modifiers use them to contain the
+ * Applies a session's modifiers to a pointer position. The preview supplies its
+ * rect and its offset to the cursor, which rect modifiers use to contain the
  * preview rather than the bare cursor.
  * @internal
  */

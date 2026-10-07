@@ -62,9 +62,8 @@ describe('useMonitor', () => {
   });
 
   it('fires callbacks once per event under Strict Mode', async () => {
-    // Strict Mode runs the registration effect twice (register, clean up,
-    // register). A leaked duplicate registration would run every callback once
-    // per hold.
+    // Strict Mode registers, cleans up, and registers again. A leaked duplicate
+    // would run every callback once per hold.
     const onMoveStart = vi.fn();
     const onMoveEnd = vi.fn();
     const { engine } = await renderDnd(

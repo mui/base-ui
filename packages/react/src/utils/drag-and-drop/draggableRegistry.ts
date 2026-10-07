@@ -1,9 +1,4 @@
-/**
- * Registry of draggable elements.
- *
- * The pointer sensor looks up the pressed draggable here at pickup. The map lives
- * in a `getSharedSlot`, so two bundled copies of the engine share it.
- */
+/** Registry of draggable elements, which the pointer sensor looks up at pickup. */
 
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import type { DragCleanupFn } from './types';
@@ -13,15 +8,11 @@ import { hasInteractiveAncestorWithin } from './interactiveElement';
 import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, resolveElementReference } from './utils';
 
-/** Returns one registration's latest draggable parameters. Read at gesture start. */
 type DraggableGetter = () => DraggableConfig<any, any>;
 
 interface DraggableRegistration {
   getParameters: DraggableGetter;
-  /**
-   * Re-applies this registration's static setup (see `applyDraggableStaticSetup`)
-   * from the element's active parameters.
-   */
+  /** Re-applies this registration's static setup from the element's active parameters. */
   refreshStaticSetup: (parameters: DraggableConfig<any, any>) => void;
 }
 
@@ -38,11 +29,7 @@ const holds = createGetterStackRegistry<HTMLElement, DraggableRegistration>({
   entries: registrations,
 });
 
-/**
- * Registers `element` as a draggable. `refreshStaticSetup` runs on each pointer
- * press inside the element (see {@link resolveDraggablePickup}). Returns the
- * cleanup that releases this hold.
- */
+/** `refreshStaticSetup` runs on each press inside `element` (see `resolveDraggablePickup`). */
 export function addDraggableRegistration(
   element: HTMLElement,
   getParameters: DraggableGetter,
@@ -51,15 +38,13 @@ export function addDraggableRegistration(
   return holds.hold(element, { getParameters, refreshStaticSetup });
 }
 
-/** The element's last registered parameters getter, or `undefined` when it isn't registered. */
 export function getRegistration(element: HTMLElement): DraggableGetter | undefined {
   return holds.getActive(element)?.getParameters;
 }
 
 /**
- * Re-apply the static setup of every registration on `element` from the element's
- * active parameters, and return those parameters. Returns `undefined` when the
- * element isn't registered.
+ * Re-apply the static setup of every registration on `element` from the active
+ * parameters, and return them. `undefined` when the element isn't registered.
  */
 export function refreshDraggableStaticSetup(
   element: HTMLElement,
@@ -69,8 +54,7 @@ export function refreshDraggableStaticSetup(
     return undefined;
   }
   const parameters = stack[stack.length - 1].getParameters();
-  // Copy first, since a refresh can re-register and mutate the stack. Each
-  // registration's setup follows the element's active parameters.
+  // Copy first, since a refresh can re-register and mutate the stack.
   for (const registration of [...stack]) {
     registration.refreshStaticSetup(parameters);
   }
@@ -88,7 +72,6 @@ export interface DraggablePickup {
   dragHandle: Element | null;
 }
 
-/** Resolves the configured drag handle element, or `null` when there is none. */
 export function resolveDragHandle(
   parameters: Pick<DraggableConfig<any, any>, 'handle'>,
 ): Element | null {
@@ -96,12 +79,9 @@ export function resolveDragHandle(
 }
 
 /**
- * Whether the draggable accepts a press on `target`: it isn't `disabled`, and
- * the press began inside its drag handle, if it has one. With a handle, controls
- * elsewhere in the draggable keep their own behavior.
- *
- * The handle check walks the composed tree, as {@link canPickUp} does, so content
- * slotted into a handle that wraps a `<slot>` counts as inside it.
+ * Whether the draggable accepts a press on `target`: it isn't `disabled`, and the
+ * press began inside its handle, if any. The check walks the composed tree, so
+ * content slotted into a handle counts as inside it.
  */
 function acceptsPress(pickup: Omit<DraggablePickup, 'element'>): boolean {
   if (pickup.parameters.disabled) {
@@ -119,12 +99,10 @@ function acceptsPress(pickup: Omit<DraggablePickup, 'element'>): boolean {
 }
 
 /**
- * Whether a press on `pickup.target` may pick up `pickup.element`. On top of
- * {@link acceptsPress}, a control nested inside the draggable handles its own
- * press. Otherwise, pressing an inline rename input and dragging to select text
- * would cross the activation threshold, and the drag would cancel the selection.
+ * {@link acceptsPress}, and the press isn't on a control nested in the draggable.
+ * Otherwise dragging to select text in an inline rename input would start a drag.
  * The sensor checks this at the press and again when activation commits, since
- * each condition may change during the press.
+ * either can change in between.
  */
 export function canPickUp(pickup: DraggablePickup): boolean {
   return (
@@ -134,16 +112,10 @@ export function canPickUp(pickup: DraggablePickup): boolean {
 }
 
 /**
- * Resolves the draggable a press picks up. Starting from the event target, finds
- * the nearest registered draggable ancestor that isn't `disabled` and whose drag
- * handle, if any, contains the target. Returns `null` when none qualifies. Callers
- * still check {@link canPickUp}, dispatch `onBeforeMoveStart` and check the
- * lifecycle's `isActive`.
- *
- * The walk also refreshes the static setup of every registered ancestor, so an
- * imperative registration that changes `disabled` or `handle` without
- * re-registering doesn't keep stale gesture styles. The pointer sensor calls this
- * on every press.
+ * The nearest registered ancestor of the press target that {@link acceptsPress}, or `null`.
+ * Callers still check {@link canPickUp}, dispatch `onBeforeMoveStart`, and check the
+ * lifecycle's `isActive`. The walk refreshes every registered ancestor's static setup, so
+ * one whose `disabled` or `handle` changed without re-registering doesn't keep stale styles.
  */
 export function resolveDraggablePickup(rawTarget: EventTarget | null): DraggablePickup | null {
   const target = isElement(rawTarget) ? rawTarget : null;
@@ -151,13 +123,8 @@ export function resolveDraggablePickup(rawTarget: EventTarget | null): Draggable
     return null;
   }
   let pickup: DraggablePickup | null = null;
-  // Walk up the ancestors, crossing shadow boundaries. When the press began
-  // outside the innermost draggable's handle, or that draggable is `disabled`,
-  // fall through to an outer registered draggable. A nested card inside a
-  // draggable list item then still starts the outer drag.
-  //
-  // The walk continues past the draggable it picks, because every registered
-  // ancestor's static setup must be refreshed, not only the innermost one's.
+  // A `disabled` draggable, or one pressed outside its handle, falls through to an
+  // outer one, so a nested card still starts its list item's drag.
   for (let node: Element | null = target; node !== null; node = getComposedParentElement(node)) {
     if (!isHTMLElement(node)) {
       continue;
@@ -169,10 +136,8 @@ export function resolveDraggablePickup(rawTarget: EventTarget | null): Draggable
     if (pickup !== null) {
       continue;
     }
-    // When nothing picks the press up, the sensor arms nothing for it. The
-    // context menu isn't suppressed, and a natively draggable descendant such as
-    // `<img>` or `<a href>` keeps its HTML5 drag. A veto that depends on runtime
-    // state belongs in `onBeforeMoveStart`, which runs when activation commits.
+    // A press nothing picks up arms nothing, so the context menu and a descendant's
+    // native HTML5 drag stay intact. Runtime vetoes belong in `onBeforeMoveStart`.
     const candidate = {
       element: node,
       target,

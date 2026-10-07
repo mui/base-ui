@@ -15,8 +15,7 @@ import type { TaskDestination } from '../../sortableTasks';
 
 const taskKind = Draggable.createKind<string>('sortable-drop-task');
 
-// Memoized with stable handlers, so a reorder only moves DOM nodes instead of
-// re-rendering every item on each collision change.
+// Memoized with stable handlers, so a collision change doesn't re-render every item.
 const Task = React.memo(function Task({
   task,
   onSwap,

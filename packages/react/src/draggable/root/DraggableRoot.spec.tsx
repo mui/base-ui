@@ -16,8 +16,7 @@ const globalCard = Draggable.createGlobalKind<CardPayload>('myapp/card');
 const marker = Draggable.createKind('marker');
 const text = Draggable.createKind<string>('text');
 
-// The payload type is declared on the kind, and defaults to `undefined`. The drag data
-// defaults to `unknown`.
+// The kind declares the payload type (default `undefined`) and drag data (default `unknown`).
 expectType<DraggableKind<CardPayload, unknown>, typeof card>(card);
 expectType<DraggableKind<CardPayload, unknown>, typeof globalCard>(globalCard);
 expectType<DraggableKind<undefined, unknown>, typeof marker>(marker);
@@ -106,8 +105,7 @@ const runCommand = () => {};
   }}
 />;
 
-// @ts-expect-error a kind that declares a payload makes `payload` required, so the
-// engine never emits `undefined` in place of a `CardPayload`.
+// @ts-expect-error a kind that declares a payload makes `payload` required.
 <Draggable.Root kind={card} />;
 
 declare const maybeCardPayload: CardPayload | undefined;
@@ -164,8 +162,6 @@ if (card.matches(untypedSource)) {
   }}
 />;
 
-// `registerSource({ preview })` is for imperative sources. A component declares its
-// preview with a preview part, and its handle with a handle part.
 // @ts-expect-error `preview` is only a `registerSource()` option. Use `Draggable.Preview`.
 <Draggable.Root kind={marker} preview={{ offset: 'pointer' }} />;
 // @ts-expect-error `handle` is only a `registerSource()` option. Use `Draggable.Handle`.

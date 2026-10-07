@@ -33,8 +33,7 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
     className,
     render,
     style,
-    // Auto-scroll props, pulled out so they don't reach the `<div>` as
-    // attributes through `elementProps`.
+    // Auto-scroll props
     accept,
     onDragScroll,
     disabled,
@@ -44,8 +43,7 @@ export const DraggableViewport = React.forwardRef(function DraggableViewport<
     ...elementProps
   } = componentProps;
 
-  // A new object each render is fine. `useDraggableViewportElement` reads it
-  // through a stable getter and never compares the object itself.
+  // A new object per render is fine: it's read through a getter and never compared.
   const params: UseDraggableViewportElementParameters<TSourcePayload, TDragData> = {
     accept,
     onDragScroll,
@@ -85,9 +83,8 @@ export interface DraggableViewportState {
   disabled: boolean;
 }
 
-// `disabled` isn't redeclared here because the API reference drops JSDoc on
-// intersection members. Its description lives on `ViewportParameters` in
-// `autoScroller.ts`, which this type inherits through `RegisterViewportParameters`.
+// `disabled` is documented on `ViewportParameters` in `autoScroller.ts`, not redeclared
+// here, because the API reference drops JSDoc on intersection members.
 export type DraggableViewportProps<
   TSourcePayload = unknown,
   TDragData = unknown,
@@ -110,9 +107,8 @@ export type DraggableViewportOverflowMargin =
 /** The argument of a viewport's `maxSpeed` function, called on every scrolling frame. */
 export interface DraggableViewportMaxSpeedContext<TSourcePayload = unknown, TDragData = unknown> {
   /**
-   * The position Base UI tested against the container's edges. It can differ
-   * from the modified drag position when a modifier moves that position away
-   * from the pointer.
+   * The position Base UI tested against the container's edges. It can differ from
+   * the modified drag position when a modifier moves that position away from the pointer.
    */
   input: DraggableInput;
   source: DraggableRootRecord<TSourcePayload, TDragData>;
@@ -140,9 +136,8 @@ interface DraggableViewportDragScrollEventDetailsProperties<TSourcePayload, TDra
   /** The axis this call is about. `onDragScroll` is called once per engaged axis. */
   direction: DraggableViewportDragScrollDirection;
   /**
-   * The position Base UI tested against the container's edges. It can differ
-   * from the modified drag position when a modifier moves that position away
-   * from the pointer.
+   * The position Base UI tested against the container's edges. It can differ from
+   * the modified drag position when a modifier moves that position away from the pointer.
    */
   input: DraggableInput;
   /** The scroll container. */

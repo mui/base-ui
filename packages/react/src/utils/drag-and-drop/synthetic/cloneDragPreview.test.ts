@@ -85,10 +85,9 @@ describe('createDragPreviewElement (clone)', () => {
 
     const handle = clone(source);
 
-    // Last child, not next sibling. Both come after the source in tree order, so
-    // `getElementById` still resolves the real element, but the last position
-    // leaves every sibling's `:nth-child` index unchanged. There is no wrapper, so
-    // the clone is a sibling with the source's own tag.
+    // Last child, not next sibling. Both keep `getElementById` resolving the real
+    // element, but only the last position leaves every sibling's `:nth-child` index
+    // unchanged.
     expect(Array.from(host.children)).toEqual([source, sibling, handle.element]);
   });
 
@@ -213,9 +212,8 @@ describe('createDragPreviewElement (clone)', () => {
       const handle = clone(source);
 
       // The preview renders untransformed, so its rect must be the untransformed
-      // box, in both size and origin. Pairing the untransformed size with the
-      // transformed box's top-left would snap the preview up and left by 4% of the
-      // card on pickup.
+      // box, origin included. The transformed top-left would snap the preview up
+      // and left by 4% of the card on pickup.
       expect(handle.anchor.sourceRect.width).toBe(100);
       expect(handle.anchor.sourceRect.height).toBe(50);
       expect(handle.anchor.sourceRect.x).toBe(100);
@@ -251,10 +249,9 @@ describe('createDragPreviewElement (clone)', () => {
 
       const handle = clone(source);
 
-      // Translation moves the box without resizing it, so the rect already
-      // describes the preview's box, origin included. The rect contains the
-      // offset, the engine's positioning overwrites the clone's `translate`, and
-      // its `transform` is neutralized.
+      // Translation doesn't resize the box, so the rect, offset included, already
+      // describes the preview's box. The engine's positioning overwrites the clone's
+      // `translate`, and its `transform` is neutralized.
       expect(handle.anchor.sourceRect.x).toBe(20);
       expect(handle.anchor.sourceRect.y).toBe(25);
       expect(handle.anchor.sourceRect.width).toBe(100.5);

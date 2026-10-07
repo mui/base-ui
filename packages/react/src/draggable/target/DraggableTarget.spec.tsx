@@ -56,8 +56,7 @@ function DefaultKindTarget(props: Draggable.Target.Props) {
 }
 <DefaultKindTarget />;
 
-// The catch-all is the explicit opt-in. It leaves `source.payload` as `unknown`,
-// since nothing declares what this target receives.
+// `anyKind` is the explicit catch-all, so `source.payload` is `unknown`.
 <Draggable.Target
   accept={Draggable.anyKind}
   onDraggableDrop={(eventDetails) => {
@@ -119,9 +118,8 @@ const targetCommand = () => 'run';
   }}
 />;
 
-// An array of kinds types the source as the union of their payloads, and each kind
-// narrows it back down. The negative branch keeps the union, because `matches` can
-// confirm a kind but not rule the others out. A second `matches` narrows the rest.
+// An array of kinds types the source as the union of their payloads. `matches` narrows
+// to one kind, but its negative branch keeps the union, so a second `matches` is needed.
 <Draggable.Target
   accept={[task, file]}
   onDraggableDrop={(eventDetails) => {
@@ -135,8 +133,7 @@ const targetCommand = () => 'run';
   }}
 />;
 
-// A catch-all target takes anything, so the payload is `unknown` until a kind
-// narrows it.
+// A kind narrows a catch-all target's `unknown` payload.
 <Draggable.Target
   accept={Draggable.anyKind}
   onDraggableDrop={(eventDetails) => {
@@ -215,8 +212,8 @@ if (slot.matches(untypedRecord)) {
   expectType<SlotPayload, typeof untypedRecord.payload>(untypedRecord.payload);
 }
 
-// The explicit type arguments are the source payload and the local payload, matching
-// `Draggable.Target.Props` and rarely needed now that both are inferred.
+// Explicit type arguments are the source payload and the target's own payload, as in
+// `Draggable.Target.Props`. Both are usually inferred.
 <Draggable.Target<CardPayload, SlotPayload>
   accept={card}
   payload={{ index: 0 }}
@@ -228,8 +225,7 @@ if (slot.matches(untypedRecord)) {
   }}
 />;
 
-// @ts-expect-error an explicit target payload type makes `payload` required, so the
-// engine can never emit `undefined` where a `SlotPayload` was promised.
+// @ts-expect-error an explicit target payload type makes `payload` required.
 <Draggable.Target<CardPayload, SlotPayload> accept={card} />;
 
 declare const maybeSlotPayload: SlotPayload | undefined;
@@ -273,11 +269,9 @@ const ref: React.Ref<HTMLDivElement> = null;
   render={<Draggable.Target accept={card} payload={{ index: 0 }} />}
 />;
 
-// `payload` is the only thing `TTargetPayload` is inferred from. An inline handler is
-// context-sensitive and contributes no candidates, but an extracted one does.
-// Without `NoInfer` on the handlers, `TTargetPayload` here would come out as
-// `{ other: boolean }`, and the mismatch would be reported against `payload`
-// instead of against the handler that caused it.
+// `TTargetPayload` is inferred from `payload` only. Unlike an inline handler, an
+// extracted one would contribute `{ other: boolean }` as a candidate without `NoInfer`
+// on the handlers, and the mismatch would be blamed on `payload`.
 const mismatchedDrop = (
   eventDetails: DraggableTargetDropEventDetails<unknown, { other: boolean }>,
 ) => eventDetails;

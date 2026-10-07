@@ -130,7 +130,6 @@ describe('syntheticDrag activation', () => {
     expect(startInput.clientX).toBe(53);
     expect(startInput.clientY).toBe(52);
 
-    // The activated drag moves and drops on a registered target.
     hit.current = tgt;
     touchMove(120, 80);
     await flushRaf();
@@ -225,10 +224,9 @@ describe('syntheticDrag activation', () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const onMoveStart = vi.fn();
-    // No `activation` override, so mouse uses the default 5px distance. A
-    // stationary click must not start a drag. Otherwise a press on a clickable
-    // child of the draggable, such as a Tree item's expand chevron, would start a
-    // drag instead of toggling.
+    // Mouse uses the default 5px distance, so a stationary click must not start a
+    // drag. Otherwise a press on a clickable child, such as a Tree item's expand
+    // chevron, would drag instead of toggling.
     engine.registerSource(el, { onMoveStart });
 
     const dispatchMouse = (type: string, x: number, y: number, buttons: number) =>
@@ -264,10 +262,9 @@ describe('syntheticDrag activation', () => {
 
   describe('scrollbar presses', () => {
     /**
-     * A scrollable list nested inside a draggable card, as in a kanban board
-     * where the column is the draggable and its list of cards scrolls. A classic
-     * scrollbar is part of the list's box and hit-tests to the list, so the press
-     * walks up to the card unless the gutter is rejected.
+     * A scrollable list inside a draggable card, like a kanban column whose cards
+     * scroll. A classic scrollbar hit-tests to the list, so a press on it walks up
+     * to the card unless the gutter is rejected.
      */
     function renderScrollableChild({
       rtl = false,

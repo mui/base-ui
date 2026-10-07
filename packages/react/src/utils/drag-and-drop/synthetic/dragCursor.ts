@@ -30,22 +30,10 @@ interface DragCursorStyleOptions {
 }
 
 /**
- * Insert the scoped cursor rule into `doc` once. Returns `false` when the sheet
- * can't be installed.
- *
- * Adding and removing the sheet on every drag would invalidate style twice and
- * redo selector matching, so the rule is installed once and gated on a class.
- * Toggling the class still invalidates style for the whole document, since the
- * rule uses a universal selector. That is one recalc at pickup and one at drop,
- * which can cause a hitch at lift on a very large tree, but nothing per frame.
- *
- * `*` with `!important` is the only way to override per-element cursors such as
- * a handle's `grab` or an input's `text`. An inline `cursor` on the root doesn't
- * work, because those elements set their own.
- *
- * Document styles stop at shadow boundaries, so a drop target's shadow tree
- * keeps its own `cursor: pointer`. Those trees get an equivalent adopted sheet
- * while the lock is held (see `adoptShadowRootCursor`).
+ * Insert the scoped cursor rule into `doc` once; `false` when it can't be installed. It
+ * stays installed, gated on a class, since adding a sheet per drag would redo selector
+ * matching. `*` with `!important` is the only way to override per-element cursors such
+ * as an input's `text`. Shadow trees get their own sheet (see `adoptShadowRootCursor`).
  */
 function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean {
   const key = nonce ?? '';
@@ -55,8 +43,8 @@ function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean 
   }
 
   const style = doc.createElement('style');
-  // Set the nonce before insertion. A strict `style-src` policy checks the
-  // element when it is attached, and a nonce added later can't un-reject it.
+  // Before insertion: a strict `style-src` policy checks the element when it is
+  // attached, and a nonce added later can't un-reject it.
   if (nonce) {
     style.setAttribute('nonce', nonce);
   }
@@ -71,8 +59,7 @@ function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean 
       `html.${DRAGGING_CLASS}.${STYLE_CLASS}, html.${DRAGGING_CLASS}.${STYLE_CLASS} * { ${CURSOR_DECLARATION} }`,
     );
   } catch {
-    // CSSOM access can throw on a sheet that CSP rejected. Dragging still works
-    // without the cursor rule.
+    // CSSOM access can throw on a sheet CSP rejected. Dragging works without it.
     style.remove();
     return false;
   }
@@ -82,17 +69,10 @@ function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean 
 }
 
 /**
- * Adopt the cursor rule into a shadow root that holds a drop target, while the
- * lock is held. Only roots the engine already tracks are covered, so a shadow
- * tree without a drop target keeps its own cursor.
- *
- * Unlike the document sheet, this one is adopted and removed on each drag
- * instead of gated on a class. A shadow tree can't portably select the
- * document's `<html>` class, and these roots are small enough that the extra
- * style invalidation doesn't matter. `--drag-cursor` inherits through the
- * boundary, so the same custom property drives both. Constructable sheets are
- * exempt from CSP `style-src` and need no nonce. Does nothing where the CSSOM
- * API is missing.
+ * Adopt the cursor rule into a shadow root holding a drop target while the lock is held;
+ * other shadow trees keep their own cursor. Adopted per drag rather than gated on a
+ * class, since a shadow tree can't portably select the document's `<html>` class.
+ * `--drag-cursor` inherits through the boundary.
  */
 function adoptShadowRootCursor(shadowRoot: ShadowRoot, doc: Document): DragCleanupFn | undefined {
   if (!('adoptedStyleSheets' in shadowRoot) || ownerDocument(shadowRoot.host) !== doc) {
@@ -106,8 +86,7 @@ function adoptShadowRootCursor(shadowRoot: ShadowRoot, doc: Document): DragClean
       return created;
     });
   } catch {
-    // No constructable stylesheets in this realm. The shadow tree keeps its own
-    // cursor, and dragging still works.
+    // No constructable stylesheets in this realm. The shadow tree keeps its cursor.
     return undefined;
   }
   adoptStyleSheet(shadowRoot, sheet);
@@ -120,9 +99,8 @@ export function unlock(): void {
 }
 
 /**
- * Force a cursor across the whole document while a pointer drag is active. Only
- * one pointer session runs at a time, so a set `restore` means the lock is held,
- * and a repeated call can't overwrite the saved cursor.
+ * Force a cursor across the whole document during a pointer drag. Only one pointer
+ * session runs at a time, so a repeated call while held keeps the saved cursor.
  */
 export function lock(element: Element, cursor: string, options: DragCursorStyleOptions = {}): void {
   if (state.restore !== null) {
@@ -130,9 +108,8 @@ export function lock(element: Element, cursor: string, options: DragCursorStyleO
   }
   const doc = ownerDocument(element);
   const root = doc.documentElement;
-  // Save any inline `--drag-cursor` a consumer set to theme the default, so
-  // unlock restores it instead of removing it. Also save whether the root already
-  // had the classes owned by this lock.
+  // Save the consumer's inline `--drag-cursor` and the root's existing classes, so
+  // unlock restores them.
   const savedCursorValue = root.style.getPropertyValue(CURSOR_VAR);
   const savedCursorPriority = root.style.getPropertyPriority(CURSOR_VAR);
   const savedDraggingClass = root.classList.contains(DRAGGING_CLASS);
@@ -142,8 +119,8 @@ export function lock(element: Element, cursor: string, options: DragCursorStyleO
   let unsubscribeShadowRoots: DragCleanupFn | null = null;
   if (!options.disableStyleElements && ensureStyleInjected(doc, options.nonce)) {
     root.classList.add(STYLE_CLASS);
-    // A drop target that mounts in a new shadow root mid-drag gets the sheet too.
-    // When it unmounts, the sheet goes with it and the root is left as it was.
+    // A drop target mounting in a new shadow root mid-drag gets the sheet too, and
+    // loses it when it unmounts.
     unsubscribeShadowRoots = trackDropTargetShadowRoots((shadowRoot) =>
       adoptShadowRootCursor(shadowRoot, doc),
     );

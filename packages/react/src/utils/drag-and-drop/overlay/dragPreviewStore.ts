@@ -6,15 +6,9 @@ import type { DraggableContextValue } from '../../../draggable/DraggableContext'
 
 /**
  * The active drag's custom preview content, published at drag start from
- * `onGenerateDragPreview` for a `Draggable.Preview` with children or a
- * `registerSource` `preview.render`, and again on each `Draggable.updatePreview()`.
- *
- * `container` is a detached element. React renders the content into it, and the
- * engine copies what it renders into the preview element that follows the pointer.
- * `sync` runs after each commit, so the copy is made in the frame the content renders.
- *
- * A drag that uses the default clone publishes nothing here, because the engine
- * builds the clone without React.
+ * `onGenerateDragPreview` and on each `Draggable.updatePreview()` (the default clone
+ * publishes nothing). React renders `node` into the detached `container`; `sync` runs
+ * after each commit and copies it into the pointer-following preview in the same frame.
  */
 export interface DragPreviewState {
   context: DraggableContextValue;
@@ -36,10 +30,7 @@ export function publishDragPreview(
   store.setState({ ...state, context });
 }
 
-/**
- * Clear the React-rendered preview content. The preview element itself is managed by
- * the active preview handle instead.
- */
+/** Clears only the React content. The preview element belongs to the active preview handle. */
 export function clearPublishedDragPreview(): void {
   store.setState(null);
 }

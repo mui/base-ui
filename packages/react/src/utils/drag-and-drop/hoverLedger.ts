@@ -8,17 +8,10 @@ import { dispatchToDropTarget, isActiveDropTargetRegistration } from './dropTarg
 import type { DropTargetEventName, DropTargetGetter } from './dropTarget';
 
 /**
- * The drop targets one drag has entered and still owes a leave.
- *
- * Every enter a target receives is paired with exactly one leave, even when the
- * target unregisters while hovered or a handler ends the drag mid-dispatch. The
- * ledger records a target just before its enter goes out and drops it just before
- * its leave goes out, so after an interrupted dispatch it lists exactly the targets
- * that still hold hover state. A target that unregisters while owed a leave keeps
- * its registration here until that leave has gone out.
- *
- * The lifecycle creates one per drag session and routes every target dispatch but
- * the drop through it.
+ * The drop targets a drag has entered and still owes a leave. One per session; every target
+ * dispatch but the drop goes through it. Each enter gets exactly one leave, even if the
+ * target unregisters (its registration is kept until then) or a handler ends the drag
+ * mid-dispatch (a target is recorded just before its enter and dropped just before its leave).
  */
 export interface HoverLedger {
   /** Whether `element` has received an enter but not the matching leave. */
@@ -37,9 +30,9 @@ export interface HoverLedger {
   leave(record: DraggableTargetRecord, eventDetails: DropTargetChangeEventDetails): void;
   /**
    * Leave the targets of `previous` that `current` doesn't hold, then enter the new
-   * ones. `shouldContinue` is checked before every delivery, because a handler can
-   * end the drag and the end delivers the remaining terminal events itself. A
-   * completed round leaves the ledger listing `current`, in bubbling order.
+   * ones. `shouldContinue` is checked before each delivery, since a handler can end
+   * the drag and the end sequence delivers the rest. A completed round leaves the
+   * ledger listing `current`, in bubbling order.
    */
   change(
     previous: readonly DraggableTargetRecord[],
@@ -48,10 +41,9 @@ export interface HoverLedger {
     shouldContinue: () => boolean,
   ): void;
   /**
-   * Swap each owed record for its freshly resolved counterpart, matched by element,
-   * without adding or removing any. The lifecycle calls it on frames whose stack
-   * holds the same elements. The terminal leave reads these records, and must report
-   * the latest `currentTarget.payload`, as the moves in between did.
+   * Swap each owed record for its freshly resolved one, matched by element, without
+   * adding or removing any. Called on frames whose stack holds the same elements, so
+   * the terminal leave reports the latest `currentTarget.payload`.
    */
   refresh(fresh: readonly DraggableTargetRecord[]): void;
   /** Deliver `eventName` to each of `targets`, checking `shouldContinue` before each. */
@@ -146,9 +138,8 @@ export function createHoverLedger(): HoverLedger {
       hovered.push(...current);
     },
     refresh(fresh) {
-      // Runs on every element-equal move frame. Between change rounds the ledger
-      // mirrors the resolved stack order, so the record at the same index almost
-      // always matches. Scan only on a mismatch to keep the per-frame path
+      // Between change rounds the ledger mirrors the stack order, so the same index
+      // almost always matches. Scan only on a mismatch to keep this per-frame path
       // allocation-free.
       for (let i = 0; i < hovered.length; i += 1) {
         if (fresh[i]?.element === hovered[i].element) {

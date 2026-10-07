@@ -16,8 +16,8 @@ const card = Draggable.createKind<CardPayload>('card');
 const file = Draggable.createKind<FilePayload>('file');
 declare const optionalKind: typeof card | undefined;
 
-// Nothing here runs, but the rules-of-hooks lint reads a bare call as a violation, so
-// each case sits in a component.
+// Nothing here runs, but the rules-of-hooks lint flags a bare call, so each case
+// sits in a component.
 
 // `accept` types the drag the callbacks see, with no type argument.
 function AcceptsOneKind() {

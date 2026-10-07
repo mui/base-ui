@@ -10,13 +10,11 @@ import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableR
 const scheduled = new WeakSet<DragPreview>();
 
 /**
- * Updates the preview of the drag in progress. A custom preview renders again with the
- * current `source` and `location`, and the copy on screen takes what changed. Without
- * custom content, the source is cloned again. Does nothing when no drag is in progress.
- *
- * The update runs before the next paint, after React has rendered the updates already
- * scheduled, so state set right before the call shows. Calls in the same frame share
- * one update.
+ * Updates the preview of the drag in progress, or does nothing when no drag is active.
+ * A custom preview renders again with the current `source` and `location`; otherwise the
+ * source is cloned again. The update runs before the next paint, after React renders the
+ * updates already scheduled, so state set right before the call shows. Calls in the same
+ * frame share one update.
  */
 export function updatePreview(): void {
   const session = getActiveSession();
@@ -55,10 +53,9 @@ export function updatePreview(): void {
 }
 
 /**
- * Clone the source again. The clone is built while the source is marked as dragged, so
- * its drag-state attributes are lifted for the duration. Otherwise a `[data-dragging]`
- * rule, such as a dimmed source, would be copied into the clone's style snapshot.
- * Nothing renders in between.
+ * Clone the source again with its drag-state attributes lifted, so a `[data-dragging]`
+ * rule (a dimmed source) doesn't land in the clone's style snapshot. Nothing renders
+ * in between.
  */
 function refreshClone(handle: DragPreview, source: HTMLElement): void {
   const current = handle.getPreviewElement();

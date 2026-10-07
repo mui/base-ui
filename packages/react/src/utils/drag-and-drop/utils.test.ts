@@ -45,7 +45,6 @@ describe('elementFromPointIgnoring', () => {
 
     expect(elementFromPointIgnoring(document, 10, 20, preview, NO_SHADOW_ROOTS)).toBe(underlying);
     expect(spy).toHaveBeenCalledTimes(2);
-    // The preview's display is restored afterwards.
     expect(preview.style.display).toBe('');
   });
 
@@ -159,10 +158,9 @@ describe('deepElementFromPoint', () => {
   });
 
   it('returns null in a document that cannot hit-test at all', () => {
-    // jsdom defines `elementFromPoint` on neither Document nor ShadowRoot. This
-    // runs from the activation commit, outside every containment boundary and
-    // after the pending listeners are removed. Throwing here would leave the
-    // sensor stuck and refuse every later pickup, so it returns no target.
+    // This runs from the activation commit, outside every containment boundary and
+    // after the pending listeners are removed. A throw would leave the sensor stuck
+    // and refuse every later pickup.
     const doc = { elementFromPoint: undefined } as unknown as Document;
 
     expect(deepElementFromPoint(doc, 10, 20, NO_SHADOW_ROOTS)).toBeNull();
@@ -425,9 +423,8 @@ describe('getElementScale', () => {
     });
 
     // Multiplying zooms down the chain is correct only because a computed `zoom` is the
-    // element's own value, not the effective one. jsdom echoes the declared value, so it
-    // can't tell the two apart. An engine reporting the effective zoom would square
-    // this to 36.
+    // element's own value, not the effective one, which jsdom can't tell apart. An engine
+    // reporting the effective zoom would square this to 36.
     it('multiplies nested zooms', () => {
       const outer = makeNested('zoom: 2');
       const inner = document.createElement('div');

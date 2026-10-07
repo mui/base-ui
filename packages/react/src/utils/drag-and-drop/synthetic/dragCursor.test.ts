@@ -68,9 +68,8 @@ describe('dragCursor', () => {
 
   it('injects a single scoped cursor rule at module use', () => {
     dragCursor.lock(document.body, 'grabbing');
-    // The text is serialized from the CSSOM, so the source's `!important` isn't
-    // asserted. jsdom drops the priority when it re-serializes a `var()`
-    // declaration.
+    // `!important` isn't asserted: jsdom drops the priority when it re-serializes
+    // a `var()` declaration from the CSSOM.
     expect(scopedCursorRule()).toContain(`html.${DRAGGING_CLASS}.${STYLE_CLASS} *`);
     expect(scopedCursorRule()).toContain(`cursor: var(${CURSOR_VAR}, grabbing)`);
     dragCursor.unlock();
@@ -310,9 +309,8 @@ describe('dragCursor', () => {
   });
 
   it("locks the source's own document when it lives in an iframe", () => {
-    // The class, the variable and the scoped rule must all land on the iframe's
-    // own root. The outer document's stylesheet can't style a frame's content, so
-    // locking the outer root would leave the frame's cursor unchanged.
+    // The outer document's styles can't reach a frame's content, so the class, the
+    // variable, and the scoped rule must all land on the iframe's own root.
     const frame = document.createElement('iframe');
     document.body.appendChild(frame);
     try {

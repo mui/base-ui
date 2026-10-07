@@ -1,14 +1,8 @@
 /**
- * Per-element getter stacks, shared by the engine's registries of draggables,
- * drop targets and auto-scrollers.
- *
- * Each element holds a stack of parameter getters, one per registration whose
- * ref is attached to the node, for example through merged refs. Storing getters
- * instead of snapshots lets the React layer register once while the engine reads
- * the latest callbacks on each dispatch. The last-pushed getter is the active one,
- * so a re-registration takes over with fresh closures. Each hold removes its own
- * getter by identity, so releasing an older hold can't remove the getter of a
- * hook that is still mounted.
+ * Per-element getter stacks for the draggable, drop-target, and auto-scroller registries,
+ * since merged refs can register one node several times. Getters let React register once
+ * while the engine reads the latest callbacks. The last-pushed getter is active, and each
+ * hold removes its own getter, so releasing an older hold can't drop a mounted hook's.
  */
 
 import { onceCleanup } from './utils';
@@ -20,20 +14,17 @@ interface GetterStackEntries<TElement, TGetter> {
 }
 
 export interface GetterStackRegistry<TElement, TGetter> {
-  /** Push a hold onto the element's stack. */
   add(element: TElement, getter: TGetter): void;
   /**
-   * Release one hold. Removing the last hold runs `onLastRemove`, then
-   * `beforeDelete`, and only then deletes the entry, so the getter stays
-   * readable in both callbacks.
-   *
+   * Release one hold. Removing the last hold runs `onLastRemove`, then `beforeDelete`,
+   * then deletes the entry, so the getter stays readable in both callbacks.
    * `beforeDelete` also runs when removing the active hold promotes another one,
-   * because the element's effective parameters change then too.
+   * since the element's effective parameters change then too.
    */
   remove(element: TElement, getter: TGetter, beforeDelete?: () => void): void;
   /** `add`, returning a run-once cleanup that releases the hold. */
   hold(element: TElement, getter: TGetter): () => void;
-  /** The element's active (last-pushed) getter, or `undefined` when none is registered. */
+  /** The last-pushed getter. */
   getActive(element: TElement): TGetter | undefined;
 }
 
@@ -62,26 +53,17 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
     if (getters === undefined) {
       return;
     }
-    // Last hold. Run the side effects while the entry is still readable, then
-    // remove it. The drop-target lifecycle reads the entry to dispatch this
-    // target's leave events, so deleting it first would lose the leave.
+    // Last hold. Run the side effects while the entry is still readable: the
+    // drop-target lifecycle reads it to dispatch this target's leave events.
     if (getters.length <= 1 && getters[0] === getter) {
       try {
         onLastRemove?.(element);
         beforeDelete?.();
       } finally {
-        // `beforeDelete` dispatches consumer callbacks, which may throw. The
-        // caller's cleanup runs only once, so a step skipped here never runs.
-        //
-        // A target that remounts from its own leave handler calls `add()`, which
-        // finds this entry still present and pushes onto it. Deleting the entry
-        // unconditionally would drop that re-registration. Remove only the
-        // retiring getter. If something re-registered, keep the entry and redo
-        // the first-add side effects that `onLastRemove` just undid.
-        //
-        // This branch started with exactly one hold at index 0, so remove only
-        // that occurrence. A callback above may have pushed the same stable
-        // getter again, and filtering by value would remove the new hold too.
+        // Runs even if a consumer callback threw, since the caller's cleanup runs once.
+        // A target remounting from its own leave handler pushes onto this entry, maybe
+        // the same stable getter, so remove only index 0. If anything re-registered, keep
+        // the entry and redo the first-add side effects `onLastRemove` just undid.
         if (getters[0] === getter) {
           getters.splice(0, 1);
         }
@@ -93,16 +75,13 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
       }
       return;
     }
-    // Other holds remain. Remove this hold's own getter by identity, not the
-    // last-pushed one.
+    // Other holds remain. Remove this hold's own getter, not the last-pushed one.
     const index = getters.lastIndexOf(getter);
     if (index !== -1) {
       const wasActive = index === getters.length - 1;
       getters.splice(index, 1);
-      // Removing the last-pushed hold promotes another getter, so the element's
-      // effective `accept`, `payload` or `disabled` may change while it stays
-      // registered. Callers refresh the lifecycle from `beforeDelete`. Without
-      // it, the stack would keep the removed hold's values until the next input.
+      // Another getter takes over, so callers refresh the lifecycle from
+      // `beforeDelete` instead of keeping stale values until the next input.
       if (wasActive) {
         beforeDelete?.();
       }

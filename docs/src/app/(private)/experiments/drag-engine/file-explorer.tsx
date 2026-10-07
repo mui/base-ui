@@ -124,10 +124,8 @@ function FileTile({ node }: { node: FileNode }) {
   );
 }
 
-// Breadcrumb segments navigate on click and take drops, so a node can move to
-// an ancestor without leaving the current view. Every segment is a target,
-// including the current folder. The shared rules disable the segments where a
-// drop would change nothing.
+// Breadcrumb segments take drops, so a node can move to an ancestor without leaving
+// the current view. `canDropInto` disables segments where a drop would change nothing.
 function Crumb({
   folder,
   nodes,
@@ -252,9 +250,8 @@ export default function FileExplorer() {
             </React.Fragment>
           ))}
         </nav>
-        {/* The grid is a drop target for the folder it displays, so a release on
-          its background lands in that folder. `Draggable.Viewport` scrolls the
-          container when a pointer drag nears an edge. */}
+        {/* The grid is a drop target for the folder it shows, so a release on its
+          background lands in that folder. */}
         <Draggable.Target
           accept={nodeKind}
           canDrop={({ source }) => canDropInto(nodes, currentFolderId, source.payload)}

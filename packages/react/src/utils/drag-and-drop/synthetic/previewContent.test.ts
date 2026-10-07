@@ -274,7 +274,6 @@ describe('updatePreviewContent', () => {
   });
 
   it('never lets a copied radio join a page radio group, even briefly', () => {
-    // The page's own radio group.
     const page = document.createElement('div');
     page.innerHTML = '<input type="radio" name="size" value="m" checked>';
     document.body.appendChild(page);

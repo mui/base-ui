@@ -16,10 +16,9 @@ import type {
 } from '../../utils/drag-and-drop/registrationTypes';
 
 /**
- * Applies the latest options of every registration on `element`. The target and
- * viewport steps are the ones `Draggable.Target` and `Draggable.Viewport` take when
- * their props change. Both are harmless for an element registered as neither: the
- * target refresh runs only when the element is under the pointer, and a woken
+ * Applies the latest options of every registration on `element`, as the parts do when
+ * their props change. The target and viewport steps are harmless for other elements:
+ * the target refresh only runs when the element is under the pointer, and a woken
  * scroll loop parks again.
  */
 function refresh(element: HTMLElement): void {
@@ -30,11 +29,9 @@ function refresh(element: HTMLElement): void {
 
 /**
  * Returns the page-wide drag manager. Use it to register drag sources, drop targets,
- * viewports, and monitors without rendering the Draggable parts, and to
- * cancel the drag in progress.
- *
- * The manager is stable for each hook instance. All instances share the page's drag
- * session. Requires a `<Draggable.Provider>` above the component calling this hook.
+ * viewports, and monitors without rendering the Draggable parts, and to cancel the drag
+ * in progress. The manager is stable for each hook instance, and all instances share the
+ * page's drag session. Requires a `<Draggable.Provider>` above the calling component.
  *
  * Documentation: [Base UI useManager](https://base-ui.com/react/utils/draggable#usemanager)
  */

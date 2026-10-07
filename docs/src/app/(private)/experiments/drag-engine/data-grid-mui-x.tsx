@@ -11,22 +11,10 @@ import { DragPageAutoScroll } from '../../../(docs)/react/utils/draggable/demos/
 import theme from './theme.module.css';
 import styles from './data-grid-mui-x.module.css';
 
-// MUI X Data Grid-style reordering with the drag engine, to compare with the
-// AG Grid experiment. Nothing moves during the drag. The source dims, and one thin
-// line shows where the item will land. The line is vertical for columns and
-// horizontal for rows. The move commits on drop.
-//
-// The indicator is an insertion index, meaning a gap between items, not an item
-// edge. The right half of column A and the left half of its neighbor B resolve to
-// the same gap, so they render one line, never two side by side.
-//
-// Rows and columns are both windowed, and both axes auto-scroll. The dragged row
-// or column keeps its drag and overlay preview alive even when it scrolls out of
-// view and unmounts.
-//
-// Windowing never leaks into the reorder math. Every index below, including the
-// indicator's gap, `moveToIndex` and the indicator's x, points into the full
-// `columns` or `rows` array, never into the rendered slice.
+// MUI X Data Grid-style reordering, to compare with the AG Grid experiment. Nothing moves
+// during the drag: the source dims, one line marks the insertion gap, and the move commits
+// on drop. Rows and columns are windowed and auto-scroll, and a drag survives its source
+// unmounting. Every index points into the full `columns` or `rows` array, not the slice.
 
 const columnKind = Draggable.createKind<string>('datagrid-mui:column');
 const rowKind = Draggable.createKind<string>('datagrid-mui:row');
@@ -93,11 +81,7 @@ function buildRows(count: number): Row[] {
   });
 }
 
-/**
- * Prefix sum of column widths. `offsets[i]` is the x of column `i` relative to the
- * first column, and `offsets[columns.length]` is the total width. Columns have
- * different widths, so the window can't come from dividing by a fixed width.
- */
+/** Prefix sum of column widths: `offsets[i]` is the x of column `i`, the last is the total. */
 function buildColumnOffsets(columns: Column[]): number[] {
   const offsets = [0];
   for (let i = 0; i < columns.length; i += 1) {
@@ -117,9 +101,8 @@ function columnIndexAt(offsets: number[], x: number): number {
 }
 
 /**
- * Move the item with `fromId` to the gap `insertIndex`, from 0 to `list.length` in
- * the current array. Accounts for removing the item first. Returns the input when
- * the order doesn't change.
+ * Move the item with `fromId` to gap `insertIndex` of the current array (0 to
+ * `list.length`). Returns `list` itself when the order doesn't change.
  */
 function moveToIndex<T extends { id: string }>(
   list: T[],
@@ -185,24 +168,18 @@ const ColumnHeader = React.memo(function ColumnHeader({
 }) {
   return (
     <div className={styles.headerCell} style={{ width: column.width }}>
-      {/* Grab anywhere on the label area. Columns don't reflow during the drag. The
-          menu button is a sibling, not a child, so the draggable never contains a
-          button. */}
+      {/* The menu button is a sibling so the draggable never contains a button. */}
       <Draggable.Root
         kind={columnKind}
         collisionElement={getCollisionElement}
         payload={column.id}
-        // A column only moves along the header row. The lock also pins the drop
-        // hit test to that row, so the header cell at the pointer's x keeps
-        // matching however far down the grid the pointer goes. Body cells don't
-        // need to be drop targets.
+        // The axis lock also pins the hit test to the header row, so headers keep
+        // matching wherever the pointer is over the grid.
         modifiers={Draggable.restrictToHorizontalAxis}
         className={styles.headerCellInner}
       >
         {column.label}
-        {/* The clone keeps the source label, size and CSS module class. Only its
-            placement needs setting, to keep it inside the grid instead of
-            following the pointer off the page. */}
+        {/* Keep the default clone inside the grid. */}
         <Draggable.Preview modifiers={Draggable.restrictToElement(boundaryRef)} />
       </Draggable.Root>
       <Menu.Root>
@@ -252,26 +229,23 @@ const GridRow = React.memo(function GridRow({
         kind={rowKind}
         collisionElement={getCollisionElement}
         payload={row.id}
-        // A row only moves up and down the grid.
         modifiers={Draggable.restrictToVerticalAxis}
         className={styles.rowInner}
       >
         <Draggable.Preview
           className={clsx(theme.tokens, styles.rowGhost)}
-          // A small chip instead of a row-shaped preview, placed just off the pointer.
+          // A small chip just off the pointer.
           offset={{ x: 14, y: 10 }}
-          // Keep the preview within the grid container.
+          // Keep the preview inside the grid.
           modifiers={Draggable.restrictToElement(boundaryRef)}
         >
           {row.cells.name}
         </Draggable.Preview>
-        {/* Rows start dragging from the reorder handle cell only. */}
+        {/* Rows drag from the handle only. */}
         <Draggable.Handle className={styles.rowHandle} aria-label="Reorder row">
           <DragHandleIcon />
         </Draggable.Handle>
-        {/* Spacers stand in for the unmounted columns on either side of the window,
-            so the mounted cells land at their true x and the scroller keeps its
-            full horizontal range. */}
+        {/* Spacers stand in for the unmounted columns, so mounted cells land at their true x. */}
         <div className={styles.columnSpacer} style={{ width: leadingWidth }} />
         {columns.map((column) => (
           <div key={column.id} className={styles.cell} style={{ width: column.width }}>
@@ -291,20 +265,16 @@ function DataGridInner() {
   const [scrollLeft, setScrollLeft] = React.useState(0);
   const [dropIndicator, setDropIndicatorState] = React.useState<DropIndicator | null>(null);
 
-  // The grid container. Column and row previews stay inside it.
   const gridRef = React.useRef<HTMLDivElement | null>(null);
 
-  // The active drag source, kept in a ref so the non-React wheel listener can
-  // read it synchronously without re-subscribing.
+  // In a ref so the wheel listener reads it without re-subscribing.
   const source = Draggable.useActiveDrag([columnKind, rowKind]);
   const sourceRef = React.useRef(source);
   sourceRef.current = source;
 
-  // The engine doesn't block wheel or trackpad scrolling during a pointer drag, so
-  // the body could still scroll along the axis the drag doesn't use. Freeze that
-  // axis, so the wheel can't scroll the rows during a column drag or the columns
-  // during a row drag. Wheel events bubble, so a non-passive listener on the grid
-  // also cancels the body's scroll.
+  // The engine doesn't block wheel scrolling during a drag, so freeze the axis the drag
+  // doesn't use. Wheel events bubble, so a non-passive listener on the grid also
+  // cancels the body's scroll.
   React.useEffect(() => {
     const grid = gridRef.current;
     if (!grid) {
@@ -336,9 +306,8 @@ function DataGridInner() {
     setDropIndicatorState(next);
   });
 
-  // Hovering the first half of the column at `pos` maps to gap `pos`, and the
-  // second half maps to `pos + 1`. The two halves on either side of a shared
-  // border resolve to the same gap, so the indicator never doubles.
+  // The first half of the column at `pos` maps to gap `pos` and the second half to
+  // `pos + 1`, so both sides of a shared border resolve to one gap and one line.
   const onColumnDragOver = useStableCallback((columnId: string, beforeHalf: boolean) => {
     const pos = columns.findIndex((c) => c.id === columnId);
     if (pos >= 0) {
@@ -358,9 +327,8 @@ function DataGridInner() {
   const end = Math.min(rows.length, Math.ceil((scrollTop + BODY_HEIGHT) / ROW_HEIGHT) + OVERSCAN);
   const visibleRows = rows.slice(start, end);
 
-  // Columns are windowed the same way, but from a prefix sum instead of a fixed
-  // width. The handle cell sits before column 0, so subtract it to convert a
-  // scroller x into column space.
+  // Columns are windowed from a prefix sum since widths vary. Subtract the handle cell
+  // before column 0 to convert a scroller x into column space.
   const columnOffsets = React.useMemo(() => buildColumnOffsets(columns), [columns]);
   const totalWidth = columnOffsets[columns.length];
   const contentWidth = HANDLE_WIDTH + totalWidth;
@@ -378,11 +346,9 @@ function DataGridInner() {
   const leadingWidth = columnOffsets[startCol];
   const trailingWidth = totalWidth - columnOffsets[endCol];
 
-  // Pixel position of a gap, computed from the prefix sum or the fixed row height
-  // without measuring the DOM. `dropIndicator.index` points into the full column
-  // list, so the gap is `columnOffsets[index]`. Don't subtract the window's leading
-  // spacer. The indicator lives in the grid box, which doesn't scroll, so shift it
-  // by the scroll offset.
+  // Gap positions come from the prefix sum or the row height, without measuring. The
+  // index is into the full list, so don't subtract the leading spacer. The column
+  // indicator sits in the grid box, which doesn't scroll, so offset it by `scrollLeft`.
   const columnGapX =
     dropIndicator?.axis === 'column'
       ? HANDLE_WIDTH + columnOffsets[dropIndicator.index] - scrollLeft
@@ -411,10 +377,8 @@ function DataGridInner() {
 
         <Draggable.Viewport
           accept={[columnKind, rowKind]}
-          // Auto-scroll only along the axis of the active drag. A row drag scrolls
-          // vertically and a column drag scrolls horizontally. The viewport scrolls
-          // on both axes, so without this a column dragged near the top edge would
-          // also scroll the rows away under it.
+          // Auto-scroll only along the active drag's axis. Otherwise a column dragged
+          // near the top edge would also scroll the rows away under it.
           onDragScroll={(eventDetails) => {
             const allowedDirection = rowKind.matches(eventDetails.source)
               ? 'vertical'
@@ -430,11 +394,9 @@ function DataGridInner() {
             setScrollLeft(event.currentTarget.scrollLeft);
           }}
         >
-          {/* The header sits inside the scroller and is sticky, so it only pins
-              vertically. It scrolls horizontally with the cells without a
-              `scrollLeft` sync. Its band is also part of the auto-scroller's
-              rect, so dragging a column along the header to either edge scrolls
-              sideways. */}
+          {/* The sticky header sits inside the scroller, so it scrolls sideways with the
+              cells without a `scrollLeft` sync, and dragging a column to either end of
+              it auto-scrolls. */}
           <div className={styles.header} style={{ width: contentWidth, height: HEADER_HEIGHT }}>
             <div className={styles.headerHandleSpacer} style={{ width: HANDLE_WIDTH }} />
             <div className={styles.columnSpacer} style={{ width: leadingWidth }} />

@@ -27,13 +27,10 @@ type DragAutoScrollHandler = NonNullable<RegisterViewportParameters['onDragScrol
 
 setupDragEngineTests();
 
-// The applied delta is `depth * (maxSpeed / 1000) * deltaMs * rampFactor`, where
-// `deltaMs` and `rampFactor` come from rAF timestamps. The jsdom stub in
-// `test/setupVitest.ts` passes `performance.now()` and a browser passes its
-// frame time, so exact magnitudes vary. This wraps rAF so callbacks receive a
-// timestamp the test controls, which makes the magnitudes exact in both
-// environments. Install it before the drag starts. A frame with a real
-// timestamp followed by one with the clock's would give the loop a negative delta.
+// Feeds rAF callbacks a test-controlled timestamp so scroll deltas
+// (`depth * (maxSpeed / 1000) * deltaMs * rampFactor`) are exact in jsdom and
+// browsers. Install it before the drag starts: a real timestamp followed by the
+// clock's would give the loop a negative delta.
 function installFrameClock() {
   const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
   const scheduleFrame = originalRequestAnimationFrame.bind(globalThis);
@@ -53,20 +50,17 @@ function installFrameClock() {
   };
 }
 
-// Runs an engaged loop past its 400ms ramp on the frame clock. The held frames
-// let the drag start and the loop engage with a 0 delta. The frame 500ms later
-// applies a full-ramp delta, capped at 64ms of scrolling, so the scroll has a
-// direction the assertions can read.
+// Runs an engaged loop past its 400ms ramp. The held frames engage the loop with
+// a 0 delta, then a frame 500ms later applies a full-ramp delta (capped at 64ms)
+// so the scroll has a direction to assert on.
 async function runPastRamp(clock: ReturnType<typeof installFrameClock>): Promise<void> {
   await flushRaf(2);
   clock.advance(500);
   await flushRaf();
 }
 
-// Lifts at (100, 100), the center of the 200x200 fixtures and outside any edge
-// zone, so the activation move can't engage the loop. Then moves the pointer
-// over `hit` to (`clientX`, `clientY`) and flushes the frames the move passes
-// through.
+// Lifts at the center of the 200x200 fixtures, outside any edge zone so
+// activation can't engage the loop, then moves over `hit`.
 async function driveTo(
   source: HTMLElement,
   hit: Element,
@@ -526,8 +520,7 @@ describe('engine.registerViewport', () => {
       onDragScroll(eventDetails) {
         eventDetails.cancel();
         deltas.push(eventDetails.y);
-        // The documented "canvas with bounds" pattern, which consumes only after
-        // the surface moved. That needs a nonzero delta first.
+        // The documented "canvas with bounds" pattern: consume only once the surface moved.
         if (eventDetails.y !== 0) {
           eventDetails.consume();
         }
@@ -536,8 +529,8 @@ describe('engine.registerViewport', () => {
     await lift(source, { clientX: 100, clientY: 10 });
     fireDrag.dragOver(surface, { clientX: 100, clientY: 190 });
     await flushRaf(6);
-    // The first engaged frame's delta is 0 because the ramp starts there. The
-    // surface must stay engaged past it instead of restarting at 0 every frame.
+    // The ramp makes the first engaged frame's delta 0. The surface must stay
+    // engaged past it instead of restarting at 0 every frame.
     expect(deltas.length).toBeGreaterThan(2);
     expect(deltas.some((y) => y > 0)).toBe(true);
     expect(scrollBy).not.toHaveBeenCalled();
@@ -635,8 +628,7 @@ describe('engine.registerViewport', () => {
     expect(scroller.scrollBy).toHaveBeenCalled();
   });
 
-  // A 200x200 overflow container at the origin with room to scroll down, so the
-  // loop can engage it from its bottom edge zone.
+  // A 200x200 overflow container at the origin with room to scroll either way vertically.
   function makeEngageableScroller(): HTMLElement {
     const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
     scroller.style.overflow = 'auto';
@@ -647,9 +639,7 @@ describe('engine.registerViewport', () => {
     return scroller;
   }
 
-  // Moves the pointer into the scroller's bottom edge zone and lets the loop run
-  // a few frames. The move goes through the scroller element so `fireDrag`
-  // resolves the engine's hit test onto it.
+  // Moves into the scroller's bottom edge zone and runs a few frames.
   async function driveIntoEdgeZone(source: HTMLElement, scroller: HTMLElement): Promise<void> {
     await lift(source, { clientX: 100, clientY: 10 });
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 190 });
@@ -659,9 +649,8 @@ describe('engine.registerViewport', () => {
   const MAX_SCROLL_SPEED = 900;
   const FRAME_MS = 16;
 
-  // The largest vertical delta applied since the mock was last cleared. Frames
-  // that run while the clock is held still apply a 0 delta, so the maximum is
-  // the single frame that saw the advance.
+  // Frames on a held clock apply a 0 delta, so the maximum since the last
+  // `mockClear` is the frame that saw the advance.
   function maxVerticalDelta(scroller: HTMLElement): number {
     const mock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     return Math.max(0, ...mock.mock.calls.map(([arg]) => Math.abs(arg.top ?? 0)));
@@ -677,11 +666,9 @@ describe('engine.registerViewport', () => {
 
     await driveIntoEdgeZone(source, scroller);
 
-    // With the scroller overflowing and the pointer in its bottom edge zone, the
-    // loop must call `scrollBy`. The negatives that share this fixture rely on it.
+    // The negative tests that share this fixture rely on this positive.
     expect(scroller.scrollBy).toHaveBeenCalled();
-    // Deltas apply instantly. Inheriting a CSS `scroll-behavior: smooth` would
-    // turn each frame's delta into its own smooth animation.
+    // An inherited `scroll-behavior: smooth` would animate each frame's delta.
     expect(scroller.scrollBy).toHaveBeenCalledWith(
       expect.objectContaining({ behavior: 'instant' }),
     );
@@ -748,9 +735,8 @@ describe('engine.registerViewport', () => {
     const source = createElement();
     const local = makeEngageableScroller();
 
-    // A scroller in another document whose frame-local rect overlaps the drag's
-    // client coordinates. Testing it against the top document's coordinates
-    // would scroll the wrong document's container.
+    // Its frame-local rect overlaps the drag point. Hit-testing it with the top
+    // document's coordinates would scroll the wrong document's container.
     const foreignDoc = document.implementation.createHTMLDocument('frame');
     const foreign = foreignDoc.createElement('div');
     foreign.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
@@ -767,9 +753,8 @@ describe('engine.registerViewport', () => {
 
     await driveIntoEdgeZone(source, local);
 
-    // Positive control. The same coordinates engage the same-document scroller,
-    // so the foreign one stays idle because of the document check, not a dead
-    // loop.
+    // Positive control: the same coordinates engage the local scroller, so the
+    // foreign one stays idle because of the document check, not a dead loop.
     expect(local.scrollBy).toHaveBeenCalled();
     expect(foreign.scrollBy).not.toHaveBeenCalled();
   });
@@ -780,9 +765,7 @@ describe('engine.registerViewport', () => {
     registerCleanup(() => warnSpy.mockRestore());
     const { engine } = await renderDnd();
     const source = createElement();
-    // Same metrics as `makeEngageableScroller`, without `overflow: auto`. The
-    // content overflows, but the element is not an overflow container, so the
-    // loop's style check must reject it.
+    // Same metrics as `makeEngageableScroller`, without `overflow: auto`.
     const plain = createElement({ top: 0, height: 200, left: 0, width: 200 });
     plain.scrollBy = vi.fn();
     Object.defineProperty(plain, 'scrollTop', { value: 400, writable: true });
@@ -798,9 +781,8 @@ describe('engine.registerViewport', () => {
       expect.stringContaining('registered on an element that does not scroll'),
     );
 
-    // Positive control. The same box with `overflow: auto`, registered mid-drag
-    // while the pointer rests in its bottom edge zone, scrolls. So the missing
-    // call above comes from the style check, not a dead loop.
+    // Positive control: the same box with `overflow: auto` scrolls, so the style
+    // check, not a dead loop, blocked the call above.
     const control = makeEngageableScroller();
     engine.registerViewport(control, {});
     fireDrag.dragOver(control, { clientX: 100, clientY: 190 });
@@ -814,8 +796,7 @@ describe('engine.registerViewport', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
-    // The second allows the scroll the first forbids, so both halves of the
-    // test can tell which hold is active.
+    // Opposite answers, so each half can tell which hold is active.
     const first = vi.fn<(eventDetails: DraggableViewportDragScrollEventDetails) => boolean>(
       () => false,
     );
@@ -846,8 +827,7 @@ describe('engine.registerViewport', () => {
     expect(scrollByMock).toHaveBeenCalled();
     fireDrag.dragEnd();
 
-    // Releasing the second hold makes the first active again, and its `false`
-    // answer cancels the scroll the second allowed.
+    // Releasing the second hold reactivates the first, whose `false` cancels the scroll.
     releaseSecond();
     first.mockClear();
     second.mockClear();
@@ -862,8 +842,7 @@ describe('engine.registerViewport', () => {
   it('cleanup removes registration', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    // A delegating surface. Its `pan` would run every frame if the registration
-    // were still live (see the positive control above).
+    // Its `pan` would run every frame if the registration were still live.
     const surface = createElement({ top: 0, height: 200, left: 0, width: 200 });
     const pan = vi.fn();
 
@@ -886,8 +865,7 @@ describe('engine.registerViewport', () => {
   it("scrolls from the physical pointer, not the draggable's modifier-constrained point", async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    // The scroller sits below the row the drag starts on, the way a grid's
-    // scrolling body sits below its header.
+    // Below the grab row, like a grid's scrolling body under its header.
     const scroller = createElement({ top: 100, height: 200, left: 0, width: 200 });
     scroller.style.overflow = 'auto';
     scroller.scrollBy = vi.fn();
@@ -897,8 +875,7 @@ describe('engine.registerViewport', () => {
 
     const seenY: number[] = [];
 
-    // The axis lock pins every reported input's y to the grab point (10), which
-    // is outside the scroller.
+    // The axis lock pins every reported y to the grab point (10), outside the scroller.
     engine.registerSource(source, { modifiers: restrictToHorizontalAxis });
     engine.registerViewport(scroller, {
       onDragScroll: ({ input }) => {
@@ -906,17 +883,14 @@ describe('engine.registerViewport', () => {
       },
     });
 
-    // The grab point is outside the scroller, so the loop parks on its first
-    // frame and only the move below wakes it. That takes a couple more frames
-    // than `driveIntoEdgeZone`, which grabs inside the scroller.
+    // The grab point is outside the scroller, so only the move below wakes the loop.
     await lift(source, { clientX: 100, clientY: 10 });
     // Into the scroller's bottom edge zone (edge size 50 of its 200px height).
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 290 });
     await flushRaf(2);
 
     expect(scroller.scrollBy).toHaveBeenCalled();
-    // The callbacks see the unconstrained point the edge test used, not the
-    // pinned y the drag lifecycle reports.
+    // The callbacks see the point the edge test used, not the pinned y.
     expect(seenY).toContain(290);
     expect(seenY).not.toContain(10);
   });
@@ -926,10 +900,9 @@ describe('engine.registerViewport', () => {
     const source = createElement();
     const scroller = makeEngageableScroller();
 
-    // Shaped like `restrictToElement`. The reported point is clamped into the
-    // list, so pushing past its bottom moves the physical pointer outside the
-    // container while the drag stays in the bottom edge zone. Testing only the
-    // raw point would skip the container.
+    // Shaped like `restrictToElement`. Pushing past the bottom leaves the physical
+    // pointer outside while the clamped point stays in the edge zone, so testing
+    // only the raw point would skip the container.
     engine.registerSource(source, {
       modifiers: ({ point }) => ({ x: point.x, y: Math.min(point.y, 190) }),
     });
@@ -947,10 +920,9 @@ describe('engine.registerViewport', () => {
     const scroller = makeEngageableScroller();
     const seenY: number[] = [];
 
-    // Shaped like `restrictToElement` with a preview 80px tall grabbed at its top.
-    // The reported point can't get closer than 80px to the bottom, which is
-    // outside the 50px edge zone, so the drag would stop scrolling exactly when
-    // the user pushes past the edge.
+    // Shaped like `restrictToElement` with an 80px preview grabbed at its top. The
+    // reported point stays 80px from the bottom, outside the 50px edge zone, so
+    // scrolling would stop exactly when the user pushes past the edge.
     engine.registerSource(source, {
       modifiers: ({ point }) => ({ x: point.x, y: Math.min(point.y, 120) }),
     });
@@ -964,8 +936,8 @@ describe('engine.registerViewport', () => {
     await driveTo(source, scroller, 100, 290);
 
     expect(scroller.scrollBy).toHaveBeenCalled();
-    // The callbacks receive the point the edges were tested against, which takes
-    // the physical pointer on the axis it left the container through.
+    // The callbacks receive the point the edges were tested against: the physical
+    // pointer on the axis it left the container through.
     expect(seenY).toContain(290);
     expect(seenY).not.toContain(120);
   });
@@ -982,8 +954,7 @@ describe('engine.registerViewport', () => {
       Object.defineProperty(list, 'clientHeight', { value: 200 });
       return list;
     };
-    // Two side-by-side lists. The drag is clamped into the left one, so the
-    // right one can never receive the item.
+    // Side-by-side lists, with the drag clamped into the left one.
     const listA = makeList(0);
     const listB = makeList(200);
 
@@ -997,9 +968,8 @@ describe('engine.registerViewport', () => {
 
     await lift(source, { clientX: 100, clientY: 100 });
     mockElementFromPoint((x) => (x < 200 ? listA : listB));
-    // The physical pointer is in B's bottom edge zone, and the reported point is
-    // pinned to A's bottom-right corner. B contains only the raw pointer, so it
-    // must not take the vertical axis from A.
+    // The raw pointer is in B's bottom edge zone and the reported point in A's
+    // corner. B must not take the vertical axis from A.
     fireDrag.dragOver(listB, { clientX: 300, clientY: 190 });
     await flushRaf(2);
 
@@ -1014,21 +984,15 @@ describe('engine.registerViewport', () => {
 
     engine.registerSource(source, {});
 
-    // Start the drag with no scroller registered. Grab at the scroller's
-    // vertical center (y=100 of 200), which is in no edge zone, so the frame the
-    // registration below wakes finds nothing to scroll.
+    // The scroller's center is in no edge zone, so the frame the registration
+    // wakes finds nothing to scroll.
     await lift(source, { clientX: 100, clientY: 100 });
 
-    // Register the scroller mid-drag. It joins the current drag's candidates,
-    // but the pointer rests at the center, in no edge zone, so nothing scrolls
-    // yet.
     engine.registerViewport(scroller, {});
     await flushRaf(2);
     expect(scroller.scrollBy).not.toHaveBeenCalled();
 
-    // A pointer move into the bottom edge zone lets the mid-drag scroller
-    // scroll. The sensor flushes `onMove` in its own frame, which wakes the
-    // loop for the following frame.
+    // The sensor flushes `onMove` in its own frame, which wakes the loop for the next one.
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 190 });
     await flushRaf(2);
     expect(scroller.scrollBy).toHaveBeenCalled();
@@ -1043,19 +1007,15 @@ describe('engine.registerViewport', () => {
 
     engine.registerSource(source, {});
 
-    // Rest the pointer in the bottom edge zone of a container that isn't
-    // registered yet. Nothing engages, so the loop parks. Flush until the
-    // gesture pipeline is quiet too. The move's `onMove` and `onTargetChange`
-    // wake the loop for a frame or two afterwards, and a registration during
-    // those frames would ride on their wake instead of its own.
+    // Park the loop over the unregistered container, and let the move's `onMove`
+    // and `onTargetChange` wakes pass so the registration can't ride on them.
     await lift(source, { clientX: 100, clientY: 10 });
     fireDrag.dragOver(surface, { clientX: 100, clientY: 190 });
     await flushRaf(5);
     expect(pan).not.toHaveBeenCalled();
 
-    // A panel opening under the pointer. The container registers after the
-    // pointer stopped moving, so no input will wake the parked loop. The
-    // registration itself has to wake it.
+    // A panel opening under a still pointer: no input will wake the parked loop,
+    // so the registration has to.
     engine.registerViewport(surface, {
       onDragScroll: (eventDetails) => {
         eventDetails.cancel();
@@ -1075,16 +1035,12 @@ describe('engine.registerViewport', () => {
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {});
 
-    // Rest the pointer in the scroller's bottom edge zone. The loop engages and
-    // scrolls every frame with no further pointer movement.
     await driveIntoEdgeZone(source, scroller);
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     expect(scrollByMock).toHaveBeenCalled();
     scrollByMock.mockClear();
 
-    // A second scroller mounting mid-drag must not touch the running loop's
-    // input or frame clock. The pointer isn't moving, so resetting the loop
-    // would stop the scroll with no new move to restart it.
+    // Resetting the loop here would stop the scroll with no move to restart it.
     const other = createElement({ top: 500, height: 100, left: 0, width: 100 });
     engine.registerViewport(other, {});
     await flushRaf(2);
@@ -1097,9 +1053,8 @@ describe('engine.registerViewport', () => {
     it('skips a scroller whose accept does not match the drag kind', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      // Both share one box, and the mismatching scroller registers first, so the
-      // loop visits it first. A broken filter would let it consume the vertical
-      // axis before the accepting one.
+      // Same box, and the mismatching scroller registers first, so a broken
+      // filter would let it consume the vertical axis.
       const picky = makeEngageableScroller();
       const open = makeEngageableScroller();
       const pickyShouldScroll = vi.fn<
@@ -1120,12 +1075,9 @@ describe('engine.registerViewport', () => {
 
       await driveIntoEdgeZone(source, picky);
 
-      // A drag this scroller doesn't accept neither scrolls it nor runs its
-      // per-frame callbacks.
       expect(picky.scrollBy).not.toHaveBeenCalled();
       expect(pickyShouldScroll).not.toHaveBeenCalled();
-      // Positive control. An array `accept` containing the drag's kind engages
-      // at the same coordinates.
+      // Positive control: an array `accept` containing the drag's kind engages.
       expect(open.scrollBy).toHaveBeenCalled();
     });
   });
@@ -1141,17 +1093,13 @@ describe('engine.registerViewport', () => {
     engine.registerViewport(scroller, {});
     engine.registerTarget(target, { onDraggableEnter });
 
-    // Rest the pointer in the scroller's bottom edge zone, over the scroller
-    // itself. The loop engages and scrolls every frame.
     await driveIntoEdgeZone(source, scroller);
     expect(scroller.scrollBy).toHaveBeenCalled();
     expect(onDraggableEnter).not.toHaveBeenCalled();
 
-    // The scroll moves the target under the resting pointer. jsdom moves
-    // nothing, so point `elementFromPoint` at the target without moving the
-    // pointer. Every engaged frame marks the sensor's frame dirty
-    // (`notifyExternalScroll`), so the next hit test must find the target and
-    // fire its enter.
+    // Fake the scroll bringing the target under the still pointer. Every engaged
+    // frame marks the sensor dirty (`notifyExternalScroll`), so the next hit
+    // test must find the target.
     mockElementFromPoint(() => target);
     await flushRaf(2);
     expect(onDraggableEnter).toHaveBeenCalled();
@@ -1169,15 +1117,14 @@ describe('engine.registerViewport', () => {
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     expect(scrollByMock).toHaveBeenCalled();
 
-    // Out of the zone. Once the move settles, the loop must stop scrolling.
+    // Out of the zone. Once the move settles, the loop stops.
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 100 });
     await flushRaf(2);
     scrollByMock.mockClear();
     await flushRaf(2);
     expect(scrollByMock).not.toHaveBeenCalled();
 
-    // Back into the zone. The loop engages again instead of staying parked. The
-    // sensor frame flushes `onMove`, which wakes the loop for the next frame.
+    // Back into the zone. The loop engages again instead of staying parked.
     fireDrag.dragOver(scroller, { clientX: 100, clientY: 190 });
     await flushRaf(2);
     expect(scrollByMock).toHaveBeenCalled();
@@ -1214,11 +1161,9 @@ describe('engine.registerViewport', () => {
   it('engages a scroller inside an open shadow root before its light-DOM ancestor scroller', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    // A light-DOM scroller hosts an open shadow root with its own scroller in
-    // the same box. The depth sort walks composed parents across the shadow
-    // boundary, so the shadow scroller sorts deeper and consumes the vertical
-    // axis first. A walk using only `parentElement` would give the shadow child
-    // depth 1 and hand the axis to the light-DOM ancestor.
+    // A shadow scroller in the same box as its light-DOM ancestor. The depth sort
+    // walks composed parents, so the shadow scroller sorts deeper. A
+    // `parentElement`-only walk would hand the axis to the ancestor.
     const outer = makeEngageableScroller();
     const host = document.createElement('div');
     outer.appendChild(host);
@@ -1236,24 +1181,17 @@ describe('engine.registerViewport', () => {
     engine.registerViewport(outer, {});
     engine.registerViewport(inner, {});
 
-    // Both boxes span y=0..200, so y=190 is in both bottom edge zones. The
-    // shadow scroller covers its host's box, so it's what the hit-test finds.
+    // y=190 is in both bottom edge zones. The shadow scroller covers its host's
+    // box, so the hit test finds it.
     await driveIntoEdgeZone(source, inner);
 
     expect(inner.scrollBy).toHaveBeenCalled();
     expect(outer.scrollBy).not.toHaveBeenCalled();
   });
 
-  // ---------------------------------------------------------------------------
-  // Nested scroll containers
-  // ---------------------------------------------------------------------------
-  //
-  // These assert which scroller's `scrollBy` was called for a pointer position,
-  // and on which axis. That depends on engagement, not on the applied delta.
-  // `scrollLoop` calls `scrollBy` and consumes the axis as soon as the pointer is
-  // in an edge zone, even on the first ramp frame where the delta is 0. So the
-  // depth sort and per-axis hand-off are visible without controlling frame
-  // timing, and these don't need Chromium.
+  // These assert which scroller gets `scrollBy` and on which axis, not the delta.
+  // `scrollLoop` calls `scrollBy` and consumes the axis even on the first ramp
+  // frame (delta 0), so they need neither frame timing nor Chromium.
   describe('nested scroll containers', () => {
     interface NestedScroller {
       element: HTMLElement;
@@ -1394,9 +1332,8 @@ describe('engine.registerViewport', () => {
     it('depth-sorts inner-first: only the inner scroller scrolls in its own edge zone', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      // Outer spans y=0..300. Inner is nested inside it and spans y=0..100, so
-      // its bottom edge zone (y≈75..100) is far from the outer's (y≈225..300).
-      // A pointer at y=90 is only in the inner's edge zone.
+      // Inner (y=0..100) is nested in outer (y=0..300), so y=90 is only in the
+      // inner's bottom edge zone.
       const outer = makeScroller({ top: 0, height: 300, left: 0, width: 200 });
       const inner = makeScroller({ top: 0, height: 100, left: 0, width: 200 }, outer.element);
 
@@ -1408,8 +1345,6 @@ describe('engine.registerViewport', () => {
       fireDrag.dragOver(inner.element, { clientX: 100, clientY: 90 });
       await flushRaf(2);
 
-      // Inner sorts first and consumes the vertical axis in its edge zone. The
-      // pointer isn't in the outer's edge zone, so outer stays idle.
       expect(inner.scrollBy).toHaveBeenCalled();
       expect(outer.scrollBy).not.toHaveBeenCalled();
     });
@@ -1417,10 +1352,8 @@ describe('engine.registerViewport', () => {
     it('per-axis hand-off: inner consumes vertical, outer scrolls horizontal', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      // Both containers share the same box, so the pointer is in both their
-      // bottom (vertical) and right (horizontal) edge zones. Inner allows only
-      // the vertical axis and outer allows both. Inner sorts first and consumes
-      // vertical, which leaves horizontal for the outer.
+      // Same box, so the pointer is in both bottom and right edge zones. Inner
+      // sorts first and takes only vertical, leaving horizontal to the outer.
       const outer = makeScroller({ top: 0, height: 200, left: 0, width: 200 }, document.body, true);
       const inner = makeScroller({ top: 0, height: 200, left: 0, width: 200 }, outer.element, true);
 
@@ -1439,11 +1372,8 @@ describe('engine.registerViewport', () => {
       fireDrag.dragOver(inner.element, { clientX: 190, clientY: 190 });
       await flushRaf(2);
 
-      // Inner cancels the horizontal axis, so it never scrolls `left`.
       expect(inner.scrollBy).toHaveBeenCalled();
       expect(inner.scrollBy.mock.calls.every(([arg]) => (arg.left ?? 0) === 0)).toBe(true);
-      // The outer took the horizontal axis the inner didn't consume, and left the
-      // consumed vertical axis alone (top stays 0).
       expect(outer.scrollBy).toHaveBeenCalled();
       expect(outer.scrollBy.mock.calls.every(([arg]) => (arg.top ?? 0) === 0)).toBe(true);
     });
@@ -1451,10 +1381,8 @@ describe('engine.registerViewport', () => {
     it('hands the axis to the outer scroller when the inner sits at its scroll limit', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      // The outer is scrolled to the middle. The inner shares its box but is
-      // fully scrolled (800 + 200 === 1000), so its bottom edge can't engage.
-      // The vertical axis must pass to the outer instead of stopping at the
-      // deeper scroller.
+      // The inner shares the outer's box but is fully scrolled (800 + 200 === 1000),
+      // so the vertical axis must pass to the outer.
       const outer = makeScroller({ top: 0, height: 200, left: 0, width: 200 });
       const inner = document.createElement('div');
       inner.getBoundingClientRect = () => new DOMRect(0, 0, 200, 200);
@@ -1511,8 +1439,7 @@ describe('engine.registerViewport', () => {
     it('invalidates the depth-order cache across register/unregister', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      // Both containers share one rect and one edge zone, so the pointer never
-      // has to move. Only the depth order decides which of them scrolls.
+      // Same rect and edge zone, so only the depth order decides which scrolls.
       const outer = makeScroller({ top: 0, height: 100, left: 0, width: 200 });
       // A custom inner viewport competes with the native outer scroller.
       const inner = createElement({ top: 0, height: 100, left: 0, width: 200 });
@@ -1529,29 +1456,21 @@ describe('engine.registerViewport', () => {
         },
       });
 
-      // Lift mid-container, outside any edge zone, then move into the shared
-      // bottom edge zone. Inner sorts first and consumes both axes, so the outer
-      // never sees them. The loop parks on its first frame and only the move
-      // wakes it, which takes a few more frames than a lift inside the zone (see
-      // the modifier test above).
+      // Inner sorts first and consumes both axes.
       await lift(source, { clientX: 100, clientY: 50 });
       fireDrag.dragOver(inner, { clientX: 100, clientY: 90 });
       await flushRaf(2);
       expect(innerPan).toHaveBeenCalled();
       expect(outer.scrollBy).not.toHaveBeenCalled();
 
-      // Unregister the inner mid-drag with the pointer where the inner was
-      // winning. The cached inner-first order must be rebuilt without it, and the
-      // outer, with the same rect, edge zone, and point, must take the axes over.
-      // Nothing else changes, so a stale cache would keep giving the axes to a
-      // scroller that is no longer registered.
+      // Nothing else changes, so a stale depth-order cache would keep giving the
+      // axes to the unregistered inner.
       cleanupInner();
       innerPan.mockClear();
       outer.scrollBy.mockClear();
-      // Fire the move again at the same point. The input and stack don't change,
-      // but it keeps the loop awake instead of parked on the transition frame.
-      // The outer engages from scratch and its first ramp frame scrolls by 0, so
-      // a single frame would be timing-sensitive in jsdom.
+      // Re-firing the same move keeps the loop awake instead of parked on the
+      // transition frame. The outer's first ramp frame scrolls by 0, so a single
+      // frame would be timing-sensitive in jsdom.
       await dragOver(inner, { clientX: 100, clientY: 90 });
       fireDrag.dragOver(inner, { clientX: 100, clientY: 90 });
       await flushRaf(2);
@@ -1560,9 +1479,8 @@ describe('engine.registerViewport', () => {
       expect(innerPan).not.toHaveBeenCalled();
     });
 
-    // jsdom only. The held frame clock keeps every rAF timestamp identical, so
-    // every `frameSpeed` is 0. In a browser the timestamps advance and the deltas
-    // become nonzero, so engaging with a 0 delta can only be observed here.
+    // jsdom only. The held frame clock keeps every `frameSpeed` at 0. In a browser
+    // the timestamps advance, so a 0-delta engagement is only observable here.
     it.skipIf(!isJSDOM)(
       'engages on intent: scrollBy fires on the first (delta-0) frame in an edge zone',
       async () => {
@@ -1574,9 +1492,8 @@ describe('engine.registerViewport', () => {
         engine.registerSource(source, {});
         engine.registerViewport(scroller.element, {});
 
-        // The loop must call `scrollBy` and consume the axis as soon as it
-        // engages. Otherwise the nested-scroller hand-off would break on the first
-        // ramp frame. The call must happen even though the delta is 0.
+        // Without engaging on a 0 delta, the nested-scroller hand-off would break
+        // on the first ramp frame.
         await lift(source, { clientX: 100, clientY: 190 });
         fireDrag.dragOver(scroller.element, { clientX: 100, clientY: 190 });
         await flushRaf(2);
@@ -1587,9 +1504,6 @@ describe('engine.registerViewport', () => {
     );
   });
 
-  // ---------------------------------------------------------------------------
-  // Explicit scroll containers
-  // ---------------------------------------------------------------------------
   describe('explicit scroll containers', () => {
     interface ExplicitScroller {
       element: HTMLElement;
@@ -1708,9 +1622,8 @@ describe('engine.registerViewport', () => {
 
       const computedStyle = vi.spyOn(window, 'getComputedStyle');
       registerCleanup(() => computedStyle.mockRestore());
-      // A hover class toggled on the row under the pointer. The row's own style
-      // can't change the overflow of a container above it, so the container's
-      // cached styles stay.
+      // The row's own style can't change the overflow of a container above it,
+      // so the container's cached styles stay.
       await act(async () => {
         row.className = 'hovered';
       });
@@ -1806,16 +1719,9 @@ describe('engine.registerViewport', () => {
     });
   });
 
-  // Page (viewport) scrolling
-  // ---------------------------------------------------------------------------
-  //
-  // The page scrolls only when an app registers `document.documentElement`, or a
-  // `body` that maps to it. The loop then reads the page's overflow instead of
-  // the element's, measures the edge zones against the viewport, and scrolls
-  // through the scrolling element. jsdom reports 0 for every metric and has no
-  // `scrollBy`, so these tests define fixed metrics on `documentElement` as
-  // configurable own properties. The cleanup queue removes them so later tests
-  // see an untouched root.
+  // The page scrolls only when `document.documentElement` (or a `body` mapping to
+  // it) is registered. jsdom reports 0 for every root metric and has no
+  // `scrollBy`, so these tests define configurable ones and delete them on cleanup.
   describe('page scroller', () => {
     interface PageScrollerMock {
       element: HTMLElement;
@@ -1841,9 +1747,8 @@ describe('engine.registerViewport', () => {
       define('scrollTop', overrides.scrollTop ?? 500, true);
       define('scrollLeft', overrides.scrollLeft ?? 500, true);
       define('scrollBy', scrollBy);
-      // What the root reports mid-scroll, a rect spanning the whole document with
-      // a negative top. Edge math based on `getBoundingClientRect` would place
-      // the pointer outside every edge zone and fail these tests.
+      // Mid-scroll, the root's rect spans the whole document with a negative top.
+      // Edge math from `getBoundingClientRect` would miss every edge zone.
       define('getBoundingClientRect', () => new DOMRect(0, -500, 800, 2000));
       registerCleanup(() => {
         for (const name of installed) {
@@ -1853,9 +1758,8 @@ describe('engine.registerViewport', () => {
       return { element, scrollBy };
     }
 
-    // Lift at the viewport center, outside any edge zone, then move to the given
-    // point, so only the `dragOver` can engage the loop. The sensor flushes
-    // `onMove` in its own frame, and the loop runs in the next one.
+    // Lifts at the viewport center, outside any edge zone, so only the `dragOver`
+    // can engage the loop.
     async function drive(
       source: HTMLElement,
       clientX: number,
@@ -1903,9 +1807,8 @@ describe('engine.registerViewport', () => {
       const page = mockPageScroller();
 
       engine.registerSource(source, {});
-      // `document.body` with default styling is not an overflow container, so
-      // the registration must map to the page scroller instead of silently doing
-      // nothing.
+      // A default-styled `body` isn't an overflow container, so the registration
+      // must map to the page instead of silently doing nothing.
       registerCleanup(engine.registerViewport(document.body, {}));
 
       await drive(source, 400, 590);
@@ -1914,9 +1817,8 @@ describe('engine.registerViewport', () => {
     });
 
     // `<body>`'s overflow propagates to the viewport only while `<html>`'s
-    // computed overflow is `visible` on both axes. The tests below cover both
-    // sides. A propagating `body` stands in for the page and can lock it, and a
-    // non-propagating one is a regular element.
+    // computed overflow is `visible` on both axes. A propagating `body` stands in
+    // for the page and can lock it; a non-propagating one is a regular element.
     function styleOverflow(element: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
       const previous = {
         overflow: element.style.overflow,
@@ -1935,13 +1837,12 @@ describe('engine.registerViewport', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const page = mockPageScroller();
-      // A browser computes `overflow-x: hidden` alone to `overflow-y: auto`.
-      // jsdom doesn't, so the pair is spelled out. That must not turn `body` into
-      // a scroll container, whose `scrollBy` would move nothing, and cut the page
-      // scroller out of the chain.
+      // A browser computes `overflow-x: hidden` alone to `overflow-y: auto`; jsdom
+      // doesn't, so the pair is spelled out. It must not turn `body` into a scroll
+      // container (whose `scrollBy` moves nothing) and cut the page out.
       styleOverflow(document.body, { overflowX: 'hidden', overflowY: 'auto' });
-      // What a browser reports for a `body` spanning the viewport. A `body`
-      // wrongly treated as a container would engage here and consume the axis.
+      // Browser metrics for a viewport-spanning `body`, so a `body` wrongly treated
+      // as a container would engage here and consume the axis.
       const bodyScrollBy = vi.fn();
       const bodyProps: PropertyKey[] = [];
       const defineOnBody = (name: PropertyKey, value: unknown, writable = false) => {
@@ -2046,10 +1947,8 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       registerCleanup(engine.registerViewport(page.element, {}));
 
-      // Top edge of a page scrolled down by 500px. Against the mocked bounding
-      // rect (top -500, height 2000) the pointer is 510px into a 2000px box, in
-      // no edge zone. Against the 600px viewport it is 10px from the top, and
-      // `scrollTop` 500 leaves room to scroll back up.
+      // Against the mocked rect (top -500) the pointer is in no edge zone. Against
+      // the 600px viewport it is 10px from the top, with room to scroll back up.
       await drive(source, 400, 10);
 
       expect(page.scrollBy).toHaveBeenCalled();
@@ -2114,9 +2013,8 @@ describe('engine.registerViewport', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const page = mockPageScroller();
-      // An overflow container in the lower middle of the viewport. Its bottom
-      // edge zone (y ≈ 550..600) is inside the viewport's bottom edge zone
-      // (y > 450), and x = 400 is in neither one's horizontal edge zone.
+      // Its bottom edge zone (y ≈ 550..600) lies inside the viewport's (y > 450),
+      // and x = 400 is in neither one's horizontal edge zone.
       const inner = createElement({ top: 400, height: 200, left: 300, width: 200 });
       inner.style.overflow = 'auto';
       inner.scrollBy = vi.fn();
@@ -2131,7 +2029,6 @@ describe('engine.registerViewport', () => {
       await drive(source, 400, 590, inner);
 
       // The root is every scroller's ancestor, so the depth sort visits it last.
-      // The inner container consumes the vertical axis and the page stays idle.
       expect(inner.scrollBy).toHaveBeenCalled();
       expect(page.scrollBy).not.toHaveBeenCalled();
 
@@ -2199,9 +2096,8 @@ describe('engine.registerViewport', () => {
       expect(window.scrollY).toBeGreaterThan(0);
       touchUp(centerX, viewportHeight - 10);
 
-      // Once the page is scrolled, the root's bounding rect has a negative top,
-      // so edge math based on that rect would never engage again. From a
-      // scrolled page, the top edge must scroll back up.
+      // A scrolled root's rect has a negative top, so rect-based edge math would
+      // never engage again. The top edge must scroll back up.
       window.scrollTo(0, 500);
       const startY = window.scrollY;
       expect(startY).toBeGreaterThan(0);
@@ -2230,15 +2126,13 @@ describe('engine.registerViewport', () => {
       const centerY = Math.floor(document.documentElement.clientHeight / 2);
       const viewportWidth = document.documentElement.clientWidth;
 
-      // At the RTL start position the content extends to the left, so the right
-      // edge has no room to scroll.
+      // At the RTL start position, the right edge has no room to scroll.
       touchDown(source, viewportWidth - 10, centerY);
       await runPastRamp(clock);
       expect(window.scrollX).toBeCloseTo(0);
       touchUp(viewportWidth - 10, centerY);
 
-      // The left edge scrolls into the content. The browser reports the offset
-      // as negative in RTL.
+      // The left edge scrolls into the content. RTL reports the offset as negative.
       touchDown(source, 10, centerY);
       await runPastRamp(clock);
       expect(window.scrollX).toBeLessThan(0);
@@ -2274,8 +2168,7 @@ describe('engine.registerViewport', () => {
       expect(window.scrollX).toBeCloseTo(0);
       touchUp(viewportWidth - 10, centerY);
 
-      // Reading the root's `ltr` would leave this edge dead. The left edge must
-      // scroll into the content.
+      // Reading the root's `ltr` would leave the left edge dead.
       touchDown(source, 10, centerY);
       await runPastRamp(clock);
       expect(window.scrollX).toBeLessThan(0);
@@ -2291,13 +2184,11 @@ describe('engine.registerViewport', () => {
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {});
 
-    // Engage in the bottom edge zone, so the loop reschedules itself every frame.
     await driveIntoEdgeZone(source, scroller);
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     expect(scrollByMock).toHaveBeenCalled();
 
-    // A normal drop sends `onMoveEnd` to the scroll monitor, which must stop the
-    // loop. No later frame may scroll.
+    // A normal drop sends `onMoveEnd` to the scroll monitor, which stops the loop.
     fireDrag.drop(scroller, { clientX: 100, clientY: 190 });
     scrollByMock.mockClear();
     await flushRaf(2);
@@ -2313,17 +2204,13 @@ describe('engine.registerViewport', () => {
     engine.registerSource(source, {});
     engine.registerViewport(scroller, {});
 
-    // Rest the pointer in the top edge zone so the loop engages and keeps
-    // rescheduling itself during the drag.
     await lift(source, { clientX: 100, clientY: 10 });
     await flushRaf();
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     expect(scrollByMock).toHaveBeenCalled();
 
     // A teardown that skips the terminal `onMoveEnd` (a test reset, or an engine
-    // error after the end was already latched) clears the monitors without sending
-    // `onMoveEnd` to the scroll monitor. A throwing consumer callback doesn't skip
-    // it, because recovery still delivers `onMoveEnd` to monitors.
+    // error after the end was latched) never notifies the scroll monitor.
     act(() => {
       resetForTests();
     });
@@ -2335,15 +2222,11 @@ describe('engine.registerViewport', () => {
     expect(scrollByMock).not.toHaveBeenCalled();
   });
 
-  // The delta passed to `scrollBy` is `depth * frameSpeed`, and `frameSpeed`
-  // comes from the time between rAF timestamps. The direction assertions below
-  // read the delta's sign, so `runPastRamp` advances the frame clock to give the
-  // loop a nonzero delta.
+  // These read the delta's sign, so `runPastRamp` advances the frame clock to give
+  // the loop a nonzero delta.
   describe.skipIf(isJSDOM)('scroll direction and axis', () => {
     // RTL containers report `scrollLeft` as 0 at the right-hand start, going
-    // negative toward the end. The loop accounts for that before deciding
-    // whether an edge can scroll. `scrollBy` deltas use the same directions as
-    // in LTR.
+    // negative toward the end. `scrollBy` deltas keep their LTR signs.
     function makeRtlScroller(scrollLeft: number): HTMLElement {
       const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
       scroller.style.overflow = 'auto';
@@ -2368,8 +2251,7 @@ describe('engine.registerViewport', () => {
       });
       engine.registerViewport(scroller, {});
 
-      // Left edge (x=10), centered vertically. It scrolls further left, so the
-      // deltas must be negative and never positive.
+      // The left edge scrolls further left, so the deltas are negative.
       touchDown(source, 10, 100);
       await runPastRamp(clock);
       const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
@@ -2403,8 +2285,7 @@ describe('engine.registerViewport', () => {
       engine.registerViewport(scroller, {});
 
       // The right edge at the start position has no room. The LTR check
-      // (`scrollLeft + clientWidth < scrollWidth`, so 0 + 200 < 1000) would
-      // engage here, so any call means the RTL handling broke.
+      // (`scrollLeft + clientWidth < scrollWidth`) would engage here.
       touchDown(source, 190, 100);
       await runPastRamp(clock);
       expect(scroller.scrollBy).not.toHaveBeenCalled();
@@ -2421,19 +2302,11 @@ describe('engine.registerViewport', () => {
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // Scroll limits
-  // ---------------------------------------------------------------------------
-  //
   // A container exactly at a limit must not engage. The loop consumes the axis
-  // as soon as it engages, so engaging here would scroll past the limit and keep
-  // the axis from an outer scroller. The `Math.ceil` and `Math.floor` guards also
-  // reject a limit reached at a fractional offset, which Chrome 115+ reports.
+  // on engagement, so it would keep the axis from an outer scroller.
   describe('scroll limits', () => {
-    // An overflow container whose scroll offsets the test sets, so it can sit at
-    // a limit instead of the default middle position. It overflows on both axes,
-    // so each limit is rejected by its own guard and not because the container
-    // has nothing to scroll.
+    // Overflows on both axes, so each limit is rejected by its own guard and not
+    // because the container has nothing to scroll.
     function makeScrollerAt(offsets: { scrollTop?: number; scrollLeft?: number }): HTMLElement {
       const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
       scroller.style.overflow = 'auto';
@@ -2449,9 +2322,8 @@ describe('engine.registerViewport', () => {
       return scroller;
     }
 
-    // The bottom and right limits sit at a fractional offset, which Chrome 115+
-    // reports. 799.5 + 200 < 1000 looks scrollable, so without the `Math.ceil`
-    // guard the loop would engage and overshoot the limit by half a pixel.
+    // Chrome 115+ reports fractional limits. 799.5 + 200 < 1000 looks scrollable,
+    // so without the `Math.ceil` guard the loop would overshoot by half a pixel.
     it.each([
       { direction: 'down', edge: 'bottom', offsets: { scrollTop: 799.5 }, x: 100, y: 190 },
       { direction: 'up', edge: 'top', offsets: { scrollTop: 0 }, x: 100, y: 10 },
@@ -2499,10 +2371,8 @@ describe('engine.registerViewport', () => {
     it('still scrolls at every edge of the same fixture when the limits are not reached', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      // Positive control for the negatives above. The same fixture, scrolled
-      // to the middle on both axes, engages at each of their four points. So the
-      // missing calls there come from the limit guards, not a loop that never
-      // engages.
+      // Positive control for the limit tests: scrolled to the middle, the same
+      // fixture engages at all four points.
       const scroller = makeScrollerAt({ scrollTop: 400, scrollLeft: 400 });
       const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
 
@@ -2511,8 +2381,7 @@ describe('engine.registerViewport', () => {
 
       await lift(source, { clientX: 100, clientY: 100 });
 
-      // Sequential on purpose. Each move starts from where the previous one left
-      // the pointer.
+      // Sequential on purpose: each move starts where the previous one left the pointer.
       async function expectScrollAt(x: number, y: number): Promise<void> {
         scrollByMock.mockClear();
         fireDrag.dragOver(scroller, { clientX: x, clientY: y });
@@ -2527,16 +2396,11 @@ describe('engine.registerViewport', () => {
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // Frame delta and depth weighting
-  // ---------------------------------------------------------------------------
   describe('frame delta and depth weighting', () => {
     const MAX_FRAME_DELTA_MS = 64;
 
-    // jsdom only. The fake frame clock feeds the loop its own timestamps, which
-    // is only deterministic with jsdom's `setTimeout`-based rAF. In a browser the
-    // loop also sees real frames, so the clock no longer controls the per-frame
-    // delta.
+    // jsdom only. The frame clock is deterministic only with jsdom's
+    // `setTimeout`-based rAF. In a browser the loop also sees real frames.
     it.skipIf(!isJSDOM)('clamps the per-frame delta when the frame loop stalls', async () => {
       const { engine } = await renderDnd();
       const clock = installFrameClock();
@@ -2546,8 +2410,7 @@ describe('engine.registerViewport', () => {
       engine.registerSource(source, {});
       engine.registerViewport(scroller, {});
 
-      // `driveIntoEdgeZone` leaves the pointer at y=190 of a 200px box, 0.8 deep
-      // into the 50px bottom edge zone.
+      // `driveIntoEdgeZone` leaves the pointer 0.8 deep into the 50px bottom edge zone.
       const depth = 0.8;
       await driveIntoEdgeZone(source, scroller);
 
@@ -2562,15 +2425,13 @@ describe('engine.registerViewport', () => {
       const normalFrame = maxVerticalDelta(scroller);
       expect(normalFrame).toBeCloseTo((depth * MAX_SCROLL_SPEED * FRAME_MS) / 1000, 5);
 
-      // A stalled rAF, after a long consumer `onMove`, a GC pause, or a throttled
-      // tab, resumes with a huge elapsed time.
+      // A stalled rAF, as in a throttled tab, resumes with a huge elapsed time.
       scrollByMock.mockClear();
       clock.advance(5000);
       await flushRaf();
       const stalledFrame = maxVerticalDelta(scroller);
 
-      // The delta is capped at MAX_FRAME_DELTA_MS of scrolling instead of the 5
-      // seconds (~3600px) an uncapped `deltaMs` would apply.
+      // Capped at MAX_FRAME_DELTA_MS instead of 5 seconds (~3600px) of scrolling.
       expect(stalledFrame).toBeCloseTo((depth * MAX_SCROLL_SPEED * MAX_FRAME_DELTA_MS) / 1000, 5);
       expect(stalledFrame / normalFrame).toBeCloseTo(MAX_FRAME_DELTA_MS / FRAME_MS, 5);
     });
@@ -2586,16 +2447,13 @@ describe('engine.registerViewport', () => {
         engine.registerSource(source, {});
         engine.registerViewport(scroller, {});
 
-        // Engage at 0.8 depth (y=190 of the 200px box). The clock doesn't move,
-        // so every engaged frame applies a 0 delta and only `advance` moves the
-        // ramp forward.
+        // Engage at 0.8 depth. The clock is held, so only `advance` moves the ramp.
         await driveTo(source, scroller, 100, 190);
         const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
         expect(scrollByMock).toHaveBeenCalled();
 
-        // One frame 200ms into the ramp, so rampFactor is 0.5. The 200ms is capped
-        // to a 64ms scroll delta, the same as the full-ramp frame below, so the
-        // ratio isolates the ramp factor.
+        // 200ms in, rampFactor is 0.5. Both measured frames cap at 64ms of delta,
+        // so their ratio isolates the ramp factor.
         scrollByMock.mockClear();
         clock.advance(200);
         await flushRaf(2);
@@ -2639,10 +2497,8 @@ describe('engine.registerViewport', () => {
       await lift(source, { clientX: 100, clientY: 100 });
       const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
 
-      // Move to `clientY` and return the delta the loop applies for one 16ms
-      // frame there. The clock doesn't move while the move reaches the loop
-      // through the sensor frame and the flushed `onMove`, so those frames apply
-      // a 0 delta and only the measured frame's time counts.
+      // Returns one 16ms frame's delta at `clientY`. The clock is held while the
+      // move reaches the loop, so only the measured frame's time counts.
       async function measureAt(clientY: number): Promise<number> {
         fireDrag.dragOver(scroller, { clientX: 100, clientY });
         await flushRaf(2);
@@ -2652,9 +2508,8 @@ describe('engine.registerViewport', () => {
         return maxVerticalDelta(scroller);
       }
 
-      // Every point below is inside the bottom edge zone (y ≥ 150), so the
-      // element never disengages. Its ramp runs once here and `rampFactor` stays
-      // at 1, which leaves depth as the only variable.
+      // Every point below is inside the bottom edge zone (y ≥ 150), so the ramp
+      // runs once here and depth is the only variable.
       await measureAt(160);
       clock.advance(1000);
       await flushRaf();
@@ -2663,7 +2518,6 @@ describe('engine.registerViewport', () => {
       const middle = await measureAt(180); // 0.6 deep
       const deep = await measureAt(199); // 0.98 deep
 
-      // Speed rises with depth. The ramp only sets how fast that speed is reached.
       expect(shallow).toBeGreaterThan(0);
       expect(middle).toBeGreaterThan(shallow);
       expect(deep).toBeGreaterThan(middle);
@@ -2672,13 +2526,9 @@ describe('engine.registerViewport', () => {
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // maxSpeed
-  // ---------------------------------------------------------------------------
   describe.skipIf(!isJSDOM)('maxSpeed', () => {
-    // The delta one 16ms frame applies at full ramp, for a scroller registered
-    // with `parameters`. The scroller spans 0..200 and the pointer rests at
-    // y=190, which is 0.8 of the way into the 50px bottom edge zone.
+    // One full-ramp 16ms frame's delta, with the pointer 0.8 deep into the 50px
+    // bottom edge zone.
     async function measureFrameDelta(parameters: RegisterViewportParameters): Promise<number> {
       const { engine } = await renderDnd();
       const clock = installFrameClock();
@@ -2709,8 +2559,7 @@ describe('engine.registerViewport', () => {
     });
 
     it('defaults to 900 px/s when unset', async () => {
-      // Positive control for the test above, showing the override changes the
-      // speed and the fixture doesn't.
+      // Positive control: the override, not the fixture, changes the speed.
       expect(await measureFrameDelta({})).toBeCloseTo(perFrame(900), 5);
     });
 
@@ -2724,9 +2573,7 @@ describe('engine.registerViewport', () => {
       });
 
       expect(delta).toBeCloseTo(perFrame(1800), 5);
-      // Check the last call, not the first. The lift at y=10 lands in the
-      // scroller's top edge zone, so the loop engages there before the move to
-      // y=190.
+      // Check the last call: the lift at y=10 engages the top edge zone first.
       expect(seen.length).toBeGreaterThan(0);
       const last = seen[seen.length - 1];
       expect(last.element.style.overflow).toBe('auto');
@@ -2740,8 +2587,7 @@ describe('engine.registerViewport', () => {
     });
 
     it('does not scroll at a speed of 0', async () => {
-      // Unlike the fallbacks above, `0` is a valid value, so it must be kept
-      // instead of replaced by the default.
+      // Unlike the fallbacks above, `0` is valid and must not be replaced.
       expect(await measureFrameDelta({ maxSpeed: 0 })).toBe(0);
     });
 
@@ -2753,8 +2599,7 @@ describe('engine.registerViewport', () => {
       const source = createElement();
       const outer = makeEngageableScroller();
       const inner = makeEngageableScroller();
-      // Same box, so the pointer is in both bottom edge zones. Nesting makes the
-      // depth order reach `inner` first.
+      // Same box, and nesting makes the depth order reach `inner` first.
       outer.appendChild(inner);
 
       engine.registerSource(source, {});
@@ -2822,17 +2667,11 @@ describe('engine.registerViewport', () => {
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // pan
-  // ---------------------------------------------------------------------------
-  //
-  // A registration with an `onDragScroll` handler only needs edge detection. It
-  // doesn't need a scrollable overflow style or a scroll extent, and a
-  // registration without a handler still needs both.
+  // A registration with `onDragScroll` only needs edge detection, not a scrollable
+  // overflow style or a scroll extent. Without a handler it still needs both.
   describe('pan', () => {
-    // Like `makeEngageableScroller`, with the same box, but not an overflow
-    // element and with no scroll metrics. Every check a handler bypasses would
-    // otherwise reject it.
+    // The `makeEngageableScroller` box without overflow or scroll metrics, so
+    // every check a handler bypasses would reject it.
     function makeViewport(): HTMLElement {
       const viewport = createElement({ top: 0, height: 200, left: 0, width: 200 });
       viewport.style.overflow = 'visible';
@@ -2857,8 +2696,6 @@ describe('engine.registerViewport', () => {
 
       await driveTo(source, viewport, 100, 190);
 
-      // An element with no scrollable overflow and no scroll extent still
-      // engages, and the engine never touches its scroll offsets.
       expect(pan).toHaveBeenCalled();
       expect(viewport.scrollBy).not.toHaveBeenCalled();
     });
@@ -2876,8 +2713,7 @@ describe('engine.registerViewport', () => {
 
         await driveTo(source, viewport, 100, 190);
 
-        // Negative control. The element above engages only because it has a
-        // handler, not because the overflow check stopped working.
+        // Negative control: the element above engages only because it has a handler.
         expect(viewport.scrollBy).not.toHaveBeenCalled();
         expect(warnSpy).toHaveBeenCalledWith(
           expect.stringContaining('registered on an element that does not scroll'),
@@ -2887,9 +2723,8 @@ describe('engine.registerViewport', () => {
       }
     });
 
-    // Each of the four `canScrollToward` limit checks (up, down, left, right)
-    // would reject an element with no scroll extent, so all four must be
-    // skipped, not just the vertical pair a single fixture would cover.
+    // Each of the four `canScrollToward` limit checks would reject an element with
+    // no scroll extent, so every edge needs its own case.
     const EDGES = [
       { name: 'top', clientX: 100, clientY: 10 },
       { name: 'bottom', clientX: 100, clientY: 190 },
@@ -2945,15 +2780,12 @@ describe('engine.registerViewport', () => {
       expect(typeof eventDetails.y).toBe('number');
     });
 
-    // The axes a delegating surface consumes decide which axes an ancestor
-    // container gets. Every case uses the same fixture, a delegating viewport
-    // nested inside a scroll container with the same box. The pointer is in the
-    // bottom and right edge zones of both, and the inner one sorts first.
+    // A delegating viewport nested in a scroll container with the same box. The
+    // pointer is in both bottom and right edge zones, and the inner sorts first.
     describe('axis hand-off', () => {
       // `outerAllowedAxis` restricts the outer container to one axis, so whether
-      // it engages at all shows which axis it got. Its `scrollBy` arguments
-      // can't show that, because jsdom pins every rAF timestamp to 0 and both
-      // deltas are 0 whichever axis engaged.
+      // it engages shows which axis it got. Its `scrollBy` arguments can't show
+      // that reliably, because the jsdom deltas depend on frame timing.
       async function renderNested(
         onDragScroll: DragAutoScrollHandler,
         outerAllowedAxis?: 'vertical' | 'horizontal',
@@ -3025,8 +2857,7 @@ describe('engine.registerViewport', () => {
             eventDetails.consume();
           }
         }, 'vertical');
-        // The counterpart to the test above, so "released the other axis" can't
-        // pass by the inner having released both.
+        // Counterpart to the test above, so it can't pass by the inner releasing both axes.
         expect(outerScrollBy).not.toHaveBeenCalled();
       });
 
@@ -3034,8 +2865,8 @@ describe('engine.registerViewport', () => {
         const { outerScrollBy } = await renderNested((eventDetails) => {
           eventDetails.cancel();
         }, 'vertical');
-        // A surface at its own bounds must not take an axis it didn't move. That
-        // includes the vertical axis, which every other handler here consumes.
+        // A surface at its own bounds must not take an axis it didn't move,
+        // including vertical, which every other handler here consumes.
         expect(outerScrollBy).toHaveBeenCalled();
       });
 
@@ -3048,12 +2879,10 @@ describe('engine.registerViewport', () => {
           });
 
           expect(consoleError).toHaveBeenCalled();
-          // The surface didn't move, so it is treated like one that cancels
-          // without consuming, and doesn't keep the axes.
+          // The surface didn't move, so it's treated like cancel-without-consume.
           expect(result.outerScrollBy).toHaveBeenCalled();
         } finally {
-          // End the drag before restoring the spy, so later loop frames can't log
-          // through the throwing callback after the spy is gone.
+          // End the drag before restoring the spy (see the throwing `maxSpeed` test).
           if (result) {
             fireDrag.dragEnd();
           }
@@ -3061,13 +2890,10 @@ describe('engine.registerViewport', () => {
         }
       });
 
-      // A held frame clock reports the same timestamp for every frame, so the
-      // ramp factor and every delta stay at 0. That shows consumption follows
-      // engagement, not the applied delta. The outer container must stay locked
-      // out even though the inner one got a delta of exactly 0. jsdom only, so
-      // the held clock controls rAF without competing with browser scheduling.
+      // The held frame clock keeps every delta at 0, which shows consumption
+      // follows engagement, not the applied delta. jsdom only, so the held clock
+      // doesn't compete with browser scheduling.
       it.skipIf(!isJSDOM)('consumes the axes on the ramp-zero first frame', async () => {
-        // Held frame clock. Identical rAF timestamps keep every delta at 0.
         installFrameClock();
         const seen: number[] = [];
         const { outerScrollBy } = await renderNested((eventDetails) => {
@@ -3090,8 +2916,8 @@ describe('engine.registerViewport', () => {
 
       engine.registerSource(source, {});
       engine.registerViewport(viewport, {
-        // Neither canceled nor consumed, so the surface declines the direction.
-        // The default native scroll does nothing on an element with no overflow.
+        // Neither canceled nor consumed, so the surface declines. The default
+        // native scroll does nothing on an element with no overflow.
         onDragScroll: (details) => {
           pan(details);
         },
@@ -3100,10 +2926,9 @@ describe('engine.registerViewport', () => {
       await driveTo(source, viewport, 100, 190);
       expect(pan).toHaveBeenCalled();
 
-      // A surface that declines must not keep the loop awake. Otherwise it would
-      // run a frame, plus a sensor frame through `notifyExternalScroll`, forever
-      // under a stationary pointer. Canceling is the opposite signal and keeps
-      // the surface engaged so its speed can ramp up from 0.
+      // A declining surface must not keep the loop (and a sensor frame through
+      // `notifyExternalScroll`) running forever under a still pointer. Canceling
+      // is the opposite signal: it stays engaged so its speed can ramp up from 0.
       pan.mockClear();
       await flushRaf(2);
       expect(pan).not.toHaveBeenCalled();
@@ -3114,9 +2939,8 @@ describe('engine.registerViewport', () => {
       expect(pan).toHaveBeenCalled();
     });
 
-    // Only a browser can show this. After a delegated frame moves the surface,
-    // the engine re-resolves what is under the pointer. In jsdom `fireDrag` pins
-    // `elementFromPoint`, so a transform doesn't change which element it returns.
+    // After a pan, the engine re-resolves what is under the pointer. In jsdom
+    // `fireDrag` pins `elementFromPoint`, so a transform can't change the result.
     describe.skipIf(isJSDOM)('on a real transform surface', () => {
       it('resolves a drop target the pan brings under a stationary pointer', async () => {
         const { engine } = await renderDnd();
@@ -3157,10 +2981,8 @@ describe('engine.registerViewport', () => {
         const onDraggableEnter = vi.fn();
         engine.registerTarget(target, { onDraggableEnter });
 
-        // The pointer rests in the bottom edge zone and never moves again. Each
-        // frame advances the clock by the 64ms delta cap, so the ramp completes
-        // in 7 frames and 30 frames pan about 1200px, well past the 620px that
-        // brings the target under the pointer.
+        // The pointer never moves again. At 64ms (the delta cap) per frame, 30
+        // frames pan about 1200px, well past the 620px the target needs.
         touchDown(source, 200, 380);
         for (let frame = 0; frame < 30 && !onDraggableEnter.mock.calls.length; frame += 1) {
           clock.advance(64);
@@ -3192,8 +3014,7 @@ describe('engine.registerViewport', () => {
       });
 
       await driveTo(source, viewport, 100, 190);
-      // Past the 400ms ramp, so `rampFactor` is 1 and depth is the only variable
-      // left.
+      // Past the 400ms ramp, so `rampFactor` is 1.
       clock.advance(1000);
       await flushRaf(2);
 
@@ -3201,8 +3022,7 @@ describe('engine.registerViewport', () => {
       clock.advance(FRAME_MS);
       await flushRaf(2);
 
-      // y=190 in a 0..200 box. The bottom edge zone is 50px deep, so the pointer
-      // is 0.8 of the way into it. The scrolling path uses the same formula.
+      // 0.8 deep into the 50px bottom edge zone. The scrolling path uses the same formula.
       const depth = 0.8;
       const delegated = Math.max(0, ...pan.mock.calls.map(([context]) => context.y));
       expect(delegated).toBeCloseTo((depth * MAX_SCROLL_SPEED * FRAME_MS) / 1000, 5);

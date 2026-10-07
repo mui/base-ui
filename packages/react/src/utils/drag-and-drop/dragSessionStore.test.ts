@@ -108,9 +108,8 @@ describe('dragSessionStore', () => {
     const snapshot = dragSessionStore.state!;
     const record = snapshot.location.current.targets[0];
     expect(record.element).toBe(target);
-    // Mutating a snapshot's `initial` must not affect the engine's bookkeeping
-    // or later snapshots. The array is typed `readonly`, so this covers consumers
-    // that bypass the types, where only the runtime clone protects the engine.
+    // Covers consumers that bypass the `readonly` type: only the runtime clone
+    // keeps the engine's bookkeeping and later snapshots safe from this mutation.
     // @ts-expect-error -- deliberate mutation of a readonly-typed array
     snapshot.location.initial.targets.push(record);
 

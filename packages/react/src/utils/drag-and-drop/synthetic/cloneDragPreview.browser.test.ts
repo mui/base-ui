@@ -764,9 +764,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     // Outside the 200x100 clipping ancestor, but still inside the viewport.
     handle.element.style.translate = '260px 200px';
 
-    // A clipped element still reports a box, so hit-test instead. Only a painted
-    // element answers `elementFromPoint`. The preview is normally inert and
-    // `pointer-events: none` so it cannot be hit. Lift both to probe it here.
+    // A clipped element still reports a box, so hit-test instead. The preview is
+    // normally inert and `pointer-events: none`, so lift both to probe it.
     handle.element.style.pointerEvents = 'auto';
     handle.element.removeAttribute('inert');
 
@@ -887,10 +886,9 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
 
     const handle = clonePreview(source, null)!;
 
-    // `scale` is not neutralized. Unlike `transform`, it composes around the box's
-    // center without moving the anchor, so the clone re-applies it and looks like
-    // the grabbed element. That only works because it applies to the untransformed
-    // box. Sizing from the transformed bounding box would compound it to 2.25x.
+    // `scale` isn't neutralized: it composes around the box's center without moving
+    // the anchor, so the clone re-applies it to the untransformed box. Sizing from
+    // the transformed bounding box would compound it to 2.25x.
     expect(handle.element.style.width).toBe('120px');
     expect(handle.element.style.height).toBe('30px');
     expect(getComputedStyle(handle.element).scale).toBe('1.5');
@@ -969,10 +967,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   });
 
   it('lets a consumer rule keyed on the preview attribute override the neutralizer', () => {
-    // The documented styling hook: `.Card[data-drag-preview] { rotate: 3deg }`.
     // The engine neutralizes `transition` from its adopted sheet, not inline, so
-    // this rule wins without `!important`. An inline declaration would beat any
-    // author rule at any specificity. `rotate` is never touched.
+    // this documented styling hook wins without `!important`.
     const sheet = document.createElement('style');
     sheet.textContent = '.Card[data-drag-preview]{rotate:3deg;transition:box-shadow 300ms ease;}';
     document.head.appendChild(sheet);
@@ -1012,10 +1008,9 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
   });
 
   it('lets cascade-layered consumer styles (Tailwind-style) style the preview', () => {
-    // Tailwind v4 puts every utility in `@layer utilities`, and unlayered author
-    // styles beat layered ones at any specificity. The engine must not ship an
-    // unlayered rule that competes with the preview's visual styling, so it writes
-    // back inline only the values the UA popover chrome changed.
+    // Tailwind v4 puts every utility in `@layer utilities`, which loses to any
+    // unlayered rule. So the engine ships no unlayered visual rule and writes back
+    // inline only the values the UA popover chrome changed.
     const sheet = document.createElement('style');
     sheet.textContent =
       '@layer utilities { .Card { border: 2px solid rgb(1, 2, 3); } ' +
@@ -1345,10 +1340,8 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     const handle = clonePreview(source, null)!;
     const plainHandle = clonePreview(plain, null)!;
     try {
-      // The `[popover]` UA rule gives the open popover `margin: auto` (hundreds of
-      // pixels here), a solid border, padding, `overflow: auto`, `CanvasText` and an
-      // opaque `Canvas` background. The preview keeps looking like the element it
-      // was lifted from.
+      // None of the `[popover]` UA chrome may reach the preview: `margin: auto`,
+      // border, padding, `overflow: auto`, `CanvasText`, and a `Canvas` background.
       const styles = getComputedStyle(handle.element);
       expect(styles.marginTop).toBe('0px');
       expect(styles.borderTopWidth).toBe('0px');
