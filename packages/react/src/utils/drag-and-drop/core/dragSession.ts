@@ -13,7 +13,7 @@ import type {
   DraggableLocationHistory,
 } from '../../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
-import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
+import type { DragPreview } from '../synthetic/syntheticPreview';
 import type { DropTargetGetter } from '../dropTarget';
 import type { DragCleanupFn } from '../types';
 import { getSharedSlot } from '../sharedState';
@@ -40,7 +40,7 @@ export interface DragSession {
    */
   readonly grabOffset: Readonly<{ x: number; y: number }>;
   /** The preview the sensor built, until the end sequence begins. */
-  readonly preview: SyntheticPreviewHandle | null;
+  readonly preview: DragPreview | null;
   /** A copy of the location, as the handler running now sees it. */
   getLocation(): DraggableLocationHistory;
   /**

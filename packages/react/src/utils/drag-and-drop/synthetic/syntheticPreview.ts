@@ -4,23 +4,31 @@ import { contains } from '@base-ui/utils/shadowDom';
 import { getFiniteAnimations } from '../../getFiniteAnimations';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { WindowTimeout } from '../../windowTimeout';
-import { createDragPreviewElement, measurePreviewSource } from './cloneDragPreview';
+import {
+  createDragPreviewElement,
+  measurePreviewAnchor,
+  measurePreviewSource,
+} from './cloneDragPreview';
 import type { DragPreviewElementHandle, PreviewAnchor } from './cloneDragPreview';
 import { copyPreviewContent, createPreviewContentContainer } from './previewContent';
 import type { PreviewContent } from './previewContent';
 import { updatePreviewContent } from './updatePreviewContent';
 import type { ResolvedDragPreview } from './pickupPreview';
-import type { DraggablePosition } from '../../../draggable/DraggableProvider';
-import type { DraggablePreviewRenderParameters } from '../../../draggable/preview/DraggablePreview';
+import type { DraggableInput, DraggablePosition } from '../../../draggable/DraggableProvider';
+import type {
+  DraggablePreviewOffset,
+  DraggablePreviewOffsetParameters,
+  DraggablePreviewRenderParameters,
+} from '../../../draggable/preview/DraggablePreview';
 import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
 import type { DragModifierKeys } from '../utils';
-import { applyDragModifiers, ZERO_OFFSET } from '../dragModifiers';
+import { applyDragModifiers, compileDragModifiers, ZERO_OFFSET } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
 import { setSourceSettling } from '../settlingSources';
 import { getActiveSession } from '../core/dragSession';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
-import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
+import { containConsumerError, getElementScale, NO_MODIFIER_KEYS } from '../utils';
 
 /** What `getElementScale` reports for an element with no ancestor transform. */
 const DEFAULT_SCALE: DraggablePosition = { x: 1, y: 1 };
@@ -146,6 +154,142 @@ export interface PreviewContentOptions {
 }
 
 export type AttachedPreviewContent = PreviewContentOptions & PreviewContent;
+
+/**
+ * Resolve a `DraggablePreviewOffset` (the `'source'`/`'pointer'` presets, a fixed
+ * `DraggablePosition`, or a callback) into a concrete pointer-relative offset.
+ *
+ * Defaults to `'source'`, which keeps the grab point the preview was picked up by,
+ * so a cloned preview lifts off the element without shifting.
+ */
+function resolveDragPreviewOffset(
+  offset: DraggablePreviewOffset | undefined,
+  params: DraggablePreviewOffsetParameters,
+): DraggablePosition {
+  if (offset === 'pointer') {
+    return { x: 0, y: 0 };
+  }
+  if (offset === undefined || offset === 'source') {
+    return {
+      x: params.input.clientX - params.sourceRect.left,
+      y: params.input.clientY - params.sourceRect.top,
+    };
+  }
+  if (typeof offset === 'function') {
+    return offset(params);
+  }
+  return offset;
+}
+
+/**
+ * Build the element that follows the pointer, unless the draggable opted out.
+ *
+ * Without custom content, the source is cloned into a sanitized preview that keeps
+ * its classes and live state. With custom content, the React layer renders it into
+ * a detached element, and the preview is a copy of it, built once it has rendered.
+ * Both are measured now, before `data-dragging` lands on the source, so the clone
+ * never inherits it and the usual `[data-dragging] { opacity: .4 }` rule dims the
+ * source alone.
+ *
+ * `pressInput` is the original press, and `input` is the pointer state the pickup
+ * committed on. Distance activation commits on a later `pointermove`, so the
+ * default `'source'` offset is measured from the press. Otherwise crossing the
+ * threshold would shift the preview in the gesture's direction.
+ */
+function attachDragPreview(
+  preview: SyntheticPreviewHandle,
+  element: HTMLElement,
+  settings: ResolvedDragPreview,
+  input: DraggableInput,
+  pressInput: DraggableInput,
+): void {
+  if (settings.disabled) {
+    return;
+  }
+  const anchor = measurePreviewAnchor(element, settings.container);
+  if (!anchor) {
+    return;
+  }
+
+  const isSourceOffset = settings.offset === undefined || settings.offset === 'source';
+  const resolveOffset = (container: HTMLElement) =>
+    resolveDragPreviewOffset(settings.offset, {
+      container,
+      // The rect the preview occupies. For a transformed source, this is the
+      // untransformed box the clone is anchored on (see `measurePreviewSource`), not
+      // the transformed one from `getBoundingClientRect`, so the clone lifts off
+      // where the source sits.
+      sourceRect: anchor.sourceRect,
+      input: isSourceOffset ? pressInput : input,
+    });
+
+  if (settings.render !== null) {
+    preview.attachContent({
+      anchor,
+      renderContent: settings.render,
+      // An offset callback needs the preview's rendered size, so every form resolves
+      // once the first copy of the content is in place.
+      resolveOffset(container) {
+        if (typeof settings.offset !== 'function') {
+          return resolveOffset(container);
+        }
+        // Consumer code. Uncontained, a throw would end the drag from inside the
+        // React commit that rendered the content.
+        return (
+          containConsumerError(
+            'Base UI: a drag preview "offset" function threw, so the preview uses the "source" offset.',
+            container,
+            () => resolveOffset(container),
+            null,
+          ) ??
+          resolveDragPreviewOffset('source', { container, sourceRect: anchor.sourceRect, input })
+        );
+      },
+    });
+    return;
+  }
+
+  const previewElement = createDragPreviewElement(element, anchor);
+  if (!previewElement) {
+    return;
+  }
+
+  // Own the element before invoking consumer code so pickup cleanup can release it.
+  preview.setPreviewElement(previewElement);
+  preview.setPreviewOffset(resolveOffset(previewElement.element));
+}
+
+/**
+ * Build the preview of a pickup from its resolved settings, and mark the source as
+ * being dragged. A disabled preview gets no element. The preview is undone when
+ * consumer code it runs, such as an `offset` function, throws.
+ *
+ * `pressInput` is the original press, and `input` is the pointer state the pickup
+ * committed on (see `attachDragPreview`).
+ */
+export function createDragPreview(
+  source: HTMLElement,
+  identity: SyntheticPreviewSourceIdentity,
+  settings: ResolvedDragPreview,
+  input: DraggableInput,
+  pressInput: DraggableInput,
+): DragPreview {
+  const preview = createSyntheticPreview(
+    source,
+    identity,
+    compileDragModifiers(settings.modifiers),
+  );
+  try {
+    attachDragPreview(preview, source, settings, input, pressInput);
+    // Only after the preview is built. A `[data-dragging]` rule that resizes or
+    // hides the source would otherwise corrupt the measurement it was built from.
+    preview.markSourceDragging();
+  } catch (error) {
+    preview.end(false);
+    throw error;
+  }
+  return preview;
+}
 
 /**
  * `modifiers` are the compiled preview-level modifiers, or `null` for none. They
@@ -543,29 +687,13 @@ export function createSyntheticPreview(
   };
 }
 
-export interface SyntheticPreviewHandle {
+/**
+ * The drag preview, as the sensor, the session and the React layer use it once
+ * `createDragPreview` has built it.
+ */
+export interface DragPreview {
   /** `keys` are the modifier keys of the event behind this position, for preview modifiers. */
   update(clientX: number, clientY: number, keys?: DragModifierKeys): void;
-  /**
-   * Adopt a preview, positioning it before destroying the previous element.
-   * The engine writes only its `translate`.
-   */
-  setPreviewElement(preview: DragPreviewElementHandle): void;
-  /**
-   * Show a custom preview's content. The React layer renders it into
-   * `getContent().container`, and the copy is built once it has. Until then, the drag
-   * has no preview element.
-   */
-  attachContent(options: PreviewContentOptions): void;
-  /** The custom preview's content, or `null` for a clone. */
-  getContent(): AttachedPreviewContent | null;
-  /** Copy the content after its first commit, or run its pending update. */
-  syncContent(): void;
-  /**
-   * Mark the source as being dragged. Called once the preview exists, so a
-   * `[data-dragging]` rule can't affect the geometry the preview was measured from.
-   */
-  markSourceDragging(): void;
   /**
    * Build the preview again for `Draggable.updatePreview()`. A clone of the source is
    * cloned again. Custom content renders again with `parameters`, and the copy takes
@@ -574,15 +702,17 @@ export interface SyntheticPreviewHandle {
   refresh(parameters: DraggablePreviewRenderParameters): void;
   /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */
   retargetSource(element: HTMLElement): void;
-  /**
-   * Set the offset from the preview's top-left to the cursor. Called at pickup, or
-   * once the first copy of custom content has a size.
-   */
-  setPreviewOffset(offset: DraggablePosition): void;
   /** The current preview element, or `null`. */
   getPreviewElement(): DragPreviewElementHandle | null;
-  /** The offset from the preview's top-left to the cursor (see `setPreviewOffset`). */
+  /** The offset from the preview's top-left to the cursor. */
   getPreviewOffset(): DraggablePosition;
+  /**
+   * The custom preview's content, or `null` for a clone. The React layer renders it
+   * into `container`, and the copy is built once it has.
+   */
+  getContent(): AttachedPreviewContent | null;
+  /** Copy the content after its first commit, or run its pending update. */
+  syncContent(): void;
   /**
    * End the preview. On a drop it stays mounted while its ending transition settles
    * onto the source. Otherwise, such as on a cancel, it is removed at once.
@@ -590,4 +720,31 @@ export interface SyntheticPreviewHandle {
   end(drop: boolean): void;
   /** Mark the ending preview as dropped on a target, for `[data-dropped]` styles. */
   markDropped(): void;
+}
+
+/**
+ * The steps `createDragPreview` builds a preview with. They are this module's
+ * internal seam, which its tests drive with a stand-in element.
+ */
+export interface SyntheticPreviewHandle extends DragPreview {
+  /**
+   * Adopt a preview, positioning it before destroying the previous element.
+   * The engine writes only its `translate`.
+   */
+  setPreviewElement(preview: DragPreviewElementHandle): void;
+  /**
+   * Show a custom preview's content. Until its first copy, the drag has no preview
+   * element.
+   */
+  attachContent(options: PreviewContentOptions): void;
+  /**
+   * Set the offset from the preview's top-left to the cursor. Called at pickup, or
+   * once the first copy of custom content has a size.
+   */
+  setPreviewOffset(offset: DraggablePosition): void;
+  /**
+   * Mark the source as being dragged. Called once the preview exists, so a
+   * `[data-dragging]` rule can't affect the geometry the preview was measured from.
+   */
+  markSourceDragging(): void;
 }

@@ -27,7 +27,7 @@ import type {
   DraggableEventDetailsMap,
 } from '../types';
 import type { DraggableConfig } from '../draggable';
-import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
+import type { DragPreview } from '../synthetic/syntheticPreview';
 import { createDragEventDetails, createMoveEndEventDetails } from '../dragEventDetails';
 import {
   captureDropTargetCollision,
@@ -1077,7 +1077,7 @@ export interface StartParameters {
    * The preview the sensor built. The session exposes it until the end sequence
    * begins (see `DragSession.preview`).
    */
-  preview?: SyntheticPreviewHandle | null | undefined;
+  preview?: DragPreview | null | undefined;
   /**
    * What the sensor driving the drag lends the session. A drag driven without a
    * sensor, such as a test harness, omits it. The raw input then falls back to the

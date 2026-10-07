@@ -1,10 +1,10 @@
 import { ownerWindow } from '@base-ui/utils/owner';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { getActiveSession } from '../core/dragSession';
-import type { SyntheticPreviewHandle } from './syntheticPreview';
+import type { DragPreview } from './syntheticPreview';
 
 // The previews with an update scheduled, so calls in one frame share it.
-const scheduled = new WeakSet<SyntheticPreviewHandle>();
+const scheduled = new WeakSet<DragPreview>();
 
 /**
  * Updates the preview of the drag in progress. A custom preview renders again with the

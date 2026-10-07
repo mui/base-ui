@@ -27,7 +27,7 @@ import type {
 import { getActiveSession } from '../core/dragSession';
 import type { DragSessionController } from '../core/lifecycleManager';
 import { createPreviewAndStartSession, hitTestUnderPreview } from './pickupPreview';
-import type { SyntheticPreviewHandle } from './syntheticPreview';
+import type { DragPreview } from './syntheticPreview';
 import * as dragRootLock from './dragRootLock';
 import * as dragCursor from './dragCursor';
 import {
@@ -1592,7 +1592,7 @@ interface ActiveSession {
   /** See `PendingSession.heldPointer`. */
   heldPointer: boolean;
   controller: DragSessionController;
-  preview: SyntheticPreviewHandle;
+  preview: DragPreview;
   lastInput: DraggableInput;
   /**
    * The native event `lastInput` was read from. It is passed to
