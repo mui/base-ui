@@ -62,11 +62,24 @@ type FieldsetLegendState = {
 };
 ```
 
+## Additional Types
+
+### FieldsetLegendDataAttributes
+
+Data attributes of [Legend](#legend).
+
+```typescript
+declare namespace FieldsetLegendDataAttributes {
+  /** Present when the fieldset is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
 ## Export Groups
 
 - `Fieldset.Root`: `Fieldset.Root`, `Fieldset.Root.State`, `Fieldset.Root.Props`
 - `Fieldset.Legend`: `Fieldset.Legend`, `Fieldset.Legend.State`, `Fieldset.Legend.Props`
-- `Default`: `FieldsetRootState`, `FieldsetRootProps`, `FieldsetLegendState`, `FieldsetLegendProps`
+- `Default`: `FieldsetLegendDataAttributes`, `FieldsetRootState`, `FieldsetRootProps`, `FieldsetLegendState`, `FieldsetLegendProps`
 
 ## Canonical Types
 
