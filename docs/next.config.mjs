@@ -111,7 +111,7 @@ const nextConfig = {
       test: /\.mp4$/i,
       type: 'asset/resource',
       generator: {
-        outputPath: path.relative(config.output.path, path.resolve(dir, distDir)),
+        outputPath: () => path.relative(config.output.path, path.resolve(dir, distDir)),
       },
     });
     config.module.rules.push({
