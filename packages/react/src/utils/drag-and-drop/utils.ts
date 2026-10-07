@@ -15,6 +15,15 @@ import {
   multiplyLinearTransforms,
 } from './linearTransform';
 
+/**
+ * Marks the element the engine positions: `"clone"` for the clone of the source, or
+ * `"content"` for the copy of a custom preview's content. The engine finds the
+ * preview through it in either mode, including a preview still settling after its
+ * drag. The same element carries the public `data-drag-preview`. The
+ * `data-base-ui-` prefix means this one is internal, not a styling hook.
+ */
+export const PREVIEW_ELEMENT_ATTRIBUTE = 'data-base-ui-drag-preview';
+
 /** The four modifier key flags, as the events that carry them report them. */
 export type DragModifierKeys = Pick<DraggableInput, 'ctrlKey' | 'shiftKey' | 'altKey' | 'metaKey'>;
 

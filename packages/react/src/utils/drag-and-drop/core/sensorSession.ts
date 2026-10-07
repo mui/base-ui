@@ -7,11 +7,10 @@
 
 import { ownerDocument } from '@base-ui/utils/owner';
 import { start } from './lifecycleManager';
-import type { DragSessionController } from './lifecycleManager';
+import type { DragSessionController, DragSessionSensor } from './lifecycleManager';
 import { getRegistration } from '../draggableRegistry';
 import { getDropTargetShadowRootsByHost } from '../dropTarget';
 import { elementFromPointIgnoring } from '../utils';
-import { clearActivePreviewHandle, setActivePreviewHandle } from '../activePreview';
 import { attachDragPreview, resolveDragPreview } from '../synthetic/pickupPreview';
 import { compileDragModifiers } from '../dragModifiers';
 import * as dragRootLock from '../synthetic/dragRootLock';
@@ -48,6 +47,8 @@ export interface CreatePreviewSessionParameters {
   pressPoint: { x: number; y: number };
   /** Sensor-side force-cleanup, run from the lifecycle's teardown path. */
   onForceCleanup: () => void;
+  /** What the sensor lends the session (see `StartParameters.sensor`). */
+  sensor?: DragSessionSensor | undefined;
   /** Whether the sensor still owns the pickup after consumer callbacks. */
   isPickupCurrent: () => boolean;
 }
@@ -78,9 +79,9 @@ export interface PreviewSessionHandle {
  *
  * On success, returns the session and the preview it owns. When the pickup throws
  * or the lifecycle refuses to start (a drag is already running or the pickup was
- * canceled), everything acquired here is undone. The preview is destroyed, the
- * published handle is cleared and the root lock is released, so the sensor only
- * cleans up its own pre-pickup state. A throw is re-thrown after the undo.
+ * canceled), everything acquired here is undone. The preview is destroyed and the
+ * root lock is released, so the sensor only cleans up its own pre-pickup state. A
+ * throw is re-thrown after the undo.
  */
 export function createPreviewAndStartSession(
   parameters: CreatePreviewSessionParameters,
@@ -94,6 +95,7 @@ export function createPreviewAndStartSession(
     startReason,
     pressPoint,
     onForceCleanup,
+    sensor,
     isPickupCurrent,
   } = parameters;
   const element = dragSource.element;
@@ -103,7 +105,6 @@ export function createPreviewAndStartSession(
 
   const undo = () => {
     if (preview) {
-      clearActivePreviewHandle(preview);
       preview.destroy();
     }
     if (locked) {
@@ -147,10 +148,6 @@ export function createPreviewAndStartSession(
     // Only after the preview is built. A `[data-dragging]` rule that resizes or
     // hides the source would otherwise corrupt the measurement it was built from.
     preview.markSourceDragging();
-    // Publish before the session starts. The lifecycle dispatches
-    // `onGenerateDragPreview` synchronously from `start()`, and the React layer
-    // reads the custom preview content from this slot while handling it.
-    setActivePreviewHandle(preview);
     dragRootLock.lock(element);
     locked = true;
     // Place the preview at the current input so the first frame does not leave it
@@ -198,6 +195,10 @@ export function createPreviewAndStartSession(
           sessionPreview.markDropped();
         }
       },
+      // The session publishes it before `start()` dispatches `onGenerateDragPreview`,
+      // where the React layer reads the custom preview content from it.
+      preview: sessionPreview,
+      sensor,
     });
     if (!session) {
       // The lifecycle refused (a drag is already running or pickup was canceled).

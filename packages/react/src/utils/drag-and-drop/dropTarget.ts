@@ -24,6 +24,7 @@ import type {
 import { matchesAccept } from './dragKind';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
+import { getActiveSession } from './core/dragSession';
 import {
   getComposedParentElement,
   getOrCreate,
@@ -99,14 +100,6 @@ interface DropTargetState {
    * drag left behind.
    */
   retiring: Map<Element, DropTargetGetter>;
-  /** The active drag's source, set by the lifecycle for the session's duration. */
-  sessionSource: DraggableRootRecord | null;
-  /**
-   * The active drag's grab offset. It is the pointer position at pickup minus the
-   * source's border-box origin, in client pixels, measured before `[data-dragging]`
-   * styles apply. Each record captures it for `getSnappedLocalPoint({ anchor: 'source' })`.
-   */
-  grabOffset: { x: number; y: number } | null;
   /**
    * The key each registration's payload and `dragData` are stored under, per
    * element and getter (see {@link getRegistrationKey}).
@@ -139,8 +132,6 @@ const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   shadowRootsByHost: new Map<Element, ShadowRoot>(),
   shadowRootChangeListeners: new Set<ShadowRootChangeListener>(),
   retiring: new Map<Element, DropTargetGetter>(),
-  sessionSource: null,
-  grabOffset: null,
   registrationKeys: new WeakMap<Element, WeakMap<DropTargetGetter, object>>(),
   dragData: new WeakMap<object, TargetDragData>(),
   recordRegistrations: new WeakMap<DraggableTargetRecord, RecordRegistration>(),
@@ -271,15 +262,6 @@ export function retainRetiringDropTarget(element: Element, getParameters: DropTa
   }
 }
 
-/** Open a drag session before its initial stack resolves. The lifecycle calls it on start. */
-export function beginDropTargetSession(
-  source: DraggableRootRecord,
-  grabOffset: { x: number; y: number },
-): void {
-  state.sessionSource = source;
-  state.grabOffset = grabOffset;
-}
-
 /**
  * Close the session by dropping every retiring hold and the drag's per-target data.
  * The lifecycle calls it on teardown. Records already handed out keep their own
@@ -287,8 +269,6 @@ export function beginDropTargetSession(
  */
 export function endDropTargetSession(): void {
   state.retiring.clear();
-  state.sessionSource = null;
-  state.grabOffset = null;
   state.dragData = new WeakMap<object, TargetDragData>();
 }
 
@@ -398,7 +378,7 @@ function getTargetDragData(
 ): TargetDragData {
   // Resolution can resume after its drag ended, when a consumer cancels mid-walk.
   // Don't cache that data, or the next drag would start from it.
-  if (source !== state.sessionSource) {
+  if (source !== getActiveSession()?.source) {
     return { kind, value: undefined };
   }
   let data = state.dragData.get(registrationKey);
@@ -559,7 +539,7 @@ function createLocalPointReaders(
   snap: AnyDropTargetParameters['snap'],
 ): Pick<DraggableTargetRecord, 'getLocalPoint' | 'getSnappedLocalPoint'> {
   const { clientX, clientY } = context.input;
-  const grabOffset = state.grabOffset;
+  const grabOffset = getActiveSession()?.grabOffset ?? null;
 
   let rect: DOMRect | null = null;
   function localPoint(offsetX: number, offsetY: number): DraggableTargetLocalPoint {

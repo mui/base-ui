@@ -18,13 +18,7 @@ import {
   retainRetiringDropTarget,
 } from './dropTarget';
 import { addMonitor, removeMonitor } from './monitor';
-import {
-  isActive,
-  isHoveredDropTarget,
-  refreshDropTargets,
-  scheduleDropTargetParameterRefresh,
-} from './core/lifecycleManager';
-import { dragSessionStore } from './dragSessionStore';
+import { getActiveSession } from './core/dragSession';
 import type {
   RegisterMonitorParameters,
   DragParametersWithInferredAccept,
@@ -102,7 +96,7 @@ export function registerTarget<
   // re-registers from its own `onDraggableLeave` keeps its existing entry, but
   // still needs the refresh to rejoin the stack before the next pointer update.
   // Does nothing without an active drag.
-  scheduleDropTargetParameterRefresh(undefined, true);
+  getActiveSession()?.scheduleTargetRefresh(null, true);
 
   return onceCleanup(() => {
     // A hovered element re-resolves the stack synchronously, so reactive
@@ -113,32 +107,32 @@ export function registerTarget<
     // A target outside the stack is owed no leave, and removing it can't change
     // the resolved stack, so its refresh joins the queued microtask instead.
     removeDropTargetRegistration(element, getParameters, () => {
-      if (!isActive()) {
+      const session = getActiveSession();
+      if (session === null) {
         return;
       }
-      const snapshot = dragSessionStore.getSnapshot();
-      // A `null` snapshot during an active drag means `onGenerateDragPreview` is
-      // running and the session isn't published yet, so membership can't be read.
-      // Take the synchronous path and keep the registration readable. The
-      // lifecycle queues the refresh until `onMoveStart` has gone out, so the
-      // initial stack is still published and entered as resolved, and this
-      // target leaves it right after with its `onDraggableLeave`.
+      // While the session is starting, the initial stack isn't published, so
+      // membership can't be read. Take the synchronous path and keep the
+      // registration readable. The lifecycle queues the refresh until
+      // `onMoveStart` has gone out, so the initial stack is still published and
+      // entered as resolved, and this target leaves it right after with its
+      // `onDraggableLeave`.
       //
-      // Membership comes from `isHoveredDropTarget`, the lifecycle's own hover
-      // bookkeeping, not from the published snapshot. A target that entered and
-      // unregistered in the same change round is hovered but not yet published.
-      // The coalesced path would run after its registration is gone and lose the
-      // `onDraggableLeave` it is owed.
-      if (snapshot === null || isHoveredDropTarget(element)) {
+      // Membership comes from the session's own hover bookkeeping, not from the
+      // published snapshot. A target that entered and unregistered in the same
+      // change round is hovered but not yet published. The coalesced path would
+      // run after its registration is gone and lose the `onDraggableLeave` it is
+      // owed.
+      if (session.phase === 'starting' || session.isTargetHovered(element)) {
         // Keeps the registration readable past the delete below. The synchronous
         // refresh usually dispatches the leave right away and releases it. Inside
         // a consumer fan-out, though, the refresh can only queue, and the entry
         // would be gone by the time it drains. Does nothing when another hold
         // keeps the element registered, since the lifecycle reads that one.
         retainRetiringDropTarget(element, getParameters);
-        refreshDropTargets();
+        session.refreshTargets();
       } else {
-        scheduleDropTargetParameterRefresh(undefined, true);
+        session.scheduleTargetRefresh(null, true);
       }
     });
   });

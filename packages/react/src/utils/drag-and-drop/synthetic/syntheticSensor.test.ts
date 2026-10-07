@@ -10,7 +10,7 @@ import {
   setupDragEngineTests,
   splitEnd,
 } from '../../../../test/dnd';
-import { cancelDrag } from '../cancelDrag';
+import { cancelDrag } from './syntheticSensor';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { dragSessionStore } from '../dragSessionStore';
 import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';

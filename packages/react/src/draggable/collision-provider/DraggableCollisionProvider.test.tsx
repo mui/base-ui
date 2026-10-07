@@ -6,7 +6,7 @@ import { firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer } from '../../../test/dndEngine';
 import { lift, dragOver, drop, cancel, flushRaf, setupDragEngineTests } from '../../../test/dnd';
-import { cancelDrag } from '../../utils/drag-and-drop/cancelDrag';
+import { cancelDrag } from '../../utils/drag-and-drop/synthetic/syntheticSensor';
 
 setupDragEngineTests();
 const kind = Draggable.createKind<string>('collision-test');

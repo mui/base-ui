@@ -7,7 +7,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { syncDropTargetPayload } from '../../utils/drag-and-drop/dropTarget';
 import { registerTarget } from '../../utils/drag-and-drop/registrations';
-import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
+import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
 import type { RegisterTargetParameters } from '../../utils/drag-and-drop/registrationTypes';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import {
@@ -98,7 +98,7 @@ export function useDraggableTargetElement(
     // after its own `onMove` updates preview state. Hit-testing the shifted content
     // again can enter another target, update preview state again, and start a
     // synchronous render/refresh loop.
-    scheduleDropTargetParameterRefresh(elementRef.current);
+    getActiveSession()?.scheduleTargetRefresh(elementRef.current);
   }, [disabled, accept, canDrop]);
 
   const targetState = useStore(

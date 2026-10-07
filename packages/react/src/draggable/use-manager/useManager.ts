@@ -3,7 +3,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
 import { registerMonitor, registerTarget } from '../../utils/drag-and-drop/registrations';
 import { registerViewport } from '../../utils/drag-and-drop/autoScroller';
-import { cancelDrag } from '../../utils/drag-and-drop/cancelDrag';
+import { cancelDrag } from '../../utils/drag-and-drop/synthetic/syntheticSensor';
 import type {
   DraggableManager,
   InternalDragEngine,

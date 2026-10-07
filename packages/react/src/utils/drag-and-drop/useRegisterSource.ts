@@ -10,9 +10,8 @@ import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
 import { registerDraggableElement } from './draggable';
 import type { DraggableConfig } from './draggable';
 import { setParticipantOwner } from './participantData';
-import { isActive } from './core/lifecycleManager';
+import { getActiveSession } from './core/dragSession';
 import { publishDragPreview } from './overlay/dragPreviewStore';
-import { getActivePreviewHandle } from './activePreview';
 import type { RegisterSourceParameters } from './registrationTypes';
 import type { DragCleanupFn } from './types';
 import type { DraggablePreviewRenderParameters } from '../../draggable/preview/DraggablePreview';
@@ -53,7 +52,7 @@ export function createRegisterSource(
       // The sensor set up the preview before starting this session. Only custom
       // content needs React. The engine builds a clone without it, and attaches no
       // content to a disabled preview.
-      const handle = getActivePreviewHandle();
+      const handle = getActiveSession()?.preview;
       const content = handle?.getContent();
       if (!handle || !content) {
         return;
@@ -61,7 +60,7 @@ export function createRegisterSource(
       content.render = publishPreview as (parameters: DraggablePreviewRenderParameters) => void;
       const node = content.renderContent(payload);
       // The render function is consumer code and may have ended the drag.
-      if (!isActive() || getActivePreviewHandle() !== handle) {
+      if (getActiveSession()?.preview !== handle) {
         return;
       }
       // Content that resolves to nothing declines the preview. The engine then has

@@ -15,7 +15,7 @@ import {
   fireDrag,
 } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
-import { isActive } from '../../utils/drag-and-drop/core/lifecycleManager';
+import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
 import { registerTarget as registerTargetRaw } from '../../utils/drag-and-drop/registrations';
 import { anyDragKind } from '../../utils/drag-and-drop/dragKind';
 import type { MoveEventDetails } from '../../utils/drag-and-drop/types';
@@ -1472,7 +1472,7 @@ describe('engine.registerTarget', () => {
     expect(onDraggableDrop).toHaveBeenCalledTimes(1);
     expect(onDraggableDrop.mock.calls[0][0].currentTarget.element).toBe(target);
     expect(topHitTest).not.toHaveBeenCalled();
-    expect(isActive()).toBe(false);
+    expect(getActiveSession()).toBe(null);
   });
 
   describe('parameters from plain JS', () => {
@@ -1490,7 +1490,7 @@ describe('engine.registerTarget', () => {
       fireDrag.drop(target);
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
 
     it('treats `accept: null` like an omitted `accept` and keeps later drags working', async () => {
@@ -1509,7 +1509,7 @@ describe('engine.registerTarget', () => {
       await dragEnter(target);
       fireDrag.drop(target);
       expect(onDraggableDrop).toHaveBeenCalledTimes(1);
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
 
       // `lift` throws if the engine refuses the pickup.
       await lift(source);

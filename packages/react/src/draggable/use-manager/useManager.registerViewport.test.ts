@@ -13,7 +13,7 @@ import {
   dragOver,
 } from '../../../test/dnd';
 import { touchDown, touchUp } from '../../../test/syntheticPointer';
-import { reset } from '../../utils/drag-and-drop/core/lifecycleManager';
+import { resetForTests } from '../../utils/drag-and-drop/core/dragSession';
 import { restrictToHorizontalAxis } from '../../utils/drag-and-drop/dragModifiers';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
@@ -2303,17 +2303,16 @@ describe('engine.registerViewport', () => {
     const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
     expect(scrollByMock).toHaveBeenCalled();
 
-    // A teardown that skips the terminal `onMoveEnd` (the test `reset()`, or an
-    // engine error after the end was already latched) clears the monitors without
-    // sending `onMoveEnd` to the scroll monitor, so `stopScrollLoop` never runs.
-    // A throwing consumer callback doesn't skip it, because recovery still
-    // delivers `onMoveEnd` to monitors.
+    // A teardown that skips the terminal `onMoveEnd` (a test reset, or an engine
+    // error after the end was already latched) clears the monitors without sending
+    // `onMoveEnd` to the scroll monitor. A throwing consumer callback doesn't skip
+    // it, because recovery still delivers `onMoveEnd` to monitors.
     act(() => {
-      reset();
+      resetForTests();
     });
     expect(dragSessionStore.getSnapshot()).toBeNull();
 
-    // The loop must stop itself now that no drag session is live.
+    // The loop must stop with the session anyway.
     scrollByMock.mockClear();
     await flushRaf(2);
     expect(scrollByMock).not.toHaveBeenCalled();
@@ -2770,7 +2769,7 @@ describe('engine.registerViewport', () => {
       } finally {
         // The drag has to end before the spy is restored, or later loop frames
         // log through the throwing callback after it is gone.
-        reset();
+        resetForTests();
         consoleError.mockRestore();
       }
     });

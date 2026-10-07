@@ -1,8 +1,8 @@
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import { getSharedSlot } from './sharedState';
 import { getRegistration } from './draggableRegistry';
-import { dragSessionStore, notifyDragSourceUpdated } from './dragSessionStore';
-import { getActivePreviewHandle } from './activePreview';
+import { notifyDragSourceUpdated } from './dragSessionStore';
+import { getActiveSession } from './core/dragSession';
 import { syncParticipantPayload } from './participantData';
 import type { ParticipantPayload } from './participantData';
 
@@ -44,7 +44,7 @@ export function createDragSource(
       if (data.update(nextPayload)) {
         // Every drag record of this registration shares `data`, so notify the
         // active drag's record, even when it isn't this one.
-        const activeSource = dragSessionStore.state?.source;
+        const activeSource = getActiveSession()?.source;
         if (activeSource && sourcePayloads.get(activeSource) === data) {
           notifyDragSourceUpdated(activeSource);
         }
@@ -81,7 +81,7 @@ export function syncActiveDragSourcePayload(
   if (element === null) {
     return;
   }
-  const source = dragSessionStore.state?.source;
+  const source = getActiveSession()?.source;
   if (source?.element === element && source.kind === kind) {
     // Publish at most one prop change per synchronous render cascade. An inline
     // `payload={{ ... }}` is a new object on every render, so publishing re-renders
@@ -112,17 +112,17 @@ export function syncActiveDragSourcePayload(
  * `oldElement` is the active source, so an unrelated draggable's swap can't take
  * over the session.
  *
- * The session's `source` is mutated, not replaced, so `dragSessionStore.state.source`
- * stays `===` to the `source` of every event in the drag. `dragSourceStore`
- * publishes a new copy instead, because its React subscribers need a new
- * reference to re-render. Don't compare a `DraggableRootRecord` read from there
- * to an event's `source` by identity.
+ * The session's `source` is mutated, not replaced, so it stays `===` to the
+ * `source` of every event in the drag. `dragSourceStore` publishes a new copy
+ * instead, because its React subscribers need a new reference to re-render. Don't
+ * compare a `DraggableRootRecord` read from there to an event's `source` by identity.
  */
 export function retargetDragSource(oldElement: Element, newElement: HTMLElement): void {
-  const source = dragSessionStore.state?.source;
-  if (source?.element !== oldElement) {
+  const session = getActiveSession();
+  if (session?.source.element !== oldElement) {
     return;
   }
+  const source = session.source;
   // Mutated in place because this is the lifecycle's own `source`, which every
   // event of the drag reports. It must point at the live node.
   source.element = newElement;
@@ -130,5 +130,5 @@ export function retargetDragSource(oldElement: Element, newElement: HTMLElement)
   // the same reference, so `useActiveDrag()` and `Draggable.Root`'s `dragging`
   // would keep reading the detached node.
   notifyDragSourceUpdated(source);
-  getActivePreviewHandle()?.retargetSource(newElement);
+  session.preview?.retargetSource(newElement);
 }

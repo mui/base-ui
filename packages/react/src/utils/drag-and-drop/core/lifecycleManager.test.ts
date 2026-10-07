@@ -28,10 +28,12 @@ import {
 } from '../dropTarget';
 import { elementFromPointIgnoring } from '../utils';
 import { addMonitor, removeMonitor } from '../monitor';
-import { cancelDrag } from '../cancelDrag';
+import { registerTarget } from '../registrations';
+import { cancelDrag } from '../synthetic/syntheticSensor';
 import { createDragSource } from '../dragSource';
 import { dragSessionStore } from '../dragSessionStore';
-import { reset, start, isActive, scheduleDropTargetParameterRefresh } from './lifecycleManager';
+import { start } from './lifecycleManager';
+import { getActiveSession, resetForTests } from './dragSession';
 import type { DragSessionController, SourceHandlers } from './lifecycleManager';
 import { createKind } from '../dragKind';
 
@@ -142,7 +144,7 @@ describe('lifecycle manager', () => {
     const handle = startDragWithHandlers({}, inner);
     expect(() => handle!.drop(makeInput(), inner)).toThrow('leave failed');
     expect(outerLeave).toHaveBeenCalledTimes(1);
-    expect(isActive()).toBe(false);
+    expect(getActiveSession()).toBe(null);
   });
 
   it('does not keep a monitor engaged by a pickup its getter canceled', () => {
@@ -161,7 +163,7 @@ describe('lifecycle manager', () => {
     registerCleanup(() => removeMonitor(getMonitor));
 
     startDragWithHandlers({}, null, cardKind);
-    expect(isActive()).toBe(false);
+    expect(getActiveSession()).toBe(null);
 
     startDragWithHandlers({}, null, fileKind)!.cancel();
 
@@ -187,7 +189,7 @@ describe('lifecycle manager', () => {
     registerCleanup(() => removeMonitor(getMonitor));
 
     startDragWithHandlers({}, null, cardKind);
-    expect(isActive()).toBe(true);
+    expect(getActiveSession()).not.toBe(null);
 
     restarted!.update(makeInput(), null, new Event('pointermove'), 'pointer');
     restarted!.cancel();
@@ -279,7 +281,7 @@ describe('lifecycle manager', () => {
         handle.update(makeInput(), target.element, new Event('pointermove'), 'pointer'),
       ).toThrow('move failed');
 
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
       expect(cachedDragData(target.element, target.getParameters)).toBe(undefined);
     });
 
@@ -294,7 +296,7 @@ describe('lifecycle manager', () => {
 
       handle.update(makeInput(), target.element, new Event('pointermove'), 'pointer');
 
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
       expect(cachedDragData(target.element, target.getParameters)).toBe(undefined);
     });
   });
@@ -323,12 +325,12 @@ describe('lifecycle manager', () => {
       const handle = startDragWithHandlers({}, inner)!;
 
       handle.update(makeInput(), inner, new Event('pointermove'), 'pointer');
-      expect(isActive()).toBe(true);
+      expect(getActiveSession()).not.toBe(null);
       handle.drop(makeInput(), inner);
 
       expect(onDraggableDrop).toHaveBeenCalledTimes(1);
       expect(onDraggableDrop.mock.calls[0][0].currentTarget.element).toBe(outer);
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
 
     it.each([
@@ -354,7 +356,7 @@ describe('lifecycle manager', () => {
 
       expect(() => resolve(handle, broken)).toThrow('walk failed');
 
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('handler-error');
       expect(startDragWithHandlers({})).not.toBe(null);
@@ -366,7 +368,7 @@ describe('lifecycle manager', () => {
       registerCleanup(() => removeMonitor(getMonitor));
 
       expect(startDragWithHandlers({})).not.toBe(null);
-      expect(isActive()).toBe(true);
+      expect(getActiveSession()).not.toBe(null);
     });
   });
 
@@ -446,7 +448,7 @@ describe('lifecycle manager', () => {
       expect(order).toEqual(['preview', 'start']);
       expect(handle).not.toBeNull();
       act(() => {
-        reset();
+        resetForTests();
       });
     });
 
@@ -607,6 +609,31 @@ describe('lifecycle manager', () => {
       expect(outerEnter).not.toHaveBeenCalled();
       expect(outerLeave).not.toHaveBeenCalled();
     });
+
+    it('enters and then leaves an initial target that unregisters while the drag starts', async () => {
+      // The target unregisters from `onGenerateDragPreview`, before the initial
+      // stack is published. It is still entered with that stack, and the leave it
+      // is then owed goes out right after `onMoveStart`.
+      await renderDnd();
+      const under = createElement();
+      const order: string[] = [];
+      const unregister = registerTarget(under, () => ({
+        accept: TEST_KIND,
+        onDraggableEnter: () => order.push('enter'),
+        onDraggableLeave: () => order.push('leave'),
+      }));
+      const pickupTarget = createElement();
+      under.appendChild(pickupTarget);
+
+      act(() => {
+        startDragWithHandlers(
+          { onGenerateDragPreview: unregister, onMoveStart: () => order.push('start') },
+          pickupTarget,
+        );
+      });
+
+      expect(order).toEqual(['start', 'enter', 'leave']);
+    });
   });
 
   describe('drop target hierarchy changes', () => {
@@ -655,7 +682,7 @@ describe('lifecycle manager', () => {
       expect(dragSessionStore.getSnapshot()?.location.current.targets).toEqual([]);
 
       disabled = false;
-      scheduleDropTargetParameterRefresh(target);
+      getActiveSession()?.scheduleTargetRefresh(target);
       await act(async () => Promise.resolve());
       expect(dragSessionStore.getSnapshot()?.location.current.targets[0]?.element).toBe(target);
 
@@ -674,9 +701,9 @@ describe('lifecycle manager', () => {
       });
       const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(newTarget);
 
-      scheduleDropTargetParameterRefresh(previousTarget);
-      scheduleDropTargetParameterRefresh(undefined, true);
-      scheduleDropTargetParameterRefresh(previousTarget);
+      getActiveSession()?.scheduleTargetRefresh(previousTarget);
+      getActiveSession()?.scheduleTargetRefresh(null, true);
+      getActiveSession()?.scheduleTargetRefresh(previousTarget);
       await act(async () => Promise.resolve());
 
       expect(hitTest).toHaveBeenCalledTimes(1);
@@ -696,7 +723,7 @@ describe('lifecycle manager', () => {
       let first: DragSessionController | null = null;
       act(() => {
         first = startDragWithHandlers({}, targetA);
-        scheduleDropTargetParameterRefresh();
+        getActiveSession()?.scheduleTargetRefresh(null);
         first!.cancel();
       });
 
@@ -706,7 +733,7 @@ describe('lifecycle manager', () => {
       });
       const callsAtStart = getTargetB.mock.calls.length;
 
-      scheduleDropTargetParameterRefresh();
+      getActiveSession()?.scheduleTargetRefresh(null);
       await act(async () => Promise.resolve());
 
       expect(getTargetB).toHaveBeenCalledTimes(callsAtStart + 1);
@@ -737,7 +764,7 @@ describe('lifecycle manager', () => {
 
       child.remove();
       mockElementFromPoint(() => target);
-      scheduleDropTargetParameterRefresh(target);
+      getActiveSession()?.scheduleTargetRefresh(target);
       await act(async () => Promise.resolve());
 
       expect(onDraggableLeave).not.toHaveBeenCalled();
@@ -1083,7 +1110,7 @@ describe('lifecycle manager', () => {
       // The test suite's afterEach calls `reset()` while a drag may still be
       // in flight.
       act(() => {
-        reset();
+        resetForTests();
       });
 
       // The lifecycle is free again, so a new drag must start. Without the
@@ -1107,7 +1134,7 @@ describe('lifecycle manager', () => {
         onForceCleanup,
       });
       expect(handle).not.toBeNull();
-      expect(isActive()).toBe(true);
+      expect(getActiveSession()).not.toBe(null);
 
       act(() => {
         cancelDrag();
@@ -1116,7 +1143,7 @@ describe('lifecycle manager', () => {
       // Teardown runs the sensor's force-cleanup hook (its `clearActive`), so
       // listeners, pointer capture and the drag-root lock are released.
       expect(onForceCleanup).toHaveBeenCalledTimes(1);
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
   });
 
@@ -1129,14 +1156,14 @@ describe('lifecycle manager', () => {
     // listener surfaces as an unhandled error under jsdom.
     /** After a handler throws, the engine must be inactive and able to start a new drag. */
     function expectEngineRecovered(): void {
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
       // A new drag must start, which proves that no state leaked.
       const onMoveStart = vi.fn();
       const handle = startDragWithHandlers({ onMoveStart });
       expect(handle).not.toBeNull();
-      expect(isActive()).toBe(true);
+      expect(getActiveSession()).not.toBe(null);
       act(() => {
-        reset();
+        resetForTests();
       });
     }
 
@@ -1171,7 +1198,7 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('handler-error');
       expect(onMoveEnd.mock.calls[0][0].canceled).toBe(true);
       expect(monitorEnd).toHaveBeenCalledTimes(1);
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
 
     it.each(['manager', 'controller'] as const)(
@@ -1247,7 +1274,7 @@ describe('lifecycle manager', () => {
 
       // The recovery path must not deliver a second terminal event for the same drag.
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
 
     it("a throwing source onDrop still lets the target's onDrop and the terminal leave run", () => {
@@ -1459,13 +1486,13 @@ describe('lifecycle manager', () => {
       });
 
       expect(second).not.toBeNull();
-      expect(isActive()).toBe(true);
+      expect(getActiveSession()).not.toBe(null);
       expect(dragSessionStore.getSnapshot()).not.toBeNull();
 
       act(() => {
         second!.cancel();
       });
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
   });
 
@@ -1495,7 +1522,7 @@ describe('lifecycle manager', () => {
       // The drag ended before the start fan-out reached the monitors. A start
       // after the end would reverse the lifecycle order.
       expect(monitorOnDragStart).not.toHaveBeenCalled();
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
 
       // The sensor released its resources through the refused-session path, so
       // a new drag starts.
@@ -1531,7 +1558,7 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
 
     it('cancelDrag() from an initial-stack canDrop ends the drag before it starts', async () => {
@@ -1572,7 +1599,7 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
       expect(monitorOnDragEnd).toHaveBeenCalledTimes(1);
       expect(dragSessionStore.getSnapshot()).toBeNull();
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
 
     it('cancelDrag() from a monitor onMoveStart stops the fan-out to later monitors', async () => {
@@ -1593,7 +1620,7 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
   });
 
@@ -1619,7 +1646,7 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onTargetChange).not.toHaveBeenCalled();
       expect(dragSessionStore.getSnapshot()).toBeNull();
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
 
     it('stops final resolution when canDrop cancels during release', async () => {
@@ -1686,7 +1713,7 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
 
       const el2 = createElement();
       const onDragStart2 = vi.fn();
@@ -1727,7 +1754,7 @@ describe('lifecycle manager', () => {
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
       expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
       expect(onMoveEnd.mock.calls[0][0].reason).toBe('imperative-action');
-      expect(isActive()).toBe(false);
+      expect(getActiveSession()).toBe(null);
     });
   });
 });

@@ -24,11 +24,10 @@ import type {
   DraggableRootActivation,
   DraggableRootBeforeMoveStartEventDetails,
 } from '../../../draggable/root/DraggableRoot';
-import { isActive as isLifecycleActive } from '../core/lifecycleManager';
+import { getActiveSession } from '../core/dragSession';
 import type { DragSessionController } from '../core/lifecycleManager';
 import { createPreviewAndStartSession, hitTestUnderPreview } from '../core/sensorSession';
 import type { SyntheticPreviewHandle } from './syntheticPreview';
-import { clearActivePreviewHandle } from '../activePreview';
 import * as dragRootLock from './dragRootLock';
 import * as dragCursor from './dragCursor';
 import {
@@ -39,7 +38,6 @@ import {
   swallowEvent,
 } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
-import { setActivePointerAccessors } from '../activePointer';
 import { createEventRootBinding } from '../documentBinding';
 import { createDragSource } from '../dragSource';
 import {
@@ -88,10 +86,6 @@ const state = getSharedSlot<SyntheticDragState>('syntheticDrag', () => ({
   lastPointerDown: null,
   cleanupContextMenuSuppression: null,
 }));
-setActivePointerAccessors({
-  getInput: getRawActivePointerInput,
-  notifyScroll: notifyExternalScroll,
-});
 const CONTEXT_MENU_SUPPRESSION_MS = 1500;
 
 /**
@@ -221,7 +215,6 @@ function clearActive(
   // Null the singleton first. If teardown throws, a leftover `active` would keep
   // `dragRootLock` held and block every future drag.
   state.active = null;
-  clearActivePreviewHandle(session.preview);
 
   // The gesture activated, so the compatibility click after the release comes
   // from the drag, not from a click the user meant.
@@ -322,8 +315,8 @@ function cancelActive(
   const controller = active.controller;
   // `clearActive` can throw. `releasePointerCaptureSafely` only swallows
   // `DOMException`s from the element's realm, and that lookup falls back to the
-  // top-level window once the realm is dead. Skipping the cancel would leave
-  // `isActive()` true for the rest of the page's life, so the lifecycle is ended
+  // top-level window once the realm is dead. Skipping the cancel would leave the
+  // session active for the rest of the page's life, so the lifecycle is ended
   // either way. `tearDown` is idempotent, so this is safe even if `clearActive`
   // already forced it.
   try {
@@ -334,15 +327,15 @@ function cancelActive(
 }
 
 /**
- * Cancel an in-progress pointer drag, firing `onMoveEnd` with a `null` target.
- * Does nothing when this sensor has no active session. Backs
- * `engine.cancelDrag()`.
+ * Cancels the drag in progress. Fires `onMoveEnd` with a `null` target and the
+ * `'imperative-action'` reason. Does nothing when no drag is active. The engine
+ * exposes it as `cancelDrag`.
  */
-export function cancelActiveDrag(): void {
+export function cancelDrag(): void {
   // Also drop a pending candidate. When a consumer cancels (say, a dialog opens
   // on `pointerdown`), the next move must not activate a drag anyway.
   clearPending();
-  cancelActive();
+  getActiveSession()?.cancel();
 }
 
 /**
@@ -454,7 +447,7 @@ function onPointerDown(event: Event): void {
   }
   const { element, target, parameters } = pickup;
 
-  if (isLifecycleActive()) {
+  if (getActiveSession() !== null) {
     return;
   }
 
@@ -590,7 +583,7 @@ function onDoubleClick(event: Event): void {
   if (pointerType !== 'mouse') {
     return;
   }
-  if (!recoverDetachedSession(event) || isLifecycleActive()) {
+  if (!recoverDetachedSession(event) || getActiveSession() !== null) {
     return;
   }
   const pickup = acceptPressPickup(resolveDraggablePickup(getTarget(event)), mouseEvent);
@@ -875,7 +868,7 @@ function commitActivation(): void {
     // Re-check the lifecycle in case another pointer started a drag during the
     // pending window. Avoid running callbacks and building a preview for a session
     // the lifecycle would refuse.
-    if (isLifecycleActive()) {
+    if (getActiveSession() !== null) {
       clearPending(true);
       return;
     }
@@ -981,6 +974,11 @@ function commitActivation(): void {
       pressPoint: pending.origin,
       initialTarget,
       onForceCleanup: clearActive,
+      sensor: {
+        getRawInput: getRawActivePointerInput,
+        notifyScroll: notifyExternalScroll,
+        cancel: () => cancelActive(),
+      },
       isPickupCurrent: () => state.pending === pending,
     });
 

@@ -4,7 +4,7 @@ import { isJSDOM } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer } from '../../../test/dndEngine';
 import { flushRaf, registerCleanup, setupDragEngineTests } from '../../../test/dnd';
-import { isActive } from '../../utils/drag-and-drop/core/lifecycleManager';
+import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
 
 setupDragEngineTests();
 
@@ -183,11 +183,11 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
 
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onDrop).toHaveBeenCalledTimes(1);
-    expect(isActive()).toBe(false);
+    expect(getActiveSession()).toBe(null);
 
     pointer('pointerdown', source, 50, 25);
     await flushRaf();
-    expect(isActive()).toBe(true);
+    expect(getActiveSession()).not.toBe(null);
     pointer('pointerup', source, 50, 25);
     await flushRaf();
   });

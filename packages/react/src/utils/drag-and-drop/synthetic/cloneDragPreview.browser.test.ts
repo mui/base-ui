@@ -5,7 +5,7 @@ import { createDndRenderer } from '../../../../test/dndEngine';
 import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import { createDragPreviewElement, measurePreviewAnchor } from './cloneDragPreview';
-import { PREVIEW_ELEMENT_ATTRIBUTE } from '../activePreview';
+import { PREVIEW_ELEMENT_ATTRIBUTE } from '../utils';
 
 /** Measure and clone `source`, the way a pickup does. */
 function clonePreview(source: HTMLElement, container: HTMLElement | null) {

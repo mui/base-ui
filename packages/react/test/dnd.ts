@@ -5,7 +5,10 @@
 import { afterEach } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { waitSingleFrame } from './wait';
-import { reset, isActive as isDragActive } from '../src/utils/drag-and-drop/core/lifecycleManager';
+import {
+  getActiveSession,
+  resetForTests as resetDragSession,
+} from '../src/utils/drag-and-drop/core/dragSession';
 import { resetForTests as resetSyntheticSensor } from '../src/utils/drag-and-drop/synthetic/syntheticSensor';
 import { resetForTests as resetDropTargets } from '../src/utils/drag-and-drop/dropTarget';
 import { unlock as resetDragRootLock } from '../src/utils/drag-and-drop/synthetic/dragRootLock';
@@ -259,7 +262,7 @@ export async function lift(
   // `DRAG_ACTIVATION_DISTANCE_PX` move. A fixture with a larger activation distance
   // wouldn't start a drag, and the caller's `not.toHaveBeenCalled()` assertions
   // would pass for the wrong reason. Throw instead.
-  if (!expectNoDrag && !isDragActive()) {
+  if (!expectNoDrag && getActiveSession() === null) {
     throw new Error(
       'lift(): no drag session started after the activation move. ' +
         'The element may not be a registered draggable, or its activation constraint ' +
@@ -304,8 +307,11 @@ function resetDrag(): void {
     // updates inside `act` so teardown doesn't trigger the "not wrapped in
     // act(...)" warning. The published preview is React state too. A test that
     // aborts mid-drag would otherwise leave the overlay rendering its preview.
-    () => act(() => runAllCleanups([reset, resetSyntheticSensor, clearPublishedDragPreview])),
-    // Global state the sensors set but `reset()` doesn't clear. Without this, a
+    () =>
+      act(() =>
+        runAllCleanups([resetDragSession, resetSyntheticSensor, clearPublishedDragPreview]),
+      ),
+    // Global state the sensors set but `resetDragSession()` doesn't clear. Without this, a
     // test that fails mid-drag would leave the next test with scrolling locked,
     // the drag cursor set, or its first click swallowed.
     resetDragRootLock,
@@ -316,10 +322,8 @@ function resetDrag(): void {
     // leave it in the document, and its ancestor observer would re-home it to the
     // body when the test's container is removed.
     finishAllEndingPreviewsForTests,
-    // `reset()` clears the active monitors without dispatching `onMoveEnd`, so the
-    // scroll monitor never runs its own teardown. A running loop would keep
-    // scheduling frames and calling `scrollBy` in the next test, and keep the
-    // previous test's detached source in memory.
+    // The session's end stops the scroll loop, but a test that fails mid-drag can
+    // leave the scroll monitor installed. Retire it so the next test starts clean.
     resetAutoScroller,
     // Clear any drop targets still registered on detached nodes, so a failed or
     // aborted test can't leak them into the next one.

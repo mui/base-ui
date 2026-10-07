@@ -1,7 +1,6 @@
 import { matchesAccept } from './dragKind';
 import type { DraggableAccept } from '../../draggable/DraggableProvider';
 import type {
-  DraggableRootRecord,
   DraggableRootMoveEndEventDetails,
   DraggableRootMoveEventDetails,
   DraggableRootMoveStartEventDetails,
@@ -9,6 +8,7 @@ import type {
 } from '../../draggable/root/DraggableRoot';
 import type { DraggableEventDetailsMap } from './types';
 import { getSharedSlot } from './sharedState';
+import { getActiveSession } from './core/dragSession';
 import { containConsumerError, getShallowSnapshot } from './utils';
 
 /** Returns a monitor's latest parameters. Read on each dispatch. */
@@ -19,8 +19,6 @@ interface MonitorState {
   allMonitors: Set<MonitorGetter>;
   /** The getters of the monitors observing the current drag, whose `accept` matched. */
   activeMonitors: Set<MonitorGetter>;
-  /** The active drag's source, so a monitor registered mid-drag can join it. */
-  activeSource: DraggableRootRecord | null;
   /**
    * The last parameters of each engaged monitor whose `accept` matched. A monitor
    * whose `accept` stops matching mid-drag still gets `onMoveEnd` through them.
@@ -33,7 +31,6 @@ interface MonitorState {
 const state = getSharedSlot<MonitorState>('registerMonitor', () => ({
   allMonitors: new Set<MonitorGetter>(),
   activeMonitors: new Set<MonitorGetter>(),
-  activeSource: null,
   matchedMonitors: new WeakMap<MonitorGetter, MonitorParameters>(),
 }));
 
@@ -50,10 +47,10 @@ function rememberMatchedMonitor(getMonitor: MonitorGetter, parameters: MonitorPa
  * active or the monitor is already engaged.
  */
 function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
-  const activeSource = state.activeSource;
+  const session = getActiveSession();
   // Skip monitors already engaged for this drag so the activation loop and the
   // mid-drag registration path can't add the same getter twice.
-  if (!activeSource || state.activeMonitors.has(getMonitor)) {
+  if (!session || state.activeMonitors.has(getMonitor)) {
     return;
   }
   // Contained like `dispatchToMonitors`, because the getter is consumer code. A
@@ -71,8 +68,8 @@ function engageMonitorIfDragging(getMonitor: MonitorGetter): void {
   // plain JS can also return `undefined`.
   if (
     monitor != null &&
-    state.activeSource === activeSource &&
-    matchesAccept(monitor.accept, activeSource)
+    getActiveSession() === session &&
+    matchesAccept(monitor.accept, session.source)
   ) {
     state.activeMonitors.add(getMonitor);
     rememberMatchedMonitor(getMonitor, monitor);
@@ -92,10 +89,8 @@ export function removeMonitor(getMonitor: MonitorGetter): void {
   state.matchedMonitors.delete(getMonitor);
 }
 
-export function activateMonitors(source: DraggableRootRecord): void {
-  // Set before the loop, because `engageMonitorIfDragging` reads it. It also
-  // lets a monitor that registers later in the drag match against it.
-  state.activeSource = source;
+/** Engage every registered monitor in the session that just started. */
+export function activateMonitors(): void {
   for (const getMonitor of state.allMonitors) {
     engageMonitorIfDragging(getMonitor);
   }
@@ -146,7 +141,6 @@ export function dispatchToMonitors<
 
 export function clearActiveMonitors(): void {
   state.activeMonitors.clear();
-  state.activeSource = null;
 }
 
 export interface MonitorParameters<TSourcePayload = unknown, TDragData = unknown> {

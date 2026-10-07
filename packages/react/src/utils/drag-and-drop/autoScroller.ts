@@ -30,6 +30,7 @@ import type { MonitorParameters } from './monitor';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import {
+  PREVIEW_ELEMENT_ATTRIBUTE,
   onceCleanup,
   safeCallConsumer,
   elementFromPointIgnoring,
@@ -42,10 +43,9 @@ import {
   remapInput,
 } from './utils';
 import type { OverflowFlags } from './utils';
-import { getRawActivePointerInput, notifyExternalScroll } from './activePointer';
 import { getDropTargetShadowRootsByHost } from './dropTarget';
-import { dragSessionStore } from './dragSessionStore';
-import { getActivePreviewHandle, PREVIEW_ELEMENT_ATTRIBUTE } from './activePreview';
+import { getActiveSession } from './core/dragSession';
+import type { DragSession } from './core/dragSession';
 import { getMaxScrollOffset } from '../scrollEdges';
 import type {
   DraggableViewportDragScrollDirection,
@@ -98,7 +98,8 @@ const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   lastTimestamp: 0,
   currentInput: null,
   currentReportedInput: null,
-  currentSource: null,
+  session: null,
+  releaseSession: null,
   engagementStart: new Map<HTMLElement, number>(),
   overflowEligible: new Set<HTMLElement>(),
   sortedScrollers: null,
@@ -117,7 +118,12 @@ const holds = createGetterStackRegistry<HTMLElement, ScrollerGetter>({
 // The internal monitor that drives the scroll loop. The first viewport
 // registration installs it.
 const SCROLL_MONITOR_PARAMS: MonitorParameters = {
-  onMoveStart: (eventDetails) => startScrollSession(eventDetails.source, eventDetails.location),
+  onMoveStart: (eventDetails) => {
+    const session = getActiveSession();
+    if (session !== null) {
+      startScrollSession(session, eventDetails.location);
+    }
+  },
   onMove: refreshDragInput,
   onTargetChange: refreshDragInput,
   onMoveEnd: stopScrollLoop,
@@ -158,10 +164,11 @@ export function registerViewport<
     const getMonitor = () => SCROLL_MONITOR_PARAMS;
     state.scrollMonitorGetter = getMonitor;
     // A scroller mounting mid-drag activates the monitor for the in-progress drag.
+    // A session still starting gets the monitor's `onMoveStart` instead.
     addMonitor(getMonitor);
-    const session = dragSessionStore.getSnapshot();
-    if (session) {
-      startScrollSession(session.source, session.location);
+    const session = getActiveSession();
+    if (session !== null && session.phase !== 'starting') {
+      startScrollSession(session, session.getLocation());
     }
   }
   const scrollMonitor = state.scrollMonitorGetter;
@@ -255,7 +262,7 @@ function movesChainElement(records: MutationRecord[]): boolean {
  * the loop quiet.
  */
 function handleObservedMutations(records: MutationRecord[]): void {
-  if (state.currentSource === null) {
+  if (state.session === null) {
     return;
   }
   // Only a moved chain element resets the depth order. Ordinary content growth
@@ -571,16 +578,15 @@ function runScrollFrame(timestamp: number): void {
   // drag and null these fields mid-frame.
   const currentInput = state.currentInput;
   const currentReportedInput = state.currentReportedInput;
-  const currentSource = state.currentSource;
+  const session = state.session;
 
-  // A teardown that skips the terminal `onMoveEnd` (the test `reset()`, or an engine
-  // error after the end was already latched) never runs `stopScrollLoop`, so the
-  // loop stops itself once no drag session is published. The input and source
-  // checks are only defensive, since `stopScrollLoop` nulls them along with the frame.
-  if (currentInput === null || currentSource === null || dragSessionStore.getSnapshot() === null) {
+  // Only defensive. The session's end, whatever caused it, runs `stopScrollLoop`,
+  // which nulls these along with the frame (see `startScrollSession`).
+  if (currentInput === null || session === null) {
     stopScrollLoop();
     return;
   }
+  const currentSource = session.source;
 
   const rawDeltaMs = state.lastTimestamp > 0 ? timestamp - state.lastTimestamp : 16;
   const deltaMs = Math.min(rawDeltaMs, MAX_FRAME_DELTA_MS);
@@ -616,7 +622,7 @@ function runScrollFrame(timestamp: number): void {
       getParameters,
       null,
     );
-    if (state.currentSource !== currentSource) {
+    if (state.session !== session) {
       return;
     }
     if (holds.getActive(element) !== getParameters) {
@@ -781,7 +787,7 @@ function runScrollFrame(timestamp: number): void {
       // Resolved only once an axis engages, so a `maxSpeed` function isn't
       // called on frames where this element is idle.
       const maxSpeed = resolveMaxSpeed(registration, element, feedback);
-      if (state.currentSource !== currentSource) {
+      if (state.session !== session) {
         return;
       }
       // A container at zero speed never moves, so it doesn't engage. Engaging
@@ -838,7 +844,7 @@ function runScrollFrame(timestamp: number): void {
           },
           false,
         );
-        if (state.currentSource !== currentSource) {
+        if (state.session !== session) {
           return;
         }
         // A failed callback must not move this viewport or block an ancestor.
@@ -878,7 +884,7 @@ function runScrollFrame(timestamp: number): void {
   if (engaged.size > 0) {
     // `scroll` events are not composed, so a scroll inside a shadow root never
     // reaches the sensor's document listener. Mark the frame dirty directly.
-    notifyExternalScroll();
+    session.notifyScroll();
   } else if (state.sortedScrollers !== null) {
     // Nothing is edge-scrolling, so the next frame would compute the same
     // result. Park the loop until new input or an observed mutation wakes it
@@ -964,12 +970,12 @@ function observeChainMutations(
 
 /** Resume a parked loop when fresh input may have moved the pointer into an edge zone. */
 function wakeScrollLoop(): void {
-  if (state.currentSource === null || state.scrollFrame !== null) {
+  if (state.session === null || state.scrollFrame !== null) {
     return;
   }
   state.idleMutationObserver?.disconnect();
   state.lastTimestamp = 0;
-  requestScrollFrame(state.currentSource);
+  requestScrollFrame(state.session.source);
 }
 
 /**
@@ -997,7 +1003,10 @@ function stopScrollLoop(): void {
   state.scrollFrame = null;
   state.currentInput = null;
   state.currentReportedInput = null;
-  state.currentSource = null;
+  state.session = null;
+  const releaseSession = state.releaseSession;
+  state.releaseSession = null;
+  releaseSession?.();
   state.engagementStart.clear();
   state.overflowEligible.clear();
   state.chainMutationObserver?.disconnect();
@@ -1013,10 +1022,8 @@ function stopScrollLoop(): void {
 }
 
 /**
- * Stops the loop between tests. `reset()` clears the active monitors without
- * sending `onMoveEnd`, so the scroll monitor never runs `stopScrollLoop`. An
- * engaged loop would keep calling `scrollBy` during the next test, and
- * `currentSource` would keep the previous test's detached DOM alive.
+ * Stops the loop and retires the scroll monitor between tests, so a test that
+ * failed mid-drag can't leave either behind for the next one.
  */
 export function resetForTests(): void {
   // The registry is left alone. Its entries belong to cleanups the consumer
@@ -1113,7 +1120,7 @@ function dropOccludedCandidates(
     return candidates;
   }
   const closedRoots = getClosedShadowRoots();
-  const preview = getActivePreviewHandle()?.getPreviewElement()?.element ?? null;
+  const preview = state.session?.preview?.getPreviewElement()?.element ?? null;
   // The composed ancestors of the element under each probe. Probes are the raw or
   // the reported input, so there are at most two.
   const hitChains = new Map<DraggableInput, Set<Element>>();
@@ -1202,27 +1209,28 @@ interface ScrollCandidate {
 // Stores fresh drag input and wakes the loop. Shared by `onMove` and
 // `onTargetChange`.
 function refreshDragInput(eventDetails: MoveEventDetails | DropTargetChangeEventDetails): void {
-  if (state.currentSource === null) {
+  const session = state.session;
+  if (session === null) {
     return;
   }
-  setDragInput(eventDetails.location, eventDetails.source);
+  setDragInput(session, eventDetails.location);
   wakeScrollLoop();
 }
 
-function setDragInput(location: DraggableLocationHistory, source: DraggableRootRecord): void {
+function setDragInput(session: DragSession, location: DraggableLocationHistory): void {
   // During a pointer drag, the physical pointer before `modifiers`. The edge
   // tests choose between it and the reported point (see `resolveProbePoint`).
-  state.currentInput = getRawActivePointerInput() ?? location.current.input;
+  state.currentInput = session.getRawInput() ?? location.current.input;
   state.currentReportedInput = location.current.input;
-  state.currentSource = source;
 }
 
-function startScrollSession(source: DraggableRootRecord, location: DraggableLocationHistory): void {
-  // A drag that ended abnormally while the loop was parked still references its
-  // input and source, because the loop only stops itself when a frame runs.
-  // Clear that state before this drag starts.
+function startScrollSession(session: DragSession, location: DraggableLocationHistory): void {
   stopScrollLoop();
-  setDragInput(location, source);
+  state.session = session;
+  // Stop with the session, including an end without `onMoveEnd`, such as a test
+  // reset or an engine error after the end was latched.
+  state.releaseSession = session.onEnd(stopScrollLoop);
+  setDragInput(session, location);
   wakeScrollLoop();
 }
 
@@ -1269,10 +1277,13 @@ interface AutoScrollerState {
   /** The `modifiers`-constrained point the lifecycle reported; see {@link resolveProbePoint}. */
   currentReportedInput: DraggableInput | null;
   /**
-   * Set from the scroll monitor's `onMoveStart` until `stopScrollLoop`. Unlike
-   * `scrollFrame`, it stays set while the loop is parked (see `idleScrollLoop`).
+   * The drag the loop scrolls for, from the scroll monitor's `onMoveStart` until
+   * `stopScrollLoop`. Unlike `scrollFrame`, it stays set while the loop is parked
+   * (see `idleScrollLoop`).
    */
-  currentSource: DraggableRootRecord | null;
+  session: DragSession | null;
+  /** Unsubscribes `stopScrollLoop` from the end of `session`. */
+  releaseSession: DragCleanupFn | null;
   /** When the pointer first entered each element's edge zone. */
   engagementStart: Map<HTMLElement, number>;
   /**

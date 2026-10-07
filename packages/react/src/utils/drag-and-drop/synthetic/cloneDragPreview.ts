@@ -7,11 +7,11 @@ import {
   isPreviewRootProperty,
 } from './previewStyles';
 import { getSharedSlot } from '../sharedState';
-import { PREVIEW_ELEMENT_ATTRIBUTE } from '../activePreview';
 import * as DraggablePreviewCssVars from '../../../draggable/preview/DraggablePreviewCssVars';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
 import {
+  PREVIEW_ELEMENT_ATTRIBUTE,
   adoptStyleSheet,
   getComposedParentElement,
   getDragEventRoot,

@@ -28,8 +28,8 @@ import type {
   CollisionResolutionRegistration,
   DropTargetParameters,
 } from '../../utils/drag-and-drop/dropTarget';
-import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
-import { dragSessionStore, dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
+import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
+import { dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 import { DraggableCollisionContext } from './DraggableCollisionContext';
 import type { CollisionParticipant } from './DraggableCollisionContext';
@@ -121,10 +121,10 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
       });
       return () => {
         // A source callback can unmount its row before the start monitor runs.
-        // Read the session store, whose `source` keeps the identity that every event
-        // of the drag reports. `dragSourceStore` publishes copies for reactive
+        // Read the session, whose `source` keeps the identity that every event of
+        // the drag reports. `dragSourceStore` publishes copies for reactive
         // subscribers.
-        const activeSource = dragSessionStore.state?.source ?? null;
+        const activeSource = getActiveSession()?.source ?? null;
         if (activeSource?.element === sourceElement) {
           removedSource.current = activeSource;
         }
@@ -182,7 +182,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
     if (target) {
       markInvolved(target, eventDetails);
       // The replayed start callback can cancel this drag synchronously.
-      if (dragSessionStore.state?.source !== eventDetails.source) {
+      if (getActiveSession()?.source !== eventDetails.source) {
         return;
       }
     }
@@ -236,7 +236,7 @@ export function DraggableCollisionProvider<TPayload, TDragData = unknown>(
   const refreshParticipants = () => {
     if (dragSourceStore.state && props.kind.matches(dragSourceStore.state)) {
       for (const element of participantElements) {
-        scheduleDropTargetParameterRefresh(element);
+        getActiveSession()?.scheduleTargetRefresh(element);
       }
     }
   };
