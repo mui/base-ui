@@ -1797,6 +1797,59 @@ describe('engine.registerViewport', () => {
       expect(page.scrollBy.mock.calls.some(([options]) => options.top > 0)).toBe(true);
     });
 
+    // jsdom never scrolls the window, so the offset the sensor adds to `pageY` is mocked.
+    function mockWindowScrollY(get: () => number): void {
+      const original = Object.getOwnPropertyDescriptor(window, 'scrollY');
+      Object.defineProperty(window, 'scrollY', { configurable: true, get });
+      registerCleanup(() => {
+        if (original) {
+          Object.defineProperty(window, 'scrollY', original);
+        } else {
+          Reflect.deleteProperty(window, 'scrollY');
+        }
+      });
+    }
+
+    it.each([
+      { name: 'below the viewport', scrolledTo: 0 },
+      { name: 'after the page scrolls under the still pointer', scrolledTo: 300 },
+    ])(
+      'gives the callbacks a probe whose page coordinates match its client ones $name',
+      async ({ scrolledTo }) => {
+        const { engine } = await renderDnd();
+        const source = createElement();
+        const page = mockPageScroller();
+        let scrollY = 0;
+        mockWindowScrollY(() => scrollY);
+        page.scrollBy.mockImplementation(() => {
+          scrollY = scrolledTo;
+        });
+        const speedInputs: Array<{ clientY: number; pageY: number }> = [];
+        const scrollInputs: Array<{ clientY: number; pageY: number }> = [];
+
+        engine.registerSource(source, {});
+        registerCleanup(
+          engine.registerViewport(page.element, {
+            maxSpeed: ({ input }) => {
+              speedInputs.push({ clientY: input.clientY, pageY: input.pageY });
+              return 900;
+            },
+            onDragScroll: ({ input }) => {
+              scrollInputs.push({ clientY: input.clientY, pageY: input.pageY });
+            },
+          }),
+        );
+
+        // 100px below the 600px viewport, so the probe is clamped to its bottom edge.
+        await drive(source, 400, 700);
+        await flushRaf(2);
+
+        const expected = { clientY: 600, pageY: 600 + scrolledTo };
+        expect(speedInputs[speedInputs.length - 1]).toEqual(expected);
+        expect(scrollInputs[scrollInputs.length - 1]).toEqual(expected);
+      },
+    );
+
     it('maps a default-styled body registration to the page scroller', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
@@ -2220,7 +2273,7 @@ describe('engine.registerViewport', () => {
 
   // These read the delta's sign, so `runPastRamp` advances the frame clock to give
   // the loop a nonzero delta.
-  describe.skipIf(isJSDOM)('scroll direction and axis', () => {
+  describe('scroll direction and axis', () => {
     // RTL containers report `scrollLeft` as 0 at the right-hand start, going
     // negative toward the end. `scrollBy` deltas keep their LTR signs.
     function makeRtlScroller(scrollLeft: number): HTMLElement {
@@ -2298,53 +2351,29 @@ describe('engine.registerViewport', () => {
     });
   });
 
-  // A container exactly at a limit must not engage. The loop consumes the axis
-  // on engagement, so it would keep the axis from an outer scroller.
-  describe('scroll limits', () => {
-    // Overflows on both axes, so each limit is rejected by its own guard and not
-    // because the container has nothing to scroll.
-    function makeScrollerAt(offsets: { scrollTop?: number; scrollLeft?: number }): HTMLElement {
+  // The limits themselves, fractional and RTL ones included, are covered by
+  // `autoScrollTargets.test.ts`.
+  describe('edges', () => {
+    // Scrolled to the middle of both axes, so every edge has room.
+    function makeCenteredScroller(): HTMLElement {
       const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
       scroller.style.overflow = 'auto';
       scroller.scrollBy = vi.fn();
       const define = (name: string, value: number) =>
         Object.defineProperty(scroller, name, { value, writable: true });
-      define('scrollTop', offsets.scrollTop ?? 400);
+      define('scrollTop', 400);
       define('scrollHeight', 1000);
       define('clientHeight', 200);
-      define('scrollLeft', offsets.scrollLeft ?? 400);
+      define('scrollLeft', 400);
       define('scrollWidth', 1000);
       define('clientWidth', 200);
       return scroller;
     }
 
-    // Chrome 115+ reports fractional limits. 799.5 + 200 < 1000 looks scrollable,
-    // so without the `Math.ceil` guard the loop would overshoot by half a pixel.
-    it.each([
-      { direction: 'down', edge: 'bottom', offsets: { scrollTop: 799.5 }, x: 100, y: 190 },
-      { direction: 'up', edge: 'top', offsets: { scrollTop: 0 }, x: 100, y: 10 },
-      { direction: 'right', edge: 'right', offsets: { scrollLeft: 799.5 }, x: 190, y: 100 },
-      { direction: 'left', edge: 'left', offsets: { scrollLeft: 0 }, x: 10, y: 100 },
-    ])(
-      'does not scroll $direction when the container is at its $edge limit',
-      async ({ offsets, x, y }) => {
-        const { engine } = await renderDnd();
-        const source = createElement();
-        const scroller = makeScrollerAt(offsets);
-
-        engine.registerSource(source, {});
-        engine.registerViewport(scroller, {});
-
-        await driveTo(source, scroller, x, y);
-
-        expect(scroller.scrollBy).not.toHaveBeenCalled();
-      },
-    );
-
     it('proposes each axis separately at a corner, with the other delta at zero', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      const scroller = makeScrollerAt({});
+      const scroller = makeCenteredScroller();
       const onDragScroll = vi.fn();
 
       engine.registerSource(source, {});
@@ -2364,12 +2393,10 @@ describe('engine.registerViewport', () => {
       expect(vertical.every(([eventDetails]) => eventDetails.x === 0)).toBe(true);
     });
 
-    it('still scrolls at every edge of the same fixture when the limits are not reached', async () => {
+    it('scrolls at every edge of a container with room each way', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
-      // Positive control for the limit tests: scrolled to the middle, the same
-      // fixture engages at all four points.
-      const scroller = makeScrollerAt({ scrollTop: 400, scrollLeft: 400 });
+      const scroller = makeCenteredScroller();
       const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
 
       engine.registerSource(source, {});

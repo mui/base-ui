@@ -657,8 +657,10 @@ function onActiveVisibilityChange(event: Event): void {
  * stack changes, it tracks every sample. Auto-scroll reads it so a modifier can't
  * keep the drag point out of a container the user is pushing against.
  */
+/** The last pointer sample, with the current page offset after a scroll under a still pointer. */
 function getRawActivePointerInput(): DraggableInput | null {
-  return state.active?.lastInput ?? null;
+  const active = state.active;
+  return active ? withCurrentPageOffset(active.lastInput, ownerWindow(active.element)) : null;
 }
 
 /**

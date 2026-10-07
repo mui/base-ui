@@ -3,11 +3,8 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDraggableContext } from '../DraggableContext';
-import {
-  normalizeOverflowMargin,
-  registerViewport,
-  wakeAutoScroll,
-} from '../../utils/drag-and-drop/autoScroller';
+import { registerViewport, wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
+import { normalizeOverflowMargin } from '../../utils/drag-and-drop/autoScrollTargets';
 import { sameAccept } from '../../utils/drag-and-drop/dragKind';
 import type { ViewportParameters } from '../../utils/drag-and-drop/autoScroller';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
