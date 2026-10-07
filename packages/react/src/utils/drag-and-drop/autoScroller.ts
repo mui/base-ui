@@ -102,6 +102,7 @@ const state = getSharedSlot<AutoScrollerState>('registerViewport', () => ({
   overflowEligible: new Set<HTMLElement>(),
   sortedScrollers: null,
   viewportClosedRoots: new Map<Element, ShadowRoot>(),
+  loadListenerRoots: new Set<ShadowRoot>(),
   chainMutationObserver: null,
   observedChainElements: new Set<Element>(),
   idleMutationObserver: null,
@@ -647,6 +648,11 @@ function observeChainMutations(
   }
   for (const shadowRoot of shadowRoots) {
     observer.observe(shadowRoot, { childList: true });
+    // `load` isn't composed, so the document's listener misses resources in here.
+    if (!state.loadListenerRoots.has(shadowRoot)) {
+      state.loadListenerRoots.add(shadowRoot);
+      shadowRoot.addEventListener('load', wakeScrollLoop, true);
+    }
   }
   state.observedChainElements = elements;
   handleObservedMutations(records);
@@ -689,6 +695,10 @@ function stopScrollLoop(): void {
   state.observedChainElements.clear();
   state.idleMutationObserver?.disconnect();
   state.idleMutationObserver = null;
+  for (const shadowRoot of state.loadListenerRoots) {
+    shadowRoot.removeEventListener('load', wakeScrollLoop, true);
+  }
+  state.loadListenerRoots.clear();
   // Rebuilt, with the chain observation, on the next drag's first frame.
   invalidateScrollerOrder();
   state.viewportClosedRoots.clear();
@@ -869,6 +879,8 @@ interface AutoScrollerState {
   sortedScrollers: HTMLElement[] | null;
   /** Closed shadow roots holding a viewport, by host. Rebuilt with `sortedScrollers`. */
   viewportClosedRoots: Map<Element, ShadowRoot>;
+  /** Shadow roots of the chains with a `load` listener this drag (see `observeChainMutations`). */
+  loadListenerRoots: Set<ShadowRoot>;
   /** Watches the viewports' subtrees and ancestor chains during a drag. */
   chainMutationObserver: MutationObserver | null;
   /** The elements `chainMutationObserver` watches (see `observeChainMutations`). */

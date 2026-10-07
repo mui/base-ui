@@ -159,7 +159,7 @@ type DraggablePreviewTypedProps<TPayload, TDragData = unknown> = Omit<
 > & {
   /**
    * The kind of the dragged item, which types `source.payload` in the render function.
-   * Drags of other kinds show no preview.
+   * Custom content isn't rendered for drags of other kinds, which then show no preview.
    */
   kind: DraggableKind<TPayload, TDragData>;
   /**
@@ -278,6 +278,8 @@ export namespace DraggablePreview {
   > = DraggablePreviewRenderParameters<TPayload, TDragData>;
   export type State = DraggablePreviewState;
   export type Props<TPayload = unknown, TDragData = unknown> = unknown extends TPayload
-    ? DraggablePreviewProps
+    ? unknown extends TDragData
+      ? DraggablePreviewProps
+      : DraggablePreviewTypedProps<TPayload, TDragData>
     : DraggablePreviewTypedProps<TPayload, TDragData>;
 }

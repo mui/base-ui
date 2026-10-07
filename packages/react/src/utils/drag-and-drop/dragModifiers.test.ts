@@ -12,6 +12,8 @@ import {
   snapToGrid,
 } from './dragModifiers';
 import { NO_MODIFIER_KEYS } from './utils';
+import { registerTarget } from './dropTarget';
+import { anyDragKind } from './dragKind';
 import type { DraggablePosition } from '../../draggable/DraggableProvider';
 import type {
   DraggableRootModifier,
@@ -316,26 +318,33 @@ describe('restrictToParentElement', () => {
     expect(result).toEqual({ x: 300, y: 150 });
   });
 
-  it('clamps to the box that lays out a source slotted into a shadow root', () => {
-    // The composed parent is the `<slot>`, which is `display: contents` and
-    // measures 0×0. The wrapper around it is what the source visually sits in.
-    const host = document.createElement('div');
-    document.body.appendChild(host);
-    const wrapper = document.createElement('div');
-    wrapper.getBoundingClientRect = () => makeRect(0, 0, 200, 200);
-    wrapper.appendChild(document.createElement('slot'));
-    host.attachShadow({ mode: 'open' }).appendChild(wrapper);
-    const child = document.createElement('div');
-    host.appendChild(child);
-    try {
-      const result = restrictToParentElement(
-        makeContext({ sourceElement: child, point: { x: 600, y: 150 } }),
-      );
-      expect(result).toEqual({ x: 200, y: 150 });
-    } finally {
-      host.remove();
-    }
-  });
+  // A closed root hides `assignedSlot`. It is found through a target registered in it.
+  it.each([{ mode: 'open' as const }, { mode: 'closed' as const }])(
+    'clamps to the box that lays out a source slotted into a $mode shadow root',
+    ({ mode }) => {
+      // The composed parent is the `<slot>`, which is `display: contents` and
+      // measures 0×0. The wrapper around it is what the source visually sits in.
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      host.getBoundingClientRect = () => makeRect(0, 0, 800, 800);
+      const wrapper = document.createElement('div');
+      wrapper.getBoundingClientRect = () => makeRect(0, 0, 200, 200);
+      wrapper.appendChild(document.createElement('slot'));
+      host.attachShadow({ mode }).appendChild(wrapper);
+      const unregister = registerTarget(wrapper, () => ({ accept: anyDragKind }));
+      const child = document.createElement('div');
+      host.appendChild(child);
+      try {
+        const result = restrictToParentElement(
+          makeContext({ sourceElement: child, point: { x: 600, y: 150 } }),
+        );
+        expect(result).toEqual({ x: 200, y: 150 });
+      } finally {
+        unregister();
+        host.remove();
+      }
+    },
+  );
 
   it('passes the point through when the source has no parent', () => {
     const result = restrictToParentElement(

@@ -1257,13 +1257,18 @@ export function createDragPreviewElement(
       return;
     }
     if (before) {
-      // Reads first, then writes, so the comparison costs one style recalculation.
+      // Every popover value is read before any write: the computed style is live, so
+      // a correction such as `font-size` would change a later `line-height` read.
       const after = win.getComputedStyle(element);
-      const changed = Array.from(before).filter(
-        ([name, value]) => after.getPropertyValue(name) !== value,
-      );
-      for (const [name, value] of changed) {
-        popoverCorrections.set(name, [value, after.getPropertyValue(name)]);
+      const changed: Array<[string, string, string]> = [];
+      for (const [name, value] of before) {
+        const popoverValue = after.getPropertyValue(name);
+        if (popoverValue !== value) {
+          changed.push([name, value, popoverValue]);
+        }
+      }
+      for (const [name, value, popoverValue] of changed) {
+        popoverCorrections.set(name, [value, popoverValue]);
         element.style.setProperty(name, value);
       }
     }

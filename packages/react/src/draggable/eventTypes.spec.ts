@@ -273,6 +273,16 @@ const previewProps: Draggable.Preview.Props<Payload, DragData> = {
 };
 void previewProps;
 
+// Typed drag data alone selects the typed props, like the component's own overload.
+const dataOnlyPreviewProps: Draggable.Preview.Props<unknown, DragData> = {
+  kind: Draggable.createKind<unknown, DragData>('data-only-preview'),
+  children: (parameters) => {
+    expectType<DragData | undefined, typeof parameters.source.dragData>(parameters.source.dragData);
+    return null;
+  },
+};
+void dataOnlyPreviewProps;
+
 declare const source: Draggable.Root.Record<Payload, DragData>;
 declare const target: Draggable.Target.Record<TargetPayload, TargetDragData>;
 // @ts-expect-error Payload writes must use updatePayload.

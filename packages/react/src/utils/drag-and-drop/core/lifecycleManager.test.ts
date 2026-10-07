@@ -1190,6 +1190,38 @@ describe('lifecycle manager', () => {
       expectEngineRecovered();
     });
 
+    it('still delivers the outer terminal leave when an inner one throws during recovery', () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const outer = createElement();
+      const inner = createElement();
+      outer.append(inner);
+      const outerLeave = vi.fn();
+      addTarget(inner, () => ({
+        onDraggableLeave: () => {
+          throw new Error('boom from inner leave');
+        },
+      }));
+      addTarget(outer, () => ({ onDraggableLeave: outerLeave }));
+      // Both targets are entered at pickup, then `onMove` throws and recovery ends the drag.
+      const handle = startDragWithHandlers(
+        {
+          onMove: () => {
+            throw new Error('boom from onMove');
+          },
+        },
+        inner,
+      );
+
+      act(() => {
+        expect(() =>
+          handle!.update(makeInput(), inner, new Event('pointermove'), 'pointer'),
+        ).toThrow('boom from onMove');
+      });
+
+      expect(outerLeave).toHaveBeenCalledTimes(1);
+      expectEngineRecovered();
+    });
+
     it('does not double-dispatch onMoveEnd when onMoveEnd itself throws', () => {
       const onMoveEnd = vi.fn(() => {
         throw new Error('boom from onMoveEnd');

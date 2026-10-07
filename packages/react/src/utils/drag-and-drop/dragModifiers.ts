@@ -13,6 +13,7 @@ import {
   getViewportRect,
   resolveElementReference,
 } from './utils';
+import { getClosedShadowRootsByHost } from './dropTarget';
 import type { DragModifierKeys } from './utils';
 import type { DraggablePosition } from '../../draggable/DraggableProvider';
 import type {
@@ -84,7 +85,8 @@ export function restrictToElement(element: DraggableRootElementReference): Dragg
 /** Keeps the drag inside the source element's parent. */
 export const restrictToParentElement: DraggableRootModifier = (context) => {
   // The composed parent lets a direct child of a shadow root clamp to the host.
-  let parent = getComposedParentElement(context.sourceElement);
+  const closedRoots = getClosedShadowRootsByHost();
+  let parent = getComposedParentElement(context.sourceElement, closedRoots);
   while (parent) {
     const rect = parent.getBoundingClientRect();
     // A `display: contents` parent, such as the `<slot>` a draggable is assigned
@@ -97,7 +99,7 @@ export const restrictToParentElement: DraggableRootModifier = (context) => {
     ) {
       return clampPointToRect(context, rect);
     }
-    parent = getComposedParentElement(parent);
+    parent = getComposedParentElement(parent, closedRoots);
   }
   return context.point;
 };

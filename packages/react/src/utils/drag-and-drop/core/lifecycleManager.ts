@@ -319,8 +319,9 @@ export function start(parameters: StartParameters): DragSessionController | null
     // unregister a target mid-leave.
     endDispatched = true;
     disarmSessionHooks();
-    // `hover.change`, not `dispatchChangeRound`: the source handler may be the one
-    // that threw, and must not block the leaves.
+    // Through the ledger, not `dispatchChangeRound`: the source handler may be the one
+    // that threw, and must not block the leaves. Each leave is contained, so a
+    // throwing target doesn't cost the others theirs.
     const departedDropTargets = hover.owed();
     if (departedDropTargets.length > 0) {
       const leaveDetails = createDragEventDetails<DragEndReason>(
@@ -330,13 +331,18 @@ export function start(parameters: StartParameters): DragSessionController | null
         source,
         null,
       );
-      containConsumerError(
-        'Base UI: a drag handler threw while another handler error was being recovered. ' +
-          'The remaining target cleanup is best-effort.',
-        null,
-        () => hover.change(departedDropTargets, [], leaveDetails, isLive),
-        undefined,
-      );
+      for (const target of departedDropTargets) {
+        if (!isLive()) {
+          break;
+        }
+        containConsumerError(
+          'Base UI: a drag handler threw while another handler error was being recovered. ' +
+            'The remaining target cleanup is best-effort.',
+          null,
+          () => hover.leave(target, leaveDetails),
+          undefined,
+        );
+      }
     }
     location.previous = lastDispatched;
     location.current = { input: location.current.input, targets: [] };

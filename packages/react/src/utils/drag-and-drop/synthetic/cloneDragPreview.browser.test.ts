@@ -1300,6 +1300,33 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     }
   });
 
+  it('keeps a correction that depends on another one through the drop', () => {
+    // `line-height: 1.5` resolves against `font-size`, so the popover's own line height
+    // must be read before the `font-size` correction is written.
+    const sheet = document.createElement('style');
+    sheet.textContent =
+      '.Dependent { font-size: 16px; line-height: 1.5; } ' +
+      '[popover].Dependent { font-size: 40px; line-height: 2; }';
+    document.head.appendChild(sheet);
+    const card = document.createElement('div');
+    card.className = 'Dependent';
+    card.textContent = 'Card';
+    list.appendChild(card);
+    const handle = clonePreview(card, null)!;
+    try {
+      expect(getComputedStyle(handle.element).lineHeight).toBe('24px');
+
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop();
+
+      expect(getComputedStyle(handle.element).lineHeight).toBe('24px');
+    } finally {
+      handle.destroy();
+      card.remove();
+      sheet.remove();
+    }
+  });
+
   it('lets ending styles set what the popover corrections pinned', () => {
     // An unstyled source gets the UA `Canvas` background corrected away inline. A
     // drop animation that sets a background must still win.
