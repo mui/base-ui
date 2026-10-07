@@ -2379,6 +2379,47 @@ describe('<Field.Root />', () => {
       expect(control.validationMessage).toBe('');
     });
 
+    it.skipIf(isJSDOM)(
+      'clears its own message on an input that became disabled by a native fieldset',
+      async () => {
+        function App() {
+          const [disabled, setDisabled] = React.useState(false);
+          const [failing, setFailing] = React.useState(true);
+
+          return (
+            <Form onFormSubmit={() => {}}>
+              <fieldset disabled={disabled}>
+                <Field.Root validate={() => (failing ? 'custom error' : null)}>
+                  <Field.Control data-testid="control" />
+                </Field.Root>
+              </fieldset>
+              <button type="button" onClick={() => setDisabled((prev) => !prev)}>
+                toggle disabled
+              </button>
+              <button type="button" onClick={() => setFailing(false)}>
+                pass
+              </button>
+              <button type="submit">submit</button>
+            </Form>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const control = screen.getByTestId<HTMLInputElement>('control');
+
+        await user.click(screen.getByText('submit'));
+        expect(control.validationMessage).toBe('custom error');
+
+        await user.click(screen.getByText('toggle disabled'));
+        await user.click(screen.getByText('pass'));
+        await user.click(screen.getByText('submit'));
+        await user.click(screen.getByText('toggle disabled'));
+
+        expect(control.validationMessage).toBe('');
+      },
+    );
+
     it('does not adopt a native message as the message it displaced', async () => {
       await render(
         <Field.Root

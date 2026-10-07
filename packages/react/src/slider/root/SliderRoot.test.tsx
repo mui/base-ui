@@ -3166,6 +3166,60 @@ describe('<Slider.Root />', () => {
       expect(screen.queryByTestId('error')).toBe(null);
     });
 
+    it('keeps a range field active when only its last thumb is disabled', async () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn(() => null);
+
+      const { user } = await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="range" validate={validate}>
+            <Slider.Root defaultValue={[10, 20]}>
+              <Slider.Control>
+                <Slider.Track>
+                  <Slider.Thumb index={0} />
+                  <Slider.Thumb index={1} disabled />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ range: [10, 20] });
+    });
+
+    it.skipIf(isJSDOM)('omits a range slider disabled by a native fieldset', async () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn(() => 'invalid');
+
+      const { user } = await render(
+        <Form onFormSubmit={handleSubmit}>
+          <fieldset disabled>
+            <Field.Root name="range" validate={validate}>
+              <Slider.Root defaultValue={[10, 20]}>
+                <Slider.Control>
+                  <Slider.Track>
+                    <Slider.Thumb index={0} />
+                    <Slider.Thumb index={1} />
+                  </Slider.Track>
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+          </fieldset>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(validate).not.toHaveBeenCalled();
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+    });
+
     describe.skipIf(isJSDOM)('form submission', () => {
       it('should include the slider value', async () => {
         await render(

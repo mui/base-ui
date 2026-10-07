@@ -22,6 +22,8 @@ export interface FormContext {
         validate: () => void;
         validityData: FieldValidityData;
         controlRef: React.RefObject<HTMLElement | null>;
+        /** Whether an ancestor (a native `<fieldset disabled>`) disables the field's inputs. */
+        isDisabled: () => boolean;
         getValue: () => unknown;
       }
     >;
