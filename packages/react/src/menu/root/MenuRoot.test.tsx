@@ -3383,6 +3383,109 @@ describe('<Menu.Root />', () => {
       expect(details.reason).toBe(REASONS.pointer);
       expect(details.event).toBeInstanceOf(MouseEvent);
     });
+
+    describe('reporting after the callback or the list changes', () => {
+      function ReportingMenu(props: {
+        onItemHighlighted?: Menu.Root.Props['onItemHighlighted'];
+        inserted?: boolean;
+      }) {
+        return (
+          <Menu.Root onItemHighlighted={props.onItemHighlighted}>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  {props.inserted && <Menu.Item>Archive</Menu.Item>}
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.Item>Two</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      async function openWithKeyboard(user: { keyboard: (text: string) => Promise<void> }) {
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+        await user.keyboard('[Enter]');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+        });
+      }
+
+      it('does not report a stale highlight reason for a later list change', async () => {
+        const onItemHighlighted = vi.fn();
+        const { setProps, user } = await render(
+          <ReportingMenu onItemHighlighted={onItemHighlighted} inserted={false} />,
+        );
+
+        await openWithKeyboard(user);
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus();
+        });
+        expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe(REASONS.keyboard);
+
+        onItemHighlighted.mockClear();
+        await setProps({ inserted: true });
+
+        await waitFor(() => {
+          expect(onItemHighlighted).toHaveBeenCalled();
+        });
+        expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe(REASONS.none);
+      });
+
+      it('reports highlights correctly after onItemHighlighted is removed and added back', async () => {
+        const onItemHighlighted = vi.fn();
+        const { setProps, user } = await render(
+          <ReportingMenu onItemHighlighted={onItemHighlighted} />,
+        );
+
+        await openWithKeyboard(user);
+        const one = screen.getByRole('menuitem', { name: 'One' });
+        const two = screen.getByRole('menuitem', { name: 'Two' });
+
+        // Moving while unobserved, then back once observed again, reports the keyboard move.
+        await setProps({ onItemHighlighted: undefined });
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(two).toHaveFocus();
+        });
+        await setProps({ onItemHighlighted });
+        onItemHighlighted.mockClear();
+        await user.keyboard('[ArrowUp]');
+        await waitFor(() => {
+          expect(onItemHighlighted).toHaveBeenLastCalledWith(
+            one,
+            expect.objectContaining({ reason: REASONS.keyboard }),
+          );
+        });
+      });
+
+      it('reports clearing a highlight made before onItemHighlighted was added', async () => {
+        const onItemHighlighted = vi.fn();
+        const { setProps, user } = await render(<ReportingMenu />);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        const one = await screen.findByRole('menuitem', { name: 'One' });
+        await user.hover(one);
+        await waitFor(() => {
+          expect(one).toHaveAttribute('data-highlighted');
+        });
+
+        await setProps({ onItemHighlighted });
+        await user.unhover(one);
+        await waitFor(() => {
+          expect(onItemHighlighted).toHaveBeenLastCalledWith(
+            undefined,
+            expect.objectContaining({ reason: REASONS.pointer }),
+          );
+        });
+      });
+    });
   });
 
   describe('submenu parent store subscription', () => {
