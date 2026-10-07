@@ -67,14 +67,36 @@ This keeps the mask on the same element that receives the scroll state:
 
 ## How props are merged
 
-When the `render` prop receives an element, the part's props and the element's props are merged onto a single element:
+When the `render` prop receives an element, the part's props and the element's props are merged onto a single element.
+For example, this toolbar button renders a menu trigger:
 
-- Props set on the render element take precedence over the part's props.
-- `className` strings are combined, and `style` objects are merged.
-- Event handlers from both are called, starting with the render element's handler. Calling [`event.preventBaseUIHandler()`](/react/handbook/customization#preventing-base-ui-from-handling-a-react-event) skips the Base UI handlers that run after it, and some parts call it internally.
-- Refs from both are kept.
+```tsx title="index.tsx"
+<Toolbar.Button
+  className="toolbar-button"
+  style={{ color: 'red', padding: 4 }}
+  onClick={handleToolbarClick}
+  ref={toolbarButtonRef}
+  render={
+    <Menu.Trigger
+      className="menu-trigger"
+      style={{ color: 'blue' }}
+      onClick={handleMenuClick}
+      ref={menuTriggerRef}
+    />
+  }
+/>
+```
 
-See [`mergeProps`](/react/utils/merge-props) for the complete merging rules. Unlike the `render` prop, `mergeProps` keeps only the rightmost `ref`.
+The rendered `<button>` gets:
+
+- `className="menu-trigger toolbar-button"`: class names are combined, starting with the render element's.
+- `style={{ color: 'blue', padding: 4 }}`: style objects are merged, and the render element's values win.
+- Both click handlers, starting with `handleMenuClick`. Calling [`event.preventBaseUIHandler()`](/react/handbook/customization#preventing-base-ui-from-handling-a-react-event) skips the Base UI handlers that run after it, and some parts call it internally.
+- Both refs: `toolbarButtonRef` and `menuTriggerRef` point to the same element.
+
+For any other prop set on both, the render element's value wins.
+
+The `render` prop merges props with [`mergeProps`](/react/utils/merge-props), except for refs: `mergeProps` keeps only the rightmost `ref`, while the `render` prop keeps all of them.
 
 ## Changing the default rendered element
 
