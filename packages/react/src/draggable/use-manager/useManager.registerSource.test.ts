@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
+import { act } from '@mui/internal-test-utils';
 import { firePointer, isJSDOM } from '#test-utils';
 import { createDndRenderer } from '../../../test/dndEngine';
 import {
@@ -10,6 +11,7 @@ import {
   dragOver,
 } from '../../../test/dnd';
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
+import { dragPreviewStore } from '../../utils/drag-and-drop/overlay/dragPreviewStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
 import { useManager } from './useManager';
 import type { DraggableManager } from '../../utils/drag-and-drop/registrationTypes';
@@ -215,6 +217,47 @@ describe('engine.registerSource', () => {
     expect(onInnerStart).not.toHaveBeenCalled();
     expect(onOuterStart).toHaveBeenCalledTimes(1);
     expect(onOuterStart.mock.calls[0][0].source.element).toBe(outer);
+  });
+
+  it('keeps the source marked as dragging through the drop handlers when the preview has no element', async () => {
+    // A preview with an element settles onto the source and keeps `[data-dragging]`
+    // until it has. One without an element must keep it through the drop handlers,
+    // so a rule that resizes or hides the source applies while they measure.
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const target = createElement();
+    let draggingDuringDrop: boolean | undefined;
+    engine.registerSource(source, { preview: { disabled: true } });
+    engine.registerTarget(target, {
+      onDraggableDrop() {
+        draggingDuringDrop = source.hasAttribute('data-dragging');
+      },
+    });
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    await dragOver(target);
+    fireDrag.drop(target);
+
+    expect(draggingDuringDrop).toBe(true);
+    expect(source).not.toHaveAttribute('data-dragging');
+  });
+
+  it('releases the published preview content when the drag ends', async () => {
+    // The overlay renders whatever the store holds. Content left there after the
+    // drag would keep its detached host in memory until the next pickup.
+    const { engine } = await renderDnd();
+    const source = createElement();
+    engine.registerSource(source, { preview: { render: () => 'chip' } });
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    expect(dragPreviewStore.getSnapshot()).not.toBe(null);
+
+    act(() => {
+      engine.cancelDrag();
+    });
+    expect(dragPreviewStore.getSnapshot()).toBe(null);
   });
 
   it('keeps an imperatively updated payload throughout the drag', async () => {

@@ -36,7 +36,7 @@ function createPreviewElement(
 // Teardown runs in `afterEach`, not at the end of each test, so a failed assertion
 // cannot skip cleanup and break later tests (a leaked `data-dragging` on
 // `document.body`, a handle left alive).
-const activeHandles: Array<{ destroy(): void }> = [];
+const activeHandles: Array<{ end(drop: boolean): void }> = [];
 const attachedSources: HTMLElement[] = [];
 
 /** An identity no remounted source matches, so settling previews never retarget. */
@@ -81,7 +81,7 @@ afterEach(() => {
   // `destroy()` is idempotent (asserted below), so re-destroying a handle a
   // test already tore down is safe.
   while (activeHandles.length > 0) {
-    activeHandles.pop()!.destroy();
+    activeHandles.pop()!.end(false);
   }
   while (attachedSources.length > 0) {
     attachedSources.pop()!.remove();
@@ -97,7 +97,7 @@ describe('syntheticPreview', () => {
   it('stops positioning when a modifier destroys the preview', () => {
     const handle = createHandle(createSource(), [
       ({ point }) => {
-        handle.destroy();
+        handle.end(false);
         return point;
       },
     ]);
@@ -118,7 +118,7 @@ describe('syntheticPreview', () => {
     handle.markSourceDragging();
     expect(source).toHaveAttribute('data-dragging');
 
-    handle.destroy();
+    handle.end(false);
     expect(source).not.toHaveAttribute('data-dragging');
   });
 
@@ -135,7 +135,7 @@ describe('syntheticPreview', () => {
     expect(oldNode).not.toHaveAttribute('data-dragging');
     expect(newNode).toHaveAttribute('data-dragging');
 
-    handle.destroy();
+    handle.end(false);
     expect(newNode).not.toHaveAttribute('data-dragging');
   });
 
@@ -145,7 +145,7 @@ describe('syntheticPreview', () => {
       const preview = createPreviewElement();
       handle.setPreviewElement(preview);
       expect(handle.getPreviewElement()).toBe(preview);
-      handle.destroy();
+      handle.end(false);
       expect(handle.getPreviewElement()).toBeNull();
       expect(preview.destroyed).toBe(true);
     });
@@ -189,8 +189,7 @@ describe('syntheticPreview', () => {
 
       handle.setPreviewElement(preview);
       handle.markSourceDragging();
-      handle.prepareForDrop();
-      handle.destroy();
+      handle.end(true);
 
       expect(source).toHaveAttribute('data-dragging');
       expect(source).toHaveAttribute('data-settling');
@@ -231,8 +230,7 @@ describe('syntheticPreview', () => {
       handle.setPreviewElement(preview);
       handle.update(300, 400);
       handle.markSourceDragging();
-      handle.prepareForDrop();
-      handle.destroy();
+      handle.end(true);
       frames.shift()!(0);
 
       expect(preview.element.style.translate).toBe('300px 400px');
@@ -261,8 +259,7 @@ describe('syntheticPreview', () => {
       handle.setPreviewElement(preview);
       handle.update(300, 400);
       handle.markSourceDragging();
-      handle.prepareForDrop();
-      handle.destroy();
+      handle.end(true);
       source.remove();
       frames.shift()!(0);
 
@@ -276,8 +273,7 @@ describe('syntheticPreview', () => {
       const returning = createPreviewElement(120, 30);
       document.body.appendChild(returning.element);
       outside.setPreviewElement(returning);
-      outside.prepareForDrop();
-      outside.destroy();
+      outside.end(true);
       frames.shift()!(0);
       expect(returning.element).toHaveAttribute('data-ending-style');
       expect(returning.element).not.toHaveAttribute('data-dropped');
@@ -286,8 +282,7 @@ describe('syntheticPreview', () => {
       const dropped = createPreviewElement(120, 30);
       document.body.appendChild(dropped.element);
       onTarget.setPreviewElement(dropped);
-      onTarget.prepareForDrop();
-      onTarget.destroy();
+      onTarget.end(true);
       // The lifecycle resolves the drop after the sensor released the preview, but
       // before the ending's first frame, which applies both attributes together.
       onTarget.markDropped();
@@ -313,8 +308,7 @@ describe('syntheticPreview', () => {
         ] as unknown as Animation[];
       handle.setPreviewElement(preview);
       handle.markSourceDragging();
-      handle.prepareForDrop();
-      handle.destroy();
+      handle.end(true);
       frames.shift()!(0);
       expect(preview.destroyed).toBe(true);
       expect(source).not.toHaveAttribute('data-dragging');
@@ -343,8 +337,7 @@ describe('syntheticPreview', () => {
 
       handle.setPreviewElement(preview);
       handle.markSourceDragging();
-      handle.prepareForDrop();
-      handle.destroy();
+      handle.end(true);
       frames.shift()!(0);
 
       expect(preview.destroyed).toBe(false);
@@ -385,8 +378,7 @@ describe('syntheticPreview', () => {
 
       handle.setPreviewElement(preview);
       handle.markSourceDragging();
-      handle.prepareForDrop();
-      handle.destroy();
+      handle.end(true);
       source.remove();
 
       const destination = createSource();
@@ -430,8 +422,7 @@ describe('syntheticPreview', () => {
 
       handle.setPreviewElement(preview);
       handle.markSourceDragging();
-      handle.prepareForDrop();
-      handle.destroy();
+      handle.end(true);
       source.remove();
 
       const destination = createSource();
@@ -454,8 +445,7 @@ describe('syntheticPreview', () => {
       const preview = createPreviewElement(100, 25);
       document.body.appendChild(preview.element);
       handle.setPreviewElement(preview);
-      handle.prepareForDrop();
-      handle.destroy();
+      handle.end(true);
 
       expect(preview.destroyed).toBe(false);
       expect(source).toHaveAttribute('data-settling');

@@ -1,10 +1,7 @@
 import { ownerWindow } from '@base-ui/utils/owner';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { getActiveSession } from '../core/dragSession';
-import { createDragPreviewElement } from './cloneDragPreview';
-import { updatePreviewContent } from './updatePreviewContent';
 import type { SyntheticPreviewHandle } from './syntheticPreview';
-import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
 
 // The previews with an update scheduled, so calls in one frame share it.
 const scheduled = new WeakSet<SyntheticPreviewHandle>();
@@ -29,59 +26,11 @@ export function updatePreview(): void {
     // Calls from the render function share this update.
     try {
       // The drag may have ended, or reached its end sequence, since the request.
-      if (getActiveSession() !== session || session.preview !== handle) {
-        return;
+      if (getActiveSession() === session && session.preview === handle) {
+        handle.refresh({ source: session.source, location: session.getLocation() });
       }
-      const source = session.source;
-      const content = handle.getContent();
-      if (!content) {
-        refreshClone(handle, source.element);
-        return;
-      }
-      content.update = () => {
-        content.update = undefined;
-        updatePreviewContent(content, {
-          onRoot: handle.showContent,
-          onRootChange(ownStyle) {
-            handle.getPreviewElement()?.updateContentStyle(ownStyle);
-          },
-        });
-      };
-      content.render?.({ source, location: session.getLocation() });
     } finally {
       scheduled.delete(handle);
     }
   });
-}
-
-/**
- * Clone the source again. The clone is built while the source is marked as dragged, so
- * its drag-state attributes are lifted for the duration. Otherwise a `[data-dragging]`
- * rule, such as a dimmed source, would be copied into the clone's style snapshot.
- * Nothing renders in between.
- */
-function refreshClone(handle: SyntheticPreviewHandle, source: HTMLElement): void {
-  const current = handle.getPreviewElement();
-  if (!current || !source.isConnected) {
-    return;
-  }
-  const dragState = [DraggableRootDataAttributes.dragging, DraggableRootDataAttributes.settling]
-    .map((name) => [name, source.getAttribute(name)] as const)
-    .filter(([, value]) => value !== null);
-  for (const [name] of dragState) {
-    source.removeAttribute(name);
-  }
-  let next;
-  try {
-    next = createDragPreviewElement(source, current.anchor);
-  } finally {
-    for (const [name, value] of dragState) {
-      source.setAttribute(name, value!);
-    }
-  }
-  if (next && handle.getPreviewElement() === current) {
-    handle.setPreviewElement(next);
-  } else {
-    next?.destroy();
-  }
 }

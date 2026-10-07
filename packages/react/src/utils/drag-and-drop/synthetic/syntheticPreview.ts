@@ -8,13 +8,16 @@ import { createDragPreviewElement, measurePreviewSource } from './cloneDragPrevi
 import type { DragPreviewElementHandle, PreviewAnchor } from './cloneDragPreview';
 import { copyPreviewContent, createPreviewContentContainer } from './previewContent';
 import type { PreviewContent } from './previewContent';
+import { updatePreviewContent } from './updatePreviewContent';
 import type { ResolvedDragPreview } from './pickupPreview';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
+import type { DraggablePreviewRenderParameters } from '../../../draggable/preview/DraggablePreview';
 import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
 import type { DragModifierKeys } from '../utils';
 import { applyDragModifiers, ZERO_OFFSET } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
 import { setSourceSettling } from '../settlingSources';
+import { getActiveSession } from '../core/dragSession';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
 import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
@@ -292,6 +295,39 @@ export function createSyntheticPreview(
     setPreviewOffset(offset);
   }
 
+  /**
+   * Clone the source again. The clone is built while the source is marked as
+   * dragged, so its drag-state attributes are lifted for the duration. Otherwise a
+   * `[data-dragging]` rule, such as a dimmed source, would be copied into the
+   * clone's style snapshot. Nothing renders in between.
+   */
+  function refreshClone(): void {
+    const current = previewElement;
+    if (!current || !sourceElement.isConnected) {
+      return;
+    }
+    const source = sourceElement;
+    const dragState = [DraggableRootDataAttributes.dragging, DraggableRootDataAttributes.settling]
+      .map((name) => [name, source.getAttribute(name)] as const)
+      .filter(([, value]) => value !== null);
+    for (const [name] of dragState) {
+      source.removeAttribute(name);
+    }
+    let next;
+    try {
+      next = createDragPreviewElement(source, current.anchor);
+    } finally {
+      for (const [name, value] of dragState) {
+        source.setAttribute(name, value!);
+      }
+    }
+    if (next && previewElement === current) {
+      setPreviewElement(next);
+    } else {
+      next?.destroy();
+    }
+  }
+
   function retargetSource(element: HTMLElement): void {
     if ((destroyed && !settling) || element === sourceElement) {
       return;
@@ -310,6 +346,103 @@ export function createSyntheticPreview(
     if (settling) {
       setSourceSettling(sourceElement, true);
     }
+  }
+
+  function destroy(): void {
+    if (destroyed) {
+      return;
+    }
+    destroyed = true;
+    const endingPreview = previewElement;
+    previewElement = null;
+
+    // The engine owns the preview element in both modes, so it can stay mounted
+    // until the consumer's drop transition finishes.
+    if (preparedForDrop && endingPreview) {
+      const element = endingPreview.element;
+      const frame = new WindowAnimationFrame(ownerWindow(element));
+      const settlingWatchdog = new WindowTimeout(ownerWindow(element));
+      const entry: EndingPreview = {
+        identity: sourceIdentity,
+        get source() {
+          return sourceElement;
+        },
+        retarget: retargetSource,
+        finish() {
+          if (!endingPreviews.delete(entry)) {
+            return;
+          }
+          frame.cancel();
+          settlingWatchdog.clear();
+          endingPreview.destroy();
+          sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
+          setSourceSettling(sourceElement, false);
+          settling = false;
+        },
+      };
+      const cleanup = () => entry.finish();
+
+      findEndingPreview(sourceElement)?.finish();
+      settling = true;
+      endingPreviews.add(entry);
+      setSourceSettling(sourceElement, true);
+
+      // The ending starts in the next frame, before it paints. The release is
+      // resolved by then, so `[data-dropped]` applies along with
+      // `[data-ending-style]` and no style is computed with one but not the other.
+      // State updates that drop handlers schedule later in the release event are
+      // committed too, so measuring targets the source's final slot.
+      frame.request(() => {
+        endingPreview.ensureConnected();
+        // Commit the position the drag left the preview at, so an ending transition
+        // animates only what changes from here.
+        const style = ownerWindow(element).getComputedStyle(element);
+        void style.translate;
+        element.setAttribute(DraggablePreviewDataAttributes.endingStyle, '');
+        if (dropped) {
+          element.setAttribute(DraggablePreviewDataAttributes.dropped, '');
+        }
+        endingPreview.prepareForDrop();
+        // Only a `translate` transition animates the move to the source's final
+        // position. Without one, the preview ends where it was released, so an
+        // ending fade runs there instead of at the source. It ends in place too when
+        // the source is gone, or renders no box while the preview does, such as one
+        // a `[data-dragging] { display: none }` rule hides: it then measures as a
+        // zero rect at the viewport corner.
+        if (
+          transitionsTranslate(style) &&
+          sourceElement.isConnected &&
+          (sourceElement.getClientRects().length > 0 || element.getClientRects().length === 0)
+        ) {
+          const { sourceRect: destination } = measurePreviewSource(sourceElement);
+          endingPreview.setPosition(destination.left, destination.top);
+        }
+
+        const animations =
+          globalThis.BASE_UI_ANIMATIONS_DISABLED || !element.getAnimations
+            ? []
+            : getFiniteAnimations(element);
+        if (animations.length === 0) {
+          cleanup();
+          return;
+        }
+        const longestAnimationMs = animations.reduce((longest, animation) => {
+          const endTime = animation.effect?.getComputedTiming?.().endTime;
+          return typeof endTime === 'number' && Number.isFinite(endTime)
+            ? Math.max(longest, endTime)
+            : longest;
+        }, 0);
+        settlingWatchdog.start(
+          clamp(longestAnimationMs + 100, MIN_SETTLING_WATCHDOG_MS, MAX_SETTLING_WATCHDOG_MS),
+          cleanup,
+        );
+        Promise.allSettled(animations.map((animation) => animation.finished)).then(cleanup);
+      });
+      return;
+    }
+
+    endingPreview?.destroy();
+    sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
   }
 
   return {
@@ -349,13 +482,33 @@ export function createSyntheticPreview(
         showContent(content.copy.root);
       }
     },
-    showContent,
     markSourceDragging(): void {
       finishEndingPreview(sourceElement);
       // Set only after the preview is built. A `[data-dragging]` rule that changes
       // the source's geometry or hides it would otherwise corrupt the measurement
       // the clone is sized from.
       sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
+    },
+    refresh(parameters: DraggablePreviewRenderParameters): void {
+      if (destroyed) {
+        return;
+      }
+      const attached = content;
+      if (!attached) {
+        refreshClone();
+        return;
+      }
+      // Runs after the content's next commit (see `syncContent`).
+      attached.update = () => {
+        attached.update = undefined;
+        updatePreviewContent(attached, {
+          onRoot: showContent,
+          onRootChange(ownStyle) {
+            previewElement?.updateContentStyle(ownStyle);
+          },
+        });
+      };
+      attached.render?.(parameters);
     },
     retargetSource,
     setPreviewOffset,
@@ -365,107 +518,27 @@ export function createSyntheticPreview(
     getPreviewOffset(): DraggablePosition {
       return { x: previewOffsetX, y: previewOffsetY };
     },
-    prepareForDrop(): void {
-      preparedForDrop = true;
-    },
-    markDropped(): void {
-      dropped = true;
-    },
-    destroy(): void {
+    end(drop: boolean): void {
       if (destroyed) {
         return;
       }
-      destroyed = true;
-      const endingPreview = previewElement;
-      previewElement = null;
-
-      // The engine owns the preview element in both modes, so it can stay mounted
-      // until the consumer's drop transition finishes.
-      if (preparedForDrop && endingPreview) {
-        const element = endingPreview.element;
-        const frame = new WindowAnimationFrame(ownerWindow(element));
-        const settlingWatchdog = new WindowTimeout(ownerWindow(element));
-        const entry: EndingPreview = {
-          identity: sourceIdentity,
-          get source() {
-            return sourceElement;
-          },
-          retarget: retargetSource,
-          finish() {
-            if (!endingPreviews.delete(entry)) {
-              return;
-            }
-            frame.cancel();
-            settlingWatchdog.clear();
-            endingPreview.destroy();
-            sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
-            setSourceSettling(sourceElement, false);
-            settling = false;
-          },
-        };
-        const cleanup = () => entry.finish();
-
-        findEndingPreview(sourceElement)?.finish();
-        settling = true;
-        endingPreviews.add(entry);
-        setSourceSettling(sourceElement, true);
-
-        // The ending starts in the next frame, before it paints. The release is
-        // resolved by then, so `[data-dropped]` applies along with
-        // `[data-ending-style]` and no style is computed with one but not the other.
-        // State updates that drop handlers schedule later in the release event are
-        // committed too, so measuring targets the source's final slot.
-        frame.request(() => {
-          endingPreview.ensureConnected();
-          // Commit the position the drag left the preview at, so an ending transition
-          // animates only what changes from here.
-          const style = ownerWindow(element).getComputedStyle(element);
-          void style.translate;
-          element.setAttribute(DraggablePreviewDataAttributes.endingStyle, '');
-          if (dropped) {
-            element.setAttribute(DraggablePreviewDataAttributes.dropped, '');
-          }
-          endingPreview.prepareForDrop();
-          // Only a `translate` transition animates the move to the source's final
-          // position. Without one, the preview ends where it was released, so an
-          // ending fade runs there instead of at the source. It ends in place too when
-          // the source is gone, or renders no box while the preview does, such as one
-          // a `[data-dragging] { display: none }` rule hides: it then measures as a
-          // zero rect at the viewport corner.
-          if (
-            transitionsTranslate(style) &&
-            sourceElement.isConnected &&
-            (sourceElement.getClientRects().length > 0 || element.getClientRects().length === 0)
-          ) {
-            const { sourceRect: destination } = measurePreviewSource(sourceElement);
-            endingPreview.setPosition(destination.left, destination.top);
-          }
-
-          const animations =
-            globalThis.BASE_UI_ANIMATIONS_DISABLED || !element.getAnimations
-              ? []
-              : getFiniteAnimations(element);
-          if (animations.length === 0) {
-            cleanup();
-            return;
-          }
-          const longestAnimationMs = animations.reduce((longest, animation) => {
-            const endTime = animation.effect?.getComputedTiming?.().endTime;
-            return typeof endTime === 'number' && Number.isFinite(endTime)
-              ? Math.max(longest, endTime)
-              : longest;
-          }, 0);
-          settlingWatchdog.start(
-            clamp(longestAnimationMs + 100, MIN_SETTLING_WATCHDOG_MS, MAX_SETTLING_WATCHDOG_MS),
-            cleanup,
-          );
-          Promise.allSettled(animations.map((animation) => animation.finished)).then(cleanup);
-        });
-        return;
+      if (drop) {
+        preparedForDrop = true;
+        // A preview without an element, such as custom content that never
+        // rendered, has nothing to settle. Its `[data-dragging]` goes when it is
+        // destroyed, so that waits for the end of the session. A rule that resizes
+        // or hides the source then still applies while drop handlers measure local
+        // points against the layout under the pointer.
+        const session = getActiveSession();
+        if (previewElement === null && session !== null) {
+          void session.onEnd(destroy);
+          return;
+        }
       }
-
-      endingPreview?.destroy();
-      sourceElement.removeAttribute(DraggableRootDataAttributes.dragging);
+      destroy();
+    },
+    markDropped(): void {
+      dropped = true;
     },
   };
 }
@@ -488,13 +561,17 @@ export interface SyntheticPreviewHandle {
   getContent(): AttachedPreviewContent | null;
   /** Copy the content after its first commit, or run its pending update. */
   syncContent(): void;
-  /** Show a new copy of the custom content, or remove the preview when `root` is `null`. */
-  showContent(root: HTMLElement | null): void;
   /**
    * Mark the source as being dragged. Called once the preview exists, so a
    * `[data-dragging]` rule can't affect the geometry the preview was measured from.
    */
   markSourceDragging(): void;
+  /**
+   * Build the preview again for `Draggable.updatePreview()`. A clone of the source is
+   * cloned again. Custom content renders again with `parameters`, and the copy takes
+   * what changed after its next commit.
+   */
+  refresh(parameters: DraggablePreviewRenderParameters): void;
   /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */
   retargetSource(element: HTMLElement): void;
   /**
@@ -506,9 +583,11 @@ export interface SyntheticPreviewHandle {
   getPreviewElement(): DragPreviewElementHandle | null;
   /** The offset from the preview's top-left to the cursor (see `setPreviewOffset`). */
   getPreviewOffset(): DraggablePosition;
-  /** Keep the preview long enough to animate it back to the source after release. */
-  prepareForDrop(): void;
+  /**
+   * End the preview. On a drop it stays mounted while its ending transition settles
+   * onto the source. Otherwise, such as on a cancel, it is removed at once.
+   */
+  end(drop: boolean): void;
   /** Mark the ending preview as dropped on a target, for `[data-dropped]` styles. */
   markDropped(): void;
-  destroy(): void;
 }

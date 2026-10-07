@@ -200,13 +200,13 @@ type PointerAtTeardown = 'released' | 'held' | 'none';
  * long-press fires `pointercancel` and then the `contextmenu`. The 1.5s timer
  * disarms it afterwards.
  *
- * Pass `destroyPreview: false` to leave the preview to the caller, which then
- * destroys it itself (see `dropActiveAtPointer`).
+ * Pass `drop` when a release ends the drag, so the preview settles onto the source
+ * instead of being removed at once.
  */
 function clearActive(
   releaseContextMenuSuppression: boolean = false,
   pointerAtTeardown: PointerAtTeardown = 'held',
-  destroyPreview: boolean = true,
+  drop: boolean = false,
 ): void {
   const session = state.active;
   if (!session) {
@@ -230,11 +230,7 @@ function clearActive(
       session.rafFrame.cancel,
       ...session.listeners,
       () => releasePointerCaptureSafely(session.captureTarget, session.pointerId),
-      () => {
-        if (destroyPreview) {
-          session.preview.destroy();
-        }
-      },
+      () => session.preview.end(drop),
       ...session.gestureCleanups,
     ]);
   } finally {
@@ -321,10 +317,8 @@ function releaseActive(cancelReason?: DragCanceledReason): void {
   }
   // A clean release frees the contextmenu suppression, and the pointer is already
   // up, so the drag's click is imminent. A double-click session holds no pointer,
-  // so nothing is armed for it. The preview settles into place, except one
-  // without an element, which `dropActiveAtPointer` destroys after the drop.
-  active.preview.prepareForDrop();
-  clearActive(true, 'released', active.preview.getPreviewElement() !== null);
+  // so nothing is armed for it.
+  clearActive(true, 'released', true);
 }
 
 /**
@@ -1371,22 +1365,9 @@ function dropActiveAtPointer(pointerEvent: PointerEvent | MouseEvent): void {
   }
   const input = modifyActiveInput(active, getInput(pointerEvent));
   const target = hitTestUnderPreview(active.element, active.preview, input.clientX, input.clientY);
-  const preview = active.preview;
-  // A preview settles into place after the drop, and the source keeps
-  // `[data-dragging]` until it has. A drag without a preview element takes
-  // `[data-dragging]` with it when destroyed. Destroy that one only after the
-  // drop, so a rule that resizes or hides the source still applies while drop
-  // handlers measure local points against the layout under the pointer.
-  const destroyAfterDrop = preview.getPreviewElement() === null;
-  try {
-    // The session releases the gesture through `releaseActive` before the
-    // terminal events.
-    active.controller.drop(input, target, pointerEvent);
-  } finally {
-    if (destroyAfterDrop) {
-      preview.destroy();
-    }
-  }
+  // The session releases the gesture through `releaseActive` before the terminal
+  // events.
+  active.controller.drop(input, target, pointerEvent);
 }
 
 function onActivePointerCancel(pointerEvent: PointerEvent): void {

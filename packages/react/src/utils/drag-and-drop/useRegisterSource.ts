@@ -11,7 +11,7 @@ import { registerDraggableElement } from './draggable';
 import type { DraggableConfig } from './draggable';
 import { setParticipantOwner } from './participantData';
 import { getActiveSession } from './core/dragSession';
-import { publishDragPreview } from './overlay/dragPreviewStore';
+import { clearPublishedDragPreview, publishDragPreview } from './overlay/dragPreviewStore';
 import type { RegisterSourceParameters } from './registrationTypes';
 import type { DragCleanupFn } from './types';
 import type { DraggablePreviewRenderParameters } from '../../draggable/preview/DraggablePreview';
@@ -52,10 +52,17 @@ export function createRegisterSource(
       // The sensor set up the preview before starting this session. Only custom
       // content needs React. The engine builds a clone without it, and attaches no
       // content to a disabled preview.
-      const handle = getActiveSession()?.preview;
+      const session = getActiveSession();
+      const handle = session?.preview;
       const content = handle?.getContent();
-      if (!handle || !content) {
+      if (!session || !handle || !content) {
         return;
+      }
+      if (!content.render) {
+        // The overlay renders whatever the store holds. Clear it with the session, so
+        // a provider that unmounted mid-drag doesn't keep the content and its
+        // detached host in memory until the next pickup.
+        void session.onEnd(clearPublishedDragPreview);
       }
       content.render = publishPreview as (parameters: DraggablePreviewRenderParameters) => void;
       const node = content.renderContent(payload);

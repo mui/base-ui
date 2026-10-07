@@ -39,7 +39,6 @@ import {
 import { createHoverLedger } from '../hoverLedger';
 import { activateMonitors, clearActiveMonitors, dispatchToMonitors } from '../monitor';
 import { cloneLocationHistory, setDragSession } from '../dragSessionStore';
-import { clearPublishedDragPreview } from '../overlay/dragPreviewStore';
 import { containConsumerError, getComposedParentElement, runAllCleanups } from '../utils';
 import { clearActiveSession, getActiveSession, setActiveSession } from './dragSession';
 import type { DragSession, DragSessionPhase } from './dragSession';
@@ -718,11 +717,6 @@ export function start(parameters: StartParameters): DragSessionController | null
         () => releaseSensor(REASONS.handlerError),
         undefined,
       );
-
-      // Clear the published React preview content with the session. The overlay
-      // renders whatever the store holds, so if a provider unmounted mid-drag,
-      // the content and its detached host would stay in memory until the next pickup.
-      clearPublishedDragPreview();
     } finally {
       clearActiveMonitors();
       // Release the hold kept for a target that unregistered while hovered. Its

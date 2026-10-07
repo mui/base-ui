@@ -254,7 +254,7 @@ export function createPreviewAndStartSession(
 
   const undo = () => {
     if (preview) {
-      preview.destroy();
+      preview.end(false);
     }
     if (locked) {
       dragRootLock.unlock();

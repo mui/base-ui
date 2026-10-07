@@ -55,8 +55,7 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
       preview.update(300, 300);
       preview.markSourceDragging();
       clone.element.getBoundingClientRect();
-      preview.prepareForDrop();
-      preview.destroy();
+      preview.end(true);
       await flushRaf();
       const animations = clone.element.getAnimations();
       expect(animations.length).toBeGreaterThan(0);
@@ -102,8 +101,7 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
       preview.setPreviewElement(clone);
       preview.update(300, 300);
       preview.markSourceDragging();
-      preview.prepareForDrop();
-      preview.destroy();
+      preview.end(true);
       await flushRaf();
       // Measuring the hidden source would send the preview to the viewport corner.
       expect(clone.element.isConnected).toBe(false);
@@ -146,8 +144,7 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
       preview.setPreviewElement(clone);
       preview.update(300, 300);
       preview.markSourceDragging();
-      preview.prepareForDrop();
-      preview.destroy();
+      preview.end(true);
       if (dropped) {
         preview.markDropped();
       }
@@ -201,8 +198,7 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
       preview.markSourceDragging();
 
       source.style.left = '210px';
-      preview.prepareForDrop();
-      preview.destroy();
+      preview.end(true);
 
       expect(clone!.element.isConnected).toBe(true);
 
