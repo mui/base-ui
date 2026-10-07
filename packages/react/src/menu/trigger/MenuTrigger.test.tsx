@@ -265,7 +265,7 @@ describe('<Menu.Trigger />', () => {
 
     let setOpen: (nextOpen: boolean) => void = () => {};
 
-    function ControlledMenu() {
+    function ControlledMenu(props: { keepMounted?: boolean }) {
       const [isOpen, setIsOpen] = React.useState(false);
       setOpen = setIsOpen;
       return (
@@ -273,7 +273,7 @@ describe('<Menu.Trigger />', () => {
           <Menu.Trigger openOnHover delay={100}>
             Open
           </Menu.Trigger>
-          <Menu.Portal>
+          <Menu.Portal keepMounted={props.keepMounted}>
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Item</Menu.Item>
@@ -348,6 +348,27 @@ describe('<Menu.Trigger />', () => {
       await flushMicrotasks();
 
       expect(screen.queryByRole('menu')).toBe(null);
+    });
+
+    it('does not reopen a retained menu from a hover delay that was pending when a click opened it, once it is closed through the `open` prop', async () => {
+      // A popup that unmounts on close disposes of the pending timer with it.
+      await renderFakeTimers(<ControlledMenu keepMounted />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      enterWithMouse(trigger);
+      clock.tick(50);
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      await act(async () => setOpen(false));
+      await flushMicrotasks();
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
   });
 
