@@ -512,9 +512,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   }, [multiple, value, form, name, itemToStringValue, disabled]);
 
+  const handleIsItemEqualToValue = useStableCallback(isItemEqualToValue);
   const selection = React.useMemo(
-    () => ({ value, multiple, isItemEqualToValue }),
-    [value, multiple, isItemEqualToValue],
+    () => ({ value, multiple, isItemEqualToValue: handleIsItemEqualToValue }),
+    [value, multiple, handleIsItemEqualToValue],
   );
 
   return (
