@@ -9,6 +9,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
+import { ToastAnnouncer } from '../announcer/ToastAnnouncer';
 import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -99,7 +100,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const domIndex = store.useState('toastIndex', toast.id);
   const visibleIndex = store.useState('toastVisibleIndex', toast.id);
   const offsetY = store.useState('toastOffsetY', toast.id);
-  const focused = store.useState('focused');
   const expanded = store.useState('expanded');
 
   useOpenChangeComplete({
@@ -466,7 +466,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     'aria-modal': false,
     'aria-labelledby': titleId,
     'aria-describedby': descriptionId,
-    'aria-hidden': isHighPriority && !focused ? true : undefined,
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handleSwipeEnd : undefined,
@@ -510,7 +509,18 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     props: [defaultProps, elementProps],
   });
 
-  return <ToastRootContext.Provider value={toastRoot}>{element}</ToastRootContext.Provider>;
+  return (
+    <ToastRootContext.Provider value={toastRoot}>
+      {element}
+      <ToastAnnouncer
+        rootRef={rootRef}
+        titleId={titleId}
+        descriptionId={descriptionId}
+        priority={toast.priority}
+        limited={toast.limited}
+      />
+    </ToastRootContext.Provider>
+  );
 });
 
 export type ToastRootToastObject<Data extends object = any> = ToastObjectType<Data>;

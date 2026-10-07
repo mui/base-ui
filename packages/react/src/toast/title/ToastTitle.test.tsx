@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { screen, within } from '@mui/internal-test-utils';
 import { List, Button } from '../utils/test-utils';
 
 const toast = {
@@ -122,7 +122,7 @@ describe('<Toast.Title />', () => {
       </Toast.Provider>,
     );
 
-    expect(screen.getByText('render prop title')).not.toBe(null);
+    expect(within(screen.getByRole('dialog')).getByText('render prop title')).not.toBe(null);
   });
 
   it('renders content passed through a render function', async () => {
@@ -136,7 +136,7 @@ describe('<Toast.Title />', () => {
       </Toast.Provider>,
     );
 
-    expect(screen.getByText('render fn title')).not.toBe(null);
+    expect(within(screen.getByRole('dialog')).getByText('render fn title')).not.toBe(null);
   });
 
   it('wires aria-labelledby to a title rendered through the render prop', async () => {
@@ -150,7 +150,7 @@ describe('<Toast.Title />', () => {
       </Toast.Provider>,
     );
 
-    const titleElement = screen.getByText('render prop title');
+    const titleElement = within(screen.getByRole('dialog')).getByText('render prop title');
     const rootElement = screen.getByTestId('root');
     expect(rootElement.getAttribute('aria-labelledby')).toBe(titleElement.id);
   });
@@ -180,7 +180,7 @@ describe('<Toast.Title />', () => {
       </Toast.Provider>,
     );
 
-    expect(screen.getByText('0')).not.toBe(null);
+    expect(within(screen.getByRole('dialog')).getByText('0')).not.toBe(null);
   });
 
   it('does not render when a render function returns no element', async () => {
@@ -222,7 +222,7 @@ describe('<Toast.Title />', () => {
 
     await user.click(screen.getByRole('button', { name: 'clear' }));
 
-    expect(screen.queryByText('Toast title')).toBe(null);
+    expect(rootElement).not.toHaveTextContent('Toast title');
     expect(rootElement.getAttribute('aria-labelledby')).toBe(null);
   });
 
@@ -271,6 +271,6 @@ describe('<Toast.Title />', () => {
       </Toast.Provider>,
     );
 
-    expect(screen.getByText('Toast title')).not.toBe(null);
+    expect(within(screen.getByRole('dialog')).getByText('Toast title')).not.toBe(null);
   });
 });
