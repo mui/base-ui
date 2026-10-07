@@ -101,6 +101,90 @@ describe('<Popover.Root />', () => {
     });
 
     describe('controlled open', () => {
+      it.skipIf(isJSDOM).each([
+        {
+          name: 'a click',
+          async open(user: Awaited<ReturnType<typeof render>>['user'], trigger: HTMLElement) {
+            await user.click(trigger);
+          },
+        },
+        {
+          name: 'a hover',
+          async open(user: Awaited<ReturnType<typeof render>>['user'], trigger: HTMLElement) {
+            await user.hover(trigger);
+          },
+        },
+      ])(
+        'ignores the pointer leaving while a popover opened by $name animates out after `open` was set to false',
+        async ({ open }) => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+          // Long enough that a slow run can't finish the close before the pointer leaves.
+          const closeTransitionMs = 10_000;
+          const style = `
+            @keyframes popover-prop-close-leave {
+              from {
+                opacity: 1;
+              }
+              to {
+                opacity: 0.01;
+              }
+            }
+
+            .animation-test-indicator[data-ending-style] {
+              animation: popover-prop-close-leave ${closeTransitionMs}ms linear forwards;
+            }
+          `;
+
+          const handleChange = vi.fn();
+          let setOpen: (nextOpen: boolean) => void = () => {};
+
+          function App() {
+            const [open, setOpenState] = React.useState(false);
+            setOpen = setOpenState;
+            return (
+              <React.Fragment>
+                {/* eslint-disable-next-line react/no-danger */}
+                <style dangerouslySetInnerHTML={{ __html: style }} />
+                <TestPopover
+                  rootProps={{
+                    open,
+                    onOpenChange: (nextOpen, details) => {
+                      handleChange(nextOpen, details.reason);
+                      setOpenState(nextOpen);
+                    },
+                  }}
+                  triggerProps={{ openOnHover: true, delay: 1 }}
+                  popupProps={{ className: 'animation-test-indicator' }}
+                />
+              </React.Fragment>
+            );
+          }
+
+          const { user } = await render(<App />);
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          await open(user, trigger);
+          await waitFor(() => {
+            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-open');
+          });
+
+          await act(async () => setOpen(false));
+          await waitFor(() => {
+            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+          });
+          const callsBeforeLeaving = handleChange.mock.calls.length;
+
+          await user.unhover(trigger);
+          await act(async () => {
+            await wait(100);
+          });
+
+          expect(handleChange.mock.calls.slice(callsBeforeLeaving)).toEqual([]);
+          expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+        },
+      );
+
       it('should call onChange when the open state changes', async () => {
         const handleChange = vi.fn();
 

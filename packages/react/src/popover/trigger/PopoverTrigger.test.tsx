@@ -290,6 +290,97 @@ describe('<Popover.Trigger />', () => {
     });
   });
 
+  describe('prop: openOnHover', () => {
+    const { clock, render: renderFakeTimers } = createRenderer();
+
+    clock.withFakeTimers();
+
+    let setOpen: (nextOpen: boolean) => void = () => {};
+
+    function ControlledPopover() {
+      const [isOpen, setIsOpen] = React.useState(false);
+      setOpen = setIsOpen;
+      return (
+        <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+          <Popover.Trigger openOnHover delay={100}>
+            Open
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    function hover(trigger: HTMLElement) {
+      enterWithMouse(trigger);
+      clock.tick(100);
+    }
+
+    async function closeThroughProp() {
+      await act(async () => setOpen(false));
+      await flushMicrotasks();
+      expect(screen.queryByText('Content')).toBe(null);
+    }
+
+    it.each([
+      {
+        name: 'a click',
+        open(trigger: HTMLElement) {
+          fireEvent.click(trigger);
+        },
+      },
+      { name: 'a hover', open: hover },
+      {
+        name: 'a hover pinned by a click',
+        open(trigger: HTMLElement) {
+          hover(trigger);
+          fireEvent.click(trigger);
+        },
+      },
+    ])(
+      'opens on hover after a popover opened by $name is closed through the `open` prop',
+      async ({ open }) => {
+        await renderFakeTimers(<ControlledPopover />);
+        const trigger = screen.getByRole('button', { name: 'Open' });
+
+        open(trigger);
+        await flushMicrotasks();
+        expect(screen.queryByText('Content')).not.toBe(null);
+
+        await closeThroughProp();
+
+        fireEvent.mouseLeave(trigger);
+        hover(trigger);
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).not.toBe(null);
+      },
+    );
+
+    it('does not open from a pointer that leaves before the delay once a click-opened popover is closed through the `open` prop', async () => {
+      await renderFakeTimers(<ControlledPopover />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await closeThroughProp();
+
+      fireEvent.mouseLeave(trigger);
+      enterWithMouse(trigger);
+      clock.tick(50);
+      fireEvent.mouseLeave(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+    });
+  });
+
   describe('impatient clicks with `openOnHover=true`', () => {
     const { clock, render: renderFakeTimers } = createRenderer();
 

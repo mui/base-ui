@@ -10,7 +10,7 @@ import {
 } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { describeConformance, createRenderer, enterWithMouse, isJSDOM } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
@@ -255,6 +255,99 @@ describe('<Menu.Trigger />', () => {
       expect(screen.getByRole('menu')).toHaveAttribute('data-open');
       expect(trigger).toHaveAttribute('data-popup-open');
       expect(handle.isOpen).toBe(true);
+    });
+  });
+
+  describe('prop: openOnHover', () => {
+    const { clock, render: renderFakeTimers } = createRenderer();
+
+    clock.withFakeTimers();
+
+    let setOpen: (nextOpen: boolean) => void = () => {};
+
+    function ControlledMenu() {
+      const [isOpen, setIsOpen] = React.useState(false);
+      setOpen = setIsOpen;
+      return (
+        <Menu.Root open={isOpen} onOpenChange={setIsOpen}>
+          <Menu.Trigger openOnHover delay={100}>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    function hover(trigger: HTMLElement) {
+      enterWithMouse(trigger);
+      clock.tick(100);
+    }
+
+    async function closeThroughProp() {
+      await act(async () => setOpen(false));
+      await flushMicrotasks();
+      expect(screen.queryByRole('menu')).toBe(null);
+    }
+
+    it.each([
+      {
+        name: 'a click',
+        open(trigger: HTMLElement) {
+          fireEvent.click(trigger);
+        },
+      },
+      { name: 'a hover', open: hover },
+      {
+        name: 'a hover pinned by a click',
+        open(trigger: HTMLElement) {
+          hover(trigger);
+          fireEvent.click(trigger);
+        },
+      },
+    ])(
+      'opens on hover after a menu opened by $name is closed through the `open` prop',
+      async ({ open }) => {
+        await renderFakeTimers(<ControlledMenu />);
+        const trigger = screen.getByRole('button', { name: 'Open' });
+
+        open(trigger);
+        await flushMicrotasks();
+        expect(screen.queryByRole('menu')).not.toBe(null);
+
+        await closeThroughProp();
+
+        fireEvent.mouseLeave(trigger);
+        hover(trigger);
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      },
+    );
+
+    it('does not open from a pointer that leaves before the delay once a click-opened menu is closed through the `open` prop', async () => {
+      await renderFakeTimers(<ControlledMenu />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByRole('menu')).not.toBe(null);
+
+      await closeThroughProp();
+
+      fireEvent.mouseLeave(trigger);
+      enterWithMouse(trigger);
+      clock.tick(50);
+      fireEvent.mouseLeave(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('menu')).toBe(null);
     });
   });
 

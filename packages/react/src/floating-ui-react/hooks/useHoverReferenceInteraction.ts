@@ -106,7 +106,12 @@ export function useHoverReferenceInteraction(
   const isClosingRef = useValueAsRef(isClosing);
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
+    // A controlled close through the `open` prop leaves the previous session's event in place,
+    // so the event only describes how the popup opened while it is open.
+    return (
+      store.select('open') &&
+      isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside)
+    );
   });
 
   const checkShouldOpen = useStableCallback(() => {

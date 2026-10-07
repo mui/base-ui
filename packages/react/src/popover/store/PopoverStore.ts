@@ -111,6 +111,12 @@ export class PopoverStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<PopoverRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
+    // Read the store directly, as a stale hover timer can request a close after a controlled
+    // `open` already changed.
+    if (!nextOpen && !this.select('open')) {
+      return;
+    }
+
     const isHover = eventDetails.reason === REASONS.triggerHover;
     const isKeyboardClick =
       eventDetails.reason === REASONS.triggerPress &&
