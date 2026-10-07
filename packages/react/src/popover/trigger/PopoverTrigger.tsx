@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../internals/use-button/useButton';
@@ -16,7 +17,6 @@ import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { REASONS } from '../../internals/reasons';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
@@ -75,14 +75,12 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     },
   );
 
-  const openReason = store.useState('openChangeReason');
-  const stickIfOpen = store.useState('stickIfOpen');
-  const openMethod = store.useState('openMethod');
-  const focusManagerModal = store.useState('focusManagerModal');
+  const isPressOpenedByThisTrigger = store.useState('isPressOpenedByTrigger', thisTriggerId);
+  const isTouchPressOpen = store.useState('isTouchPressOpen', openOnHover);
+  const hasFocusGuards = store.useState('hasTriggerFocusGuards', thisTriggerId);
 
   const hoverProps = useHoverReferenceInteraction(floatingContext, {
-    enabled:
-      !disabled && openOnHover && (openMethod !== 'touch' || openReason !== REASONS.triggerPress),
+    enabled: !disabled && openOnHover && !isTouchPressOpen,
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
@@ -95,7 +93,8 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
-  const click = useClick(floatingContext, { stickIfOpen });
+  const getStickIfOpen = useStableCallback(() => store.context.stickIfOpen);
+  const click = useClick(floatingContext, { stickIfOpen: getStickIfOpen });
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => store.select('open'),
     (interactionType) => {
@@ -112,7 +111,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
 
   const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = {
     open(value) {
-      if (value && openReason === REASONS.triggerPress) {
+      if (isPressOpenedByThisTrigger) {
         return pressableTriggerOpenStateMapping.open(value);
       }
 
@@ -155,7 +154,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   // regardless of whether the focus guards are rendered or not.
   const keyedElement = <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 
-  if (isOpenedByThisTrigger && !focusManagerModal) {
+  if (hasFocusGuards) {
     return (
       <React.Fragment>
         <FocusGuard

@@ -5,6 +5,8 @@ import {
   createRenderer,
   describeConformance,
   isJSDOM,
+  isScrollLocked,
+  pressWithTouch,
   resetBrowserPointer,
   wait,
 } from '#test-utils';
@@ -318,11 +320,11 @@ describe('<Menubar />', () => {
 
         await user.tab();
 
+        const fileTrigger = screen.getByTestId('file-trigger');
         await waitFor(() => {
-          const fileTrigger = screen.getByTestId('file-trigger');
           expect(fileTrigger).toHaveFocus();
-          expect(screen.queryByTestId('file-menu')).toBe(null);
         });
+        expect(screen.queryByTestId('file-menu')).toBe(null);
 
         await wait(50);
 
@@ -796,25 +798,23 @@ describe('<Menubar />', () => {
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
-        fireEvent.pointerDown(fileTrigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(fileTrigger);
+        pressWithTouch(fileTrigger);
 
         await screen.findByTestId('file-menu');
 
         const shareTrigger = await screen.findByTestId('share-trigger');
-        fireEvent.pointerDown(shareTrigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(shareTrigger);
+        pressWithTouch(shareTrigger);
 
         await screen.findByTestId('share-menu');
 
         const outside = screen.getByTestId('outside');
-        fireEvent.pointerDown(outside, { pointerType: 'touch' });
-        fireEvent.mouseDown(outside);
+        pressWithTouch(outside);
 
+        // The submenu lives inside the file menu, so it is gone once the file menu closes.
         await waitFor(() => {
-          expect(screen.queryByTestId('share-menu')).toBe(null);
           expect(screen.queryByTestId('file-menu')).toBe(null);
         });
+        expect(screen.queryByTestId('share-menu')).toBe(null);
       });
     });
 
@@ -837,19 +837,13 @@ describe('<Menubar />', () => {
 
         const trigger = screen.getByTestId('file-trigger');
 
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
+        pressWithTouch(trigger);
 
         const menu = await screen.findByRole('menu');
         const doc = menu.ownerDocument;
 
         await waitFor(() => {
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(true);
+          expect(isScrollLocked(doc)).toBe(true);
         });
       });
 
@@ -871,18 +865,12 @@ describe('<Menubar />', () => {
 
         const trigger = screen.getByTestId('file-trigger');
 
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
+        pressWithTouch(trigger);
 
         const menu = await screen.findByRole('menu');
         const doc = menu.ownerDocument;
 
-        const isScrollLocked =
-          doc.documentElement.style.overflow === 'hidden' ||
-          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-          doc.body.style.overflow === 'hidden';
-
-        expect(isScrollLocked).toBe(false);
+        expect(isScrollLocked(doc)).toBe(false);
       });
 
       it('updates scroll lock when handing off between top-level touch-opened menus', async () => {
@@ -915,22 +903,15 @@ describe('<Menubar />', () => {
         const editTrigger = screen.getByTestId('edit-trigger');
         const doc = fileTrigger.ownerDocument;
 
-        fireEvent.pointerDown(fileTrigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(fileTrigger);
+        pressWithTouch(fileTrigger);
 
         await screen.findByTestId('file-menu');
 
         await waitFor(() => {
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(true);
+          expect(isScrollLocked(doc)).toBe(true);
         });
 
-        fireEvent.pointerDown(editTrigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(editTrigger);
+        pressWithTouch(editTrigger);
 
         await screen.findByTestId('edit-menu');
 
@@ -939,12 +920,7 @@ describe('<Menubar />', () => {
         });
 
         await waitFor(() => {
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(false);
+          expect(isScrollLocked(doc)).toBe(false);
         });
       });
     });
@@ -1153,13 +1129,12 @@ describe('<Menubar />', () => {
         expect(screen.queryByRole('menu')).toBe(null);
       });
 
-      (
-        [
-          ['ltr', 'ArrowRight', 'ArrowLeft'],
-          ['rtl', 'ArrowLeft', 'ArrowRight'],
-        ] as const
-      ).forEach(([direction, openKey, oppositeKey]) => {
-        it(`opens a menu of a vertical ${direction.toUpperCase()} menubar with ${openKey}`, async () => {
+      it.each([
+        { direction: 'ltr', openKey: 'ArrowRight', oppositeKey: 'ArrowLeft' },
+        { direction: 'rtl', openKey: 'ArrowLeft', oppositeKey: 'ArrowRight' },
+      ] as const)(
+        'opens a menu of a vertical $direction menubar with $openKey',
+        async ({ direction, openKey, oppositeKey }) => {
           const { user } = await render(
             <DirectionProvider direction={direction}>
               <Menubar orientation="vertical">
@@ -1188,8 +1163,8 @@ describe('<Menubar />', () => {
           await user.keyboard(`[${openKey}]`);
 
           await screen.findByRole('menu');
-        });
-      });
+        },
+      );
 
       it('sets role="menuitem" on menu triggers', async () => {
         await render(<TestMenubar />);
