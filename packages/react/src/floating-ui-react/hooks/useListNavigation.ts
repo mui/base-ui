@@ -359,6 +359,9 @@ export function useListNavigation(
 
     function runFocus(item: HTMLElement) {
       if (!virtual) {
+        // Queued focus is only cancelled per element, so retire this hook's
+        // own previous request before queueing focus for another item.
+        cancelQueuedFocusRef.current?.();
         cancelQueuedFocusRef.current = enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
           preventScroll: true,
