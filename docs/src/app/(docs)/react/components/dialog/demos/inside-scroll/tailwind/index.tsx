@@ -17,7 +17,7 @@ export default function InsideScrollDialog() {
                 This layout keeps the popup fully on screen while allowing its content to scroll.
               </Dialog.Description>
             </div>
-            <div className="flex-auto min-h-0 overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
+            <div className="flex-auto overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
               {CONTENT_SECTIONS.map((item) => (
                 <section className="flex flex-col gap-1 p-4" key={item.title}>
                   <h3 className="text-sm font-bold">{item.title}</h3>
