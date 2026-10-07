@@ -8,7 +8,7 @@ describe('<Accordion.Trigger />', () => {
 
   describeConformance(<Accordion.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render: (node) =>
       render(

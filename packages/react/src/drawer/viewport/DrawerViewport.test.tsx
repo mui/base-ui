@@ -52,6 +52,52 @@ describe('<Drawer.Viewport />', () => {
     return touchMove;
   }
 
+  it('registers the non-passive document touchmove listener only while open', async () => {
+    const activeListeners = new Set<EventListenerOrEventListenerObject>();
+    const addSpy = vi
+      .spyOn(document, 'addEventListener')
+      .mockImplementation(function addEventListener(this: Document, type, listener, options) {
+        if (type === 'touchmove' && typeof options === 'object' && options.passive === false) {
+          activeListeners.add(listener);
+        }
+        return EventTarget.prototype.addEventListener.call(this, type, listener, options);
+      });
+    const removeSpy = vi
+      .spyOn(document, 'removeEventListener')
+      .mockImplementation(function removeEventListener(this: Document, type, listener, options) {
+        if (type === 'touchmove') {
+          activeListeners.delete(listener);
+        }
+        return EventTarget.prototype.removeEventListener.call(this, type, listener, options);
+      });
+
+    function TestCase({ open }: { open: boolean }) {
+      return (
+        <Drawer.Root open={open}>
+          <Drawer.Portal keepMounted>
+            <Drawer.Viewport>
+              <Drawer.Popup>Drawer</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    try {
+      const { setProps } = await render(<TestCase open={false} />);
+      expect(activeListeners.size).toBe(0);
+
+      await setProps({ open: true });
+      expect(activeListeners.size).toBe(1);
+
+      await setProps({ open: false });
+      expect(activeListeners.size).toBe(0);
+    } finally {
+      addSpy.mockRestore();
+      removeSpy.mockRestore();
+    }
+  });
+
   it('clears text selection on swipe start', async () => {
     await render(
       <Drawer.Root open>
@@ -475,6 +521,169 @@ describe('<Drawer.Viewport />', () => {
     } finally {
       document.elementFromPoint = originalElementFromPoint;
     }
+  });
+
+  it('scrolls instead of swiping when a touch drag starts on an SVG inside scrolled content', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <svg width={20} height={20}>
+                  <rect data-testid="rect" width={20} height={20} />
+                </svg>
+                <div style={{ height: 120 }} />
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    const rect = screen.getByTestId('rect');
+    const backdrop = screen.getByTestId('backdrop');
+
+    Object.defineProperty(scroll, 'scrollHeight', { value: 160, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+    scroll.scrollTop = 40;
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => rect;
+
+    try {
+      fireEvent.touchStart(rect, {
+        touches: [createTouch(rect, { clientX: 0, clientY: 0 })],
+      });
+
+      const prevented = !fireEvent.touchMove(rect, {
+        touches: [createTouch(rect, { clientX: 0, clientY: 40 })],
+      });
+
+      await flushMicrotasks();
+
+      expect(prevented).toBe(false);
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('does not start a mouse drag swipe from an SVG inside scrollable content', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup>
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <svg width={20} height={20}>
+                  <rect data-testid="rect" width={20} height={20} />
+                </svg>
+                <div style={{ height: 120 }} />
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+    const scroll = screen.getByTestId('scroll');
+    const rect = screen.getByTestId('rect');
+    const backdrop = screen.getByTestId('backdrop');
+
+    Object.defineProperty(scroll, 'scrollHeight', { value: 160, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => rect;
+
+    try {
+      fireEvent.pointerDown(rect, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(viewport, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY: 40,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('dismisses with a touch swipe down that starts on an SVG inside a top-edge scroll container', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <svg width={20} height={20}>
+                  <rect data-testid="rect" width={20} height={20} />
+                </svg>
+                <div style={{ height: 120 }} />
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    const rect = screen.getByTestId('rect');
+    const backdrop = screen.getByTestId('backdrop');
+    const popup = screen.getByTestId('popup');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 160, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+    scroll.scrollTop = 0;
+
+    Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => rect;
+
+    try {
+      fireEvent.touchStart(rect, {
+        touches: [createTouch(rect, { clientX: 0, clientY: 0 })],
+      });
+
+      fireEvent.touchMove(rect, {
+        touches: [createTouch(rect, { clientX: 0, clientY: 140 })],
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+
+      fireEvent.touchEnd(rect, {
+        changedTouches: [createTouch(rect, { clientX: 0, clientY: 140 })],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleOpenChange).toHaveBeenCalledWith(
+      false,
+      expect.objectContaining({ reason: 'swipe' }),
+    );
   });
 
   it('allows clicks on non-interactive elements without data-base-ui-swipe-ignore', async () => {
@@ -1709,10 +1918,10 @@ describe('<Drawer.Viewport />', () => {
       ],
     });
 
-    await waitFor(() => {
-      expect(dispatched).toBe(true);
-      expect(backdrop).not.toHaveAttribute('data-swiping');
-    });
+    await flushMicrotasks();
+
+    expect(dispatched).toBe(true);
+    expect(backdrop).not.toHaveAttribute('data-swiping');
   });
 
   it('does not block touchmove on slider thumb range inputs', async () => {
@@ -1808,10 +2017,10 @@ describe('<Drawer.Viewport />', () => {
         ],
       });
 
-      await waitFor(() => {
-        expect(dispatched).toBe(true);
-        expect(backdrop).not.toHaveAttribute('data-swiping');
-      });
+      await flushMicrotasks();
+
+      expect(dispatched).toBe(true);
+      expect(backdrop).not.toHaveAttribute('data-swiping');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
     }
@@ -1862,10 +2071,10 @@ describe('<Drawer.Viewport />', () => {
         ],
       });
 
-      await waitFor(() => {
-        expect(dispatched).toBe(true);
-        expect(backdrop).not.toHaveAttribute('data-swiping');
-      });
+      await flushMicrotasks();
+
+      expect(dispatched).toBe(true);
+      expect(backdrop).not.toHaveAttribute('data-swiping');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
     }
@@ -1928,10 +2137,10 @@ describe('<Drawer.Viewport />', () => {
         ],
       });
 
-      await waitFor(() => {
-        expect(dispatched).toBe(true);
-        expect(backdrop).not.toHaveAttribute('data-swiping');
-      });
+      await flushMicrotasks();
+
+      expect(dispatched).toBe(true);
+      expect(backdrop).not.toHaveAttribute('data-swiping');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
       selection.removeAllRanges();
@@ -1992,10 +2201,10 @@ describe('<Drawer.Viewport />', () => {
         ],
       });
 
-      await waitFor(() => {
-        expect(dispatched).toBe(true);
-        expect(backdrop).not.toHaveAttribute('data-swiping');
-      });
+      await flushMicrotasks();
+
+      expect(dispatched).toBe(true);
+      expect(backdrop).not.toHaveAttribute('data-swiping');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
       selection.removeAllRanges();
