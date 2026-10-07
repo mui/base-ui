@@ -12,7 +12,16 @@ import {
   ignoreActWarnings,
   reactMajor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  isJSDOM,
+  isScrollLocked,
+  popupConformanceTests,
+  popupListConformanceTests,
+  pressWithTouch,
+  wait,
+  waitSingleFrame,
+} from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { REASONS } from '../../internals/reasons';
@@ -375,6 +384,40 @@ describe('<Select.Root />', () => {
       expectedPopupRole: 'listbox',
       alwaysMounted: 'only-after-open',
     });
+
+    // The suite owns the scroller geometry, which item-aligned positioning would override.
+    popupListConformanceTests({
+      createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle, onItemClick }) => (
+        <Select.Root {...root}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup data-testid="popup">
+                <Select.List data-testid="scroller" style={scrollerStyle}>
+                  {items.map((item) => (
+                    <Select.Item
+                      key={item}
+                      value={item}
+                      disabled={disabledItems.includes(item)}
+                      style={itemStyle}
+                      onClick={onItemClick}
+                    >
+                      <Select.ItemText>{item}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      ),
+      render,
+      itemRole: 'option',
+      selectable: true,
+      listEnd: 'stop',
+    });
   });
 
   describe('server-side rendering', () => {
@@ -525,7 +568,7 @@ describe('<Select.Root />', () => {
 
     it('should not update the internal value if the controlled value prop does not change', async () => {
       const onValueChange = vi.fn();
-      await render(
+      const { user } = await render(
         <Select.Root value="a" onValueChange={onValueChange}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
@@ -544,15 +587,21 @@ describe('<Select.Root />', () => {
       const trigger = screen.getByTestId('trigger');
       expect(trigger).toHaveTextContent('a');
 
-      fireEvent.click(trigger);
-      await flushMicrotasks();
+      await user.click(trigger);
+      await user.click(await screen.findByRole('option', { name: 'b' }));
 
-      const optionB = screen.getByRole('option', { name: 'b' });
-      fireEvent.click(optionB);
-      await flushMicrotasks();
-
-      expect(onValueChange.mock.calls.length).toBe(0);
+      expect(onValueChange).toHaveBeenCalledOnce();
+      expect(onValueChange.mock.calls[0][0]).toBe('b');
       expect(trigger).toHaveTextContent('a');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      await user.click(trigger);
+
+      expect(await screen.findByRole('option', { name: 'a' })).toHaveAttribute('data-selected');
+      expect(screen.getByRole('option', { name: 'b' })).not.toHaveAttribute('data-selected');
     });
 
     it('updates <Select.Value /> label when the value prop changes before the popup opens', async () => {
@@ -917,36 +966,6 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe('prop: onOpenChange', () => {
-    it('should call onOpenChange when the select is opened or closed', async () => {
-      const handleOpenChange = vi.fn();
-
-      const { user } = await render(
-        <Select.Root onOpenChange={handleOpenChange}>
-          <Select.Trigger data-testid="trigger">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
-
-      const trigger = screen.getByTestId('trigger');
-
-      await user.click(trigger);
-      await waitFor(() => {
-        expect(handleOpenChange.mock.calls.length).toBe(1);
-      });
-      expect(handleOpenChange.mock.calls[0][0]).toBe(true);
-    });
-  });
-
   it('does not dismiss when pressing portalled content inside the popup but outside the list', async () => {
     const { user } = await render(
       <Select.Root defaultOpen>
@@ -967,37 +986,6 @@ describe('<Select.Root />', () => {
     await user.click(screen.getByText('Portalled content'));
 
     expect(screen.getByRole('listbox')).not.toBe(null);
-  });
-
-  describe('BaseUIChangeEventDetails', () => {
-    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-      await render(
-        <Select.Root
-          onOpenChange={(nextOpen, eventDetails) => {
-            if (nextOpen) {
-              eventDetails.cancel();
-            }
-          }}
-        >
-          <Select.Trigger data-testid="trigger">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
-
-      const trigger = screen.getByTestId('trigger');
-      fireEvent.click(trigger);
-      await flushMicrotasks();
-
-      expect(screen.queryByRole('listbox')).toBe(null);
-    });
   });
 
   it('should handle browser autofill', async () => {
@@ -1802,16 +1790,6 @@ describe('<Select.Root />', () => {
 
         const trigger = screen.getByRole('combobox');
 
-        const isScrollLocked = () =>
-          trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
-          trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-          trigger.ownerDocument.body.style.overflow === 'hidden';
-
-        function fireTouchPress() {
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-        }
-
         function flushAnimationFrames() {
           let iterations = 0;
           while (frameCallbacks.size > 0) {
@@ -1828,7 +1806,7 @@ describe('<Select.Root />', () => {
           }
         }
 
-        fireTouchPress();
+        pressWithTouch(trigger);
         await act(async () => {
           flushAnimationFrames();
         });
@@ -1837,7 +1815,7 @@ describe('<Select.Root />', () => {
           expect(screen.queryByRole('listbox')).not.toBe(null);
         });
 
-        fireTouchPress();
+        pressWithTouch(trigger);
 
         await act(async () => {
           flushAnimationFrames();
@@ -1848,7 +1826,7 @@ describe('<Select.Root />', () => {
         });
 
         // Re-open while the previous close animation is still pending.
-        fireTouchPress();
+        pressWithTouch(trigger);
 
         await act(async () => {
           flushAnimationFrames();
@@ -1860,7 +1838,7 @@ describe('<Select.Root />', () => {
 
         await wait(30);
 
-        expect(isScrollLocked()).toBe(false);
+        expect(isScrollLocked(trigger.ownerDocument)).toBe(false);
       });
 
       it('keeps touch positioning during the close transition', async ({ onTestFinished }) => {
@@ -1901,19 +1879,14 @@ describe('<Select.Root />', () => {
 
         const trigger = screen.getByRole('combobox');
 
-        function fireTouchPress() {
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-        }
-
-        fireTouchPress();
+        pressWithTouch(trigger);
 
         const popup = await screen.findByRole('listbox');
         const positioner = popup.parentElement as HTMLElement;
 
         expect(getComputedStyle(positioner).position).toBe('absolute');
 
-        fireTouchPress();
+        pressWithTouch(trigger);
 
         await waitFor(() => {
           expect(popup).toHaveAttribute('data-ending-style');
@@ -1942,12 +1915,7 @@ describe('<Select.Root />', () => {
 
         const trigger = screen.getByRole('combobox');
 
-        function fireTouchPress(element: HTMLElement) {
-          fireEvent.pointerDown(element, { pointerType: 'touch' });
-          fireEvent.mouseDown(element);
-        }
-
-        fireTouchPress(trigger);
+        pressWithTouch(trigger);
 
         await waitFor(() => {
           expect(screen.getByRole('listbox')).toBeInTheDocument();
@@ -1958,7 +1926,7 @@ describe('<Select.Root />', () => {
         fireEvent.click(optionB);
         fireEvent.mouseLeave(optionB, { clientX: -1, clientY: -1 });
 
-        fireTouchPress(trigger);
+        pressWithTouch(trigger);
 
         await waitFor(() => {
           expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted');
@@ -2070,12 +2038,7 @@ describe('<Select.Root />', () => {
           expect(Math.abs(gap - 100)).toBeLessThanOrEqual(1);
         });
 
-        function fireTouchPress() {
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-        }
-
-        fireTouchPress();
+        pressWithTouch(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('listbox')).not.toBe(null);
@@ -2085,16 +2048,19 @@ describe('<Select.Root />', () => {
 
         expect(initialPositioner).toHaveAttribute('data-side', 'top');
 
-        fireEvent.pointerDown(outside, { pointerType: 'touch' });
-        fireEvent.mouseDown(outside);
+        pressWithTouch(outside);
 
         await waitFor(() => {
           expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        });
+        await waitFor(() => {
           expect(onOpenChangeComplete.mock.calls.some(([value]) => value === false)).toBe(true);
+        });
+        await waitFor(() => {
           expect(screen.getByTestId('positioner').style.opacity).toBe('0');
         });
 
-        fireTouchPress();
+        pressWithTouch(trigger);
 
         await waitFor(() => {
           expect(screen.getByTestId('positioner').style.opacity).not.toBe('0');
@@ -2126,18 +2092,12 @@ describe('<Select.Root />', () => {
 
         const trigger = screen.getByTestId('trigger');
 
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
+        pressWithTouch(trigger);
 
         await screen.findByRole('listbox');
 
         await waitFor(() => {
-          const isScrollLocked =
-            trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
-            trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            trigger.ownerDocument.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(true);
+          expect(isScrollLocked(trigger.ownerDocument)).toBe(true);
         });
       });
 
@@ -2157,8 +2117,7 @@ describe('<Select.Root />', () => {
 
         const trigger = screen.getByTestId('trigger');
 
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
+        pressWithTouch(trigger);
 
         await screen.findByRole('listbox');
 
@@ -2168,12 +2127,7 @@ describe('<Select.Root />', () => {
           });
         });
 
-        const isScrollLocked =
-          trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
-          trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-          trigger.ownerDocument.body.style.overflow === 'hidden';
-
-        expect(isScrollLocked).toBe(false);
+        expect(isScrollLocked(trigger.ownerDocument)).toBe(false);
       });
     });
   });
@@ -2184,7 +2138,6 @@ describe('<Select.Root />', () => {
         current: {
           unmount: vi.fn(),
           close: vi.fn(),
-          highlightItem: vi.fn(),
         },
       };
 
@@ -2236,7 +2189,6 @@ describe('<Select.Root />', () => {
           current: {
             unmount: vi.fn(),
             close: vi.fn(),
-            highlightItem: vi.fn(),
           },
         };
 
@@ -2310,7 +2262,6 @@ describe('<Select.Root />', () => {
         current: {
           unmount: vi.fn(),
           close: vi.fn(),
-          highlightItem: vi.fn(),
         },
       };
 
@@ -2410,16 +2361,17 @@ describe('<Select.Root />', () => {
 
       await waitFor(() => {
         expect(upArrow).toHaveAttribute('data-visible');
-        expect(downArrow).not.toHaveAttribute('data-visible');
       });
+      expect(downArrow).not.toHaveAttribute('data-visible');
 
       scrollTop = 0.2;
       fireEvent.scroll(list);
 
+      // Both arrows are updated by the same scroll handler.
       await waitFor(() => {
-        expect(upArrow).not.toHaveAttribute('data-visible');
         expect(downArrow).toHaveAttribute('data-visible');
       });
+      expect(upArrow).not.toHaveAttribute('data-visible');
     });
 
     it.skipIf(isJSDOM)(
@@ -2896,196 +2848,6 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('popover-popup')).toBe(null);
       });
-    });
-  });
-
-  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-    it('is called on close when there is no exit animation defined', async () => {
-      const onOpenChangeComplete = vi.fn();
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup data-testid="popup" />
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).toBe(null);
-      });
-
-      expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-    });
-
-    it('is called on close when the exit animation finishes', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const onOpenChangeComplete = vi.fn();
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Select.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup className="animation-test-indicator" data-testid="popup" />
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      expect(screen.queryByRole('listbox')).not.toBe(null);
-
-      // Wait for open animation to finish
-      await waitFor(() => {
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).toBe(null);
-      });
-
-      expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-    });
-
-    it('is called on open when there is no enter animation defined', async () => {
-      const onOpenChangeComplete = vi.fn();
-
-      function Test() {
-        const [open, setOpen] = React.useState(false);
-        return (
-          <div>
-            <button onClick={() => setOpen(true)}>Open</button>
-            <Select.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup data-testid="popup" />
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const openButton = screen.getByText('Open');
-      await user.click(openButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBe(null);
-      });
-
-      expect(onOpenChangeComplete.mock.calls.length).toBe(2); // 1 in browser
-      expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-    });
-
-    it('is called on open when the enter animation finishes', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const onOpenChangeComplete = vi.fn();
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            from {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-starting-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(false);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(true)}>Open</button>
-            <Select.Root
-              open={open}
-              onOpenChange={setOpen}
-              onOpenChangeComplete={onOpenChangeComplete}
-            >
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup className="animation-test-indicator" data-testid="popup" />
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const openButton = screen.getByText('Open');
-      await user.click(openButton);
-
-      // Wait for open animation to finish
-      await waitFor(() => {
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
-
-      expect(screen.queryByRole('listbox')).not.toBe(null);
-    });
-
-    it('does not get called on mount when not open', async () => {
-      const onOpenChangeComplete = vi.fn();
-
-      await render(
-        <Select.Root onOpenChangeComplete={onOpenChangeComplete}>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup data-testid="popup" />
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
-
-      expect(onOpenChangeComplete.mock.calls.length).toBe(0);
     });
   });
 
@@ -4589,15 +4351,13 @@ describe('<Select.Root />', () => {
 
       await setProps({ id: 'second' });
 
-      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
+      const label = screen.getByTestId('label');
+      const trigger = screen.getByTestId('trigger');
       await waitFor(() => {
-        const label = screen.getByTestId('label');
-        const trigger = screen.getByTestId('trigger');
-        expect(trigger).toHaveAttribute('id', 'second');
-        expect(label.id).toBe('second-label');
-        expect(trigger).toHaveAttribute('aria-labelledby', label.id);
+        expect(trigger).toHaveAttribute('aria-labelledby', 'second-label');
       });
-      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
+      expect(trigger).toHaveAttribute('id', 'second');
+      expect(label).toHaveAttribute('id', 'second-label');
     });
 
     it('Select.Label focuses trigger without opening', async () => {
@@ -5452,6 +5212,84 @@ describe('<Select.Root />', () => {
   });
 
   describe('typeahead', () => {
+    it('matches an item by its label when the rendered text differs', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="us" label="United States">
+                  <Select.ItemText>Option 1</Select.ItemText>
+                </Select.Item>
+                <Select.Item value="fr" label="France">
+                  <Select.ItemText>Option 2</Select.ItemText>
+                </Select.Item>
+                <Select.Item value="ca" label="Canada">
+                  <Select.ItemText>Option 3</Select.ItemText>
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Option 1' })).toHaveFocus();
+      });
+
+      // Only the label matches; the rendered text is "Option 2".
+      await user.keyboard('fr');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Option 2' })).toHaveFocus();
+      });
+    });
+
+    it('starts a new search after focus leaves the select', async () => {
+      const { user } = await render(
+        <div>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="banana">banana</Select.Item>
+                  <Select.Item value="avocado">avocado</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button data-testid="outside">outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('b');
+      expect(screen.getByTestId('value').textContent).toBe('banana');
+
+      // Leaving and returning within the typeahead timeout must not continue the "b" search.
+      await act(async () => {
+        screen.getByTestId('outside').focus();
+        trigger.focus();
+      });
+      await user.keyboard('a');
+
+      expect(screen.getByTestId('value').textContent).toBe('avocado');
+    });
+
     it.skipIf(isJSDOM)(
       'does not trigger selection when Space is pressed during text navigation',
       async () => {
@@ -7015,128 +6853,345 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe('actionsRef: highlightItem', () => {
-    function TestSelect(props: { actionsRef: React.RefObject<Select.Root.Actions | null> }) {
-      return (
-        <Select.Root actionsRef={props.actionsRef}>
-          <Select.Trigger data-testid="trigger">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="1">One</Select.Item>
-                <Select.Item value="2">Two</Select.Item>
-                <Select.Item value="3">Three</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>
-      );
-    }
-
-    it('moves the highlight while the popup is open', async () => {
-      const actionsRef = React.createRef<Select.Root.Actions>();
-      const { user } = await render(<TestSelect actionsRef={actionsRef} />);
-
-      await user.click(screen.getByTestId('trigger'));
-      const listbox = await screen.findByRole('listbox');
-      // Let the open sequence finish moving focus before driving the highlight.
-      await waitFor(() => expect(listbox).toHaveFocus());
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      await waitFor(() => expect(screen.getByRole('option', { name: 'One' })).toHaveFocus());
-
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expect(screen.getByRole('option', { name: 'Two' })).toHaveFocus());
-    });
-
-    it('does not wrap, because Select does not loop focus', async () => {
-      const actionsRef = React.createRef<Select.Root.Actions>();
-      const { user } = await render(<TestSelect actionsRef={actionsRef} />);
-
-      await user.click(screen.getByTestId('trigger'));
-      const listbox = await screen.findByRole('listbox');
-      // Let the open sequence finish moving focus before driving the highlight.
-      await waitFor(() => expect(listbox).toHaveFocus());
-
-      act(() => actionsRef.current!.highlightItem('last'));
-      await waitFor(() => expect(screen.getByRole('option', { name: 'Three' })).toHaveFocus());
-
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expect(screen.getByRole('option', { name: 'Three' })).toHaveFocus());
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      await waitFor(() => expect(screen.getByRole('option', { name: 'One' })).toHaveFocus());
-
-      act(() => actionsRef.current!.highlightItem('previous'));
-      await waitFor(() => expect(screen.getByRole('option', { name: 'One' })).toHaveFocus());
-    });
-
-    it('returns focus to the popup when the highlight is cleared', async () => {
-      const actionsRef = React.createRef<Select.Root.Actions>();
-      const { user } = await render(<TestSelect actionsRef={actionsRef} />);
-
-      await user.click(screen.getByTestId('trigger'));
-      const listbox = await screen.findByRole('listbox');
-      // Let the open sequence finish moving focus before driving the highlight.
-      await waitFor(() => expect(listbox).toHaveFocus());
-
-      act(() => actionsRef.current!.highlightItem('first'));
-      const firstItem = screen.getByRole('option', { name: 'One' });
-      await waitFor(() => expect(firstItem).toHaveFocus());
-
-      act(() => actionsRef.current!.highlightItem('none'));
-      await waitFor(() => expect(firstItem).not.toHaveAttribute('data-highlighted'));
-      // Focus goes back to the popup, not to the body.
-      await waitFor(() => expect(listbox).toHaveFocus());
-    });
-
-    it('moves relative to the selected item', async () => {
-      // Select pre-highlights the selected item on open, so relative targets start from it.
-      const actionsRef = React.createRef<Select.Root.Actions>();
+  describe('groups', () => {
+    it('navigates across groups without stopping on labels or separators', async () => {
       const { user } = await render(
-        <Select.Root actionsRef={actionsRef} defaultValue="2">
+        <Select.Root>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
           <Select.Portal>
-            <Select.Positioner>
+            <Select.Positioner alignItemWithTrigger={false}>
               <Select.Popup>
-                <Select.Item value="1">One</Select.Item>
-                <Select.Item value="2">Two</Select.Item>
-                <Select.Item value="3">Three</Select.Item>
+                <Select.Group>
+                  <Select.GroupLabel>Fruits</Select.GroupLabel>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="banana">banana</Select.Item>
+                </Select.Group>
+                <Select.Separator />
+                <Select.Group>
+                  <Select.GroupLabel>Vegetables</Select.GroupLabel>
+                  <Select.Item value="carrot">carrot</Select.Item>
+                  <Select.Item value="leek">leek</Select.Item>
+                </Select.Group>
               </Select.Popup>
             </Select.Positioner>
           </Select.Portal>
         </Select.Root>,
       );
 
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'apple' })).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'carrot' })).toHaveFocus();
+      });
+
+      await user.keyboard('{End}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'leek' })).toHaveFocus();
+      });
+
+      await user.keyboard('{Home}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'apple' })).toHaveFocus();
+      });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('item-aligned popup interaction', () => {
+    const items = Array.from({ length: 30 }, (_, index) => `Item ${index}`);
+
+    function AlignedSelect() {
+      return (
+        <div style={{ paddingTop: 240 }}>
+          <Select.Root defaultValue="Item 15">
+            <Select.Trigger data-testid="trigger" style={{ height: 30 }}>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup data-testid="popup" style={{ maxHeight: 200 }}>
+                  {items.map((item) => (
+                    <Select.Item key={item} value={item} style={{ height: 30 }}>
+                      {item}
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>
+      );
+    }
+
+    async function settleFrames() {
+      await act(async () => {
+        await waitSingleFrame();
+        await waitSingleFrame();
+      });
+    }
+
+    function getPopupGeometry() {
+      const popup = screen.getByTestId('popup');
+      const rect = popup.getBoundingClientRect();
+      return { top: rect.top, height: rect.height, scrollTop: popup.scrollTop };
+    }
+
+    it('does not move the popup or its list when hovering items at its edges', async () => {
+      const { user } = await render(<AlignedSelect />);
       await user.click(screen.getByTestId('trigger'));
-      await screen.findByRole('listbox');
-      await waitFor(() => expect(screen.getByRole('option', { name: 'Two' })).toHaveFocus());
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Item 15' })).toHaveFocus();
+      });
+      await settleFrames();
+      const before = getPopupGeometry();
+      const popupRect = screen.getByTestId('popup').getBoundingClientRect();
+      const options = screen.getAllByRole('option');
+      const topEdgeItem = options.find((option) => {
+        return option.getBoundingClientRect().bottom > popupRect.top;
+      })!;
+      const bottomEdgeItem = options
+        .filter((option) => {
+          return option.getBoundingClientRect().top < popupRect.bottom;
+        })
+        .at(-1)!;
 
-      act(() => actionsRef.current!.highlightItem('next'));
-      await waitFor(() => expect(screen.getByRole('option', { name: 'Three' })).toHaveFocus());
-
-      act(() => actionsRef.current!.highlightItem('previous'));
-      await waitFor(() => expect(screen.getByRole('option', { name: 'Two' })).toHaveFocus());
+      for (const item of [bottomEdgeItem, topEdgeItem]) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.hover(item);
+        // eslint-disable-next-line no-await-in-loop
+        await waitFor(() => {
+          expect(item).toHaveAttribute('data-highlighted');
+        });
+        // eslint-disable-next-line no-await-in-loop
+        await settleFrames();
+        expect(getPopupGeometry()).toEqual(before);
+      }
     });
 
-    it('does nothing while the popup is closed', async () => {
-      const actionsRef = React.createRef<Select.Root.Actions>();
-      const { user } = await render(<TestSelect actionsRef={actionsRef} />);
+    it('keeps the highlighted item visible while keyboard navigation grows the popup', async () => {
+      // An early selected item near the bottom of the viewport opens the popup short, so
+      // navigating down has to grow it toward its max height.
+      const { user } = await render(
+        <div style={{ position: 'fixed', left: 20, bottom: 160 }}>
+          <Select.Root defaultValue="Item 1">
+            <Select.Trigger data-testid="trigger" style={{ height: 30 }}>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup data-testid="popup" style={{ maxHeight: 400 }}>
+                  {items.map((item) => (
+                    <Select.Item key={item} value={item} style={{ height: 30 }}>
+                      <Select.ItemText>{item}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>,
+      );
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Item 1' })).toHaveFocus();
+      });
+      await settleFrames();
+      const positioner = screen.getByTestId('positioner');
+      const initialHeight = positioner.getBoundingClientRect().height;
 
-      act(() => actionsRef.current!.highlightItem('last'));
+      function isInsidePopup(name: string) {
+        const popupRect = screen.getByTestId('popup').getBoundingClientRect();
+        const itemRect = screen.getByRole('option', { name }).getBoundingClientRect();
+        return itemRect.top >= popupRect.top - 1 && itemRect.bottom <= popupRect.bottom + 1;
+      }
 
+      async function navigate(from: number, to: number) {
+        await user.keyboard('{ArrowDown}'.repeat(to - from));
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: `Item ${to}` })).toHaveFocus();
+        });
+        await settleFrames();
+      }
+
+      // While there is room to grow, the popup grows instead of scrolling its first items away.
+      await navigate(1, 9);
+      expect(positioner.getBoundingClientRect().height).toBeGreaterThan(initialHeight);
+      expect(isInsidePopup('Item 0')).toBe(true);
+      expect(isInsidePopup('Item 9')).toBe(true);
+
+      await navigate(9, 25);
+      expect(positioner.getBoundingClientRect().height).toBeGreaterThan(initialHeight + 100);
+      expect(isInsidePopup('Item 25')).toBe(true);
+    });
+  });
+
+  describe('opening', () => {
+    it('does not carry an ArrowUp opening over to a later pointer opening', async () => {
+      // A selected item claims the keyboard opening, so the ArrowUp is never consumed.
+      function Test() {
+        const [value, setValue] = React.useState<string | null>('b');
+        return (
+          <div>
+            <button data-testid="clear" onClick={() => setValue(null)}>
+              Clear
+            </button>
+            <Select.Root value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner alignItemWithTrigger={false}>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                    <Select.Item value="c">c</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+      });
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      await user.click(screen.getByTestId('clear'));
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toHaveFocus();
+      });
+      await act(async () => {
+        await wait(50);
+      });
+
+      expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
+    });
+  });
+
+  describe('closing', () => {
+    it.skipIf(isJSDOM)(
+      'keeps the highlight on the item while the popup animates out',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const { user } = await render(
+          <React.Fragment>
+            <style>
+              {`@keyframes select-test-exit { to { opacity: 0; } }
+              .select-test-exit[data-ending-style] { animation: select-test-exit 10s; }`}
+            </style>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner alignItemWithTrigger={false}>
+                  <Select.Popup className="select-test-exit" data-testid="popup">
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>,
+        );
+
+        await act(async () => {
+          screen.getByTestId('trigger').focus();
+        });
+        await user.keyboard('{ArrowDown}');
+        const optionA = await screen.findByRole('option', { name: 'a' });
+        const optionB = screen.getByRole('option', { name: 'b' });
+        await waitFor(() => {
+          expect(optionA).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(optionB).toHaveFocus();
+        });
+
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(optionB).toHaveAttribute('data-highlighted');
+
+        // Items moving under the pointer while the popup fades out don't take the highlight.
+        fireEvent.mouseMove(optionA, {
+          movementX: 1,
+          movementY: 1,
+        });
+        expect(optionB).toHaveAttribute('data-highlighted');
+      },
+    );
+  });
+
+  describe('trigger render cost', () => {
+    it('does not re-render the trigger while navigating the list', async () => {
+      let triggerRenders = 0;
+
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger
+            render={(props) => {
+              triggerRenders += 1;
+              return <button type="button" {...props} />;
+            }}
+          >
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {Array.from({ length: 10 }, (_, index) => (
+                  <Select.Item key={index} value={String(index)}>{`Item ${index}`}</Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+      });
       await flushMicrotasks();
-      expect(screen.queryByRole('listbox')).toBeNull();
 
-      // The call is dropped rather than queued: opening afterwards looks like any other open.
-      await user.click(screen.getByTestId('trigger'));
-      const listbox = await screen.findByRole('listbox');
-      await waitFor(() => expect(listbox).toHaveFocus());
-      expect(screen.getByRole('option', { name: 'Three' })).not.toHaveAttribute('data-highlighted');
+      triggerRenders = 0;
+      await user.keyboard('[ArrowDown][ArrowDown][ArrowDown]');
+      await flushMicrotasks();
+
+      // See the matching assertion in MenuRoot.test.tsx: the shared list-navigation hook must not
+      // rebuild trigger props when the highlight moves.
+      expect(triggerRenders).toBe(0);
     });
   });
 });

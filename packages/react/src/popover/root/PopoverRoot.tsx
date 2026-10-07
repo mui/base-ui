@@ -57,7 +57,8 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.update({ stickIfOpen: true, openChangeReason: null });
+    store.context.stickIfOpen = true;
+    store.set('openChangeReason', null);
   });
 
   store.useSyncedValues({
@@ -79,7 +80,10 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
     [forceUnmount, store],
   );
 
-  const shouldRenderInteractions = open || mounted;
+  // Detached triggers share this one Root, so mounting its interactions eagerly is cheap. The
+  // trigger props they publish then stay stable, so opening and closing doesn't re-render inactive
+  // triggers.
+  const shouldRenderInteractions = open || mounted || handle != null;
 
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>

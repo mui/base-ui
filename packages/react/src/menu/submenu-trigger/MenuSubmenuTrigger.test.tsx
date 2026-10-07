@@ -325,6 +325,22 @@ describe('<Menu.SubmenuTrigger />', () => {
     }
   });
 
+  it('throws when Menu.SubmenuRoot is rendered outside a menu', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.SubmenuRoot>
+            <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+          </Menu.SubmenuRoot>,
+        ),
+      ).rejects.toThrow('Base UI: MenuRootContext is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   function TestComponent({ direction = 'ltr' }: { direction: TextDirection }) {
     return (
       <DirectionProvider direction={direction}>
@@ -353,14 +369,13 @@ describe('<Menu.SubmenuTrigger />', () => {
     );
   }
 
-  const testCases = [
-    { direction: 'ltr', openKey: 'ArrowRight', closeKey: 'ArrowLeft' },
-    { direction: 'rtl', openKey: 'ArrowLeft', closeKey: 'ArrowRight' },
-  ];
-
-  testCases.forEach(({ direction, openKey }) => {
-    it(`opens the submenu with ${openKey} and highlights a single item in ${direction.toUpperCase()} direction`, async () => {
-      await render(<TestComponent direction={direction as TextDirection} />);
+  it.each([
+    { direction: 'ltr', openKey: 'ArrowRight' },
+    { direction: 'rtl', openKey: 'ArrowLeft' },
+  ] as const)(
+    'opens the submenu with $openKey and highlights a single item in $direction direction',
+    async ({ direction, openKey }) => {
+      await render(<TestComponent direction={direction} />);
       const submenuTrigger = screen.getByText('2');
 
       fireEvent.focus(submenuTrigger);
@@ -373,19 +388,13 @@ describe('<Menu.SubmenuTrigger />', () => {
         expect(submenuItem1).toHaveFocus();
       });
 
-      submenuItems.forEach((item) => {
-        expect(item.hasAttribute('data-highlighted')).toBe(item === submenuItem1);
-      });
-
-      // Check that parent menu items are not active
-      const parentMenuItems = screen
+      // Only the first submenu item is highlighted; no other submenu or parent menu item is.
+      const highlightedItems = screen
         .getAllByRole('menuitem')
-        .filter((item) => item.textContent !== '2.1' && item.textContent !== '2.2');
-      parentMenuItems.forEach((item) => {
-        expect(item).not.toHaveAttribute('data-highlighted');
-      });
-    });
-  });
+        .filter((item) => item.hasAttribute('data-highlighted'));
+      expect(highlightedItems).toEqual([submenuItem1]);
+    },
+  );
 
   it('sets tabIndex to 0 on the submenu trigger after opening the submenu with a keydown event', async () => {
     await render(<TestComponent direction="ltr" />);

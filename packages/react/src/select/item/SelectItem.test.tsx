@@ -218,32 +218,7 @@ describe('<Select.Item />', () => {
   });
 
   it('should focus disabled items', async () => {
-    await render(
-      <Select.Root open>
-        <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" />
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="two" disabled>
-                two
-              </Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>,
-    );
-
-    const item = screen.getByText('two');
-    await act(() => item.focus());
-    await waitFor(() => {
-      expect(item).toHaveFocus();
-    });
-  });
-
-  it('should not select disabled item', async () => {
-    await render(
+    const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
           <Select.Value data-testid="value" />
@@ -261,10 +236,84 @@ describe('<Select.Item />', () => {
       </Select.Root>,
     );
 
-    fireEvent.click(screen.getByTestId('trigger'));
-    await flushMicrotasks();
+    await act(() => screen.getByTestId('trigger').focus());
+    await user.keyboard('{ArrowDown}');
 
-    fireEvent.click(screen.getByText('two'));
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'one' })).toHaveFocus();
+    });
+
+    await user.keyboard('{ArrowDown}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'two' })).toHaveFocus();
+    });
+  });
+
+  it('should not select disabled item', async () => {
+    const handleValueChange = vi.fn();
+    const { user } = await render(
+      <Select.Root onValueChange={handleValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value data-testid="value" />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two" disabled>
+                two
+              </Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByTestId('trigger'));
+    await user.click(await screen.findByRole('option', { name: 'two' }));
+
+    expect(handleValueChange).not.toHaveBeenCalled();
+    expect(screen.getByTestId('value').textContent).toBe('');
+    expect(screen.getByRole('listbox')).toBeVisible();
+  });
+
+  it('should not select disabled item when Enter is pressed', async () => {
+    const handleValueChange = vi.fn();
+    const { user } = await render(
+      <Select.Root onValueChange={handleValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value data-testid="value" />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two" disabled>
+                two
+              </Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await act(() => screen.getByTestId('trigger').focus());
+    await user.keyboard('{ArrowDown}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'one' })).toHaveFocus();
+    });
+
+    await user.keyboard('{ArrowDown}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'two' })).toHaveFocus();
+    });
+
+    await user.keyboard('{Enter}');
+
+    expect(handleValueChange).not.toHaveBeenCalled();
     expect(screen.getByTestId('value').textContent).toBe('');
   });
 
@@ -517,6 +566,41 @@ describe('<Select.Item />', () => {
     });
 
     clock.withFakeTimers();
+
+    it('calls onClick once for a click made after the opening delay', async () => {
+      // Past the delay, a release over an item can select it on its own, so a regular click must
+      // still only activate the item through its click event.
+      const onClick = vi.fn();
+      const { user } = await renderFakeTimers(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b" onClick={onClick}>
+                  b
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await act(async () => {
+        await clock.tickAsync(500);
+      });
+      await user.click(optionB);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'false');
+      });
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
 
     it('should not select an item on quick mouseup when showing a placeholder (no null item)', async () => {
       ignoreActWarnings();

@@ -20,17 +20,17 @@ import {
   useClick,
 } from '../../floating-ui-react';
 import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
-import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
-import { closest, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import type {
   BaseUIChangeEventDetails,
-  BaseUIGenericEventDetails,
+  BaseUIHighlightEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
@@ -253,7 +253,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const startDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const endDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
-  const keyboardActiveRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
@@ -501,7 +500,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         listProps: {},
         inputProps: {},
         triggerProps: {},
-        itemProps: EMPTY_OBJECT,
+        itemRoot: {
+          props: EMPTY_OBJECT,
+          id,
+          selectionMode,
+          disabled,
+          readOnly,
+          isItemEqualToValue,
+        },
         positionerElement: null,
         listElement: null,
         popupId: undefined,
@@ -532,7 +538,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         inputRef,
         startDismissRef,
         endDismissRef,
-        keyboardActiveRef,
         chipsContainerRef,
         clearRef,
         valuesRef,
@@ -599,7 +604,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
    * (a no-op if nothing was highlighted). Keeps `lastHighlightRef` in sync with what was emitted.
    */
   const emitHighlight = useStableCallback(
-    (value: any, index: number, type: AriaCombobox.HighlightEventReason) => {
+    (value: any, index: number, type: AriaCombobox.HighlightEventReason, event?: Event) => {
       if (index === -1) {
         if (lastHighlightRef.current === INITIAL_LAST_HIGHLIGHT) {
           return;
@@ -609,7 +614,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         lastHighlightRef.current = { value, index };
       }
 
-      onItemHighlighted(value, createGenericEventDetails(type, undefined, { index }));
+      onItemHighlighted(value, createGenericEventDetails(type, event, { index }));
     },
   );
 
@@ -618,6 +623,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       activeIndex?: number | null | undefined;
       selectedIndex?: number | null | undefined;
       type?: AriaCombobox.HighlightEventReason | undefined;
+      event?: Event | undefined;
     }) => {
       const update = {} as Pick<StoreState, 'activeIndex' | 'selectedIndex'>;
 
@@ -639,9 +645,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       const type: AriaCombobox.HighlightEventReason = options.type || REASONS.none;
 
       if (activeIndexOption === null) {
-        emitHighlight(undefined, -1, type);
+        emitHighlight(undefined, -1, type, options.event);
       } else {
-        emitHighlight(valuesRef.current[activeIndexOption], activeIndexOption, type);
+        emitHighlight(valuesRef.current[activeIndexOption], activeIndexOption, type, options.event);
       }
     },
   );
@@ -771,6 +777,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       const openEventDetails = eventDetails as AriaCombobox.OpenChangeEventDetails;
       const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
       props.onOpenChange?.(nextOpen, openEventDetails);
+
+      // A typed request must not highlight a later open: discard it when its own open is
+      // rejected, or when any other open change goes through.
+      if (
+        pendingQueryHighlightRef.current?.hasQuery &&
+        (eventDetails.reason === REASONS.inputChange) === eventDetails.isCanceled
+      ) {
+        pendingQueryHighlightRef.current = null;
+      }
 
       if (eventDetails.isCanceled) {
         return;
@@ -999,6 +1014,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     onUnmount: handleUnmountCleanup,
   });
 
+  React.useImperativeHandle(
+    props.actionsRef,
+    () => ({
+      unmount: handleUnmount,
+      close: () => setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [handleUnmount, setOpen],
+  );
+
   useIsoLayoutEffect(
     function syncSelectedIndex() {
       const closeQueryReleased = previousCloseQueryRef.current !== null && closeQuery === null;
@@ -1054,6 +1078,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [items, flatFilteredValues]);
 
   useIsoLayoutEffect(() => {
+    // Controlled closes can bypass `setOpen`, and their exit animation may be interrupted.
+    if (!open && pendingQueryHighlightRef.current?.hasQuery) {
+      pendingQueryHighlightRef.current = null;
+    }
+  }, [open]);
+
+  useIsoLayoutEffect(() => {
     // A kept-mounted dialog hides its inline list on close. Discard query-clear restoration
     // before it can overwrite the cleared highlight or report an item from the unfiltered list.
     if (!open && inline && resolvedPopupRef.current) {
@@ -1061,16 +1092,34 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return;
     }
 
+    const candidateItems =
+      hasItems || hasFilteredItemsProp ? flatFilteredValues : valuesRef.current;
     const pendingHighlight = pendingQueryHighlightRef.current;
     if (pendingHighlight) {
       // A directly rendered list remains visible when the popup state is closed, while a
       // kept-mounted Positioner is hidden and should stay inert.
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
-        if (autoHighlightMode && listIsNavigable) {
+        const input = inputRef.current;
+        // Keep the request while results or a controlled popup opening are pending,
+        // but do not restore an inline highlight after focus has left the input.
+        if (
+          !autoHighlightMode ||
+          String(inputValue).trim() === '' ||
+          (inline &&
+            autoHighlightMode !== 'always' &&
+            (!input || activeElement(input.ownerDocument) !== input))
+        ) {
+          pendingQueryHighlightRef.current = null;
+        } else if (
+          listIsNavigable &&
+          // Individually rendered items register without re-running this effect, and their
+          // registry has holes mid-reindex, so resolve their request immediately.
+          (candidateItems[0] !== undefined || (!hasItems && !hasFilteredItemsProp))
+        ) {
           store.set('activeIndex', 0);
+          pendingQueryHighlightRef.current = null;
         }
-        pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
         // Only handle the clear once it has committed (a controlled input may reject it),
         // so a restore cannot fire while a query is still active.
@@ -1146,8 +1195,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return;
     }
 
-    const shouldUseFlatFilteredValues = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredValues ? flatFilteredValues : valuesRef.current;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -1383,52 +1430,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
-    onNavigate(nextActiveIndex, event, source) {
+    onNavigate(nextActiveIndex, event) {
       // Ignore automatic navigation while closed, including selected-index sync for inline lists.
-      // Inline lists remain navigable while `open` is false, so still allow imperative navigation
-      // (keeping the highlight in sync with the cursor advanced by `highlightItem()`) and resets
-      // (clearing the highlight when an unbound inline list unmounts, e.g. in a closed dialog).
+      // Inline lists remain navigable while `open` is false, so still allow resets (clearing the
+      // highlight when an unbound inline list unmounts, e.g. in a closed dialog).
       if (
-        (!event && !open && source !== 'imperative' && !(inline && nextActiveIndex === null)) ||
+        (!event && !open && !(inline && nextActiveIndex === null)) ||
         transitionStatus === 'ending'
       ) {
         return;
       }
 
-      let type: AriaCombobox.HighlightEventReason;
-      if (source === 'imperative') {
-        type = REASONS.imperativeAction;
-      } else if (event) {
-        type = keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer;
-      } else {
-        type = REASONS.none;
-      }
-
-      setIndices({ activeIndex: nextActiveIndex, type });
+      setIndices({
+        activeIndex: nextActiveIndex,
+        type: getHighlightReason(event),
+        event: event?.nativeEvent,
+      });
     },
   });
-
-  const highlightItem = useStableCallback((target: HighlightItemTarget) => {
-    // `autoHighlight="always"` guarantees an item is highlighted at all times, so a clear would
-    // be undone synchronously. Report nothing rather than emitting a state the component never
-    // rests in: consumers would otherwise see `undefined` followed by the first item again, and
-    // act on a highlight that was never observable.
-    if (target === 'none' && autoHighlightMode === 'always') {
-      return;
-    }
-
-    listNavigation.highlightItem(target);
-  });
-
-  React.useImperativeHandle(
-    props.actionsRef,
-    () => ({
-      unmount: handleUnmount,
-      close: () => setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-      highlightItem,
-    }),
-    [handleUnmount, setOpen, highlightItem],
-  );
 
   const inputProps = React.useMemo(
     () =>
@@ -1465,16 +1484,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     [listNavigation.floating, role.floating],
   );
 
-  const itemProps = React.useMemo<HTMLProps>(() => {
+  const itemRoot = React.useMemo(() => {
     const listNavigationItemProps = listNavigation.item as HTMLProps | undefined;
-    if (!listNavigationItemProps) {
-      return EMPTY_OBJECT;
-    }
-
-    // Combobox keeps focus on the input; item focus would incorrectly sync
-    // list navigation state from DOM focus.
-    return { ...listNavigationItemProps, onFocus: undefined };
-  }, [listNavigation.item]);
+    return {
+      // Combobox keeps focus on the input; item focus would incorrectly sync
+      // list navigation state from DOM focus.
+      props: listNavigationItemProps
+        ? { ...listNavigationItemProps, onFocus: undefined }
+        : EMPTY_OBJECT,
+      id,
+      selectionMode,
+      disabled,
+      readOnly,
+      isItemEqualToValue,
+    };
+  }, [listNavigation.item, id, selectionMode, disabled, readOnly, isItemEqualToValue]);
 
   store.useContextCallback('setOpen', setOpen);
   store.useContextCallback('setInputValue', setInputValue);
@@ -1494,7 +1518,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       listProps,
       inputProps,
       triggerProps,
-      itemProps,
+      itemRoot,
     });
   });
 
@@ -1510,7 +1534,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     listProps,
     inputProps,
     triggerProps,
-    itemProps,
+    itemRoot,
     openMethod,
     selectionMode,
     name,
@@ -1805,15 +1829,6 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the combobox imperatively when called.
-   * - `highlightItem`: Moves or clears the highlight while the popup is open.
-   *   `'next'` and `'previous'` move sequentially through the items, including across rows in a
-   *   grid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the
-   *   highlight to the input. `'first'` and `'last'` highlight the first or last item.
-   *   `'none'` clears the highlight; with `autoHighlight="always"`, the highlight cannot be cleared.
-   *   Calling this action does not open the popup. To highlight an item after opening it, call
-   *   the action from `onOpenChangeComplete` when `open` is `true`.
-   *   Highlight changes requested through this action report the reason `'imperative-action'`
-   *   to `onItemHighlighted`.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**
@@ -1821,10 +1836,10 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
-   * - `'pointer'`: the highlight changed due to pointer hovering.
-   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
-   * - `'none'`: the highlight changed for another reason, such as `autoHighlight`, the item
-   *   list changing, or the popup opening or closing.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
+   * - `'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the
+   *   item list changing, or the popup opening or closing.
    */
   onItemHighlighted?:
     | ((itemValue: ItemValue | undefined, eventDetails: AriaCombobox.HighlightEventDetails) => void)
@@ -1981,8 +1996,6 @@ export type AriaComboboxProps<
     | undefined;
 };
 
-export type AriaComboboxHighlightItemTarget = HighlightItemTarget;
-
 export namespace AriaCombobox {
   export type Props<Value, Mode extends SelectionMode = 'none', Item = Value> = AriaComboboxProps<
     Value,
@@ -1994,17 +2007,11 @@ export namespace AriaCombobox {
   export interface Actions {
     unmount: () => void;
     close: () => void;
-    highlightItem: (target: HighlightItemTarget) => void;
   }
 
-  export type HighlightItemTarget = AriaComboboxHighlightItemTarget;
-
   export type HighlightEventReason =
-    | typeof REASONS.keyboard
-    | typeof REASONS.pointer
-    | typeof REASONS.imperativeAction
-    | typeof REASONS.none;
-  export type HighlightEventDetails = BaseUIGenericEventDetails<
+    typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
+  export type HighlightEventDetails = BaseUIHighlightEventDetails<
     HighlightEventReason,
     { index: number }
   >;
