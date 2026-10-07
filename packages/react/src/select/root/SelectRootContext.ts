@@ -29,7 +29,7 @@ export function useSelectRootContext() {
   const context = React.useContext(SelectRootContext);
   if (context === null) {
     throw new Error(
-      'Base UI: SelectRootContext is missing. Select parts cannot access their current value or selection settings. Wrap the parts in <Select.Root>.',
+      'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
     );
   }
   return context;
