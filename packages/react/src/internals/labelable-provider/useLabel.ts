@@ -101,10 +101,15 @@ export interface UseLabelParameters {
 export type UseLabelReturnValue = React.HTMLAttributes<any> & React.LabelHTMLAttributes<any>;
 
 export function getControlById(label: Element, id: string) {
-  const root = label.getRootNode();
-  return (
-    (isShadowRoot(root) ? root.getElementById(id) : null) ?? ownerDocument(label).getElementById(id)
-  );
+  let root = label.getRootNode();
+  while (isShadowRoot(root)) {
+    const element = root.getElementById(id);
+    if (element) {
+      return element;
+    }
+    root = root.host.getRootNode();
+  }
+  return ownerDocument(label).getElementById(id);
 }
 
 export function focusElementWithVisible(element: HTMLElement) {
