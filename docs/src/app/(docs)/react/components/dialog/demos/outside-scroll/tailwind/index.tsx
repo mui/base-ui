@@ -18,7 +18,7 @@ export default function OutsideScrollDialog() {
             className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none"
           >
             <ScrollArea.Viewport className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none">
-              <ScrollArea.Content className="flex min-h-full items-center justify-center">
+              <ScrollArea.Content className="flex min-h-full items-center">
                 <Dialog.Popup
                   ref={popupRef}
                   initialFocus={popupRef}
