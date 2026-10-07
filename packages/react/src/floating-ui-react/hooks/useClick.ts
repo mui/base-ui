@@ -36,10 +36,10 @@ export interface UseClickProps {
   /**
    * If already open from another event such as the `useHover()` Hook,
    * determines whether to keep the floating element open when clicking the
-   * reference element for the first time.
+   * reference element for the first time. A getter is read when the press is handled.
    * @default true
    */
-  stickIfOpen?: boolean | undefined;
+  stickIfOpen?: boolean | (() => boolean) | undefined;
   /**
    * Touch-only delay (ms) before opening. Useful to allow mobile viewport/keyboard to settle.
    * @default 0
@@ -114,7 +114,7 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
         return true;
       }
 
-      if (openEvent && stickIfOpen) {
+      if (openEvent && (typeof stickIfOpen === 'function' ? stickIfOpen() : stickIfOpen)) {
         // Preserve hover/focus-opened popups until the matching click-like event closes them.
         return !isClickLikeOpenEvent(openEvent.type);
       }
