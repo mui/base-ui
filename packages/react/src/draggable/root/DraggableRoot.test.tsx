@@ -401,9 +401,9 @@ describe('Draggable.Root', () => {
     expect(sourceElements.at(-1)).toBe(second);
   });
 
-  it('defers a disabled flip mid-drag: the drag survives, the setup lands at drag end', async () => {
-    // A reconcile input change while this element is the active source must not
-    // tear down the gesture. The re-registration runs at drag end.
+  it('keeps the drag through a disabled flip mid-drag and updates the gesture styles at once', async () => {
+    // A `disabled` change while this element is the active source must not tear
+    // down the gesture. Only the gesture styles follow it.
     const { rerender } = await renderDnd(<Draggable.Root kind={testDragKind} data-testid="drag" />);
     const el = screen.getByTestId('drag');
     el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
@@ -414,16 +414,15 @@ describe('Draggable.Root', () => {
 
     await rerender(<Draggable.Root kind={testDragKind} data-testid="drag" disabled />);
 
-    // The session and the gesture styles survive the flip.
+    // The session survives the flip, and the gesture styles already reflect it.
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(el);
-    expect(el.style.userSelect).toBe('none');
-    expect(el.style.touchAction).toBe('manipulation');
     expect(el).toHaveAttribute('data-dragging');
+    expect(el.style.userSelect).toBe('');
+    expect(el.style.touchAction).toBe('');
 
     cancel();
     await flushRaf();
 
-    // The skipped reconcile ran, so the gesture styles now reflect `disabled`.
     expect(dragSessionStore.getSnapshot()).toBeNull();
     expect(el.style.userSelect).toBe('');
     expect(el.style.touchAction).toBe('');

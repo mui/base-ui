@@ -5,10 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import {
-  retargetDragSource,
-  syncActiveDragSourcePayload,
-} from '../../utils/drag-and-drop/dragSource';
+import { refreshDragSource, retargetDragSource } from '../../utils/drag-and-drop/dragSource';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
 import { createDragPreviewHandle } from '../preview/dragPreviewDeclaration';
 import type { DragPreviewHandle } from '../preview/dragPreviewDeclaration';
@@ -56,9 +53,17 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   const payloadOwner = useRefWithInit(() => ({})).current;
   // The `dragging` selector reads the live element behind this ref.
   const elementRef = React.useRef<HTMLElement | null>(null);
-  useIsoLayoutEffect(() => {
-    syncActiveDragSourcePayload(elementRef.current, parameters.kind.id, parameters.payload);
-  });
+  // Apply the committed parameters, as `manager.refresh` does: the gesture styles
+  // follow `disabled` and the handle, and a changed `payload` reaches
+  // `useActiveDrag()`. Both only act on a real change. Layout effects run after
+  // every ref of the commit has attached, so a handle swapped in the same commit
+  // as an inline `ref` change is already in place.
+  const refreshSource = useRefWithInit(() => () => {
+    if (elementRef.current) {
+      refreshDragSource(elementRef.current);
+    }
+  }).current;
+  useIsoLayoutEffect(refreshSource);
   // Every mounted handle node in mount order. Only the first one drives pickup. The
   // rest are tracked so that unmounting the first falls back to another handle
   // instead of making the whole element draggable.
@@ -150,14 +155,12 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
   }).current;
 
   // Set when a re-registration was skipped because this element was the active
-  // source, after a handle swap or a reconcile input change. It runs once
-  // `dragging` turns false, so the new handle still gets the static setup.
+  // source. It runs once `dragging` turns false.
   const pendingReconcileRef = React.useRef(false);
 
-  // Re-registration tears down and rebuilds the static setup. Mid-gesture, that
-  // would restore `user-select` and `touch-action` and drop the iOS touchmove guard.
-  // The `handle` getter already reads `attachedHandlesRef` on each call, so skip
-  // the teardown mid-drag and re-register when the drag ends.
+  // A collision provider change registers the source and its participant again.
+  // Mid-gesture, that would restore `user-select` and `touch-action` and drop the
+  // iOS touchmove guard, so it waits until the drag ends.
   const reconcile = useRefWithInit(() => () => {
     if (dragSessionStore.state?.source.element === elementRef.current) {
       pendingReconcileRef.current = true;
@@ -166,8 +169,8 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     registrationRef(elementRef.current);
   }).current;
 
-  // Re-register when a handle node attaches or detaches, so the static setup
-  // follows it.
+  // The gesture styles follow a handle that attaches or detaches without this
+  // component rendering.
   const registerHandle = useRefWithInit(() => (node: HTMLElement) => {
     const handles = attachedHandlesRef.current;
     handles.push(node);
@@ -180,24 +183,20 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
         );
       }
     }
-    reconcile();
+    refreshSource();
     return () => {
       const index = handles.indexOf(node);
       if (index !== -1) {
         handles.splice(index, 1);
       }
-      reconcile();
+      refreshSource();
     };
   }).current;
 
-  // Reconcile the static gesture setup when `disabled` changes without a node
-  // swap. Skipped while this element is the active source.
-  const reconcileKey = Boolean(parameters.disabled);
   const isFirstReconcile = React.useRef(true);
   useIsoLayoutEffect(() => {
     if (isFirstReconcile.current) {
-      // The registration ref callback already applied the setup on mount.
-      // Re-apply only on later changes.
+      // The registration ref callback already registered on mount.
       isFirstReconcile.current = false;
       return;
     }
@@ -207,13 +206,13 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     // Re-registering the source and its participant on every render would reset
     // the hovered target mid-drag. It is read once, at registration.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reconcileKey, collisionOptions?.context, collisionOptions?.enabled]);
+  }, [collisionOptions?.context, collisionOptions?.enabled]);
 
   const dragging = useStore(dragSourceStore, selectIsDragging, elementRef);
   const settling = useStore(settlingSourcesStore, selectIsSettling, elementRef);
 
   // Run a reconcile skipped mid-drag. `dragging` turning false re-renders this
-  // hook, so the swapped handle gets the static setup as soon as the drag ends.
+  // hook, so the new collision provider takes over as soon as the drag ends.
   useIsoLayoutEffect(() => {
     if (!dragging && pendingReconcileRef.current) {
       pendingReconcileRef.current = false;

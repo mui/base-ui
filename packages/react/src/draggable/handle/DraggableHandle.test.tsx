@@ -57,7 +57,7 @@ describe('<Draggable.Handle />', () => {
     }
   });
 
-  it('keeps the gesture styles through a handle swap mid-drag and re-registers on the new handle', async () => {
+  it('keeps the drag through a handle swap mid-drag and moves the gesture styles to the new handle', async () => {
     function Card({ handleId }: { handleId: string }) {
       return (
         <Draggable.Root kind={testDragKind} data-testid="card">
@@ -83,21 +83,20 @@ describe('<Draggable.Handle />', () => {
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(card);
 
     // Swapping the handle while the root is the active source must not tear down
-    // the registration during the gesture. The old handle keeps its styles and
-    // the drag continues.
+    // the registration during the gesture. The drag continues, and the gesture
+    // styles move to the new handle at once.
     await rerender(<Card handleId="handle-b" />);
     const handleB = screen.getByTestId('handle-b');
 
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(card);
     expect(card).toHaveAttribute('data-dragging');
-    expect(handleA.style.userSelect).toBe('none');
-    expect(handleA.style.touchAction).toBe('manipulation');
+    expect(handleB.style.userSelect).toBe('none');
+    expect(handleB.style.touchAction).toBe('manipulation');
 
     cancel();
     await flushRaf();
 
-    // The deferred reconcile runs once the drag ends. The new handle gets the
-    // static setup and is the only pickup point.
+    // The new handle is the only pickup point.
     expect(dragSessionStore.getSnapshot()).toBeNull();
     expect(handleB.style.userSelect).toBe('none');
     expect(handleB.style.touchAction).toBe('manipulation');
