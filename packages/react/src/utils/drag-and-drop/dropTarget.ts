@@ -17,7 +17,6 @@ import type {
 import type {
   DragCleanupFn,
   DragEventDetails,
-  DropTargetChangeEventDetails,
   DropTargetEventDetails,
   DropTargetEventReasonMap,
 } from './types';
@@ -41,7 +40,7 @@ const DROP_TARGET_ATTR = 'data-base-ui-drop-target';
 
 type AnyDropTargetParameters = DropTargetParameters<any, any, any, any>;
 /** Getter for a single hook's latest drop-target parameters. */
-type DropTargetGetter = () => AnyDropTargetParameters;
+export type DropTargetGetter = () => AnyDropTargetParameters;
 
 type ShadowRootChangeListener = (root: ShadowRoot, registered: boolean) => void;
 
@@ -84,23 +83,6 @@ interface DropTargetState {
   /** Told when a root joins or leaves `shadowRoots` (see {@link trackDropTargetShadowRoots}). */
   shadowRootChangeListeners: Set<ShadowRootChangeListener>;
   /**
-   * Getters for targets that unregistered while hovered, held until the
-   * `onDraggableLeave` they are owed goes out.
-   *
-   * `registrations.ts` routes a hovered target's unregister to the synchronous
-   * refresh so the leave dispatches while its registration is still readable.
-   * That fails when the unregister happens inside a consumer fan-out or before
-   * `onMoveStart`. The refresh can then only queue itself (`refreshPending`), and
-   * the `finally` in `getterStackRegistry.remove` deletes the entry anyway. When
-   * the queued round runs, the element has no active hold and `dispatchToDropTarget`
-   * has nothing to dispatch through.
-   *
-   * Keyed by element rather than per session. An entry is released as soon as its
-   * leave goes out, and {@link endDropTargetSession} sweeps whatever a torn-down
-   * drag left behind.
-   */
-  retiring: Map<Element, DropTargetGetter>;
-  /**
    * The key each registration's payload and `dragData` are stored under, per
    * element and getter (see {@link getRegistrationKey}).
    */
@@ -131,7 +113,6 @@ const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   retainedRoots: new WeakMap<Element, ShadowRoot[]>(),
   shadowRootsByHost: new Map<Element, ShadowRoot>(),
   shadowRootChangeListeners: new Set<ShadowRootChangeListener>(),
-  retiring: new Map<Element, DropTargetGetter>(),
   registrationKeys: new WeakMap<Element, WeakMap<DropTargetGetter, object>>(),
   dragData: new WeakMap<object, TargetDragData>(),
   recordRegistrations: new WeakMap<DraggableTargetRecord, RecordRegistration>(),
@@ -249,26 +230,24 @@ export function trackDropTargetShadowRoots(
 }
 
 /**
- * Keep `getParameters` readable after this element unregisters.
+ * Whether `getParameters` is the hold `element` dispatches through.
  *
- * Only applies while `getParameters` is the element's active hold, which means the
- * element is leaving the registry. The unregister callback also runs when a
- * non-last hold is released and another hold is promoted (see `getterStackRegistry`).
- * The element stays registered then, and any leave dispatches through the promoted hold.
+ * Inside the unregister callback of {@link removeDropTargetRegistration}, it tells
+ * an element leaving the registry from one whose released hold promoted another.
+ * See `getterStackRegistry`.
  */
-export function retainRetiringDropTarget(element: Element, getParameters: DropTargetGetter): void {
-  if (holds.getActive(element) === getParameters) {
-    state.retiring.set(element, getParameters);
-  }
+export function isActiveDropTargetRegistration(
+  element: Element,
+  getParameters: DropTargetGetter,
+): boolean {
+  return holds.getActive(element) === getParameters;
 }
 
 /**
- * Close the session by dropping every retiring hold and the drag's per-target data.
- * The lifecycle calls it on teardown. Records already handed out keep their own
- * reference to their data.
+ * Close the session by dropping the drag's per-target data. The lifecycle calls it
+ * on teardown. Records already handed out keep their own reference to their data.
  */
 export function endDropTargetSession(): void {
-  state.retiring.clear();
   state.dragData = new WeakMap<object, TargetDragData>();
 }
 
@@ -656,12 +635,12 @@ export function getDropTargetsOver(
   return result;
 }
 
-type DropTargetEventName = keyof DropTargetEventReasonMap & keyof DropTargetParameters;
+export type DropTargetEventName = keyof DropTargetEventReasonMap & keyof DropTargetParameters;
 
 /**
  * Deliver `eventName` to the target behind `record` through the element's active
- * registration. A target that unregistered while hovered and is still owed a leave
- * uses its retiring registration instead (see {@link DropTargetState.retiring}).
+ * registration, or through `fallback` when the element has unregistered. The hover
+ * ledger passes the registration it kept for a target still owed a leave.
  *
  * A drop goes through the registration that resolved the record. The source's
  * `onMoveEnd` hears about the drop first and may unmount targets synchronously,
@@ -676,13 +655,14 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   record: DraggableTargetRecord,
   eventName: K,
   eventDetails: DragEventDetails<DropTargetEventReasonMap[K]>,
+  fallback?: DropTargetGetter,
 ): void {
   const source = eventDetails.source;
   const resolvedRegistration = state.recordRegistrations.get(record);
   const getRegistration =
     eventName === 'onDraggableDrop'
       ? resolvedRegistration?.getParameters
-      : (holds.getActive(record.element) ?? state.retiring.get(record.element));
+      : (holds.getActive(record.element) ?? fallback);
   if (!getRegistration) {
     return;
   }
@@ -705,153 +685,6 @@ export function dispatchToDropTarget<K extends DropTargetEventName>(
   handler?.({ ...eventDetails, currentTarget: record } as DropTargetEventDetails<
     DropTargetEventReasonMap[K]
   >);
-}
-
-/** Remove the record held against `element` from the hovered bookkeeping. */
-function removeHoveredRecord(hovered: DraggableTargetRecord[], element: Element): void {
-  const index = hovered.findIndex((record) => record.element === element);
-  if (index !== -1) {
-    hovered.splice(index, 1);
-  }
-}
-
-/** Swap the stale record for `fresh` (same element) in the hovered bookkeeping. */
-function replaceHoveredRecord(
-  hovered: DraggableTargetRecord[],
-  fresh: DraggableTargetRecord,
-): void {
-  const index = hovered.findIndex((record) => record.element === fresh.element);
-  if (index === -1) {
-    hovered.push(fresh);
-  } else {
-    hovered[index] = fresh;
-  }
-}
-
-/**
- * Swap every record in the hovered bookkeeping for its freshly resolved counterpart,
- * matched by element, without adding or removing entries. The lifecycle calls it on
- * frames where the resolved stack holds the same elements as the previous one. No
- * change dispatch runs on those frames, but the terminal `onDraggableLeave` on drop
- * or cancel reads these records. Without the swap, that leave would report the
- * `currentTarget.payload` resolved at entry while every `onDraggableMove` in between
- * reported fresh ones.
- */
-export function refreshHoveredRecords(
-  hovered: DraggableTargetRecord[],
-  fresh: readonly DraggableTargetRecord[],
-): void {
-  // Runs on every element-equal move frame. Between change dispatches the hovered
-  // list mirrors the resolved stack order, so the record at the same index almost
-  // always matches. Scan only on a mismatch to keep the per-frame path allocation-free.
-  for (let i = 0; i < hovered.length; i += 1) {
-    if (fresh[i]?.element === hovered[i].element) {
-      hovered[i] = fresh[i];
-      continue;
-    }
-    for (let j = 0; j < fresh.length; j += 1) {
-      if (fresh[j].element === hovered[i].element) {
-        hovered[i] = fresh[j];
-        break;
-      }
-    }
-  }
-}
-
-/**
- * Deliver one `onDraggableLeave`. The record leaves `hovered` before the dispatch,
- * so if the leave handler cancels the drag, the terminal dispatch doesn't leave
- * this target a second time.
- *
- * The lifecycle also calls it for each terminal leave a still-hovered target is
- * owed at the end of a drag. A one-record {@link dispatchDropTargetChange} round
- * doesn't work there. It ends by resetting `hovered` to the current stack, which is
- * empty, so after the first leave the other targets would read as not hovered. A
- * leave handler that unregisters a sibling would then send it down the coalesced
- * path, which can't dispatch the leave the sibling is still owed. Here `hovered`
- * only loses the record being left, so every other target stays hovered until its
- * own leave goes out.
- */
-export function dispatchDropTargetLeave(
-  record: DraggableTargetRecord,
-  eventDetails: DropTargetChangeEventDetails,
-  hovered: DraggableTargetRecord[],
-): void {
-  removeHoveredRecord(hovered, record.element);
-  try {
-    dispatchToDropTarget(record, 'onDraggableLeave', eventDetails);
-  } finally {
-    // The leave its retiring hold was kept for has gone out.
-    state.retiring.delete(record.element);
-  }
-}
-
-/**
- * Dispatch `onDraggableLeave` to the targets that left and `onDraggableEnter` to the
- * targets that entered.
- *
- * `shouldContinue` is checked before every delivery. A handler can cancel the drag
- * re-entrantly, and the cancel already delivered the remaining targets' terminal
- * events, so they get nothing more. `hovered` is the lifecycle's hovered-stack
- * bookkeeping. It is updated as each enter and leave goes out, so an interrupted
- * dispatch leaves it listing exactly the targets that still hold hover state.
- */
-export function dispatchDropTargetChange(
-  previous: readonly DraggableTargetRecord[],
-  current: readonly DraggableTargetRecord[],
-  eventDetails: DropTargetChangeEventDetails,
-  shouldContinue: () => boolean,
-  hovered: DraggableTargetRecord[],
-): void {
-  const currByElement = new Map(current.map((r) => [r.element, r] as const));
-  const visited = new Set<Element>();
-
-  for (const record of previous) {
-    if (!shouldContinue()) {
-      return;
-    }
-    visited.add(record.element);
-    // Keep a persisting target's payload current for later dispatch.
-    const fresh = currByElement.get(record.element);
-    if (fresh) {
-      replaceHoveredRecord(hovered, fresh);
-    } else {
-      dispatchDropTargetLeave(record, eventDetails, hovered);
-    }
-  }
-
-  for (const record of current) {
-    if (!shouldContinue()) {
-      return;
-    }
-    if (visited.has(record.element)) {
-      continue;
-    }
-    // Push before delivery. If the enter handler cancels the drag, the terminal
-    // dispatch owes this target a matching leave.
-    hovered.push(record);
-    dispatchToDropTarget(record, 'onDraggableEnter', eventDetails);
-  }
-
-  // Every event went out. Sync the bookkeeping to the bubble-ordered stack.
-  hovered.length = 0;
-  hovered.push(...current);
-}
-
-export function dispatchToAllDropTargets<K extends DropTargetEventName>(
-  targets: readonly DraggableTargetRecord[],
-  eventName: K,
-  eventDetails: DragEventDetails<DropTargetEventReasonMap[K]>,
-  shouldContinue: () => boolean,
-): void {
-  for (const record of targets) {
-    // A handler can cancel the drag re-entrantly. The remaining targets then get
-    // nothing.
-    if (!shouldContinue()) {
-      return;
-    }
-    dispatchToDropTarget(record, eventName, eventDetails);
-  }
 }
 
 /**

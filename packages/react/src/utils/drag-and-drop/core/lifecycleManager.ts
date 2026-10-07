@@ -31,15 +31,12 @@ import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import { createDragEventDetails, createMoveEndEventDetails } from '../dragEventDetails';
 import {
   captureDropTargetCollision,
-  dispatchDropTargetChange,
-  dispatchDropTargetLeave,
-  dispatchToAllDropTargets,
   dispatchToDropTarget,
   endDropTargetSession,
   getDropTargetShadowRootsByHost,
   getDropTargetsOver,
-  refreshHoveredRecords,
 } from '../dropTarget';
+import { createHoverLedger } from '../hoverLedger';
 import { activateMonitors, clearActiveMonitors, dispatchToMonitors } from '../monitor';
 import { cloneLocationHistory, setDragSession } from '../dragSessionStore';
 import { clearPublishedDragPreview } from '../overlay/dragPreviewStore';
@@ -164,7 +161,7 @@ export function start(parameters: StartParameters): DragSessionController | null
   // not per raw input.
   let lastDispatched: DraggableLocation = location.previous;
 
-  // The last DOM element the stack was resolved from. `refreshTargets()`
+  // The last DOM element the stack was resolved from. `releaseTarget()`
   // walks up from it again when a drop target unregisters mid-drag.
   let lastTarget: Element | null = initialTarget;
 
@@ -176,9 +173,9 @@ export function start(parameters: StartParameters): DragSessionController | null
 
   // Set while consumer resolvers and event handlers run. Either can unregister a
   // hovered drop target, whose cleanup re-resolves the stack synchronously (see
-  // `registrations.ts`). Re-entering `updateDropTargets` mid-round would corrupt
+  // `releaseTarget`). Re-entering `updateDropTargets` mid-round would corrupt
   // the round's bookkeeping. When the outer round finished, its stale stack would
-  // overwrite `hoveredDropTargets` and `lastDispatched` and bring the unregistered
+  // overwrite the hover ledger and `lastDispatched` and bring the unregistered
   // target back. The refresh queues instead and runs when the round finishes
   // (see `drainPendingRefresh`).
   let dispatching = false;
@@ -195,18 +192,16 @@ export function start(parameters: StartParameters): DragSessionController | null
   // `onDraggableStart`. It queues like a mid-round refresh instead.
   let startDispatched = false;
 
-  // The targets whose enter has been delivered. `dispatchDropTargetChange`
-  // updates it as it dispatches enters and leaves. When a re-entrant cancel
+  // The targets whose enter has been delivered. When a re-entrant cancel
   // interrupts a change dispatch halfway, the terminal leave in `doDrop` or
   // `doCancel` reaches exactly the targets that consider themselves hovered, not
   // the already-reassigned `location.current` stack.
   //
   // It stays empty after the initial stack resolves. `dispatchDragStart` enters
-  // that stack one record at a time and pushes each record here just before its
-  // `onDraggableEnter`, as `dispatchDropTargetChange` does mid-drag. Filling it up
-  // front would owe a terminal leave to targets whose enter never ran, which
+  // that stack one record at a time, as a change round does mid-drag. Entering it
+  // up front would owe a terminal leave to targets whose enter never ran, which
   // happens when an inner target's enter cancels the drag.
-  const hoveredDropTargets: DraggableTargetRecord[] = [];
+  const hover = createHoverLedger();
 
   // The parameter refresh queued in a microtask. With `targets: null` it always
   // runs. Otherwise it runs only when one of these elements is on the walk.
@@ -281,9 +276,30 @@ export function start(parameters: StartParameters): DragSessionController | null
         endListeners.delete(listener);
       };
     },
-    refreshTargets() {
-      if (armed) {
-        refresh(false);
+    releaseTarget(element, getParameters) {
+      // While starting, the initial stack is resolved but not yet entered or
+      // published, so any target may be in it. Otherwise only a target owed a
+      // leave can change the resolved stack. Ask the ledger, not the published
+      // snapshot: a target that entered and unregistered in the same change round
+      // is owed a leave but not yet published, and the coalesced path would run
+      // after its registration is gone.
+      if (phase === 'starting' || hover.has(element)) {
+        // Keep the registration readable until the leave goes out. The refresh
+        // below usually dispatches it right away, but inside a consumer fan-out or
+        // before `onMoveStart` it can only queue, and the registry entry is gone by
+        // the time it drains.
+        hover.retain(element, getParameters);
+        // Refresh now, so reactive subscribers such as `Draggable.Target`'s
+        // `dragOver` see the target leave without waiting for a pointer event.
+        // It walks up from the last target instead of hit-testing, because the DOM
+        // under the pointer hasn't changed, only which ancestors are registered.
+        // A React unmount runs this inside the commit, where `elementFromPoint`
+        // would force a needless synchronous layout.
+        if (armed) {
+          refresh(false);
+        }
+      } else {
+        session.scheduleTargetRefresh(null, true);
       }
     },
     scheduleTargetRefresh(element, rehitTest = false) {
@@ -310,7 +326,6 @@ export function start(parameters: StartParameters): DragSessionController | null
         }
       });
     },
-    isTargetHovered: (element) => hoveredDropTargets.some((record) => record.element === element),
   };
 
   /**
@@ -342,7 +357,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     // Targets that received an enter still need the matching leave. Dispatch only
     // to the targets here, because the source callback that triggered recovery
     // may be the one that throws, and it must not block the leaves.
-    const departedDropTargets = hoveredDropTargets.slice();
+    const departedDropTargets = hover.owed();
     if (departedDropTargets.length > 0) {
       const leaveDetails = createDragEventDetails<DragEndReason>(
         REASONS.handlerError,
@@ -355,14 +370,7 @@ export function start(parameters: StartParameters): DragSessionController | null
         'Base UI: a drag handler threw while another handler error was being recovered. ' +
           'The remaining target cleanup is best-effort.',
         null,
-        () =>
-          dispatchDropTargetChange(
-            departedDropTargets,
-            [],
-            leaveDetails,
-            isLive,
-            hoveredDropTargets,
-          ),
+        () => hover.change(departedDropTargets, [], leaveDetails, isLive),
         undefined,
       );
     }
@@ -481,25 +489,23 @@ export function start(parameters: StartParameters): DragSessionController | null
       if (tornDown) {
         return;
       }
-      dispatchToAllDropTargets(location.current.targets, 'onDraggableStart', startDetails, isLive);
+      hover.dispatchToAll(location.current.targets, 'onDraggableStart', startDetails, isLive);
       dispatchToMonitors('onMoveStart', startDetails);
       // The stack under the pickup point is published in the session and
       // gets a terminal `onDraggableLeave` from `doDrop` or `doCancel`, so it
-      // needs an enter too. `dispatchDropTargetChange`, the only other source of
+      // needs an enter too. A change round, the only other source of
       // `onDraggableEnter`, never runs for this first stack because there is no
       // previous stack to diff against. The enters go last in the round, so
       // `onMoveStart` precedes all of them.
       //
-      // Each record joins `hoveredDropTargets` just before its own enter, not as
-      // a batch. A handler here can cancel the drag re-entrantly, and the outer
-      // targets that never received their enter must not then receive a leave.
-      // `dispatchDropTargetChange` uses the same order mid-drag.
+      // Each target enters on its own, not as a batch. A handler here can cancel
+      // the drag re-entrantly, and the outer targets that never received their
+      // enter must not then receive a leave. A change round uses the same order.
       for (const record of location.current.targets) {
         if (!isLive()) {
           break;
         }
-        hoveredDropTargets.push(record);
-        dispatchToDropTarget(record, 'onDraggableEnter', startDetails);
+        hover.enter(record, startDetails);
       }
     });
     if (tornDown) {
@@ -522,7 +528,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       if (tornDown) {
         return;
       }
-      dispatchToAllDropTargets(targets, 'onDraggableMove', dragDetails, isLive);
+      hover.dispatchToAll(targets, 'onDraggableMove', dragDetails, isLive);
       dispatchToMonitors('onMove', dragDetails);
     });
     if (tornDown) {
@@ -597,13 +603,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     if (tornDown) {
       return false;
     }
-    dispatchDropTargetChange(
-      previousTargets,
-      currentTargets,
-      changeDetails,
-      isLive,
-      hoveredDropTargets,
-    );
+    hover.change(previousTargets, currentTargets, changeDetails, isLive);
     if (tornDown) {
       return false;
     }
@@ -661,7 +661,7 @@ export function start(parameters: StartParameters): DragSessionController | null
         // them, would otherwise run twice on every entry frame.
         if (!dragDispatchFollows && newDropTargets.length > 0) {
           const entryDetails = createMoveDetails(newDropTargets[0]);
-          dispatchToAllDropTargets(newDropTargets, 'onDraggableMove', entryDetails, isLive);
+          hover.dispatchToAll(newDropTargets, 'onDraggableMove', entryDetails, isLive);
         }
       });
 
@@ -678,7 +678,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       // the records in the hovered bookkeeping here. The terminal leave on drop or
       // cancel reads them and must report the latest `target.payload`, as the
       // intermediate `onMove` events did.
-      refreshHoveredRecords(hoveredDropTargets, newDropTargets);
+      hover.refresh(newDropTargets);
       // A rejection change with an element-equal stack (empty before and after)
       // must publish on its own, or `data-rejected` would never appear or clear.
       if (rejectedTarget !== publishedRejectedTarget) {
@@ -785,7 +785,7 @@ export function start(parameters: StartParameters): DragSessionController | null
       } else {
         // As in `updateDropTargets`, the terminal leave below must report the
         // newly resolved records, not the ones from entry.
-        refreshHoveredRecords(hoveredDropTargets, freshDropTargets);
+        hover.refresh(freshDropTargets);
       }
 
       // Only now, since a change handler above can still cancel the drag, and a
@@ -834,10 +834,10 @@ export function start(parameters: StartParameters): DragSessionController | null
         // Send a final `onDraggableLeave` to every target still hovered, so
         // imperative hover state clears. The drop path never emits a change to an
         // empty stack. `createTerminalLeaveLocation` builds the location. Leaves
-        // go out one at a time, each removing only its own record from the
-        // hovered bookkeeping. A leave handler that unregisters a sibling target
-        // must still find that sibling hovered, or the sibling never gets its leave.
-        const departedDropTargets = hoveredDropTargets.slice();
+        // go out one at a time, each ending only its own hover. A leave handler that
+        // unregisters a sibling target must still find that sibling hovered, or the
+        // sibling never gets its leave.
+        const departedDropTargets = hover.owed();
         if (departedDropTargets.length > 0) {
           const leaveDetails = createDragEventDetails(
             endReason,
@@ -850,9 +850,7 @@ export function start(parameters: StartParameters): DragSessionController | null
             if (!isLive()) {
               break;
             }
-            captureTerminalError(() =>
-              dispatchDropTargetLeave(target, leaveDetails, hoveredDropTargets),
-            );
+            captureTerminalError(() => hover.leave(target, leaveDetails));
           }
         }
       }
@@ -886,7 +884,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     // differ from `location.current.targets` when this cancel comes from a
     // handler inside a change dispatch. The stack was already reassigned there,
     // but the entering targets were never notified, so they must not get a leave.
-    const departedDropTargets = hoveredDropTargets.slice();
+    const departedDropTargets = hover.owed();
     location.previous = lastDispatched;
     location.current = { input: input ?? location.current.input, targets: [] };
 

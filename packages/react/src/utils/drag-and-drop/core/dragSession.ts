@@ -14,6 +14,7 @@ import type {
 } from '../../../draggable/DraggableProvider';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
 import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
+import type { DropTargetGetter } from '../dropTarget';
 import type { DragCleanupFn } from '../types';
 import { getSharedSlot } from '../sharedState';
 
@@ -62,17 +63,12 @@ export interface DragSession {
    */
   onEnd(listener: () => void): DragCleanupFn;
   /**
-   * Re-resolves the drop-target stack now and publishes a new snapshot, so a
-   * hovered target that unregisters leaves the stack without waiting for a pointer
-   * event. Does nothing once the end sequence has begun.
-   *
-   * Walks up from the last resolved target instead of hit-testing, because the DOM
-   * under the pointer hasn't changed, only which of its ancestors are registered. A
-   * React unmount runs this from the ref cleanup, inside the commit, where
-   * `elementFromPoint` would force a needless synchronous layout. It hit-tests
-   * again only when the last target has been detached.
+   * Tells the session that `element` is unregistering, while `getParameters` is
+   * still readable. A target still owed `onDraggableLeave` gets it, through
+   * `getParameters` if need be, and leaves the stack right away. Any other
+   * unregister joins the coalesced refresh.
    */
-  refreshTargets(): void;
+  releaseTarget(element: Element, getParameters: DropTargetGetter): void;
   /**
    * Coalesces a parameter or registration change into one stack resolution in a
    * microtask. With an `element`, it runs only when that element is on the walk
@@ -80,11 +76,6 @@ export interface DragSession {
    * walking up from the last target.
    */
   scheduleTargetRefresh(element: Element | null, rehitTest?: boolean): void;
-  /**
-   * Whether `element` has received an enter but not the matching leave. It updates
-   * before the published snapshot does.
-   */
-  isTargetHovered(element: Element): boolean;
 }
 
 interface DragSessionSlot {

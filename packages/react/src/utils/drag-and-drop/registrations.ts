@@ -12,11 +12,7 @@
  */
 
 import { warn } from '@base-ui/utils/warn';
-import {
-  addDropTargetRegistration,
-  removeDropTargetRegistration,
-  retainRetiringDropTarget,
-} from './dropTarget';
+import { addDropTargetRegistration, removeDropTargetRegistration } from './dropTarget';
 import { addMonitor, removeMonitor } from './monitor';
 import { getActiveSession } from './core/dragSession';
 import type {
@@ -99,41 +95,10 @@ export function registerTarget<
   getActiveSession()?.scheduleTargetRefresh(null, true);
 
   return onceCleanup(() => {
-    // A hovered element re-resolves the stack synchronously, so reactive
-    // subscribers such as `Draggable.Target`'s `dragOver` state see it leave. The
-    // registry entry is deleted only after the refresh, so the lifecycle can
-    // still dispatch this target's leave events.
-    //
-    // A target outside the stack is owed no leave, and removing it can't change
-    // the resolved stack, so its refresh joins the queued microtask instead.
+    // Runs before the registry entry is deleted, so the session can still deliver
+    // a leave this target is owed.
     removeDropTargetRegistration(element, getParameters, () => {
-      const session = getActiveSession();
-      if (session === null) {
-        return;
-      }
-      // While the session is starting, the initial stack isn't published, so
-      // membership can't be read. Take the synchronous path and keep the
-      // registration readable. The lifecycle queues the refresh until
-      // `onMoveStart` has gone out, so the initial stack is still published and
-      // entered as resolved, and this target leaves it right after with its
-      // `onDraggableLeave`.
-      //
-      // Membership comes from the session's own hover bookkeeping, not from the
-      // published snapshot. A target that entered and unregistered in the same
-      // change round is hovered but not yet published. The coalesced path would
-      // run after its registration is gone and lose the `onDraggableLeave` it is
-      // owed.
-      if (session.phase === 'starting' || session.isTargetHovered(element)) {
-        // Keeps the registration readable past the delete below. The synchronous
-        // refresh usually dispatches the leave right away and releases it. Inside
-        // a consumer fan-out, though, the refresh can only queue, and the entry
-        // would be gone by the time it drains. Does nothing when another hold
-        // keeps the element registered, since the lifecycle reads that one.
-        retainRetiringDropTarget(element, getParameters);
-        session.refreshTargets();
-      } else {
-        session.scheduleTargetRefresh(null, true);
-      }
+      getActiveSession()?.releaseTarget(element, getParameters);
     });
   });
 }
