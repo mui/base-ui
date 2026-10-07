@@ -566,70 +566,72 @@ describe('<Select.Root />', () => {
       );
     });
 
-    it('keeps a new controlled value when the previous item is removed in the same update', async () => {
-      const onValueChange = vi.fn();
+    it.each([
+      { name: 'single', multiple: false, initialValue: 'dave', nextValue: 'bob' },
+      { name: 'multiple', multiple: true, initialValue: ['dave'], nextValue: ['bob'] },
+    ])(
+      'keeps a new controlled value in $name mode when the previous item is removed in the same update',
+      async ({ multiple, initialValue, nextValue }) => {
+        const onValueChange = vi.fn();
 
-      function Test() {
-        const [options, setOptions] = React.useState(['alice', 'bob', 'carol', 'dave']);
-        const [value, setValue] = React.useState<string | null>('dave');
-        const [open, setOpen] = React.useState(false);
+        function Test() {
+          const [options, setOptions] = React.useState(['alice', 'bob', 'carol', 'dave']);
+          const [value, setValue] = React.useState<string | string[] | null>(initialValue);
 
-        return (
-          <div>
-            <Select.Root<string>
-              value={value}
-              onValueChange={(next, details) => {
-                onValueChange(next, details);
-                setValue(next);
-              }}
-              open={open}
-              onOpenChange={(next, details) => {
-                if (!next && details.reason === 'outside-press') {
-                  return;
-                }
-                setOpen(next);
-              }}
-              modal={false}
-            >
-              <Select.Trigger>
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup>
-                    <Select.List>
-                      {options.map((option) => (
-                        <Select.Item key={option} value={option}>
-                          {option}
-                        </Select.Item>
-                      ))}
-                    </Select.List>
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-            <button
-              type="button"
-              onClick={() => {
-                setOptions(['alice', 'bob']);
-                setValue('bob');
-              }}
-            >
-              Update options and value
-            </button>
-            <output data-testid="value">{value}</output>
-          </div>
+          return (
+            <div>
+              <Select.Root<string, boolean>
+                multiple={multiple}
+                value={value}
+                onValueChange={(next, details) => {
+                  onValueChange(next, details);
+                  setValue(next);
+                }}
+                open
+                modal={false}
+              >
+                <Select.Trigger>
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.List>
+                        {options.map((option) => (
+                          <Select.Item key={option} value={option}>
+                            {option}
+                          </Select.Item>
+                        ))}
+                      </Select.List>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+              <button
+                type="button"
+                onClick={() => {
+                  setOptions(['alice', 'bob']);
+                  setValue(nextValue);
+                }}
+              >
+                Update options and value
+              </button>
+              <output data-testid="value">{JSON.stringify(value)}</output>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        expect(await screen.findByRole('option', { name: 'dave' })).toHaveAttribute(
+          'data-selected',
         );
-      }
+        await user.click(screen.getByRole('button', { name: 'Update options and value' }));
 
-      const { user } = await render(<Test />);
-      await user.click(screen.getByRole('combobox'));
-      await screen.findByRole('listbox');
-      await user.click(screen.getByRole('button', { name: 'Update options and value' }));
-
-      expect(screen.getByTestId('value')).toHaveTextContent('bob');
-      expect(onValueChange).not.toHaveBeenCalled();
-    });
+        expect(screen.getByTestId('value').textContent).toBe(JSON.stringify(nextValue));
+        expect(screen.getByRole('option', { name: 'bob' })).toHaveAttribute('data-selected');
+        expect(onValueChange).not.toHaveBeenCalled();
+      },
+    );
 
     it('uses the current multiple setting when options and value change together', async () => {
       const onValueChange = vi.fn();
