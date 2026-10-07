@@ -12,13 +12,18 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
+import {
+  AFTER_TRIGGER,
+  BEFORE_TRIGGER,
+  focusRoute,
+  getFocusRoute,
+} from '../../floating-ui-react/utils/focusRoute';
 import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
-import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
@@ -75,7 +80,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     },
   );
 
-  const openReason = store.useState('openChangeReason');
+  const openReason = store.useState('openReason');
   const stickIfOpen = store.useState('stickIfOpen');
   const openMethod = store.useState('openMethod');
   const focusManagerModal = store.useState('focusManagerModal');
@@ -120,11 +125,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     },
   };
 
-  const { handlePreFocusGuardFocus, handleFocusTargetFocus } = useTriggerFocusGuards(
-    store,
-    triggerElementRef,
-  );
-
   const state: PopoverTriggerState = {
     disabled,
     open: isOpenedByThisTrigger,
@@ -156,14 +156,14 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   const keyedElement = <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 
   if (isOpenedByThisTrigger && !focusManagerModal) {
+    const route = getFocusRoute(floatingContext);
+    const handleGuardFocus = (event: React.FocusEvent<HTMLElement>) =>
+      focusRoute(floatingContext, event);
     return (
       <React.Fragment>
-        <FocusGuard
-          ref={store.context.beforeTriggerFocusGuardRef}
-          onFocus={handlePreFocusGuardFocus}
-        />
+        <FocusGuard ref={route[BEFORE_TRIGGER]} onFocus={handleGuardFocus} />
         {keyedElement}
-        <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
+        <FocusGuard ref={route[AFTER_TRIGGER]} onFocus={handleGuardFocus} />
       </React.Fragment>
     );
   }

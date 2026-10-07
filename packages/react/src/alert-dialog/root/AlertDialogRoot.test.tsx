@@ -31,6 +31,7 @@ describe('<AlertDialog.Root />', () => {
     triggerMouseAction: 'click',
     expectedPopupRole: 'alertdialog',
     expectedAriaHasPopupValue: 'dialog',
+    closing: { inert: 'popup', returnFocus: true, focusGuards: true },
   });
 
   dialogRootSharedTests({ parts: AlertDialog, popupRole: 'alertdialog', render });

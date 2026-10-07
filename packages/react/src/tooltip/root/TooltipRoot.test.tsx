@@ -29,7 +29,7 @@ describe('<Tooltip.Root />', () => {
       <Tooltip.Root {...props.root}>
         <Tooltip.Trigger {...props.trigger}>Open menu</Tooltip.Trigger>
         <Tooltip.Portal {...props.portal}>
-          <Tooltip.Positioner>
+          <Tooltip.Positioner {...props.positioner}>
             <Tooltip.Popup {...props.popup}>Content</Tooltip.Popup>
           </Tooltip.Positioner>
         </Tooltip.Portal>
@@ -37,6 +37,7 @@ describe('<Tooltip.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
+    closing: { inert: false, returnFocus: false, focusGuards: false },
   });
 
   describe('trigger unmount during the open delay', () => {
@@ -301,6 +302,24 @@ describe('<Tooltip.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
+      });
+
+      it('does not open after the delay once closed imperatively', async () => {
+        const actionsRef = React.createRef<Tooltip.Root.Actions>();
+        await render(<TestTooltip rootProps={{ actionsRef }} triggerProps={{ delay: 100 }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await act(async () => actionsRef.current!.close());
+
+        clock.tick(100);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 

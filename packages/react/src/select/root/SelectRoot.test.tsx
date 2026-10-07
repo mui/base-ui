@@ -14,6 +14,7 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  holdExit,
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
@@ -25,6 +26,8 @@ import {
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { REASONS } from '../../internals/reasons';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
+import { useSelectFloatingContext } from './SelectRootContext';
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -371,7 +374,7 @@ describe('<Select.Root />', () => {
             <Select.Value />
           </Select.Trigger>
           <Select.Portal {...props.portal}>
-            <Select.Positioner>
+            <Select.Positioner {...props.positioner}>
               <Select.Popup {...props.popup}>
                 <Select.Item>Item</Select.Item>
               </Select.Popup>
@@ -383,6 +386,7 @@ describe('<Select.Root />', () => {
       triggerMouseAction: 'click',
       expectedPopupRole: 'listbox',
       alwaysMounted: 'only-after-open',
+      closing: { inert: 'positioner', returnFocus: true, focusGuards: true },
     });
 
     // The suite owns the scroller geometry, which item-aligned positioning would override.
@@ -962,6 +966,89 @@ describe('<Select.Root />', () => {
 
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).toBe(null);
+      });
+    });
+  });
+
+  describe('prop: onOpenChange', () => {
+    describe('internal openchange', () => {
+      function OpenChangeSpy(props: {
+        onOpenChange: (details: FloatingUIOpenChangeDetails) => void;
+      }) {
+        const { onOpenChange } = props;
+        const floatingRootContext = useSelectFloatingContext();
+
+        React.useEffect(() => {
+          floatingRootContext.context.events.on('openchange', onOpenChange);
+          return () => {
+            floatingRootContext.context.events.off('openchange', onOpenChange);
+          };
+        }, [floatingRootContext, onOpenChange]);
+
+        return null;
+      }
+
+      function TestSelect(props: {
+        onOpenChange?: Select.Root.Props<string>['onOpenChange'];
+        onInternalOpenChange: (details: FloatingUIOpenChangeDetails) => void;
+      }) {
+        return (
+          <Select.Root defaultOpen onOpenChange={props.onOpenChange}>
+            <OpenChangeSpy onOpenChange={props.onInternalOpenChange} />
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      it('is not emitted for a canceled close', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const handleOpenChange = vi.fn<NonNullable<Select.Root.Props<string>['onOpenChange']>>(
+          (nextOpen, eventDetails) => {
+            if (!nextOpen) {
+              eventDetails.cancel();
+            }
+          },
+        );
+        const { user } = await render(
+          <TestSelect
+            onInternalOpenChange={handleInternalOpenChange}
+            onOpenChange={handleOpenChange}
+          />,
+        );
+
+        await user.keyboard('{Escape}');
+
+        expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+        expect(handleInternalOpenChange.mock.calls.length).toBe(0);
+      });
+
+      it('is emitted when selecting an item closes the select', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestSelect onInternalOpenChange={handleInternalOpenChange} />,
+        );
+
+        await user.click(screen.getByRole('option', { name: 'b' }));
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        expect(handleInternalOpenChange.mock.calls.length).toBe(1);
+        expect(handleInternalOpenChange.mock.calls[0][0]).toMatchObject({
+          open: false,
+          reason: REASONS.itemPress,
+        });
       });
     });
   });
@@ -2852,6 +2939,67 @@ describe('<Select.Root />', () => {
         expect(screen.queryByTestId('popover-popup')).toBe(null);
       });
     });
+  });
+
+  describe('while closing', () => {
+    type User = Awaited<ReturnType<typeof render>>['user'];
+
+    function TestSelect() {
+      return (
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value placeholder="Pick" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner data-testid="positioner">
+              <Select.Popup data-testid="popup">
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      );
+    }
+
+    it.each([
+      {
+        modality: 'keyboard',
+        async select(user: User, option: HTMLElement) {
+          await user.keyboard('{ArrowDown}');
+          await waitFor(() => expect(option).toHaveFocus());
+          await user.keyboard('{Enter}');
+        },
+      },
+      {
+        modality: 'pointer',
+        async select(user: User, option: HTMLElement) {
+          await user.click(option);
+        },
+      },
+    ])(
+      'returns focus to the trigger when an item is selected with the $modality',
+      async ({ select }) => {
+        const exit = holdExit();
+        const { user } = await render(<TestSelect />);
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
+        const popup = await screen.findByTestId('popup');
+        await waitFor(() => expect(popup.contains(document.activeElement)).toBe(true));
+
+        await select(user, screen.getByRole('option', { name: 'a' }));
+
+        await waitFor(() => expect(trigger).toHaveFocus());
+        expect(trigger).toHaveTextContent('a');
+        expect(popup).toHaveAttribute('data-ending-style');
+        expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
+
+        await exit.release();
+        // Select keeps its popup mounted, hidden, once it has opened.
+        expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
+        expect(trigger).toHaveFocus();
+      },
+    );
   });
 
   describe('prop: disabled', () => {

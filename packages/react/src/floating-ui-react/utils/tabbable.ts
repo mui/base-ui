@@ -1,6 +1,6 @@
 import { getComputedStyle, getNodeName, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { activeElement, contains } from './element';
+import { contains } from './element';
 import { isElementVisible } from './composite';
 
 export type FocusableElement = HTMLElement | SVGElement;
@@ -195,38 +195,20 @@ export function tabbable(container: Element) {
   );
 }
 
-function getTabbableIn(container: HTMLElement, dir: 1 | -1): FocusableElement | undefined {
-  const list = tabbable(container);
-  const len = list.length;
-  if (len === 0) {
-    return undefined;
-  }
-
-  const active = activeElement(ownerDocument(container)) as FocusableElement;
-  const index = list.indexOf(active);
-  // eslint-disable-next-line no-nested-ternary
-  const nextIndex = index === -1 ? (dir === 1 ? 0 : len - 1) : index + dir;
-
-  return list[nextIndex];
-}
-
-export function getNextTabbable(referenceElement: Element | null): FocusableElement | null {
-  return (
-    getTabbableIn(ownerDocument(referenceElement).body, 1) || (referenceElement as FocusableElement)
-  );
-}
-
-export function getPreviousTabbable(referenceElement: Element | null): FocusableElement | null {
-  return (
-    getTabbableIn(ownerDocument(referenceElement).body, -1) ||
-    (referenceElement as FocusableElement)
-  );
-}
-
+/**
+ * Finds the tabbable element that sequential navigation reaches from `referenceElement`. The
+ * anchor doesn't need to be tabbable itself, so a focus guard inside an `inert` subtree or with
+ * `tabindex="-1"` still finds its neighbours. Elements inside any of `exclude` are skipped.
+ *
+ * At the end of the document, the search wraps around like the browser's tab cycle and returns
+ * the anchor if nothing else is tabbable. With `wrap` set to `false`, it returns `null` instead so
+ * the caller can pick a fallback. It also returns `null` if the anchor isn't in the document.
+ */
 export function getTabbableNearElement(
   referenceElement: Element | null,
   direction: 1 | -1,
-  exclude?: Element | null,
+  exclude: Array<Element | null> = [],
+  wrap = true,
 ): FocusableElement | null {
   if (!referenceElement) {
     return null;
@@ -242,9 +224,13 @@ export function getTabbableNearElement(
 
   const candidates = list.filter(isFocusableElement);
   for (let offset = 1; offset < list.length; offset += 1) {
-    const element = list[(index + direction * offset + list.length) % list.length];
+    const position = index + direction * offset;
+    const element = list[wrap ? (position + list.length) % list.length : position];
+    if (!element) {
+      return null;
+    }
     if (
-      !contains(exclude, element) &&
+      !exclude.some((node) => contains(node, element)) &&
       isTabbable(element) &&
       isTabbableRadio(element, candidates)
     ) {
@@ -252,7 +238,7 @@ export function getTabbableNearElement(
     }
   }
 
-  return list[index];
+  return wrap ? list[index] : null;
 }
 
 export function isOutsideEvent(event: FocusEvent | React.FocusEvent, container?: Element) {

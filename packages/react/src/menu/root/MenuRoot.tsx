@@ -41,10 +41,10 @@ import type { State as MenuStoreState } from '../store/MenuStore';
 import type { MenuHandle } from '../store/MenuHandle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
 import {
-  attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
   createPopupOpenState,
   PopupHandleAttachment,
+  runOpenChange,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
@@ -187,7 +187,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
   const activeIndex = store.useState('activeIndex');
   const keyboardOpen = store.useState('keyboardOpen');
@@ -342,103 +341,86 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
     ) => {
       const reason = eventDetails.reason;
-
-      // Read the store directly, as relayed tree events and stale hover timers can request
-      // a close after the state changed but before this component re-rendered.
-      if (!nextOpen && !store.select('open')) {
-        return;
-      }
-
-      if (
-        open === nextOpen &&
-        eventDetails.trigger === activeTriggerElement &&
-        lastOpenChangeReason === reason
-      ) {
-        return;
-      }
-
-      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
-        eventDetails as MenuRoot.ChangeEventDetails,
-      );
-
-      // Do not immediately reset the activeTriggerId to allow
-      // exit animations to play and focus to be returned correctly.
-      if (!nextOpen && eventDetails.trigger == null) {
-        eventDetails.trigger = activeTriggerElement ?? undefined;
-      }
-
-      onOpenChange?.(nextOpen, eventDetails as MenuRoot.ChangeEventDetails);
-
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
       const nativeEvent = eventDetails.event as Event;
+      // Read the store directly, as relayed tree events and stale hover timers can request
+      // a change after the state changed but before this component re-rendered.
+      const isOpen = store.select('open');
+      const triggerElement = store.select('activeTriggerElement');
+
+      // Reopening from the same trigger for the same reason changes nothing. Another reason still
+      // goes through, so a click upgrades a hover open.
       if (
-        nextOpen === false &&
-        reason !== REASONS.itemPress &&
-        nativeEvent?.type === 'click' &&
-        (nativeEvent as PointerEvent).pointerType === 'touch' &&
-        !allowTouchToCloseRef.current
+        nextOpen &&
+        isOpen &&
+        eventDetails.trigger === triggerElement &&
+        store.state.openChangeReason === reason
       ) {
         return;
       }
 
-      // Prevent the menu from closing on mobile devices that have a delayed click event.
-      // In some cases the menu, when tapped, will fire the focus event first and then the click event.
-      // Without this guard, the menu will close immediately after opening.
-      if (nextOpen && reason === REASONS.triggerFocus) {
-        allowTouchToCloseRef.current = false;
-        allowTouchToCloseTimeout.start(300, () => {
-          allowTouchToCloseRef.current = true;
-        });
-      } else {
-        allowTouchToCloseRef.current = true;
-        allowTouchToCloseTimeout.clear();
-      }
-
-      const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
-
-      openEventRef.current = eventDetails.event;
-
-      const popupOpenState = createPopupOpenState(
-        store.state,
+      runOpenChange(
+        store.state.floatingRootContext,
         nextOpen,
-        eventDetails.trigger,
-        shouldPreventUnmountOnClose(),
-      ) as ReturnType<typeof createPopupOpenState> & {
-        openChangeReason: MenuRoot.ChangeEventReason;
-        instantType: MenuStoreState<Payload>['instantType'];
-        keyboardOpen: boolean;
-      };
+        eventDetails as MenuRoot.ChangeEventDetails,
+        {
+          open: isOpen,
+          onOpenChange,
+          // Do not immediately reset the activeTriggerId to allow
+          // exit animations to play and focus to be returned correctly.
+          trigger: triggerElement,
+          // Ignore the delayed touch click that follows the focus opening the menu (see below),
+          // unless it pressed an item.
+          refused:
+            !nextOpen &&
+            reason !== REASONS.itemPress &&
+            nativeEvent?.type === 'click' &&
+            (nativeEvent as PointerEvent).pointerType === 'touch' &&
+            !allowTouchToCloseRef.current,
+          commit(preventUnmountOnClose) {
+            // Prevent the menu from closing on mobile devices that have a delayed click event.
+            // In some cases the menu, when tapped, will fire the focus event first and then the click event.
+            // Without this guard, the menu will close immediately after opening.
+            if (nextOpen && reason === REASONS.triggerFocus) {
+              allowTouchToCloseRef.current = false;
+              allowTouchToCloseTimeout.start(300, () => {
+                allowTouchToCloseRef.current = true;
+              });
+            } else {
+              allowTouchToCloseRef.current = true;
+              allowTouchToCloseTimeout.clear();
+            }
 
-      popupOpenState.openChangeReason = reason;
-      popupOpenState.keyboardOpen = nextOpen && isKeyboardOpen(reason, nativeEvent);
+            openEventRef.current = nativeEvent;
 
-      if (
-        parent.type === 'menubar' &&
-        (reason === REASONS.triggerFocus ||
-          reason === REASONS.focusOut ||
-          reason === REASONS.triggerHover ||
-          reason === REASONS.listNavigation ||
-          reason === REASONS.siblingOpen)
-      ) {
-        popupOpenState.instantType = 'group';
-      } else if (isKeyboardClick(reason, nativeEvent)) {
-        popupOpenState.instantType = 'click';
-      } else if (isDismissClose) {
-        popupOpenState.instantType = 'dismiss';
-      } else {
-        popupOpenState.instantType = undefined;
-      }
+            let instantType: MenuStoreState<Payload>['instantType'];
+            if (
+              parent.type === 'menubar' &&
+              (reason === REASONS.triggerFocus ||
+                reason === REASONS.focusOut ||
+                reason === REASONS.triggerHover ||
+                reason === REASONS.listNavigation ||
+                reason === REASONS.siblingOpen)
+            ) {
+              instantType = 'group';
+            } else if (isKeyboardClick(reason, nativeEvent)) {
+              instantType = 'click';
+            } else if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
+              instantType = 'dismiss';
+            }
 
-      // `instantType` must land in the same update that mounts the popup subtree: in React 17
-      // legacy mode this `update` can flush synchronously, and a separate `instantType` write
-      // after it would come too late for an initially open submenu seeding its own store from
-      // this one during that flush.
-      store.update(popupOpenState);
+            // `instantType` must land in the same update that mounts the popup subtree: in React 17
+            // legacy mode this `update` can flush synchronously, and a separate `instantType` write
+            // after it would come too late for an initially open submenu seeding its own store from
+            // this one during that flush.
+            store.update({
+              ...createPopupOpenState(store.state, nextOpen, eventDetails, preventUnmountOnClose),
+              openChangeReason: reason,
+              keyboardOpen: nextOpen && isKeyboardOpen(reason, nativeEvent),
+              instantType,
+            });
+          },
+        },
+      );
     },
   );
 

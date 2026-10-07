@@ -35,7 +35,7 @@ describe('<PreviewCard.Root />', () => {
           Link
         </PreviewCard.Trigger>
         <PreviewCard.Portal {...props.portal}>
-          <PreviewCard.Positioner>
+          <PreviewCard.Positioner {...props.positioner}>
             <PreviewCard.Popup {...props.popup}>Content</PreviewCard.Popup>
           </PreviewCard.Positioner>
         </PreviewCard.Portal>
@@ -43,6 +43,7 @@ describe('<PreviewCard.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
+    closing: { inert: 'positioner', returnFocus: false, focusGuards: false },
   });
 
   describe.for([
@@ -360,6 +361,22 @@ describe('<PreviewCard.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
+      });
+
+      it('does not open after the delay once closed imperatively', async () => {
+        const actionsRef = React.createRef<PreviewCard.Root.Actions>();
+        await render(<TestPreviewCard rootProps={{ actionsRef }} triggerProps={{ delay: 100 }} />);
+
+        const trigger = screen.getByRole('link', { name: 'Link' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await act(async () => actionsRef.current!.close());
+
+        await tick(100);
+
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 

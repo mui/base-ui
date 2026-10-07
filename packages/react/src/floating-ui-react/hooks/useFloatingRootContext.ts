@@ -12,6 +12,10 @@ import type { ReferenceType } from '../types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean | undefined;
+  /**
+   * Receives every open change request made through the store. The owner of the open state
+   * emits the changes it accepts with `dispatchOpenChange`, as `runOpenChange` does.
+   */
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements?:
     | {
@@ -48,7 +52,6 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
         floatingElement: elements.floating ?? null,
         triggerElements: new PopupTriggerMap(),
         floatingId,
-        syncOnly: false,
         nested,
       }),
   ).current;

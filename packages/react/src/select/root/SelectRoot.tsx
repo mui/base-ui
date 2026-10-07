@@ -30,7 +30,6 @@ import type { SelectStoreContext, State as StoreState } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import type { Group } from '../../internals/resolveValueLabel';
@@ -42,7 +41,7 @@ import {
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { FOCUSABLE_POPUP_PROPS, runOpenChange } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
 
@@ -286,34 +285,41 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     validation.change(value);
   });
 
-  const setOpen = useStableCallback(
-    (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
-      const openEventDetails = eventDetails as SelectRoot.OpenChangeEventDetails;
-      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
-      onOpenChange?.(nextOpen, openEventDetails);
+  const setOpen = useStableCallback(handleOpenChange);
 
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      if (!nextOpen) {
-        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
-      }
-      setOpenUnwrapped(nextOpen);
-
-      if (
-        !nextOpen &&
-        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
-      ) {
-        setTouched(true);
-        setFocused(false);
-
-        if (validationMode === 'onBlur') {
-          validation.commit(value);
-        }
-      }
+  const floatingContext = useFloatingRootContext({
+    open,
+    onOpenChange: setOpen,
+    elements: {
+      reference: triggerElement,
+      floating: positionerElement,
     },
-  );
+  });
+
+  function handleOpenChange(nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) {
+    runOpenChange(floatingContext, nextOpen, eventDetails as SelectRoot.OpenChangeEventDetails, {
+      open,
+      onOpenChange,
+      commit(preventUnmount) {
+        if (!nextOpen) {
+          setPreventUnmountOnClose(preventUnmount);
+        }
+        setOpenUnwrapped(nextOpen);
+
+        if (
+          !nextOpen &&
+          (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
+        ) {
+          setTouched(true);
+          setFocused(false);
+
+          if (validationMode === 'onBlur') {
+            validation.commit(value);
+          }
+        }
+      },
+    });
+  }
 
   const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
@@ -335,15 +341,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
     store.set('scrollUpArrowVisible', shouldShowUp);
     store.set('scrollDownArrowVisible', shouldShowDown);
-  });
-
-  const floatingContext = useFloatingRootContext({
-    open,
-    onOpenChange: setOpen,
-    elements: {
-      reference: triggerElement,
-      floating: positionerElement,
-    },
   });
 
   // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the

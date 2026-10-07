@@ -139,7 +139,9 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     >
       <React.Fragment>
         {element}
-        {focusManagerModal && <ComboboxInternalDismissButton ref={store.context.endDismissRef} />}
+        {focusManagerModal && open && (
+          <ComboboxInternalDismissButton ref={store.context.endDismissRef} />
+        )}
       </React.Fragment>
     </FloatingFocusManager>
   );

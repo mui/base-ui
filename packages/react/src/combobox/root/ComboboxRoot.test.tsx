@@ -11,7 +11,9 @@ import {
   reactMajor,
 } from '@mui/internal-test-utils';
 import {
+  closingPopupConformanceTests,
   createRenderer,
+  holdExit,
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
@@ -29,7 +31,8 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { REASONS } from '../../internals/reasons';
-import { useComboboxRootContext } from './ComboboxRootContext';
+import { useComboboxFloatingContext, useComboboxRootContext } from './ComboboxRootContext';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 
 function AsyncItemsCombobox() {
   const [items, setItems] = React.useState(['Apple', 'Banana', 'Cherry']);
@@ -169,7 +172,7 @@ describe('<Combobox.Root />', () => {
       <Combobox.Root {...props.root}>
         <Combobox.Input data-testid="trigger" />
         <Combobox.Portal {...props.portal}>
-          <Combobox.Positioner>
+          <Combobox.Positioner {...props.positioner}>
             <Combobox.Popup>
               <Combobox.List {...props.popup}>
                 <Combobox.Item value="item">Item</Combobox.Item>
@@ -186,6 +189,7 @@ describe('<Combobox.Root />', () => {
     openReason: REASONS.inputPress,
     // The `popup` props go to the List (it carries the listbox role), which has no exit state.
     exitAnimation: false,
+    closing: { inert: 'positioner', returnFocus: true, focusGuards: false },
   });
 
   popupListConformanceTests({
@@ -925,70 +929,6 @@ describe('<Combobox.Root />', () => {
         const bananaItem = screen.getByRole('option', { name: 'Banana' });
         await waitFor(() => expect(bananaItem).toHaveAttribute('data-highlighted'));
         await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id));
-      },
-    );
-
-    it.skipIf(isJSDOM)(
-      'preserves a typed query when input reopens single-select during the close animation',
-      async ({ onTestFinished }) => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        onTestFinished(() => {
-          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-        });
-
-        const style = `
-          @keyframes combobox-close-test {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 10s linear;
-          }
-        `;
-
-        const { user } = await render(
-          <React.Fragment>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <Combobox.Root items={['Apple', 'Banana']}>
-              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-              <Combobox.Portal>
-                <Combobox.Positioner>
-                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
-                    <Combobox.Input data-testid="input" />
-                    <Combobox.Empty>No matches</Combobox.Empty>
-                    <Combobox.List>
-                      {(item: string) => (
-                        <Combobox.Item key={item} value={item}>
-                          {item}
-                        </Combobox.Item>
-                      )}
-                    </Combobox.List>
-                  </Combobox.Popup>
-                </Combobox.Positioner>
-              </Combobox.Portal>
-            </Combobox.Root>
-          </React.Fragment>,
-        );
-
-        await user.click(screen.getByTestId('trigger'));
-        const input = await screen.findByTestId('input');
-        await user.type(input, 'ap');
-        await user.keyboard('{Escape}');
-
-        const popup = screen.getByTestId('popup');
-        await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
-
-        input.focus();
-        await user.type(input, 'b', { skipClick: true });
-
-        await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
-        expect(input).toHaveValue('apb');
-        expect(screen.getByRole('status')).toHaveTextContent('No matches');
-        expect(screen.queryByRole('option')).toBe(null);
       },
     );
   });
@@ -6757,6 +6697,141 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('while closing', () => {
+    type User = Awaited<ReturnType<typeof render>>['user'];
+
+    describe('input inside popup', () => {
+      closingPopupConformanceTests({
+        createComponent: (props) => (
+          <Combobox.Root items={['apple', 'banana']} {...props.root}>
+            <Combobox.Trigger {...props.trigger}>
+              <Combobox.Value placeholder="Pick" />
+            </Combobox.Trigger>
+            <Combobox.Portal {...props.portal}>
+              <Combobox.Positioner {...props.positioner}>
+                <Combobox.Popup aria-label="Fruits" {...props.popup}>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        ),
+        render,
+        triggerMouseAction: 'click',
+        closing: { inert: 'positioner', returnFocus: true, focusGuards: true },
+      });
+
+      it.each([
+        {
+          modality: 'keyboard',
+          async select(user: User, option: HTMLElement) {
+            await user.keyboard('{ArrowDown}');
+            await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
+            await user.keyboard('{Enter}');
+          },
+        },
+        {
+          modality: 'pointer',
+          async select(user: User, option: HTMLElement) {
+            await user.click(option);
+          },
+        },
+      ])(
+        'returns focus to the trigger when an item is selected with the $modality',
+        async ({ select }) => {
+          const exit = holdExit();
+          const { user } = await render(
+            <Combobox.Root items={['apple', 'banana']}>
+              <Combobox.Trigger data-testid="trigger">
+                <Combobox.Value placeholder="Pick" />
+              </Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner data-testid="positioner">
+                  <Combobox.Popup data-testid="popup" aria-label="Fruits">
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>,
+          );
+          const trigger = screen.getByTestId('trigger');
+          await user.click(trigger);
+          const input = await screen.findByTestId('input');
+          await waitFor(() => expect(input).toHaveFocus());
+          const popup = screen.getByTestId('popup');
+
+          await select(user, screen.getByRole('option', { name: 'apple' }));
+
+          await waitFor(() => expect(trigger).toHaveFocus());
+          expect(trigger).toHaveTextContent('apple');
+          expect(popup).toHaveAttribute('data-ending-style');
+          expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
+
+          await exit.release();
+          expect(screen.queryByTestId('popup')).toBe(null);
+          expect(trigger).toHaveFocus();
+        },
+      );
+    });
+
+    it('keeps focus and the typed query in an input outside the popup, and reopens when typing', async () => {
+      holdExit();
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'apricot', 'banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner data-testid="positioner">
+              <Combobox.Popup data-testid="popup">
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.keyboard('ap');
+      const popup = await screen.findByTestId('popup');
+      const positioner = screen.getByTestId('positioner');
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+      expect(positioner).toHaveAttribute('inert');
+      expect(input).toHaveFocus();
+
+      await user.keyboard('p');
+
+      await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
+      expect(positioner).not.toHaveAttribute('inert');
+      expect(input).toHaveFocus();
+      expect(input).toHaveValue('app');
+      await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(1));
+      expect(screen.getByRole('option', { name: 'apple' })).not.toBe(null);
+    });
+  });
+
   it('does not render aria-orientation on the listbox role', async () => {
     await render(
       <Combobox.Root defaultOpen>
@@ -8011,63 +8086,62 @@ describe('<Combobox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'keeps filtered popup content stable when input changes during the close animation',
-      async ({ onTestFinished }) => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        onTestFinished(() => {
-          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-        });
-
-        const style = `
-          @keyframes combobox-close-test {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 10s linear;
-          }
-        `;
+      'keeps filtered popup content stable during the close animation while keystrokes miss the inert input',
+      async () => {
+        // Holds the close animation, so the reopen always interrupts it.
+        holdExit();
 
         const { user } = await render(
-          <React.Fragment>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <Combobox.Root multiple items={['apple', 'apricot', 'banana']}>
-              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-              <Combobox.Portal>
-                <Combobox.Positioner>
-                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
-                    <Combobox.Input data-testid="input" />
-                    <Combobox.List>
-                      {(item: string) => (
-                        <Combobox.Item key={item} value={item}>
-                          {item}
-                        </Combobox.Item>
-                      )}
-                    </Combobox.List>
-                  </Combobox.Popup>
-                </Combobox.Positioner>
-              </Combobox.Portal>
-            </Combobox.Root>
-          </React.Fragment>,
+          <Combobox.Root multiple items={['apple', 'apricot', 'banana']}>
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup data-testid="popup">
+                  <Combobox.Input data-testid="input" />
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
         );
 
-        await user.click(screen.getByTestId('trigger'));
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
         const input = await screen.findByTestId('input');
+        await waitFor(() => expect(input).toHaveFocus());
         await user.type(input, 'ap');
         await user.keyboard('{Escape}');
 
         const popup = screen.getByTestId('popup');
         await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+        await waitFor(() => expect(trigger).toHaveFocus());
 
-        await user.clear(input);
+        // The closing input cannot take focus back, so the keystrokes land on the trigger.
+        await act(async () => input.focus());
+        await user.keyboard('{Backspace}{Backspace}');
 
+        expect(trigger).toHaveFocus();
+        expect(input).toHaveValue('ap');
         expect(screen.getByText('apple')).not.toBe(null);
         expect(screen.getByText('apricot')).not.toBe(null);
         expect(screen.queryByText('banana')).toBe(null);
+
+        await user.click(trigger);
+
+        await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
+        await waitFor(() => expect(input).toHaveFocus());
+
+        await user.keyboard('ban');
+
+        expect(input).toHaveValue('ban');
+        await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(1));
+        expect(screen.getByRole('option', { name: 'banana' })).not.toBe(null);
       },
     );
 
@@ -10786,6 +10860,90 @@ describe('<Combobox.Root />', () => {
       await user.click(document.body);
       await waitFor(() => {
         expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+      });
+    });
+
+    describe('internal openchange', () => {
+      function OpenChangeSpy(props: {
+        onOpenChange: (details: FloatingUIOpenChangeDetails) => void;
+      }) {
+        const { onOpenChange } = props;
+        const floatingRootContext = useComboboxFloatingContext();
+
+        React.useEffect(() => {
+          floatingRootContext.context.events.on('openchange', onOpenChange);
+          return () => {
+            floatingRootContext.context.events.off('openchange', onOpenChange);
+          };
+        }, [floatingRootContext, onOpenChange]);
+
+        return null;
+      }
+
+      function TestCombobox(props: {
+        onOpenChange?: Combobox.Root.Props<string>['onOpenChange'];
+        onInternalOpenChange: (details: FloatingUIOpenChangeDetails) => void;
+      }) {
+        return (
+          <Combobox.Root defaultOpen onOpenChange={props.onOpenChange}>
+            <OpenChangeSpy onOpenChange={props.onInternalOpenChange} />
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                    <Combobox.Item value="b">b</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      it('is not emitted for a canceled close', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const handleOpenChange = vi.fn<NonNullable<Combobox.Root.Props<string>['onOpenChange']>>(
+          (nextOpen, eventDetails) => {
+            if (!nextOpen) {
+              eventDetails.cancel();
+            }
+          },
+        );
+        const { user } = await render(
+          <TestCombobox
+            onInternalOpenChange={handleInternalOpenChange}
+            onOpenChange={handleOpenChange}
+          />,
+        );
+
+        await act(async () => {
+          screen.getByRole('combobox').focus();
+        });
+        await user.keyboard('{Escape}');
+
+        expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+        expect(handleInternalOpenChange.mock.calls.length).toBe(0);
+      });
+
+      it('is emitted when selecting an item closes the combobox', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestCombobox onInternalOpenChange={handleInternalOpenChange} />,
+        );
+
+        await user.click(screen.getByRole('option', { name: 'b' }));
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        expect(handleInternalOpenChange.mock.calls.length).toBe(1);
+        expect(handleInternalOpenChange.mock.calls[0][0]).toMatchObject({
+          open: false,
+          reason: REASONS.itemPress,
+        });
       });
     });
   });

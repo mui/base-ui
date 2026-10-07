@@ -24,7 +24,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const openReason = store.useState('openReason');
 
   const contextMenuContext = useContextMenuRootContext();
 
@@ -44,7 +44,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
         role: 'presentation',
         hidden: !mounted,
         style: {
-          pointerEvents: lastOpenChangeReason === REASONS.triggerHover ? 'none' : undefined,
+          pointerEvents: openReason === REASONS.triggerHover ? 'none' : undefined,
           userSelect: 'none',
           WebkitUserSelect: 'none',
         },

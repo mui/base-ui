@@ -276,6 +276,8 @@ Use `<Combobox.Label>` to provide a visible label for the combobox trigger in th
 
 `<Combobox.Label>` renders a `<div>`, so clicking it focuses the combobox trigger without opening the popup.
 
+In this layout, focus moves back to the trigger as soon as the popup closes, so the input can't be typed into while the popup animates out. See [Behavior while animating out](/react/handbook/animation#behavior-while-animating-out).
+
 ### Grouped
 
 Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.

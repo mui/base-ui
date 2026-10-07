@@ -7,6 +7,7 @@ import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import type { PopupTriggerMap } from '../../utils/popups';
 import { isClickLikeEvent } from '../utils';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { FocusRoute } from '../utils/focusRoute';
 
 export interface FloatingRootState {
   open: boolean;
@@ -46,11 +47,6 @@ interface FloatingRootStoreOptions {
   floatingElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
   floatingId: string | undefined;
-  /**
-   * When true, `setOpen` only forwards to `onOpenChange`.
-   * The popup store owns `dispatchOpenChange(...)` in this mode.
-   */
-  syncOnly: boolean;
   nested: boolean;
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
@@ -61,10 +57,14 @@ export class FloatingRootStore extends ReactStore<
   FloatingRootStoreContext,
   typeof selectors
 > {
-  declare private readonly syncOnly: boolean;
+  /** Read and written only through the close request functions below. */
+  declare closeRequest: CloseRequest | undefined;
+
+  /** The popup's focus route, created by `getFocusRoute`. */
+  declare focusRoute: FocusRoute | undefined;
 
   constructor(options: FloatingRootStoreOptions) {
-    const { syncOnly, nested, onOpenChange, triggerElements, ...initialState } = options;
+    const { nested, onOpenChange, triggerElements, ...initialState } = options;
 
     super(
       {
@@ -81,8 +81,6 @@ export class FloatingRootStore extends ReactStore<
       },
       selectors,
     );
-
-    this.syncOnly = syncOnly;
   }
 
   /**
@@ -101,9 +99,17 @@ export class FloatingRootStore extends ReactStore<
   };
 
   /**
-   * Runs the root-owned side effects for an open state change.
+   * Runs the root-owned side effects for an open state change: records a close request and emits
+   * `openchange`. The owner of the open state calls it once it accepts the change.
+   *
+   * @param record Whether a close is recorded as a close request. A change that clears a pending
+   *   open without closing anything isn't one.
    */
-  dispatchOpenChange = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
+  dispatchOpenChange = (
+    newOpen: boolean,
+    eventDetails: BaseUIChangeEventDetails<string>,
+    record = true,
+  ) => {
     this.syncOpenEvent(newOpen, eventDetails.event);
 
     const details: FloatingUIOpenChangeDetails = {
@@ -114,23 +120,93 @@ export class FloatingRootStore extends ReactStore<
       triggerElement: eventDetails.trigger,
     };
 
+    // The store outlives the focus manager, so a consumer that unmounts the popup inside
+    // `onOpenChange` can't lose the request.
+    if (record) {
+      recordCloseRequest(this, details);
+    }
+
     this.context.events.emit('openchange', details);
   };
 
   /**
-   * Emits the `openchange` event through the internal event emitter and calls the `onOpenChange` handler with the provided arguments.
+   * Requests an open state change from the owner of the open state through `onOpenChange`. The
+   * owner decides whether to accept it, and calls `dispatchOpenChange` when it does.
    *
    * @param newOpen The new open state.
    * @param eventDetails Details about the event that triggered the open state change.
    */
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    if (this.syncOnly) {
-      this.context.onOpenChange?.(newOpen, eventDetails);
-      return;
-    }
-
-    this.dispatchOpenChange(newOpen, eventDetails);
-
     this.context.onOpenChange?.(newOpen, eventDetails);
   };
+}
+
+/*
+ * Close requests: the latest close dispatched to a floating root that `FloatingFocusManager`
+ * hasn't used yet, and the rules that expire it.
+ *
+ * - `dispatchOpenChange` records every open change. A close replaces the pending request; an open
+ *   leaves it, since a reopen can be dispatched before the focus manager sees the close.
+ * - While its popup is open, the focus manager reports input and focus moves. Once the close has
+ *   committed, its return job takes the request.
+ * - A focus session marks the pending request when it starts and takes only a newer one. No
+ *   session boundary has to clear the request: one made before a session never leaks into it, and
+ *   a reopen's session can't erase the request its predecessor's job is about to take.
+ *
+ * Plain functions rather than methods, so roots without a focus manager carry only the writer.
+ */
+
+export interface CloseRequest {
+  details: FloatingUIOpenChangeDetails;
+  /** Focus moved (`focusin`) while the request was pending. */
+  moved?: boolean | undefined;
+}
+
+/**
+ * The request pending when the mark was taken. Each close records a new object, and a request
+ * never becomes pending again once replaced, expired or taken, so any other pending one is newer.
+ */
+export type CloseRequestMark = CloseRequest | undefined;
+
+/** The single writer. */
+export function recordCloseRequest(store: FloatingRootStore, details: FloatingUIOpenChangeDetails) {
+  if (!details.open) {
+    store.closeRequest = { details };
+  }
+}
+
+export function markCloseRequest(store: FloatingRootStore): CloseRequestMark {
+  return store.closeRequest;
+}
+
+/** Input while open expires a request it didn't make (a refused one, say). */
+export function invalidateCloseRequest(store: FloatingRootStore, event: Event) {
+  if (store.closeRequest?.details.nativeEvent !== event) {
+    store.closeRequest = undefined;
+  }
+}
+
+/** Focus moved (`focusin`) while open. */
+export function noteFocusMove(store: FloatingRootStore) {
+  if (store.closeRequest) {
+    store.closeRequest.moved = true;
+  }
+}
+
+/** Whether a request newer than `mark` is pending. */
+export function hasCloseRequestSince(store: FloatingRootStore, mark: CloseRequestMark) {
+  return !!store.closeRequest && store.closeRequest !== mark;
+}
+
+/** Takes the pending request if it is newer than `mark`. */
+export function takeCloseRequest(
+  store: FloatingRootStore,
+  mark: CloseRequestMark,
+): CloseRequest | undefined {
+  const request = store.closeRequest;
+  if (request && request !== mark) {
+    store.closeRequest = undefined;
+    return request;
+  }
+  return undefined;
 }

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useBaseUIFloating } from '../../src/floating-ui-react/hooks/useFloating';
 import { useFloatingRootContext } from '../../src/floating-ui-react/hooks/useFloatingRootContext';
+import type { FloatingRootStore } from '../../src/floating-ui-react/components/FloatingRootStore';
 import type {
   NarrowedElement,
   ReferenceType,
@@ -16,7 +17,17 @@ import type {
  * only the ported Floating UI tests use this.
  */
 export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
-  const internalStore = useFloatingRootContext(options);
+  const { onOpenChange } = options;
+  const internalStoreRef = React.useRef<FloatingRootStore | null>(null);
+  const internalStore = useFloatingRootContext({
+    ...options,
+    // Floating UI emits every request to its interactions before the consumer sees it.
+    onOpenChange(open, eventDetails) {
+      internalStoreRef.current!.dispatchOpenChange(open, eventDetails);
+      onOpenChange?.(open, eventDetails);
+    },
+  });
+  internalStoreRef.current = internalStore;
   const store = options.rootContext || internalStore;
   const domReferenceElement = store.useState('domReferenceElement');
 

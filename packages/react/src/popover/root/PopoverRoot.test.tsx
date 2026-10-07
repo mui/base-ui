@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeAll, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { Combobox } from '@base-ui/react/combobox';
@@ -12,7 +12,14 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, isScrollLocked, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  holdExit,
+  isJSDOM,
+  isScrollLocked,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
@@ -29,7 +36,7 @@ describe('<Popover.Root />', () => {
       <Popover.Root {...props.root}>
         <Popover.Trigger {...props.trigger}>Open menu</Popover.Trigger>
         <Popover.Portal {...props.portal}>
-          <Popover.Positioner>
+          <Popover.Positioner {...props.positioner}>
             <Popover.Popup {...props.popup}>Content</Popover.Popup>
           </Popover.Positioner>
         </Popover.Portal>
@@ -38,6 +45,7 @@ describe('<Popover.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'dialog',
+    closing: { inert: 'positioner', returnFocus: true, focusGuards: true },
   });
 
   describe.for([
@@ -485,6 +493,31 @@ describe('<Popover.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
+      });
+
+      it('does not open after the delay once closed imperatively', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChange = vi.fn();
+        await render(
+          <TestPopover
+            rootProps={{ actionsRef, onOpenChange }}
+            triggerProps={{ openOnHover: true, delay: 100 }}
+          />,
+        );
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.mouseEnter(anchor);
+        fireEvent.mouseMove(anchor);
+
+        await act(async () => actionsRef.current!.close());
+
+        clock.tick(100);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+        expect(onOpenChange).not.toHaveBeenCalled();
       });
     });
 
@@ -2246,6 +2279,215 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByTestId('child-popup')).toBe(null);
       });
     });
+  });
+
+  // Native pointer moves: hovering the trigger opens the popover.
+  describe.skipIf(isJSDOM)('while closing after a hover open', () => {
+    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
+    beforeAll(async () => {
+      ({ userEvent: user } = await import('vitest/browser'));
+    });
+
+    /** Renders a modal popover, holds its exit and opens it by hovering. */
+    async function hoverOpenPopover(backdrop?: React.ReactNode) {
+      ignoreActWarnings();
+      holdExit();
+      await render(
+        <ContainedTriggerPopover
+          rootProps={{ modal: true }}
+          triggerProps={{ openOnHover: true, delay: 0, closeDelay: 0 }}
+          portalProps={{ children: backdrop }}
+        />,
+      );
+
+      await user.hover(screen.getByTestId('trigger'));
+      await screen.findByTestId('popover-popup');
+    }
+
+    async function closeWithEscape() {
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+      });
+    }
+
+    it('does not render the internal backdrop', async () => {
+      await hoverOpenPopover();
+      const positioner = screen.getByTestId('positioner');
+      expect(positioner.previousElementSibling).toBe(null);
+
+      await closeWithEscape();
+
+      expect(positioner.previousElementSibling).toBe(null);
+    });
+
+    it('keeps the backdrop click-through', async () => {
+      await hoverOpenPopover(<Popover.Backdrop data-testid="backdrop" />);
+      const backdrop = screen.getByTestId('backdrop');
+      expect(backdrop.style.pointerEvents).toBe('none');
+
+      await closeWithEscape();
+
+      expect(backdrop.style.pointerEvents).toBe('none');
+    });
+
+    it('stays in hover mode when hovered again during the exit', async () => {
+      await hoverOpenPopover();
+      const positioner = screen.getByTestId('positioner');
+      await closeWithEscape();
+      await user.unhover(screen.getByTestId('trigger'));
+
+      await user.hover(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.getByTestId('popover-popup')).not.toHaveAttribute('data-ending-style');
+      });
+      await act(async () => {
+        await wait(50);
+      });
+
+      expect(screen.getByTestId('popover-popup')).not.toContainElement(
+        document.activeElement as HTMLElement,
+      );
+      expect(positioner.previousElementSibling).toBe(null);
+    });
+
+    describe('in a controlled root', () => {
+      const setOpenRef: { current: (open: boolean) => void } = { current: () => {} };
+
+      /**
+       * Renders a controlled modal popover that accepts every change, or only opens with
+       * `ignoreCloses`, holds its exit and opens it by hovering.
+       */
+      async function hoverOpenControlledPopover(ignoreCloses = false) {
+        function ControlledPopover() {
+          const [open, setOpen] = React.useState(false);
+          setOpenRef.current = setOpen;
+          return (
+            <ContainedTriggerPopover
+              rootProps={{
+                modal: true,
+                open,
+                onOpenChange: (nextOpen) => {
+                  if (nextOpen || !ignoreCloses) {
+                    setOpen(nextOpen);
+                  }
+                },
+              }}
+              triggerProps={{ openOnHover: true, delay: 0, closeDelay: 0 }}
+              popupProps={{ children: <button type="button">Inside</button> }}
+            />
+          );
+        }
+
+        ignoreActWarnings();
+        holdExit();
+        await render(<ControlledPopover />);
+
+        await user.hover(screen.getByTestId('trigger'));
+        await screen.findByTestId('popover-popup');
+      }
+
+      it('manages focus and modality once the open prop reopens it during the exit', async () => {
+        await hoverOpenControlledPopover();
+        const positioner = screen.getByTestId('positioner');
+        await closeWithEscape();
+        await user.unhover(screen.getByTestId('trigger'));
+
+        await act(async () => setOpenRef.current(true));
+
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: 'Inside' })).toHaveFocus();
+        });
+        expect(positioner.previousElementSibling).not.toBe(null);
+      });
+
+      it('stays in hover mode when a hover open lands after a pending close', async () => {
+        // The consumer applies every change later, so the hover request is accepted while the
+        // Escape close is still pending. The close lands first and commits on its own.
+        function DeferredPopover() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <Popover.Root
+              open={open}
+              onOpenChange={(nextOpen) => {
+                setTimeout(() => setOpen(nextOpen), nextOpen ? 200 : 100);
+              }}
+            >
+              <Popover.Trigger data-testid="click-trigger">Click</Popover.Trigger>
+              <Popover.Trigger data-testid="trigger" openOnHover delay={0} closeDelay={0}>
+                Hover
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popover-popup">
+                    <button type="button">Inside</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        ignoreActWarnings();
+        holdExit();
+        await render(<DeferredPopover />);
+        await user.click(screen.getByTestId('click-trigger'));
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: 'Inside' })).toHaveFocus();
+        });
+
+        await user.keyboard('{Escape}');
+        await user.hover(screen.getByTestId('trigger'));
+        await waitFor(() => {
+          expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('popover-popup')).not.toHaveAttribute('data-ending-style');
+        });
+        await act(async () => {
+          await wait(50);
+        });
+
+        const popup = screen.getByTestId('popover-popup');
+        expect(popup).not.toHaveAttribute('data-ending-style');
+        expect(popup).not.toContainElement(document.activeElement as HTMLElement);
+      });
+
+      it('stays in hover mode when the root ignores a close', async () => {
+        await hoverOpenControlledPopover(true);
+        const positioner = screen.getByTestId('positioner');
+
+        await user.keyboard('{Escape}');
+        await act(async () => {
+          await wait(50);
+        });
+
+        expect(screen.getByTestId('popover-popup')).not.toHaveAttribute('data-ending-style');
+        expect(screen.getByTestId('popover-popup')).not.toContainElement(
+          document.activeElement as HTMLElement,
+        );
+        expect(positioner.previousElementSibling).toBe(null);
+      });
+    });
+  });
+
+  it('does not report a second close while closing', async () => {
+    holdExit();
+    const actionsRef = React.createRef<Popover.Root.Actions>();
+    const onOpenChange = vi.fn();
+
+    await render(
+      <ContainedTriggerPopover rootProps={{ defaultOpen: true, actionsRef, onOpenChange }} />,
+    );
+
+    await act(async () => actionsRef.current!.close());
+    await waitFor(() => {
+      expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+    });
+
+    await act(async () => actionsRef.current!.close());
+
+    expect(onOpenChange.mock.calls.length).toBe(1);
   });
 
   describe('preventUnmountOnClose()', () => {

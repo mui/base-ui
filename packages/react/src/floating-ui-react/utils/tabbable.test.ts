@@ -413,6 +413,49 @@ it('finds adjacent controls around a disabled anchor', () => {
   expect(getTabbableNearElement(anchor, 1)).toBe(after);
 });
 
+it('finds the neighbours of a focus guard made untabbable by inert', () => {
+  const first = document.createElement('button');
+  const before = document.createElement('button');
+  const container = document.createElement('div');
+  const guard = document.createElement('span');
+  const after = document.createElement('button');
+  const last = document.createElement('button');
+  guard.tabIndex = 0;
+  container.setAttribute('inert', '');
+  container.append(guard);
+  document.body.append(first, before, container, after, last);
+  guard.focus();
+
+  // The search starts from the anchor, not from the focused element.
+  expect(getTabbableNearElement(guard, 1)).toBe(after);
+  expect(getTabbableNearElement(guard, -1)).toBe(before);
+});
+
+it.each([1, -1] as const)(
+  'wraps around the end of the document only when allowed in direction=%s',
+  (direction) => {
+    const anchor = document.createElement('span');
+    const near = document.createElement('button');
+    const far = document.createElement('button');
+    anchor.tabIndex = 0;
+    document.body.append(...(direction === 1 ? [far, near, anchor] : [anchor, near, far]));
+
+    expect(getTabbableNearElement(anchor, direction)).toBe(far);
+    expect(getTabbableNearElement(anchor, direction, [], false)).toBe(null);
+  },
+);
+
+it('falls back to the anchor only when wrapping finds nothing else tabbable', () => {
+  const anchor = document.createElement('span');
+  const excluded = document.createElement('div');
+  anchor.tabIndex = 0;
+  excluded.append(document.createElement('button'));
+  document.body.append(excluded, anchor);
+
+  expect(getTabbableNearElement(anchor, 1, [excluded])).toBe(anchor);
+  expect(getTabbableNearElement(anchor, -1, [excluded], false)).toBe(null);
+});
+
 it('does not choose a destination when the anchor is absent from the composed tree', () => {
   document.body.appendChild(document.createElement('button'));
   const detachedAnchor = document.createElement('button');

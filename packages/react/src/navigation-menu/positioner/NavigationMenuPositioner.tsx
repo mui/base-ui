@@ -173,7 +173,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
-    inert: !open,
+    disablePointerEvents: !open,
   });
 
   return (

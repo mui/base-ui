@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import type { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
@@ -17,12 +16,9 @@ import type { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type {
-  PopupStoreState,
-  PopupStoreContext,
-  popupStoreSelectors,
-  PopupTriggerDataStore,
-} from './store';
+import { popupStoreSelectors } from './store';
+import type { PopupStoreState, PopupStoreContext, PopupTriggerDataStore } from './store';
+import { runOpenChange } from './openChangeTransaction';
 
 export const FOCUSABLE_POPUP_PROPS = {
   tabIndex: -1,
@@ -180,18 +176,27 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
 type PopupOpenState = Pick<
   PopupStoreState<unknown>,
   | 'open'
+  | 'openReason'
+  | 'openReasonStale'
   | 'preventUnmountingOnClose'
   | 'activeTriggerId'
   | 'activeTriggerElement'
   | 'openedWithoutTrigger'
 >;
 
+/**
+ * Returns the open-state fields an accepted open change writes to a popup store.
+ *
+ * @param eventDetails The details of the accepted change. Its `trigger` becomes the active trigger,
+ * and an open request's `reason` becomes the `openReason`.
+ */
 export function createPopupOpenState(
   state: PopupOpenState,
   open: boolean,
-  trigger: Element | undefined,
+  eventDetails: Pick<BaseUIChangeEventDetails<string>, 'reason' | 'trigger'>,
   preventUnmountOnClose = false,
 ): PopupOpenState {
+  const trigger = eventDetails.trigger;
   let preventUnmountingOnClose = state.preventUnmountingOnClose;
   if (open) {
     // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
@@ -213,6 +218,11 @@ export function createPopupOpenState(
 
   return {
     open,
+    // Every accepted open request writes it, including one that upgrades an open popup (a click
+    // after a hover open). A close keeps it, so readers like backdrops and the focus manager don't
+    // flip mid-exit.
+    openReason: open ? eventDetails.reason : state.openReason,
+    openReasonStale: !open && state.openReasonStale,
     preventUnmountingOnClose,
     activeTriggerId,
     activeTriggerElement,
@@ -236,12 +246,11 @@ export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClos
 }
 
 /**
- * Runs the shared open-change sequence for a popup store: notifies `onOpenChange`,
- * honors cancellation, dispatches the floating root change, maps the reason to an
- * `instantType`, and commits the state update (synchronously for hover so
- * `getAnimations()` observes it). Stores supply their own differences via
- * `extraState` (e.g. the last change reason) and `onBeforeDispatch` (e.g. updating
- * inline-rect coordinates).
+ * The open-change adapter Tooltip and PreviewCard share. It commits through `createPopupOpenState`
+ * plus `extraState`, synchronously for hover, and maps the reason to an `instantType`: a focus
+ * open and a trigger press or Escape close are instant, a hover change is not.
+ *
+ * @param options.beforeCommit Runs once the change is accepted, before the store updates.
  */
 export function applyPopupOpenChange<
   State extends PopupStoreState<unknown> & {
@@ -256,60 +265,37 @@ export function applyPopupOpenChange<
     update<const Key extends keyof State>(state: Pick<State, Key>): void;
   },
   nextOpen: boolean,
-  eventDetails: EventDetails & { preventUnmountOnClose(): void },
+  eventDetails: EventDetails,
   options: {
-    onBeforeDispatch?: (() => void) | undefined;
+    beforeCommit?: (() => void) | undefined;
     extraState?: Pick<State, ExtraKey> | undefined;
   } = {},
 ): void {
   const reason = eventDetails.reason;
-  const isHover = reason === REASONS.triggerHover;
-  const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
-  const isDismissClose =
-    !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
 
-  const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(eventDetails);
+  runOpenChange(store.state.floatingRootContext, nextOpen, eventDetails, {
+    open: popupStoreSelectors.open(store.state),
+    onOpenChange: store.context.onOpenChange,
+    flushHover: true,
+    commit(preventUnmountOnClose) {
+      options.beforeCommit?.();
 
-  store.context.onOpenChange?.(nextOpen, eventDetails);
+      const updatedState = {
+        ...options.extraState,
+        ...createPopupOpenState(store.state, nextOpen, eventDetails, preventUnmountOnClose),
+      } as Pick<State, keyof PopupOpenState | ExtraKey | 'instantType'>;
 
-  if (eventDetails.isCanceled) {
-    return;
-  }
+      if (nextOpen && reason === REASONS.triggerFocus) {
+        updatedState.instantType = 'focus';
+      } else if (!nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey)) {
+        updatedState.instantType = 'dismiss';
+      } else if (reason === REASONS.triggerHover) {
+        updatedState.instantType = undefined;
+      }
 
-  options.onBeforeDispatch?.();
-
-  store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-  const changeState = () => {
-    const popupOpenState = createPopupOpenState(
-      store.state,
-      nextOpen,
-      eventDetails.trigger,
-      shouldPreventUnmountOnClose(),
-    );
-
-    const updatedState = { ...options.extraState, ...popupOpenState } as Pick<
-      State,
-      keyof PopupOpenState | ExtraKey | 'instantType'
-    >;
-
-    if (isFocusOpen) {
-      updatedState.instantType = 'focus';
-    } else if (isDismissClose) {
-      updatedState.instantType = 'dismiss';
-    } else if (isHover) {
-      updatedState.instantType = undefined;
-    }
-
-    store.update(updatedState);
-  };
-
-  if (isHover) {
-    // Flush synchronously for hover so `node.getAnimations()` sees the new state.
-    ReactDOM.flushSync(changeState);
-  } else {
-    changeState();
-  }
+      store.update(updatedState);
+    },
+  });
 }
 
 /**
@@ -557,7 +543,10 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 /**
  * Manages the mounted state of the popup.
  * Sets up the transition status listeners and handles unmounting when needed.
- * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store.
+ * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store,
+ * marks `openReason` stale when a close request ends the cycle, clears it when the `open` prop
+ * alone reopens the popup, and ends the open cycle on unmount by clearing the active trigger and
+ * `openReason`.
  *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
@@ -589,6 +578,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
         activeTriggerElement: null,
         mounted: false,
         preventUnmountingOnClose: false,
+        openReason: null,
       });
       onUnmount?.();
       store.context.onOpenChangeComplete?.(false);
@@ -603,6 +593,19 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   });
 
   store.useSyncedValues({ mounted, transitionStatus });
+
+  // A close request ends the cycle `openReason` describes, though the exit still reads it. An open
+  // request accepted after it (a controlled root may apply both later) is for the next cycle, so
+  // only a close that follows a close request marks the reason stale. When the `open` prop alone
+  // reopens the popup, the selector reports `null` from the first open render, and this clears the
+  // stored reason.
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      store.set('openReasonStale', !store.state.open && store.state.openReason != null);
+    } else if (store.state.openReasonStale) {
+      store.set('openReason', null);
+    }
+  }, [open, store]);
 
   return { forceUnmount, transitionStatus };
 }

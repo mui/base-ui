@@ -44,6 +44,7 @@ describe('<Dialog.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'dialog',
+    closing: { inert: 'popup', returnFocus: true, focusGuards: true },
   });
 
   it.skipIf(isJSDOM || !platform.engine.blink)(
@@ -542,6 +543,35 @@ describe('<Dialog.Root />', () => {
 
         expect(screen.queryByRole('dialog')).not.toBe(null);
         expect(handleInternalOpenChange.mock.calls.length).toBe(0);
+      });
+
+      it('unmounts on a close that follows a canceled close that kept it mounted', async () => {
+        let closeAttempts = 0;
+        const { user } = await render(
+          <TestDialog
+            rootProps={{
+              defaultOpen: true,
+              onOpenChange: (nextOpen, eventDetails) => {
+                if (nextOpen) {
+                  return;
+                }
+                closeAttempts += 1;
+                if (closeAttempts === 1) {
+                  eventDetails.preventUnmountOnClose();
+                  eventDetails.cancel();
+                }
+              },
+            }}
+          />,
+        );
+
+        await user.keyboard('[Escape]');
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+
+        await user.keyboard('[Escape]');
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog-popup')).toBe(null);
+        });
       });
     });
 

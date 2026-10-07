@@ -75,7 +75,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
     const { inlineRectCoordsRef } = this.context;
 
     applyPopupOpenChange(this, nextOpen, eventDetails as PreviewCardRoot.ChangeEventDetails, {
-      onBeforeDispatch() {
+      beforeCommit() {
         // Capture the hovered inline-rect coordinates so the card anchors to the
         // exact point on the link that was hovered.
         const event = eventDetails.event;

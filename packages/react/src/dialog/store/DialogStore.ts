@@ -9,6 +9,7 @@ import {
   popupStoreSelectors,
   PopupTriggerMap,
   createPopupOpenState,
+  runOpenChange,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -73,25 +74,23 @@ export class DialogStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<DialogRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    (eventDetails as DialogRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      this.set('preventUnmountingOnClose', true);
-    };
-
-    if (!nextOpen && eventDetails.trigger == null && this.state.activeTriggerId != null) {
-      // When closing the dialog, pass the old trigger to the onOpenChange event
-      // so it's not reset too early (potentially causing focus issues in controlled scenarios).
-      eventDetails.trigger = this.state.activeTriggerElement ?? undefined;
-    }
-
-    this.context.onOpenChange?.(nextOpen, eventDetails as DialogRoot.ChangeEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-    this.update(createPopupOpenState(this.state, nextOpen, eventDetails.trigger));
+    runOpenChange(
+      this.state.floatingRootContext,
+      nextOpen,
+      eventDetails as DialogRoot.ChangeEventDetails,
+      {
+        open: this.select('open'),
+        onOpenChange: this.context.onOpenChange,
+        // Report the trigger the dialog closes from, so a controlled consumer doesn't reset it too
+        // early and lose the focus return target.
+        trigger: this.state.activeTriggerId != null ? this.state.activeTriggerElement : undefined,
+        commit: (preventUnmountOnClose) => {
+          this.update(
+            createPopupOpenState(this.state, nextOpen, eventDetails, preventUnmountOnClose),
+          );
+        },
+      },
+    );
   };
 }
 

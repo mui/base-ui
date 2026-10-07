@@ -50,7 +50,6 @@ export default function AnchorPositioning() {
     floatingElement: null,
     triggerElements: new PopupTriggerMap(),
     floatingId: '',
-    syncOnly: false,
     nested: false,
     onOpenChange: undefined,
   });

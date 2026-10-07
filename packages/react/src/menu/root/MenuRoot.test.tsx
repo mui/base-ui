@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
+import { expect, vi, describe, beforeAll, beforeEach, it, afterEach } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -20,6 +20,7 @@ import userEvent from '@testing-library/user-event';
 import {
   createRenderer,
   enterWithMouse,
+  holdExit,
   isJSDOM,
   isScrollLocked,
   moveMouse,
@@ -129,7 +130,7 @@ describe('<Menu.Root />', () => {
       <Menu.Root {...props.root}>
         <Menu.Trigger {...props.trigger}>Open menu</Menu.Trigger>
         <Menu.Portal {...props.portal}>
-          <Menu.Positioner>
+          <Menu.Positioner {...props.positioner}>
             <Menu.Popup {...props.popup}>
               <Menu.Item>Item</Menu.Item>
             </Menu.Popup>
@@ -140,6 +141,7 @@ describe('<Menu.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'menu',
+    closing: { inert: 'positioner', returnFocus: true, focusGuards: true },
   });
 
   describe.skipIf(isJSDOM)('hover opening', () => {
@@ -2438,6 +2440,32 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe('prop: delay', () => {
+      const { render: renderFakeTimers, clock } = createRenderer();
+
+      clock.withFakeTimers();
+
+      it('does not open after the delay once closed imperatively', async () => {
+        const actionsRef = React.createRef<Menu.Root.Actions>();
+        await renderFakeTimers(
+          <TestMenu rootProps={{ actionsRef }} triggerProps={{ openOnHover: true, delay: 100 }} />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await act(async () => actionsRef.current!.close());
+
+        clock.tick(100);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+    });
+
     describe('prop: closeDelay', () => {
       const { render: renderFakeTimers, clock } = createRenderer();
 
@@ -2954,6 +2982,236 @@ describe('<Menu.Root />', () => {
       } finally {
         document.removeEventListener('click', recordClick, true);
       }
+    });
+  });
+
+  describe('while closing', () => {
+    // Native pointer moves: the submenu opens on hover and its safe polygon blocks pointer events
+    // on the parent, which synthetic pointer events refuse to pass through.
+    it.skipIf(isJSDOM)(
+      'returns focus to the root trigger when a submenu item closes the menu tree',
+      async () => {
+        const { userEvent: user } = await import('vitest/browser');
+        ignoreActWarnings();
+        holdExit();
+        await render(
+          <Menu.Root>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup data-testid="popup">
+                  <Menu.Item>Item 1</Menu.Item>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner data-testid="submenu-positioner">
+                        <Menu.Popup data-testid="submenu-popup">
+                          <Menu.Item>Submenu item</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+        await user.click(await screen.findByRole('menuitem', { name: 'More' }));
+        const submenuItem = await screen.findByRole('menuitem', { name: 'Submenu item' });
+        await waitFor(() => {
+          expect(submenuItem).toBeVisible();
+        });
+
+        await user.click(submenuItem);
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        expect(screen.getByTestId('submenu-popup')).toHaveAttribute('data-ending-style');
+        expect(screen.getByTestId('positioner')).toHaveAttribute('inert');
+        expect(screen.getByTestId('submenu-positioner')).toHaveAttribute('inert');
+      },
+    );
+
+    it.each(['pointer', 'keyboard'] as const)(
+      'moves focus into a dialog opened from an item with the %s, without focusing the trigger',
+      async (modality) => {
+        function App() {
+          const [dialogOpen, setDialogOpen] = React.useState(false);
+
+          return (
+            <div>
+              <Menu.Root>
+                <Menu.Trigger>Toggle</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="popup">
+                      <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+              <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="dialog-popup">
+                    <button>Inside dialog</button>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </div>
+          );
+        }
+
+        const exit = holdExit();
+        const { user } = await render(<App />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        const handleTriggerFocus = vi.fn();
+        trigger.addEventListener('focus', handleTriggerFocus);
+
+        await act(async () => {
+          trigger.focus();
+        });
+        await user.keyboard('{Enter}');
+        const item = await screen.findByRole('menuitem', { name: 'Open dialog' });
+        await waitFor(() => {
+          expect(item).toHaveFocus();
+        });
+        handleTriggerFocus.mockClear();
+
+        if (modality === 'pointer') {
+          await user.click(item);
+        } else {
+          await user.keyboard('{Enter}');
+        }
+
+        const dialogButton = await screen.findByRole('button', { name: 'Inside dialog' });
+        await waitFor(() => {
+          expect(dialogButton).toHaveFocus();
+        });
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+
+        // Focus stays in the dialog once the menu finishes closing and unmounts.
+        await exit.release();
+        expect(screen.queryByTestId('popup')).toBe(null);
+        expect(dialogButton).toHaveFocus();
+        // The dialog owns focus as soon as it opens; the closing menu doesn't hand it to the
+        // trigger first (which would flash a focus-triggered tooltip over the dialog).
+        expect(handleTriggerFocus).not.toHaveBeenCalled();
+      },
+    );
+
+    // Native pointer moves: hovering the trigger opens the menu.
+    describe.skipIf(isJSDOM)('after a hover open', () => {
+      let user: Awaited<typeof import('vitest/browser')>['userEvent'];
+      beforeAll(async () => {
+        ({ userEvent: user } = await import('vitest/browser'));
+      });
+
+      /** Renders a modal menu, holds its exit and opens it by hovering. */
+      async function hoverOpenMenu(backdrop?: React.ReactNode) {
+        ignoreActWarnings();
+        holdExit();
+        await render(
+          <Menu.Root>
+            <Menu.Trigger openOnHover delay={0} closeDelay={0}>
+              Toggle
+            </Menu.Trigger>
+            <Menu.Portal>
+              {backdrop}
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup data-testid="popup">
+                  <Menu.Item>Item 1</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        await user.hover(screen.getByRole('button', { name: 'Toggle' }));
+        await screen.findByTestId('popup');
+      }
+
+      async function closeWithEscape() {
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+      }
+
+      it('does not render the internal backdrop', async () => {
+        await hoverOpenMenu();
+        const positioner = screen.getByTestId('positioner');
+        expect(positioner.previousElementSibling).toBe(null);
+
+        await closeWithEscape();
+
+        expect(positioner.previousElementSibling).toBe(null);
+      });
+
+      it('keeps the backdrop click-through', async () => {
+        await hoverOpenMenu(<Menu.Backdrop data-testid="backdrop" />);
+        const backdrop = screen.getByTestId('backdrop');
+        expect(backdrop.style.pointerEvents).toBe('none');
+
+        await closeWithEscape();
+
+        expect(backdrop.style.pointerEvents).toBe('none');
+      });
+
+      it('is modal once the open prop reopens it after a close kept it mounted', async () => {
+        const setOpenRef: { current: (open: boolean) => void } = { current: () => {} };
+        function ControlledMenu() {
+          const [open, setOpen] = React.useState(false);
+          setOpenRef.current = setOpen;
+          return (
+            <Menu.Root
+              open={open}
+              onOpenChange={(nextOpen, details) => {
+                if (!nextOpen) {
+                  details.preventUnmountOnClose();
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              <Menu.Trigger openOnHover delay={0} closeDelay={0}>
+                Toggle
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner">
+                  <Menu.Popup data-testid="popup">
+                    <Menu.Item>Item 1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          );
+        }
+
+        ignoreActWarnings();
+        await render(<ControlledMenu />);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.hover(trigger);
+        await screen.findByTestId('popup');
+        const positioner = screen.getByTestId('positioner');
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        });
+        await user.unhover(trigger);
+        expect(positioner.previousElementSibling).toBe(null);
+
+        await act(async () => setOpenRef.current(true));
+
+        await waitFor(() => {
+          expect(positioner.previousElementSibling).not.toBe(null);
+        });
+      });
     });
   });
 
