@@ -19,22 +19,19 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
     return NOOP;
   }
 
-  // `exec` is a hoisted function declaration, so the null-guard narrowing
-  // of `el` is not preserved inside it.
-  const target = el;
-  const pendingRafId = rafIds.get(target);
+  const pendingRafId = rafIds.get(el);
   if (pendingRafId !== undefined) {
     cancelAnimationFrame(pendingRafId);
-    rafIds.delete(target);
+    rafIds.delete(el);
   }
 
-  function exec() {
-    rafIds.delete(target);
+  const exec = () => {
+    rafIds.delete(el);
     if (shouldFocus && !shouldFocus()) {
       return;
     }
-    target.focus({ preventScroll });
-  }
+    el.focus({ preventScroll });
+  };
 
   if (sync) {
     exec();
@@ -42,11 +39,11 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
   }
 
   const currentRafId = requestAnimationFrame(exec);
-  rafIds.set(target, currentRafId);
+  rafIds.set(el, currentRafId);
   return () => {
-    if (rafIds.get(target) === currentRafId) {
+    if (rafIds.get(el) === currentRafId) {
       cancelAnimationFrame(currentRafId);
-      rafIds.delete(target);
+      rafIds.delete(el);
     }
   };
 }
