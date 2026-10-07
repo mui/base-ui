@@ -13,9 +13,7 @@ import {
   dragEnter,
   dragOver,
 } from '../../../../test/dnd';
-import { getSharedSlot } from '../sharedState';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
-import type { DraggableTargetRecord } from '../../../draggable/target/DraggableTarget';
 import type {
   DragDropEventDetails,
   DropTargetChangeEventDetails,
@@ -170,6 +168,7 @@ describe('lifecycle manager', () => {
   it('does not engage a monitor for a drag its getter started instead', () => {
     const cardKind = createKind('card');
     const fileKind = createKind('file');
+    const onMoveStart = vi.fn();
     const onMove = vi.fn();
     const onMoveEnd = vi.fn();
     let restartPickup = true;
@@ -180,7 +179,7 @@ describe('lifecycle manager', () => {
         cancelDrag();
         restarted = startDragWithHandlers({}, null, fileKind);
       }
-      return { accept: cardKind, onMove, onMoveEnd };
+      return { accept: cardKind, onMoveStart, onMove, onMoveEnd };
     };
     addMonitor(getMonitor);
     registerCleanup(() => removeMonitor(getMonitor));
@@ -191,6 +190,7 @@ describe('lifecycle manager', () => {
     restarted!.update(makeInput(), null, new Event('pointermove'), 'pointer');
     restarted!.cancel();
 
+    expect(onMoveStart).not.toHaveBeenCalled();
     expect(onMove).not.toHaveBeenCalled();
     expect(onMoveEnd).not.toHaveBeenCalled();
   });
@@ -215,87 +215,6 @@ describe('lifecycle manager', () => {
     expect(monitorEnd).toHaveBeenCalledTimes(1);
     expect(monitorEnd.mock.calls[0][0].reason).toBe('handler-error');
     expect(monitorEnd.mock.calls[0][0].canceled).toBe(true);
-  });
-
-  describe('target drag data', () => {
-    // The engine's per-target drag data cache (see `dropTarget.ts`), keyed by the
-    // registration's element and getter.
-    function cachedDragData(element: Element, getParameters: object): unknown {
-      const dropTargetState = getSharedSlot<{
-        registrationKeys: WeakMap<Element, WeakMap<object, object>>;
-        dragData: WeakMap<object, unknown>;
-      }>('dropTarget', () => {
-        throw new Error('The drop target state is not initialized.');
-      });
-      const key = dropTargetState.registrationKeys.get(element)?.get(getParameters);
-      return key === undefined ? undefined : dropTargetState.dragData.get(key);
-    }
-
-    function registerDataTarget(parameters: { canDrop?: () => boolean } = {}) {
-      const element = createElement();
-      let record: DraggableTargetRecord | undefined;
-      const getParameters = () => ({
-        accept: TEST_KIND,
-        onDraggableEnter({ currentTarget }: { currentTarget: DraggableTargetRecord }) {
-          record = currentTarget;
-          currentTarget.updateDragData('data');
-        },
-        ...parameters,
-      });
-      addDropTargetRegistration(element, getParameters);
-      return { element, getParameters, getRecord: () => record };
-    }
-
-    it.each([
-      [
-        'a drop',
-        (handle: DragSessionController, element: Element) => handle.drop(makeInput(), element),
-      ],
-      ['a cancel', (handle: DragSessionController) => handle.cancel()],
-    ])('releases it after %s while the target stays registered', (_, end) => {
-      const target = registerDataTarget();
-      const handle = startDragWithHandlers({}, target.element)!;
-      expect(cachedDragData(target.element, target.getParameters)).not.toBe(undefined);
-
-      end(handle, target.element);
-
-      expect(cachedDragData(target.element, target.getParameters)).toBe(undefined);
-      expect(target.getRecord()!.dragData).toBe('data');
-    });
-
-    it('releases it when a handler error tears the drag down', () => {
-      const target = registerDataTarget();
-      const handle = startDragWithHandlers(
-        {
-          onMove() {
-            throw new Error('move failed');
-          },
-        },
-        target.element,
-      )!;
-
-      expect(() =>
-        handle.update(makeInput(), target.element, new Event('pointermove'), 'pointer'),
-      ).toThrow('move failed');
-
-      expect(getActiveSession()).toBe(null);
-      expect(cachedDragData(target.element, target.getParameters)).toBe(undefined);
-    });
-
-    it('does not cache it for a drag canceled while its targets resolve', () => {
-      const target = registerDataTarget({
-        canDrop: () => {
-          cancelDrag();
-          return true;
-        },
-      });
-      const handle = startDragWithHandlers({})!;
-
-      handle.update(makeInput(), target.element, new Event('pointermove'), 'pointer');
-
-      expect(getActiveSession()).toBe(null);
-      expect(cachedDragData(target.element, target.getParameters)).toBe(undefined);
-    });
   });
 
   describe('malformed registrations', () => {

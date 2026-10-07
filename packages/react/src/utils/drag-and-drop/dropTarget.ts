@@ -47,6 +47,9 @@ interface TargetDragData {
   value: unknown;
 }
 
+/** One drag's `dragData` per registration. The lifecycle creates one per drag. */
+export type DropTargetDragData = WeakMap<object, TargetDragData>;
+
 /** The registration a record was resolved from. */
 interface RecordRegistration {
   getParameters: DropTargetGetter;
@@ -80,12 +83,6 @@ interface DropTargetState {
    * element and getter (see {@link getRegistrationKey}).
    */
   registrationKeys: WeakMap<Element, WeakMap<DropTargetGetter, object>>;
-  /**
-   * Each registration's `dragData` for the active drag, reset when its target kind
-   * changes. Emptied when the drag ends, so the next drag starts from `undefined`
-   * and a still-mounted target doesn't retain the finished drag's data.
-   */
-  dragData: WeakMap<object, TargetDragData>;
   recordRegistrations: WeakMap<DraggableTargetRecord, RecordRegistration>;
   /**
    * A shallow copy of each parameters object a getter has returned, shared across
@@ -103,7 +100,6 @@ const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   shadowRootsByHost: new Map<Element, ShadowRoot>(),
   shadowRootChangeListeners: new Set<ShadowRootChangeListener>(),
   registrationKeys: new WeakMap<Element, WeakMap<DropTargetGetter, object>>(),
-  dragData: new WeakMap<object, TargetDragData>(),
   recordRegistrations: new WeakMap<DraggableTargetRecord, RecordRegistration>(),
   registrationSnapshots: new WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>(),
 }));
@@ -227,14 +223,6 @@ export function isActiveDropTargetRegistration(
 }
 
 /**
- * Drops the drag's per-target `dragData` on teardown. Records already handed out
- * keep their own.
- */
-export function endDropTargetSession(): void {
-  state.dragData = new WeakMap<object, TargetDragData>();
-}
-
-/**
  * The key a registration's payload and `dragData` are stored under. Not the getter
  * alone: cells sharing `() => cellParameters` each need their own state, and
  * unregistering one must not reset the others.
@@ -293,7 +281,6 @@ export function resetForTests(): void {
   state.retainedRoots = new WeakMap<Element, ShadowRoot[]>();
   state.shadowRootsByHost.clear();
   state.shadowRootChangeListeners.clear();
-  endDropTargetSession();
   state.recordRegistrations = new WeakMap<DraggableTargetRecord, RecordRegistration>();
   state.registrationSnapshots = new WeakMap<AnyDropTargetParameters, AnyDropTargetParameters>();
   state.registrationKeys = new WeakMap<Element, WeakMap<DropTargetGetter, object>>();
@@ -326,19 +313,14 @@ function snapshotRegistration(registration: AnyDropTargetParameters): AnyDropTar
 
 /** The registration's `dragData` for this drag, starting from `undefined` per drag and kind. */
 function getTargetDragData(
+  dragData: DropTargetDragData,
   registrationKey: object,
-  source: DraggableRootRecord,
   kind: symbol | undefined,
 ): TargetDragData {
-  // Resolution can resume after its drag ended, when a consumer cancels mid-walk.
-  // Don't cache that data, or the next drag would start from it.
-  if (source !== getActiveSession()?.source) {
-    return { kind, value: undefined };
-  }
-  let data = state.dragData.get(registrationKey);
+  let data = dragData.get(registrationKey);
   if (data === undefined || data.kind !== kind) {
     data = { kind, value: undefined };
-    state.dragData.set(registrationKey, data);
+    dragData.set(registrationKey, data);
   }
   return data;
 }
@@ -385,6 +367,7 @@ export function captureDropTargetCollision(
 function resolveDropTargetOutcome(
   element: Element,
   feedback: DropTargetFeedback,
+  dragData: DropTargetDragData,
 ): DraggableTargetRecord | null | typeof DROP_REJECTED {
   const getRegistration = holds.getActive(element);
   if (!getRegistration) {
@@ -422,7 +405,7 @@ function resolveDropTargetOutcome(
   const kind = registration.kind?.id;
   const registrationKey = getRegistrationKey(element, getRegistration);
   const payloadState = syncParticipantPayload(registrationKey, kind, registration.payload);
-  const data = getTargetDragData(registrationKey, source, kind);
+  const data = getTargetDragData(dragData, registrationKey, kind);
   const record: DraggableTargetRecord = {
     element,
     kind,
@@ -542,6 +525,7 @@ function createLocalPointReaders(
 export function getDropTargetsOver(
   target: Element | null,
   feedback: DropTargetFeedback,
+  dragData: DropTargetDragData,
   onReject?: (element: Element) => void,
 ): DraggableTargetRecord[] {
   const result: DraggableTargetRecord[] = [];
@@ -562,7 +546,7 @@ export function getDropTargetsOver(
     const outcome = safeCall(
       'getParameters',
       element,
-      () => resolveDropTargetOutcome(element, feedback),
+      () => resolveDropTargetOutcome(element, feedback, dragData),
       null,
     );
     if (outcome === DROP_REJECTED) {

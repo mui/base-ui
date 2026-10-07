@@ -293,9 +293,10 @@ describe('engine.registerMonitor', () => {
           throw new Error('monitor getter boom');
         }),
       ).not.toThrow();
-      expect(consoleError).toHaveBeenCalled();
 
+      // The getter runs at the next event the monitor could receive.
       fireDrag.drop(target);
+      expect(consoleError).toHaveBeenCalled();
       expect(onMoveEnd).toHaveBeenCalledTimes(1);
     } finally {
       consoleError.mockRestore();

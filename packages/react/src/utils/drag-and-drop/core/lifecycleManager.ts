@@ -28,12 +28,12 @@ import { createDragEventDetails, createMoveEndEventDetails } from '../dragEventD
 import {
   captureDropTargetCollision,
   dispatchToDropTarget,
-  endDropTargetSession,
   getDropTargetShadowRootsByHost,
   getDropTargetsOver,
 } from '../dropTarget';
+import type { DropTargetDragData } from '../dropTarget';
 import { createHoverLedger } from '../hoverLedger';
-import { activateMonitors, clearActiveMonitors, dispatchToMonitors } from '../monitor';
+import { createMonitorDispatch } from '../monitor';
 import { cloneLocationHistory, setDragSession } from '../dragSessionStore';
 import { containConsumerError, getComposedParentElement, runAllCleanups } from '../utils';
 import { clearActiveSession, getActiveSession, setActiveSession } from './dragSession';
@@ -63,6 +63,11 @@ export function start(parameters: StartParameters): DragSessionController | null
   } = parameters;
 
   let phase: DragSessionPhase = 'starting';
+
+  // This drag's monitors and target `dragData`, which end with it.
+  const monitors = createMonitorDispatch(source);
+  const dispatchToMonitors = monitors.dispatch;
+  const targetDragData: DropTargetDragData = new WeakMap();
 
   // Whether `cancel` and the target refreshes may run. Set before the start
   // dispatches and cleared when the end sequence begins (see `disarmSessionHooks`).
@@ -98,7 +103,7 @@ export function start(parameters: StartParameters): DragSessionController | null
 
   function resolveStack(target: Element | null, input: DraggableInput): DraggableTargetRecord[] {
     rejectedTarget = null;
-    return getDropTargetsOver(target, { input, source }, onReject);
+    return getDropTargetsOver(target, { input, source }, targetDragData, onReject);
   }
 
   // Empty until the initial stack resolves below, once cancel is armed.
@@ -609,8 +614,7 @@ export function start(parameters: StartParameters): DragSessionController | null
         undefined,
       );
     } finally {
-      clearActiveMonitors();
-      endDropTargetSession();
+      monitors.end();
       setDragSession(null);
       runAllCleanups(Array.from(endListeners));
       endListeners.clear();
@@ -634,7 +638,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     // The final resolution is inside the `try` too, so a throw from it still ends
     // the drag (see `recover`).
     try {
-      const freshDropTargets = getDropTargetsOver(rawTarget, { input, source });
+      const freshDropTargets = getDropTargetsOver(rawTarget, { input, source }, targetDragData);
       // A consumer callback in the final resolution can cancel.
       if (tornDown) {
         return;
@@ -810,10 +814,8 @@ export function start(parameters: StartParameters): DragSessionController | null
   // Consumer code here, such as `onGenerateDragPreview`, may throw. Tear down
   // before rethrowing, or the half-built session would block every later drag.
   try {
-    activateMonitors();
-
-    // Now that cancel is armed and the monitors are active, a `cancelDrag()` from
-    // a resolver ends the drag as it would mid-drag.
+    // Now that cancel is armed, a `cancelDrag()` from a resolver ends the drag as it
+    // would mid-drag.
     const initialDropTargets = resolveStack(initialTarget, initialInput);
     if (tornDown) {
       return null;
