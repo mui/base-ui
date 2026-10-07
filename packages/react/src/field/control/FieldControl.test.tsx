@@ -10,11 +10,168 @@ import {
 } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
+import { Input } from '@base-ui/react/input';
 import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Field.Control />', () => {
   const { render, renderToString } = createRenderer();
   const { render: renderNonStrict } = createRenderer({ strict: false });
+
+  describe('form reset', () => {
+    it.each([
+      ['Field.Control', Field.Control],
+      ['Input', Input],
+    ] as const)('syncs filled state after resetting %s', async (_, Control) => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <form>
+          <Field.Root data-testid="root">
+            <Control onValueChange={onValueChange} />
+          </Field.Root>
+          <button type="reset">Reset</button>
+        </form>,
+      );
+      const control = screen.getByRole('textbox');
+      const root = screen.getByTestId('root');
+      await user.type(control, 'hello');
+      expect(control).toHaveAttribute('data-filled');
+      expect(root).toHaveAttribute('data-filled');
+      onValueChange.mockClear();
+
+      await user.click(screen.getByRole('button', { name: 'Reset' }));
+
+      expect(control).toHaveValue('');
+      await waitFor(() => expect(control).not.toHaveAttribute('data-filled'));
+      expect(root).not.toHaveAttribute('data-filled');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('restores filled state for a nonempty default value', async () => {
+      const { user } = await render(
+        <Form>
+          <Field.Root data-testid="root">
+            <Field.Control defaultValue="initial" />
+          </Field.Root>
+          <button type="reset">Reset</button>
+        </Form>,
+      );
+      const control = screen.getByRole('textbox');
+      await user.clear(control);
+      expect(control).not.toHaveAttribute('data-filled');
+
+      await user.click(screen.getByRole('button', { name: 'Reset' }));
+
+      expect(control).toHaveValue('initial');
+      await waitFor(() => expect(control).toHaveAttribute('data-filled'));
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled');
+    });
+
+    it('preserves filled state when the reset is prevented', async () => {
+      const { user } = await render(
+        <form onReset={(event) => event.preventDefault()}>
+          <Field.Root data-testid="root">
+            <Field.Control />
+          </Field.Root>
+          <button type="reset">Reset</button>
+        </form>,
+      );
+      const control = screen.getByRole('textbox');
+      await user.type(control, 'hello');
+      await user.click(screen.getByRole('button', { name: 'Reset' }));
+      expect(control).toHaveValue('hello');
+      expect(control).toHaveAttribute('data-filled');
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled');
+    });
+
+    it('syncs filled state when an external form is reset programmatically', async () => {
+      await render(
+        <React.Fragment>
+          <form id="external-form" data-testid="form" />
+          <Field.Root data-testid="root">
+            <Field.Control form="external-form" render={<textarea />} />
+          </Field.Root>
+        </React.Fragment>,
+      );
+      const control = screen.getByRole('textbox');
+      fireEvent.change(control, { target: { value: 'hello' } });
+      expect(control).toHaveAttribute('data-filled');
+
+      act(() => (screen.getByTestId('form') as HTMLFormElement).reset());
+
+      expect(control).toHaveValue('');
+      await waitFor(() => expect(control).not.toHaveAttribute('data-filled'));
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+    });
+
+    it('syncs a completed reset even if a subsequent reset is prevented', async () => {
+      const onReset = vi
+        .fn()
+        .mockImplementationOnce(() => {})
+        .mockImplementation((event) => {
+          event.preventDefault();
+        });
+      await render(
+        <form data-testid="form" onReset={onReset}>
+          <Field.Root>
+            <Field.Control />
+          </Field.Root>
+        </form>,
+      );
+      const control = screen.getByRole('textbox');
+      fireEvent.change(control, { target: { value: 'hello' } });
+
+      act(() => {
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        form.reset();
+        form.reset();
+      });
+
+      expect(control).toHaveValue('');
+      await waitFor(() => expect(control).not.toHaveAttribute('data-filled'));
+    });
+
+    it('keeps controlled values and filled state on reset', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <form>
+          <Field.Root data-testid="root">
+            <Field.Control value="controlled" onValueChange={onValueChange} />
+          </Field.Root>
+          <button type="reset">Reset</button>
+        </form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Reset' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('controlled');
+      expect(screen.getByRole('textbox')).toHaveAttribute('data-filled');
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('syncs the current input if a reset handler replaces the rendered element', async () => {
+      function App() {
+        const [key, setKey] = React.useState(0);
+        return (
+          <form onReset={() => setKey((previous) => previous + 1)}>
+            <Field.Root data-testid="root">
+              <Field.Control render={<input key={key} />} />
+            </Field.Root>
+            <button type="reset">Reset</button>
+          </form>
+        );
+      }
+      const { user } = await render(<App />);
+      const previousControl = screen.getByRole('textbox');
+      await user.type(previousControl, 'hello');
+
+      await user.click(screen.getByRole('button', { name: 'Reset' }));
+
+      expect(screen.getByRole('textbox')).not.toBe(previousControl);
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      await waitFor(() => expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled'));
+    });
+  });
 
   describeConformance(<Field.Control />, () => ({
     refInstanceof: window.HTMLInputElement,
