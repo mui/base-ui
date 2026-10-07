@@ -13,7 +13,6 @@ import { DemoAutocompleteHero } from './demos/hero';
 ## Usage guidelines
 
 - **Avoid when selection state is needed**: Use [Combobox](/react/components/combobox) instead of Autocomplete if the selection should be remembered and the input value cannot be custom. Unlike Combobox, Autocomplete's input can contain free-form text, as its suggestions only _optionally_ autocomplete the text.
-- **Can be used for filterable command pickers**: The input can be used as a filter for command items that perform an action when clicked when rendered inside the popup.
 - **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
 - **Closing animations**: The popup stays rendered until its closing animation finishes. See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
 
@@ -132,7 +131,7 @@ import { DemoAutocompleteLimit } from './demos/limit';
 
 ### Auto highlight
 
-The first matching item can be automatically highlighted as the user types by specifying the `autoHighlight` prop on `<Autocomplete.Root>`. Set the prop's value to `"always"` if the highlight should always be present, such as when the list is rendered inline within a dialog.
+The first matching item can be automatically highlighted as the user types by specifying the `autoHighlight` prop on `<Autocomplete.Root>`. Set the prop's value to `"always"` if the highlight should always be present, such as when the list is rendered without a popup using `<Autocomplete.Root inline open>`.
 
 The prop can be combined with the `keepHighlight` and `highlightItemOnHover` props to configure how the highlight behaves during mouse interactions.
 
