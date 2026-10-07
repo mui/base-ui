@@ -1194,24 +1194,40 @@ describe('<Combobox.Trigger />', () => {
 
     it('toggles data-list-empty when the filtered list is empty', async () => {
       const { user } = await render(
-        <Combobox.Root items={[]}>
+        <Combobox.Root items={['apple', 'banana']}>
+          <Combobox.Input data-testid="input" />
           <Combobox.Trigger data-testid="trigger">Trigger</Combobox.Trigger>
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
-                <Combobox.List />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
           </Combobox.Portal>
         </Combobox.Root>,
       );
 
+      const input = screen.getByTestId('input');
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
 
       await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(trigger).not.toHaveAttribute('data-list-empty');
+
+      await user.type(input, 'zzz');
+
       expect(trigger).toHaveAttribute('data-list-empty');
+
+      await user.clear(input);
+
+      expect(trigger).not.toHaveAttribute('data-list-empty');
     });
 
     it('has data-placeholder when no value is selected', async () => {
