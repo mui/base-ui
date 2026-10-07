@@ -1,8 +1,11 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { platform } from '@base-ui/utils/platform';
 import { createFormDataSpy, createRenderer, isJSDOM } from '#test-utils';
 import { Autocomplete, AutocompleteSeparatorDataAttributes } from '@base-ui/react/autocomplete';
+import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
@@ -3151,6 +3154,331 @@ describe('<Autocomplete.Root />', () => {
         'aria-describedby',
         screen.getByTestId('description').id,
       );
+    });
+  });
+
+  describe('inline list in an open dialog', () => {
+    const commands = ['Rename', 'Delete', 'Duplicate', 'Share'];
+
+    function CommandPalette({ items = commands }: { items?: string[] }) {
+      return (
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup
+              aria-label="Command palette"
+              style={{ position: 'fixed', top: 20, left: 20, width: 300 }}
+            >
+              <Autocomplete.Root inline autoHighlight="always" items={items} filter={null}>
+                <Autocomplete.Input data-testid="input" />
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
+
+    function expectHighlighted(name: string) {
+      expect(screen.getByTestId('input')).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name }).id,
+      );
+      expect(screen.getByRole('option', { name })).toHaveAttribute('data-highlighted');
+    }
+
+    it('keeps the first item highlighted after the pointer leaves an item', async () => {
+      await render(<CommandPalette />);
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+      expectHighlighted('Rename');
+
+      const share = screen.getByRole('option', { name: 'Share' });
+      fireEvent.mouseMove(share);
+      expectHighlighted('Share');
+
+      fireEvent.pointerLeave(share);
+      fireEvent.mouseLeave(share);
+      expectHighlighted('Rename');
+    });
+
+    it.skipIf(isJSDOM || !platform.engine.blink)(
+      'keeps the first item highlighted after a real pointer leaves an item',
+      async () => {
+        const { cdp, page } = await import('vitest/browser');
+        await page.viewport(1280, 800);
+        const reactGlobals = globalThis as typeof globalThis & {
+          IS_REACT_ACT_ENVIRONMENT?: boolean;
+        };
+
+        await render(<CommandPalette />);
+        const input = screen.getByTestId('input');
+        await act(async () => input.focus());
+        expectHighlighted('Rename');
+
+        const frame = window.frameElement as HTMLIFrameElement | null;
+        const frameRect = frame?.getBoundingClientRect();
+        const scale = frameRect ? frameRect.width / window.innerWidth : 1;
+        const toPagePoint = (x: number, y: number) => ({
+          x: (frameRect?.left ?? 0) + x * scale,
+          y: (frameRect?.top ?? 0) + y * scale,
+        });
+        const shareRect = screen.getByRole('option', { name: 'Share' }).getBoundingClientRect();
+        const session = cdp() as CDPSession;
+        const move = (point: { x: number; y: number }) =>
+          session.send('Input.dispatchMouseEvent', {
+            type: 'mouseMoved',
+            ...point,
+            button: 'none',
+            buttons: 0,
+            pointerType: 'mouse',
+          });
+
+        // Real events can't be wrapped in `act()`.
+        reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+        try {
+          await move(toPagePoint(shareRect.left + shareRect.width / 2, shareRect.top + 2));
+          await waitFor(() =>
+            expect(screen.getByRole('option', { name: 'Share' })).toHaveAttribute(
+              'data-highlighted',
+            ),
+          );
+
+          await move(toPagePoint(window.innerWidth - 2, window.innerHeight - 2));
+          await waitFor(() =>
+            expect(screen.getByRole('option', { name: 'Rename' })).toHaveAttribute(
+              'data-highlighted',
+            ),
+          );
+        } finally {
+          reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
+        }
+      },
+    );
+
+    it('highlights the first item once results arrive after the query changed', async () => {
+      const { setProps } = await render(<CommandPalette items={[]} />);
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+      fireEvent.change(input, { target: { value: 'sh' } });
+      expect(screen.queryByRole('option')).toBe(null);
+
+      await setProps({ items: ['Share', 'Shred'] });
+      expectHighlighted('Share');
+
+      await setProps({ items: [] });
+      await setProps({ items: ['Shred'] });
+      expectHighlighted('Shred');
+    });
+  });
+
+  describe('actionsRef: highlightItem', () => {
+    // The scenario from mui/base-ui#5146: apps bind their own Ctrl+N/Ctrl+P on top of the
+    // built-in arrow keys. Ctrl+J/Ctrl+K are covered too, to show the action does not care
+    // which key drives it (the docs demo ships only N/P, since Ctrl+K is the site search).
+    const VIM_KEYS: Record<string, Autocomplete.Root.HighlightItemTarget> = {
+      n: 'next',
+      j: 'next',
+      p: 'previous',
+      k: 'previous',
+    };
+
+    function CommandPalette() {
+      const actionsRef = React.useRef<Autocomplete.Root.Actions>(null);
+      return (
+        <Autocomplete.Root items={['Apple', 'Banana', 'Cherry']} actionsRef={actionsRef} open>
+          <Autocomplete.Input
+            data-testid="input"
+            onKeyDown={(event) => {
+              if (!event.ctrlKey || event.altKey || event.metaKey) {
+                return;
+              }
+              const target = VIM_KEYS[event.key];
+              if (!target) {
+                return;
+              }
+              event.preventDefault();
+              actionsRef.current?.highlightItem(target);
+            }}
+          />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>
+      );
+    }
+
+    function expectHighlighted(name: string) {
+      expect(screen.getByTestId('input')).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name }).id,
+      );
+    }
+
+    // `inline` lists are navigable by design while the component's own `open` is false, so the
+    // imperative action must not be vetoed the way a genuinely closed popup's is.
+    function InlineList(props: { actionsRef: React.RefObject<Autocomplete.Root.Actions | null> }) {
+      return (
+        <Autocomplete.Root
+          inline
+          items={['Apple', 'Banana', 'Cherry']}
+          actionsRef={props.actionsRef}
+        >
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.List>
+            {(item: string) => (
+              <Autocomplete.Item key={item} value={item}>
+                {item}
+              </Autocomplete.Item>
+            )}
+          </Autocomplete.List>
+        </Autocomplete.Root>
+      );
+    }
+
+    it('highlights items on an inline list', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      await render(<InlineList actionsRef={actionsRef} />);
+      const input = screen.getByTestId('input');
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() =>
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Apple' }).id,
+        ),
+      );
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() =>
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Banana' }).id,
+        ),
+      );
+    });
+
+    it('keeps the inline cursor in sync when the highlight is cleared', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      const { user } = await render(<InlineList actionsRef={actionsRef} />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted'),
+      );
+
+      act(() => actionsRef.current!.highlightItem('none'));
+
+      // The highlight must actually clear, not just the internal cursor.
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        ),
+      );
+
+      // And the cursor must have cleared with it: the next relative move enters the list from
+      // the start instead of continuing from Banana.
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() =>
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Apple' }).id,
+        ),
+      );
+    });
+
+    it('treats none as a no-op under autoHighlight="always"', async () => {
+      // `'always'` guarantees an item is highlighted at all times. Clearing would be undone
+      // synchronously, so the action must not emit a highlight state the component never rests
+      // in - a consumer would otherwise see undefined and then the first item again.
+      const onItemHighlighted = vi.fn();
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      await render(
+        <Autocomplete.Root
+          inline
+          autoHighlight="always"
+          items={['Apple', 'Banana', 'Cherry']}
+          actionsRef={actionsRef}
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.List>
+            {(item: string) => (
+              <Autocomplete.Item key={item} value={item}>
+                {item}
+              </Autocomplete.Item>
+            )}
+          </Autocomplete.List>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const appleId = screen.getByRole('option', { name: 'Apple' }).id;
+      await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', appleId));
+
+      onItemHighlighted.mockClear();
+      act(() => actionsRef.current!.highlightItem('none'));
+      await flushMicrotasks();
+
+      // No transient clear, and no re-seed event either.
+      expect(onItemHighlighted).not.toHaveBeenCalled();
+      expect(input).toHaveAttribute('aria-activedescendant', appleId);
+    });
+
+    it('navigates the list with Ctrl+N and Ctrl+P', async () => {
+      const { user } = await render(<CommandPalette />);
+
+      await user.click(screen.getByTestId('input'));
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => expectHighlighted('Apple'));
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => expectHighlighted('Banana'));
+
+      await user.keyboard('{Control>}p{/Control}');
+      await waitFor(() => expectHighlighted('Apple'));
+    });
+
+    it('supports binding any number of extra keys to the same targets', async () => {
+      const { user } = await render(<CommandPalette />);
+
+      await user.click(screen.getByTestId('input'));
+
+      await user.keyboard('{Control>}k{/Control}');
+      await waitFor(() => expectHighlighted('Cherry'));
+
+      await user.keyboard('{Control>}j{/Control}');
+      await waitFor(() => expectHighlighted('Apple'));
+    });
+
+    it('selects the highlighted item with Enter', async () => {
+      const { user } = await render(<CommandPalette />);
+
+      await user.click(screen.getByTestId('input'));
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => expectHighlighted('Apple'));
+
+      await user.keyboard('{Enter}');
+      await waitFor(() => expect(screen.getByTestId('input')).toHaveValue('Apple'));
     });
   });
 });

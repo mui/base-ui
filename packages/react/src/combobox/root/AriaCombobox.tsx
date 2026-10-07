@@ -1085,9 +1085,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [open]);
 
   useIsoLayoutEffect(() => {
+    // An unbound inline root reports `open` as false inside an open dialog, so only a bound
+    // `open` can tell that the dialog closed.
+    const hasBoundPopup = () => openProp !== undefined && resolvedPopupRef.current != null;
+
     // A kept-mounted dialog hides its inline list on close. Discard query-clear restoration
     // before it can overwrite the cleared highlight or report an item from the unfiltered list.
-    if (!open && inline && resolvedPopupRef.current) {
+    if (!open && inline && hasBoundPopup()) {
       pendingQueryHighlightRef.current = null;
       return;
     }
@@ -1140,7 +1144,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           // commit, so the item registries are mid-update here. Defer past React's cascade.
           queueMicrotask(() => {
             if (
-              (!store.state.open && (!store.state.inline || resolvedPopupRef.current)) ||
+              (!store.state.open && (!store.state.inline || hasBoundPopup())) ||
               (inputRef.current && inputRef.current.value.trim() !== '')
             ) {
               return;
@@ -1234,6 +1238,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     flatFilteredValues,
     inline,
     open,
+    openProp,
     resolvedPopupRef,
     store,
     // Reruns the effect when the query changes without affecting the deps above, such as
