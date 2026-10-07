@@ -348,6 +348,10 @@ engine.registerViewport(element, () => ({
 // The method registers nothing, takes nothing, and returns nothing.
 expectType<() => void, typeof engine.cancelDrag>(engine.cancelDrag);
 
+// ---------------------------------------------------------------------------
+// Explicit type arguments, kinds and drag data
+// ---------------------------------------------------------------------------
+
 engine.registerSource<unknown>(element, () => ({
   // @ts-expect-error an explicit generic must not widen the producer kind.
   kind: card,

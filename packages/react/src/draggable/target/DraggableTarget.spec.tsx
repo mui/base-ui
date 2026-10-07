@@ -269,15 +269,14 @@ const ref: React.Ref<HTMLDivElement> = null;
   render={<Draggable.Target accept={card} payload={{ index: 0 }} />}
 />;
 
-// `TTargetPayload` is inferred from `payload` only. Unlike an inline handler, an
-// extracted one would contribute `{ other: boolean }` as a candidate without `NoInfer`
-// on the handlers, and the mismatch would be blamed on `payload`.
+// An extracted handler typed for another payload is rejected: the payload type comes
+// from `payload`.
 const mismatchedDrop = (
   eventDetails: DraggableTargetDropEventDetails<unknown, { other: boolean }>,
 ) => eventDetails;
 <Draggable.Target
   accept={Draggable.anyKind}
-  // @ts-expect-error the handler must match the payload, not redefine it.
+  // @ts-expect-error reported here too, by the overload without `payload`.
   payload={{ index: 0 }}
   // @ts-expect-error the handler must match the payload, not redefine it.
   onDraggableDrop={mismatchedDrop}

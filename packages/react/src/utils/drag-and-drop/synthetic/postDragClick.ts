@@ -28,7 +28,8 @@ const CLICK_WINDOW_MS = 300;
 /**
  * Upper bound on waiting for a held pointer to come up, for when the page never
  * sees the `pointerup` (an OS hand-off). Otherwise the suppression could stay
- * armed and swallow a later keyboard `click`, which no `pointerdown` disarms.
+ * armed and swallow a later tap's `click`: another pointer's press doesn't disarm
+ * it, and a legacy `MouseEvent` click has no `pointerId` to let it through.
  */
 const HELD_WINDOW_MS = 5000;
 

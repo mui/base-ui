@@ -1479,29 +1479,25 @@ describe('engine.registerViewport', () => {
       expect(innerPan).not.toHaveBeenCalled();
     });
 
-    // jsdom only. The held frame clock keeps every `frameSpeed` at 0. In a browser
-    // the timestamps advance, so a 0-delta engagement is only observable here.
-    it.skipIf(!isJSDOM)(
-      'engages on intent: scrollBy fires on the first (delta-0) frame in an edge zone',
-      async () => {
-        installFrameClock();
-        const { engine } = await renderDnd();
-        const source = createElement();
-        const scroller = makeScroller({ top: 0, height: 200, left: 0, width: 200 });
+    // The held frame clock keeps every `frameSpeed` at 0, so only engagement can scroll.
+    it('engages on intent: scrollBy fires on the first (delta-0) frame in an edge zone', async () => {
+      installFrameClock();
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const scroller = makeScroller({ top: 0, height: 200, left: 0, width: 200 });
 
-        engine.registerSource(source, {});
-        engine.registerViewport(scroller.element, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller.element, {});
 
-        // Without engaging on a 0 delta, the nested-scroller hand-off would break
-        // on the first ramp frame.
-        await lift(source, { clientX: 100, clientY: 190 });
-        fireDrag.dragOver(scroller.element, { clientX: 100, clientY: 190 });
-        await flushRaf(2);
+      // Without engaging on a 0 delta, the nested-scroller hand-off would break
+      // on the first ramp frame.
+      await lift(source, { clientX: 100, clientY: 190 });
+      fireDrag.dragOver(scroller.element, { clientX: 100, clientY: 190 });
+      await flushRaf(2);
 
-        expect(scroller.scrollBy).toHaveBeenCalled();
-        expect(scroller.scrollBy.mock.calls.every(([arg]) => (arg.top ?? 0) === 0)).toBe(true);
-      },
-    );
+      expect(scroller.scrollBy).toHaveBeenCalled();
+      expect(scroller.scrollBy.mock.calls.every(([arg]) => (arg.top ?? 0) === 0)).toBe(true);
+    });
   });
 
   describe('explicit scroll containers', () => {
@@ -2399,9 +2395,7 @@ describe('engine.registerViewport', () => {
   describe('frame delta and depth weighting', () => {
     const MAX_FRAME_DELTA_MS = 64;
 
-    // jsdom only. The frame clock is deterministic only with jsdom's
-    // `setTimeout`-based rAF. In a browser the loop also sees real frames.
-    it.skipIf(!isJSDOM)('clamps the per-frame delta when the frame loop stalls', async () => {
+    it('clamps the per-frame delta when the frame loop stalls', async () => {
       const { engine } = await renderDnd();
       const clock = installFrameClock();
       const source = createElement();
@@ -2436,53 +2430,50 @@ describe('engine.registerViewport', () => {
       expect(stalledFrame / normalFrame).toBeCloseTo(MAX_FRAME_DELTA_MS / FRAME_MS, 5);
     });
 
-    it.skipIf(!isJSDOM)(
-      'ramps up over 400ms and restarts the ramp when the pointer re-enters the edge zone',
-      async () => {
-        const { engine } = await renderDnd();
-        const clock = installFrameClock();
-        const source = createElement();
-        const scroller = makeEngageableScroller();
+    it('ramps up over 400ms and restarts the ramp when the pointer re-enters the edge zone', async () => {
+      const { engine } = await renderDnd();
+      const clock = installFrameClock();
+      const source = createElement();
+      const scroller = makeEngageableScroller();
 
-        engine.registerSource(source, {});
-        engine.registerViewport(scroller, {});
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
 
-        // Engage at 0.8 depth. The clock is held, so only `advance` moves the ramp.
-        await driveTo(source, scroller, 100, 190);
-        const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
-        expect(scrollByMock).toHaveBeenCalled();
+      // Engage at 0.8 depth. The clock is held, so only `advance` moves the ramp.
+      await driveTo(source, scroller, 100, 190);
+      const scrollByMock = scroller.scrollBy as ReturnType<typeof vi.fn>;
+      expect(scrollByMock).toHaveBeenCalled();
 
-        // 200ms in, rampFactor is 0.5. Both measured frames cap at 64ms of delta,
-        // so their ratio isolates the ramp factor.
-        scrollByMock.mockClear();
-        clock.advance(200);
-        await flushRaf(2);
-        const midRamp = maxVerticalDelta(scroller);
+      // 200ms in, rampFactor is 0.5. Both measured frames cap at 64ms of delta,
+      // so their ratio isolates the ramp factor.
+      scrollByMock.mockClear();
+      clock.advance(200);
+      await flushRaf(2);
+      const midRamp = maxVerticalDelta(scroller);
 
-        // Past 400ms of engagement, rampFactor is 1 with the same capped delta.
-        scrollByMock.mockClear();
-        clock.advance(300);
-        await flushRaf(2);
-        const fullRamp = maxVerticalDelta(scroller);
+      // Past 400ms of engagement, rampFactor is 1 with the same capped delta.
+      scrollByMock.mockClear();
+      clock.advance(300);
+      await flushRaf(2);
+      const fullRamp = maxVerticalDelta(scroller);
 
-        expect(midRamp).toBeGreaterThan(0);
-        expect(midRamp / fullRamp).toBeCloseTo(0.5, 5);
+      expect(midRamp).toBeGreaterThan(0);
+      expect(midRamp / fullRamp).toBeCloseTo(0.5, 5);
 
-        // Leaving the edge zone resets the engagement start.
-        fireDrag.dragOver(scroller, { clientX: 100, clientY: 100 });
-        await flushRaf(2);
-        // On re-entry the ramp starts over instead of resuming at full speed.
-        fireDrag.dragOver(scroller, { clientX: 100, clientY: 190 });
-        await flushRaf(2);
-        scrollByMock.mockClear();
-        clock.advance(200);
-        await flushRaf(2);
-        const reEntry = maxVerticalDelta(scroller);
+      // Leaving the edge zone resets the engagement start.
+      fireDrag.dragOver(scroller, { clientX: 100, clientY: 100 });
+      await flushRaf(2);
+      // On re-entry the ramp starts over instead of resuming at full speed.
+      fireDrag.dragOver(scroller, { clientX: 100, clientY: 190 });
+      await flushRaf(2);
+      scrollByMock.mockClear();
+      clock.advance(200);
+      await flushRaf(2);
+      const reEntry = maxVerticalDelta(scroller);
 
-        expect(reEntry).toBeCloseTo(midRamp, 5);
-        expect(reEntry).toBeLessThan(fullRamp);
-      },
-    );
+      expect(reEntry).toBeCloseTo(midRamp, 5);
+      expect(reEntry).toBeLessThan(fullRamp);
+    });
 
     it('scrolls faster the deeper the pointer sits in the edge zone', async () => {
       const { engine } = await renderDnd();
@@ -2526,7 +2517,7 @@ describe('engine.registerViewport', () => {
     });
   });
 
-  describe.skipIf(!isJSDOM)('maxSpeed', () => {
+  describe('maxSpeed', () => {
     // One full-ramp 16ms frame's delta, with the pointer 0.8 deep into the 50px
     // bottom edge zone.
     async function measureFrameDelta(parameters: RegisterViewportParameters): Promise<number> {
@@ -2732,8 +2723,9 @@ describe('engine.registerViewport', () => {
       { name: 'right', clientX: 190, clientY: 100 },
     ];
 
-    for (const edge of EDGES) {
-      it(`engages at the ${edge.name} edge with no scroll extent to move within`, async () => {
+    it.each(EDGES)(
+      'engages at the $name edge with no scroll extent to move within',
+      async ({ clientX, clientY }) => {
         const { engine } = await renderDnd();
         const source = createElement();
         const viewport = makeViewport();
@@ -2748,11 +2740,11 @@ describe('engine.registerViewport', () => {
           },
         });
 
-        await driveTo(source, viewport, edge.clientX, edge.clientY);
+        await driveTo(source, viewport, clientX, clientY);
 
         expect(pan).toHaveBeenCalled();
-      });
-    }
+      },
+    );
 
     it('passes the live drag context, plus the delta', async () => {
       const { engine } = await renderDnd();
@@ -2891,9 +2883,8 @@ describe('engine.registerViewport', () => {
       });
 
       // The held frame clock keeps every delta at 0, which shows consumption
-      // follows engagement, not the applied delta. jsdom only, so the held clock
-      // doesn't compete with browser scheduling.
-      it.skipIf(!isJSDOM)('consumes the axes on the ramp-zero first frame', async () => {
+      // follows engagement, not the applied delta.
+      it('consumes the axes on the ramp-zero first frame', async () => {
         installFrameClock();
         const seen: number[] = [];
         const { outerScrollBy } = await renderNested((eventDetails) => {
@@ -2997,7 +2988,7 @@ describe('engine.registerViewport', () => {
       });
     });
 
-    it.skipIf(!isJSDOM)('reports the delta the element would have been scrolled by', async () => {
+    it('reports the delta the element would have been scrolled by', async () => {
       const { engine } = await renderDnd();
       const clock = installFrameClock();
       const source = createElement();
