@@ -461,6 +461,7 @@ describe('<Drawer.Popup />', () => {
                   </Drawer.Viewport>
                 </Drawer.Portal>
               </Drawer.Root>
+              {/* Must come after the open sibling so its layout effect runs last. */}
               <Drawer.Root handle={handle} modal={false}>
                 <Drawer.Portal>
                   <Drawer.Viewport>

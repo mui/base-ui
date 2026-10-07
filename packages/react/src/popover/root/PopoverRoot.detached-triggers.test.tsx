@@ -339,6 +339,11 @@ describe('<Popover.Root />', () => {
       await user.click(trigger2);
       await expectOpenedBy(trigger2);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('data-pressed');
+      expect(trigger2).toHaveAttribute('data-pressed');
+      expect(trigger.previousElementSibling).toBe(null);
+      expect(trigger2.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+      expect(trigger2.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
       await user.click(trigger2);
       await expectClosed(trigger2);
 
@@ -436,6 +441,8 @@ describe('<Popover.Root />', () => {
       fireEvent.mouseMove(trigger);
       await flushMicrotasks();
       expect(screen.queryByTestId('popup')).not.toBe(null);
+      // End the hover's patient-click window so only the close-time reset keeps the click sticky.
+      clock.tick(PATIENT_CLICK_THRESHOLD);
 
       await act(async () => setOpen(false));
       await flushMicrotasks();

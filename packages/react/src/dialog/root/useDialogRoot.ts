@@ -17,6 +17,7 @@ export function DialogInteractions({
   isDrawer: boolean;
 }) {
   const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
@@ -88,9 +89,21 @@ export function DialogInteractions({
   // Listen for nested open/close events on this store to maintain the counts.
   // A close notification is an open notification with zeroed counts.
   store.useContextCallback('onNestedDialogOpen', (dialogCount, drawerCount) => {
+    // A handle-backed root keeps these interactions mounted while closed. Ignore nested roots that
+    // open meanwhile so their counts don't carry into the next open session.
+    if (!store.select('open') && !store.select('mounted')) {
+      return;
+    }
     setOwnNestedOpenDialogs(dialogCount);
     setOwnNestedOpenDrawers(drawerCount);
   });
+
+  useIsoLayoutEffect(() => {
+    if (!open && !mounted) {
+      setOwnNestedOpenDialogs(0);
+      setOwnNestedOpenDrawers(0);
+    }
+  }, [open, mounted]);
 
   // Notify parent of our open/close state using parent callbacks, if any
   useIsoLayoutEffect(() => {

@@ -152,6 +152,93 @@ describe('<Dialog.Root />', () => {
     await openThenEscapeFromInactiveTrigger();
   });
 
+  it('opens a handle-backed dialog as topmost over a dialog that opened while it was closed', async () => {
+    const help = Dialog.createHandle();
+
+    const { user } = await render(
+      <Dialog.Root handle={help}>
+        <Dialog.Portal>
+          <Dialog.Backdrop data-testid="help-backdrop" />
+          <Dialog.Popup data-testid="help">Help</Dialog.Popup>
+        </Dialog.Portal>
+        <Dialog.Root>
+          <Dialog.Trigger>Open section</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="section">
+              <Dialog.Trigger handle={help}>Open help</Dialog.Trigger>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </Dialog.Root>,
+    );
+
+    async function openHelp() {
+      await user.click(screen.getByRole('button', { name: 'Open help' }));
+      expect(await screen.findByTestId('help')).not.toBe(null);
+      expect(screen.getByTestId('help')).not.toHaveAttribute('data-nested-dialog-open');
+      expect(screen.getByTestId('help').style.getPropertyValue('--nested-dialogs')).toBe('0');
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Open section' }));
+    expect(await screen.findByTestId('section')).not.toBe(null);
+
+    await openHelp();
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('help')).toBe(null);
+    });
+    expect(screen.queryByTestId('section')).not.toBe(null);
+
+    await openHelp();
+    await user.click(screen.getByTestId('help-backdrop'));
+    await waitFor(() => {
+      expect(screen.queryByTestId('help')).toBe(null);
+    });
+    expect(screen.queryByTestId('section')).not.toBe(null);
+  });
+
+  it('updates the parent nested state each time a handle-backed nested dialog opens and closes', async () => {
+    const child = Dialog.createHandle();
+
+    const { user } = await render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Portal>
+          <Dialog.Popup data-testid="parent">
+            <Dialog.Trigger handle={child}>Open child</Dialog.Trigger>
+            <Dialog.Root handle={child}>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="child">
+                  <Dialog.Close>Close child</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    );
+
+    const parent = await screen.findByTestId('parent');
+
+    async function openAndCloseChild() {
+      await user.click(screen.getByRole('button', { name: 'Open child' }));
+      expect(await screen.findByTestId('child')).not.toBe(null);
+      await waitFor(() => {
+        expect(parent).toHaveAttribute('data-nested-dialog-open');
+      });
+      expect(parent.style.getPropertyValue('--nested-dialogs')).toBe('1');
+
+      await user.click(screen.getByRole('button', { name: 'Close child' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('child')).toBe(null);
+      });
+      expect(parent).not.toHaveAttribute('data-nested-dialog-open');
+      expect(parent.style.getPropertyValue('--nested-dialogs')).toBe('0');
+    }
+
+    await openAndCloseChild();
+    await openAndCloseChild();
+  });
+
   it('keeps the parent nested state when a closed handle-backed nested dialog mounts', async () => {
     const handle = Dialog.createHandle();
     const handleParentOpenChange = vi.fn();
@@ -166,6 +253,7 @@ describe('<Dialog.Root />', () => {
                 <Dialog.Popup data-testid="nested">Nested</Dialog.Popup>
               </Dialog.Portal>
             </Dialog.Root>
+            {/* Must come after the open sibling so its layout effect runs last. */}
             <Dialog.Root handle={handle}>
               <Dialog.Portal>
                 <Dialog.Popup>Closed</Dialog.Popup>

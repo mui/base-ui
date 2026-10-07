@@ -158,6 +158,8 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
   const cancelDismissOnEndTimeout = useTimeout();
   const clearInsideReactTreeTimeout = useTimeout();
+  // Outlives effect re-runs so a pending reset can't leave `isComposingRef` stuck.
+  const compositionTimeout = useTimeout();
 
   const clearInsideReactTree = useStableCallback(() => {
     clearInsideReactTreeTimeout.clear();
@@ -308,7 +310,6 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
     dataRef.current.__outsidePressBubbles = outsidePressBubbles;
 
-    const compositionTimeout = new Timeout();
     const preventedPressSuppressionTimeout = new Timeout();
     const doc = ownerDocument(floatingElement);
 
@@ -746,7 +747,6 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
     return () => {
       unsubscribe();
-      compositionTimeout.clear();
       preventedPressSuppressionTimeout.clear();
       resetPressStartState();
       suppressNextOutsideClickRef.current = false;
@@ -769,6 +769,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     tree,
     store,
     cancelDismissOnEndTimeout,
+    compositionTimeout,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(
