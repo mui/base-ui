@@ -20,7 +20,11 @@ import {
   useTypeahead,
 } from '../../floating-ui-react';
 import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
-import { SelectFloatingContext, SelectRootContext, SelectValueContext } from './SelectRootContext';
+import {
+  SelectFloatingContext,
+  SelectRootStoreContext,
+  SelectRootContext,
+} from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -510,13 +514,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   }, [multiple, value, form, name, itemToStringValue, disabled]);
 
+  const selection = React.useMemo(
+    () => ({ value, multiple, isItemEqualToValue }),
+    [value, multiple, isItemEqualToValue],
+  );
+
   return (
-    <SelectRootContext.Provider value={store}>
-      <SelectValueContext.Provider value={value}>
+    <SelectRootStoreContext.Provider value={store}>
+      <SelectRootContext.Provider value={selection}>
         <SelectFloatingContext.Provider value={floatingContext}>
           {children}
         </SelectFloatingContext.Provider>
-      </SelectValueContext.Provider>
+      </SelectRootContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
@@ -586,7 +595,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         suppressHydrationWarning
       />
       {hiddenInputs}
-    </SelectRootContext.Provider>
+    </SelectRootStoreContext.Provider>
   );
 }
 

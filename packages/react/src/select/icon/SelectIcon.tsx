@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootStoreContext } from '../root/SelectRootContext';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
@@ -17,7 +17,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const store = useSelectRootContext();
+  const store = useSelectRootStoreContext();
   const open = store.useState('open');
 
   const state: SelectIconState = {

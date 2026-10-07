@@ -629,6 +629,113 @@ describe('<Select.Root />', () => {
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
+    it('uses the current multiple setting when options and value change together', async () => {
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [multiple, setMultiple] = React.useState(false);
+        const [value, setValue] = React.useState<string | string[]>('alice');
+        const [options, setOptions] = React.useState(['alice', 'bob', 'carol']);
+
+        return (
+          <div>
+            <Select.Root<string, boolean>
+              multiple={multiple}
+              value={value}
+              onValueChange={onValueChange}
+              open
+              modal={false}
+            >
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {options.map((option) => (
+                      <Select.Item key={option} value={option}>
+                        {option}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setMultiple(true);
+                setValue(['alice']);
+                setOptions(['alice', 'bob']);
+              }}
+            >
+              Update selection
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      await user.click(screen.getByRole('button', { name: 'Update selection' }));
+
+      expect(screen.getByRole('option', { name: 'alice' })).toHaveAttribute('data-selected', '');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('uses the current comparator when options and value change together', async () => {
+      const onValueChange = vi.fn();
+      const alice = { id: 'alice' };
+      const bob = { id: 'bob' };
+      const carol = { id: 'carol' };
+
+      function Test() {
+        const [compareById, setCompareById] = React.useState(false);
+        const [value, setValue] = React.useState(alice);
+        const [options, setOptions] = React.useState([alice, bob, carol]);
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              isItemEqualToValue={
+                compareById ? (item, selected) => item.id === selected.id : Object.is
+              }
+              onValueChange={onValueChange}
+              open
+              modal={false}
+            >
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {options.map((option) => (
+                      <Select.Item key={option.id} value={option}>
+                        {option.id}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setCompareById(true);
+                setValue({ id: 'bob' });
+                setOptions([alice, bob]);
+              }}
+            >
+              Update selection
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      await user.click(screen.getByRole('button', { name: 'Update selection' }));
+
+      expect(screen.getByRole('option', { name: 'bob' })).toHaveAttribute('data-selected', '');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
     it('should not update the internal value if the controlled value prop does not change', async () => {
       const onValueChange = vi.fn();
       await render(
