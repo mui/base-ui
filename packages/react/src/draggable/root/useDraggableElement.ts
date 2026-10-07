@@ -5,7 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { refreshDragSource, retargetDragSource } from '../../utils/drag-and-drop/dragSource';
+import { refreshDragSource } from '../../utils/drag-and-drop/dragSource';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
 import { createDragPreviewHandle } from '../preview/dragPreviewDeclaration';
 import type { DragPreviewHandle } from '../preview/dragPreviewDeclaration';
@@ -123,23 +123,10 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
     };
   });
 
-  // The last non-null node. React detaches the old node before attaching the new one,
-  // so `elementRef` is already `null` then and can't reveal an `a -> b` swap.
-  const lastNodeRef = React.useRef<HTMLElement | null>(null);
-
-  // Stable merged ref for `elementRef` and the engine registration.
+  // Stable merged ref for `elementRef` and the engine registration. A node swapped in
+  // mid-drag takes over the drag when it registers (see `retargetPreviewSource`).
   const ref = useRefWithInit(() => (node: HTMLElement | null) => {
     elementRef.current = node;
-    if (node) {
-      // A virtualizer can remount the item to a new node mid-drag. Point the
-      // session at the new element so `dragging` stays true. `retargetDragSource`
-      // does nothing unless `previous` is the active source.
-      const previous = lastNodeRef.current;
-      if (previous && previous !== node) {
-        retargetDragSource(previous, node);
-      }
-      lastNodeRef.current = node;
-    }
     registrationRef(node);
   }).current;
 

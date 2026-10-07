@@ -18,6 +18,8 @@ import type { DraggableManager } from '../../utils/drag-and-drop/registrationTyp
 
 setupDragEngineTests();
 
+const ROW = { id: 'a' };
+
 describe('engine.registerSource', () => {
   const { renderDnd } = createDndRenderer();
 
@@ -257,6 +259,57 @@ describe('engine.registerSource', () => {
     });
     expect(dragPreviewStore.getSnapshot()).toBe(null);
   });
+
+  // A virtualizer or a cross-list move can remount the dragged row as a new node.
+  it.each([
+    { name: 'the same payload', payload: () => ROW, previewKey: undefined },
+    {
+      name: 'the same previewKey and a new payload',
+      payload: () => ({ id: 'a' }),
+      previewKey: 'a',
+    },
+  ])(
+    'moves the drag to a node registered with $name after the original left the document',
+    async ({ payload, previewKey }) => {
+      const { engine } = await renderDnd();
+      const original = createElement();
+      const unregister = engine.registerSource(original, { payload: payload(), previewKey });
+      fireDrag.dragStart(original);
+      await flushRaf();
+      expect(original).toHaveAttribute('data-dragging');
+
+      unregister();
+      original.remove();
+      const remounted = createElement();
+      engine.registerSource(remounted, { payload: payload(), previewKey });
+
+      expect(dragSessionStore.getSnapshot()?.source.element).toBe(remounted);
+      expect(remounted).toHaveAttribute('data-dragging');
+    },
+  );
+
+  it.each([
+    { name: 'while the original is still in the document', detach: false, payload: ROW },
+    { name: 'for another item', detach: true, payload: { id: 'b' } },
+  ])(
+    'keeps the drag on the original node when a node registers $name',
+    async ({ detach, payload }) => {
+      const { engine } = await renderDnd();
+      const original = createElement();
+      engine.registerSource(original, { payload: ROW });
+      fireDrag.dragStart(original);
+      await flushRaf();
+
+      if (detach) {
+        original.remove();
+      }
+      const other = createElement();
+      engine.registerSource(other, { payload });
+
+      expect(dragSessionStore.getSnapshot()?.source.element).toBe(original);
+      expect(other).not.toHaveAttribute('data-dragging');
+    },
+  );
 
   it('keeps an imperatively updated payload throughout the drag', async () => {
     const { engine } = await renderDnd();

@@ -177,7 +177,7 @@ Apart from `onBeforeMoveStart`, every handler's `eventDetails` also carry a `loc
 - `location.initial` is where the drag began.
 - `location.grabOffset` is the pointer's offset from the source's top-left corner at pickup.
 
-A drag continues if the source element leaves the DOM, for example when a virtualized list unmounts the dragged row. Identify the dragged item by `eventDetails.source.payload`, not by its element. To stop a drag from code, for example after the dragged record is deleted, call [`cancelDrag`](#canceldrag).
+A drag continues if the source element leaves the DOM, for example when a virtualized list unmounts the dragged row. When the row mounts again with the same `payload` or `previewKey`, the drag moves onto the new element. Identify the dragged item by `eventDetails.source.payload`, not by its element. To stop a drag from code, for example after the dragged record is deleted, call [`cancelDrag`](#canceldrag).
 
 To observe every drag on the page rather than one source, use [`useMonitor`](#usemonitor).
 

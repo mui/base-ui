@@ -26,7 +26,7 @@ Renders a `<div>` element.
 | onMoveStart       | `((eventDetails: Draggable.Root.MoveStartEventDetails<TPayload, TDragData>) => void)`                                                           | -            | Event handler called once when the drag starts. The preview exists by then,&#xA;so the source can be measured or restyled safely.                                                                                                                                                                                                                                                                 |
 | onTargetChange    | `((eventDetails: Draggable.Root.TargetChangeEventDetails<TPayload, TDragData>) => void)`                                                        | -            | Event handler called when the drop targets under the pointer change, including when&#xA;the drag ends. Cancel-specific cleanup belongs in `onMoveEnd`, whose&#xA;`eventDetails.canceled` flags a cancel.                                                                                                                                                                                          |
 | payload           | `TPayload`                                                                                                                                      | -            | The data attached to this item, available as `source.payload` in the event details&#xA;of every drag handler, in a drop target's `canDrop`, and in the preview. Its type&#xA;comes from `kind`, and it is required when the kind declares one.                                                                                                                                                    |
-| previewKey        | `string \| number`                                                                                                                              | -            | A stable key that lets the settling preview find this item again after it remounts,&#xA;for example when a drop moves it to another list or a virtualized list recreates it.&#xA;Needed only when the remounted item gets a new `payload` object.                                                                                                                                                 |
+| previewKey        | `string \| number`                                                                                                                              | -            | A stable key that lets the drag and its settling preview find this item again after&#xA;it remounts, for example when a virtualized list recreates it or a drop moves it to&#xA;another list. Needed only when the remounted item gets a new `payload` object.                                                                                                                                    |
 | snap              | `Draggable.Target.SnapSteps \| ((context: Draggable.Target.ResolutionContext<TPayload, TDragData>) => Draggable.Target.SnapSteps \| undefined)` | -            | Divides this item into equal steps for `getSnappedLocalPoint()` when another item&#xA;is dragged over it. Accepts step counts or a function returning them.&#xA;Doesn't affect the preview's position.                                                                                                                                                                                            |
 | disabled          | `boolean`                                                                                                                                       | `false`      | Whether dragging is disabled. Pointer presses keep their normal behavior.&#xA;Use `onBeforeMoveStart` when the decision depends on the gesture.                                                                                                                                                                                                                                                   |
 | children          | `React.ReactNode`                                                                                                                               | -            | -                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -1542,9 +1542,9 @@ type DraggableuseManagerRegisterSourceParameters<TPayload = undefined, TDragData
    */
   disabled?: boolean;
   /**
-   * A stable key that lets the settling preview find this item again after it remounts,
-   * for example when a drop moves it to another list or a virtualized list recreates it.
-   * Needed only when the remounted item gets a new `payload` object.
+   * A stable key that lets the drag and its settling preview find this item again after
+   * it remounts, for example when a virtualized list recreates it or a drop moves it to
+   * another list. Needed only when the remounted item gets a new `payload` object.
    */
   previewKey?: string | number;
   /**
@@ -2186,9 +2186,9 @@ type DraggableManagerRegisterSourceParameters<TPayload = undefined, TDragData = 
    */
   disabled?: boolean;
   /**
-   * A stable key that lets the settling preview find this item again after it remounts,
-   * for example when a drop moves it to another list or a virtualized list recreates it.
-   * Needed only when the remounted item gets a new `payload` object.
+   * A stable key that lets the drag and its settling preview find this item again after
+   * it remounts, for example when a virtualized list recreates it or a drop moves it to
+   * another list. Needed only when the remounted item gets a new `payload` object.
    */
   previewKey?: string | number;
   /**

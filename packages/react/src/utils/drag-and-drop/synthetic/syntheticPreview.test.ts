@@ -1,6 +1,6 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { isJSDOM } from '#test-utils';
-import { createSyntheticPreview, retargetEndingPreviewSource } from './syntheticPreview';
+import { createSyntheticPreview, retargetPreviewSource } from './syntheticPreview';
 import { restrictToVerticalAxis } from '../dragModifiers';
 import type { DraggablePosition } from '../../../draggable/DraggableProvider';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
@@ -381,7 +381,7 @@ describe('syntheticPreview', () => {
       destination.getBoundingClientRect = () => new DOMRect(240, 160, 120, 30);
       // Kanban payload objects are recreated as the card mounts in its new column,
       // so the explicit preview key supplies the stable identity in that case.
-      retargetEndingPreviewSource(destination, {
+      retargetPreviewSource(destination, {
         kind: identity.kind,
         previewKey: identity.previewKey,
         payload: { id: 'a' },
@@ -422,7 +422,7 @@ describe('syntheticPreview', () => {
       source.remove();
 
       const destination = createSource();
-      retargetEndingPreviewSource(destination, {
+      retargetPreviewSource(destination, {
         kind,
         previewKey: undefined,
         payload: undefined,

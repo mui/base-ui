@@ -16,6 +16,11 @@ export function setParticipantOwner(registration: object, owner: object): void {
   state.owners.set(registration, owner);
 }
 
+/** The owner `setParticipantOwner` recorded for `registration`, if any. */
+export function getParticipantOwner(registration: object): object | undefined {
+  return state.owners.get(registration);
+}
+
 /**
  * The registration's payload store, synced with `declaredPayload`. Recreated when
  * `kind` changes, and outlives any one drag.

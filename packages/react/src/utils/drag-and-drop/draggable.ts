@@ -21,10 +21,7 @@ import { getSharedSlot } from './sharedState';
 import { getOrCreate, onceCleanup } from './utils';
 import { addDraggableRegistration, resolveDragHandle } from './draggableRegistry';
 import { bindPointerListeners } from './synthetic/pickupRecognizer';
-import {
-  getPreviewSourceIdentity,
-  retargetEndingPreviewSource,
-} from './synthetic/syntheticPreview';
+import { getPreviewSourceIdentity, retargetPreviewSource } from './synthetic/syntheticPreview';
 
 interface GestureSetupEntry {
   count: number;
@@ -117,10 +114,11 @@ export function registerDraggableElement(
     'handle' | 'disabled' | 'kind' | 'previewKey' | 'payload'
   >,
   getParameters: () => DraggableConfig<any, any>,
+  owner?: object,
 ): DragCleanupFn {
   const staticSetup = applyDraggableStaticSetup(element, initial);
   const unregister = addDraggableRegistration(element, getParameters, staticSetup.refresh);
-  retargetEndingPreviewSource(element, getPreviewSourceIdentity(initial));
+  retargetPreviewSource(element, getPreviewSourceIdentity(initial, owner));
   const unbindSensors = bindPointerListeners(element);
 
   return onceCleanup(() => {
@@ -144,9 +142,9 @@ export type DraggableConfig<TPayload = undefined, TDragData = unknown> = {
   // uses a conditional type, and `registerSource` an overload.
   payload?: DraggablePayload<TPayload> | undefined;
   /**
-   * A stable key that lets the settling preview find this item again after it remounts,
-   * for example when a drop moves it to another list or a virtualized list recreates it.
-   * Needed only when the remounted item gets a new `payload` object.
+   * A stable key that lets the drag and its settling preview find this item again after
+   * it remounts, for example when a virtualized list recreates it or a drop moves it to
+   * another list. Needed only when the remounted item gets a new `payload` object.
    */
   previewKey?: string | number | undefined;
   /**

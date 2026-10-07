@@ -24,6 +24,7 @@ import { applyDragModifiers, compileDragModifiers, ZERO_OFFSET } from '../dragMo
 import { getSharedSlot } from '../sharedState';
 import { setSourceSettling } from '../settlingSources';
 import { getActiveSession } from '../core/dragSession';
+import { retargetDragSource } from '../dragSource';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import * as DraggableRootDataAttributes from '../../../draggable/root/DraggableRootDataAttributes';
 import { containConsumerError, getElementScale, NO_MODIFIER_KEYS } from '../utils';
@@ -38,22 +39,40 @@ export interface SyntheticPreviewSourceIdentity {
   previewKey: string | number | undefined;
   /** The declared payload, used to reconnect the preview after a source remounts. */
   payload: unknown;
+  /** The `Draggable.Root` instance, which keeps it across a node swap. */
+  owner?: object | undefined;
 }
 
 /**
  * The identity of a draggable's source, from its parameters. Registration and pickup
- * build it the same way, so a remounted source finds the preview it left behind.
+ * build it the same way, so a remounted source finds the drag and the preview it left.
  */
-export function getPreviewSourceIdentity(parameters: {
-  kind: { id: symbol };
-  previewKey?: string | number | undefined;
-  payload?: unknown;
-}): SyntheticPreviewSourceIdentity {
+export function getPreviewSourceIdentity(
+  parameters: {
+    kind: { id: symbol };
+    previewKey?: string | number | undefined;
+    payload?: unknown;
+  },
+  owner: object | undefined,
+): SyntheticPreviewSourceIdentity {
   return {
     kind: parameters.kind.id,
     previewKey: parameters.previewKey,
     payload: parameters.payload,
+    owner,
   };
+}
+
+function isSameSource(
+  left: SyntheticPreviewSourceIdentity,
+  right: SyntheticPreviewSourceIdentity,
+): boolean {
+  return (
+    left.kind === right.kind &&
+    ((right.owner !== undefined && left.owner === right.owner) ||
+      (right.payload !== undefined && Object.is(left.payload, right.payload)) ||
+      (right.previewKey !== undefined && Object.is(left.previewKey, right.previewKey)))
+  );
 }
 
 /** A released preview still running its drop transition onto `source`. */
@@ -113,25 +132,25 @@ export function finishAllEndingPreviewsForTests(): void {
 }
 
 /**
- * Point a settling clone at a draggable that remounted in the drop commit.
- * A cross-container move creates a new React subtree, so the active-drag retargeting
- * path cannot link the old and new ref callbacks.
+ * Point the drag in progress, or a settling clone, at a draggable that just registered
+ * as the same source, such as a row a virtualizer or a cross-list move remounted.
+ * Only a source whose node left the document is moved.
  */
-export function retargetEndingPreviewSource(
+export function retargetPreviewSource(
   element: HTMLElement,
   identity: SyntheticPreviewSourceIdentity,
 ): void {
+  const session = getActiveSession();
+  if (
+    session?.preview &&
+    !session.source.element.isConnected &&
+    isSameSource(session.preview.identity, identity)
+  ) {
+    retargetDragSource(session.source.element, element);
+    return;
+  }
   for (const entry of endingPreviews) {
-    if (entry.source.isConnected || entry.identity.kind !== identity.kind) {
-      continue;
-    }
-
-    const sameDeclaredPayload =
-      identity.payload !== undefined && Object.is(entry.identity.payload, identity.payload);
-    const samePreviewKey =
-      identity.previewKey !== undefined &&
-      Object.is(entry.identity.previewKey, identity.previewKey);
-    if (sameDeclaredPayload || samePreviewKey) {
+    if (!entry.source.isConnected && isSameSource(entry.identity, identity)) {
       entry.retarget(element);
       return;
     }
@@ -563,6 +582,7 @@ export function createSyntheticPreview(
       finishEndingPreview(sourceElement);
       sourceElement.setAttribute(DraggableRootDataAttributes.dragging, '');
     },
+    identity: sourceIdentity,
     showContent,
     retargetSource,
     setPreviewOffset,
@@ -598,6 +618,8 @@ export function createSyntheticPreview(
 
 /** The built drag preview, as the sensor, session and React layer use it. */
 export interface DragPreview {
+  /** The source it was picked up from (see `retargetPreviewSource`). */
+  readonly identity: SyntheticPreviewSourceIdentity;
   /** `keys` are the modifier keys of the event behind this position, for preview modifiers. */
   update(clientX: number, clientY: number, keys?: DragModifierKeys): void;
   /** Follow the drag source to a fresh node when a virtualizer remounts it mid-drag. */

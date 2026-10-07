@@ -105,7 +105,7 @@ export function createRegisterSource(
       setParticipantOwner(getNormalized, payloadOwner);
     }
 
-    return registerDraggableElement(element, initial, getNormalized);
+    return registerDraggableElement(element, initial, getNormalized, payloadOwner);
   };
 }
 
