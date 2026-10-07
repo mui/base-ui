@@ -3261,6 +3261,57 @@ describe('<Autocomplete.Root />', () => {
       },
     );
 
+    it('clears the highlight when an uncontrolled inline root closes in a keepMounted dialog', async () => {
+      const onItemHighlighted = vi.fn();
+      const onCommand = vi.fn();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <Dialog.Root open={open} onOpenChange={setOpen}>
+            <Dialog.Portal keepMounted>
+              <Dialog.Popup aria-label="Command palette">
+                <Autocomplete.Root
+                  inline
+                  autoHighlight="always"
+                  items={commands}
+                  onItemHighlighted={onItemHighlighted}
+                >
+                  <Autocomplete.Input />
+                  <Autocomplete.List>
+                    {(item: string) => (
+                      <Autocomplete.Item
+                        key={item}
+                        value={item}
+                        onClick={() => {
+                          onCommand(item);
+                          setOpen(false);
+                        }}
+                      >
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'Sh');
+      expect(screen.getByRole('option', { name: 'Share' })).toHaveAttribute('data-highlighted');
+      onItemHighlighted.mockClear();
+
+      await user.keyboard('{Enter}');
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+      expect(onCommand).toHaveBeenLastCalledWith('Share');
+      expect(onItemHighlighted.mock.calls.map(([value]) => value)).toEqual([undefined]);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
     it('highlights the first item once results arrive after the query changed', async () => {
       const { setProps } = await render(<CommandPalette items={[]} />);
       const input = screen.getByTestId('input');
