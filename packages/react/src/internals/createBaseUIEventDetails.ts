@@ -124,6 +124,14 @@ export type BaseUIGenericEventDetails<
   CustomProperties extends object = {},
 > = Reason extends string ? BaseUIGenericEventDetail<Reason, CustomProperties> & {} : never;
 
+/** Highlight navigation uses mouse events for hover and pointer events for leaving an item. */
+export type BaseUIHighlightEventDetails<
+  Reason extends string,
+  CustomProperties extends object = {},
+> = Reason extends typeof REASONS.pointer
+  ? { reason: Reason; event: MouseEvent | PointerEvent } & CustomProperties
+  : BaseUIGenericEventDetails<Reason, CustomProperties>;
+
 /**
  * Creates a Base UI event details object with the given reason and utilities
  * for preventing Base UI's internal event handling.

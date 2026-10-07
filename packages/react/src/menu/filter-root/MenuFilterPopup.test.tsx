@@ -1,106 +1,57 @@
-import { expect, describe, beforeEach, it } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
-import { createRenderer, resetBrowserPointer } from '#test-utils';
-
-describe('<Menu.List /> pointer presses', () => {
-  beforeEach(resetBrowserPointer);
-
-  const { render } = createRenderer();
-
-  describe('scrollbar presses', () => {
-    function measureList(list: HTMLElement, overrides: Record<string, number>) {
-      const base = {
-        clientHeight: 100,
-        clientWidth: 100,
-        offsetHeight: 100,
-        offsetWidth: 100,
-        scrollHeight: 100,
-        scrollWidth: 100,
-      };
-      Object.defineProperties(
-        list,
-        Object.fromEntries(
-          Object.entries({ ...base, ...overrides }).map(([key, value]) => [
-            key,
-            { configurable: true, value },
-          ]),
-        ),
-      );
-    }
-
-    it('allows a horizontal scrollbar press', async () => {
-      await render(
-        <Menu.FilterProvider>
-          <Menu.Root defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Input aria-label="Filter actions" />
-                  <Menu.List>
-                    <Menu.Item>Rename</Menu.Item>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </Menu.FilterProvider>,
-      );
-
-      const list = screen.getByRole('menu');
-      measureList(list, { offsetHeight: 115, scrollWidth: 200 });
-
-      const scrollbarMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-      Object.defineProperty(scrollbarMouseDown, 'offsetY', { value: 110 });
-
-      await act(async () => {
-        list.dispatchEvent(scrollbarMouseDown);
-      });
-
-      expect(scrollbarMouseDown.defaultPrevented).toBe(false);
-    });
-
-    it('allows an RTL vertical scrollbar press on the leading edge', async () => {
-      await render(
-        <DirectionProvider direction="rtl">
-          <Menu.FilterProvider>
-            <Menu.Root defaultOpen>
-              <Menu.Trigger>Actions</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.Input aria-label="Filter actions" />
-                    <Menu.List style={{ direction: 'rtl' }}>
-                      <Menu.Item>Rename</Menu.Item>
-                    </Menu.List>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </Menu.FilterProvider>
-        </DirectionProvider>,
-      );
-
-      const list = screen.getByRole('menu');
-      measureList(list, { offsetWidth: 115, scrollHeight: 200 });
-
-      const scrollbarMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-      Object.defineProperty(scrollbarMouseDown, 'offsetX', { value: 5 });
-
-      await act(async () => {
-        list.dispatchEvent(scrollbarMouseDown);
-      });
-
-      expect(scrollbarMouseDown.defaultPrevented).toBe(false);
-    });
-  });
-});
+import { createRenderer } from '#test-utils';
 
 describe('<Menu.Popup /> filter input focus', () => {
   const { render } = createRenderer();
+
+  function renderFilterMenu() {
+    return render(
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Group>
+                    <Menu.GroupLabel>Edit</Menu.GroupLabel>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.Group>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+  }
+
+  it('returns focus to the input when the list takes it from the input', async () => {
+    await renderFilterMenu();
+
+    const input = screen.getByRole('searchbox');
+    await act(async () => input.focus());
+    // A press on a group or its label focuses the list, the nearest focusable ancestor.
+    await act(async () => screen.getByRole('menu').focus());
+
+    expect(input).toHaveFocus();
+  });
+
+  it('leaves focus on the list when the input did not have it', async () => {
+    await renderFilterMenu();
+
+    const list = screen.getByRole('menu');
+    // A touch open leaves the input unfocused so the on-screen keyboard stays closed.
+    await act(async () => screen.getByRole('searchbox').blur());
+    await act(async () => list.focus());
+
+    expect(list).toHaveFocus();
+  });
 
   it.each([
     ['vertical', 'ltr', 'ArrowLeft'],

@@ -28,9 +28,10 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import type {
   BaseUIChangeEventDetails,
-  BaseUIGenericEventDetails,
+  BaseUIHighlightEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import type { ContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
@@ -77,7 +78,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     virtualFocusRef,
     allowEscape = true,
     resetOnPointerLeave = true,
-    webkitItemSelected = false,
   } = props;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -88,7 +88,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   // invalidation doesn't cascade into every descendant root's context.
   const enclosingMenuStore = parentMenuRootContext?.store;
   const parentVirtualFocus = parentMenuRootContext?.virtualFocus ?? false;
-  const parentWebkitItemSelected = parentMenuRootContext?.webkitItemSelected ?? false;
 
   const parentFromContext: MenuParent = React.useMemo(() => {
     if (isSubmenu && enclosingMenuStore) {
@@ -529,6 +528,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       store.setActiveIndex(
         nextActiveIndex,
         source === 'imperative' ? REASONS.imperativeAction : getHighlightReason(event),
+        event?.nativeEvent,
       );
     },
     // A virtual-focus submenu's keyboard opening is orchestrated by its navigation wrapper based
@@ -565,9 +565,9 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     elementsRef: store.context.itemDomElements,
     activeIndex,
     resetMs: TYPEAHEAD_RESET_MS,
-    onMatch: (index) => {
+    onMatch: (index, event) => {
       if (open && index !== activeIndex) {
-        store.setActiveIndex(index, REASONS.keyboard);
+        store.setActiveIndex(index, REASONS.keyboard, event.nativeEvent);
       }
     },
     onTyping,
@@ -602,14 +602,15 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       store.set('highlightedItem', item);
     }
     // The tag left by the write that produced this committed value.
-    const reason = store.context.highlightReason;
+    const { highlightReason, highlightEvent } = store.context;
     store.context.highlightReason = REASONS.none;
+    store.context.highlightEvent = undefined;
     if (!onItemHighlightedProp) {
       return;
     }
     onItemHighlighted(
       item,
-      createGenericEventDetails(reason, undefined, {
+      createGenericEventDetails(highlightReason, highlightEvent, {
         label:
           item === undefined
             ? undefined
@@ -732,8 +733,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       setRenderedFloatingId,
       virtualFocus,
       parentVirtualFocus,
-      parentWebkitItemSelected,
-      webkitItemSelected,
       syncHighlightedItem,
     }),
     [
@@ -745,8 +744,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       defaultFloatingId,
       virtualFocus,
       parentVirtualFocus,
-      parentWebkitItemSelected,
-      webkitItemSelected,
       syncHighlightedItem,
     ],
   );
@@ -767,21 +764,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
   return content;
 });
-
-function getHighlightReason(
-  event: React.SyntheticEvent | undefined,
-): MenuRoot.HighlightEventReason {
-  if (event == null) {
-    return REASONS.none;
-  }
-  if (event.type.startsWith('key')) {
-    return REASONS.keyboard;
-  }
-  if (event.type.startsWith('mouse') || event.type.startsWith('pointer')) {
-    return REASONS.pointer;
-  }
-  return REASONS.none;
-}
 
 /**
  * Groups all parts of the menu.
@@ -830,10 +812,6 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
    * Whether pointer leave should clear the active item.
    */
   resetOnPointerLeave?: boolean | undefined;
-  /**
-   * Whether virtual-focus items need WebKit's `aria-selected` compatibility state.
-   */
-  webkitItemSelected?: boolean | undefined;
 }
 
 export interface MenuRootProps<Payload = unknown> {
@@ -881,7 +859,8 @@ export interface MenuRootProps<Payload = unknown> {
    * containing the reason for the change, the event, and the item's text label.
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
-   * - `'pointer'`: the highlight changed due to pointer hovering.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
    * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
    * - `'none'`: the highlight changed for another reason, such as automatic highlighting while
    *   filtering, the item list changing, or the popup opening or closing.
@@ -994,7 +973,7 @@ export type MenuRootHighlightEventReason =
   | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 
-export type MenuRootHighlightEventDetails = BaseUIGenericEventDetails<
+export type MenuRootHighlightEventDetails = BaseUIHighlightEventDetails<
   MenuRoot.HighlightEventReason,
   {
     /**

@@ -22,7 +22,7 @@ async function lint(code) {
   return result.results[0].warnings.map((warning) => warning.text);
 }
 
-describe(ruleName, () => {
+describe(`stylelint rule ${ruleName}`, () => {
   it('allows raw colors from the docs Tailwind theme', async () => {
     const warnings = await lint(`
       .Test {

@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
 import {
   act,
@@ -103,6 +103,58 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   describe('filtering', () => {
+    it.skipIf(isJSDOM).each(['ArrowDown', 'ArrowUp'])(
+      'ignores %s in the input while the popup animates out',
+      async (key) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const onOpenChange = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root onOpenChange={onOpenChange}>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="filter-menu-exit-test">
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <style>{`
+              .filter-menu-exit-test[data-ending-style] {
+                animation: filter-menu-exit-test 10s linear;
+              }
+              @keyframes filter-menu-exit-test {
+                from { opacity: 1; }
+                to { opacity: 0; }
+              }
+            `}</style>
+          </Menu.FilterProvider>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await act(async () => trigger.focus());
+        await user.keyboard('[ArrowDown]');
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard('[Escape]');
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
+
+        await user.keyboard(`[${key}]`);
+
+        expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      },
+    );
+
     it('highlights the first item while keeping input focus when opened with the keyboard', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
@@ -3623,7 +3675,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
   });
 
-  it('preserves input focus on item and list presses without blocking the scrollbar', async () => {
+  it('preserves input focus on item presses', async () => {
     await render(
       <Menu.FilterProvider>
         <Menu.Root defaultOpen>
@@ -3642,29 +3694,14 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       </Menu.FilterProvider>,
     );
 
-    const list = screen.getByRole('menu');
     const item = screen.getByRole('menuitem', { name: 'Rename' });
     const itemMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-    const backgroundMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-    const scrollbarMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-    Object.defineProperties(list, {
-      clientHeight: { configurable: true, value: 100 },
-      clientWidth: { configurable: true, value: 100 },
-      offsetHeight: { configurable: true, value: 100 },
-      offsetWidth: { configurable: true, value: 115 },
-      scrollHeight: { configurable: true, value: 200 },
-    });
-    Object.defineProperty(scrollbarMouseDown, 'offsetX', { value: 110 });
 
     await act(async () => {
       item.dispatchEvent(itemMouseDown);
-      list.dispatchEvent(backgroundMouseDown);
-      list.dispatchEvent(scrollbarMouseDown);
     });
 
     expect(itemMouseDown.defaultPrevented).toBe(true);
-    expect(backgroundMouseDown.defaultPrevented).toBe(true);
-    expect(scrollbarMouseDown.defaultPrevented).toBe(false);
   });
 
   it('returns focus to the input with the RTL submenu close key', async () => {
@@ -5124,6 +5161,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
       await user.hover(submenuTrigger);
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      // Let the root popup's initial focus land first so it can't steal focus from the click below.
+      await act(async () => {
+        await waitSingleFrame();
+      });
       fireEvent.mouseMove(submenuInput);
       await waitFor(() => {
         expect(submenuInput).toHaveAttribute('data-highlighted');
@@ -5183,6 +5224,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
         await user.hover(submenuTrigger);
         const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        // The root popup's initial focus runs a frame after mounting. Let it land so it can't
+        // steal focus from the tap below.
+        await act(async () => {
+          await waitSingleFrame();
+        });
 
         firePointer.down(submenuInput, { pointerType: 'touch', timeStamp: 10 });
         await act(async () => {
@@ -5664,6 +5710,130 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await waitFor(() => {
         expect(item).not.toHaveAttribute('data-highlighted');
       });
+    });
+  });
+
+  describe('prop: onItemHighlighted', () => {
+    it.each(['vertical', 'horizontal'] as const)(
+      'passes the keydown event to onItemHighlighted in a %s menu',
+      async (orientation) => {
+        const onItemHighlighted = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root open orientation={orientation} onItemHighlighted={onItemHighlighted}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await act(async () => {
+          input.focus();
+        });
+        await user.keyboard('[ArrowDown]');
+
+        await waitFor(() => {
+          expect(onItemHighlighted).toHaveBeenLastCalledWith(
+            screen.getByRole('menuitem', { name: 'Rename' }),
+            expect.anything(),
+          );
+        });
+        const details = onItemHighlighted.mock.lastCall?.[1];
+        expect(details.reason).toBe('keyboard');
+        expect(details.event).toBeInstanceOf(KeyboardEvent);
+        expect(details.event.key).toBe('ArrowDown');
+      },
+    );
+
+    function SubmenuHighlightMenu(props: {
+      onItemHighlighted: Menu.Root.Props['onItemHighlighted'];
+    }) {
+      return (
+        <Menu.FilterProvider>
+          <Menu.Root open onItemHighlighted={props.onItemHighlighted}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.Input aria-label="Filter sharing options" />
+                              <Menu.List>
+                                <Menu.Item>Email</Menu.Item>
+                              </Menu.List>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
+      );
+    }
+
+    it('passes the keydown events when entering and leaving a filterable submenu', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<SubmenuHighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      await act(async () => {
+        screen.getByRole('searchbox', { name: 'Filter actions' }).focus();
+      });
+      await user.keyboard('[ArrowDown][ArrowRight]');
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      const enterDetails = onItemHighlighted.mock.lastCall?.[1];
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(undefined);
+      expect(enterDetails.reason).toBe('keyboard');
+      expect(enterDetails.event.key).toBe('ArrowRight');
+
+      await user.keyboard('[ArrowLeft]');
+      const trigger = screen.getByRole('menuitem', { name: 'Share' });
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(trigger, expect.anything());
+      });
+
+      const exitDetails = onItemHighlighted.mock.lastCall?.[1];
+      expect(exitDetails.reason).toBe('keyboard');
+      expect(exitDetails.event.key).toBe('ArrowLeft');
+    });
+
+    it('reports no keyboard reason when Enter opens a filterable submenu', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<SubmenuHighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      await act(async () => {
+        screen.getByRole('searchbox', { name: 'Filter actions' }).focus();
+      });
+      await user.keyboard('[ArrowDown][Enter]');
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(undefined);
+      expect(onItemHighlighted.mock.lastCall?.[1].reason).toBe('none');
     });
   });
 });

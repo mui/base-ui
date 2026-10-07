@@ -1,7 +1,7 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createFormDataSpy, createRenderer, isJSDOM } from '#test-utils';
 import { Autocomplete, AutocompleteSeparatorDataAttributes } from '@base-ui/react/autocomplete';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -752,6 +752,50 @@ describe('<Autocomplete.Root />', () => {
     expect(trigger).not.toHaveAttribute('data-placeholder');
   });
 
+  describe('prop: onItemHighlighted', () => {
+    it('passes native mouse and pointer events for pointer highlights', async () => {
+      const onItemHighlighted = vi.fn();
+      await render(
+        <Autocomplete.Root open onItemHighlighted={onItemHighlighted}>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="apple">Apple</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const option = screen.getByRole('option', { name: 'Apple' });
+      const hoverEvent = new MouseEvent('mousemove', { bubbles: true });
+      fireEvent(option, hoverEvent);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          'apple',
+          expect.objectContaining({ reason: 'pointer', event: hoverEvent }),
+        );
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].event).toBe(hoverEvent);
+
+      const leaveEvent = new PointerEvent('pointerout', {
+        bubbles: true,
+        pointerType: 'mouse',
+      });
+      fireEvent(option, leaveEvent);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ reason: 'pointer', event: leaveEvent }),
+        );
+      });
+      expect(onItemHighlighted.mock.lastCall?.[1].event).toBe(leaveEvent);
+    });
+  });
+
   describe('prop: autoHighlight', () => {
     it('calls onItemHighlighted when the popup auto highlights on open', async () => {
       const onItemHighlighted = vi.fn();
@@ -1074,19 +1118,18 @@ describe('<Autocomplete.Root />', () => {
       await user.hover(banana);
 
       await waitFor(() => {
-        expect(input).toHaveAttribute('aria-activedescendant', banana.id);
         expect(banana).toHaveAttribute('data-highlighted');
       });
+      expect(input).toHaveAttribute('aria-activedescendant', banana.id);
 
       const outside = screen.getByTestId('outside');
       fireEvent.pointerDown(outside);
       fireEvent.blur(input, { relatedTarget: outside });
       fireEvent.focus(outside);
+      await flushMicrotasks();
 
-      await waitFor(() => {
-        expect(input).toHaveAttribute('aria-activedescendant', banana.id);
-        expect(banana).toHaveAttribute('data-highlighted');
-      });
+      expect(banana).toHaveAttribute('data-highlighted');
+      expect(input).toHaveAttribute('aria-activedescendant', banana.id);
 
       expect(screen.getByRole('option', { name: 'apple' })).not.toHaveAttribute('data-highlighted');
     });
@@ -1270,11 +1313,51 @@ describe('<Autocomplete.Root />', () => {
       const apple = await screen.findByRole('option', { name: 'apple' });
       await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
 
+      // Hovering puts the list into pointer modality, so leaving it runs the reset path.
+      await user.hover(apple);
+
       const outside = document.createElement('div');
       document.body.appendChild(outside);
       fireEvent.pointerLeave(apple, { pointerType: 'mouse', relatedTarget: outside });
 
       await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
+      outside.remove();
+    });
+
+    it('clears the highlight when the pointer leaves the list without keepHighlight', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['apple', 'banana']} autoHighlight>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.type(input, 'ap');
+
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
+
+      await user.hover(apple);
+
+      const outside = document.createElement('div');
+      document.body.appendChild(outside);
+      fireEvent.pointerLeave(apple, { pointerType: 'mouse', relatedTarget: outside });
+
+      await waitFor(() => expect(apple).not.toHaveAttribute('data-highlighted'));
       outside.remove();
     });
 
@@ -1304,6 +1387,9 @@ describe('<Autocomplete.Root />', () => {
 
       const apple = await screen.findByRole('option', { name: 'apple' });
       await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
+
+      // Hovering puts the list into pointer modality, so leaving it runs the reset path.
+      await user.hover(apple);
 
       const outside = document.createElement('div');
       document.body.appendChild(outside);
@@ -1826,12 +1912,7 @@ describe('<Autocomplete.Root />', () => {
 
   describe('prop: submitOnItemClick', () => {
     it('prevents submit on Enter when an item is highlighted by default (false)', async () => {
-      let submitted = 0;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        submitted += 1;
-      };
+      const handleSubmit = createFormDataSpy('search');
 
       const { user } = await render(
         <form onSubmit={handleSubmit}>
@@ -1861,19 +1942,11 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'a'); // open and highlight first
       await user.keyboard('{Enter}');
 
-      expect(submitted).toBe(0);
+      expect(handleSubmit).not.toHaveBeenCalled();
     });
 
     it('when true, clicking with pointer submits the owning form', async () => {
-      let submitValue: string | null = null;
-      let submitCount = 0;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitValue = (data.get('q') as string) ?? null;
-        submitCount += 1;
-      };
+      const handleSubmit = createFormDataSpy('q');
 
       const { user } = await render(
         <form onSubmit={handleSubmit}>
@@ -1904,17 +1977,14 @@ describe('<Autocomplete.Root />', () => {
       const alphaButton = screen.getByRole('option', { name: 'alpha' });
       await user.click(alphaButton);
 
-      expect(submitValue).toBe('alpha');
-      expect(submitCount).toBe(1);
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('alpha');
     });
 
     it('uses the combobox input form when another unscoped control owns the validation ref', async () => {
-      let submitCount = 0;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        submitCount += 1;
-      };
+      });
 
       const { user } = await render(
         <React.Fragment>
@@ -1940,19 +2010,11 @@ describe('<Autocomplete.Root />', () => {
       await user.type(screen.getByRole('combobox'), 'a');
       await user.click(screen.getByRole('option', { name: 'alpha' }));
 
-      expect(submitCount).toBe(1);
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
     });
 
     it('when true, pressing Enter in the Input submits the owning form when an item is highlighted', async () => {
-      let submitValue: string | null = null;
-      let submitCount = 0;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitValue = (data.get('q') as string) ?? null;
-        submitCount += 1;
-      };
+      const handleSubmit = createFormDataSpy('q');
 
       const { user } = await render(
         <form onSubmit={handleSubmit}>
@@ -1986,22 +2048,14 @@ describe('<Autocomplete.Root />', () => {
 
       await user.keyboard('{Enter}');
 
-      expect(submitValue).toBe('alpha');
-      expect(submitCount).toBe(1);
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('alpha');
     });
 
     it.skipIf(isJSDOM)(
       'when true, clicking with pointer submits an associated external form when `form` is provided',
       async () => {
-        let submitValue: string | null = null;
-        let submitCount = 0;
-
-        const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-          event.preventDefault();
-          const data = new FormData(event.currentTarget);
-          submitValue = (data.get('q') as string) ?? null;
-          submitCount += 1;
-        };
+        const handleSubmit = createFormDataSpy('q');
 
         const { user } = await render(
           <React.Fragment>
@@ -2034,21 +2088,13 @@ describe('<Autocomplete.Root />', () => {
         await user.type(input, 'al');
         await user.click(screen.getByRole('option', { name: 'alpha' }));
 
-        expect(submitValue).toBe('alpha');
-        expect(submitCount).toBe(1);
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
+        expect(handleSubmit.mock.results.at(-1)?.value).toBe('alpha');
       },
     );
 
     it('focusing the listbox should keep the input focused and maintain functionality', async () => {
-      let submitValue: string | null = null;
-      let submitCount = 0;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitValue = (data.get('q') as string) ?? null;
-        submitCount += 1;
-      };
+      const handleSubmit = createFormDataSpy('q');
 
       const { user } = await render(
         <form onSubmit={handleSubmit}>
@@ -2090,8 +2136,8 @@ describe('<Autocomplete.Root />', () => {
 
       await user.keyboard('{Enter}');
 
-      expect(submitValue).toBe('alpha');
-      expect(submitCount).toBe(1);
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('alpha');
     });
   });
 
@@ -2105,13 +2151,7 @@ describe('<Autocomplete.Root />', () => {
     clock.withFakeTimers();
 
     it('submits the typed input value when wrapped in Field.Root', async () => {
-      let submitted: string | null = null;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitted = (data.get('search') as string) ?? null;
-      };
+      const handleSubmit = createFormDataSpy('search');
 
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
@@ -2128,17 +2168,12 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'hello world');
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).toBe('hello world');
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('hello world');
     });
 
     it('submits the typed input value when name is provided on Autocomplete.Root', async () => {
-      let submitted: FormDataEntryValue | null = null;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitted = data.get('query');
-      };
+      const handleSubmit = createFormDataSpy('query');
 
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
@@ -2170,17 +2205,12 @@ describe('<Autocomplete.Root />', () => {
 
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).toBe('base ui');
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('base ui');
     });
 
     it('submits the popup input value through native FormData when rendering a field-aware input', async () => {
-      let submitted: FormDataEntryValue | null = null;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitted = data.get('search');
-      };
+      const handleSubmit = createFormDataSpy('search');
 
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
@@ -2221,17 +2251,12 @@ describe('<Autocomplete.Root />', () => {
 
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).toBe('alpha');
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('alpha');
     });
 
     it('submits the inline input value through native FormData', async () => {
-      let submitted: FormDataEntryValue | null = null;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitted = data.get('search');
-      };
+      const handleSubmit = createFormDataSpy('search');
 
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
@@ -2260,7 +2285,8 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'alp');
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).toBe('alp');
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('alp');
     });
 
     it('server-renders only the inline input name for native FormData', () => {
@@ -2325,13 +2351,7 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('submits a default popup input value through native FormData before the popup opens', async () => {
-      let submitted: FormDataEntryValue | null = null;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitted = data.get('search');
-      };
+      const handleSubmit = createFormDataSpy('search');
 
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
@@ -2362,7 +2382,8 @@ describe('<Autocomplete.Root />', () => {
 
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).toBe('alpha');
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('alpha');
     });
 
     it('server-renders the default popup input value without a form name before hydration', () => {
@@ -2401,13 +2422,7 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
-      let submitted: FormDataEntryValue | null = null;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitted = data.get('query');
-      };
+      const handleSubmit = createFormDataSpy('query');
 
       const { user } = await render(
         <React.Fragment>
@@ -2423,7 +2438,8 @@ describe('<Autocomplete.Root />', () => {
       await user.type(screen.getByTestId('input'), 'base ui');
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).toBe('base ui');
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('base ui');
     });
 
     it('triggers native validation when required and empty', async () => {
@@ -2488,13 +2504,7 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('submits the input value directly (not selection value)', async () => {
-      let submitted: string | null = null;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitted = data.get('search') as string;
-      };
+      const handleSubmit = createFormDataSpy('search');
 
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
@@ -2522,16 +2532,12 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'appl');
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).toBe('appl');
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('appl');
     });
 
     it('Enter submits when no item is highlighted', async () => {
-      let submitted = 0;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        submitted += 1;
-      };
+      const handleSubmit = createFormDataSpy('search');
 
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
@@ -2560,19 +2566,11 @@ describe('<Autocomplete.Root />', () => {
       await user.click(screen.getByRole('combobox'));
       await user.keyboard('{Enter}');
 
-      expect(submitted).toBe(1);
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
     });
 
     it('pressing Enter in the Input submits the owning form when no item is highlighted', async () => {
-      let submitValue: string | null = null;
-      let submitCount = 0;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitValue = (data.get('q') as string) ?? null;
-        submitCount += 1;
-      };
+      const handleSubmit = createFormDataSpy('q');
 
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
@@ -2603,20 +2601,12 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'xyz');
       await user.keyboard('{Enter}');
 
-      expect(submitValue).toBe('xyz');
-      expect(submitCount).toBe(1);
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('xyz');
     });
 
     it('pressing Enter in the List when it has focus submits the owning form', async () => {
-      let submitValue: string | null = null;
-      let submitCount = 0;
-
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        submitValue = (data.get('q') as string) ?? null;
-        submitCount += 1;
-      };
+      const handleSubmit = createFormDataSpy('q');
 
       const { user } = await render(
         <Form onSubmit={handleSubmit}>
@@ -2655,8 +2645,8 @@ describe('<Autocomplete.Root />', () => {
 
       await user.keyboard('{Enter}');
 
-      expect(submitValue).toBe('alpha');
-      expect(submitCount).toBe(1);
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.results.at(-1)?.value).toBe('alpha');
     });
   });
 

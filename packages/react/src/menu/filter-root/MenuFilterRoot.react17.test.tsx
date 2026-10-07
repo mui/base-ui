@@ -1,7 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import { Menu } from '@base-ui/react/menu';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import userEvent from '@testing-library/user-event';
 import { createRenderer } from '#test-utils';
 
 vi.mock('@base-ui/utils/safeReact', async (importOriginal) => {
@@ -89,8 +88,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> with the React
       </Menu.FilterProvider>,
     );
 
-    hydrate();
-    const user = userEvent.setup();
+    const { user } = hydrate();
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
 
     await waitFor(() => {

@@ -121,6 +121,10 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
   const direction = useDirection();
 
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    // Like a plain menu, ignore keys while the popup animates out with the input still focused.
+    if (!store.select('open')) {
+      return;
+    }
     const activeItem = store.state.highlightedItem;
     const action = getMenuFilterKeyAction(event, {
       orientation,
@@ -157,7 +161,7 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
             : getMaxListIndex(listRef, EMPTY_ARRAY);
         if (listRef.current[index]) {
           event.preventDefault();
-          store.setActiveIndex(index, REASONS.keyboard);
+          store.setActiveIndex(index, REASONS.keyboard, event.nativeEvent);
         }
         break;
       }
