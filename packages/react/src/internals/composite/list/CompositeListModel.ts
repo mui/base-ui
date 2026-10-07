@@ -13,7 +13,7 @@ interface CompositeListItem<Metadata> {
   registration: CompositeListRegistration<Metadata>;
 }
 
-export interface CompositeListRegistryParameters<Metadata> {
+export interface CompositeListModelParameters<Metadata> {
   /**
    * A ref to the list of HTML elements, ordered by their index.
    * Explicit indexes can leave empty slots in the array.
@@ -40,14 +40,14 @@ export interface CompositeListRegistryParameters<Metadata> {
  * layout effect, and `dispose` when it unmounts. `useCompositeList` is the owner for React
  * components that have none of their own.
  */
-export class CompositeListRegistry<Metadata> {
+export class CompositeListModel<Metadata> {
   // Fields assigned in the constructor are declared rather than initialized, so they are not
-  // defined twice: data grids construct one registry per cell while rendering.
+  // defined twice: data grids construct one model per cell while rendering.
   declare elementsRef: React.RefObject<Array<HTMLElement | null>>;
 
   declare labelsRef: React.RefObject<Array<string | null>> | undefined;
 
-  declare onMapChange: CompositeListRegistryParameters<Metadata>['onMapChange'];
+  declare onMapChange: CompositeListModelParameters<Metadata>['onMapChange'];
 
   declare private readonly requestFlush: () => void;
 
@@ -72,7 +72,7 @@ export class CompositeListRegistry<Metadata> {
   /** The automatically indexed nodes, in order, that `observer` watches for reorders. */
   private observedNodes: readonly HTMLElement[] = EMPTY_ARRAY;
 
-  constructor(params: CompositeListRegistryParameters<Metadata>) {
+  constructor(params: CompositeListModelParameters<Metadata>) {
     this.elementsRef = params.elementsRef;
     this.labelsRef = params.labelsRef;
     this.onMapChange = params.onMapChange;
@@ -117,8 +117,8 @@ export class CompositeListRegistry<Metadata> {
 
   /** Moves the items to new refs on the next flush, emptying the previous ones. */
   setRefs(
-    elementsRef: CompositeListRegistry<Metadata>['elementsRef'],
-    labelsRef: CompositeListRegistry<Metadata>['labelsRef'],
+    elementsRef: CompositeListModel<Metadata>['elementsRef'],
+    labelsRef: CompositeListModel<Metadata>['labelsRef'],
   ) {
     if (this.elementsRef === elementsRef && this.labelsRef === labelsRef) {
       return;

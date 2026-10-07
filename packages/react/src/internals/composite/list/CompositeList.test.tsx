@@ -7,7 +7,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeList, useCompositeList } from './CompositeList';
 import { CompositeListContext, useCompositeListContext } from './CompositeListContext';
-import { CompositeListRegistry } from './CompositeListRegistry';
+import { CompositeListModel } from './CompositeListModel';
 import { useCompositeListItem } from './useCompositeListItem';
 
 describe('<CompositeList />', () => {
@@ -1356,12 +1356,12 @@ describe('<CompositeList />', () => {
     });
   });
 
-  describe('CompositeListRegistry', () => {
+  describe('CompositeListModel', () => {
     it('lets an owner drive the list and items register without a provider', async () => {
       const elementsRef = {
         current: [] as Array<HTMLElement | null>,
       };
-      const ListContext = React.createContext<CompositeListRegistry<unknown> | null>(null);
+      const ListContext = React.createContext<CompositeListModel<unknown> | null>(null);
 
       function Item(props: { label: string }) {
         const list = React.useContext(ListContext)!;
@@ -1372,7 +1372,7 @@ describe('<CompositeList />', () => {
       function Owner(props: { children: React.ReactNode }) {
         const [, requestFlush] = React.useReducer((count: number) => count + 1, 0);
         const list = useRefWithInit(
-          () => new CompositeListRegistry<unknown>({ elementsRef, requestFlush }),
+          () => new CompositeListModel<unknown>({ elementsRef, requestFlush }),
         ).current;
 
         useIsoLayoutEffect(() => {

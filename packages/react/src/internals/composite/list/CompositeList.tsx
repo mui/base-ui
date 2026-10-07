@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
+import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 import type { CompositeListContextValue } from './CompositeListContext';
-import { CompositeListRegistry } from './CompositeListRegistry';
-import type { CompositeListRegistryParameters } from './CompositeListRegistry';
+import { CompositeListModel } from './CompositeListModel';
+import type { CompositeListModelParameters } from './CompositeListModel';
 
-export type { CompositeMetadata } from './CompositeListRegistry';
+export type { CompositeMetadata } from './CompositeListModel';
 
 /**
  * Tracks the items registered through the returned context and keeps `elementsRef` and
@@ -18,9 +19,9 @@ export function useCompositeList<Metadata>(
 ): CompositeListContextValue<Metadata> {
   const { elementsRef, labelsRef, onMapChange } = params;
 
-  const [, requestFlush] = React.useReducer(increment, 0);
+  const requestFlush = useForcedRerendering();
   const list = useRefWithInit(
-    () => new CompositeListRegistry<Metadata>({ elementsRef, labelsRef, requestFlush }),
+    () => new CompositeListModel<Metadata>({ elementsRef, labelsRef, requestFlush }),
   ).current;
 
   // Item refs attach before this effect runs, so flushing here rebuilds the refs before paint
@@ -50,14 +51,10 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   );
 }
 
-function increment(count: number) {
-  return count + 1;
-}
-
 export interface CompositeListState {}
 
 export interface UseCompositeListParameters<Metadata> extends Omit<
-  CompositeListRegistryParameters<Metadata>,
+  CompositeListModelParameters<Metadata>,
   'requestFlush'
 > {}
 
