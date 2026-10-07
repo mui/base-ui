@@ -105,6 +105,27 @@ describe('useManager', () => {
     expect(second).toHaveBeenCalledTimes(1);
   });
 
+  it('publishes a source payload changed during its drag on refresh', async () => {
+    function ActivePayload() {
+      const active = Draggable.useActiveDrag();
+      return <output data-testid="active">{String(active?.payload)}</output>;
+    }
+    const { engine } = await renderDnd(<ActivePayload />);
+    const source = createElement();
+    let payload = 'first';
+    engine.registerSource(source, () => ({ payload }));
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    expect(screen.getByTestId('active')).toHaveTextContent('first');
+
+    payload = 'second';
+    act(() => {
+      engine.refresh(source);
+    });
+    expect(screen.getByTestId('active')).toHaveTextContent('second');
+  });
+
   it('ends the drag in progress through cancelDrag', async () => {
     const onMoveEnd = vi.fn();
 

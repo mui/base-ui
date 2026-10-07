@@ -980,9 +980,9 @@ function wakeScrollLoop(): void {
 
 /**
  * Wakes a parked loop so the next frame reads the current parameters at the
- * current pointer position. React registrations call this after a parameter
- * change, because the loop may have parked while the element was disabled or
- * declined to scroll. The getter is read every frame, so no cache needs
+ * current pointer position. React registrations and `manager.refresh` call this
+ * after a parameter change, because the loop may have parked while the element
+ * was disabled or declined to scroll. The getter is read every frame, so no cache needs
  * clearing for the change to apply.
  * @internal
  */

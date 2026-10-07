@@ -193,4 +193,27 @@ export interface DraggableManager {
    * and the `'imperative-action'` reason.
    */
   cancelDrag: () => void;
+  /**
+   * Applies a change to an element's options right away. Call it after the values
+   * returned by the element's options function have changed.
+   *
+   * Most changes don't need it, because Base UI calls the options function each
+   * time it needs a value. Call `refresh` when one of these changes:
+   *
+   * - A source's `disabled` or `handle`. Otherwise its idle styles, which prevent
+   *   text selection and the long-press menu on the source or its handle, are
+   *   updated only on the next press.
+   * - A source's `payload` during its drag, so `useActiveDrag()` returns the new value.
+   * - A target's `disabled`, `accept`, or `canDrop` during a drag. Otherwise a
+   *   target under a pointer that doesn't move keeps its hover state, and
+   *   `onDraggableEnter` and `onDraggableLeave` wait for the pointer to move.
+   * - A viewport's options during a drag. Otherwise auto-scrolling starts or stops
+   *   only when the pointer moves.
+   *
+   * It updates every source, target, and viewport registered on the element, and
+   * does nothing for an element that isn't registered. `Draggable.Root`,
+   * `Draggable.Target`, and `Draggable.Viewport` do this themselves when their
+   * props change.
+   */
+  refresh: (element: HTMLElement) => void;
 }

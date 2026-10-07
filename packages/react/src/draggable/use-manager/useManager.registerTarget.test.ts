@@ -385,6 +385,26 @@ describe('engine.registerTarget', () => {
     );
   });
 
+  it('delivers a leave on refresh when a hovered target is disabled under a still pointer', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const target = createElement();
+    const onDraggableLeave = vi.fn();
+    let disabled = false;
+    engine.registerSource(source, {});
+    engine.registerTarget(target, () => ({ disabled, onDraggableLeave }));
+
+    fireDrag.dragStart(source);
+    await flushRaf();
+    await dragEnter(target);
+
+    disabled = true;
+    await act(async () => {
+      engine.refresh(target);
+    });
+    expect(onDraggableLeave).toHaveBeenCalledTimes(1);
+  });
+
   it('delivers onMove once to a target on the frame it enters', async () => {
     const { engine } = await renderDnd();
     const source = createElement();

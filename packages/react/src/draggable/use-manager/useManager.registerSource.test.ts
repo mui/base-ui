@@ -55,6 +55,23 @@ describe('engine.registerSource', () => {
     firePointer.up(el, { pointerType: 'mouse', button: 0, buttons: 0, timeStamp: 200 });
   });
 
+  it('applies a disabled change to the gesture styles on refresh, without a press', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    let disabled = false;
+    engine.registerSource(el, () => ({ disabled }));
+    expect(el.style.touchAction).toBe('manipulation');
+
+    disabled = true;
+    engine.refresh(el);
+    expect(el.style.touchAction).toBe('');
+    expect(el.style.userSelect).toBe('');
+
+    disabled = false;
+    engine.refresh(el);
+    expect(el.style.touchAction).toBe('manipulation');
+  });
+
   it('moves gesture styles to a new imperative handle on pointerdown', async () => {
     const { engine } = await renderDnd();
     const el = createElement();

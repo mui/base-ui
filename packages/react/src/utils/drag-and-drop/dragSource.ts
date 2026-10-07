@@ -1,6 +1,6 @@
 import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
 import { getSharedSlot } from './sharedState';
-import { getRegistration } from './draggableRegistry';
+import { getRegistration, refreshDraggableStaticSetup } from './draggableRegistry';
 import { notifyDragSourceUpdated } from './dragSessionStore';
 import { getActiveSession } from './core/dragSession';
 import { syncParticipantPayload } from './participantData';
@@ -67,6 +67,21 @@ export function createDragSource(
 
   sourcePayloads.set(source, data);
   return source;
+}
+
+/**
+ * Apply a registered source's latest parameters. Its gesture styles follow
+ * `disabled` and `handle`, and a changed `payload` reaches `useActiveDrag()` during
+ * its drag. Does nothing when `element` isn't a registered source.
+ *
+ * During the source's own drag, `touch-action` no longer applies to the gesture
+ * and the root lock prevents text selection, so moving the styles is harmless.
+ */
+export function refreshDragSource(element: HTMLElement): void {
+  const parameters = refreshDraggableStaticSetup(element);
+  if (parameters !== undefined) {
+    syncActiveDragSourcePayload(element, parameters.kind.id, parameters.payload);
+  }
 }
 
 /**

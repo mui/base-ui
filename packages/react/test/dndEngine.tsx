@@ -84,6 +84,7 @@ interface DndTestEngine {
     parameters: MaybeGetter<RegisterMonitorParameters<TSourcePayload, TSourceDragData>>,
   ) => () => void;
   cancelDrag: DraggableManager['cancelDrag'];
+  refresh: DraggableManager['refresh'];
 }
 
 interface DndRenderResult extends BaseUIRenderResult {
@@ -191,8 +192,9 @@ function withAutoCleanup(engine: DraggableManager): DndTestEngine {
       ) => () => void;
       return registerCleanup(registerMonitorInternal(asGetter(parameters)));
     },
-    // Nothing to queue, since it registers nothing.
+    // Nothing to queue, since they register nothing.
     cancelDrag: engine.cancelDrag,
+    refresh: engine.refresh,
   };
 }
 

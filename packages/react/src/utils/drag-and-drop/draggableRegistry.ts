@@ -56,6 +56,27 @@ export function getRegistration(element: HTMLElement): DraggableGetter | undefin
   return holds.getActive(element)?.getParameters;
 }
 
+/**
+ * Re-apply the static setup of every registration on `element` from the element's
+ * active parameters, and return those parameters. Returns `undefined` when the
+ * element isn't registered.
+ */
+export function refreshDraggableStaticSetup(
+  element: HTMLElement,
+): DraggableConfig<any, any> | undefined {
+  const stack = registrations.get(element);
+  if (stack === undefined || stack.length === 0) {
+    return undefined;
+  }
+  const parameters = stack[stack.length - 1].getParameters();
+  // Copy first, since a refresh can re-register and mutate the stack. Each
+  // registration's setup follows the element's active parameters.
+  for (const registration of [...stack]) {
+    registration.refreshStaticSetup(parameters);
+  }
+  return parameters;
+}
+
 export interface DraggablePickup {
   /** The nearest registered draggable ancestor of the event target. */
   element: HTMLElement;
@@ -141,15 +162,9 @@ export function resolveDraggablePickup(rawTarget: EventTarget | null): Draggable
     if (!isHTMLElement(node)) {
       continue;
     }
-    const stack = registrations.get(node);
-    if (stack === undefined || stack.length === 0) {
+    const parameters = refreshDraggableStaticSetup(node);
+    if (parameters === undefined) {
       continue;
-    }
-    const parameters = stack[stack.length - 1].getParameters();
-    // Copy first, since a refresh can re-register and mutate the stack. Each
-    // registration's setup follows the element's active parameters.
-    for (const registration of [...stack]) {
-      registration.refreshStaticSetup(parameters);
     }
     if (pickup !== null) {
       continue;

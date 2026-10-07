@@ -602,6 +602,23 @@ describe('engine.registerViewport', () => {
     }
   });
 
+  it('wakes a parked loop on refresh when the viewport is re-enabled under a still pointer', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = makeEngageableScroller();
+    let disabled = true;
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, () => ({ disabled }));
+
+    await driveIntoEdgeZone(source, scroller);
+    expect(scroller.scrollBy).not.toHaveBeenCalled();
+
+    disabled = false;
+    engine.refresh(scroller);
+    await flushRaf(2);
+    expect(scroller.scrollBy).toHaveBeenCalled();
+  });
+
   it('keeps a re-registration when a stale cleanup runs again', async () => {
     const { engine } = await renderDnd();
     const source = createElement();

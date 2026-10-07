@@ -1368,13 +1368,13 @@ React.useEffect(() => {
 
 The manager and its methods are stable, so you can list them as effect dependencies. Base UI reads each option at these times:
 
-| Option                                                  | When it's read                                                                            |
-| :------------------------------------------------------ | :---------------------------------------------------------------------------------------- |
-| Event handlers and predicates, such as `canDrop`        | Every time they're needed, so they see the latest closure.                                |
-| A source's `kind` and preview settings                  | Once when a drag starts. `preview.render` runs again on each `Draggable.updatePreview()`. |
-| A source's `payload`                                    | At pickup, and whenever it changes during the drag.                                       |
-| A target's `kind` and `payload`                         | Each time the target is evaluated, including on drop.                                     |
-| `disabled`, `handle`, and the styles applied while idle | At registration and on the next `pointerdown`. Re-register to apply a change at once.     |
+| Option                                                  | When it's read                                                                                       |
+| :------------------------------------------------------ | :--------------------------------------------------------------------------------------------------- |
+| Event handlers and predicates, such as `canDrop`        | Every time they're needed, so they see the latest closure.                                           |
+| A source's `kind` and preview settings                  | Once when a drag starts. `preview.render` runs again on each `Draggable.updatePreview()`.            |
+| A source's `payload`                                    | At pickup, and whenever it changes during the drag.                                                  |
+| A target's `kind` and `payload`                         | Each time the target is evaluated, including on drop.                                                |
+| `disabled`, `handle`, and the styles applied while idle | At registration and on the next `pointerdown`. Call [`refresh`](#refresh) to apply a change at once. |
 
 ### registerSource
 
@@ -1459,6 +1459,40 @@ React.useEffect(() => {
   return router.subscribe(() => manager.cancelDrag());
 }, [manager]);
 ```
+
+### refresh
+
+Applies a change to an element's options right away. Base UI calls the options function each time it needs a value, so most changes apply on their own. A few are read only at certain moments, so call `refresh(element)` after changing one of these:
+
+- A source's `disabled` or `handle`. Otherwise the styles a source has while idle, which prevent text selection and the long-press menu on it or its handle, are updated only on the next press.
+- A source's `payload` during its drag, so [`useActiveDrag()`](#useactivedrag) returns the new value.
+- A target's `disabled`, `accept`, or `canDrop` during a drag. Otherwise a target under a pointer that doesn't move keeps its hover state, and `onDraggableEnter` and `onDraggableLeave` wait for the pointer to move.
+- A viewport's options during a drag. Otherwise auto-scrolling starts or stops only when the pointer moves.
+
+```tsx title="Locking a source while it saves"
+const lockedRef = React.useRef(false);
+
+React.useEffect(() => {
+  return manager.registerSource(element, () => ({
+    kind: card,
+    payload: id,
+    disabled: lockedRef.current,
+  }));
+}, [manager, element, id]);
+
+async function save() {
+  lockedRef.current = true;
+  manager.refresh(element);
+  try {
+    await saveCard(id);
+  } finally {
+    lockedRef.current = false;
+    manager.refresh(element);
+  }
+}
+```
+
+`refresh` updates every source, target, and viewport registered on the element, and does nothing for an element that isn't registered. A change that registers the element again, for example through the dependencies of the effect that registers it, doesn't need it. `<Draggable.Root>`, `<Draggable.Target>`, and `<Draggable.Viewport>` refresh themselves when their props change.
 
 <TypesDraggable.useManager hideDescription />
 

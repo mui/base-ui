@@ -2,7 +2,9 @@
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
 import { registerMonitor, registerTarget } from '../../utils/drag-and-drop/registrations';
-import { registerViewport } from '../../utils/drag-and-drop/autoScroller';
+import { registerViewport, wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
+import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
+import { refreshDragSource } from '../../utils/drag-and-drop/dragSource';
 import { cancelDrag } from '../../utils/drag-and-drop/synthetic/syntheticSensor';
 import type {
   DraggableManager,
@@ -12,6 +14,19 @@ import type {
   RegisterTargetParameters,
   RegisterViewportParameters,
 } from '../../utils/drag-and-drop/registrationTypes';
+
+/**
+ * Applies the latest options of every registration on `element`. The target and
+ * viewport steps are the ones `Draggable.Target` and `Draggable.Viewport` take when
+ * their props change. Both are harmless for an element registered as neither: the
+ * target refresh runs only when the element is under the pointer, and a woken
+ * scroll loop parks again.
+ */
+function refresh(element: HTMLElement): void {
+  refreshDragSource(element);
+  getActiveSession()?.scheduleTargetRefresh(element);
+  wakeAutoScroll();
+}
 
 /**
  * Returns the page-wide drag manager. Use it to register drag sources, drop targets,
@@ -34,6 +49,7 @@ export function useManager(): UseDraggableManagerReturnValue {
     registerViewport,
     registerMonitor,
     cancelDrag,
+    refresh,
   })).current;
   // The public signatures require a payload when the caller's kind declares one.
   // Internal registrations keep it optional so components can forward theirs.
