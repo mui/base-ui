@@ -84,9 +84,10 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   }, [open, setPreventUnmountOnClose]);
 
   // Mirrors `mounted` synchronously so repeated `forceUnmount()` calls in one batch complete
-  // closing once. Resynced on every commit: `setMounted(false)` while open re-mounts on the next
-  // render without changing the committed `mounted`, so a `[mounted]` dependency would leave the
-  // mirror stale and block every later unmount.
+  // closing once. Resynced on every commit unless `unmount` already ran in it (see below):
+  // `setMounted(false)` while open re-mounts on the next render without changing the committed
+  // `mounted`, so a `[mounted]` dependency would leave the mirror stale and block every later
+  // unmount.
   const mountedRef = React.useRef(mounted);
   const pendingUnmountRef = React.useRef(false);
   const rerender = useForcedRerendering();

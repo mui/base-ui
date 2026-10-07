@@ -1518,6 +1518,19 @@ describe('<Popover.Root />', () => {
     });
 
     describe('prop: actionsRef', () => {
+      function UnmountOnClose(props: {
+        open: boolean;
+        actionsRef: React.RefObject<Popover.Root.Actions | null>;
+      }) {
+        const { open, actionsRef } = props;
+        useIsoLayoutEffect(() => {
+          if (!open) {
+            actionsRef.current!.unmount();
+          }
+        }, [open, actionsRef]);
+        return null;
+      }
+
       it('unmounts the popover when the `unmount` method is called', async () => {
         const actionsRef = {
           current: {
@@ -1756,15 +1769,6 @@ describe('<Popover.Root />', () => {
         const actionsRef = React.createRef<Popover.Root.Actions>();
         const onOpenChangeComplete = vi.fn();
 
-        function UnmountOnClose(props: { open: boolean }) {
-          useIsoLayoutEffect(() => {
-            if (!props.open) {
-              actionsRef.current!.unmount();
-            }
-          }, [props.open]);
-          return null;
-        }
-
         function App() {
           const [open, setOpen] = React.useState(true);
           return (
@@ -1775,7 +1779,7 @@ describe('<Popover.Root />', () => {
                 popupProps={{
                   render: (props, state) => (
                     <div {...props}>
-                      <UnmountOnClose open={state.open} />
+                      <UnmountOnClose open={state.open} actionsRef={actionsRef} />
                     </div>
                   ),
                 }}
@@ -1796,22 +1800,13 @@ describe('<Popover.Root />', () => {
         const actionsRef = React.createRef<Popover.Root.Actions>();
         const onOpenChangeComplete = vi.fn();
 
-        function UnmountOnClose(props: { open: boolean }) {
-          useIsoLayoutEffect(() => {
-            if (!props.open) {
-              actionsRef.current!.unmount();
-            }
-          }, [props.open]);
-          return null;
-        }
-
         await render(
           <TestPopover
             rootProps={{ defaultOpen: true, actionsRef, onOpenChangeComplete }}
             popupProps={{
               render: (props, state) => (
                 <div {...props}>
-                  <UnmountOnClose open={state.open} />
+                  <UnmountOnClose open={state.open} actionsRef={actionsRef} />
                 </div>
               ),
             }}
@@ -1859,18 +1854,34 @@ describe('<Popover.Root />', () => {
         expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
       });
 
+      it('drops `unmount` when a controlled close is declined', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
+        await render(
+          <TestPopover
+            rootProps={{
+              open: true,
+              actionsRef,
+              onOpenChangeComplete,
+              onOpenChange: (nextOpen, details) => {
+                if (!nextOpen) {
+                  details.preventUnmountOnClose();
+                  actionsRef.current!.unmount();
+                }
+              },
+            }}
+          />,
+        );
+
+        await act(async () => actionsRef.current!.close());
+
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+        expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+      });
+
       it('unmounts when a descendant calls `unmount` in the commit that receives a controlled close', async () => {
         const actionsRef = React.createRef<Popover.Root.Actions>();
         const onOpenChangeComplete = vi.fn();
-
-        function UnmountOnClose(props: { open: boolean }) {
-          useIsoLayoutEffect(() => {
-            if (!props.open) {
-              actionsRef.current!.unmount();
-            }
-          }, [props.open]);
-          return null;
-        }
 
         function App() {
           const [open, setOpen] = React.useState(true);
@@ -1887,7 +1898,7 @@ describe('<Popover.Root />', () => {
                   setOpen(nextOpen);
                 },
               }}
-              popupProps={{ children: <UnmountOnClose open={open} /> }}
+              popupProps={{ children: <UnmountOnClose open={open} actionsRef={actionsRef} /> }}
             />
           );
         }
