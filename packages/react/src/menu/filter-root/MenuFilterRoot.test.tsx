@@ -12,7 +12,6 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
-import { Menubar } from '@base-ui/react/menubar';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import type userEvent from '@testing-library/user-event';
 import {
@@ -104,207 +103,57 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   describe('filtering', () => {
-    describe.skipIf(isJSDOM)('reopening during the exit animation', () => {
-      beforeEach(() => {
+    it.skipIf(isJSDOM).each(['ArrowDown', 'ArrowUp'])(
+      'ignores %s in the input while the popup animates out',
+      async (key) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
         onTestFinished(() => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
         });
-      });
 
-      const exitAnimationStyle = (
-        <style>{`
-          .filter-menu-keyboard-close-test[data-ending-style] {
-            animation: filter-menu-keyboard-close-test 10s linear;
-          }
-          @keyframes filter-menu-keyboard-close-test {
-            from { opacity: 1; }
-            to { opacity: 0; }
-          }
-        `}</style>
-      );
-
-      function TestMenu(props: Menu.Root.Props) {
-        return (
+        const onOpenChange = vi.fn();
+        const { user } = await render(
           <Menu.FilterProvider>
-            <Menu.Root {...props}>
-              <Menu.Trigger>Other actions</Menu.Trigger>
+            <Menu.Root onOpenChange={onOpenChange}>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
                 <Menu.Positioner>
-                  <Menu.Popup className="filter-menu-keyboard-close-test">
+                  <Menu.Popup className="filter-menu-exit-test">
                     <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
                       <Menu.Item>Rename</Menu.Item>
-                      <Menu.Item>Delete</Menu.Item>
                     </Menu.List>
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
             </Menu.Root>
-            {exitAnimationStyle}
-          </Menu.FilterProvider>
+            <style>{`
+              .filter-menu-exit-test[data-ending-style] {
+                animation: filter-menu-exit-test 10s linear;
+              }
+              @keyframes filter-menu-exit-test {
+                from { opacity: 1; }
+                to { opacity: 0; }
+              }
+            `}</style>
+          </Menu.FilterProvider>,
         );
-      }
 
-      async function openThenClose(
-        user: ReturnType<typeof userEvent.setup>,
-        trigger = screen.getByRole('button', { name: 'Actions' }),
-      ) {
+        const trigger = screen.getByRole('button', { name: 'Actions' });
         await act(async () => trigger.focus());
         await user.keyboard('[ArrowDown]');
         const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-        const popup = screen.getByRole('dialog');
         await waitFor(() => expect(input).toHaveFocus());
         await user.keyboard('[Escape]');
-        expect(popup).toHaveAttribute('data-ending-style');
-        const exitAnimations = popup.getAnimations();
-        expect(exitAnimations.length).toBeGreaterThan(0);
-        expect(exitAnimations[0].playState).not.toBe('finished');
-        return { trigger, input, popup, exitAnimations };
-      }
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
 
-      it.each([
-        { source: 'input', key: 'ArrowDown', controlled: false, orientation: 'vertical' },
-        { source: 'input', key: 'ArrowUp', controlled: false, orientation: 'vertical' },
-        { source: 'trigger', key: 'ArrowDown', controlled: false, orientation: 'vertical' },
-        { source: 'trigger', key: 'ArrowUp', controlled: false, orientation: 'vertical' },
-        { source: 'input', key: 'ArrowDown', controlled: true, orientation: 'vertical' },
-        { source: 'input', key: 'ArrowUp', controlled: true, orientation: 'vertical' },
-        { source: 'trigger', key: 'ArrowDown', controlled: true, orientation: 'vertical' },
-        { source: 'trigger', key: 'ArrowUp', controlled: true, orientation: 'vertical' },
-        { source: 'input', key: 'ArrowDown', controlled: false, orientation: 'horizontal' },
-        { source: 'input', key: 'ArrowUp', controlled: false, orientation: 'horizontal' },
-      ] as const)(
-        'reopens from $source with $key ($orientation, controlled: $controlled)',
-        async ({ source, key, controlled, orientation }) => {
-          const onOpenChange = vi.fn();
-          function TestComponent() {
-            const [open, setOpen] = React.useState(false);
-            return (
-              <TestMenu
-                open={controlled ? open : undefined}
-                orientation={orientation}
-                onOpenChange={(nextOpen, details) => {
-                  onOpenChange(nextOpen, details);
-                  setOpen(nextOpen);
-                }}
-              />
-            );
-          }
-          const { user } = await render(<TestComponent />);
-          const { trigger, input, popup, exitAnimations } = await openThenClose(user);
+        await user.keyboard(`[${key}]`);
 
-          if (source === 'trigger') {
-            await act(async () => trigger.focus());
-          }
-          const keyTarget = source === 'input' ? input : trigger;
-          expect(keyTarget).toHaveFocus();
-          fireEvent.keyDown(keyTarget, { key });
-          expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true]);
-          expect(onOpenChange.mock.lastCall?.[1].trigger).toBe(trigger);
-          expect(onOpenChange.mock.lastCall?.[1].reason).toBe('list-navigation');
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
-          expect(screen.getByRole('button', { name: 'Other actions' })).toHaveAttribute(
-            'aria-expanded',
-            'false',
-          );
-          await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
-          await act(async () => {
-            exitAnimations.forEach((animation) => animation.finish());
-          });
-          expect(screen.getByRole('dialog')).toBe(popup);
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
-        },
-      );
-
-      it.each(['canceled', 'declined'])(
-        'respects a %s reopening through the trigger',
-        async (mode) => {
-          const onOpenChange = vi.fn();
-          function TestComponent() {
-            const [open, setOpen] = React.useState(false);
-            return (
-              <TestMenu
-                open={open}
-                onOpenChange={(nextOpen, details) => {
-                  onOpenChange(nextOpen, details);
-                  if (nextOpen && onOpenChange.mock.calls.length > 1) {
-                    if (mode === 'canceled') {
-                      details.cancel();
-                    }
-                    return;
-                  }
-                  setOpen(nextOpen);
-                }}
-              />
-            );
-          }
-          const { user } = await render(<TestComponent />);
-          const { trigger, input, popup, exitAnimations } = await openThenClose(user);
-          fireEvent.keyDown(input, { key: 'ArrowDown' });
-          expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true]);
-          expect(onOpenChange.mock.lastCall?.[1].trigger).toBe(trigger);
-          expect(trigger).toHaveAttribute('aria-expanded', 'false');
-          expect(popup).toHaveAttribute('data-ending-style');
-          await act(async () => {
-            exitAnimations.forEach((animation) => animation.finish());
-          });
-          await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
-        },
-      );
-
-      it.each([
-        { key: 'ArrowDown', shiftKey: true },
-        { key: 'ArrowUp', ctrlKey: true },
-        { key: 'ArrowDown', altKey: true },
-        { key: 'ArrowUp', metaKey: true },
-        { key: 'ArrowDown', keyCode: 229 },
-        { key: 'ArrowLeft' },
-        { key: 'ArrowRight' },
-      ])('does not reopen for text editing or composition keys: %j', async (event) => {
-        const onOpenChange = vi.fn();
-        const { user } = await render(<TestMenu onOpenChange={onOpenChange} />);
-        const { trigger, input } = await openThenClose(user);
-        fireEvent.keyDown(input, event);
         expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
-      });
-
-      it('reopens through a menubar trigger', async () => {
-        const onOpenChange = vi.fn();
-        const { user } = await render(
-          <Menubar>
-            <Menu.FilterProvider>
-              <Menu.Root onOpenChange={onOpenChange}>
-                <Menu.Trigger>Actions</Menu.Trigger>
-                <Menu.Portal>
-                  <Menu.Positioner>
-                    <Menu.Popup className="filter-menu-keyboard-close-test">
-                      <Menu.Input aria-label="Filter actions" />
-                      <Menu.List>
-                        <Menu.Item>Rename</Menu.Item>
-                      </Menu.List>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.Root>
-            </Menu.FilterProvider>
-            {exitAnimationStyle}
-          </Menubar>,
-        );
-        const { trigger, input, popup } = await openThenClose(
-          user,
-          screen.getByRole('menuitem', { name: 'Actions' }),
-        );
-
-        fireEvent.keyDown(input, { key: 'ArrowDown' });
-        expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true]);
-        expect(onOpenChange.mock.lastCall?.[1].trigger).toBe(trigger);
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
-        await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
-      });
-    });
+      },
+    );
 
     it('highlights the first item while keeping input focus when opened with the keyboard', async () => {
       const { user } = await render(
