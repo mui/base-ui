@@ -619,8 +619,8 @@ export function start(parameters: StartParameters): DragSessionController | null
 
   function doDrop(input: DraggableInput, rawTarget: Element | null, event?: Event): void {
     // A stale sensor call can arrive after re-entrant consumer code ended the drag,
-    // and would deliver a second terminal event.
-    if (tornDown) {
+    // or during error recovery, which ends the drag before releasing the sensor.
+    if (tornDown || endDispatched) {
       return;
     }
     // From here only the end sequence updates the stack: a refresh a handler

@@ -1202,39 +1202,44 @@ describe('lifecycle manager', () => {
       expect(getActiveSession()).toBe(null);
     });
 
-    it.each(['manager', 'controller'] as const)(
-      'ignores %s cancellation from recovery callbacks',
-      (cancelVia) => {
-        let handle: DragSessionController | null = null;
-        const onMoveEnd = vi.fn<NonNullable<SourceHandlers['onMoveEnd']>>(() => {
-          if (cancelVia === 'manager') {
-            cancelDrag();
-          } else {
-            handle!.cancel();
-          }
-        });
-        const monitorEnd = vi.fn();
-        const getMonitor = () => ({ onMoveEnd: monitorEnd });
-        addMonitor(getMonitor);
-        registerCleanup(() => removeMonitor(getMonitor));
-        handle = startDragWithHandlers({
-          onMove: () => {
-            throw new Error('boom from onMove');
-          },
-          onMoveEnd,
-        });
-        act(() => {
-          expect(() =>
-            handle!.update(makeInput(), null, new Event('pointermove'), 'pointer'),
-          ).toThrow('boom from onMove');
-        });
-        expect(onMoveEnd).toHaveBeenCalledTimes(1);
-        expect(onMoveEnd.mock.calls[0][0].reason).toBe('handler-error');
-        expect(monitorEnd).toHaveBeenCalledTimes(1);
-        expect(monitorEnd.mock.calls[0][0].reason).toBe('handler-error');
-        expectEngineRecovered();
+    it.each([
+      { name: 'manager cancellation', end: () => cancelDrag() },
+      { name: 'controller cancellation', end: (handle: DragSessionController) => handle.cancel() },
+      {
+        name: 'controller drop',
+        end: (handle: DragSessionController) => handle.drop(makeInput(), null),
       },
-    );
+    ])('ignores $name from recovery callbacks', ({ end }) => {
+      let handle: DragSessionController | null = null;
+      let ended = false;
+      const onMoveEnd = vi.fn<NonNullable<SourceHandlers['onMoveEnd']>>(() => {
+        // Once, so an unguarded end can't recurse.
+        if (!ended) {
+          ended = true;
+          end(handle!);
+        }
+      });
+      const monitorEnd = vi.fn();
+      const getMonitor = () => ({ onMoveEnd: monitorEnd });
+      addMonitor(getMonitor);
+      registerCleanup(() => removeMonitor(getMonitor));
+      handle = startDragWithHandlers({
+        onMove: () => {
+          throw new Error('boom from onMove');
+        },
+        onMoveEnd,
+      });
+      act(() => {
+        expect(() =>
+          handle!.update(makeInput(), null, new Event('pointermove'), 'pointer'),
+        ).toThrow('boom from onMove');
+      });
+      expect(onMoveEnd).toHaveBeenCalledTimes(1);
+      expect(onMoveEnd.mock.calls[0][0].reason).toBe('handler-error');
+      expect(monitorEnd).toHaveBeenCalledTimes(1);
+      expect(monitorEnd.mock.calls[0][0].reason).toBe('handler-error');
+      expectEngineRecovered();
+    });
 
     it('delivers a terminal leave to hovered targets before handler-error teardown', () => {
       const target = createElement();
