@@ -1,6 +1,7 @@
 /**
  * RuleTester coverage for the Base UI test lint rules.
- * Run with `node scripts/eslint/testRules.test.mjs` (Vitest doesn't collect `scripts/`).
+ * Run with `pnpm test:lint-rules` (Vitest doesn't collect `scripts/`). It also runs before ESLint in
+ * `pnpm eslint` and `pnpm eslint:ci`, so CI's Linting job catches rule regressions.
  */
 import { RuleTester } from 'eslint';
 import baseUiTestRules from './testRules.mjs';
