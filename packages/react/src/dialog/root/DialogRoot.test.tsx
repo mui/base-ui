@@ -5,7 +5,13 @@ import * as ReactDOM from 'react-dom';
 import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  dialogRootSharedTests,
+  isJSDOM,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
@@ -167,6 +173,8 @@ describe('<Dialog.Root />', () => {
       }
     },
   );
+
+  dialogRootSharedTests({ parts: Dialog, popupRole: 'dialog', render });
 
   it('reports nested drawer counts before passive effects', async () => {
     const childStore = new DialogStore(
@@ -387,48 +395,6 @@ describe('<Dialog.Root />', () => {
     });
 
     describe('prop: onOpenChange', () => {
-      it('calls onOpenChange with the new open state', async () => {
-        const handleOpenChange = vi.fn();
-
-        const { user } = await render(
-          <TestDialog rootProps={{ onOpenChange: handleOpenChange }} />,
-        );
-
-        expect(handleOpenChange.mock.calls.length).toBe(0);
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-
-        expect(handleOpenChange.mock.calls.length).toBe(1);
-        expect(handleOpenChange.mock.calls[0][0]).toBe(true);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        expect(handleOpenChange.mock.calls.length).toBe(2);
-        expect(handleOpenChange.mock.calls[1][0]).toBe(false);
-      });
-
-      it('calls onOpenChange with the reason for change when clicked on trigger and close button', async () => {
-        const handleOpenChange = vi.fn();
-
-        const { user } = await render(
-          <TestDialog rootProps={{ onOpenChange: handleOpenChange }} />,
-        );
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-
-        expect(handleOpenChange.mock.calls.length).toBe(1);
-        expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.triggerPress);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        expect(handleOpenChange.mock.calls.length).toBe(2);
-        expect(handleOpenChange.mock.calls[1][1].reason).toBe(REASONS.closePress);
-      });
-
       it('reports no trigger when closing with an initial trigger id that is not mounted', async () => {
         const handleOpenChange = vi.fn();
         const actionsRef = React.createRef<Dialog.Root.Actions>();
@@ -455,19 +421,6 @@ describe('<Dialog.Root />', () => {
         expect(handleOpenChange.mock.calls[0][0]).toBe(false);
         expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.imperativeAction);
         expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
-      });
-
-      it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
-        const handleOpenChange = vi.fn();
-
-        const { user } = await render(
-          <TestDialog rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange }} />,
-        );
-
-        await user.keyboard('[Escape]');
-
-        expect(handleOpenChange.mock.calls.length).toBe(1);
-        expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
       });
 
       it('calls onOpenChange with the reason for change when user clicks backdrop while the modal dialog is open', async () => {
@@ -533,26 +486,6 @@ describe('<Dialog.Root />', () => {
         });
       });
 
-      it('cancel() prevents opening while uncontrolled', async () => {
-        const { user } = await render(
-          <TestDialog
-            rootProps={{
-              onOpenChange: (nextOpen, eventDetails) => {
-                if (nextOpen) {
-                  eventDetails.cancel();
-                }
-              },
-            }}
-          />,
-        );
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-        await flushMicrotasks();
-
-        expect(screen.queryByRole('dialog')).toBe(null);
-      });
-
       it('emits a single internal openchange when closing on Escape', async () => {
         const handleInternalOpenChange = vi.fn();
         const { user } = await render(
@@ -613,14 +546,13 @@ describe('<Dialog.Root />', () => {
     });
 
     describe('prop: disablePointerDismissal', () => {
-      (
-        [
-          [true, false],
-          [false, true],
-          [undefined, true],
-        ] as const
-      ).forEach(([disablePointerDismissal, expectDismissed]) => {
-        it(`${expectDismissed ? 'closes' : 'does not close'} the dialog when clicking outside if disablePointerDismissal=${disablePointerDismissal}`, async () => {
+      it.each([
+        { disablePointerDismissal: true, expectDismissed: false, outcome: 'does not close' },
+        { disablePointerDismissal: false, expectDismissed: true, outcome: 'closes' },
+        { disablePointerDismissal: undefined, expectDismissed: true, outcome: 'closes' },
+      ])(
+        '$outcome the dialog when clicking outside if disablePointerDismissal=$disablePointerDismissal',
+        async ({ disablePointerDismissal, expectDismissed }) => {
           const handleOpenChange = vi.fn();
 
           await render(
@@ -642,8 +574,8 @@ describe('<Dialog.Root />', () => {
           fireEvent.click(outside);
           expect(handleOpenChange.mock.calls.length === 1).toBe(expectDismissed);
           expect(screen.queryByRole('dialog') === null).toBe(expectDismissed);
-        });
-      });
+        },
+      );
     });
 
     describe('outside press event with backdrops', () => {
@@ -1019,11 +951,16 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByTestId('level-3')).toBe(null);
       });
 
+      expect(screen.getByTestId('level-2')).toBeInTheDocument();
+      expect(screen.getByTestId('level-1')).toBeInTheDocument();
+
       fireEvent.click(backdrops[backdrops.length - 2]);
 
       await waitFor(() => {
         expect(screen.queryByTestId('level-2')).toBe(null);
       });
+
+      expect(screen.getByTestId('level-1')).toBeInTheDocument();
 
       fireEvent.click(backdrops[backdrops.length - 3]);
 
@@ -1193,47 +1130,6 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    describe('prop: actionsRef', () => {
-      it('unmounts the dialog when the `unmount` method is called', async () => {
-        const actionsRef = {
-          current: {
-            unmount: vi.fn(),
-            close: vi.fn(),
-          },
-        };
-
-        const { user } = await render(
-          <TestDialog
-            rootProps={{
-              actionsRef,
-              onOpenChange: (open, details) => {
-                details.preventUnmountOnClose();
-              },
-            }}
-          />,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Open' });
-        await user.click(trigger);
-
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
-
-        await user.click(trigger);
-
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
-
-        await act(async () => actionsRef.current.unmount());
-
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBe(null);
-        });
-      });
-    });
-
     describe.skipIf(isJSDOM)('pointerdown removal', () => {
       it('moves focus to the popup when a focused child is removed on pointerdown and outside press still dismisses', async () => {
         function Test() {
@@ -1317,160 +1213,6 @@ describe('<Dialog.Root />', () => {
     });
 
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-      it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = React.useState(true);
-          return (
-            <div>
-              <button onClick={() => setOpen(false)}>Close externally</button>
-              <TestDialog rootProps={{ open, onOpenChangeComplete }} />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const closeButton = screen.getByText('Close externally');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('dialog-popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on close when the exit animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-        @keyframes test-anim {
-          to {
-            opacity: 0;
-          }
-        }
-
-        .animation-test-indicator[data-ending-style] {
-          animation: test-anim 1ms;
-        }
-      `;
-
-          const [open, setOpen] = React.useState(true);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(false)}>Close externally</button>
-              <TestDialog
-                rootProps={{ open, onOpenChangeComplete }}
-                popupProps={{
-                  className: 'animation-test-indicator',
-                }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        expect(screen.getByTestId('dialog-popup')).not.toBe(null);
-
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-
-        const closeButton = screen.getByText('Close externally');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('dialog-popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on open when there is no enter animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = React.useState(false);
-          return (
-            <div>
-              <button onClick={() => setOpen(true)}>Open externally</button>
-              <TestDialog rootProps={{ open, onOpenChangeComplete }} />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const openButton = screen.getByText('Open externally');
-        await user.click(openButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('dialog-popup')).not.toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls.length).toBe(2);
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
-
-      it('is called on open when the enter animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            from {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-starting-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = React.useState(false);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(true)}>Open externally</button>
-              <TestDialog
-                rootProps={{ open, onOpenChange: setOpen, onOpenChangeComplete }}
-                popupProps={{
-                  className: 'animation-test-indicator',
-                }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const openButton = screen.getByText('Open externally');
-        await user.click(openButton);
-
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-
-        expect(screen.queryByTestId('dialog-popup')).not.toBe(null);
-      });
-
       it('waits for a restarted enter animation to finish', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -1538,8 +1280,8 @@ describe('<Dialog.Root />', () => {
 
         await waitFor(() => {
           expect(onOpenChangeComplete.mock.calls.length).toBe(1);
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
         });
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
       });
 
       it('does not get called on open when dismissed during the enter animation', async () => {
@@ -1595,9 +1337,8 @@ describe('<Dialog.Root />', () => {
 
         const popup = screen.getByTestId('dialog-popup');
         await waitFor(() => {
-          const animations = popup.getAnimations();
-          expect(animations.length).not.toBe(0);
-          expect(animations.some((anim) => anim.playState !== 'finished')).toBe(true);
+          // A running animation implies at least one animation exists.
+          expect(popup.getAnimations().some((anim) => anim.playState !== 'finished')).toBe(true);
         });
 
         await user.click(document.body);
@@ -1608,14 +1349,6 @@ describe('<Dialog.Root />', () => {
 
         expect(onOpenChangeComplete.mock.calls.length).toBe(1);
         expect(onOpenChangeComplete.mock.calls[0][0]).toBe(false);
-      });
-
-      it('does not get called on mount when not open', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        await render(<TestDialog rootProps={{ onOpenChangeComplete }} />);
-
-        expect(onOpenChangeComplete.mock.calls.length).toBe(0);
       });
     });
   });
@@ -2200,9 +1933,9 @@ describe('<Dialog.Root />', () => {
       const dialogTrigger = await screen.findByRole('menuitem', { name: 'Open dialog' });
       await user.click(dialogTrigger);
 
+      await screen.findByRole('dialog');
       await waitFor(() => {
         expect(screen.queryByRole('menu')).toBe(null);
-        expect(screen.queryByRole('dialog')).not.toBe(null);
       });
 
       await user.keyboard('[Escape]');
