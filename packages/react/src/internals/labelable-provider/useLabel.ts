@@ -1,6 +1,7 @@
 'use client';
 import type * as React from 'react';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import { isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { closest, getTarget } from '../../floating-ui-react/utils';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
@@ -36,8 +37,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
       return;
     }
 
-    const root = event.currentTarget.getRootNode() as Document | ShadowRoot;
-    const controlElement = root.getElementById(resolvedControlId);
+    const controlElement = getControlById(event.currentTarget, resolvedControlId);
     if (isHTMLElement(controlElement)) {
       focusElementWithVisible(controlElement);
     }
@@ -99,6 +99,13 @@ export interface UseLabelParameters {
 }
 
 export type UseLabelReturnValue = React.HTMLAttributes<any> & React.LabelHTMLAttributes<any>;
+
+export function getControlById(label: Element, id: string) {
+  const root = label.getRootNode();
+  return (
+    (isShadowRoot(root) ? root.getElementById(id) : null) ?? ownerDocument(label).getElementById(id)
+  );
+}
 
 export function focusElementWithVisible(element: HTMLElement) {
   element.focus({

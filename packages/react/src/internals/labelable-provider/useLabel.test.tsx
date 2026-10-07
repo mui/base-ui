@@ -135,6 +135,67 @@ describe('useLabel', () => {
     }
   });
 
+  it('focuses a control in the light DOM from a label in a shadow root', async () => {
+    const host = document.createElement('div');
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const container = document.createElement('div');
+    shadowRoot.appendChild(container);
+    document.body.appendChild(host);
+
+    try {
+      const { user, unmount } = await render(
+        <Combobox.Root>
+          {ReactDOM.createPortal(<Combobox.Label>Country</Combobox.Label>, container)}
+          <Combobox.Trigger id="country">Choose a country</Combobox.Trigger>
+        </Combobox.Root>,
+      );
+
+      try {
+        await user.click(within(container).getByText('Country'));
+
+        expect(screen.getByRole('combobox')).toHaveFocus();
+      } finally {
+        unmount();
+      }
+    } finally {
+      host.remove();
+    }
+  });
+
+  it('does not throw when a label is clicked in a detached React root', async () => {
+    const container = document.createElement('div');
+
+    const { unmount } = await render(
+      <Field.Root>
+        <Field.Label nativeLabel={false} render={<div />}>
+          Country
+        </Field.Label>
+        <Select.Root>
+          <Select.Trigger id="country">Choose a country</Select.Trigger>
+        </Select.Root>
+      </Field.Root>,
+      { container },
+    );
+
+    const errors: ErrorEvent[] = [];
+    function handleError(event: ErrorEvent) {
+      event.preventDefault();
+      errors.push(event);
+    }
+    window.addEventListener('error', handleError);
+
+    try {
+      await act(async () => {
+        within(container).getByText('Country').click();
+      });
+
+      expect(errors).toHaveLength(0);
+    } finally {
+      window.removeEventListener('error', handleError);
+      unmount();
+    }
+  });
+
   it('does not focus the control when a composed click originates inside a nested button', async () => {
     function Test() {
       const labelProps = useLabel({ fallbackControlId: 'control' });
