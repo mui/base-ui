@@ -197,6 +197,42 @@ describe('<Dialog.Root />', () => {
     expect(screen.queryByTestId('section')).not.toBe(null);
   });
 
+  it('resets nested state recorded while open when a handle-backed dialog closes', async () => {
+    const help = Dialog.createHandle();
+    const section = Dialog.createHandle();
+
+    await render(
+      <Dialog.Root handle={help}>
+        <Dialog.Portal>
+          <Dialog.Popup data-testid="help">Help</Dialog.Popup>
+        </Dialog.Portal>
+        <Dialog.Root handle={section}>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="section">Section</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      </Dialog.Root>,
+    );
+
+    await act(() => help.open(null));
+    await act(() => section.open(null));
+    expect(await screen.findByTestId('section')).not.toBe(null);
+    await waitFor(() => {
+      expect(screen.getByTestId('help')).toHaveAttribute('data-nested-dialog-open');
+    });
+
+    // The section dialog stays open, so it never sends a zeroed count.
+    await act(() => help.close());
+    await waitFor(() => {
+      expect(screen.queryByTestId('help')).toBe(null);
+    });
+    expect(screen.queryByTestId('section')).not.toBe(null);
+
+    await act(() => help.open(null));
+    expect(await screen.findByTestId('help')).not.toHaveAttribute('data-nested-dialog-open');
+    expect(screen.getByTestId('help').style.getPropertyValue('--nested-dialogs')).toBe('0');
+  });
+
   it('updates the parent nested state each time a handle-backed nested dialog opens and closes', async () => {
     const child = Dialog.createHandle();
 
