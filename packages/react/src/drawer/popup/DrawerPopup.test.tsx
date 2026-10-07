@@ -446,6 +446,41 @@ describe('<Drawer.Popup />', () => {
     expect(parentPopup.style.getPropertyValue('--drawer-frontmost-height')).toBe('100px');
   });
 
+  it('keeps the parent nested state when a closed handle-backed nested drawer mounts', async () => {
+    const handle = Drawer.createHandle();
+
+    await render(
+      <Drawer.Root open modal={false}>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="parent-popup">
+              <Drawer.Root open modal={false}>
+                <Drawer.Portal>
+                  <Drawer.Viewport>
+                    <Drawer.Popup>Open child</Drawer.Popup>
+                  </Drawer.Viewport>
+                </Drawer.Portal>
+              </Drawer.Root>
+              <Drawer.Root handle={handle} modal={false}>
+                <Drawer.Portal>
+                  <Drawer.Viewport>
+                    <Drawer.Popup>Closed child</Drawer.Popup>
+                  </Drawer.Viewport>
+                </Drawer.Portal>
+              </Drawer.Root>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const parentPopup = screen.getByTestId('parent-popup');
+    await waitFor(() => {
+      expect(parentPopup).toHaveAttribute('data-nested-drawer-open');
+    });
+    expect(parentPopup.style.getPropertyValue('--nested-drawers')).toBe('1');
+  });
+
   it('does not treat dialogs inside nested drawers as nested drawers', async () => {
     await render(
       <Drawer.Root open modal={false}>

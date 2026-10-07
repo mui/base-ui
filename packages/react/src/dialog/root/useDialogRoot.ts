@@ -100,8 +100,6 @@ export function DialogInteractions({
           ownNestedOpenDialogs + 1,
           ownNestedOpenDrawers + (isDrawer ? 1 : 0),
         );
-      } else {
-        parentContext.onNestedDialogOpen(0, 0);
       }
     }
     return () => {
