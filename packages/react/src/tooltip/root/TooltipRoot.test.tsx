@@ -900,6 +900,38 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByText('Content')).toBe(null);
       });
 
+      it('reopens when re-enabled if the disabled close was canceled', async () => {
+        let setDisabledExternal!: (disabled: boolean) => void;
+
+        function App() {
+          const [disabled, setDisabled] = React.useState(false);
+          setDisabledExternal = setDisabled;
+          return (
+            <TestTooltip
+              rootProps={{
+                defaultOpen: true,
+                disabled,
+                onOpenChange: (open, details) => {
+                  if (!open && details.reason === REASONS.disabled) {
+                    details.cancel();
+                  }
+                },
+              }}
+              triggerProps={{ delay: 0 }}
+            />
+          );
+        }
+
+        await render(<App />);
+        expect(screen.queryByText('Content')).not.toBe(null);
+
+        await act(async () => setDisabledExternal(true));
+        expect(screen.queryByText('Content')).toBe(null);
+
+        await act(async () => setDisabledExternal(false));
+        expect(screen.queryByText('Content')).not.toBe(null);
+      });
+
       it('does not throw error when combined with defaultOpen', async () => {
         await render(<TestTooltip rootProps={{ defaultOpen: true, disabled: true }} />);
 

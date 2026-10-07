@@ -1801,6 +1801,123 @@ describe('<Popover.Root />', () => {
           expect(screen.queryByText('Content')).toBe(null);
         });
       });
+
+      it('clears the active trigger when `unmount` is called right after a controlled close', async () => {
+        let setOpenExternal!: (open: boolean) => void;
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          setOpenExternal = setOpen;
+          const actionsRef = React.useRef<Popover.Root.Actions | null>(null);
+
+          // Runs before the Root re-renders with the synced `open` prop, so the unmount is deferred
+          // to the closing commit.
+          React.useEffect(() => {
+            if (!open) {
+              actionsRef.current?.unmount();
+            }
+          }, [open]);
+
+          return (
+            <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
+              <Popover.Trigger>Trigger 1</Popover.Trigger>
+              <Popover.Trigger>Trigger 2</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+        await user.click(trigger1);
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        await act(async () => setOpenExternal(false));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        await act(async () => setOpenExternal(true));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      it('clears the active trigger when a popup part calls `unmount` as a controlled close renders', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let setOpenExternal!: (open: boolean) => void;
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+
+        // Its layout effect runs before the Root's in the commit that renders the popup as closed.
+        function UnmountOnClose({ open }: { open: boolean }) {
+          React.useLayoutEffect(() => {
+            if (!open) {
+              actionsRef.current?.unmount();
+            }
+          }, [open]);
+          return null;
+        }
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          setOpenExternal = setOpen;
+
+          return (
+            <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
+              <Popover.Trigger>Trigger 1</Popover.Trigger>
+              <Popover.Trigger>Trigger 2</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup
+                    data-testid="popup"
+                    render={(props, state) => (
+                      <div {...props}>
+                        <UnmountOnClose open={state.open} />
+                      </div>
+                    )}
+                  />
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+        await user.click(trigger1);
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        // A pending exit animation leaves the part's `unmount` call as the only one.
+        Object.defineProperty(screen.getByTestId('popup'), 'getAnimations', {
+          value: () => [{ finished: new Promise(() => {}) }],
+          configurable: true,
+        });
+
+        await act(async () => setOpenExternal(false));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        await act(async () => setOpenExternal(true));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      });
     });
 
     describe('prop: modal', () => {
@@ -2465,6 +2582,140 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByTestId('parent-popup')).not.toBe(null);
         expect(screen.queryByTestId('child-popup')).toBe(null);
       });
+    });
+  });
+
+  describe('controlled open request during the exit animation', () => {
+    type Response = 'commit after the exit' | 'ignore' | 'cancel';
+
+    // Presses the trigger while a controlled close is animating out, then answers the open request.
+    // 'commit after the exit' queues the reopen only after the exit animation's completion callback
+    // has run, the way React 18 can commit a parent's response after it.
+    async function requestOpenDuringExit(
+      response: Response,
+      rootProps: Partial<Popover.Root.Props> = {},
+    ): Promise<HTMLElement> {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let finishExit!: () => void;
+      const exitFinished = new Promise<void>((resolve) => {
+        finishExit = resolve;
+      });
+      let setOpenExternal!: (open: boolean) => void;
+      let exiting = false;
+      let requestedOpen: boolean | null = null;
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        setOpenExternal = setOpen;
+
+        return (
+          <Popover.Root
+            {...rootProps}
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              rootProps.onOpenChange?.(nextOpen, eventDetails);
+              if (!exiting) {
+                setOpen(nextOpen);
+                return;
+              }
+              if (response === 'cancel') {
+                eventDetails.cancel();
+              }
+              requestedOpen = nextOpen;
+            }}
+          >
+            <Popover.Trigger>Trigger</Popover.Trigger>
+            <Popover.Portal keepMounted>
+              <Popover.Positioner data-testid="positioner">
+                <Popover.Popup data-testid="popup">Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const popup = screen.getByTestId('popup');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-popup-open');
+      });
+
+      Object.defineProperty(popup, 'getAnimations', {
+        value: () => [{ finished: exitFinished }],
+        configurable: true,
+      });
+
+      await act(async () => setOpenExternal(false));
+      expect(popup).toHaveAttribute('data-ending-style');
+
+      exiting = true;
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(requestedOpen).toBe(true);
+      });
+
+      const positioner = screen.getByTestId('positioner');
+      await act(async () => {
+        finishExit();
+        // Let the exit complete and unmount the popup before the parent's response is queued.
+        while (!positioner.hasAttribute('hidden')) {
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve);
+          });
+        }
+        if (response === 'commit after the exit') {
+          setOpenExternal(true);
+        }
+      });
+
+      return trigger;
+    }
+
+    function recordOpenChanges() {
+      const calls: string[] = [];
+      const rootProps: Partial<Popover.Root.Props> = {
+        onOpenChange: (nextOpen) => calls.push(`change:${nextOpen}`),
+        onOpenChangeComplete: (nextOpen) => calls.push(`complete:${nextOpen}`),
+      };
+      return { calls, rootProps };
+    }
+
+    it('keeps the pressed state of the trigger that reopened the popover', async () => {
+      const trigger = await requestOpenDuringExit('commit after the exit');
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-pressed');
+    });
+
+    it('does not report a completed close after the reopen request', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      await requestOpenDuringExit('commit after the exit', rootProps);
+
+      const reopenIndex = calls.lastIndexOf('change:true');
+      expect(reopenIndex).toBeGreaterThan(-1);
+      expect(calls.slice(reopenIndex)).not.toContain('complete:false');
+    });
+
+    it('reports the completed close when the open request is canceled', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      await requestOpenDuringExit('cancel', rootProps);
+
+      expect(calls.at(-1)).toBe('complete:false');
+    });
+
+    it('reports the completed close when the open request is ignored', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      await requestOpenDuringExit('ignore', rootProps);
+
+      expect(calls.at(-1)).toBe('complete:false');
     });
   });
 

@@ -8,6 +8,7 @@ import { useId } from '@base-ui/utils/useId';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
@@ -555,13 +556,46 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 }
 
 /**
+ * Syncs the controlled `open` prop to the store. Every Root that uses `useOpenStateTransitions`
+ * must sync its `open` prop through this hook.
+ * In controlled mode, `state.open` holds the last open-change request instead of the open state,
+ * and a close through the prop doesn't reset it. This clears it whenever the prop closes the popup,
+ * so `true` means a request since the last controlled close, which `useOpenStateTransitions` reads
+ * on unmount. It runs in the commit that receives the prop. Parts read `open` through the store,
+ * where the prop is synced in a layout effect, so none of them sees the popup as closed before then.
+ *
+ * @param store The Store instance managing the popup state.
+ * @param openProp The Root's `open` prop.
+ */
+export function useOpenProp<State extends PopupStoreState<unknown>>(
+  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  openProp: boolean | undefined,
+) {
+  store.useControlledProp('openProp', openProp);
+
+  useIsoLayoutEffect(() => {
+    if (openProp === false) {
+      store.set('open', false);
+    }
+  }, [openProp, store]);
+}
+
+// TODO React 17: Use `React.startTransition` directly once React 17 support is removed. React 17
+// renders an update outside a batch synchronously, so a parent's response has always committed.
+const startTransition: (callback: () => void) => void =
+  SafeReact.startTransition ?? ((callback) => callback());
+
+/**
  * Manages the mounted state of the popup.
  * Sets up the transition status listeners and handles unmounting when needed.
  * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store.
+ * The Root must sync its `open` prop with `useOpenProp`.
  *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
- * @param onUnmount Optional callback to be called when the popup is unmounted.
+ * @param onUnmount Optional callback to reset close-cycle state when the popup unmounts. If an open
+ *   request arrived before the unmount, it runs, along with `onOpenChangeComplete(false)`, only
+ *   once the request turns out to be ignored, and is skipped if the request reopens the popup.
  * @param animateInitialOpen Whether a popup that mounts already open should still play its enter
  *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
@@ -576,6 +610,15 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   onUnmount?: () => void,
   animateInitialOpen?: boolean,
 ) {
+  // Set while an unmount that found an open request waits to see whether the request commits.
+  const pendingCloseCheckRef = React.useRef<object | null>(null);
+  const [closeCheck, setCloseCheck] = React.useState<object | null>(null);
+
+  const completeClose = useStableCallback(() => {
+    onUnmount?.();
+    store.context.onOpenChangeComplete?.(false);
+  });
+
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
     ref: store.context.popupRef,
@@ -584,15 +627,43 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       store.set('preventUnmountingOnClose', preventUnmountOnClose),
     animateInitialOpen,
     onUnmount() {
+      // A trigger press during the exit writes the pressed trigger and `open: true` to the store,
+      // but a controlled `open` prop may not have committed yet (React 18 can run the exit
+      // completion in between). `useOpenProp` resets `state.open` when the prop closes the popup,
+      // so `true` here means a request made since then: keep its trigger instead of clearing it.
+      if (store.state.open) {
+        store.update({ mounted: false, preventUnmountingOnClose: false });
+        // The request may also have been ignored. A parent's response is already queued when
+        // `onOpenChange` returns, and a transition renders after it, so finish the close in that
+        // render unless the reopen has committed by then.
+        const check = {};
+        pendingCloseCheckRef.current = check;
+        startTransition(() => setCloseCheck(check));
+        return;
+      }
       store.update({
         activeTriggerId: null,
         activeTriggerElement: null,
         mounted: false,
         preventUnmountingOnClose: false,
       });
-      onUnmount?.();
-      store.context.onOpenChangeComplete?.(false);
+      completeClose();
     },
+  });
+
+  useIsoLayoutEffect(() => {
+    const pendingCloseCheck = pendingCloseCheckRef.current;
+    if (pendingCloseCheck === null) {
+      return;
+    }
+    if (open) {
+      // The reopen superseded the close, the same as one that commits before the exit completes:
+      // keep the state the request wrote and skip the host's close cleanup and completion.
+      pendingCloseCheckRef.current = null;
+    } else if (closeCheck === pendingCloseCheck) {
+      pendingCloseCheckRef.current = null;
+      completeClose();
+    }
   });
 
   // Seed the Root-owned store before parts subscribe, matching the hook's initial mounted state.

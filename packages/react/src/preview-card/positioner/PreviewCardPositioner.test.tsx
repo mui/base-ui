@@ -1,7 +1,7 @@
 import { afterEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, waitForPositioned } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
@@ -817,6 +817,118 @@ describe('<PreviewCard.Positioner />', () => {
 
       await waitFor(() => {
         expectWithin(positioner.getBoundingClientRect().y, targetRect.bottom + sideOffset);
+      });
+    });
+
+    it('keeps the hovered line when a controlled reopen commits after the exit animation completes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const sideOffset = 5;
+
+      let finishExit!: () => void;
+      const exitFinished = new Promise<void>((resolve) => {
+        finishExit = resolve;
+      });
+      let setOpenExternal!: (open: boolean) => void;
+      // Holds a controlled reopen back until the exit animation's completion callback has run,
+      // the way React 18 can commit a parent's response after it.
+      let deferOpenChange = false;
+      let deferredOpen: boolean | null = null;
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        setOpenExternal = setOpen;
+
+        return (
+          <div style={multilineWrapperStyle}>
+            <PreviewCard.Root
+              open={open}
+              onOpenChange={(nextOpen) => {
+                if (deferOpenChange) {
+                  deferredOpen = nextOpen;
+                } else {
+                  setOpen(nextOpen);
+                }
+              }}
+            >
+              <PreviewCard.Trigger
+                delay={0}
+                closeDelay={0}
+                data-testid="trigger"
+                style={multilineTriggerStyle}
+              >
+                This is a long text that will wrap across multiple lines in the trigger element
+              </PreviewCard.Trigger>
+              <PreviewCard.Portal keepMounted>
+                <PreviewCard.Positioner
+                  data-testid="positioner"
+                  side="bottom"
+                  sideOffset={sideOffset}
+                >
+                  <PreviewCard.Popup data-testid="popup" style={{ width: 80, height: 40 }}>
+                    Preview Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+      const trigger = screen.getByTestId('trigger');
+      const popup = screen.getByTestId('popup');
+      const positioner = screen.getByTestId('positioner');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).toBeGreaterThan(2);
+
+      const firstLineRect = triggerRects[0];
+      const secondLineRect = triggerRects[1];
+
+      hoverAt(
+        trigger,
+        firstLineRect.left + firstLineRect.width / 2,
+        firstLineRect.top + firstLineRect.height / 2,
+      );
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, firstLineRect.bottom + sideOffset);
+      });
+
+      Object.defineProperty(popup, 'getAnimations', {
+        value: () => [{ finished: exitFinished }],
+        configurable: true,
+      });
+
+      await act(async () => setOpenExternal(false));
+      expect(popup).toHaveAttribute('data-ending-style');
+
+      deferOpenChange = true;
+      hoverAt(
+        trigger,
+        secondLineRect.left + secondLineRect.width / 2,
+        secondLineRect.top + secondLineRect.height / 2,
+      );
+      await waitFor(() => {
+        expect(deferredOpen).toBe(true);
+      });
+
+      await act(async () => {
+        finishExit();
+        // Let the exit complete and unmount the card before the parent's response is queued.
+        while (!positioner.hasAttribute('hidden')) {
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve);
+          });
+        }
+        setOpenExternal(true);
+      });
+
+      await waitFor(() => {
+        expect(positioner).toBeVisible();
+      });
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, secondLineRect.bottom + sideOffset);
       });
     });
 
