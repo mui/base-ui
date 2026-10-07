@@ -26,7 +26,7 @@ import type {
 } from '../../../draggable/root/DraggableRoot';
 import { getActiveSession } from '../core/dragSession';
 import type { DragSessionController } from '../core/lifecycleManager';
-import { createPreviewAndStartSession, hitTestUnderPreview } from '../core/sensorSession';
+import { createPreviewAndStartSession, hitTestUnderPreview } from './pickupPreview';
 import type { SyntheticPreviewHandle } from './syntheticPreview';
 import * as dragRootLock from './dragRootLock';
 import * as dragCursor from './dragCursor';
@@ -303,27 +303,41 @@ const POINTER_AT_CANCEL: Record<DragCanceledReason, PointerAtTeardown> = {
   [REASONS.handlerError]: 'held',
 };
 
-function cancelActive(
-  input?: DraggableInput,
-  reason: DragCanceledReason = REASONS.imperativeAction,
-  event?: Event,
-): void {
+/**
+ * Tear down the active phase for the way the drag ended. The session calls it once
+ * through `sensor.release`: when a drop or a cancel begins its end sequence, before
+ * any terminal event, or at teardown after a handler error or a test reset. It does
+ * nothing before `start()` returns, while the sensor hasn't recorded the pickup.
+ * `createPreviewAndStartSession` undoes that pickup instead.
+ */
+function releaseActive(cancelReason?: DragCanceledReason): void {
   const active = state.active;
   if (!active) {
     return;
   }
-  const controller = active.controller;
-  // `clearActive` can throw. `releasePointerCaptureSafely` only swallows
-  // `DOMException`s from the element's realm, and that lookup falls back to the
-  // top-level window once the realm is dead. Skipping the cancel would leave the
-  // session active for the rest of the page's life, so the lifecycle is ended
-  // either way. `tearDown` is idempotent, so this is safe even if `clearActive`
-  // already forced it.
-  try {
-    clearActive(false, POINTER_AT_CANCEL[reason]);
-  } finally {
-    controller.cancel(input, reason, event);
+  if (cancelReason !== undefined) {
+    clearActive(false, POINTER_AT_CANCEL[cancelReason]);
+    return;
   }
+  // A clean release frees the contextmenu suppression, and the pointer is already
+  // up, so the drag's click is imminent. A double-click session holds no pointer,
+  // so nothing is armed for it. The preview settles into place, except one
+  // without an element, which `dropActiveAtPointer` destroys after the drop.
+  active.preview.prepareForDrop();
+  clearActive(true, 'released', active.preview.getPreviewElement() !== null);
+}
+
+/**
+ * Cancel the active drag. The session releases the gesture through
+ * {@link releaseActive} before the terminal events, and still ends the drag when
+ * that teardown throws.
+ */
+function cancelActive(
+  input: DraggableInput | undefined,
+  reason: DragCanceledReason,
+  event: Event,
+): void {
+  state.active?.controller.cancel(input, reason, event);
 }
 
 /**
@@ -973,11 +987,10 @@ function commitActivation(): void {
       // where the user took hold, and the activation distance separates the two.
       pressPoint: pending.origin,
       initialTarget,
-      onForceCleanup: clearActive,
       sensor: {
         getRawInput: getRawActivePointerInput,
         notifyScroll: notifyExternalScroll,
-        cancel: () => cancelActive(),
+        release: releaseActive,
       },
       isPickupCurrent: () => state.pending === pending,
     });
@@ -1358,7 +1371,6 @@ function dropActiveAtPointer(pointerEvent: PointerEvent | MouseEvent): void {
   }
   const input = modifyActiveInput(active, getInput(pointerEvent));
   const target = hitTestUnderPreview(active.element, active.preview, input.clientX, input.clientY);
-  const controller = active.controller;
   const preview = active.preview;
   // A preview settles into place after the drop, and the source keeps
   // `[data-dragging]` until it has. A drag without a preview element takes
@@ -1366,21 +1378,13 @@ function dropActiveAtPointer(pointerEvent: PointerEvent | MouseEvent): void {
   // drop, so a rule that resizes or hides the source still applies while drop
   // handlers measure local points against the layout under the pointer.
   const destroyAfterDrop = preview.getPreviewElement() === null;
-  // A clean release frees the contextmenu suppression (see `clearActive`). The
-  // pointer is already up, so the drag's click is imminent. A double-click
-  // session holds no pointer, so `clearActive` arms nothing for it. As in
-  // `cancelActive`, the lifecycle must end even if the sensor teardown throws,
-  // or no drag can start again.
-  preview.prepareForDrop();
   try {
-    clearActive(true, 'released', !destroyAfterDrop);
+    // The session releases the gesture through `releaseActive` before the
+    // terminal events.
+    active.controller.drop(input, target, pointerEvent);
   } finally {
-    try {
-      controller.drop(input, target, pointerEvent);
-    } finally {
-      if (destroyAfterDrop) {
-        preview.destroy();
-      }
+    if (destroyAfterDrop) {
+      preview.destroy();
     }
   }
 }

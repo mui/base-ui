@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { createDndRenderer } from '../../../../test/dndEngine';
 import { Draggable } from '../../../draggable';
 import { setupDragEngineTests, createElement, lift, flushRaf } from '../../../../test/dnd';
-import { createPreviewAndStartSession } from './sensorSession';
+import { createPreviewAndStartSession } from './pickupPreview';
 import { createDragSource } from '../dragSource';
 import { penDown, penUp } from '../../../../test/syntheticPointer';
 import type { DraggableRootRecord } from '../../../draggable/root/DraggableRoot';
@@ -106,7 +106,6 @@ describe('sensor session startup', () => {
         initialTarget: element,
         startReason: 'pointer',
         pressPoint: { x: 10, y: 10 },
-        onForceCleanup: vi.fn(),
         isPickupCurrent: () => true,
         draggableParameters: {
           kind,

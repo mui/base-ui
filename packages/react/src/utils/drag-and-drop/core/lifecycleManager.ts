@@ -62,7 +62,6 @@ export function start(parameters: StartParameters): DragSessionController | null
     startReason,
     grabOffset,
     hitTest,
-    onForceCleanup,
     onRelease,
     preview = null,
     sensor,
@@ -76,6 +75,22 @@ export function start(parameters: StartParameters): DragSessionController | null
 
   // Run by `tearDown`, whatever ended the session (see `DragSession.onEnd`).
   const endListeners = new Set<() => void>();
+
+  // Whether the sensor has released the gesture (see `releaseSensor`).
+  let sensorReleased = false;
+
+  /**
+   * Hands the sensor the drag's end, once: no reason for a release, or the cancel
+   * reason. The end sequences call it before any terminal event, so the preview,
+   * listeners and locks go first, and `tearDown` calls it for a session that ends
+   * without one.
+   */
+  function releaseSensor(cancelReason?: DragCanceledReason): void {
+    if (!sensorReleased) {
+      sensorReleased = true;
+      sensor?.release(cancelReason);
+    }
+  }
 
   // The native event of the latest sample, reported as `eventDetails.event` by the
   // move-derived dispatches. It starts as the pickup event, so events before the
@@ -257,11 +272,6 @@ export function start(parameters: StartParameters): DragSessionController | null
       sensor?.notifyScroll();
     },
     cancel() {
-      // A sensor that recorded the session releases its gesture first and ends the
-      // session through its controller. During the start dispatches it hasn't
-      // recorded it yet, because `start()` hasn't returned, so the session
-      // cancels itself. After a sensor-owned cancel, `armed` is already cleared.
-      sensor?.cancel();
       if (armed) {
         doCancel();
       }
@@ -700,12 +710,12 @@ export function start(parameters: StartParameters): DragSessionController | null
     clearActiveSession(session);
 
     try {
-      // Notify the sensor, which owns the preview. It does nothing if it already
-      // cleaned up.
+      // A handler error or a test reset ends the session without an end sequence,
+      // so the sensor hasn't released the gesture yet. Otherwise this does nothing.
       containConsumerError(
         'Base UI: the sensor cleanup threw during teardown.',
         null,
-        onForceCleanup,
+        () => releaseSensor(REASONS.handlerError),
         undefined,
       );
 
@@ -739,6 +749,9 @@ export function start(parameters: StartParameters): DragSessionController | null
     // below, so a change handler can still cancel the drop.
     dispatching = true;
     phase = 'ending';
+    // A sensor cleanup that throws must not keep the drop from ending the drag.
+    // The error surfaces once the end sequence has finished.
+    captureTerminalError(() => releaseSensor());
 
     // Recover on throw (see `recover`). The final resolution is inside
     // too, so a throw from it still ends the drag.
@@ -869,8 +882,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     reason: DragCanceledReason = REASONS.imperativeAction,
     event?: Event,
   ): void {
-    // As in `doDrop`, code that runs between the sensor's `clearActive()` and
-    // this call can already have ended the drag.
+    // A stale call can arrive after re-entrant consumer code has ended the drag.
     if (tornDown || endDispatched) {
       return;
     }
@@ -887,6 +899,8 @@ export function start(parameters: StartParameters): DragSessionController | null
     const departedDropTargets = hover.owed();
     location.previous = lastDispatched;
     location.current = { input: input ?? location.current.input, targets: [] };
+    // As in `doDrop`, the sensor goes before any terminal event.
+    captureTerminalError(() => releaseSensor(reason));
 
     // Recover on throw (see `recover`).
     try {
@@ -942,9 +956,10 @@ export function start(parameters: StartParameters): DragSessionController | null
   };
 
   // Armed before the start-time dispatches below, including the initial stack
-  // resolution. The sensors record their session only after `start()` returns,
-  // so a `cancelDrag()` from a resolver, `onGenerateDragPreview` or `onMoveStart`
-  // ends the session without the sensor (see `DragSession.cancel`).
+  // resolution, so a `cancelDrag()` from a resolver, `onGenerateDragPreview` or
+  // `onMoveStart` ends the drag. The sensor records the session only after
+  // `start()` returns, so its release does nothing then, and the sensor undoes
+  // the pickup itself when `start()` returns `null`.
   // A consumer that unregisters an initial drop target during these dispatches
   // gets its refresh queued instead of lost. The refresh waits for `onMoveStart`
   // (see `startDispatched`), so the target is still published and entered with
@@ -1060,14 +1075,6 @@ export interface StartParameters {
   /** The element under a client point, excluding the drag's own preview. */
   hitTest: (clientX: number, clientY: number) => Element | null;
   /**
-   * Sensor cleanup, called from the lifecycle's teardown. The sensor passes its
-   * `clearActive()`, so an abnormal end, such as a consumer throw or a test reset,
-   * still releases its `state.active`, listeners, `dragRootLock` and preview node.
-   * Otherwise every later `pointerdown` would be rejected. Must be idempotent,
-   * because the normal end path also runs it after the sensor cleared itself.
-   */
-  onForceCleanup: () => void;
-  /**
    * Called when a release ends the drag, with whether it dropped on a target, before
    * any end handler runs. The sensor marks the settling preview with it.
    */
@@ -1091,8 +1098,12 @@ export interface DragSessionSensor {
   /** See {@link DragSession.notifyScroll}. */
   notifyScroll(): void;
   /**
-   * Releases the sensor's gesture and ends the session through its controller.
-   * Does nothing while the sensor hasn't recorded the session.
+   * Releases everything the sensor holds for the drag, such as its listeners,
+   * pointer capture, locks and preview. The session calls it once, before any
+   * terminal event: without a reason when a release begins the drop sequence, or
+   * with the cancel reason. A session that ends without an end sequence, after a
+   * handler error or a test reset, calls it at teardown with `'handler-error'`.
+   * Otherwise every later `pointerdown` would be rejected.
    */
-  cancel(): void;
+  release(cancelReason?: DragCanceledReason): void;
 }

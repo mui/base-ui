@@ -72,7 +72,6 @@ describe('lifecycle manager', () => {
       startReason: 'pointer',
       grabOffset,
       hitTest,
-      onForceCleanup: () => {},
     });
 
     expect(onMoveStart.mock.calls[0][0].location.grabOffset).toEqual({ x: 12, y: 8 });
@@ -123,7 +122,6 @@ describe('lifecycle manager', () => {
       startReason: 'pointer',
       grabOffset: { x: 0, y: 0 },
       hitTest,
-      onForceCleanup: () => {},
     });
   }
 
@@ -543,7 +541,6 @@ describe('lifecycle manager', () => {
           startReason: 'pointer',
           grabOffset: { x: 0, y: 0 },
           hitTest,
-          onForceCleanup: () => {},
         });
       });
 
@@ -600,7 +597,6 @@ describe('lifecycle manager', () => {
           startReason: 'pointer',
           grabOffset: { x: 0, y: 0 },
           hitTest,
-          onForceCleanup: () => {},
         });
       });
 
@@ -1120,31 +1116,45 @@ describe('lifecycle manager', () => {
       expect(onDragStart2).toHaveBeenCalledTimes(1);
     });
 
-    it('runs the session onForceCleanup when the drag ends so the sensor releases its state', () => {
-      const element = createElement();
-      const onForceCleanup = vi.fn();
-      const handle = start({
-        source: createDragSource(element, TEST_KIND.id, {}, null),
-        getSourceHandlers: () => ({}),
-        initialInput: makeInput(),
-        initialTarget: null,
-        startReason: 'pointer',
-        grabOffset: { x: 0, y: 0 },
-        hitTest,
-        onForceCleanup,
-      });
-      expect(handle).not.toBeNull();
-      expect(getActiveSession()).not.toBe(null);
+    it.each([
+      ['a cancel', () => cancelDrag(), ['release:imperative-action', 'end']],
+      [
+        'a drop',
+        (handle: DragSessionController) => handle.drop(makeInput(), null),
+        ['release:', 'end'],
+      ],
+      // A reset delivers no terminal event, but the sensor still lets go.
+      ['a test reset', () => resetForTests(), ['release:handler-error']],
+    ] as const)(
+      'releases the sensor once, before the terminal events, after %s',
+      (_, end, expected) => {
+        const element = createElement();
+        const order: string[] = [];
+        const handle = start({
+          source: createDragSource(element, TEST_KIND.id, {}, null),
+          getSourceHandlers: () => ({ onMoveEnd: () => order.push('end') }),
+          initialInput: makeInput(),
+          initialTarget: null,
+          startReason: 'pointer',
+          grabOffset: { x: 0, y: 0 },
+          hitTest,
+          sensor: {
+            getRawInput: () => null,
+            notifyScroll() {},
+            release: (cancelReason) => order.push(`release:${cancelReason ?? ''}`),
+          },
+        });
 
-      act(() => {
-        cancelDrag();
-      });
+        act(() => {
+          end(handle!);
+        });
 
-      // Teardown runs the sensor's force-cleanup hook (its `clearActive`), so
-      // listeners, pointer capture and the drag-root lock are released.
-      expect(onForceCleanup).toHaveBeenCalledTimes(1);
-      expect(getActiveSession()).toBe(null);
-    });
+        // The sensor's listeners, pointer capture, locks and preview go before any
+        // terminal event.
+        expect(order).toEqual(expected);
+        expect(getActiveSession()).toBe(null);
+      },
+    );
   });
 
   describe('consumer-throw recovery', () => {
