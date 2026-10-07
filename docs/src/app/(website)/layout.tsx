@@ -4,9 +4,10 @@ import './css/index.css';
 
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
+
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
-import { Logo } from 'docs/src/components/Logo';
+import { LogoLink } from 'docs/src/components/LogoLink';
 import { SearchControls } from 'docs/src/components/SearchControls';
 
 export default function Layout({ children }: React.PropsWithChildren) {
@@ -37,11 +38,11 @@ export default function Layout({ children }: React.PropsWithChildren) {
           >
             <header className="bui-d-c">
               <div className="bui-gcs-1 bui-gce-4">
-                <Logo aria-label="Base UI" />
+                <LogoLink />
               </div>
               <nav
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-5 bui-gce-8 bp2:bui-gcs-5 bp2:bui-gce-9 bp3:bui-gcs-5 bp3:bui-gce-7"
-                aria-label="social links"
+                aria-label="Website"
               >
                 <Link className="Text sz-1" href="https://x.com/base_ui">
                   X

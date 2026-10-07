@@ -1,0 +1,76 @@
+@layer components {
+  .VideoBlogRoot {
+    position: relative;
+    cursor: pointer;
+    background-color: black;
+  }
+
+  .VideoBlogVideo {
+    display: block;
+    width: 100%;
+    height: auto;
+
+    .VideoBlogRoot[data-paused] &,
+    .VideoBlogRoot:focus-within & {
+      opacity: 0.8;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .VideoBlogRoot:hover & {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .VideoBlogControl {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--gray-c1);
+    color: var(--color-foreground);
+    cursor: pointer;
+
+    opacity: 0;
+    pointer-events: none;
+
+    @media (hover: hover) and (pointer: fine) {
+      .VideoBlogRoot:hover &,
+      &:focus-visible {
+        opacity: 1;
+      }
+    }
+
+    &:hover {
+      background: var(--color-content);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: 2px;
+    }
+  }
+
+  .VideoBlogControlIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .VideoBlogRoot[data-paused] .VideoBlogControl {
+    opacity: 1;
+  }
+
+  .VideoBlogError {
+    margin: 0;
+    padding: var(--space-12);
+    padding-right: 68px;
+    font-size: var(--font-size-15);
+  }
+}
