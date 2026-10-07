@@ -21,7 +21,7 @@ import DiagramAccessibility from './DiagramAccessibility';
 
 On the surface, filtering a menu seems relatively simple to demonstrate. Add a text field, compare its value with each item's label, and hide the items that don't match. But making it work well with a keyboard, a screen reader, or a submenu requires a little more attention to detail.
 
-While building filtering for Base UI, we found that adding an input affected almost every part of the interaction. Keys that normally navigate a menu also edit text. Moving focus between items can interrupt typing. Even the way a screen reader announces the popup changes what someone expects to find inside it.
+While building filtering for Base UI, we found that adding an input affected almost every part of the interaction. Keys that normally navigate a menu also edit text. Moving focus between items can interrupt typing. Even the way a screen reader announces the popup changes what someone expects to find inside it.
 
 In this post, we'll look at some of those details and how they shaped the API we ended up with:
 
@@ -63,7 +63,7 @@ ARIA [roles and attributes](https://developer.mozilla.org/en-US/docs/Web/Accessi
 
 These interactions become familiar through use. Once someone has learned how a button or combobox works, they can reuse that knowledge in an application they've never used before. And we can avoid cluttering our interfaces with verbose labels and descriptions, which would quickly become tedious to hear again and again.
 
-So why does that matter for our menu? Because that convenience relies on us delivering the behavior the role suggests. The APG calls this [“a role is a promise”](https://www.w3.org/WAI/ARIA/apg/practices/read-me-first/#principle-1-a-role-is-a-promise), and unfortunately, a combobox would break that promise if we used it here.
+So why does that matter for our menu? Because that convenience relies on us delivering the behavior the role suggests. The APG calls this ["a role is a promise"](https://www.w3.org/WAI/ARIA/apg/practices/read-me-first/#principle-1-a-role-is-a-promise), and unfortunately, a combobox would break that promise if we used it here.
 
 For example, choosing France in a country combobox should supply a value for the country field, but choosing Duplicate in our menu runs a command. We aren't completing the search field with the word "Duplicate". So, while both controls need to support typing and arrow keys, what the user chooses has a different purpose.
 
@@ -74,7 +74,7 @@ Another way we might try to communicate that familiar arrow-key interaction is t
 But `aria-autocomplete` also describes suggestions that complete the input's value, and each of its values sets its own expectations:
 
 | Value                                                       | What it describes                                                                                                                | Why it didn't fit                                                                                     |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| :---------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------- |
 | `inline`                                                    | Completion text appears in the field, after the caret.                                                                           | Our matches appear in a list below the field, not as text after the caret.                            |
 | <span style={{whiteSpace: 'nowrap'}}>`list` / `both`</span> | A suggestions popup. The ARIA specification requires `aria-controls` to identify it and `aria-haspopup` to communicate its type. | The menu is already visible alongside the input, so there is no separate popup to expand or collapse. |
 
@@ -91,7 +91,7 @@ We decided to use a dialog containing a search field and a menu. The search fiel
 Inside, the dialog affordance helps communicate to screen reader users that they've entered a context they can explore with their usual navigation keys. If you haven't used a screen reader before, here are the defaults for three common desktop screen readers:
 
 | Screen reader     | Modifier key                                                     | Next item        |
-| ----------------- | ---------------------------------------------------------------- | ---------------- |
+| :---------------- | :--------------------------------------------------------------- | :--------------- |
 | VoiceOver (macOS) | Control + Option, called VO. Caps Lock can be set as VO instead. | VO + Right Arrow |
 | JAWS (Windows)    | Insert, or Caps Lock in the laptop layout                        | Down Arrow       |
 | NVDA (Windows)    | Insert, or Caps Lock if enabled                                  | Down Arrow       |
@@ -131,7 +131,7 @@ Browser focus doesn't leave the input though, so if we relied on focus alone, <k
 
 To solve it, we use the highlight to distinguish intent. With a menu item highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item, just as they would when interacting with the menu itself. When navigation returns to the input and no menu item is highlighted, the keys move through the text again. Browser focus hasn't moved, but the user's context has, and `data-highlighted` communicates that context.
 
-Try it below. This is a small sketch of the behavior rather than Base UI itself, so you can watch the context change as you press keys.
+Try it below. This is a small sketch of the behavior rather than Base UI itself, so you can watch the context change as you press keys.
 
 <Figure>
   <FigureFrame>
@@ -191,7 +191,7 @@ Our first version put Clear in the tab order, which seemed fine until we tried l
 
 An input using `type="search"` already provides search box semantics, but some browsers also give it a built-in clear button. Replacing that button with our own can mean first removing it with browser-specific CSS, such as the [`::-webkit-search-cancel-button`](https://github.com/WebKit/WebKit/blob/main/Source/WebCore/css/html.css).
 
-We use a text input with `role="searchbox"` instead, a combination [permitted by ARIA in HTML](https://www.w3.org/TR/html-aria/#el-input). It keeps native text editing and exposes the field as a search box, without adding the browser's search-specific controls. Applications can then add `Menu.Clear` and style it like any other Base UI part, so the clear button becomes something developers choose to include rather than something they first have to undo.
+We use a text input with `role="searchbox"` instead, a combination [permitted by ARIA in HTML](https://www.w3.org/TR/html-aria/#el-input). It keeps native text editing and exposes the field as a search box, without adding the browser's search-specific controls. Applications can then add `Menu.Clear` and style it like any other Base UI part, so the clear button becomes something developers choose to include rather than something they first have to undo.
 
 ## Bugs we found in plain old Menu
 
