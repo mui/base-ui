@@ -19,7 +19,7 @@ import type {
   DropTargetChangeEventDetails,
   MoveEndEventDetails,
 } from '../types';
-import { getDropTargetShadowRootsByHost, registerTarget } from '../dropTarget';
+import { getClosedShadowRootsByHost, registerTarget } from '../dropTarget';
 import type { DropTargetParameters } from '../dropTarget';
 import { elementFromPointIgnoring } from '../utils';
 import { addMonitor, removeMonitor } from '../monitor';
@@ -36,13 +36,7 @@ setupDragEngineTests();
 
 // The sensor's hit test without a preview to skip.
 function hitTest(clientX: number, clientY: number): Element | null {
-  return elementFromPointIgnoring(
-    document,
-    clientX,
-    clientY,
-    null,
-    getDropTargetShadowRootsByHost(),
-  );
+  return elementFromPointIgnoring(document, clientX, clientY, null, getClosedShadowRootsByHost());
 }
 
 const TEST_KIND = createKind('lifecycle-test');

@@ -66,7 +66,7 @@ interface RecordRegistration {
 interface DropTargetState {
   /** Each registered target element's stack of parameter getters (see `getterStackRegistry`). */
   registry: Map<Element, DropTargetGetter[]>;
-  /** Registered drop targets per shadow root (see {@link retainShadowRoot}). */
+  /** Registered targets and draggables per shadow root (see {@link retainShadowRoots}). */
   shadowRoots: Map<ShadowRoot, number>;
   /**
    * The shadow roots each registered element was counted against, so the release
@@ -78,7 +78,7 @@ interface DropTargetState {
    * with `shadowRoots`. Open roots don't need it, since `host.shadowRoot` reaches them.
    */
   shadowRootsByHost: Map<Element, ShadowRoot>;
-  /** Told when a root joins or leaves `shadowRoots` (see {@link trackDropTargetShadowRoots}). */
+  /** Told when a root joins or leaves `shadowRoots` (see {@link trackRegisteredShadowRoots}). */
   shadowRootChangeListeners: Set<ShadowRootChangeListener>;
   /**
    * The key each registration's payload and `dragData` are stored under, per
@@ -110,24 +110,26 @@ const holds = createGetterStackRegistry<Element, DropTargetGetter>({
   entries: state.registry,
   onFirstAdd: (element) => {
     element.setAttribute(DROP_TARGET_ATTR, '');
-    retainShadowRoot(element);
+    state.retainedRoots.set(element, retainShadowRoots(element));
   },
   // Runs before `beforeDelete`, so the stack the caller refreshes there already
   // excludes this element.
   onLastRemove: (element) => {
     element.removeAttribute(DROP_TARGET_ATTR);
-    releaseShadowRoot(element);
+    releaseShadowRoots(state.retainedRoots.get(element) ?? []);
+    state.retainedRoots.delete(element);
   },
 });
 
 /**
- * Ref-count each shadow root a target lives in, ancestor roots included, so the
- * sensor reads the set in O(1) at pickup instead of walking every target.
+ * Ref-count each shadow root a target or draggable lives in, ancestor roots included,
+ * so walks and the sensor read the set in O(1) instead of walking every registration.
+ * Returns the roots counted, for {@link releaseShadowRoots}.
  *
  * `scroll` doesn't compose, so the sensor binds one listener per root. A count, not
- * a set, because one root holds many targets and only the last to leave retires it.
+ * a set, because one root holds many registrations and only the last to leave retires it.
  */
-function retainShadowRoot(element: Element): void {
+function retainShadowRoots(element: Element): ShadowRoot[] {
   const roots: ShadowRoot[] = [];
   let root = element.getRootNode();
   while (isShadowRoot(root)) {
@@ -144,17 +146,10 @@ function retainShadowRoot(element: Element): void {
     }
     root = root.host.getRootNode();
   }
-  if (roots.length > 0) {
-    state.retainedRoots.set(element, roots);
-  }
+  return roots;
 }
 
-function releaseShadowRoot(element: Element): void {
-  const retained = state.retainedRoots.get(element);
-  if (retained === undefined) {
-    return;
-  }
-  state.retainedRoots.delete(element);
+function releaseShadowRoots(retained: ShadowRoot[]): void {
   for (const root of retained) {
     // Every root in `retained` was counted by the matching retain.
     const count = state.shadowRoots.get(root)!;
@@ -171,20 +166,30 @@ function releaseShadowRoot(element: Element): void {
 }
 
 /**
- * Closed shadow roots indexed by host for pointer hit-testing. The index changes
- * only when the registered root set changes, so drag frames can reuse it.
+ * Count the shadow roots a draggable lives in, so pickup walks find it through a
+ * closed root's slot (see `getComposedParentElement`). Returns the release.
  */
-export function getDropTargetShadowRootsByHost(): ReadonlyMap<Element, ShadowRoot> {
+export function holdShadowRoots(element: Element): DragCleanupFn {
+  const roots = retainShadowRoots(element);
+  return onceCleanup(() => releaseShadowRoots(roots));
+}
+
+/**
+ * Closed shadow roots holding a registered target or draggable, indexed by host for
+ * composed walks and hit-testing. The index changes only when the registered root set
+ * changes, so drag frames can reuse it.
+ */
+export function getClosedShadowRootsByHost(): ReadonlyMap<Element, ShadowRoot> {
   return state.shadowRootsByHost;
 }
 
 /**
- * Run `attach` on every shadow root containing a registered drop target,
- * including ancestor roots, and on each root that joins the set later. A root's
+ * Run `attach` on every shadow root containing a registered drop target or
+ * draggable, including ancestor roots, and on each root that joins the set later. A root's
  * cleanup runs when it leaves the set, and the returned cleanup detaches every
  * root still attached.
  */
-export function trackDropTargetShadowRoots(
+export function trackRegisteredShadowRoots(
   attach: (shadowRoot: ShadowRoot) => DragCleanupFn | undefined,
 ): DragCleanupFn {
   const attached = new Map<ShadowRoot, DragCleanupFn | undefined>();

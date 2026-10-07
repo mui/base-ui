@@ -587,6 +587,7 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
         const cloneCells = Array.from(handle.element.children, (cell) =>
           cell.getBoundingClientRect(),
         );
+        expect(cloneCells).toHaveLength(3);
         cloneCells.forEach((cell, index) => {
           expect(cell.left).toBeCloseTo(sourceCells[index].left, 0);
           expect(cell.width).toBeCloseTo(sourceCells[index].width, 0);

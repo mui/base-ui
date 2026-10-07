@@ -1,4 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { closest } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
 import { isShadowRoot } from '@floating-ui/utils/dom';
@@ -36,7 +38,7 @@ import {
   getComposedParentElement,
   getOrCreate,
 } from './utils';
-import { getDropTargetShadowRootsByHost } from './dropTarget';
+import { getClosedShadowRootsByHost } from './dropTarget';
 import { getActiveSession } from './core/dragSession';
 import type { DragSession } from './core/dragSession';
 import {
@@ -759,7 +761,7 @@ function needsHitTest(target: ScrollTarget): boolean {
  * cross: those holding a drop target and those holding a viewport.
  */
 function getClosedShadowRoots(): ReadonlyMap<Element, ShadowRoot> {
-  const targetRoots = getDropTargetShadowRootsByHost();
+  const targetRoots = getClosedShadowRootsByHost();
   const viewportRoots = state.viewportClosedRoots;
   if (viewportRoots.size === 0) {
     return targetRoots;
@@ -789,9 +791,16 @@ function setDragInput(session: DragSession, location: DraggableLocationHistory):
 function startScrollSession(session: DragSession, location: DraggableLocationHistory): void {
   stopScrollLoop();
   state.session = session;
-  // Stop with the session, including an end without `onMoveEnd`, such as a test
-  // reset or an engine error after the end was latched.
-  state.releaseSession = session.onEnd(stopScrollLoop);
+  const win = ownerWindow(session.source.element);
+  state.releaseSession = mergeCleanups(
+    // Stop with the session, including an end without `onMoveEnd`, such as a test
+    // reset or an engine error after the end was latched.
+    session.onEnd(stopScrollLoop),
+    // Neither changes the DOM: a resize can restyle a viewport through a media query,
+    // and a loaded image or iframe can grow a scroll extent under a still pointer.
+    addEventListener(win, 'resize', refreshAutoScroll),
+    addEventListener(win.document, 'load', wakeScrollLoop, { capture: true }),
+  );
   setDragInput(session, location);
   wakeScrollLoop();
 }
@@ -844,7 +853,7 @@ interface AutoScrollerState {
    * (see `idleScrollLoop`).
    */
   session: DragSession | null;
-  /** Unsubscribes `stopScrollLoop` from the end of `session`. */
+  /** Unsubscribes `stopScrollLoop` from the end of `session` and its window listeners. */
   releaseSession: DragCleanupFn | null;
   /** When the pointer first entered each element's edge zone. */
   engagementStart: Map<HTMLElement, number>;

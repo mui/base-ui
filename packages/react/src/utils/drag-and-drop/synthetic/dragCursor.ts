@@ -1,6 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getSharedSlot } from '../sharedState';
-import { trackDropTargetShadowRoots } from '../dropTarget';
+import { trackRegisteredShadowRoots } from '../dropTarget';
 import { adoptStyleSheet, getOrCreate, unadoptStyleSheet } from '../utils';
 import type { DragCleanupFn } from '../types';
 
@@ -69,8 +69,8 @@ function ensureStyleInjected(doc: Document, nonce: string | undefined): boolean 
 }
 
 /**
- * Adopt the cursor rule into a shadow root holding a drop target while the lock is held;
- * other shadow trees keep their own cursor. Adopted per drag rather than gated on a
+ * Adopt the cursor rule into a shadow root holding a registered target or draggable
+ * while the lock is held; other shadow trees keep their own cursor. Adopted per drag rather than gated on a
  * class, since a shadow tree can't portably select the document's `<html>` class.
  * `--drag-cursor` inherits through the boundary.
  */
@@ -121,7 +121,7 @@ export function lock(element: Element, cursor: string, options: DragCursorStyleO
     root.classList.add(STYLE_CLASS);
     // A drop target mounting in a new shadow root mid-drag gets the sheet too, and
     // loses it when it unmounts.
-    unsubscribeShadowRoots = trackDropTargetShadowRoots((shadowRoot) =>
+    unsubscribeShadowRoots = trackRegisteredShadowRoots((shadowRoot) =>
       adoptShadowRootCursor(shadowRoot, doc),
     );
   } else {

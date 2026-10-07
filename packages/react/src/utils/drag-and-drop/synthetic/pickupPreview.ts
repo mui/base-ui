@@ -17,7 +17,7 @@ import { start } from '../core/lifecycleManager';
 import type { DragSessionController, DragSessionSensor } from '../core/lifecycleManager';
 import { getRegistration } from '../draggableRegistry';
 import { getParticipantOwner } from '../participantData';
-import { getDropTargetShadowRootsByHost } from '../dropTarget';
+import { getClosedShadowRootsByHost } from '../dropTarget';
 import type { DraggableConfig } from '../draggable';
 import { elementFromPointIgnoring, resolveElementReference } from '../utils';
 import type { DragStartReason } from '../types';
@@ -116,7 +116,7 @@ export function hitTestUnderPreview(
     clientX,
     clientY,
     preview.getPreviewElement()?.element ?? null,
-    getDropTargetShadowRootsByHost(),
+    getClosedShadowRootsByHost(),
   );
 }
 

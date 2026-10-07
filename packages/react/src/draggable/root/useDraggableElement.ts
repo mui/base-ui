@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { refreshDragSource } from '../../utils/drag-and-drop/dragSource';
 import { useRegisterSource } from '../../utils/drag-and-drop/useRegisterSource';
+import { syncParticipantPayload } from '../../utils/drag-and-drop/participantData';
 import { createDragPreviewHandle } from '../preview/dragPreviewDeclaration';
 import type { DragPreviewHandle } from '../preview/dragPreviewDeclaration';
 import type {
@@ -102,9 +103,13 @@ export function useDraggableElement<TPayload = undefined, TDragData = unknown>(
         }
         lastCollisionOptions = currentOptions;
         const collision = currentOptions.collision;
+        const kindId = currentOptions.parameters.kind.id;
         participant = {
           kind: currentOptions.parameters.kind,
-          payload: collision?.payload,
+          // The Root's payload store, so a source's `updatePayload()` reaches the group.
+          get payload() {
+            return syncParticipantPayload(payloadOwner, kindId, collision?.payload).payload;
+          },
           // The cast holds because the provider disables participants of another kind.
           snap: collision?.snap as CollisionParticipant['snap'],
           // A disabled source is still a destination. Only `collision={false}` opts out.

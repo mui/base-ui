@@ -236,6 +236,44 @@ describe('engine.registerMonitor', () => {
     expect(onMoveEnd).not.toHaveBeenCalled();
   });
 
+  it('keeps the other registration of a getter when one is cleaned up', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const onMoveStart = vi.fn();
+    const getMonitor = () => ({ onMoveStart });
+    engine.registerSource(el, {});
+    engine.registerMonitor(getMonitor);
+    const cleanup = engine.registerMonitor(getMonitor);
+
+    cleanup();
+    fireDrag.dragStart(el);
+    await flushRaf();
+
+    expect(onMoveStart).toHaveBeenCalledTimes(1);
+  });
+
+  it('checks a getter again when it registers again mid-drag', async () => {
+    const { engine } = await renderDnd();
+    const cardEl = createElement();
+    const target = createElement();
+    const onMoveEnd = vi.fn();
+    let accept: typeof columnKind | typeof cardKind = columnKind;
+    const getMonitor = () => ({ accept, onMoveEnd });
+    engine.registerSource(cardEl, { kind: cardKind });
+    engine.registerTarget(target, {});
+    const cleanup = engine.registerMonitor(getMonitor);
+
+    fireDrag.dragStart(cardEl);
+    await flushRaf();
+    // Excluded from this drag, then registered again with options that accept it.
+    cleanup();
+    accept = cardKind;
+    engine.registerMonitor(getMonitor);
+    fireDrag.drop(target);
+
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
+  });
+
   // `activateMonitors` runs the getter from `start()`. A throw there is logged and
   // only that monitor skips the drag.
   it('keeps the drag and sibling monitors working when a parameters getter throws at drag start', async () => {

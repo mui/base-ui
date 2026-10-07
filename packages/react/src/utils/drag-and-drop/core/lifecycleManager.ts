@@ -28,7 +28,7 @@ import { createDragEventDetails, createMoveEndEventDetails } from '../dragEventD
 import {
   captureDropTargetCollision,
   dispatchToDropTarget,
-  getDropTargetShadowRootsByHost,
+  getClosedShadowRootsByHost,
   getDropTargetsOver,
 } from '../dropTarget';
 import type { DropTargetDragData } from '../dropTarget';
@@ -196,7 +196,7 @@ export function start(parameters: StartParameters): DragSessionController | null
     }
     // Walk every ancestor as resolution does, not just the accepted stack: a change
     // to a disabled, abstaining or rejecting target can matter too.
-    const closedRoots = getDropTargetShadowRootsByHost();
+    const closedRoots = getClosedShadowRootsByHost();
     for (let node = lastTarget; node !== null; node = getComposedParentElement(node, closedRoots)) {
       if (elements.has(node)) {
         return true;

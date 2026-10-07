@@ -138,8 +138,9 @@ type DraggableRootModifierContext = {
   /** The same point when the drag started. Axis locks and grid snaps anchor to it. */
   initialPoint: Draggable.Position;
   /**
-   * The point before any modifier of this chain ran, in client pixels.
-   * On `Draggable.Preview`, it already includes the root's modifiers.
+   * The pointer position in client pixels. On `Draggable.Root`, it's `point` before any
+   * modifier ran. On `Draggable.Preview`, it already includes the root's modifiers, and
+   * it's the pointer, not the preview's top-left corner.
    */
   input: Draggable.Position;
   /** The drag source element. */

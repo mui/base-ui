@@ -31,7 +31,7 @@ import {
   swallowEvent,
 } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
-import { getDropTargetShadowRootsByHost, trackDropTargetShadowRoots } from '../dropTarget';
+import { getClosedShadowRootsByHost, trackRegisteredShadowRoots } from '../dropTarget';
 import type { DraggableInput } from '../../../draggable/DraggableProvider';
 import type { DragCanceledReason, DragCleanupFn, DragMoveReason } from '../types';
 import { modifyDragPoint, createDragModifiersState } from '../dragModifiers';
@@ -212,7 +212,7 @@ export function startDrag(
     doc,
     startInput.clientX,
     startInput.clientY,
-    getDropTargetShadowRootsByHost(),
+    getClosedShadowRootsByHost(),
   );
 
   // Undoes the preview, lock and lifecycle on a throw or refusal, leaving only the
@@ -348,9 +348,9 @@ export function startDrag(
 
   // `scroll` isn't composed, so the document misses containers in a shadow root
   // and the target would go stale under a still pointer. Listen on each shadow
-  // root that holds a drop target, tracking mounts during the drag.
+  // root that holds a registered target or draggable, tracking mounts during the drag.
   activeRef.listeners.push(
-    trackDropTargetShadowRoots((shadowRoot) =>
+    trackRegisteredShadowRoots((shadowRoot) =>
       addEventListener(shadowRoot, 'scroll', notifyExternalScroll, {
         capture: true,
         passive: true,

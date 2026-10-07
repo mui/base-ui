@@ -612,6 +612,72 @@ describe('engine.registerViewport', () => {
     expect(scroller.scrollBy).toHaveBeenCalled();
   });
 
+  it('re-reads a viewport overflow after the window resizes', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = makeEngageableScroller();
+    // A media query switching `overflow-y` changes no attribute, so only the resize tells.
+    // It scrolls horizontally throughout, so it is never a non-scrolling viewport.
+    let overflowY = 'hidden';
+    const readStyle = window.getComputedStyle.bind(window);
+    const spy = vi.spyOn(window, 'getComputedStyle').mockImplementation((element, pseudo) => {
+      const style = readStyle(element, pseudo);
+      if (element !== scroller) {
+        return style;
+      }
+      return new Proxy(style, {
+        get(target, key) {
+          if (key === 'overflow') {
+            return `auto ${overflowY}`;
+          }
+          if (key === 'overflowX' || key === 'overflowY') {
+            return key === 'overflowX' ? 'auto' : overflowY;
+          }
+          const value = Reflect.get(target, key, target);
+          return typeof value === 'function' ? value.bind(target) : value;
+        },
+      });
+    });
+    try {
+      engine.registerSource(source, {});
+      engine.registerViewport(scroller, {});
+      await driveIntoEdgeZone(source, scroller);
+      expect(scroller.scrollBy).not.toHaveBeenCalled();
+
+      overflowY = 'auto';
+      window.dispatchEvent(new Event('resize'));
+      await flushRaf(2);
+      expect(scroller.scrollBy).toHaveBeenCalled();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('wakes a parked loop when a loaded resource grows the content under a still pointer', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
+    scroller.style.overflow = 'auto';
+    scroller.scrollBy = vi.fn();
+    // The content fits, so nothing scrolls either way until the image grows it.
+    let scrollHeight = 200;
+    Object.defineProperty(scroller, 'scrollTop', { value: 0, writable: true });
+    Object.defineProperty(scroller, 'scrollHeight', { get: () => scrollHeight });
+    Object.defineProperty(scroller, 'clientHeight', { value: 200 });
+    const image = document.createElement('img');
+    scroller.append(image);
+    engine.registerSource(source, {});
+    engine.registerViewport(scroller, {});
+
+    await driveIntoEdgeZone(source, scroller);
+    expect(scroller.scrollBy).not.toHaveBeenCalled();
+
+    scrollHeight = 1000;
+    image.dispatchEvent(new Event('load'));
+    await flushRaf(2);
+    expect(scroller.scrollBy).toHaveBeenCalled();
+  });
+
   it('keeps a re-registration when a stale cleanup runs again', async () => {
     const { engine } = await renderDnd();
     const source = createElement();

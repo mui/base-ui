@@ -44,8 +44,11 @@ export function registerMonitor<
     TAccept
   >,
 ): DragCleanupFn {
-  addMonitor(getMonitor);
-  return onceCleanup(() => removeMonitor(getMonitor));
+  // One wrapper per call, so registering a getter twice keeps two registrations, and
+  // one registered again mid-drag is checked again (see `createMonitorDispatch`).
+  const registration: MonitorGetter = () => getMonitor();
+  addMonitor(registration);
+  return onceCleanup(() => removeMonitor(registration));
 }
 
 export interface MonitorDispatch {

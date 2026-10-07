@@ -180,6 +180,37 @@ describe('engine.registerSource', () => {
     expect(el.style.touchAction).toBe('');
   });
 
+  // A closed root hides `assignedSlot`, so pickup must find the slot another way.
+  it.each([
+    { name: 'an open shadow root', mode: 'open' as const, withHandle: false },
+    { name: 'a closed shadow root', mode: 'closed' as const, withHandle: false },
+    { name: 'the handle of a closed shadow root', mode: 'closed' as const, withHandle: true },
+  ])(
+    'starts a drag from content slotted into a draggable inside $name',
+    async ({ mode, withHandle }) => {
+      const { engine } = await renderDnd();
+      const host = createElement();
+      const shadowRoot = host.attachShadow({ mode });
+      const draggable = document.createElement('div');
+      const handle = document.createElement('div');
+      handle.append(document.createElement('slot'));
+      draggable.append(handle);
+      shadowRoot.append(draggable);
+      const slotted = document.createElement('span');
+      host.append(slotted);
+      const onMoveStart = vi.fn();
+      engine.registerSource(draggable, {
+        activation: { type: 'immediate' },
+        handle: withHandle ? handle : undefined,
+        onMoveStart,
+      });
+
+      firePointer.down(slotted, { pointerType: 'mouse', button: 0, buttons: 1, timeStamp: 100 });
+      expect(onMoveStart).toHaveBeenCalledTimes(1);
+      firePointer.up(slotted, { pointerType: 'mouse', button: 0, buttons: 0, timeStamp: 200 });
+    },
+  );
+
   it('a nested draggable wins pickup over its draggable ancestor', async () => {
     const { engine } = await renderDnd();
     const outer = createElement();

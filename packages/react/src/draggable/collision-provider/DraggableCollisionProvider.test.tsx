@@ -7,6 +7,7 @@ import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer } from '../../../test/dndEngine';
 import { lift, dragOver, drop, cancel, flushRaf, setupDragEngineTests } from '../../../test/dnd';
 import { cancelDrag } from '../../utils/drag-and-drop/synthetic/pickupRecognizer';
+import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
 
 setupDragEngineTests();
 const kind = Draggable.createKind<string>('collision-test');
@@ -781,6 +782,29 @@ describe('Draggable.CollisionProvider', () => {
         getLocalPoint: expect.any(Function),
       }),
     );
+    cancel();
+  });
+
+  it("reports an item's updated payload to the group after its drag", async () => {
+    const changed = vi.fn();
+    const canCollide = vi.fn(() => true);
+    await renderDnd(
+      <Draggable.CollisionProvider kind={kind} onCollisionChange={changed} canCollide={canCollide}>
+        <Items />
+      </Draggable.CollisionProvider>,
+    );
+    const {
+      items: [a, b],
+    } = measure();
+    // The override outlives the drag while the `payload` prop stays the same.
+    await lift(a);
+    getActiveSession()!.source.updatePayload('a2');
+    cancel();
+
+    await lift(b);
+    await dragOver(a, { clientY: 20 });
+    expect(changed.mock.lastCall?.[0].target.payload).toBe('a2');
+    expect(canCollide).toHaveBeenLastCalledWith(expect.objectContaining({ payload: 'a2' }));
     cancel();
   });
 

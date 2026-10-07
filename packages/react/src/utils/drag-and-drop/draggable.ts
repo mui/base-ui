@@ -20,6 +20,7 @@ import type { InlineStyleOverride } from './synthetic/dragRootLock';
 import { getSharedSlot } from './sharedState';
 import { getOrCreate, onceCleanup } from './utils';
 import { addDraggableRegistration, resolveDragHandle } from './draggableRegistry';
+import { holdShadowRoots } from './dropTarget';
 import { bindPointerListeners } from './synthetic/pickupRecognizer';
 import { getPreviewSourceIdentity, retargetPreviewSource } from './synthetic/syntheticPreview';
 
@@ -118,12 +119,14 @@ export function registerDraggableElement(
 ): DragCleanupFn {
   const staticSetup = applyDraggableStaticSetup(element, initial);
   const unregister = addDraggableRegistration(element, getParameters, staticSetup.refresh);
+  const releaseShadowRoots = holdShadowRoots(element);
   retargetPreviewSource(element, getPreviewSourceIdentity(initial, owner));
   const unbindSensors = bindPointerListeners(element);
 
   return onceCleanup(() => {
     staticSetup.release();
     unregister();
+    releaseShadowRoots();
     unbindSensors();
   });
 }
