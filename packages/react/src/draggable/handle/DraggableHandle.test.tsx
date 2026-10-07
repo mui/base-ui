@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
-import { describeConformance } from '#test-utils';
+import { describeConformance, dragRegistrationConformanceTests } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import { cancel, dragOver, flushRaf, lift, setupDragEngineTests } from '../../../test/dnd';
@@ -18,6 +18,14 @@ describe('<Draggable.Handle />', () => {
       return renderDnd(<Draggable.Root kind={testDragKind}>{node}</Draggable.Root>);
     },
   }));
+
+  dragRegistrationConformanceTests({
+    render: renderDnd,
+    wrapper: ({ children }) => <Draggable.Root kind={testDragKind}>{children}</Draggable.Root>,
+    createComponent: ({ key, ...props }) => <Draggable.Handle key={key} {...props} />,
+    // The root moves its gesture styles to its registered handle.
+    isRegistered: (element) => element.style.touchAction === 'manipulation',
+  });
 
   it('warns for a second mounted handle, and falls back to the survivor on unmount', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

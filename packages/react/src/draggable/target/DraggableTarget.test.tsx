@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { act, fireEvent, screen } from '@testing-library/react';
-import { describeConformance } from '#test-utils';
+import { screen } from '@testing-library/react';
+import { describeConformance, dragRegistrationConformanceTests } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer } from '../../../test/dndEngine';
 import {
@@ -35,6 +35,26 @@ describe('Draggable.Target', () => {
       return renderDnd(node);
     },
   }));
+
+  dragRegistrationConformanceTests({
+    render: renderDnd,
+    createComponent: ({ key, onEvent, ...props }) => (
+      <Draggable.Target
+        key={key}
+        accept={Draggable.anyKind}
+        onDraggableEnter={(eventDetails) => onEvent?.(eventDetails.currentTarget.element)}
+        {...props}
+      />
+    ),
+    isRegistered: (element) => element.hasAttribute('data-base-ui-drop-target'),
+    async startDrag(element, engine) {
+      const source = createElement();
+      engine.registerSource(source, {});
+      element.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      await lift(source);
+      await dragEnter(element);
+    },
+  });
 
   it('tracks hover on a replacement ref during a drag', async () => {
     function Swappable({ swapped }: { swapped: boolean }) {
@@ -87,37 +107,6 @@ describe('Draggable.Target', () => {
     } finally {
       warnSpy.mockRestore();
     }
-  });
-
-  it('marks the element as a drop target once attached and unmarks it on unmount', async () => {
-    const { unmount } = await renderDnd(
-      <Draggable.Target accept={Draggable.anyKind} data-testid="target" />,
-    );
-    const el = screen.getByTestId('target');
-    expect(el).toHaveAttribute('data-base-ui-drop-target', '');
-    unmount();
-    expect(el).not.toHaveAttribute('data-base-ui-drop-target');
-  });
-
-  it('unregisters when its render component removes the element on its own', async () => {
-    let hide = () => {};
-    const Host = React.forwardRef(function Host(
-      props: React.ComponentProps<'div'>,
-      ref: React.ForwardedRef<HTMLDivElement>,
-    ) {
-      const [visible, setVisible] = React.useState(true);
-      hide = () => setVisible(false);
-      return visible ? <div ref={ref} {...props} /> : null;
-    });
-    await renderDnd(
-      <Draggable.Target accept={Draggable.anyKind} data-testid="target" render={<Host />} />,
-    );
-    const el = screen.getByTestId('target');
-    expect(el).toHaveAttribute('data-base-ui-drop-target', '');
-
-    // Only `Host` re-renders, so the target's own layout effects don't run.
-    await act(async () => hide());
-    expect(el).not.toHaveAttribute('data-base-ui-drop-target');
   });
 
   it('does not forward engine parameters to the DOM element', async () => {
@@ -296,36 +285,6 @@ describe('Draggable.Target', () => {
     touchUp(10, 10);
   });
 
-  it('fires onDraggableEnter and onDrop exactly once when mounted under Strict Mode', async () => {
-    // Strict Mode runs the registration effect twice. A leaked duplicate hold would
-    // run the callbacks once per hold.
-    const onDraggableEnter = vi.fn();
-    const onDrop = vi.fn();
-    const { engine } = await renderDnd(
-      <React.StrictMode>
-        <Draggable.Target
-          accept={Draggable.anyKind}
-          data-testid="target"
-          onDraggableEnter={onDraggableEnter}
-          onDraggableDrop={onDrop}
-        />
-      </React.StrictMode>,
-    );
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = screen.getByTestId('target');
-    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    await dragOver(target);
-    fireDrag.drop(target);
-
-    expect(onDraggableEnter).toHaveBeenCalledTimes(1);
-    expect(onDrop).toHaveBeenCalledTimes(1);
-  });
-
   it('resolves the new params when a hovered target remounts with changed params in one commit', async () => {
     // The key swap and the param change land in one commit, so the mid-drag refresh
     // that resolves the new node must read the new params.
@@ -417,95 +376,6 @@ describe('Draggable.Target', () => {
     expect(onMoveEnd).toHaveBeenCalledTimes(1);
     expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
     expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
-  });
-
-  it('fires consumer callbacks with stable references across re-renders', async () => {
-    const firstOnDragEnter = vi.fn();
-    const secondOnDragEnter = vi.fn();
-    const { rerender, engine } = await renderDnd(
-      <Draggable.Target
-        accept={Draggable.anyKind}
-        data-testid="target"
-        onDraggableEnter={firstOnDragEnter}
-      />,
-    );
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = screen.getByTestId('target');
-    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    await rerender(
-      <Draggable.Target
-        accept={Draggable.anyKind}
-        data-testid="target"
-        onDraggableEnter={secondOnDragEnter}
-      />,
-    );
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    fireDrag.dragEnter(target);
-    await dragOver(target);
-
-    expect(firstOnDragEnter).not.toHaveBeenCalled();
-    expect(secondOnDragEnter).toHaveBeenCalledTimes(1);
-
-    fireDrag.drop(target);
-  });
-
-  it('does not expose parameters from a suspended render', async () => {
-    const committedCanDrop = vi.fn(() => true);
-    const suspendedCanDrop = vi.fn(() => false);
-    const never = new Promise<void>(() => {});
-    const suspendedRender = vi.fn();
-
-    function SuspendingChild(): React.JSX.Element {
-      suspendedRender();
-      throw never;
-    }
-
-    function App() {
-      const [suspend, setSuspend] = React.useState(false);
-      const [, startTransition] = React.useTransition();
-      return (
-        <React.Fragment>
-          <button
-            type="button"
-            onClick={() => {
-              startTransition(() => setSuspend(true));
-            }}
-          >
-            Suspend update
-          </button>
-          <React.Suspense fallback="Loading">
-            <Draggable.Target
-              accept={Draggable.anyKind}
-              canDrop={suspend ? suspendedCanDrop : committedCanDrop}
-              data-testid="target"
-            />
-            {suspend && <SuspendingChild />}
-          </React.Suspense>
-        </React.Fragment>
-      );
-    }
-
-    const { engine } = await renderDnd(<App />);
-    const source = createElement();
-    engine.registerSource(source, {});
-    const target = screen.getByTestId('target');
-    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Suspend update' }));
-    await act(async () => Promise.resolve());
-    expect(suspendedRender).toHaveBeenCalled();
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-    await dragEnter(target);
-
-    expect(committedCanDrop).toHaveBeenCalled();
-    expect(suspendedCanDrop).not.toHaveBeenCalled();
-    fireDrag.drop(target);
   });
 
   it('fires onDraggableLeave when a hovered target unregisters mid-drag', async () => {

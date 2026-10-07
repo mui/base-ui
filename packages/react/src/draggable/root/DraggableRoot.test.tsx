@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent, screen, render as rawRender } from '@testing-library/react';
-import { describeConformance, firePointer } from '#test-utils';
+import { describeConformance, dragRegistrationConformanceTests, firePointer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createDndRenderer, testDragKind } from '../../../test/dndEngine';
 import {
@@ -55,6 +55,24 @@ describe('Draggable.Root', () => {
       return renderDnd(node);
     },
   }));
+
+  dragRegistrationConformanceTests({
+    render: renderDnd,
+    createComponent: ({ key, onEvent, ...props }) => (
+      <Draggable.Root
+        key={key}
+        kind={testDragKind}
+        onMoveStart={(eventDetails) => onEvent?.(eventDetails.source.element)}
+        {...props}
+      />
+    ),
+    // The gesture styles are ref-counted, so they stay while any registration holds the node.
+    isRegistered: (element) => element.style.touchAction === 'manipulation',
+    async startDrag(element) {
+      element.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      await lift(element);
+    },
+  });
 
   it('warns when a root has no kind inside a collision provider', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -217,103 +235,16 @@ describe('Draggable.Root', () => {
     expect(onMoveStart.mock.calls[0][0].source.payload).toEqual({ token: 'abc' });
   });
 
-  it('keeps the registration stable across re-renders and calls the latest callbacks', async () => {
-    const firstOnMoveStart = vi.fn();
-    const secondOnMoveStart = vi.fn();
-
-    const { rerender } = await renderDnd(
-      <TestDraggable options={{ onMoveStart: firstOnMoveStart }} />,
-    );
-    const source = screen.getByTestId('drag');
-    // The gesture styles prove the element is registered.
-    expect(source.style.touchAction).toBe('manipulation');
-    const getParameters = getRegistration(source)!;
+  it('reuses the normalized parameters until a render changes them', async () => {
+    const { rerender } = await renderDnd(<TestDraggable options={{ onMoveStart: vi.fn() }} />);
+    const getParameters = getRegistration(screen.getByTestId('drag'))!;
     const firstParameters = getParameters();
-    // Calls within one render reuse the normalized parameters.
     expect(getParameters()).toBe(firstParameters);
 
-    await rerender(<TestDraggable options={{ onMoveStart: secondOnMoveStart }} />);
-    // Same node, still registered: no re-registration happened.
-    expect(screen.getByTestId('drag')).toBe(source);
-    expect(source.style.touchAction).toBe('manipulation');
+    await rerender(<TestDraggable options={{ onMoveStart: vi.fn() }} />);
     const secondParameters = getParameters();
     expect(secondParameters).not.toBe(firstParameters);
     expect(getParameters()).toBe(secondParameters);
-
-    fireDrag.dragStart(source);
-    await flushRaf();
-
-    expect(firstOnMoveStart).not.toHaveBeenCalled();
-    expect(secondOnMoveStart).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not expose parameters from a suspended render', async () => {
-    const committedOnMoveStart = vi.fn();
-    const suspendedOnMoveStart = vi.fn();
-    const never = new Promise<void>(() => {});
-    const suspendedRender = vi.fn();
-
-    function SuspendingChild(): React.JSX.Element {
-      suspendedRender();
-      throw never;
-    }
-
-    function App() {
-      const [suspend, setSuspend] = React.useState(false);
-      const [, startTransition] = React.useTransition();
-      return (
-        <React.Fragment>
-          <button
-            type="button"
-            onClick={() => {
-              startTransition(() => setSuspend(true));
-            }}
-          >
-            Suspend update
-          </button>
-          <React.Suspense fallback="Loading">
-            <TestDraggable
-              options={{ onMoveStart: suspend ? suspendedOnMoveStart : committedOnMoveStart }}
-            />
-            {suspend && <SuspendingChild />}
-          </React.Suspense>
-        </React.Fragment>
-      );
-    }
-
-    await renderDnd(<App />);
-    fireEvent.click(screen.getByRole('button', { name: 'Suspend update' }));
-    await act(async () => Promise.resolve());
-    expect(suspendedRender).toHaveBeenCalled();
-
-    fireDrag.dragStart(screen.getByTestId('drag'));
-    await flushRaf();
-
-    expect(committedOnMoveStart).toHaveBeenCalledTimes(1);
-    expect(suspendedOnMoveStart).not.toHaveBeenCalled();
-  });
-
-  it('re-registers when the element behind the ref is swapped without remounting', async () => {
-    function Swappable({ swapped }: { swapped: boolean }) {
-      // The key is on the rendered node, so the root and its registration stay
-      // mounted while React swaps the DOM node, as when a virtualizer recycles a row.
-      return (
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid={swapped ? 'b' : 'a'}
-          render={(props) => <div key={swapped ? 'b' : 'a'} {...props} />}
-        />
-      );
-    }
-
-    const { rerender } = await renderDnd(<Swappable swapped={false} />);
-    const first = screen.getByTestId('a');
-    expect(first.style.touchAction).toBe('manipulation');
-
-    await rerender(<Swappable swapped />);
-    const second = screen.getByTestId('b');
-    expect(first.style.touchAction).toBe('');
-    expect(second.style.touchAction).toBe('manipulation');
   });
 
   it('keeps state.dragging true when the source node is swapped mid-drag', async () => {
@@ -580,41 +511,6 @@ describe('Draggable.Root', () => {
     expect(source.style.cursor).toBe('not-allowed');
   });
 
-  describe('Strict Mode', () => {
-    it('fires onMoveStart, onDrop and onMoveEnd exactly once for a full drag', async () => {
-      const onMoveStart = vi.fn();
-      const onMoveEnd = vi.fn();
-      const onDrop = vi.fn();
-      const { engine } = await renderDnd(
-        <React.StrictMode>
-          <TestDraggable
-            options={{
-              onMoveStart,
-              onMoveEnd: splitEnd(onDrop, onMoveEnd),
-            }}
-          />
-        </React.StrictMode>,
-      );
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-      const target = createElement();
-      engine.registerTarget(target, {});
-
-      fireDrag.dragStart(source);
-      await flushRaf();
-      fireDrag.dragEnter(target);
-      await dragOver(target);
-      fireDrag.drop(target);
-      await flushRaf();
-
-      // A double-mounted registration would run the handlers once per hold.
-      expect(onMoveStart).toHaveBeenCalledTimes(1);
-      expect(onMoveEnd).toHaveBeenCalledTimes(1);
-      // `onDrop` confirms it was a committed drop.
-      expect(onDrop).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe('configuration forwarding', () => {
     it('forwards activation to the sensor: a raised distance defers the pickup', async () => {
       const onMoveStart = vi.fn();
@@ -811,91 +707,6 @@ describe('Draggable.Root', () => {
 
       expect(el.style.touchAction).toBe('none');
       expect(el.style.userSelect).toBe('auto');
-    });
-  });
-
-  describe('same-commit node swap', () => {
-    it('registers the new draggable node with the same commit’s parameters', async () => {
-      // The ref callback runs before the layout effect that updates the params ref,
-      // so a keyed remount that also changes props could register stale parameters.
-      const onMoveStart = vi.fn();
-      const first = vi.fn();
-      const { rerender } = await renderDnd(
-        <Draggable.Root kind={testDragKind} key="a" data-testid="drag" onMoveStart={first} />,
-      );
-      const before = screen.getByTestId('drag');
-
-      await rerender(
-        <Draggable.Root kind={testDragKind} key="b" data-testid="drag" onMoveStart={onMoveStart} />,
-      );
-      const after = screen.getByTestId('drag');
-      expect(after).not.toBe(before);
-
-      after.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-      await lift(after);
-
-      expect(first).not.toHaveBeenCalled();
-      expect(onMoveStart).toHaveBeenCalledTimes(1);
-    });
-
-    it('applies the same commit’s disabled to the new draggable node', async () => {
-      const onMoveStart = vi.fn();
-      const { rerender } = await renderDnd(
-        <Draggable.Root kind={testDragKind} key="a" data-testid="drag" onMoveStart={onMoveStart} />,
-      );
-
-      await rerender(
-        <Draggable.Root
-          kind={testDragKind}
-          key="b"
-          data-testid="drag"
-          disabled
-          onMoveStart={onMoveStart}
-        />,
-      );
-      const after = screen.getByTestId('drag');
-      after.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      // A stale registration would still read the previous render's enabled state.
-      await lift(after, { expectNoDrag: true });
-      expect(onMoveStart).not.toHaveBeenCalled();
-    });
-
-    it('registers the new drop-target node with the same commit’s parameters', async () => {
-      const onDrop = vi.fn();
-      const stale = vi.fn();
-      const { engine, rerender } = await renderDnd(
-        <Draggable.Target
-          accept={Draggable.anyKind}
-          key="a"
-          data-testid="target"
-          payload={{ slot: 1 }}
-          onDraggableDrop={stale}
-        />,
-      );
-      const source = createElement();
-      engine.registerSource(source, {});
-
-      await rerender(
-        <Draggable.Target
-          accept={Draggable.anyKind}
-          key="b"
-          data-testid="target"
-          payload={{ slot: 2 }}
-          onDraggableDrop={onDrop}
-        />,
-      );
-      const target = screen.getByTestId('target');
-      target.getBoundingClientRect = () => new DOMRect(0, 200, 200, 100);
-
-      await lift(source);
-      await dragOver(target, { clientY: 250 });
-      fireDrag.drop(target, { clientY: 250 });
-      await flushRaf();
-
-      expect(stale).not.toHaveBeenCalled();
-      expect(onDrop).toHaveBeenCalledTimes(1);
-      expect(onDrop.mock.calls[0][0].currentTarget.payload).toEqual({ slot: 2 });
     });
   });
 

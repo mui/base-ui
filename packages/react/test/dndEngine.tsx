@@ -53,7 +53,7 @@ type MaybeGetter<T> = T | (() => T);
  * {@link DraggableManager} as exposed to tests: each `register*` also accepts a plain
  * parameters object instead of a getter.
  */
-interface DndTestEngine {
+export interface DndTestEngine {
   registerSource: <TPayload = undefined, TDragData = unknown>(
     element: HTMLElement,
     parameters: MaybeGetter<TestDraggableParameters<TPayload, TDragData>>,
@@ -181,7 +181,7 @@ function NoUi(): null {
   return null;
 }
 
-interface DndTestRenderer extends ReturnType<typeof createRenderer> {
+export interface DndTestRenderer extends ReturnType<typeof createRenderer> {
   /**
    * Render `ui` inside a `Draggable.Provider` and return the render result plus the
    * `engine`. Omit `ui` for engine-level tests. `options.wrapper` goes outside the
