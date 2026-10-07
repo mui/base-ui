@@ -1363,6 +1363,20 @@ export function createDragPreviewElement(
     }
   }
 
+  /**
+   * Re-derive the placement after anything that can restyle the preview: the scale,
+   * the custom root's own offset when `readOffset`, the ancestor scale around the
+   * current `transform-origin`, then the position. Each step reads the previous one.
+   */
+  function relayout(readOffset: boolean): void {
+    updatePositionScale();
+    if (readOffset) {
+      readOwnOffset();
+    }
+    applyAncestorScale();
+    writePosition();
+  }
+
   // Last, after the source in tree order, so `getElementById` still finds the source.
   //
   // Not supported: an `<ol reversed>` without `start` counts the preview, so every
@@ -1382,8 +1396,7 @@ export function createDragPreviewElement(
   // would keep.
   openInTopLayer(!element.hasAttribute('popover'));
   neutralizeTranslateTransition();
-  readOwnOffset();
-  applyAncestorScale();
+  relayout(true);
   // Scroll offsets need layout, which the top layer rebuilt.
   clone?.applyPostInsertion();
 
@@ -1404,9 +1417,7 @@ export function createDragPreviewElement(
     if (usesPopover) {
       openInTopLayer(false);
     }
-    updatePositionScale();
-    applyAncestorScale();
-    writePosition();
+    relayout(false);
     contextualStyles?.reconnect();
     // Re-appending resets descendant scroll positions.
     clone?.applyPostInsertion();
@@ -1450,8 +1461,7 @@ export function createDragPreviewElement(
       updatePositionScale();
       refreshPopoverCorrections(false);
       neutralizeTranslateTransition();
-      readOwnOffset();
-      writePosition();
+      relayout(true);
     },
     prepareForDrop() {
       // Runs once `data-ending-style` lifts the neutralizer. The first read below
@@ -1486,9 +1496,8 @@ export function createDragPreviewElement(
       // Ending styles can set what the popover corrections pinned, such as a
       // background.
       refreshPopoverCorrections(true);
-      // Ending styles can change `transform-origin`, which the ancestor scale's
-      // offset depends on.
-      applyAncestorScale();
+      // Ending styles can change `transform-origin`, which the position depends on.
+      relayout(false);
     },
     destroy() {
       if (destroyed) {

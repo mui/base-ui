@@ -106,6 +106,7 @@ describe('sensor session startup', () => {
         initialTarget: element,
         startReason: 'pointer',
         pressPoint: { x: 10, y: 10 },
+        sourceRect: element.getBoundingClientRect(),
         isPickupCurrent: () => true,
         draggableParameters: {
           kind,

@@ -6,6 +6,7 @@ import { flushRaf, setupDragEngineTests } from '../../../../test/dnd';
 import * as DraggablePreviewDataAttributes from '../../../draggable/preview/DraggablePreviewDataAttributes';
 import { createDragPreviewElement, measurePreviewAnchor } from './cloneDragPreview';
 import { PREVIEW_ELEMENT_ATTRIBUTE } from '../utils';
+import type { DraggableRootModifier } from '../../../draggable/root/DraggableRoot';
 
 /** Measure and clone `source`, the way a pickup does. */
 function clonePreview(source: HTMLElement, container: HTMLElement | null) {
@@ -1148,9 +1149,14 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       `;
       document.head.appendChild(sheet);
       source.className = 'Card';
+      const measuredWidths: number[] = [];
+      const probe: DraggableRootModifier = (context) => {
+        measuredWidths.push(context.sourceRect.width);
+        return context.point;
+      };
       try {
         const { engine } = await renderDnd();
-        engine.registerSource(source, {});
+        engine.registerSource(source, { modifiers: probe });
         const sourceRect = source.getBoundingClientRect();
         const pressX = sourceRect.left + 8;
         const pressY = sourceRect.top + 6;
@@ -1172,8 +1178,9 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
         const preview = previews[0];
         expect(preview).not.toHaveAttribute('data-settling');
         expect(getComputedStyle(preview).color).toBe('rgb(0, 0, 0)');
-        // Measured without the `[data-settling]` width.
+        // Measured without the `[data-settling]` width, by the preview and the modifiers.
         expect(preview.getBoundingClientRect().width).toBeCloseTo(sourceRect.width);
+        expect(measuredWidths.at(-1)).toBeCloseTo(sourceRect.width);
         dispatchMouse('pointerup', source, pressX + 20, pressY);
       } finally {
         animationsFlag.BASE_UI_ANIMATIONS_DISABLED = previousFlag;
@@ -1253,6 +1260,38 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
       expect(rect.left).toBeCloseTo(100);
       expect(rect.top).toBeCloseTo(60);
       expect(rect.width).toBeCloseTo(100);
+    } finally {
+      handle.destroy();
+      scaled.remove();
+      sheet.remove();
+    }
+  });
+
+  it('keeps the preview in place when ending styles move its transform origin', () => {
+    // A fade-only ending leaves the preview where it was released, so the position
+    // must follow the new origin without a new `setPosition`.
+    const sheet = document.createElement('style');
+    sheet.textContent = '.Card[data-ending-style] { transform-origin: 0 0; }';
+    document.head.appendChild(sheet);
+    const scaled = document.createElement('div');
+    scaled.style.cssText =
+      'position: absolute; inset: 0 auto auto 0; transform: scale(2); transform-origin: 0 0;';
+    const card = document.createElement('div');
+    card.className = 'Card';
+    card.style.cssText = 'width: 50px; height: 20px;';
+    scaled.appendChild(card);
+    document.body.appendChild(scaled);
+    const handle = clonePreview(card, null)!;
+    try {
+      handle.setPosition(100, 60);
+      expect(handle.element.getBoundingClientRect().left).toBeCloseTo(100);
+
+      handle.element.setAttribute('data-ending-style', '');
+      handle.prepareForDrop();
+
+      const rect = handle.element.getBoundingClientRect();
+      expect(rect.left).toBeCloseTo(100);
+      expect(rect.top).toBeCloseTo(60);
     } finally {
       handle.destroy();
       scaled.remove();

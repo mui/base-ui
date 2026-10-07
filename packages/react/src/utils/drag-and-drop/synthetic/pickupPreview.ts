@@ -67,6 +67,16 @@ function resolveDragPreview(
   };
 }
 
+/**
+ * Measure a source at pickup, once, for the grab offset and the modifiers. A source
+ * whose previous clone is still settling carries `data-dragging` and `data-settling`,
+ * so that clone is finished first.
+ */
+export function measurePickupSource(element: HTMLElement): DOMRect {
+  finishEndingPreview(element);
+  return element.getBoundingClientRect();
+}
+
 export interface CreatePreviewSessionParameters {
   /** The draggable's latest parameters (kind/payload/event handlers). */
   draggableParameters: DraggableConfig<any, any>;
@@ -86,6 +96,8 @@ export interface CreatePreviewSessionParameters {
    * threshold puts `initialInput` a few pixels past the press.
    */
   pressPoint: { x: number; y: number };
+  /** The source's rect from `measurePickupSource`. */
+  sourceRect: DOMRect;
   /** What the sensor lends the session (see `StartParameters.sensor`). */
   sensor?: DragSessionSensor | undefined;
   /** Whether the sensor still owns the pickup after consumer callbacks. */
@@ -130,6 +142,7 @@ export function createPreviewAndStartSession(
     initialEvent,
     startReason,
     pressPoint,
+    sourceRect,
     sensor,
     isPickupCurrent,
   } = parameters;
@@ -148,15 +161,11 @@ export function createPreviewAndStartSession(
   };
 
   try {
-    // A source whose previous clone is still settling carries `data-dragging` and
-    // `data-settling`. Finish that clone so the source is measured without them.
-    finishEndingPreview(element);
-    // Measured before `markSourceDragging()`, whose `[data-dragging]` rules could
-    // corrupt the grab offset behind `getSnappedLocalPoint({ anchor: 'source' })`.
-    const pickupRect = element.getBoundingClientRect();
+    // From the rect measured before `markSourceDragging()`, whose `[data-dragging]`
+    // rules could corrupt the offset behind `getSnappedLocalPoint({ anchor: 'source' })`.
     const grabOffset = {
-      x: pressPoint.x - pickupRect.left,
-      y: pressPoint.y - pickupRect.top,
+      x: pressPoint.x - sourceRect.left,
+      y: pressPoint.y - sourceRect.top,
     };
     // For the preview's default `'source'` offset. The preview anchors on its
     // untransformed box, so it can't reuse `grabOffset`, which is relative to the

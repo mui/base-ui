@@ -254,9 +254,10 @@ export interface DragModifiersState {
 
 /**
  * Compiles a draggable's `modifiers`, or returns `null` when it declared none. Call it
- * before the session starts so `[data-dragging]` styles can't skew the source measurement.
- * The start point is constrained into `initialPoint`, so axis locks and grid snaps anchor
- * where the first frame resolves, not at a point a rect clamp would move.
+ * before the session starts, with the pickup's `sourceRect`, so `[data-dragging]`
+ * styles can't skew the source measurements. The start point is constrained into
+ * `initialPoint`, so axis locks and grid snaps anchor where the first frame resolves,
+ * not at a point a rect clamp would move.
  * @internal
  */
 export function createDragModifiersState(
@@ -265,6 +266,7 @@ export function createDragModifiersState(
   startPoint: DraggablePosition,
   /** The pickup event's modifier keys, for the initial apply. */
   keys: DragModifierKeys,
+  sourceRect: DOMRect,
 ): DragModifiersState | null {
   const modifiers = compileDragModifiers(declared);
   if (!modifiers) {
@@ -274,7 +276,7 @@ export function createDragModifiersState(
     modifiers,
     initialPoint: startPoint,
     source,
-    sourceRect: source.element.getBoundingClientRect(),
+    sourceRect,
     scale: getElementScale(source.element),
   };
   // No preview exists yet, so rect modifiers clamp the bare point. The pickup

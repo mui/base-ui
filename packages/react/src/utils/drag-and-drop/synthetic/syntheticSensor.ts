@@ -12,7 +12,11 @@ import { getTarget } from '@base-ui/utils/shadowDom';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { REASONS } from '../../../internals/reasons';
 import type { DragSessionController } from '../core/lifecycleManager';
-import { createPreviewAndStartSession, hitTestUnderPreview } from './pickupPreview';
+import {
+  createPreviewAndStartSession,
+  hitTestUnderPreview,
+  measurePickupSource,
+} from './pickupPreview';
 import type { DragPreview } from './syntheticPreview';
 import { completePending, isPending } from './pickupRecognizer';
 import type { PendingSession } from './pickupRecognizer';
@@ -184,13 +188,15 @@ export function startDrag(
 ): boolean {
   const { element, target, pointerId, pointerType, contextMenuSuppression } = pending;
   const lastInput = getInput(pending.lastNativeEvent);
-  // Compiled before the session starts, so the source rect is measured before
-  // `[data-dragging]` styles can restyle what custom modifiers read.
+  // Measured once, before the session starts, so `[data-dragging]` styles can't
+  // restyle what the grab offset and custom modifiers read.
+  const sourceRect = measurePickupSource(element);
   const modifiers = createDragModifiersState(
     parameters.modifiers,
     dragSource,
     { x: lastInput.clientX, y: lastInput.clientY },
     lastInput,
+    sourceRect,
   );
   if (!isPending(pending)) {
     return false;
@@ -221,6 +227,7 @@ export function startDrag(
     // The press point, not the committed input. The grab offset must match
     // where the user took hold, and the activation distance separates the two.
     pressPoint: pending.origin,
+    sourceRect,
     initialTarget,
     sensor: {
       getRawInput: getRawActivePointerInput,

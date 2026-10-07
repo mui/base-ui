@@ -475,19 +475,19 @@ describe('applyDragModifiers', () => {
 });
 
 describe('createDragModifiersState', () => {
-  it('returns null and skips the source measure when nothing is declared', () => {
-    const measure = vi.fn(() => makeRect(0, 0, 10, 10));
+  it('returns null when nothing is declared', () => {
     const source = document.createElement('div');
-    source.getBoundingClientRect = measure;
     const start = { x: 0, y: 0 };
+    const rect = makeRect(0, 0, 10, 10);
     expect(
-      createDragModifiersState(undefined, { element: source }, start, NO_MODIFIER_KEYS),
+      createDragModifiersState(undefined, { element: source }, start, NO_MODIFIER_KEYS, rect),
     ).toBeNull();
-    expect(createDragModifiersState([], { element: source }, start, NO_MODIFIER_KEYS)).toBeNull();
     expect(
-      createDragModifiersState([false, null], { element: source }, start, NO_MODIFIER_KEYS),
+      createDragModifiersState([], { element: source }, start, NO_MODIFIER_KEYS, rect),
     ).toBeNull();
-    expect(measure).not.toHaveBeenCalled();
+    expect(
+      createDragModifiersState([false, null], { element: source }, start, NO_MODIFIER_KEYS, rect),
+    ).toBeNull();
   });
 
   it('constrains the start point so the drag begins where its first frame resolves', () => {
@@ -501,6 +501,7 @@ describe('createDragModifiersState', () => {
       { element: source },
       { x: 50, y: 350 },
       NO_MODIFIER_KEYS,
+      source.getBoundingClientRect(),
     )!;
     expect(state.initialPoint).toEqual({ x: 100, y: 300 });
     expect(state.source.element).toBe(source);
@@ -525,6 +526,7 @@ describe('modifyDragPoint', () => {
       { element: source },
       { x: 50, y: 50 },
       NO_MODIFIER_KEYS,
+      source.getBoundingClientRect(),
     )!;
     // State creation applies the modifiers with no preview yet.
     expect(offsets).toEqual([{ x: 0, y: 0 }]);
@@ -551,6 +553,7 @@ describe('modifyDragPoint', () => {
       { element: source },
       { x: 10, y: 10 },
       NO_MODIFIER_KEYS,
+      source.getBoundingClientRect(),
     )!;
     const previewElement = document.createElement('div');
     const getRect = vi.fn(() => makeRect(0, 0, 50, 30));
