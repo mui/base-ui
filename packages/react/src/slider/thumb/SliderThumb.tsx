@@ -31,7 +31,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
-import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
+import { matchesFocusVisible } from '../../utils/popups/element';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';

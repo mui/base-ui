@@ -4,11 +4,11 @@ import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { warn } from '@base-ui/utils/warn';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
-import { isTypeableElement } from '../../floating-ui-react/utils';
+import { isTypeableElement } from '../../utils/popups/element';
 import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { refocusOwner, isRefocusingOwner } from '../../filter-dropdown/utils/refocusOwner';
 import type { MenuRoot } from '../root/MenuRoot';
-import { isCrossOrientationCloseKey } from '../../floating-ui-react/hooks/useListNavigation';
+import { isCrossOrientationCloseKey } from '../../utils/popups/interactions/useListNavigation';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 export function useMenuFilterPopup(

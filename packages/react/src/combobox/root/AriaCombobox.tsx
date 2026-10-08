@@ -12,15 +12,13 @@ import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import type { ElementProps } from '../../floating-ui-react';
-import {
-  getOverflowAncestors,
-  useDismiss,
-  useFloatingRootContext,
-  useListNavigation,
-  useClick,
-} from '../../floating-ui-react';
-import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
+import { getOverflowAncestors } from '@floating-ui/react-dom';
+import type { ElementProps } from '../../utils/popups/floating-root/types';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { gridNavigation } from '../../utils/popups/interactions/gridNavigation';
 import {
   createChangeEventDetails,
   createGenericEventDetails,

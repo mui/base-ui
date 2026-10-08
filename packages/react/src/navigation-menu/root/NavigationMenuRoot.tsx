@@ -11,8 +11,8 @@ import {
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-react';
-import type { FloatingRootContext } from '../../floating-ui-react';
+} from '../../utils/popups/tree/FloatingTree';
+import type { FloatingRootContext } from '../../utils/popups/floating-root/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,

@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { closest, getTarget } from '@base-ui/utils/shadowDom';
-import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import {
@@ -11,7 +12,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**

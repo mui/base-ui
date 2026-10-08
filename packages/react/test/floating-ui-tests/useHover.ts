@@ -12,29 +12,26 @@ import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../src/internals/createBaseUIEventDetails';
 import { REASONS } from '../../src/internals/reasons';
 import type { FloatingUIOpenChangeDetails } from '../../src/internals/types';
-import {
-  useFloatingParentNodeId,
-  useFloatingTree,
-} from '../../src/floating-ui-react/components/FloatingTree';
+import { useFloatingParentNodeId, useFloatingTree } from '../../src/utils/popups/tree/FloatingTree';
 import type {
   Delay,
   ElementProps,
   FloatingContext,
   FloatingRootContext,
-} from '../../src/floating-ui-react/types';
-import { isInteractiveElement } from '../../src/floating-ui-react/utils/element';
-import type { HandleClose } from '../../src/floating-ui-react/hooks/useHoverShared';
+} from '../../src/utils/popups/floating-root/types';
+import { isInteractiveElement } from '../../src/utils/popups/element';
+import type { HandleClose } from '../../src/utils/popups/interactions/useHoverShared';
 import {
   getDelay,
   getRestMs,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
   isHoverOpenEvent,
-} from '../../src/floating-ui-react/hooks/useHoverShared';
+} from '../../src/utils/popups/interactions/useHoverShared';
 
 export type {
   HandleCloseContext,
   HandleClose,
-} from '../../src/floating-ui-react/hooks/useHoverShared';
+} from '../../src/utils/popups/interactions/useHoverShared';
 
 export interface UseHoverProps {
   /**

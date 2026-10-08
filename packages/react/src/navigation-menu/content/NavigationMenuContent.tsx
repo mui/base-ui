@@ -6,7 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { FloatingNode } from '../../floating-ui-react';
+import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,

@@ -8,7 +8,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
 import { mergeProps } from '../../merge-props';
 import { useMenuFilterKeyDown } from './useMenuFilterKeyDown';
-import { isMainOrientationKey } from '../../floating-ui-react/hooks/useListNavigation';
+import { isMainOrientationKey } from '../../utils/popups/interactions/useListNavigation';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuList } from '../list/MenuList';
 import { useCompositeListContext } from '../../internals/composite/list/CompositeListContext';

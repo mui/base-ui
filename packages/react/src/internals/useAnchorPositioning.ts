@@ -13,24 +13,26 @@ import {
   offset,
   shift as floatingShift,
   size,
-} from '../floating-ui-react';
+} from '@floating-ui/react-dom';
 import type {
-  UseFloatingOptions,
-  UseFloatingReturn,
   Placement,
-  FloatingRootContext,
   VirtualElement,
   Padding,
-  FloatingContext,
   Side as PhysicalSide,
   MiddlewareState,
   AutoUpdateOptions,
   Middleware,
-  FloatingTreeStore,
-} from '../floating-ui-react';
-import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
+} from '@floating-ui/react-dom';
+import type {
+  UseFloatingOptions,
+  UseFloatingReturn,
+  FloatingRootContext,
+  FloatingContext,
+} from '../utils/popups/floating-root/types';
+import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
+import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
-import { arrow } from '../floating-ui-react/middleware/arrow';
+import { arrow } from '../utils/popups/positioning/arrow';
 import { hide } from '../utils/hideMiddleware';
 import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
 import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
