@@ -5,9 +5,11 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import { dispatchOpenChange } from '../../utils/popups/floating-root/dispatchOpenChange';
 import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
   BasePopupStore,
+  createFloatingRootContextValues,
   createInitialPopupStoreState,
   getHoverPopupInstantType,
   popupStoreSelectors,
@@ -76,8 +78,8 @@ export class TooltipStore<Payload> extends BasePopupStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
-      createInitialState<Payload>(initialState, triggerElements, floatingId, nested),
-      createInitialContext(triggerElements),
+      createInitialState<Payload>(initialState, floatingId),
+      createInitialContext(triggerElements, nested),
       selectors,
     );
   }
@@ -88,7 +90,9 @@ export class TooltipStore<Payload> extends BasePopupStore<
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
   cancelPendingOpen(event: MouseEvent | PointerEvent) {
-    this.state.floatingRootContext.dispatchOpenChange(
+    dispatchOpenChange(
+      this.context,
+      this.select('open'),
       false,
       createChangeEventDetails(REASONS.triggerPress, event),
     );
@@ -106,7 +110,7 @@ export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
 
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+    Object.freeze(createInitialState<Payload>(undefined)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
@@ -115,12 +119,10 @@ export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,
-  nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
+    ...createInitialPopupStoreState<Payload>(floatingId),
     disabled: false,
     instantType: undefined,
     isInstantPhase: false,
@@ -136,11 +138,12 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
   return {
     popupRef: React.createRef<HTMLElement | null>(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
+    ...createFloatingRootContextValues(nested),
   };
 }

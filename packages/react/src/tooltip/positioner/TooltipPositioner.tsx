@@ -49,7 +49,6 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const mounted = store.useState('mounted');
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
-  const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
@@ -57,7 +56,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const positioning = useAnchorPositioning({
     anchor,
     positionMethod,
-    floatingRootContext,
+    floatingRootContext: store,
     mounted,
     side,
     sideOffset,

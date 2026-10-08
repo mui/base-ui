@@ -135,7 +135,6 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   const descriptionElementId = store.useState('descriptionElementId');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
-  const floatingRootContext = store.useState('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
@@ -146,7 +145,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
-  const floatingId = floatingRootContext.useState('floatingId');
+  const floatingId = store.useState('floatingId');
 
   const popupId = elementProps.id ?? floatingId;
 
@@ -395,7 +394,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      context={store}
       openInteractionType={openMethod}
       disabled={!mounted}
       closeOnFocusOut={!disablePointerDismissal}

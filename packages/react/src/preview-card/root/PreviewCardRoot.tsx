@@ -94,9 +94,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 }
 
 function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<Payload> }) {
-  const floatingRootContext = store.useState('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext);
+  const dismiss = useDismiss(store);
 
   // `useDismiss` is not given an `enabled` option, so all three prop bags are always defined.
   // `dismiss.trigger` is the same object as `dismiss.reference`.

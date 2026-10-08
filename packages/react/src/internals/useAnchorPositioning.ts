@@ -26,9 +26,10 @@ import type {
 import type {
   UseFloatingOptions,
   UseFloatingReturn,
+  FloatingRootContext,
   FloatingContext,
 } from '../utils/popups/floating-root/types';
-import type { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
+import { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
 import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
 import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
@@ -131,7 +132,7 @@ type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootStore },
+  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
 ): UseAnchorPositioningReturnValue {
   return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
 }
@@ -460,14 +461,20 @@ export function useAnchorPositioningWithHook(
 
   useIsoLayoutEffect(() => {
     // Ensure positioning doesn't run initially for `keepMounted` elements that
-    // aren't initially open.
+    // aren't initially open. Popup stores derive the anchor and floating elements from their
+    // own state, so only a `FloatingRootStore` keeps copies of them to clear.
     if (!mounted && floatingRootContext) {
-      floatingRootContext.update({
-        referenceElement: null,
-        floatingElement: null,
-        domReferenceElement: null,
-        positionReference: null,
-      });
+      if (floatingRootContext instanceof FloatingRootStore) {
+        floatingRootContext.update({
+          referenceElement: null,
+          floatingElement: null,
+          domReferenceElement: null,
+          positionReference: null,
+        });
+      } else {
+        floatingRootContext.set('domReferenceElement', null);
+        floatingRootContext.set('positionReference', null);
+      }
     }
   }, [mounted, floatingRootContext]);
 
@@ -814,7 +821,7 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: FloatingRootStore | undefined;
+  floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
   nodeId?: string | undefined;
