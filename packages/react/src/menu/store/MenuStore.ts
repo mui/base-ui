@@ -340,6 +340,10 @@ export class MenuStore<Payload> extends BasePopupStore<
     };
   }
 
+  protected prepareUnmount() {
+    return { allowMouseEnter: false };
+  }
+
   setActiveIndex(
     activeIndex: number | null,
     reason: MenuRoot.HighlightEventReason,
