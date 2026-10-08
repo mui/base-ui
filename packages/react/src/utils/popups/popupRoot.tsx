@@ -13,20 +13,166 @@ import { REASONS } from '../../internals/reasons';
 import type {
   PopupStoreState,
   PopupStoreContext,
+  PopupStoreSelectors,
   popupStoreSelectors,
   PopupTriggerDataStore,
 } from './store';
 
-type PopupStoreWithOpen<
-  State extends PopupStoreState<unknown>,
-  SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
-> = PopupTriggerDataStore<State> &
-  Pick<
-    ReactStore<Readonly<State>, PopupStoreContext<never>, typeof popupStoreSelectors>,
-    'useSyncedValue'
-  > & {
-    setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
-  };
+/**
+ * The props every popup Root shares.
+ */
+export interface PopupRootProps<Store extends PopupRootStore> {
+  open?: boolean | undefined;
+  defaultOpen?: boolean | undefined;
+  onOpenChange?: Store['context']['onOpenChange'] | undefined;
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
+  actionsRef?: React.RefObject<PopupRootActions | null> | undefined;
+  triggerId?: string | null | undefined;
+  defaultTriggerId?: string | null | undefined;
+}
+
+export interface PopupRootActions {
+  unmount: () => void;
+  close: () => void;
+}
+
+/**
+ * The store state a popup Root derives from its props when it creates the store.
+ */
+export type PopupRootInitialState = Pick<
+  PopupStoreState<unknown>,
+  'open' | 'openProp' | 'activeTriggerId' | 'triggerIdProp'
+>;
+
+export interface UsePopupRootOptions {
+  /**
+   * Whether the popup closes when its active trigger unmounts.
+   * @default false
+   */
+  closeOnActiveTriggerUnmount?: boolean | undefined;
+  /**
+   * Whether a popup that mounts already open still plays its enter transition.
+   * See `useOpenStateTransitions`.
+   * @default false
+   */
+  animateInitialOpen?: boolean | undefined;
+  /**
+   * Whether the popup renders as closed. Its open state in the store is left as it is.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+}
+
+/**
+ * The popup store members a popup Root relies on.
+ */
+type PopupRootStore = ReactStore<
+  PopupStoreState<unknown>,
+  PopupStoreContext<never>,
+  PopupStoreSelectors
+> & {
+  setOpen(
+    open: boolean,
+    eventDetails: BaseUIChangeEventDetails<typeof REASONS.imperativeAction | typeof REASONS.none>,
+  ): void;
+  resetOnUnmount(): void;
+};
+
+/**
+ * Runs what every popup Root does for its popup, in the order it needs: it creates the store,
+ * syncs the controlled props and callbacks, keeps the active trigger current, runs the open and
+ * close transitions, and exposes the `actionsRef` actions.
+ *
+ * @param props The props every popup Root shares.
+ * @param createStore Builds the store exactly once, from the state the props describe, the floating
+ *   id and whether the popup is nested inside another floating element. The store belongs to the
+ *   Root, not to its handle: the handle attaches to it, so swapping the handle re-attaches rather
+ *   than recreating state. The props only seed it; controlled props are synced after creation.
+ * @param options What differs between popup Roots.
+ * @returns The store, and the open and mounted state, payload and transition status it renders.
+ */
+export function usePopupRoot<Store extends PopupRootStore>(
+  props: PopupRootProps<Store>,
+  createStore: (
+    initialState: PopupRootInitialState,
+    floatingId: string | undefined,
+    nested: boolean,
+  ) => Store,
+  options: UsePopupRootOptions = {},
+) {
+  const floatingId = useId();
+  return usePopupRootWithFloatingId(props, createStore, floatingId, options);
+}
+
+/**
+ * `usePopupRoot` for a Root that supplies its own floating id instead of a generated one.
+ *
+ * @param floatingId The floating id, or `undefined` to leave the popup without one.
+ */
+export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
+  props: PopupRootProps<Store>,
+  createStore: (
+    initialState: PopupRootInitialState,
+    floatingId: string | undefined,
+    nested: boolean,
+  ) => Store,
+  floatingId: string | undefined,
+  options: UsePopupRootOptions = {},
+) {
+  const {
+    open: openProp,
+    defaultOpen = false,
+    onOpenChange,
+    onOpenChangeComplete,
+    actionsRef,
+    triggerId: triggerIdProp,
+    defaultTriggerId = null,
+  } = props;
+  const {
+    closeOnActiveTriggerUnmount = false,
+    animateInitialOpen = false,
+    disabled = false,
+  } = options;
+
+  const store = usePopupRootStore(
+    (initialFloatingId, nested) =>
+      createStore(
+        { open: defaultOpen, openProp, activeTriggerId: defaultTriggerId, triggerIdProp },
+        initialFloatingId,
+        nested,
+      ),
+    floatingId,
+  );
+
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
+
+  store.useContextCallback('onOpenChange', onOpenChange);
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
+
+  const openState = store.useState('open');
+  const open = !disabled && openState;
+  const mounted = store.useState('mounted');
+  const payload = store.useState('payload');
+
+  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount });
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(
+    open,
+    store,
+    animateInitialOpen,
+  );
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      unmount: forceUnmount,
+      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [forceUnmount, store],
+  );
+
+  return { store, open, mounted, payload, transitionStatus };
+}
 
 /**
  * The subset of a popup handle that a Root needs to bind its store to. Both the real handle classes
@@ -43,18 +189,17 @@ export interface PopupRootStoreHandle<Store> {
  *
  * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
  * and whether the popup is nested inside another floating element, both resolved on the first render.
+ * @param floatingIdOverride Replaces the generated floating id. `null` leaves the popup without one.
  */
-export function usePopupRootStore<
-  State extends PopupStoreState<unknown>,
-  SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
-  Store extends PopupStoreWithOpen<State, SetOpenEventDetails>,
->(createStore: (floatingId: string | undefined, nested: boolean) => Store): Store {
-  const floatingId = useId();
+function usePopupRootStore<Store extends PopupRootStore>(
+  createStore: (floatingId: string | undefined, nested: boolean) => Store,
+  floatingId: string | undefined,
+): Store {
   const nested = useFloatingParentNodeId() != null;
 
   const store = useRefWithInit(() => createStore(floatingId, nested)).current;
 
-  store.useSyncedValue('floatingId', floatingId as State['floatingId']);
+  store.useSyncedValue('floatingId', floatingId);
   store.context.nested = nested;
 
   return store;
@@ -112,7 +257,9 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  * @param options Options for active trigger unmount behavior.
  */
 export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>(
-  store: PopupStoreWithOpen<State, BaseUIChangeEventDetails<typeof REASONS.none>>,
+  store: PopupTriggerDataStore<State> & {
+    setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>): void;
+  },
   options: {
     closeOnActiveTriggerUnmount?: boolean | undefined;
   } = {},
@@ -261,7 +408,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  * @returns A function to forcibly unmount the popup. It is a no-op once the popup is already
  *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
  */
-export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
+function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors> & {
     resetOnUnmount(): void;

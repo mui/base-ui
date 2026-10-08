@@ -5,60 +5,24 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import type { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
-import {
-  PopupHandleAttachment,
-  useImplicitActiveTrigger,
-  usePopupRootStore,
-  useOpenStateTransitions,
-  usePopupInteractionProps,
-} from '../../utils/popups';
+import { PopupHandleAttachment, usePopupRoot, usePopupInteractionProps } from '../../utils/popups';
 import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 
 function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {
-  const {
-    open: openProp,
-    defaultOpen = false,
-    onOpenChange,
-    onOpenChangeComplete,
-    actionsRef,
-    handle,
-    triggerId: triggerIdProp,
-    defaultTriggerId: defaultTriggerIdProp = null,
-    children,
-  } = props;
+  const { handle, children } = props;
 
-  const store = usePopupRootStore(
-    (floatingId, nested) =>
-      new PreviewCardStore<Payload>(
-        {
-          open: defaultOpen,
-          openProp,
-          activeTriggerId: defaultTriggerIdProp,
-          triggerIdProp,
-        },
-        floatingId,
-        nested,
-      ),
+  const { store, open, mounted, payload } = usePopupRoot(
+    props,
+    (initialState, floatingId, nested) =>
+      new PreviewCardStore<Payload>(initialState, floatingId, nested),
+    { closeOnActiveTriggerUnmount: true },
   );
 
-  store.useControlledProp('openProp', openProp);
-  store.useControlledProp('triggerIdProp', triggerIdProp);
-
-  store.useContextCallback('onOpenChange', onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
-
-  const open = store.useState('open');
   const activeTriggerId = store.useState('activeTriggerId');
-  const mounted = store.useState('mounted');
-  const payload = store.useState('payload') as Payload | undefined;
-
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount } = useOpenStateTransitions(open, store);
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -67,15 +31,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
       }
     }
   }, [store, activeTriggerId, open]);
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({
-      unmount: forceUnmount,
-      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-    }),
-    [forceUnmount, store],
-  );
 
   // Detached triggers share this one Root, so mounting its interactions eagerly is cheap. The
   // trigger props they publish then stay stable, so opening and closing doesn't re-render inactive
@@ -86,7 +41,9 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
       {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
-      {typeof children === 'function' ? children({ payload }) : children}
+      {typeof children === 'function'
+        ? children({ payload: payload as Payload | undefined })
+        : children}
     </PreviewCardRootContext.Provider>
   );
 }

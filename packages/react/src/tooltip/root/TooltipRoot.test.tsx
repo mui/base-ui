@@ -696,6 +696,32 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByText('Content')).toBe(null);
       });
 
+      it('does not report the open completion again when it toggles on a kept-mounted open tooltip', async () => {
+        const onOpenChangeComplete = vi.fn();
+        const { setProps } = await render(
+          <TestTooltip
+            rootProps={{ open: true, disabled: false, onOpenChangeComplete }}
+            portalProps={{ keepMounted: true }}
+          />,
+        );
+        await waitFor(() => {
+          expect(onOpenChangeComplete).toHaveBeenCalledWith(true);
+        });
+        onOpenChangeComplete.mockClear();
+
+        await setProps({
+          rootProps: { open: true, disabled: true, onOpenChangeComplete },
+          portalProps: { keepMounted: true },
+        });
+        await setProps({
+          rootProps: { open: true, disabled: false, onOpenChangeComplete },
+          portalProps: { keepMounted: true },
+        });
+        await flushMicrotasks();
+
+        expect(onOpenChangeComplete).not.toHaveBeenCalledWith(true);
+      });
+
       it('does not throw error when combined with defaultOpen', async () => {
         await render(<TestTooltip rootProps={{ defaultOpen: true, disabled: true }} />);
 

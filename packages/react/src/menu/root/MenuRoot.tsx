@@ -20,10 +20,7 @@ import { useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import {
-  createChangeEventDetails,
-  createGenericEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import type {
   BaseUIChangeEventDetails,
   BaseUIHighlightEventDetails,
@@ -40,9 +37,8 @@ import type { PayloadChildRenderFunction } from '../../utils/popups';
 import {
   FOCUSABLE_POPUP_PROPS,
   PopupHandleAttachment,
-  useImplicitActiveTrigger,
-  useOpenStateTransitions,
   usePopupInteractionProps,
+  usePopupRootWithFloatingId,
 } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
@@ -56,19 +52,14 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const {
     children,
     open: openProp,
-    onOpenChange,
-    onOpenChangeComplete,
     onItemHighlighted: onItemHighlightedProp,
     defaultOpen = false,
     disabled: disabledProp = false,
     modal: modalProp,
     loopFocus = true,
     orientation = 'vertical',
-    actionsRef,
     closeParentOnEsc = false,
     handle,
-    triggerId: triggerIdProp,
-    defaultTriggerId: defaultTriggerIdProp = null,
     highlightItemOnHover = true,
     isSubmenu = false,
     virtualFocus = false,
@@ -148,39 +139,34 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     animateInitialOpen ? parentMenuStore?.state.instantType : undefined,
   ).current;
 
-  const store = useRefWithInit(() => {
-    const menuStore = new MenuStore<Payload>(
-      {
-        open: defaultOpen,
-        openProp,
-        activeTriggerId: defaultTriggerIdProp,
-        triggerIdProp,
-        parent: parentFromContext,
-        disabled: disabledProp,
-        highlightItemOnHover,
-        modal: parentFromContext.type === undefined ? modalProp : undefined,
-        rootId,
-        instantType: seededInstantType,
-      },
-      floatingId,
-      floatingParentNodeIdFromContext != null,
-    );
-    // A stable ref object, so descendants can read it during render from the first commit.
-    menuStore.context.virtualFocusRef = virtualFocusRef;
-    return menuStore;
-  }).current;
-
-  store.useControlledProp('openProp', openProp);
-  store.useControlledProp('triggerIdProp', triggerIdProp);
-
-  store.useContextCallback('onOpenChange', onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
+  const { store, open, transitionStatus } = usePopupRootWithFloatingId(
+    props,
+    (initialState, initialFloatingId, nested) => {
+      const menuStore = new MenuStore<Payload>(
+        {
+          ...initialState,
+          parent: parentFromContext,
+          disabled: disabledProp,
+          highlightItemOnHover,
+          modal: parentFromContext.type === undefined ? modalProp : undefined,
+          rootId,
+          instantType: seededInstantType,
+        },
+        initialFloatingId,
+        nested,
+      );
+      // A stable ref object, so descendants can read it during render from the first commit.
+      menuStore.context.virtualFocusRef = virtualFocusRef;
+      return menuStore;
+    },
+    floatingId,
+    { animateInitialOpen },
+  );
 
   const floatingTreeRoot = store.useState('floatingTreeRoot');
 
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
 
-  const open = store.useState('open');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -213,13 +199,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     openMethod,
     rootId,
   });
-
-  useImplicitActiveTrigger(store);
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(
-    open,
-    store,
-    animateInitialOpen,
-  );
 
   const runOnceAnimationsFinish = useAnimationsFinished(store.context.popupRef);
 
@@ -329,20 +308,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     }
   }, [open, hoverEnabled, store]);
 
-  store.useSyncedValue('floatingId', floatingId);
-  store.context.nested = floatingParentNodeIdFromContext != null;
-
   useIsoLayoutEffect(() => store.subscribeToParentMenu(), [store]);
-
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-  }, [store]);
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
-  );
 
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   // Repeated open requests are compared against what this Root last committed.
