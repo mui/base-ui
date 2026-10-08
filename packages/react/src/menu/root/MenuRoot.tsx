@@ -218,9 +218,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(
     open,
     store,
-    () => {
-      store.set('allowMouseEnter', false);
-    },
     animateInitialOpen,
   );
 

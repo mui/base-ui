@@ -95,6 +95,11 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
 
     return getHoverPopupInstantType(nextOpen, eventDetails.reason);
   }
+
+  protected prepareUnmount() {
+    this.context.inlineRectCoordsRef.current = undefined;
+    return {};
+  }
 }
 
 /**

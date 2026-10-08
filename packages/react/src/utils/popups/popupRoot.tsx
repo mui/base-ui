@@ -251,8 +251,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store.
  *
  * @param open Whether the popup is open.
- * @param store The Store instance managing the popup state.
- * @param onUnmount Optional callback to be called when the popup is unmounted.
+ * @param store The Store instance managing the popup state. It resets its open session through
+ *   `resetOnUnmount` once the popup unmounts.
  * @param animateInitialOpen Whether a popup that mounts already open should still play its enter
  *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
@@ -263,8 +263,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  */
 export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
-  onUnmount?: () => void,
+  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors> & {
+    resetOnUnmount(): void;
+  },
   animateInitialOpen?: boolean,
 ) {
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
@@ -275,13 +276,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       store.set('preventUnmountingOnClose', preventUnmountOnClose),
     animateInitialOpen,
     onUnmount() {
-      store.update({
-        activeTriggerId: null,
-        activeTriggerElement: null,
-        mounted: false,
-        preventUnmountingOnClose: false,
-      });
-      onUnmount?.();
+      store.resetOnUnmount();
       store.context.onOpenChangeComplete?.(false);
     },
   });
