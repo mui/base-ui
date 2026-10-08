@@ -1383,6 +1383,55 @@ describe('<Tooltip.Root />', () => {
       expect(screen.getByTestId('popup')).toBeVisible();
     });
   });
+
+  describe('close requests', () => {
+    it('reports leaving the trigger before the open delay ends as a hover close', async () => {
+      const onOpenChange = vi.fn();
+      await render(
+        <Tooltip.Root onOpenChange={onOpenChange}>
+          <Tooltip.Trigger delay={200}>Trigger</Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      fireEvent.mouseLeave(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(onOpenChange.mock.calls[0][0]).toBe(false);
+      expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.triggerHover);
+    });
+
+    it('does not report a trigger for an Escape close', async () => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <Tooltip.Root defaultOpen onOpenChange={onOpenChange}>
+          <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await user.keyboard('[Escape]');
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+    });
+  });
 });
 
 describe('nested tooltips', () => {

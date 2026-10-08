@@ -6,7 +6,6 @@ import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './';
 import {
-  applyPopupOpenChange,
   createInitialPopupStoreState,
   createPopupOpenState,
   PopupTriggerMap,
@@ -17,8 +16,6 @@ import {
   useTriggerRegistration,
 } from './';
 import { useSyncedFloatingRootContext } from './floating-root/useSyncedFloatingRootContext';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 
 type TestStore = ReactStore<
@@ -965,117 +962,5 @@ describe('getPopupOpenState', () => {
     state.openedWithoutTrigger = true;
 
     expect(createPopupOpenState(state, false, undefined).openedWithoutTrigger).toBe(true);
-  });
-});
-
-describe('applyPopupOpenChange', () => {
-  type OpenChangeState = PopupStoreState<unknown> & {
-    instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
-    openChangeReason?: string;
-  };
-  type OpenChangeDetails = BaseUIChangeEventDetails<string> & { preventUnmountOnClose(): void };
-
-  function createOpenChangeStore() {
-    const order: string[] = [];
-    const state: OpenChangeState = {
-      ...createInitialPopupStoreState(new PopupTriggerMap()),
-      instantType: undefined,
-      openChangeReason: undefined,
-    };
-
-    const dispatchOpenChange = vi
-      .spyOn(state.floatingRootContext, 'dispatchOpenChange')
-      .mockImplementation(() => {
-        order.push('dispatchOpenChange');
-      });
-    const onOpenChange = vi.fn((_open: boolean, _details: BaseUIChangeEventDetails<string>) => {
-      order.push('onOpenChange');
-    });
-    const update = vi.fn(
-      <const Key extends keyof OpenChangeState>(_state: Pick<OpenChangeState, Key>) => {
-        order.push('update');
-      },
-    );
-
-    const store = {
-      context: { onOpenChange },
-      state,
-      update,
-    };
-
-    return { store, order, onOpenChange, dispatchOpenChange, update };
-  }
-
-  function createDetails(reason: string) {
-    return createChangeEventDetails(reason) as OpenChangeDetails;
-  }
-
-  it('runs the full sequence in order when the change is not canceled', () => {
-    const { store, order, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
-    const details = createDetails(REASONS.triggerFocus);
-    const onBeforeDispatch = vi.fn(() => {
-      order.push('onBeforeDispatch');
-    });
-
-    applyPopupOpenChange(store, true, details, {
-      onBeforeDispatch,
-    });
-
-    expect(onOpenChange).toHaveBeenCalledWith(true, details);
-    expect(dispatchOpenChange).toHaveBeenCalledWith(true, details);
-    expect(update).toHaveBeenCalledTimes(1);
-    expect(order).toEqual(['onOpenChange', 'onBeforeDispatch', 'dispatchOpenChange', 'update']);
-  });
-
-  it('notifies onOpenChange but short-circuits before dispatch when canceled', () => {
-    const { store, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
-    onOpenChange.mockImplementation((_open, details) => {
-      details.cancel();
-    });
-    const onBeforeDispatch = vi.fn();
-
-    applyPopupOpenChange(store, true, createDetails(REASONS.triggerPress), { onBeforeDispatch });
-
-    expect(onOpenChange).toHaveBeenCalledTimes(1);
-    expect(onBeforeDispatch).not.toHaveBeenCalled();
-    expect(dispatchOpenChange).not.toHaveBeenCalled();
-    expect(update).not.toHaveBeenCalled();
-  });
-
-  it('merges extraState into the update with `open` always reflecting nextOpen', () => {
-    const { store, update } = createOpenChangeStore();
-
-    applyPopupOpenChange(store, true, createDetails(REASONS.triggerFocus), {
-      // `open: false` here must be overridden by `nextOpen` (true).
-      extraState: { open: false, openChangeReason: REASONS.triggerFocus },
-    });
-
-    const updatedState = update.mock.calls[0][0];
-    expect(updatedState.open).toBe(true);
-    expect(updatedState.openChangeReason).toBe(REASONS.triggerFocus);
-  });
-
-  it('maps the change reason to instantType', () => {
-    const focusStore = createOpenChangeStore();
-    applyPopupOpenChange(focusStore.store, true, createDetails(REASONS.triggerFocus));
-    expect(focusStore.update.mock.calls[0][0].instantType).toBe('focus');
-
-    const pressStore = createOpenChangeStore();
-    applyPopupOpenChange(pressStore.store, false, createDetails(REASONS.triggerPress));
-    expect(pressStore.update.mock.calls[0][0].instantType).toBe('dismiss');
-
-    const escapeStore = createOpenChangeStore();
-    applyPopupOpenChange(escapeStore.store, false, createDetails(REASONS.escapeKey));
-    expect(escapeStore.update.mock.calls[0][0].instantType).toBe('dismiss');
-
-    const hoverStore = createOpenChangeStore();
-    applyPopupOpenChange(hoverStore.store, true, createDetails(REASONS.triggerHover));
-    const hoverState = hoverStore.update.mock.calls[0][0];
-    expect('instantType' in hoverState).toBe(true);
-    expect(hoverState.instantType).toBeUndefined();
-
-    const noneStore = createOpenChangeStore();
-    applyPopupOpenChange(noneStore.store, true, createDetails(REASONS.none));
-    expect('instantType' in noneStore.update.mock.calls[0][0]).toBe(false);
   });
 });

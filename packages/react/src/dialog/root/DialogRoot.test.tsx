@@ -2135,6 +2135,48 @@ describe('<Dialog.Root />', () => {
       expect(field).not.toHaveFocus();
     },
   );
+
+  describe.skipIf(isJSDOM)('close requests', () => {
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    it('keeps the dialog mounted when onOpenChange prevents unmounting after an await', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const { user } = await render(
+        <div>
+          <style>
+            {`
+              @keyframes dialog-await-exit { to { opacity: 0; } }
+              .dialog-await-popup[data-ending-style] { animation: dialog-await-exit 200ms; }
+            `}
+          </style>
+          <Dialog.Root
+            defaultOpen
+            onOpenChange={async (open, eventDetails) => {
+              if (!open) {
+                await Promise.resolve();
+                eventDetails.preventUnmountOnClose();
+              }
+            }}
+          >
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup" className="dialog-await-popup">
+                Content
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+
+      await user.keyboard('[Escape]');
+      await wait(400);
+
+      expect(screen.queryByTestId('popup')).not.toBe(null);
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+    });
+  });
 });
 
 // The viewport takes its overflow from <html>, falling back to <body> when <html> doesn't

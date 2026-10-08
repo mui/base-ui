@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import type { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
@@ -177,54 +176,6 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   });
 }
 
-type PopupOpenState = Pick<
-  PopupStoreState<unknown>,
-  | 'open'
-  | 'preventUnmountingOnClose'
-  | 'activeTriggerId'
-  | 'activeTriggerElement'
-  | 'openedWithoutTrigger'
->;
-
-export function createPopupOpenState(
-  state: PopupOpenState,
-  open: boolean,
-  trigger: Element | undefined,
-  preventUnmountOnClose = false,
-): PopupOpenState {
-  let preventUnmountingOnClose = state.preventUnmountingOnClose;
-  if (open) {
-    // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
-    preventUnmountingOnClose = false;
-  } else if (preventUnmountOnClose) {
-    preventUnmountingOnClose = true;
-  }
-
-  const triggerId = trigger?.id ?? null;
-  let activeTriggerId = state.activeTriggerId;
-  let activeTriggerElement = state.activeTriggerElement;
-
-  // If a popup is closing, the `trigger` may be undefined.
-  // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-  if (triggerId || open) {
-    activeTriggerId = triggerId;
-    activeTriggerElement = trigger ?? null;
-  }
-
-  return {
-    open,
-    preventUnmountingOnClose,
-    activeTriggerId,
-    activeTriggerElement,
-    // An open request without a trigger (a handle's `open(null)` or `openWithPayload()`) must not
-    // be reassociated with a lone registered trigger later on. Controlled and default opens never
-    // pass through here, so they keep claiming a lone trigger. A close request keeps the flag: a
-    // controlled root may decline it and stay open, so the Root clears the flag only once the
-    // popup is effectively closed.
-    openedWithoutTrigger: open ? trigger == null : state.openedWithoutTrigger,
-  };
-}
-
 export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClose(): void }) {
   let preventUnmountOnClose = false;
 
@@ -233,83 +184,6 @@ export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClos
   };
 
   return () => preventUnmountOnClose;
-}
-
-/**
- * Runs the shared open-change sequence for a popup store: notifies `onOpenChange`,
- * honors cancellation, dispatches the floating root change, maps the reason to an
- * `instantType`, and commits the state update (synchronously for hover so
- * `getAnimations()` observes it). Stores supply their own differences via
- * `extraState` (e.g. the last change reason) and `onBeforeDispatch` (e.g. updating
- * inline-rect coordinates).
- */
-export function applyPopupOpenChange<
-  State extends PopupStoreState<unknown> & {
-    instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
-  },
-  EventDetails extends BaseUIChangeEventDetails<string>,
-  ExtraKey extends keyof State = never,
->(
-  store: {
-    readonly context: Pick<PopupStoreContext<EventDetails>, 'onOpenChange'>;
-    readonly state: State;
-    update<const Key extends keyof State>(state: Pick<State, Key>): void;
-  },
-  nextOpen: boolean,
-  eventDetails: EventDetails & { preventUnmountOnClose(): void },
-  options: {
-    onBeforeDispatch?: (() => void) | undefined;
-    extraState?: Pick<State, ExtraKey> | undefined;
-  } = {},
-): void {
-  const reason = eventDetails.reason;
-  const isHover = reason === REASONS.triggerHover;
-  const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
-  const isDismissClose =
-    !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
-
-  const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(eventDetails);
-
-  store.context.onOpenChange?.(nextOpen, eventDetails);
-
-  if (eventDetails.isCanceled) {
-    return;
-  }
-
-  options.onBeforeDispatch?.();
-
-  store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-  const changeState = () => {
-    const popupOpenState = createPopupOpenState(
-      store.state,
-      nextOpen,
-      eventDetails.trigger,
-      shouldPreventUnmountOnClose(),
-    );
-
-    const updatedState = { ...options.extraState, ...popupOpenState } as Pick<
-      State,
-      keyof PopupOpenState | ExtraKey | 'instantType'
-    >;
-
-    if (isFocusOpen) {
-      updatedState.instantType = 'focus';
-    } else if (isDismissClose) {
-      updatedState.instantType = 'dismiss';
-    } else if (isHover) {
-      updatedState.instantType = undefined;
-    }
-
-    store.update(updatedState);
-  };
-
-  if (isHover) {
-    // Flush synchronously for hover so `node.getAnimations()` sees the new state.
-    ReactDOM.flushSync(changeState);
-  } else {
-    changeState();
-  }
 }
 
 /**
