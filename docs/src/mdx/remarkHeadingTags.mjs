@@ -53,11 +53,18 @@ function hasVisibleContent(children) {
 }
 
 /**
+ * Only section headings (h2 and below) take a tag. The page title comes from the h1
+ * before this plugin runs, so mark a whole page with a tag in its index entry instead.
+ *
  * @returns {(tree: any) => void}
  */
 export default function remarkHeadingTags() {
   return (tree) => {
     visit(tree, 'heading', (node) => {
+      if (node.depth === 1) {
+        return;
+      }
+
       const children = node.children;
       const last = children?.[children.length - 1];
       if (!last || last.type !== 'text' || typeof last.value !== 'string') {

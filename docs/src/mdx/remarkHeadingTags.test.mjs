@@ -48,6 +48,15 @@ describe('remarkHeadingTags', () => {
     expect(heading.data.hProperties['data-heading-badge']).toBe('Preview');
   });
 
+  it('leaves a tag on an h1 in the heading text', () => {
+    const [pageHeading, sectionHeading] = headings('# Menu [New]\n\n## Menu [New]\n');
+
+    expect(pageHeading.children[0].value).toBe('Menu [New]');
+    expect(pageHeading.data).toBeUndefined();
+    expect(sectionHeading.children[0].value).toBe('Menu');
+    expect(sectionHeading.data.hProperties['data-heading-badge']).toBe('New');
+  });
+
   it('does not strip a heading that is only a tag', () => {
     const [heading] = headings('### [Preview]\n');
 
