@@ -219,9 +219,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     open,
     store,
     openProp,
-    () => {
-      store.set('allowMouseEnter', false);
-    },
     animateInitialOpen,
   );
 

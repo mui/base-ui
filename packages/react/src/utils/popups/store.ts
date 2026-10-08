@@ -359,6 +359,16 @@ export type PopupOpenChangeState<State extends PopupStoreState<unknown>> = Parti
 >;
 
 /**
+ * State a popup store resets once its popup unmounts, on top of the fields every popup resets.
+ */
+export type PopupUnmountState<State extends PopupStoreState<unknown>> = Partial<
+  Omit<State, PopupUnmountKey>
+>;
+
+type PopupUnmountKey =
+  'activeTriggerId' | 'activeTriggerElement' | 'mounted' | 'preventUnmountingOnClose';
+
+/**
  * The store of a popup Root. It holds the state every popup shares and runs every open change in
  * the same order:
  *
@@ -373,6 +383,9 @@ export type PopupOpenChangeState<State extends PopupStoreState<unknown>> = Parti
  * 9. One update commits the change, synchronously when `isCommittedSynchronously` says so. By
  *    default only hover changes are, and a store can turn that off, as Menu does.
  * 10. `completeOpenChange` runs once the change is committed.
+ *
+ * Once the popup has finished closing and unmounts, `resetOnUnmount` clears what the open session
+ * left behind, along with the store's own fields from `prepareUnmount`.
  *
  * Each popup store overrides only the steps where it differs.
  */
@@ -490,6 +503,34 @@ export abstract class BasePopupStore<
    * Runs the store's own side effects once an open change is committed.
    */
   protected completeOpenChange(_nextOpen: boolean, _eventDetails: ChangeEventDetails): void {}
+
+  /**
+   * Clears what the open session left behind once the popup has finished closing and unmounted.
+   */
+  resetOnUnmount(): void {
+    // A trigger press during the exit writes the pressed trigger and `open: true` to the store, but
+    // a controlled `open` prop may not have committed yet (React 18 can run the exit completion in
+    // between). `state.open` is reset when the prop closes the popup (see
+    // `useOpenStateTransitions`), so `true` here means a request made since then: keep its trigger
+    // instead of clearing it.
+    const unmountState: Partial<Pick<PopupStoreState<unknown>, PopupUnmountKey>> = this.state.open
+      ? { mounted: false, preventUnmountingOnClose: false }
+      : {
+          activeTriggerId: null,
+          activeTriggerElement: null,
+          mounted: false,
+          preventUnmountingOnClose: false,
+        };
+    this.update({ ...this.prepareUnmount(), ...unmountState } as Pick<State, keyof State>);
+  }
+
+  /**
+   * Runs the store's own cleanup once the popup has unmounted and returns the state to reset with
+   * it.
+   */
+  protected prepareUnmount(): PopupUnmountState<State> {
+    return {};
+  }
 }
 
 /**
