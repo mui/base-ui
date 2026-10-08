@@ -690,10 +690,11 @@ export function useListNavigation(
         forceSyncFocusRef.current = true;
         syncCurrentTarget(event);
       },
-      onClick({ currentTarget }) {
-        // Safari. Skipped under virtual focus, which must keep real focus on the reference.
-        if (!virtual) {
-          currentTarget.focus({ preventScroll: true });
+      onMouseDown(event) {
+        // Safari does not focus list items on mouse press. Focus before click so an item click
+        // handler can move focus elsewhere without this fallback overriding it.
+        if (!virtual && !event.defaultPrevented && event.button === 0) {
+          event.currentTarget.focus({ preventScroll: true });
         }
       },
       onMouseMove(event) {
