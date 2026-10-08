@@ -8,6 +8,7 @@ import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
 import { useHoverInteractionSharedState } from './useHoverInteractionSharedState';
 import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
 import type { UseHoverReferenceInteractionProps } from './useHoverReferenceInteraction';
+import type { FloatingRootStore } from '../floating-root/FloatingRootStore';
 import { REASONS } from '../../../internals/reasons';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 
@@ -262,8 +263,11 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
       };
 
       // Simulate active close transition lifecycle while closed.
-      (context.rootStore.state as { transitionStatus?: 'ending' | undefined }).transitionStatus =
-        open ? undefined : 'ending';
+      (
+        (context.rootStore as FloatingRootStore).state as {
+          transitionStatus?: 'ending' | undefined;
+        }
+      ).transitionStatus = open ? undefined : 'ending';
 
       const hoverProps = useHoverReferenceInteraction(context.rootStore, {
         mouseOnly: true,

@@ -7,7 +7,8 @@ import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
-import type { FloatingRootStore } from './FloatingRootStore';
+import type { TransitionStatus } from '../../../internals/useTransitionStatus';
+import type { PopupTriggerMap } from '../popupTriggerMap';
 
 type Prettify<T> = {
   [K in keyof T]: T[K];
@@ -44,7 +45,39 @@ export interface ContextData {
   [key: string]: any;
 }
 
-export type FloatingRootContext = FloatingRootStore;
+/**
+ * Reads the interaction state of a popup by key.
+ */
+export interface FloatingRootContextReader {
+  (key: 'open'): boolean;
+  (key: 'transitionStatus'): TransitionStatus | undefined;
+  (key: 'domReferenceElement'): Element | null;
+  (key: 'referenceElement'): ReferenceType | null;
+  (key: 'floatingElement'): HTMLElement | null;
+  (key: 'floatingId'): string | undefined;
+}
+
+/**
+ * Non-reactive values shared by the interaction hooks of one popup.
+ */
+export interface FloatingRootContextValues {
+  readonly dataRef: React.RefObject<ContextData>;
+  readonly events: FloatingEvents;
+  nested: boolean;
+  readonly triggerElements: PopupTriggerMap;
+}
+
+/**
+ * The store that interaction hooks, the focus manager and positioning read and write.
+ * Popup stores implement it directly. Components without a popup store use `FloatingRootStore`.
+ */
+export interface FloatingRootContext {
+  select: FloatingRootContextReader;
+  useState: FloatingRootContextReader;
+  set(key: 'positionReference', value: ReferenceType | null): void;
+  setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+  readonly context: FloatingRootContextValues;
+}
 
 export type FloatingContext = Omit<
   UsePositionFloatingReturn<ReferenceType>,

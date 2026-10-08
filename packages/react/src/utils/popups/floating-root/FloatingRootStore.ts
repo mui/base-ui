@@ -1,6 +1,6 @@
 import type * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
-import type { FloatingEvents, ContextData, ReferenceType } from './types';
+import type { FloatingEvents, ContextData, FloatingRootContext, ReferenceType } from './types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from './createEventEmitter';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
@@ -56,11 +56,10 @@ interface FloatingRootStoreOptions {
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
-export class FloatingRootStore extends ReactStore<
-  Readonly<FloatingRootState>,
-  FloatingRootStoreContext,
-  typeof selectors
-> {
+export class FloatingRootStore
+  extends ReactStore<Readonly<FloatingRootState>, FloatingRootStoreContext, typeof selectors>
+  implements FloatingRootContext
+{
   declare private readonly syncOnly: boolean;
 
   constructor(options: FloatingRootStoreOptions) {
