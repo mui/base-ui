@@ -83,14 +83,6 @@ export interface ContextMenuRootProps extends Omit<
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the menu imperatively when called.
-   * - `highlightItem`: Moves or clears the highlight while the menu is open.
-   * `'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`
-   * is disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the
-   * highlight and hands focus back to the popup.
-   * Calling this action does not open the menu. To highlight an item after opening it, call
-   * the action from `onOpenChangeComplete` when `open` is `true`.
-   * Highlight changes requested through this action report the reason `'imperative-action'`
-   * to `onItemHighlighted`.
    */
   actionsRef?: React.RefObject<ContextMenuRoot.Actions | null> | undefined;
   /**
@@ -101,21 +93,7 @@ export interface ContextMenuRootProps extends Omit<
   children?: React.ReactNode | undefined;
 }
 
-/**
- * The item `highlightItem` moves the highlight to.
- * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
- *   the matching end when nothing is highlighted. They wrap around unless `loopFocus` is
- *   disabled and never leave the list.
- * - `'first'` and `'last'` jump to either end of the list.
- * - `'none'` clears the highlight and hands focus back to the popup.
- */
-export type ContextMenuRootHighlightItemTarget = MenuRoot.HighlightItemTarget;
-
-export interface ContextMenuRootActions {
-  unmount: () => void;
-  close: () => void;
-  highlightItem: (target: ContextMenuRootHighlightItemTarget) => void;
-}
+export type ContextMenuRootActions = MenuRoot.Actions;
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type ContextMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<ContextMenuRoot.ChangeEventReason>;
@@ -124,7 +102,6 @@ export namespace ContextMenuRoot {
   export type State = ContextMenuRootState;
   export type Props = ContextMenuRootProps;
   export type Actions = ContextMenuRootActions;
-  export type HighlightItemTarget = ContextMenuRootHighlightItemTarget;
   export type ChangeEventReason = ContextMenuRootChangeEventReason;
   export type ChangeEventDetails = ContextMenuRootChangeEventDetails;
 }

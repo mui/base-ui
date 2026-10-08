@@ -5,6 +5,9 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { MenuGroupContext } from './MenuGroupContext';
 
+/**
+ * @internal
+ */
 export const MenuGroupPlain = React.forwardRef(function MenuGroupPlain(
   componentProps: MenuGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
