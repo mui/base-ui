@@ -24,12 +24,16 @@ export function DrawerProvider(props: DrawerProvider.Props) {
       return;
     }
 
+    const wasActive = openDrawers.size > 0;
     if (open) {
       openDrawers.add(drawer);
     } else {
       openDrawers.delete(drawer);
     }
-    setActive(openDrawers.size > 0);
+    const isActive = openDrawers.size > 0;
+    if (isActive !== wasActive) {
+      setActive(isActive);
+    }
   });
 
   const removeDrawer = useStableCallback((drawer: object) => {
