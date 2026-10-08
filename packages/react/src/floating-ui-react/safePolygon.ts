@@ -1,8 +1,8 @@
 import { isElement } from '@floating-ui/utils/dom';
 import { Timeout } from '@base-ui/utils/useTimeout';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import type { Rect, Side } from './types';
 import type { HandleClose, HandleCloseOptions } from './hooks/useHoverShared';
-import { contains, getTarget } from './utils/element';
 import { getNodeChildren } from './utils/nodes';
 
 /* eslint-disable no-nested-ternary */
