@@ -20,7 +20,7 @@ describe('<Tabs.Tab />', () => {
 
   describeConformance(<Tabs.Tab value="1" />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render: (node) =>
       render(

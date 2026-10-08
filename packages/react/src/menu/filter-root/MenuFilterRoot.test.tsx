@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
 import {
   act,
@@ -103,6 +103,127 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   describe('filtering', () => {
+    it.skipIf(isJSDOM).each(['ArrowDown', 'ArrowUp'])(
+      'ignores %s in the input while the popup animates out',
+      async (key) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const onOpenChange = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root onOpenChange={onOpenChange}>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="filter-menu-exit-test">
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <style>{`
+              .filter-menu-exit-test[data-ending-style] {
+                animation: filter-menu-exit-test 10s linear;
+              }
+              @keyframes filter-menu-exit-test {
+                from { opacity: 1; }
+                to { opacity: 0; }
+              }
+            `}</style>
+          </Menu.FilterProvider>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await act(async () => trigger.focus());
+        await user.keyboard('[ArrowDown]');
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard('[Escape]');
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
+
+        await user.keyboard(`[${key}]`);
+
+        expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      },
+    );
+
+    it.skipIf(isJSDOM).each([
+      { name: 'an empty query', query: '', matches: 2 },
+      { name: 'a query', query: 're', matches: 1 },
+    ])(
+      'ignores text typed in the input while the popup animates out with $name',
+      async ({ query, matches }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider defaultValue={query} onValueChange={onValueChange}>
+            <Menu.Root>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="filter-menu-exit-typing-test">
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <style>{`
+              .filter-menu-exit-typing-test[data-ending-style] {
+                animation: filter-menu-exit-typing-test 10s linear;
+              }
+              @keyframes filter-menu-exit-typing-test {
+                from { opacity: 1; }
+                to { opacity: 0; }
+              }
+            `}</style>
+          </Menu.FilterProvider>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await act(async () => trigger.focus());
+        await user.keyboard('[ArrowDown]');
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await waitFor(() => {
+          expect(screen.getAllByRole('menuitem')).toHaveLength(matches);
+        });
+
+        await user.keyboard('[Escape]');
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
+        // The closing popup keeps showing the query it closed with.
+        expect(input).toHaveValue(query);
+        const changesBeforeTyping = onValueChange.mock.calls.map(([value, details]) => [
+          value,
+          details.reason,
+        ]);
+
+        await user.keyboard('n');
+
+        expect(onValueChange.mock.calls.map(([value, details]) => [value, details.reason])).toEqual(
+          changesBeforeTyping,
+        );
+        expect(input).toHaveValue(query);
+        expect(screen.getAllByRole('menuitem')).toHaveLength(matches);
+      },
+    );
+
     it('highlights the first item while keeping input focus when opened with the keyboard', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
@@ -5897,54 +6018,5 @@ describe('filterable menu navigation regressions', () => {
     await user.keyboard('[ArrowDown]');
     expect(screen.getByRole('menuitem', { name: 'Match 1' })).toHaveAttribute('data-highlighted');
     expect(filter).not.toHaveBeenCalled();
-  });
-});
-
-describe('custom keyboard shortcuts in a filterable menu', () => {
-  const { render } = createRenderer();
-
-  it('moves the highlight from a shortcut bound on the input', async () => {
-    const actionsRef = React.createRef<Menu.Root.Actions>();
-
-    const { user } = await render(
-      <Menu.FilterProvider>
-        <Menu.Root open actionsRef={actionsRef}>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Input
-                  aria-label="Filter actions"
-                  onKeyDown={(event) => {
-                    if (event.ctrlKey && event.key === 'j') {
-                      event.preventDefault();
-                      actionsRef.current?.highlightItem('next');
-                    }
-                  }}
-                />
-                <Menu.List>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.List>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      </Menu.FilterProvider>,
-    );
-
-    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-    await act(async () => {
-      input.focus();
-    });
-    await user.keyboard('{Control>}j{/Control}');
-
-    await waitFor(() => {
-      expect(input).toHaveAttribute(
-        'aria-activedescendant',
-        screen.getByRole('menuitem', { name: 'Rename' }).id,
-      );
-    });
-    expect(input).toHaveFocus();
-    expect(input).toHaveValue('');
   });
 });

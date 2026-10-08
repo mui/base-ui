@@ -344,8 +344,9 @@ describe('<Collapsible.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('keyboard interactions', () => {
-    ['Enter', 'Space'].forEach((key) => {
-      it(`key: ${key} does not toggle or call onOpenChange when disabled`, async () => {
+    it.each([{ key: 'Enter' }, { key: 'Space' }])(
+      'key: $key does not toggle or call onOpenChange when disabled',
+      async ({ key }) => {
         const handleOpenChange = vi.fn();
 
         const { user } = await render(
@@ -365,11 +366,12 @@ describe('<Collapsible.Root />', () => {
         expect(handleOpenChange).not.toHaveBeenCalled();
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
         expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
-      });
-    });
+      },
+    );
 
-    ['Enter', 'Space'].forEach((key) => {
-      it(`key: ${key} should toggle the Collapsible`, async () => {
+    it.each([{ key: 'Enter' }, { key: 'Space' }])(
+      'key: $key should toggle the Collapsible',
+      async ({ key }) => {
         const { user } = await render(
           <Collapsible.Root defaultOpen={false}>
             <Collapsible.Trigger>Trigger</Collapsible.Trigger>
@@ -391,7 +393,6 @@ describe('<Collapsible.Root />', () => {
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
         expect(trigger).toHaveAttribute('data-panel-open');
         expect(screen.queryByText(PANEL_CONTENT)).toBeVisible();
-        expect(screen.queryByText(PANEL_CONTENT)).not.toBe(null);
         expect(screen.queryByText(PANEL_CONTENT)).toHaveAttribute('data-open');
 
         await user.keyboard(`[${key}]`);
@@ -400,7 +401,7 @@ describe('<Collapsible.Root />', () => {
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
         expect(trigger).not.toHaveAttribute('data-panel-open');
         expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
-      });
-    });
+      },
+    );
   });
 });
