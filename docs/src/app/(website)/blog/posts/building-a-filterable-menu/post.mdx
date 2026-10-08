@@ -119,17 +119,17 @@ But screen reader users start somewhere else. Because `aria-activedescendant` id
 
 Once there though, hearing "search box" doesn't make them aware of the arrow-key shortcut. We give the input the [searchbox role](https://www.w3.org/TR/wai-aria-1.2/#searchbox), which identifies a field for entering search criteria. It doesn't communicate the combobox convention of using arrow keys to explore choices. Screen reader users can still use those keys, but we don't depend on them discovering it.
 
-Those who do discover the arrow-key behavior need a way to and from the input. As we saw, their virtual cursor follows `aria-activedescendant`, so as they arrow through the actions, it moves with the highlighted item. But a highlighted menu item doesn't communicate that they can keep typing. For this reason, we decided that pressing <kbd>↓</kbd> on the last item or <kbd>↑</kbd> on the first should return the highlight to the field, so they can refine their query.
+Those who do discover the arrow-key behavior need a way to and from the input. As they arrow through the actions, their virtual cursor moves with the highlighted item, and a highlighted menu item doesn't communicate that they can continue typing. For this reason, we decided that pressing <kbd>↓</kbd> on the last item or <kbd>↑</kbd> on the first should return the highlight to the field, so they can refine their query.
 
-Sighted keyboard users never leave the field, but that arrow-key behavior of looping back to the input could feel invisible to them. Pressing Down Arrow on the last menu item might seem to do nothing, especially if the user expects navigation to loop back to the first item. So, we added `data-highlighted` to `Menu.Input` so applications can show where that step actually took them. Moving the visual highlight to the input makes the transition clear. No menu item is highlighted, and the user is back at the field, ready to continue filtering.
+Sighted keyboard users never leave the field, but that arrow-key behavior of looping back to the input could feel invisible to them. Pressing Down Arrow on the last menu item might seem to do nothing, especially if the user expects navigation to loop back to the first item. So, we added `data-highlighted` to `Menu.Input` so applications can show where that step actually took them. Moving the visual highlight to the input shows that the user is back at the field and can continue filtering.
 
 ### Same key, different meaning
 
 Another thing to consider is that the same key can mean different things depending on the context you're in. When screen reader users interact with the menu, <kbd>Home</kbd> and <kbd>End</kbd> follow the familiar [menu keyboard conventions](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/#keyboardinteraction) of moving to the first or last item. When editing the input, those keys move to the beginning or end of the text.
 
-Browser focus doesn't leave the input though, so if we relied on focus alone, <kbd>Home</kbd> and <kbd>End</kbd> would always edit the text, even when the user was navigating the menu.
+Browser focus doesn't leave the input though, so if we relied on focus alone, <kbd>Home</kbd> and <kbd>End</kbd> would always move the caret in the input, even when the user is navigating the menu.
 
-To solve it, we use the highlight to distinguish intent. With a menu item highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item, just as they would when interacting with the menu itself. When navigation returns to the input and no menu item is highlighted, the keys move through the text again. Browser focus hasn't moved, but the user's context has, and `data-highlighted` communicates that context.
+To solve it, we use the highlight to distinguish intent. With a menu item highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item, just as they would when interacting with the menu itself. When navigation returns to the input and no menu item is highlighted, the keys move the input caret. Browser focus hasn't moved, but the user's context has, and `data-highlighted` communicates that context.
 
 Try it below. This is a small sketch of the behavior rather than Base UI itself, so you can watch the context change as you press keys.
 
@@ -164,7 +164,7 @@ With the keyboard, the intent is clear. Pressing <kbd>→</kbd> on a highlighted
   </Figcaption>
 </Figure>
 
-Hovering over a trigger isn't as clear-cut. The pointer might simply pass over it while the user is still working in the parent menu, so we show the submenu but leave focus where it is. Once the pointer moves into the submenu itself, that signals intent, so we focus its input and the user can start typing without another click. This lets users preview a submenu without it stealing their next keystroke.
+Hovering over a trigger isn't as clear-cut. The pointer might simply pass over it while the user is still navigating the parent menu, so we show the submenu but leave focus where it is. Once the pointer moves into the submenu itself, that signals intent, so we focus its input and the user can start typing without another click. This lets users preview a submenu without it stealing their next keystroke.
 
 <Figure>
   <FigureFrame>
@@ -181,11 +181,13 @@ Hovering over a trigger isn't as clear-cut. The pointer might simply pass over i
   </Figcaption>
 </Figure>
 
-### Tab still gets you out
+### Leaving the menu
 
-In an ordinary menu, <kbd>Tab</kbd> gives screen reader users a predictable way to leave. Arrow keys move through the actions, and <kbd>Tab</kbd> moves to the next part of the page and closes the menu. We wanted filterable menus to keep that familiar behavior.
+In an ordinary menu, arrow keys move through the actions, while <kbd>Tab</kbd> moves to the next part of the page and closes the menu. We purposefully don't trap focus inside the menu so that screen reader users on touch devices can also move their virtual cursor out of the menu to leave.
 
-Our first version put Clear in the tab order, which seemed fine until we tried leaving the menu and had to press <kbd>Tab</kbd> twice. We removed that extra stop. Clear remains available to pointer users, and keyboard and screen reader users can delete the input text directly. This keeps the learned way to leave a menu consistent across filterable and non-filterable menus.
+We could have added a hidden dismiss button for touch screen reader users, but it would need a label in the application's language. Asking developers to provide that label through a prop or hidden part would make the exit depend on configuration that's easy to skip because the hidden button's purpose isn't obvious. Letting users navigate past the menu instead keeps the exit available without extra setup.
+
+Why does this matter for filterable menus? Our first version put Clear in the tab order, which seemed fine until we tried leaving the menu and had to press <kbd>Tab</kbd> twice. So, we removed that extra stop. Clear remains available to pointer users, and keyboard and screen reader users can delete the input text directly. This keeps the learned way to leave a menu consistent across filterable and non-filterable menus.
 
 ## Why not a search input?
 
@@ -195,7 +197,7 @@ We use a text input with `role="searchbox"` instead, a combination [permitted by
 
 ## Bugs we found in plain old Menu
 
-Revisiting Menu testing with screen readers for filterables also uncovered bugs in Menu itself, and in shared popup code, that affected every menu, filterable or not. We fixed them separately so everyone benefits.
+Revisiting Menu testing with screen readers for filterables also uncovered bugs in Menu and shared popup code that affected every menu, filterable or not. We fixed them separately so everyone benefits.
 
 1. **Double announcements in VoiceOver.** A menu group could announce its name twice. The group was named by `Menu.GroupLabel`, but the same label appeared as another stop for the virtual cursor. With the new dialog affordance, a custom scrollbar could also be counted as something to explore, even though a screen reader user could not reach it. The [accessibility-tree fix](https://github.com/mui/base-ui/pull/5598) removed the redundant stops while keeping the group named and the content scrollable.
 2. **Getting lost on the way out.** <kbd>Shift</kbd>+<kbd>Tab</kbd> out of an open menu trigger could drop focus onto the page body. A [shared focus-guard fix](https://github.com/mui/base-ui/pull/5733) corrected that path. On iPhone VoiceOver, returning from a submenu to its trigger left the submenu open, so moving forward entered it again instead of reaching the next item in the parent menu. [Closing the submenu on that focus return](https://github.com/mui/base-ui/pull/5793) restored the path forward.
