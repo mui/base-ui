@@ -603,6 +603,39 @@ describe('useCheckboxGroupParent', () => {
       expect(getCheckedValues()).toEqual([]);
     });
 
+    it('keeps a disabled child checked from outside while toggling the others', async () => {
+      function DisabledApp() {
+        const [value, setValue] = React.useState<string[]>([]);
+        return (
+          <div>
+            <button onClick={() => setValue(['c'])}>set outside</button>
+            <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
+              <Checkbox.Root parent data-testid="parent" />
+              <Checkbox.Root value="a" data-testid="a" />
+              <Checkbox.Root value="b" data-testid="b" disabled />
+              <Checkbox.Root value="c" data-testid="c" disabled />
+            </CheckboxGroup>
+          </div>
+        );
+      }
+
+      const { user } = await render(<DisabledApp />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(getCheckedValues()).toEqual(['c']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a', 'c']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['c']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a', 'c']);
+    });
+
     it('does not return to a mixed value that was cleared from outside', async () => {
       const { user } = await render(<App outsideValue={[]} />);
 
@@ -679,14 +712,18 @@ describe('useCheckboxGroupParent', () => {
       expect(handleValueChange.mock.calls).toEqual([[allValues], [allValues]]);
     });
 
-    it('returns to the mixed value when the group value is copied on change', async () => {
-      function CopyingApp() {
+    it.each([
+      { name: 'copied', store: (nextValue: string[]) => [...nextValue] },
+      { name: 'reordered', store: (nextValue: string[]) => [...nextValue].sort() },
+    ])('returns to the mixed value when the group value is $name on change', async ({ store }) => {
+      function StoringApp() {
         const [value, setValue] = React.useState<string[]>([]);
         return (
           <CheckboxGroup
             value={value}
-            onValueChange={(nextValue) => setValue([...nextValue])}
-            allValues={allValues}
+            onValueChange={(nextValue) => setValue(store(nextValue))}
+            // Not in the order `sort()` produces.
+            allValues={['c', 'a', 'b']}
           >
             <Checkbox.Root parent data-testid="parent" />
             <Checkbox.Root value="a" data-testid="a" />
@@ -696,7 +733,7 @@ describe('useCheckboxGroupParent', () => {
         );
       }
 
-      const { user } = await render(<CopyingApp />);
+      const { user } = await render(<StoringApp />);
 
       const parent = screen.getByTestId('parent');
 

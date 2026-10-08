@@ -2,9 +2,13 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../internals/reasons';
+
+// The order is ignored: the group's value may be stored reordered.
+function hasSameValues(a: readonly string[], b: readonly string[]) {
+  return a.length === b.length && a.every((item) => b.includes(item));
+}
 
 export function useCheckboxGroupParent(
   params: UseCheckboxGroupParentParameters,
@@ -60,7 +64,7 @@ export function useCheckboxGroupParent(
         // child is clicked. So is a mixed state forced by the parent's `indeterminate` prop: it
         // stands for a change the group's value doesn't hold, such as one in a nested group.
         if (
-          !areArraysEqual(value, lastValueRef.current) ||
+          !hasSameValues(value, lastValueRef.current) ||
           (forcedIndeterminate && !indeterminate)
         ) {
           uncontrolledStateRef.current = value;
@@ -81,7 +85,7 @@ export function useCheckboxGroupParent(
         );
 
         const allOnOrOff =
-          uncontrolledState.length === all.length || uncontrolledState.length === 0;
+          uncontrolledState.length === all.length || uncontrolledState.length === none.length;
 
         if (allOnOrOff) {
           const nextValue = value.length === all.length ? none : all;
