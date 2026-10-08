@@ -9,7 +9,7 @@ import type { PopoverHandle } from '../store/PopoverHandle';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
 import {
-  PopupHandleAttachment,
+  renderPopupRootChildren,
   usePopupRoot,
   usePopupInteractionProps,
   usePopupRootSync,
@@ -51,11 +51,15 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
 
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
-      {typeof children === 'function'
-        ? children({ payload: payload as Payload | undefined })
-        : children}
+      {renderPopupRootChildren({
+        store,
+        handle,
+        interactions: shouldRenderInteractions && (
+          <PopoverInteractions store={store} modal={modal} />
+        ),
+        children,
+        payload,
+      })}
     </PopoverRootContext.Provider>
   );
 });

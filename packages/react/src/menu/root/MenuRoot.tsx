@@ -36,7 +36,7 @@ import type { MenuHandle } from '../store/MenuHandle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
 import {
   FOCUSABLE_POPUP_PROPS,
-  PopupHandleAttachment,
+  renderPopupRootChildren,
   usePopupInteractionProps,
   usePopupRootWithFloatingId,
 } from '../../utils/popups';
@@ -139,7 +139,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     animateInitialOpen ? parentMenuStore?.state.instantType : undefined,
   ).current;
 
-  const { store, open, transitionStatus } = usePopupRootWithFloatingId(
+  const { store, open, payload, transitionStatus } = usePopupRootWithFloatingId(
     props,
     (initialState, initialFloatingId, nested) => {
       const menuStore = new MenuStore<Payload>(
@@ -174,7 +174,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const parent = store.useState('parent');
   const activeIndex = store.useState('activeIndex');
   const keyboardOpen = store.useState('keyboardOpen');
-  const payload = store.useState('payload') as Payload | undefined;
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
@@ -583,12 +582,9 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     ],
   );
 
-  const renderedChildren = typeof children === 'function' ? children({ payload }) : children;
-
   let content = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {renderedChildren}
+      {renderPopupRootChildren({ store, handle, children, payload })}
     </MenuRootContext.Provider>
   );
 
