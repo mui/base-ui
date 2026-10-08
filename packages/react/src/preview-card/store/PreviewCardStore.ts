@@ -1,15 +1,18 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
-import type { InlineRectCoords } from '../../utils/popups/inlineRect';
 import type {
   PopupStoreContext,
   PopupStoreState,
   PopupTriggerStoreKeys,
 } from '../../utils/popups/store';
-import { applyPopupOpenChange } from '../../utils/popups/popupStoreUtils';
-import { createInitialPopupStoreState, popupStoreSelectors } from '../../utils/popups/store';
-import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import { updateInlineRectCoords } from '../../utils/popups/inlineRect';
+import type { InlineRectCoords } from '../../utils/popups/inlineRect';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import {
+  BasePopupStore,
+  createInitialPopupStoreState,
+  getHoverPopupInstantType,
+  popupStoreSelectors,
+} from '../../utils/popups/store';
 import type { PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
@@ -47,10 +50,11 @@ export type PreviewCardHandleStore<Payload> = Pick<
   PopupTriggerStoreKeys
 >;
 
-export class PreviewCardStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
+export class PreviewCardStore<Payload> extends BasePopupStore<
+  State<Payload>,
   Context,
-  Selectors
+  Selectors,
+  PreviewCardRoot.ChangeEventDetails
 > {
   constructor(
     initialState: Partial<State<Payload>>,
@@ -65,35 +69,30 @@ export class PreviewCardStore<Payload> extends ReactStore<
     );
   }
 
-  public setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<PreviewCardRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) {
     const { inlineRectCoordsRef } = this.context;
 
-    applyPopupOpenChange(this, nextOpen, eventDetails as PreviewCardRoot.ChangeEventDetails, {
-      onBeforeDispatch() {
-        // Capture the hovered inline-rect coordinates so the card anchors to the
-        // exact point on the link that was hovered.
-        const event = eventDetails.event;
-        if (
-          nextOpen &&
-          eventDetails.reason === REASONS.triggerHover &&
-          eventDetails.trigger &&
-          'clientX' in event &&
-          'clientY' in event &&
-          inlineRectCoordsRef.current?.element !== eventDetails.trigger
-        ) {
-          updateInlineRectCoords(
-            inlineRectCoordsRef,
-            eventDetails.trigger,
-            event.clientX,
-            event.clientY,
-          );
-        }
-      },
-    });
-  };
+    // Capture the hovered inline-rect coordinates so the card anchors to the
+    // exact point on the link that was hovered.
+    const event = eventDetails.event;
+    if (
+      nextOpen &&
+      eventDetails.reason === REASONS.triggerHover &&
+      eventDetails.trigger &&
+      'clientX' in event &&
+      'clientY' in event &&
+      inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
+      updateInlineRectCoords(
+        inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
+    }
+
+    return getHoverPopupInstantType(nextOpen, eventDetails.reason);
+  }
 }
 
 /**
