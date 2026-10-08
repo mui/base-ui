@@ -11,11 +11,11 @@ import {
   createPopupOpenState,
   PopupTriggerMap,
   popupStoreSelectors,
-  useImplicitActiveTrigger,
   usePopupInteractionProps,
   useTriggerDataForwarding,
   useTriggerRegistration,
 } from './';
+import { useImplicitActiveTrigger } from './popupRoot';
 import type { BaseUIChangeEventDetails } from '../../types';
 
 type TestStore = ReactStore<

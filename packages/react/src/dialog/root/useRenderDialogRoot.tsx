@@ -4,7 +4,7 @@ import { DialogInteractions } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import { DialogStore } from '../store/DialogStore';
 import type { DialogRootProps } from './DialogRoot';
-import { PopupHandleAttachment, usePopupRoot, usePopupRootSync } from '../../utils/popups';
+import { renderPopupRootChildren, usePopupRoot, usePopupRootSync } from '../../utils/popups';
 
 export function useRenderDialogRoot<Payload>(
   mode: DialogRootMode,
@@ -44,17 +44,19 @@ export function useRenderDialogRoot<Payload>(
 
   return (
     <DialogRootContext.Provider value={store as DialogStore<unknown>}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && (
-        <DialogInteractions
-          store={store}
-          parentContext={parentStore?.context}
-          isDrawer={isDrawer}
-        />
-      )}
-      {typeof children === 'function'
-        ? children({ payload: payload as Payload | undefined })
-        : children}
+      {renderPopupRootChildren({
+        store,
+        handle,
+        interactions: shouldRenderInteractions && (
+          <DialogInteractions
+            store={store}
+            parentContext={parentStore?.context}
+            isDrawer={isDrawer}
+          />
+        ),
+        children,
+        payload,
+      })}
     </DialogRootContext.Provider>
   );
 }

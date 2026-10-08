@@ -153,7 +153,7 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
   const openState = store.useState('open');
   const open = !disabled && openState;
   const mounted = store.useState('mounted');
-  const payload = store.useState('payload');
+  const payload = store.useState('payload') as Store['state']['payload'];
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount });
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(
@@ -175,10 +175,42 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
 }
 
 /**
+ * Renders what a popup Root renders inside its context provider, in the order it needs:
+ *
+ * 1. The handle attachment, so its layout effect runs before its descendants' and they can call the
+ *    handle during the Root's initial commit.
+ * 2. The interactions.
+ * 3. `children`, called with the payload when it's a function.
+ *
+ * It's a plain function rather than a component, so it adds no fiber.
+ */
+export function renderPopupRootChildren<Store, Payload>(parameters: {
+  store: Store;
+  handle: PopupRootStoreHandle<Store> | undefined;
+  interactions?: React.ReactNode;
+  children: React.ReactNode | PayloadChildRenderFunction<Payload>;
+  payload: Payload | undefined;
+}) {
+  const { store, handle, interactions, children, payload } = parameters;
+
+  return (
+    <React.Fragment>
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
+      {interactions}
+      {typeof children === 'function' ? children({ payload }) : children}
+    </React.Fragment>
+  );
+}
+
+export type PayloadChildRenderFunction<Payload> = (arg: {
+  payload: Payload | undefined;
+}) => React.ReactNode;
+
+/**
  * The subset of a popup handle that a Root needs to bind its store to. Both the real handle classes
  * and any test double satisfy it.
  */
-export interface PopupRootStoreHandle<Store> {
+interface PopupRootStoreHandle<Store> {
   attachStore(store: Store): () => void;
 }
 
@@ -206,16 +238,16 @@ function usePopupRootStore<Store extends PopupRootStore>(
 }
 
 /**
- * Attaches a Root's store to a handle for this component's committed lifetime. Popup Roots render
- * it before their interactions and user children so its layout effect runs before descendant layout
+ * Attaches a Root's store to a handle for this component's committed lifetime. Rendered before the
+ * Root's interactions and user children so its layout effect runs before descendant layout
  * effects. This lets descendants call the handle during the Root's initial commit without attaching
  * during render, which would leak suspended or abandoned stores. Store subscribers are notified by
  * `attachStore` in this ordinary layout phase, where React permits synchronous updates.
  *
- * Popup Roots must render this component only when a handle is present so handle-less Roots avoid
- * mounting an extra fiber and layout effect.
+ * Rendered only when a handle is present so handle-less Roots avoid mounting an extra fiber and
+ * layout effect.
  */
-export function PopupHandleAttachment<Store>({
+function PopupHandleAttachment<Store>({
   handle,
   store,
 }: {
@@ -228,10 +260,6 @@ export function PopupHandleAttachment<Store>({
 
   return null;
 }
-
-export type PayloadChildRenderFunction<Payload> = (arg: {
-  payload: Payload | undefined;
-}) => React.ReactNode;
 
 /**
  * Keeps trigger registration state synchronized while the popup is open.
