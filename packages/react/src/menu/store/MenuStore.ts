@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { Timeout } from '@base-ui/utils/useTimeout';
@@ -12,9 +11,8 @@ import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstan
 import { REASONS } from '../../internals/reasons';
 import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
-  attachPreventUnmountOnClose,
+  BasePopupStore,
   createInitialPopupStoreState,
-  createPopupOpenState,
   popupStoreSelectors,
   PopupTriggerMap,
 } from '../../utils/popups';
@@ -190,7 +188,12 @@ type Selectors = typeof selectors;
  */
 export type MenuHandleStore<Payload> = Pick<MenuStore<Payload>, PopupTriggerStoreKeys | 'setOpen'>;
 
-export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Context, Selectors> {
+export class MenuStore<Payload> extends BasePopupStore<
+  State<Payload>,
+  Context,
+  Selectors,
+  MenuRoot.ChangeEventDetails
+> {
   constructor(
     initialState?: Partial<State<Payload>>,
     floatingId?: string | undefined,
@@ -248,67 +251,53 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     });
   }
 
-  setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
-    const reason = eventDetails.reason;
-
-    // Open changes are run only while the Root is mounted.
+  protected isOpenChangeIgnored(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
     const getCommittedOpenState = this.context.getCommittedOpenState;
     if (!this.context.rootMounted || !getCommittedOpenState) {
-      return;
+      return true;
     }
 
-    // Relayed tree events and stale hover timers can request a close after the menu closed.
+    // Read the store directly, as relayed tree events and stale hover timers can request a close
+    // after the state changed but before the Root re-rendered.
     if (!nextOpen && !this.select('open')) {
-      return;
+      return true;
     }
 
     // Repeated requests are compared against what the Root last committed.
     const committed = getCommittedOpenState();
-    const activeTriggerElement = committed.activeTriggerElement;
-
-    if (
+    return (
       committed.open === nextOpen &&
-      eventDetails.trigger === activeTriggerElement &&
-      committed.openChangeReason === reason
-    ) {
-      return;
-    }
-
-    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
-      eventDetails as MenuRoot.ChangeEventDetails,
+      eventDetails.trigger === committed.activeTriggerElement &&
+      committed.openChangeReason === eventDetails.reason
     );
+  }
 
-    // Do not immediately reset the activeTriggerId to allow
-    // exit animations to play and focus to be returned correctly.
-    if (!nextOpen && eventDetails.trigger == null) {
-      eventDetails.trigger = activeTriggerElement ?? undefined;
-    }
+  protected getCloseTrigger() {
+    // Keep the previous trigger so exit animations play and focus is returned correctly.
+    return this.context.getCommittedOpenState?.().activeTriggerElement ?? undefined;
+  }
 
-    this.context.onOpenChange?.(nextOpen, eventDetails as MenuRoot.ChangeEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-    const nativeEvent = eventDetails.event as Event;
-    if (
-      nextOpen === false &&
-      reason !== REASONS.itemPress &&
+  protected isOpenChangeDropped(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
+    // Some mobile browsers fire `focus` and then a delayed `click` for one tap. Without this guard,
+    // a menu that opened on focus would close on the click right away.
+    const nativeEvent = eventDetails.event as Event | undefined;
+    return (
+      !nextOpen &&
+      eventDetails.reason !== REASONS.itemPress &&
       nativeEvent?.type === 'click' &&
       (nativeEvent as PointerEvent).pointerType === 'touch' &&
       !this.context.allowTouchToClose
-    ) {
-      return;
-    }
+    );
+  }
 
-    // Prevent the menu from closing on mobile devices that have a delayed click event.
-    // In some cases the menu, when tapped, will fire the focus event first and then the click event.
-    // Without this guard, the menu will close immediately after opening.
+  protected isCommittedSynchronously() {
+    return false;
+  }
+
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
+    const reason = eventDetails.reason;
+    const nativeEvent = eventDetails.event as Event | undefined;
+
     if (nextOpen && reason === REASONS.triggerFocus) {
       this.context.allowTouchToClose = false;
       this.context.allowTouchToCloseTimeout.start(300, () => {
@@ -319,48 +308,32 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
       this.context.allowTouchToCloseTimeout.clear();
     }
 
-    const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
-
     this.context.openEvent = eventDetails.event;
 
-    const popupOpenState = createPopupOpenState(
-      this.state,
-      nextOpen,
-      eventDetails.trigger,
-      shouldPreventUnmountOnClose(),
-    ) as ReturnType<typeof createPopupOpenState> & {
-      openChangeReason: MenuRoot.ChangeEventReason;
-      instantType: State<Payload>['instantType'];
-      keyboardOpen: boolean;
-    };
-
-    popupOpenState.openChangeReason = reason;
-    popupOpenState.keyboardOpen = nextOpen && isKeyboardOpen(reason, nativeEvent);
-
-    const parent = this.state.parent;
+    let instantType: State<Payload>['instantType'];
     if (
-      parent.type === 'menubar' &&
+      this.state.parent.type === 'menubar' &&
       (reason === REASONS.triggerFocus ||
         reason === REASONS.focusOut ||
         reason === REASONS.triggerHover ||
         reason === REASONS.listNavigation ||
         reason === REASONS.siblingOpen)
     ) {
-      popupOpenState.instantType = 'group';
+      instantType = 'group';
     } else if (isKeyboardClick(reason, nativeEvent)) {
-      popupOpenState.instantType = 'click';
-    } else if (isDismissClose) {
-      popupOpenState.instantType = 'dismiss';
-    } else {
-      popupOpenState.instantType = undefined;
+      instantType = 'click';
+    } else if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
+      instantType = 'dismiss';
     }
 
-    // `instantType` must land in the same update that mounts the popup subtree: in React 17
-    // legacy mode this `update` can flush synchronously, and a separate `instantType` write
-    // after it would come too late for an initially open submenu seeding its own store from
-    // this one during that flush.
-    this.update(popupOpenState);
-  };
+    // `instantType` lands in the same update that mounts the popup subtree: in React 17 legacy
+    // mode the update can flush synchronously, and a separate `instantType` write after it would
+    // come too late for an initially open submenu seeding its own store from this one.
+    return {
+      keyboardOpen: nextOpen && isKeyboardOpen(reason, nativeEvent),
+      instantType,
+    };
+  }
 
   setActiveIndex(
     activeIndex: number | null,

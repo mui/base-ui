@@ -1,14 +1,13 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
 import { NullStore } from '../../utils/NullStore';
 import type { PopupStoreContext, PopupTriggerDataStore, PopupStoreState } from '../../utils/popups';
 import {
+  BasePopupStore,
   createInitialPopupStoreState,
   popupStoreSelectors,
   PopupTriggerMap,
-  createPopupOpenState,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -53,10 +52,11 @@ const selectors = {
  */
 export type DialogHandleStore<Payload> = PopupTriggerDataStore<State<Payload>>;
 
-export class DialogStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
+export class DialogStore<Payload> extends BasePopupStore<
+  State<Payload>,
   Context,
-  typeof selectors
+  typeof selectors,
+  DialogRoot.ChangeEventDetails
 > {
   constructor(
     initialState: Partial<State<Payload>> | undefined,
@@ -69,30 +69,21 @@ export class DialogStore<Payload> extends ReactStore<
     super(state, createInitialContext(triggerElements), selectors);
   }
 
-  public setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<DialogRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
-    (eventDetails as DialogRoot.ChangeEventDetails).preventUnmountOnClose = () => {
+  protected getCloseTrigger() {
+    // When closing the dialog, pass the old trigger to the onOpenChange event
+    // so it's not reset too early (potentially causing focus issues in controlled scenarios).
+    return this.state.activeTriggerId != null
+      ? (this.state.activeTriggerElement ?? undefined)
+      : undefined;
+  }
+
+  // The request is recorded as soon as it's made, so `onOpenChange` can make it after an `await`.
+  protected attachPreventUnmountOnClose(eventDetails: DialogRoot.ChangeEventDetails) {
+    eventDetails.preventUnmountOnClose = () => {
       this.set('preventUnmountingOnClose', true);
     };
-
-    if (!nextOpen && eventDetails.trigger == null && this.state.activeTriggerId != null) {
-      // When closing the dialog, pass the old trigger to the onOpenChange event
-      // so it's not reset too early (potentially causing focus issues in controlled scenarios).
-      eventDetails.trigger = this.state.activeTriggerElement ?? undefined;
-    }
-
-    this.context.onOpenChange?.(nextOpen, eventDetails as DialogRoot.ChangeEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-    this.update(createPopupOpenState(this.state, nextOpen, eventDetails.trigger));
-  };
+    return () => false;
+  }
 }
 
 /**

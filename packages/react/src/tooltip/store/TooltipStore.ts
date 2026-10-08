@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
 import { NOOP } from '@base-ui/utils/empty';
 import type { TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -8,8 +7,9 @@ import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
-  applyPopupOpenChange,
+  BasePopupStore,
   createInitialPopupStoreState,
+  getHoverPopupInstantType,
   popupStoreSelectors,
   PopupTriggerMap,
 } from '../../utils/popups';
@@ -63,10 +63,11 @@ export type TooltipHandleStore<Payload> = Pick<
   PopupTriggerStoreKeys | 'setOpen' | 'cancelPendingOpen' | 'useSyncedValue'
 >;
 
-export class TooltipStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
+export class TooltipStore<Payload> extends BasePopupStore<
+  State<Payload>,
   Context,
-  Selectors
+  Selectors,
+  TooltipRoot.ChangeEventDetails
 > {
   constructor(
     initialState: Partial<State<Payload>>,
@@ -81,14 +82,9 @@ export class TooltipStore<Payload> extends ReactStore<
     );
   }
 
-  setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
-    applyPopupOpenChange(this, nextOpen, eventDetails as TooltipRoot.ChangeEventDetails, {
-      extraState: { openChangeReason: eventDetails.reason },
-    });
-  };
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
+    return getHoverPopupInstantType(nextOpen, eventDetails.reason);
+  }
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
   cancelPendingOpen(event: MouseEvent | PointerEvent) {
