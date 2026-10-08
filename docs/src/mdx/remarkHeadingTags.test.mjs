@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkHeadingTags, { stripTrailingHeadingTag } from './remarkHeadingTags.mjs';
+import { remarkPlugins } from '../../next.config.mjs';
 
 /**
  * @param {string} markdown
@@ -69,5 +70,18 @@ describe('stripTrailingHeadingTag', () => {
   it('does not strip text that is only a tag', () => {
     expect(stripTrailingHeadingTag('[Preview]')).toBe('[Preview]');
     expect(stripTrailingHeadingTag(' [Preview]')).toBe(' [Preview]');
+  });
+});
+
+describe('docs MDX pipeline', () => {
+  it('runs remarkHeadingTags after transformMarkdownMetadata so the page index keeps the tag', () => {
+    const names = remarkPlugins.map((plugin) => (Array.isArray(plugin) ? plugin[0] : plugin));
+    const metadataIndex = names.indexOf(
+      '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
+    );
+    const headingTagsIndex = names.findIndex((name) => name.endsWith('/remarkHeadingTags.mjs'));
+
+    expect(metadataIndex).not.toBe(-1);
+    expect(headingTagsIndex).toBeGreaterThan(metadataIndex);
   });
 });
