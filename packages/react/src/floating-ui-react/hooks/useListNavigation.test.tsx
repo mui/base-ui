@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
+import { mergeProps } from '../../merge-props';
 import { useClick, useDismiss, useListNavigation } from '../index';
 import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { gridNavigation } from './gridNavigation';
@@ -22,9 +23,10 @@ function App(
     disableFirstItem?: boolean;
     hideFirstItem?: boolean;
     firstItemStyle?: React.CSSProperties;
+    onItemMouseDown?: React.MouseEventHandler<HTMLLIElement>;
   } = {},
 ) {
-  const { disableFirstItem, hideFirstItem, firstItemStyle, ...props } = inProps;
+  const { disableFirstItem, hideFirstItem, firstItemStyle, onItemMouseDown, ...props } = inProps;
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -58,6 +60,12 @@ function App(
                 style = hideFirstItem ? { display: 'none' } : firstItemStyle;
               }
 
+              const itemProps = getItemProps({
+                ref(node: HTMLLIElement) {
+                  listRef.current[index] = node;
+                },
+              });
+
               return (
                 // eslint-disable-next-line
                 <li
@@ -72,11 +80,9 @@ function App(
                       ? props.disabledIndices?.(index)
                       : props.disabledIndices?.includes(index))
                   }
-                  {...getItemProps({
-                    ref(node: HTMLLIElement) {
-                      listRef.current[index] = node;
-                    },
-                  })}
+                  {...(index === 1 && onItemMouseDown
+                    ? mergeProps(itemProps, { onMouseDown: onItemMouseDown })
+                    : itemProps)}
                 >
                   {string}
                 </li>
@@ -178,6 +184,56 @@ function VirtualizedGridRows({
 }
 
 describe('useListNavigation', () => {
+  it.each([
+    {
+      name: 'focuses the pressed item on primary mousedown',
+      button: 0,
+      preventDefault: false,
+      focusedItem: 1,
+    },
+    {
+      name: 'keeps focus when primary mousedown is prevented',
+      button: 0,
+      preventDefault: true,
+      focusedItem: 0,
+    },
+  ])('$name', async ({ button, preventDefault, focusedItem }) => {
+    render(
+      <App
+        focusItemOnHover={false}
+        onItemMouseDown={(event) => {
+          if (preventDefault) {
+            event.preventDefault();
+          }
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button'));
+    const firstItem = await screen.findByTestId('item-0');
+    const pressedItem = screen.getByTestId('item-1');
+    act(() => firstItem.focus());
+    expect(firstItem).toHaveFocus();
+
+    fireEvent.mouseDown(pressedItem, { button });
+
+    expect(screen.getByTestId(`item-${focusedItem}`)).toHaveFocus();
+  });
+
+  it('keeps focus on the reference when an item is pressed under virtual focus', async () => {
+    render(<VirtualizedGridRows />);
+    await act(async () => {});
+
+    const reference = screen.getByTestId('virtual-grid-reference');
+    const item = screen.getByRole('gridcell', { name: '1' });
+    act(() => reference.focus());
+    expect(reference).toHaveFocus();
+
+    fireEvent.mouseDown(item, { button: 0 });
+
+    expect(reference).toHaveFocus();
+  });
+
   it('does not add role-dependent aria-orientation', async () => {
     render(<App orientation="horizontal" />);
 
