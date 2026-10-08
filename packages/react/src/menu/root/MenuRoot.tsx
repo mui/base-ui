@@ -52,6 +52,9 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
 import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
 
+/**
+ * @internal
+ */
 export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>(
   props: MenuRootInternalProps<Payload>,
 ) {
