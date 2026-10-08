@@ -263,7 +263,7 @@ export default defineConfig(
   {
     name: 'MUI ESLint config for docs',
     files: [`docs/**/*${EXTENSION_TS}`],
-    extends: createDocsConfig({ baseDirectory: dirname }),
+    extends: createDocsConfig(),
     rules: {
       '@typescript-eslint/no-use-before-define': 'off',
       'import/extensions': [
