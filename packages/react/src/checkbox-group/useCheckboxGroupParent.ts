@@ -6,7 +6,8 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../internals/reasons';
 
-// Regardless of order: the group may store a value reordered, as a nested group does.
+// Regardless of order: a value set from outside can hold the same values reordered, as when a
+// nested group removes and appends its value.
 function hasSameValues(a: readonly string[], b: readonly string[]) {
   return a.length === b.length && a.every((item) => b.includes(item));
 }
@@ -21,7 +22,8 @@ export function useCheckboxGroupParent(
   // holds while `value` still matches it.
   const lastValueRef = React.useRef(value);
   // Whether the hook's last change has yet to land. A change the group ignores without
-  // canceling never lands, so the next value from outside is taken for it.
+  // canceling never lands, so the next value from outside is taken for it, and only one change
+  // is tracked, so a second one made before the first lands is taken for an outside change.
   const ownChangeRef = React.useRef(false);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
@@ -36,8 +38,6 @@ export function useCheckboxGroupParent(
   const checked = value.length === allValues.length;
   const indeterminate = value.length !== allValues.length && value.length > 0;
 
-  const onValueChange = useStableCallback(onValueChangeProp);
-
   // Read the value back once the hook's change lands: the group may store it differently than
   // proposed. A new array with the same values hasn't landed it yet.
   useIsoLayoutEffect(() => {
@@ -46,6 +46,33 @@ export function useCheckboxGroupParent(
       lastValueRef.current = value;
     }
   }, [value]);
+
+  const change = useStableCallback(
+    (
+      nextValue: string[],
+      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+      nextUncontrolledState: string[],
+      nextStatus: 'on' | 'off' | 'mixed',
+    ) => {
+      const wasPending = ownChangeRef.current;
+      const lastValue = lastValueRef.current;
+
+      // The change is read back against the value it was made from, which an outside change
+      // may have moved on. Before the change, which the group may land synchronously.
+      lastValueRef.current = value;
+      ownChangeRef.current = true;
+      onValueChangeProp?.(nextValue, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        lastValueRef.current = lastValue;
+        ownChangeRef.current = wasPending;
+        return;
+      }
+
+      uncontrolledStateRef.current = nextUncontrolledState;
+      setStatus(nextStatus);
+    },
+  );
 
   const registerChildId = useStableCallback((childValue: string, childId: string) => {
     const childIds = childIdsState.registry;
@@ -76,9 +103,9 @@ export function useCheckboxGroupParent(
         let uncontrolledState = uncontrolledStateRef.current;
         let currentStatus = status;
 
-        // Restart the cycle from `value` when it changed from outside, as it does after a child
-        // is clicked, or when the parent's `indeterminate` prop reports a partial selection the
-        // value doesn't hold, as a nested group's does.
+        // Restart the cycle from `value`, as a child click does, when the value changed from
+        // outside or when the parent's `indeterminate` prop reports a partial selection the value
+        // doesn't hold, as with a nested group.
         if (!hasSameValues(value, lastValueRef.current) || (indeterminateProp && !indeterminate)) {
           uncontrolledState = value;
           currentStatus = 'mixed';
@@ -95,42 +122,30 @@ export function useCheckboxGroupParent(
           (v) => !disabledStatesRef.current.get(v) || uncontrolledState.includes(v),
         );
 
+        // With no mixed combination to return to, the parent toggles all and none by `value`.
+        const allOnOrOff =
+          uncontrolledState.length === all.length || uncontrolledState.length === none.length;
+
         let nextValue = all;
         let nextStatus: 'on' | 'off' | 'mixed' = 'on';
 
-        if (uncontrolledState.length === all.length) {
-          // There is no mixed combination to return to.
-          if (value.length === all.length) {
-            nextValue = none;
-            nextStatus = 'off';
-          }
-        } else if (currentStatus === 'on') {
+        if (allOnOrOff ? value.length === all.length : currentStatus === 'on') {
           nextValue = none;
           nextStatus = 'off';
-        } else if (currentStatus === 'off') {
+        } else if (!allOnOrOff && currentStatus === 'off') {
           nextValue = uncontrolledState;
-          nextStatus = 'mixed';
         }
 
-        // Landing on the combination to return to is the mixed position. That holds the cycle
-        // when the combination is none, and when it stops being all, as once a child is enabled.
+        // Landing on the combination to return to is the mixed position, which holds the cycle
+        // should that combination stop being all or none, as once a child is enabled.
         if (nextValue.length === uncontrolledState.length) {
           nextStatus = 'mixed';
         }
 
-        // Before the change, which the group may land synchronously.
-        ownChangeRef.current = true;
-        onValueChange(nextValue, eventDetails);
-
-        if (eventDetails.isCanceled) {
-          ownChangeRef.current = false;
-        } else {
-          uncontrolledStateRef.current = uncontrolledState;
-          setStatus(nextStatus);
-        }
+        change(nextValue, eventDetails, uncontrolledState, nextStatus);
       },
     }),
-    [allValues, checked, childIdsState, indeterminate, onValueChange, status, value],
+    [allValues, change, checked, childIdsState, indeterminate, status, value],
   );
 
   const getChildProps: UseCheckboxGroupParentReturnValue['getChildProps'] = React.useCallback(
@@ -144,18 +159,10 @@ export function useCheckboxGroupParent(
           newValue.splice(newValue.indexOf(childValue), 1);
         }
 
-        ownChangeRef.current = true;
-        onValueChange(newValue, eventDetails);
-
-        if (eventDetails.isCanceled) {
-          ownChangeRef.current = false;
-        } else {
-          uncontrolledStateRef.current = newValue;
-          setStatus('mixed');
-        }
+        change(newValue, eventDetails, newValue, 'mixed');
       },
     }),
-    [onValueChange, value],
+    [change, value],
   );
 
   return React.useMemo(
