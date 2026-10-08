@@ -287,7 +287,7 @@ export const MenuComponent = React.forwardRef<
                   )}
                   style={{
                     ...floatingStyles,
-                    // @ts-expect-error css var
+                    // @ts-expect-error React CSSProperties does not declare the custom --cols property.
                     '--cols': GRID_COLUMN_COUNT,
                     // eslint-disable-next-line no-nested-ternary
                     visibility: !keepMounted ? undefined : isOpen ? 'visible' : 'hidden',
