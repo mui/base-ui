@@ -691,8 +691,8 @@ export function useListNavigation(
         syncCurrentTarget(event);
       },
       onMouseDown(event) {
-        // Safari does not focus list items on mouse press. Focus before click so an item click
-        // handler can move focus elsewhere without this fallback overriding it.
+        // Safari does not focus list items on mouse press.
+        // Focus before click to match native focus timing.
         if (!virtual && !event.defaultPrevented && event.button === 0) {
           event.currentTarget.focus({ preventScroll: true });
         }
