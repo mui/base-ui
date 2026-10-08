@@ -1,7 +1,6 @@
 import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import type { FloatingRootContext } from './floating-root/types';
 import { FloatingRootStore } from './floating-root/FloatingRootStore';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';
@@ -32,7 +31,7 @@ export type PopupStoreState<Payload> = {
    */
   transitionStatus: TransitionStatus;
 
-  floatingRootContext: FloatingRootContext;
+  floatingRootContext: FloatingRootStore;
   floatingId: string | undefined;
   /**
    * Number of trigger elements currently registered for this popup.

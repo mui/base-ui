@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { ComboboxStore } from '../store';
-import type { FloatingRootContext } from '../../utils/popups/floating-root/types';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 
 export interface ComboboxDerivedItemsContext {
   query: string;
@@ -15,7 +15,7 @@ export interface ComboboxDerivedItemsContext {
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);
-export const ComboboxFloatingContext = React.createContext<FloatingRootContext | undefined>(
+export const ComboboxFloatingContext = React.createContext<FloatingRootStore | undefined>(
   undefined,
 );
 export const ComboboxDerivedItemsContext = React.createContext<

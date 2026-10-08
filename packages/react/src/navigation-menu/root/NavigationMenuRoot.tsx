@@ -12,7 +12,7 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../../utils/popups/tree/FloatingTree';
-import type { FloatingRootContext } from '../../utils/popups/floating-root/types';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,
@@ -102,7 +102,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const [activationDirection, setActivationDirection] =
     React.useState<NavigationMenuRootContext['activationDirection']>(null);
   const [floatingRootContext, setFloatingRootContext] = React.useState<
-    FloatingRootContext | undefined
+    FloatingRootStore | undefined
   >(undefined);
   const [viewportInert, setViewportInert] = React.useState(false);
 
