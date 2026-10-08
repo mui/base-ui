@@ -2,6 +2,7 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
+import { activeElement } from '@base-ui/utils/shadowDom';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.Item />', () => {
@@ -124,10 +125,11 @@ describe('<Menu.Item />', () => {
     'focuses an item on $name mousedown only when allowed',
     async ({ preventDefault, focuses }) => {
       await render(
-        <Menu.Root open>
+        <Menu.Root open highlightItemOnHover={false}>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
+                <Menu.Item>Other item</Menu.Item>
                 <Menu.Item onMouseDown={(event) => preventDefault && event.preventDefault()}>
                   Item
                 </Menu.Item>
@@ -137,12 +139,15 @@ describe('<Menu.Item />', () => {
         </Menu.Root>,
       );
 
-      const item = screen.getByRole('menuitem');
-      const focus = vi.spyOn(item, 'focus');
+      const item = screen.getByRole('menuitem', { name: 'Item' });
+      const otherItem = screen.getByRole('menuitem', { name: 'Other item' });
+      await act(() => otherItem.focus());
+      expect(otherItem).toHaveFocus();
 
       fireEvent.mouseDown(item, { button: 0 });
 
-      expect(focus.mock.calls.length > 0).toBe(focuses);
+      expect(activeElement(item.ownerDocument) === item).toBe(focuses);
+      expect(activeElement(item.ownerDocument) === otherItem).toBe(!focuses);
     },
   );
 
