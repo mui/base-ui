@@ -611,6 +611,39 @@ describe('useCheckboxGroupParent', () => {
     expect(getCheckedValues(['a', 'b'])).toEqual(['a', 'b']);
   });
 
+  it('unchecks every child once a disabled checked child is enabled after checking all', async () => {
+    function App() {
+      const [enabled, setEnabled] = React.useState(false);
+      return (
+        <div>
+          <button onClick={() => setEnabled(true)}>enable</button>
+          <CheckboxGroup defaultValue={['c']} allValues={allValues}>
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="a" data-testid="a" />
+            <Checkbox.Root value="b" data-testid="b" />
+            <Checkbox.Root value="c" data-testid="c" disabled={!enabled} />
+          </CheckboxGroup>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const parent = screen.getByTestId('parent');
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(allValues);
+
+    await user.click(screen.getByRole('button', { name: 'enable' }));
+    expect(screen.getByTestId('c')).not.toHaveAttribute('data-disabled');
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(['c']);
+  });
+
   it('cycles an uncontrolled group through all, none and the mixed value', async () => {
     const { user } = await render(
       <CheckboxGroup defaultValue={['a']} allValues={allValues}>
