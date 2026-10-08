@@ -1086,14 +1086,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [open]);
 
   useIsoLayoutEffect(() => {
-    // An unbound inline root can report `open` as false while its dialog is open. Treat the
-    // dialog as open only when it says so, so dialogs that don't set `data-open` (such as
-    // third-party ones) keep discarding restoration once the root closes.
+    // An unbound inline root can report `open` as false while its dialog is open. Check the
+    // dialog itself as well so an uncontrolled close cannot restore a hidden highlight.
+    // Dialogs that mark neither state (such as third-party ones) are treated as open.
     const hasClosedPopup = () => {
       const popup = resolvedPopupRef.current;
       return (
         popup != null &&
-        (openProp !== undefined || !popup.hasAttribute(CommonPopupDataAttributes.open))
+        (openProp !== undefined ||
+          popup.hidden ||
+          popup.hasAttribute(CommonPopupDataAttributes.closed))
       );
     };
 

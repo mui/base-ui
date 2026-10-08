@@ -3,7 +3,7 @@ import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { platform } from '@base-ui/utils/platform';
-import { createFormDataSpy, createRenderer, isJSDOM } from '#test-utils';
+import { createFormDataSpy, createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 import { Autocomplete, AutocompleteSeparatorDataAttributes } from '@base-ui/react/autocomplete';
 import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
@@ -3207,10 +3207,39 @@ describe('<Autocomplete.Root />', () => {
       expectHighlighted('Rename');
     });
 
+    it('keeps the first item highlighted after the pointer leaves an item in a third-party dialog', async () => {
+      await render(
+        <div role="dialog" aria-label="Command palette">
+          <Autocomplete.Root inline autoHighlight="always" items={commands}>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.List>
+              {(item: string) => (
+                <Autocomplete.Item key={item} value={item}>
+                  {item}
+                </Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+          </Autocomplete.Root>
+        </div>,
+      );
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+      expectHighlighted('Rename');
+
+      const share = screen.getByRole('option', { name: 'Share' });
+      fireEvent.mouseMove(share);
+      expectHighlighted('Share');
+
+      fireEvent.pointerLeave(share);
+      fireEvent.mouseLeave(share);
+      expectHighlighted('Rename');
+    });
+
     it.skipIf(isJSDOM || !platform.engine.blink)(
       'keeps the first item highlighted after a real pointer leaves an item',
-      async () => {
+      async ({ onTestFinished }) => {
         const { cdp } = await import('vitest/browser');
+        onTestFinished(resetBrowserPointer);
         const reactGlobals = globalThis as typeof globalThis & {
           IS_REACT_ACT_ENVIRONMENT?: boolean;
         };
