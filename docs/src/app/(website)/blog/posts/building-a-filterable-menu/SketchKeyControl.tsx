@@ -137,11 +137,10 @@ export default function SketchKeyControl() {
         <div className={styles.Hint}>
           <p>Type in the field to filter the menu.</p>
           <p>
-            Try <Kbd aria-label="Down Arrow">↓</Kbd>, <Kbd>Home</Kbd>, and <Kbd>End</Kbd> to
-            navigate.
+            Try <Kbd>↓</Kbd>, <Kbd>Home</Kbd>, and <Kbd>End</Kbd> to navigate.
           </p>
           <p>
-            Press <Kbd aria-label="Down Arrow">↓</Kbd> past the last item to return to editing.
+            Press <Kbd>↓</Kbd> past the last item to return to editing.
           </p>
         </div>
       </div>
