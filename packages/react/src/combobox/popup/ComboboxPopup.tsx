@@ -45,6 +45,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const openMethod = store.useState('openMethod');
   const popupProps = store.useState('popupProps');
   const transitionStatus = store.useState('transitionStatus');
+  const instantType = store.useState('instantType');
   const inputInsidePopup = store.useState('inputInsidePopup');
   const inputElement = store.useState('inputElement');
   const modal = store.useState('modal');
@@ -78,6 +79,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     anchorHidden: positioning.anchorHidden,
     transitionStatus,
     empty,
+    instant: instantType,
   };
 
   const element = useRenderElement('div', componentProps, {
@@ -170,6 +172,10 @@ export interface ComboboxPopupState {
    * Whether there are no items to display.
    */
   empty: boolean;
+  /**
+   * Whether the popup's transition should be instant, and why.
+   */
+  instant: 'dismiss' | undefined;
 }
 
 export interface ComboboxPopupProps extends BaseUIComponentProps<'div', ComboboxPopupState> {
