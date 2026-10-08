@@ -693,6 +693,7 @@ export function useListNavigation(
       onMouseDown(event) {
         // Safari does not focus list items on mouse press.
         // Focus before click to match native focus timing.
+        // https://www.w3.org/TR/uievents/event-algo.html#handle-native-mouse-down
         if (!virtual && !event.defaultPrevented && event.button === 0) {
           event.currentTarget.focus({ preventScroll: true });
         }
