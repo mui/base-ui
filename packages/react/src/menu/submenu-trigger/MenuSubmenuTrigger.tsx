@@ -184,7 +184,6 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     shouldOpen: delay > 0 ? () => parentMenuStore.select('allowMouseEnter') : undefined,
     triggerElementRef,
     externalTree: floatingTreeRoot,
-    isClosing: () => store.select('transitionStatus') === 'ending',
     // Chrome can drop the trigger's `mouseleave` during a fast pointer sweep,
     // leaving a stale submenu open (see #5152) — cancel from `mouseout` too.
     guardStaleOpen: true,
