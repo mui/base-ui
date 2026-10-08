@@ -71,6 +71,7 @@ _Oct 8, 2026_
 - Scroll instead of swiping when a drag starts on an SVG (#5844) by @atomiks
 - Avoid touch event overhead while the drawer is closed (#5864) by @atomiks
 - Preserve item taps when dismissing the virtual keyboard (#5882) by @atomiks
+- Avoid retaining unmounted drawers in `<Drawer.Provider>` (#5921) by @atomiks
 - Don't associate a programmatically opened popup with a trigger that did not open it (#5641) by @michaldudak
 
 ### Field
