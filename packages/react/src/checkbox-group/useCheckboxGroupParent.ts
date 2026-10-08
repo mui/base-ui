@@ -3,9 +3,13 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../internals/reasons';
+
+// Regardless of order: the group may store a value reordered, as a nested group does.
+function hasSameValues(a: readonly string[], b: readonly string[]) {
+  return a.length === b.length && a.every((item) => b.includes(item));
+}
 
 export function useCheckboxGroupParent(
   params: UseCheckboxGroupParentParameters,
@@ -16,6 +20,8 @@ export function useCheckboxGroupParent(
   // The value as the group last held it after a change this hook made. The parent's cycle only
   // holds while `value` still matches it.
   const lastValueRef = React.useRef(value);
+  // Whether the hook's last change has yet to land. A change the group ignores without
+  // canceling never lands, so the next value from outside is taken for it.
   const ownChangeRef = React.useRef(false);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
@@ -32,9 +38,10 @@ export function useCheckboxGroupParent(
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
-  // The group may store a change differently than proposed, or ignore it.
+  // Read the value back once the hook's change lands: the group may store it differently than
+  // proposed. A new array with the same values hasn't landed it yet.
   useIsoLayoutEffect(() => {
-    if (ownChangeRef.current) {
+    if (ownChangeRef.current && !hasSameValues(value, lastValueRef.current)) {
       ownChangeRef.current = false;
       lastValueRef.current = value;
     }
@@ -57,7 +64,7 @@ export function useCheckboxGroupParent(
   });
 
   const getParentProps: UseCheckboxGroupParentReturnValue['getParentProps'] = React.useCallback(
-    (forcedIndeterminate) => ({
+    (indeterminateProp) => ({
       indeterminate,
       checked,
       // Children report their own rendered id, so a custom `id` survives and no unmounted
@@ -69,14 +76,10 @@ export function useCheckboxGroupParent(
         let uncontrolledState = uncontrolledStateRef.current;
         let currentStatus = status;
 
-        // A value changed from outside is the new combination to return to, as it is after a
-        // child is clicked. So is a mixed state forced by the parent's `indeterminate` prop while
-        // the group's own value isn't mixed: it stands for a change the value doesn't hold, such
-        // as one in a nested group.
-        if (
-          !areArraysEqual(value, lastValueRef.current) ||
-          (forcedIndeterminate && !indeterminate)
-        ) {
+        // Restart the cycle from `value` when it changed from outside, as it does after a child
+        // is clicked, or when the parent's `indeterminate` prop reports a partial selection the
+        // value doesn't hold, as a nested group's does.
+        if (!hasSameValues(value, lastValueRef.current) || (indeterminateProp && !indeterminate)) {
           uncontrolledState = value;
           currentStatus = 'mixed';
         }
@@ -92,13 +95,10 @@ export function useCheckboxGroupParent(
           (v) => !disabledStatesRef.current.get(v) || uncontrolledState.includes(v),
         );
 
-        const allOnOrOff =
-          uncontrolledState.length === all.length || uncontrolledState.length === none.length;
-
         let nextValue = all;
         let nextStatus: 'on' | 'off' | 'mixed' = 'on';
 
-        if (allOnOrOff) {
+        if (uncontrolledState.length === all.length) {
           // There is no mixed combination to return to.
           if (value.length === all.length) {
             nextValue = none;
@@ -112,11 +112,20 @@ export function useCheckboxGroupParent(
           nextStatus = 'mixed';
         }
 
+        // Landing on the combination to return to is the mixed position. That holds the cycle
+        // when the combination is none, and when it stops being all, as once a child is enabled.
+        if (nextValue.length === uncontrolledState.length) {
+          nextStatus = 'mixed';
+        }
+
+        // Before the change, which the group may land synchronously.
+        ownChangeRef.current = true;
         onValueChange(nextValue, eventDetails);
 
-        if (!eventDetails.isCanceled) {
+        if (eventDetails.isCanceled) {
+          ownChangeRef.current = false;
+        } else {
           uncontrolledStateRef.current = uncontrolledState;
-          ownChangeRef.current = true;
           setStatus(nextStatus);
         }
       },
@@ -135,11 +144,13 @@ export function useCheckboxGroupParent(
           newValue.splice(newValue.indexOf(childValue), 1);
         }
 
+        ownChangeRef.current = true;
         onValueChange(newValue, eventDetails);
 
-        if (!eventDetails.isCanceled) {
+        if (eventDetails.isCanceled) {
+          ownChangeRef.current = false;
+        } else {
           uncontrolledStateRef.current = newValue;
-          ownChangeRef.current = true;
           setStatus('mixed');
         }
       },
@@ -175,7 +186,10 @@ export interface UseCheckboxGroupParentReturnValue {
    * Reports the `id` of the element a child checkbox exposes.
    */
   registerChildId: (value: string, id: string) => () => void;
-  getParentProps: (forcedIndeterminate: boolean) => {
+  /**
+   * `indeterminateProp` is the parent checkbox's own `indeterminate` prop.
+   */
+  getParentProps: (indeterminateProp: boolean) => {
     indeterminate: boolean;
     checked: boolean;
     'aria-controls': string | undefined;
