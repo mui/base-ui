@@ -33,7 +33,15 @@ export default function NativeButtonFocusExperiment() {
       <button className={styles.Button} type="button" onClick={() => inputRef.current?.focus()}>
         Focus outside input
       </button>
-      <input ref={inputRef} aria-label="Outside input" />
+      <input
+        ref={inputRef}
+        aria-label="Outside input"
+        placeholder="Outside input"
+        style={{ border: '1px solid currentColor', padding: '0.5rem' }}
+      />
+
+      <p>Focus at mouseup: {focusAtMouseUp}</p>
+      <p>Focus at click: {focusAtClick}</p>
 
       <Menu.Root open modal={false} highlightItemOnHover={false}>
         <Menu.Trigger className={styles.Button}>Menu trigger</Menu.Trigger>
@@ -58,9 +66,6 @@ export default function NativeButtonFocusExperiment() {
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
-
-      <p>Focus at mouseup: {focusAtMouseUp}</p>
-      <p>Focus at click: {focusAtClick}</p>
     </div>
   );
 }
