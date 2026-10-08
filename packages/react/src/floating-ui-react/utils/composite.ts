@@ -1,10 +1,10 @@
 import { floor } from '@floating-ui/utils';
 import { getComputedStyle } from '@floating-ui/utils/dom';
 
+import { closest } from '@base-ui/utils/shadowDom';
 import type { Dimensions } from '../types';
 import { stopEvent } from './event';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from './constants';
-import { closest } from './element';
 
 export type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
 

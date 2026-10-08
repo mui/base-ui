@@ -6,6 +6,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -13,7 +14,6 @@ import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/typ
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { Delay, FloatingRootContext } from '../types';
-import { contains, getTarget } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
 import {
   applySafePolygonPointerEventsMutation,

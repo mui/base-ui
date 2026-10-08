@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import {
   FloatingNode,
   FloatingTree,
@@ -12,7 +13,6 @@ import {
   useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import type { FloatingRootContext } from '../../floating-ui-react';
-import { activeElement, contains } from '../../floating-ui-react/utils';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,

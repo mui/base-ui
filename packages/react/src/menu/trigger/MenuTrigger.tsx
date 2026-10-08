@@ -6,6 +6,7 @@ import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { contains } from '@base-ui/utils/shadowDom';
 import {
   safePolygon,
   useClick,
@@ -16,7 +17,6 @@ import {
   useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { contains } from '../../floating-ui-react/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';

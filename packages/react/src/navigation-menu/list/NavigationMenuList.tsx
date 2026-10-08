@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { closest, getTarget } from '@base-ui/utils/shadowDom';
 import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
-import { closest, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import {

@@ -7,14 +7,9 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { clamp } from '@base-ui/utils/clamp';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import {
-  activeElement,
-  closest,
-  contains,
-  getTarget,
-  isInteractiveElement,
-} from '../../floating-ui-react/utils';
+import { isInteractiveElement } from '../../floating-ui-react/utils';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import * as DrawerViewportCssVars from '../viewport/DrawerViewportCssVars';

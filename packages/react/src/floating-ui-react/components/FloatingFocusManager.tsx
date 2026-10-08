@@ -12,16 +12,9 @@ import { platform } from '@base-ui/utils/platform';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { FocusGuard } from '../../utils/FocusGuard';
-import {
-  activeElement,
-  closest,
-  contains,
-  getTarget,
-  isTypeableCombobox,
-  getFloatingFocusElement,
-  isTypeableElement,
-} from '../utils/element';
+import { isTypeableCombobox, getFloatingFocusElement, isTypeableElement } from '../utils/element';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
 import {
   tabbable,

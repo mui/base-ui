@@ -4,10 +4,10 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { contains } from '@base-ui/utils/shadowDom';
 import { isElementVisible, isListIndexDisabled } from '../utils/composite';
 import type { DisabledIndices } from '../utils/composite';
 import type { ElementProps, FloatingRootContext } from '../types';
-import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';
 
 export interface UseTypeaheadProps {
