@@ -9,7 +9,7 @@ import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEvent
 import type { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
-import { PopupHandleAttachment, usePopupRoot } from '../../utils/popups/popupRoot';
+import { renderPopupRootChildren, usePopupRoot } from '../../utils/popups/popupRoot';
 import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
 import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 
@@ -40,11 +40,13 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
-      {typeof children === 'function'
-        ? children({ payload: payload as Payload | undefined })
-        : children}
+      {renderPopupRootChildren({
+        store,
+        handle,
+        interactions: shouldRenderInteractions && <PreviewCardInteractions store={store} />,
+        children,
+        payload,
+      })}
     </PreviewCardRootContext.Provider>
   );
 }

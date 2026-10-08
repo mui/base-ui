@@ -8,7 +8,7 @@ import { useClientPoint } from '../../utils/popups/interactions/useClientPoint';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { PopupHandleAttachment, usePopupRoot } from '../../utils/popups/popupRoot';
+import { renderPopupRootChildren, usePopupRoot } from '../../utils/popups/popupRoot';
 import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
 import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 import { mergeProps } from '../../merge-props';
@@ -99,13 +99,19 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && (
-        <TooltipInteractions store={store} disabled={disabled} trackCursorAxis={trackCursorAxis} />
-      )}
-      {typeof children === 'function'
-        ? children({ payload: payload as Payload | undefined })
-        : children}
+      {renderPopupRootChildren({
+        store,
+        handle,
+        interactions: shouldRenderInteractions && (
+          <TooltipInteractions
+            store={store}
+            disabled={disabled}
+            trackCursorAxis={trackCursorAxis}
+          />
+        ),
+        children,
+        payload,
+      })}
     </TooltipRootContext.Provider>
   );
 });
