@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { clamp } from '@base-ui/utils/clamp';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import {
   createChangeEventDetails,
@@ -19,7 +20,6 @@ import type {
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { activeElement, contains } from '../../floating-ui-react/utils';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';

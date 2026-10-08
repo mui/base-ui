@@ -6,6 +6,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { platform } from '@base-ui/utils/platform';
+import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -20,14 +21,7 @@ import {
 } from '../utils/composite';
 import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
-import {
-  activeElement,
-  contains,
-  getFloatingFocusElement,
-  getTarget,
-  isTypeableCombobox,
-  isTypeableElement,
-} from '../utils/element';
+import { getFloatingFocusElement, isTypeableCombobox, isTypeableElement } from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
 

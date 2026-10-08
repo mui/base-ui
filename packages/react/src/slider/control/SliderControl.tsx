@@ -7,7 +7,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { clamp } from '@base-ui/utils/clamp';
-import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import type { Coords } from '../../floating-ui-react/types';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {

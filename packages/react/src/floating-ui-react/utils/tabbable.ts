@@ -1,6 +1,6 @@
 import { getComputedStyle, getNodeName, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { activeElement, contains } from './element';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { isElementVisible } from './composite';
 
 export type FocusableElement = HTMLElement | SVGElement;

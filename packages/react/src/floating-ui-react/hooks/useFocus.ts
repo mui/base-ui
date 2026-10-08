@@ -5,13 +5,11 @@ import { platform } from '@base-ui/utils/platform';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createAttribute } from '../utils/createAttribute';
 import {
-  activeElement,
-  contains,
-  getTarget,
   isTargetInsideEnabledTrigger,
   isTypeableElement,
   matchesFocusVisible,

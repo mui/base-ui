@@ -9,6 +9,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { closest, contains } from '@base-ui/utils/shadowDom';
 import {
   safePolygon,
   useClick,
@@ -22,8 +23,6 @@ import {
   useHoverInteractionSharedState,
 } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import {
-  closest,
-  contains,
   getTabbableNearElement,
   getNextTabbable,
   getPreviousTabbable,
