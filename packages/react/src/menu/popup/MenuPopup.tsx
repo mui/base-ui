@@ -28,6 +28,9 @@ interface MenuPopupPlainProps extends MenuPopup.Props {
   initialFocus?: FloatingFocusManagerProps['initialFocus'] | undefined;
 }
 
+/**
+ * @internal
+ */
 export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   componentProps: MenuPopupPlainProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,

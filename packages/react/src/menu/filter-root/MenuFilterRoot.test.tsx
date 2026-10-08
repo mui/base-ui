@@ -155,6 +155,75 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       },
     );
 
+    it.skipIf(isJSDOM).each([
+      { name: 'an empty query', query: '', matches: 2 },
+      { name: 'a query', query: 're', matches: 1 },
+    ])(
+      'ignores text typed in the input while the popup animates out with $name',
+      async ({ query, matches }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider defaultValue={query} onValueChange={onValueChange}>
+            <Menu.Root>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="filter-menu-exit-typing-test">
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <style>{`
+              .filter-menu-exit-typing-test[data-ending-style] {
+                animation: filter-menu-exit-typing-test 10s linear;
+              }
+              @keyframes filter-menu-exit-typing-test {
+                from { opacity: 1; }
+                to { opacity: 0; }
+              }
+            `}</style>
+          </Menu.FilterProvider>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await act(async () => trigger.focus());
+        await user.keyboard('[ArrowDown]');
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await waitFor(() => {
+          expect(screen.getAllByRole('menuitem')).toHaveLength(matches);
+        });
+
+        await user.keyboard('[Escape]');
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
+        // The closing popup keeps showing the query it closed with.
+        expect(input).toHaveValue(query);
+        const changesBeforeTyping = onValueChange.mock.calls.map(([value, details]) => [
+          value,
+          details.reason,
+        ]);
+
+        await user.keyboard('n');
+
+        expect(onValueChange.mock.calls.map(([value, details]) => [value, details.reason])).toEqual(
+          changesBeforeTyping,
+        );
+        expect(input).toHaveValue(query);
+        expect(screen.getAllByRole('menuitem')).toHaveLength(matches);
+      },
+    );
+
     it('highlights the first item while keeping input focus when opened with the keyboard', async () => {
       const { user } = await render(
         <Menu.FilterProvider>
