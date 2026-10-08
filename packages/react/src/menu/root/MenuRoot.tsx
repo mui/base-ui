@@ -36,12 +36,14 @@ import { mergeProps } from '../../merge-props';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { MenuStore } from '../store/MenuStore';
 import type { MenuHandle } from '../store/MenuHandle';
-import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 import {
-  FOCUSABLE_POPUP_PROPS,
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
+} from '../../utils/popups/popupRoot';
+import {
+  FOCUSABLE_POPUP_PROPS,
   usePopupInteractionProps,
 } from '../../utils/popups/popupStoreUtils';
 import { useBaseUiId } from '../../internals/useBaseUiId';

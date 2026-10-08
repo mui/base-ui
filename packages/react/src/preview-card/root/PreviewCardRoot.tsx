@@ -9,14 +9,14 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
-import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 import {
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
-  usePopupInteractionProps,
-} from '../../utils/popups/popupStoreUtils';
+} from '../../utils/popups/popupRoot';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
 import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 
 function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {

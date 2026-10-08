@@ -15,10 +15,10 @@ import {
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
-  usePopupInteractionProps,
   usePopupRootSync,
-} from '../../utils/popups/popupStoreUtils';
-import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
+} from '../../utils/popups/popupRoot';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 
 const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload>({
   props,
