@@ -17,6 +17,7 @@ import type {
 import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import {
   BasePopupStore,
+  createFloatingRootContextValues,
   createInitialPopupStoreState,
   popupStoreSelectors,
 } from '../../utils/popups/store';
@@ -204,9 +205,9 @@ export class MenuStore<Payload> extends BasePopupStore<
     nested = false,
   ) {
     const triggerElements = new PopupTriggerMap();
-    const state = createInitialState<Payload>(triggerElements, floatingId, nested, initialState);
+    const state = createInitialState<Payload>(floatingId, initialState);
 
-    super(state, createInitialContext(triggerElements), selectors);
+    super(state, createInitialContext(triggerElements, nested), selectors);
 
     // Share the mouse-up trigger ref of the parent menu, if any. This observes the store's own
     // state, so the subscription lives exactly as long as the store and needs no cleanup.
@@ -379,14 +380,14 @@ export class MenuStore<Payload> extends BasePopupStore<
 export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(triggerElements)),
+    Object.freeze(createInitialState<Payload>()),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
   return {
     positionerRef: React.createRef<HTMLElement | null>(),
     popupRef: React.createRef<HTMLElement | null>(),
@@ -409,17 +410,16 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
+    ...createFloatingRootContextValues(nested),
   };
 }
 
 function createInitialState<Payload>(
-  triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,
-  nested = false,
   initialState?: Partial<State<Payload>>,
 ): State<Payload> {
   return {
-    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
+    ...createInitialPopupStoreState<Payload>(floatingId),
     disabled: false,
     modal: true,
     openMethod: null,

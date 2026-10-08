@@ -9,7 +9,6 @@ export function getEmptyRootContext(): FloatingRootStore {
     referenceElement: null,
     triggerElements: new PopupTriggerMap(),
     floatingId: undefined,
-    syncOnly: false,
     nested: false,
     onOpenChange: undefined,
   });

@@ -46,7 +46,6 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
-  const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
@@ -66,7 +65,7 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
     native: nativeButton,
   });
 
-  const click = useClick(floatingContext);
+  const click = useClick(store);
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => store.select('open'),
     (interactionType) => {

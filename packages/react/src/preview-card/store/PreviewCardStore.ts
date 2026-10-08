@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NOOP } from '@base-ui/utils/empty';
 import type {
   PopupStoreContext,
   PopupStoreState,
@@ -9,6 +10,7 @@ import type { InlineRectCoords } from '../../utils/popups/inlineRect';
 import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import {
   BasePopupStore,
+  createFloatingRootContextValues,
   createInitialPopupStoreState,
   getHoverPopupInstantType,
   popupStoreSelectors,
@@ -47,7 +49,7 @@ type Selectors = typeof selectors;
  */
 export type PreviewCardHandleStore<Payload> = Pick<
   PreviewCardStore<Payload>,
-  PopupTriggerStoreKeys
+  PopupTriggerStoreKeys | 'setOpen'
 >;
 
 export class PreviewCardStore<Payload> extends BasePopupStore<
@@ -63,8 +65,8 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
-      createInitialState<Payload>(initialState, triggerElements, floatingId, nested),
-      createInitialContext(triggerElements),
+      createInitialState<Payload>(initialState, floatingId),
+      createInitialContext(triggerElements, nested),
       selectors,
     );
   }
@@ -103,21 +105,20 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
 export function createNullPreviewCardStore<Payload>(): PreviewCardHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
 
-  return new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
+    Object.freeze(createInitialState<Payload>(undefined)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
+  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,
-  nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
+    ...createInitialPopupStoreState<Payload>(floatingId),
     instantType: undefined,
     adaptiveOrigin: undefined,
     closeDelay: CLOSE_DELAY,
@@ -127,12 +128,13 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
   return {
     popupRef: React.createRef<HTMLElement | null>(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
     inlineRectCoordsRef: { current: undefined },
+    ...createFloatingRootContextValues(nested),
   };
 }

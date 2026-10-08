@@ -11,9 +11,13 @@ import {
   useTriggerDataForwarding,
   useTriggerRegistration,
 } from './popupStoreUtils';
-import { createInitialPopupStoreState, createPopupOpenState, popupStoreSelectors } from './store';
 import { PopupTriggerMap } from './popupTriggerMap';
-import { useSyncedFloatingRootContext } from './floating-root/useSyncedFloatingRootContext';
+import {
+  createFloatingRootContextValues,
+  createInitialPopupStoreState,
+  createPopupOpenState,
+  popupStoreSelectors,
+} from './store';
 import type { BaseUIChangeEventDetails } from '../../types';
 
 type TestStore = ReactStore<
@@ -31,11 +35,12 @@ function createStore() {
     PopupStoreContext<unknown>,
     PopupStoreSelectors
   >(
-    createInitialPopupStoreState(triggerElements),
+    createInitialPopupStoreState(),
     {
       triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
+      ...createFloatingRootContextValues(),
     },
     popupStoreSelectors,
   ) as TestStore;
@@ -96,27 +101,6 @@ function TestForwardedTrigger({
     };
   }, [registerTrigger, element]);
 
-  return null;
-}
-
-function PopupIdTest({
-  store,
-  floatingId,
-  onOpenChange,
-}: {
-  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
-  floatingId: string | undefined;
-  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-}) {
-  useSyncedFloatingRootContext({
-    popupStore: store,
-    floatingRootContext: store.state.floatingRootContext,
-    floatingId,
-    nested: false,
-    onOpenChange,
-  });
-
-  store.useState('popupId');
   return null;
 }
 
@@ -838,21 +822,19 @@ describe('useTriggerRegistration', () => {
 });
 
 describe('popupId selector', () => {
-  it('syncs the floating id into the popup store for trigger ownership selectors', () => {
+  it('uses the floating id as the popup id', () => {
     const store = createStore();
 
-    render(<PopupIdTest store={store} floatingId="popup-id" onOpenChange={vi.fn()} />);
+    store.set('floatingId', 'popup-id');
 
-    expect(store.state.floatingId).toBe('popup-id');
     expect(store.select('popupId')).toBe('popup-id');
   });
 
   it('omits popup id when the floating id is empty', () => {
     const store = createStore();
 
-    render(<PopupIdTest store={store} floatingId="" onOpenChange={vi.fn()} />);
+    store.set('floatingId', '');
 
-    expect(store.state.floatingId).toBe('');
     expect(store.select('popupId')).toBeUndefined();
   });
 
@@ -915,7 +897,7 @@ describe('usePopupInteractionProps', () => {
 
 describe('getPopupOpenState', () => {
   it('clears a previous unmount-prevention request when opening', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const state = createInitialPopupStoreState();
     state.preventUnmountingOnClose = true;
 
     const nextState = createPopupOpenState(state, true, undefined);
@@ -925,7 +907,7 @@ describe('getPopupOpenState', () => {
   });
 
   it('sets the unmount-prevention request when closing', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const state = createInitialPopupStoreState();
 
     const nextState = createPopupOpenState(state, false, undefined, true);
 
@@ -933,7 +915,7 @@ describe('getPopupOpenState', () => {
   });
 
   it('preserves the active trigger when closing without a trigger', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const state = createInitialPopupStoreState();
     const trigger = document.createElement('button');
     state.activeTriggerId = 'trigger-id';
     state.activeTriggerElement = trigger;
@@ -945,7 +927,7 @@ describe('getPopupOpenState', () => {
   });
 
   it('records whether an open request carried a trigger', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const state = createInitialPopupStoreState();
     const trigger = document.createElement('button');
     trigger.id = 'trigger-id';
 
@@ -956,7 +938,7 @@ describe('getPopupOpenState', () => {
   it('keeps the trigger-less open flag through a close request', () => {
     // A controlled root may decline the close and stay open; the Root resets the flag itself once
     // the popup is effectively closed.
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const state = createInitialPopupStoreState();
     state.openedWithoutTrigger = true;
 
     expect(createPopupOpenState(state, false, undefined).openedWithoutTrigger).toBe(true);
