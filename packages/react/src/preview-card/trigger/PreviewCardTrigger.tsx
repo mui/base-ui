@@ -51,7 +51,6 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
   const triggerElementRef = React.useRef<Element | null>(null);
@@ -69,7 +68,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
     },
   );
 
-  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+  const hoverProps = useHoverReferenceInteraction(store, {
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
@@ -79,7 +78,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
     isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
-  const focusProps = useFocus(floatingRootContext, { delay: delayWithDefault });
+  const focusProps = useFocus(store, { delay: delayWithDefault });
 
   const state: PreviewCardTriggerState = { open: isOpenedByThisTrigger };
 

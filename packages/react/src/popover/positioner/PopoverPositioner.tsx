@@ -54,7 +54,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const floatingRootContext = store.useState('floatingRootContext');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const openReason = store.useState('openChangeReason');
@@ -68,7 +67,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const positioning = useAnchorPositioning({
     anchor,
-    floatingRootContext,
+    floatingRootContext: store,
     positionMethod,
     mounted,
     side,
@@ -86,7 +85,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     adaptiveOrigin,
   });
 
-  const domReference = floatingRootContext.useState('domReferenceElement');
+  const domReference = store.useState('domReferenceElement');
 
   useTriggerSwitchTransition({
     store,

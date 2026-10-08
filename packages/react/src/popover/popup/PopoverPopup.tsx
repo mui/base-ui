@@ -48,8 +48,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const mounted = store.useState('mounted');
   const openReason = store.useState('openChangeReason');
   const activeTriggerElement = store.useState('activeTriggerElement');
-  const floatingContext = store.useState('floatingRootContext');
-  const floatingId = floatingContext.useState('floatingId');
+  const floatingId = store.useState('floatingId');
   const disabled = store.useState('disabled');
   const openOnHover = store.useState('openOnHover');
   const closeDelay = store.useState('closeDelay');
@@ -64,7 +63,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
   });
 
-  useHoverFloatingInteraction(floatingContext, { enabled: openOnHover && !disabled, closeDelay });
+  useHoverFloatingInteraction(store, { enabled: openOnHover && !disabled, closeDelay });
 
   const resolvedInitialFocus =
     initialFocus === undefined ? createDefaultInitialFocus(store.context.popupRef) : initialFocus;
@@ -107,7 +106,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingContext}
+      context={store}
       openInteractionType={openMethod}
       modal={focusManagerModal}
       disabled={!mounted || openReason === REASONS.triggerHover}

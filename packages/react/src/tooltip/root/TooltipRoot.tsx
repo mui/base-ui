@@ -256,13 +256,11 @@ function TooltipInteractions<Payload>({
   disabled: boolean;
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
 }) {
-  const floatingRootContext = store.useState('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(store, {
     enabled: !disabled,
     referencePress: () => store.select('closeOnClick'),
   });
-  const clientPoint = useClientPoint(floatingRootContext, {
+  const clientPoint = useClientPoint(store, {
     enabled: !disabled && trackCursorAxis !== 'none',
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });

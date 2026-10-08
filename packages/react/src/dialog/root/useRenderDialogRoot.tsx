@@ -45,7 +45,6 @@ export function useRenderDialogRoot<Payload>(
   // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
   // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
   // Default values are only initial values; controlled values and root state are synced after creation.
-  // Dialogs pass the popup element to Floating UI as the floating element (`treatPopupAsFloatingElement`).
   const store = usePopupRootStore(
     (floatingId, floatingNested) =>
       new DialogStore<Payload>(
@@ -59,7 +58,6 @@ export function useRenderDialogRoot<Payload>(
         floatingId,
         floatingNested,
       ),
-    true,
   );
 
   store.useControlledProp('openProp', openProp);

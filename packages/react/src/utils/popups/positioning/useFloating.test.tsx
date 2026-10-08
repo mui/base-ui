@@ -31,7 +31,6 @@ test('uses the supplied root store while preserving DOM and position references'
       floatingElement,
       triggerElements: new PopupTriggerMap(),
       floatingId: undefined,
-      syncOnly: false,
       nested: false,
       onOpenChange: vi.fn(),
     });

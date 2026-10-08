@@ -69,7 +69,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
@@ -87,13 +86,10 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   );
 
   const providerDelay = useTooltipProviderContext();
-  const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(
-    floatingRootContext,
-    {
-      open: isOpenedByThisTrigger,
-    },
-  );
-  const hoverInteraction = useHoverInteractionSharedState(floatingRootContext);
+  const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(store, {
+    open: isOpenedByThisTrigger,
+  });
+  const hoverInteraction = useHoverInteractionSharedState(store);
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
 
@@ -141,7 +137,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     return nestedTriggerHovered;
   }
 
-  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+  const hoverProps = useHoverReferenceInteraction(store, {
     enabled: !disabled,
     mouseOnly: true,
     move: false,
@@ -161,7 +157,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     },
   });
 
-  const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
+  const focusProps = useFocus(store, { enabled: !disabled }).reference;
 
   const handleNestedTriggerHover = (event: MouseEvent) => {
     const wasNestedTriggerHovered = isNestedTriggerHoveredRef.current;

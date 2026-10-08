@@ -1260,6 +1260,101 @@ describe('<Tooltip.Root />', () => {
     },
   );
 
+  describe.skipIf(isJSDOM)('cursor anchor after a close', () => {
+    function App({ keepMounted = false }: { keepMounted?: boolean }) {
+      const [open, setOpen] = React.useState(false);
+
+      return (
+        <div style={{ paddingTop: 100, paddingLeft: 40 }}>
+          <button onClick={() => setOpen(true)}>Open</button>
+          <button onClick={() => setOpen(false)}>Close</button>
+          <Tooltip.Root open={open} onOpenChange={setOpen} trackCursorAxis="x">
+            <Tooltip.Trigger delay={0} style={{ width: 300, height: 40 }}>
+              Trigger
+            </Tooltip.Trigger>
+            <Tooltip.Portal keepMounted={keepMounted}>
+              <Tooltip.Positioner data-testid="positioner" side="bottom">
+                <Tooltip.Popup style={{ width: 40, height: 20 }}>Tooltip</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </div>
+      );
+    }
+
+    function getPositionerCenterX() {
+      const positionerRect = screen.getByTestId('positioner').getBoundingClientRect();
+      return positionerRect.left + positionerRect.width / 2;
+    }
+
+    it('anchors a reopen without a pointer to the last cursor position', async () => {
+      await render(<App />);
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const triggerRect = trigger.getBoundingClientRect();
+      const cursorX = triggerRect.left + 240;
+      const cursorY = triggerRect.top + 20;
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', clientX: cursorX, clientY: cursorY });
+      fireEvent.mouseEnter(trigger, { clientX: cursorX, clientY: cursorY });
+      fireEvent.mouseMove(trigger, { clientX: cursorX, clientY: cursorY });
+
+      await waitFor(() => {
+        expect(Math.abs(getPositionerCenterX() - cursorX)).toBeLessThanOrEqual(2);
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).toBe(null);
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Open' }));
+      await screen.findByTestId('positioner');
+
+      await waitFor(() => {
+        expect(Math.abs(getPositionerCenterX() - cursorX)).toBeLessThanOrEqual(2);
+      });
+    });
+
+    it('keeps following the cursor while a kept-mounted tooltip is closed', async () => {
+      await render(<App keepMounted />);
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const triggerRect = trigger.getBoundingClientRect();
+      const firstCursorX = triggerRect.left + 240;
+      const secondCursorX = triggerRect.left + 60;
+      const cursorY = triggerRect.top + 20;
+
+      fireEvent.pointerDown(trigger, {
+        pointerType: 'mouse',
+        clientX: firstCursorX,
+        clientY: cursorY,
+      });
+      fireEvent.mouseEnter(trigger, { clientX: firstCursorX, clientY: cursorY });
+      fireEvent.mouseMove(trigger, { clientX: firstCursorX, clientY: cursorY });
+
+      await waitFor(() => {
+        expect(Math.abs(getPositionerCenterX() - firstCursorX)).toBeLessThanOrEqual(2);
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).not.toHaveAttribute('data-open');
+      });
+
+      fireEvent.mouseMove(document.body, { clientX: secondCursorX, clientY: cursorY });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Open' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toHaveAttribute('data-open');
+      });
+
+      await waitFor(() => {
+        expect(Math.abs(getPositionerCenterX() - secondCursorX)).toBeLessThanOrEqual(2);
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('hoverable popup', () => {
     function HoverableTooltip({ disableHoverablePopup }: { disableHoverablePopup?: boolean }) {
       return (

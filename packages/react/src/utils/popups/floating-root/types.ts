@@ -75,6 +75,7 @@ export interface FloatingRootContext {
   select: FloatingRootContextReader;
   useState: FloatingRootContextReader;
   set(key: 'positionReference', value: ReferenceType | null): void;
+  set(key: 'domReferenceElement', value: Element | null): void;
   setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   readonly context: FloatingRootContextValues;
 }

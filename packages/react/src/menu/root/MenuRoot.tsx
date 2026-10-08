@@ -14,7 +14,6 @@ import {
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
-import { useSyncedFloatingRootContext } from '../../utils/popups/floating-root/useSyncedFloatingRootContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import type { MenubarContext } from '../../menubar/MenubarContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
@@ -333,13 +332,8 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     }
   }, [open, hoverEnabled, store]);
 
-  const floatingRootContext = useSyncedFloatingRootContext({
-    popupStore: store,
-    floatingRootContext: store.state.floatingRootContext,
-    floatingId,
-    nested: floatingParentNodeIdFromContext != null,
-    onOpenChange: store.setOpen,
-  });
+  store.useSyncedValue('floatingId', floatingId);
+  store.context.nested = floatingParentNodeIdFromContext != null;
 
   useIsoLayoutEffect(() => store.subscribeToParentMenu(), [store]);
 
@@ -383,7 +377,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen: store.setOpen }), [store]);
 
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(store, {
     enabled: !disabled,
     bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
@@ -398,7 +392,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
   const direction = useDirection();
 
-  const listNavigation = useListNavigation(floatingRootContext, {
+  const listNavigation = useListNavigation(store, {
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,
@@ -437,7 +431,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     [store],
   );
 
-  const typeahead = useTypeahead(floatingRootContext, {
+  const typeahead = useTypeahead(store, {
     // Under virtual focus the input owns typing, so typeahead would race the filter query.
     enabled: !disabled && !virtualFocus,
     listRef: store.context.itemLabels,
@@ -594,7 +588,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const itemProps = listNavigation.item ?? EMPTY_OBJECT;
 
   usePopupInteractionProps(store, {
-    floatingRootContext,
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,

@@ -51,7 +51,6 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
-  const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
@@ -59,7 +58,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   const positioning = useAnchorPositioning({
     anchor,
-    floatingRootContext,
+    floatingRootContext: store,
     positionMethod,
     mounted,
     side,
