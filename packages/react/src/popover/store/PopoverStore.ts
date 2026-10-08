@@ -152,6 +152,11 @@ export class PopoverStore<Payload> extends BasePopupStore<
 
     this.set('instantType', instantType);
   }
+
+  protected prepareUnmount() {
+    this.context.stickIfOpen = true;
+    return { openChangeReason: null };
+  }
 }
 
 /**
