@@ -31,7 +31,6 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  const floatingContext = store.useState('floatingRootContext');
   const closeDelay = store.useState('closeDelay');
 
   useOpenChangeComplete({
@@ -44,7 +43,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     },
   });
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverFloatingInteraction(store, {
     closeDelay,
   });
 

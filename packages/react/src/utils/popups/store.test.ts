@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import {
   BasePopupStore,
+  createFloatingRootContextValues,
   createInitialPopupStoreState,
   getHoverPopupInstantType,
   popupStoreSelectors,
@@ -13,7 +14,7 @@ import { REASONS } from '../../internals/reasons';
 
 function createState(state: Partial<PopupStoreState<unknown>>) {
   return {
-    ...createInitialPopupStoreState(new PopupTriggerMap()),
+    ...createInitialPopupStoreState(),
     activeTriggerId: 'trigger',
     ...state,
   };
@@ -180,17 +181,18 @@ class TestPopupStore extends BasePopupStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
-      { ...createInitialPopupStoreState(triggerElements), extra: 0, ...state },
+      { ...createInitialPopupStoreState(), extra: 0, ...state },
       {
         triggerElements,
         popupRef: React.createRef<HTMLElement>(),
         onOpenChange,
         onOpenChangeComplete: undefined,
+        ...createFloatingRootContextValues(),
       },
       popupStoreSelectors,
     );
 
-    this.state.floatingRootContext.context.events.on('openchange', () => {
+    this.context.events.on('openchange', () => {
       this.steps.push('notify');
     });
     this.subscribe(() => {

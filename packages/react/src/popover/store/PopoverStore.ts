@@ -14,6 +14,7 @@ import type {
 import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import {
   BasePopupStore,
+  createFloatingRootContextValues,
   createInitialPopupStoreState,
   popupStoreSelectors,
 } from '../../utils/popups/store';
@@ -103,8 +104,8 @@ export class PopoverStore<Payload> extends BasePopupStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
-      createInitialState<Payload>(initialState, triggerElements, floatingId, nested),
-      createInitialContext(triggerElements),
+      createInitialState<Payload>(initialState, floatingId),
+      createInitialContext(triggerElements, nested),
       selectors,
     );
   }
@@ -164,7 +165,7 @@ export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
 
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+    Object.freeze(createInitialState<Payload>(undefined)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
@@ -173,12 +174,10 @@ export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,
-  nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
+    ...createInitialPopupStoreState<Payload>(floatingId),
     disabled: false,
     modal: false,
     focusManagerModal: false,
@@ -200,7 +199,7 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
   return {
     popupRef: React.createRef<HTMLElement>(),
     onOpenChange: undefined,
@@ -211,5 +210,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     stickIfOpenTimeout: new Timeout(),
     stickIfOpen: true,
     triggerElements,
+    ...createFloatingRootContextValues(nested),
   };
 }
