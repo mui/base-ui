@@ -15,6 +15,7 @@ import {
   isShadowRoot,
 } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingRootContext } from '../types';
@@ -22,7 +23,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import { contains, getTarget, isEventTargetWithin, isRootElement } from '../utils/element';
+import { isEventTargetWithin, isRootElement } from '../utils/element';
 import { isReactEvent, isVirtualClick } from '../utils/event';
 import { getNodeChildren } from '../utils/nodes';
 

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { clamp } from '@base-ui/utils/clamp';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { closest, contains, getTarget } from '../floating-ui-react/utils';
+import { closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { findScrollableAncestor, findScrollableTouchTarget } from './scrollable';
 import type { ScrollAxis } from './scrollable';
 import { getElementAtPoint } from './getElementAtPoint';
