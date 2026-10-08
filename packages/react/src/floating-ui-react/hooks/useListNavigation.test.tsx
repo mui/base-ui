@@ -197,6 +197,12 @@ describe('useListNavigation', () => {
       preventDefault: true,
       focusedItem: 0,
     },
+    {
+      name: 'keeps focus on secondary mousedown',
+      button: 2,
+      preventDefault: false,
+      focusedItem: 0,
+    },
   ])('$name', async ({ button, preventDefault, focusedItem }) => {
     render(
       <App
