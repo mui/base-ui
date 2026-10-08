@@ -113,7 +113,7 @@ export function Content({
 
         if (
           (event.ctrlKey || event.metaKey) &&
-          String.fromCharCode(event.keyCode) === 'A' &&
+          event.key.toLowerCase() === 'a' &&
           !event.shiftKey &&
           !event.altKey
         ) {

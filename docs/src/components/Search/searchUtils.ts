@@ -42,6 +42,7 @@ export function handleModifiedEnterNavigation(
 ) {
   // Ignore key presses during IME composition. `keyCode === 229` covers
   // Safari, where `isComposing` is unreliable.
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- Safari needs the legacy IME key code because isComposing is unreliable.
   if (event.nativeEvent.isComposing || event.keyCode === 229) {
     return false;
   }
