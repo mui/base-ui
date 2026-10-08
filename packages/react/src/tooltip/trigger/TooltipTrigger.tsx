@@ -151,7 +151,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
-    isClosing: () => store.select('transitionStatus') === 'ending',
     shouldOpen() {
       return !isNestedTriggerHoveredRef.current;
     },

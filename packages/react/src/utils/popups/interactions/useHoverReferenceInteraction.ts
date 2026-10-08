@@ -45,7 +45,6 @@ export interface UseHoverReferenceInteractionProps {
   isActiveTrigger?: boolean | undefined;
   triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
-  isClosing?: (() => boolean) | undefined;
   /**
    * Called before each hover-driven open attempt (immediate, delayed, and rest-ms
    * paths). Return `false` to veto; any other return value permits the open.
@@ -86,7 +85,6 @@ export function useHoverReferenceInteraction(
     externalTree,
     isActiveTrigger = true,
     getHandleCloseContext,
-    isClosing,
     shouldOpen: shouldOpenProp,
     guardStaleOpen = false,
   } = props;
@@ -103,7 +101,6 @@ export function useHoverReferenceInteraction(
   const restMsRef = useValueAsRef(restMs);
   const enabledRef = useValueAsRef(enabled);
   const shouldOpenRef = useValueAsRef(shouldOpenProp);
-  const isClosingRef = useValueAsRef(isClosing);
 
   const isClickLikeOpenEvent = useStableCallback(() => {
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
@@ -256,8 +253,7 @@ export function useHoverReferenceInteraction(
           ? false
           : isOverInactiveTrigger(currentDomReference, triggerNode, eventTarget);
       const isOpen = store.select('open');
-      const isInClosingTransition =
-        isClosingRef.current?.() ?? store.select('transitionStatus') === 'ending';
+      const isInClosingTransition = store.select('transitionStatus') === 'ending';
       const isHoverCloseTransition =
         !isOpen && isInClosingTransition && isHoverCloseActiveRef.current;
       const isReenteringSameTriggerDuringCloseTransition =
@@ -406,7 +402,6 @@ export function useHoverReferenceInteraction(
     tree,
     enabledRef,
     getHandleCloseContext,
-    isClosingRef,
     checkShouldOpen,
     guardStaleOpen,
   ]);

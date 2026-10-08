@@ -75,7 +75,6 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
     delay: () => ({ open: delayWithDefault, close: closeDelayWithDefault }),
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
-    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const focusProps = useFocus(store, { delay: delayWithDefault });

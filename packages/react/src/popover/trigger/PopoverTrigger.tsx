@@ -91,7 +91,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
-    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const getStickIfOpen = useStableCallback(() => store.context.stickIfOpen);
