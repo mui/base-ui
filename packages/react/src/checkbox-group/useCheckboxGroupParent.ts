@@ -18,12 +18,14 @@ export function useCheckboxGroupParent(
   const { allValues = EMPTY_ARRAY, value, onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
-  // The value as the group last held it after a change this hook made. The parent's cycle only
-  // holds while `value` still matches it.
+  // The value as the group last held it after a change this hook made, or the value a pending
+  // change was made from. The parent's cycle only holds while `value` still matches it.
   const lastValueRef = React.useRef(value);
-  // Whether the hook's last change has yet to land. A change the group ignores without
-  // canceling never lands, so the next value from outside is taken for it, and only one change
-  // is tracked, so a second one made before the first lands is taken for an outside change.
+  // Whether the hook's last change has yet to land. Only its first landing is read back, so a
+  // value the group corrects in a later commit is taken for an outside change. A change that
+  // leaves the value as is, or that the group ignores without canceling, never lands, so the
+  // next value from outside is taken for it. Only one change is tracked, so a second one made
+  // before the first lands is taken for an outside change.
   const ownChangeRef = React.useRef(false);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 

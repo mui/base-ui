@@ -542,7 +542,11 @@ describe('<Checkbox.Root />', () => {
       }
 
       it.each([
-        { name: 'returns to the mixed value', forced: false, expected: ['a'] },
+        {
+          name: 'returns to the mixed value once no longer forced',
+          forced: false,
+          expected: ['a'],
+        },
         {
           name: 'checks every child while forced indeterminate',
           forced: true,
