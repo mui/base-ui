@@ -16,7 +16,7 @@ import {
   useTriggerDataForwarding,
   useTriggerRegistration,
 } from './';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { useSyncedFloatingRootContext } from './floating-root/useSyncedFloatingRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';

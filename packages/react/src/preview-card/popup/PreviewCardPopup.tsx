@@ -9,7 +9,7 @@ import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
-import { useHoverFloatingInteraction } from '../../floating-ui-react';
+import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 /**

@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 
 import { useAnchorPositioning } from '../../../../../packages/react/src/internals/useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from '../../../../../packages/react/src/internals/useAnchorPositioning';
-import { FloatingRootStore } from '../../../../../packages/react/src/floating-ui-react/components/FloatingRootStore';
+import { FloatingRootStore } from '../../../../../packages/react/src/utils/popups/floating-root/FloatingRootStore';
 import { PopupTriggerMap } from '../../../../../packages/react/src/utils/popups';
 import styles from './anchor-positioning.module.css';
 

@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useBaseUIFloating } from '../../src/floating-ui-react/hooks/useFloating';
-import { useFloatingRootContext } from '../../src/floating-ui-react/hooks/useFloatingRootContext';
+import { useBaseUIFloating } from '../../src/utils/popups/positioning/useFloating';
+import { useFloatingRootContext } from '../../src/utils/popups/floating-root/useFloatingRootContext';
 import type {
   NarrowedElement,
   ReferenceType,
   UseFloatingOptions,
   UseFloatingReturn,
-} from '../../src/floating-ui-react/types';
+} from '../../src/utils/popups/floating-root/types';
 
 /**
  * Floating UI's public `useFloating`: `refs.setReference` and `refs.setFloating` also register the

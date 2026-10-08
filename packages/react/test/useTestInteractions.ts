@@ -1,10 +1,6 @@
 import * as React from 'react';
-import type { ElementProps } from '../src/floating-ui-react/types';
-import {
-  ACTIVE_KEY,
-  FOCUSABLE_ATTRIBUTE,
-  SELECTED_KEY,
-} from '../src/floating-ui-react/utils/constants';
+import type { ElementProps } from '../src/utils/popups/floating-root/types';
+import { ACTIVE_KEY, FOCUSABLE_ATTRIBUTE, SELECTED_KEY } from '../src/utils/popups/constants';
 
 export type ExtendedUserProps = {
   [ACTIVE_KEY]?: boolean | undefined;

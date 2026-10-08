@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootContext } from '../../utils/popups/floating-root/types';
 import type { SelectStore } from '../store';
 
 export const SelectRootContext = React.createContext<SelectStore | undefined>(undefined);
