@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import remarkHeadingTags from './remarkHeadingTags.mjs';
+import remarkHeadingTags, { stripTrailingHeadingTag } from './remarkHeadingTags.mjs';
 
 /**
  * @param {string} markdown
@@ -52,5 +52,22 @@ describe('remarkHeadingTags', () => {
 
     expect(heading.children[0].value).toBe('[Preview]');
     expect(heading.data).toBeUndefined();
+  });
+});
+
+describe('stripTrailingHeadingTag', () => {
+  it('removes a trailing tag from heading text', () => {
+    expect(stripTrailingHeadingTag('FilterProvider [Preview]')).toBe('FilterProvider');
+    expect(stripTrailingHeadingTag('Chip [New] [Preview]')).toBe('Chip [New]');
+  });
+
+  it('leaves text without a trailing tag unchanged', () => {
+    expect(stripTrailingHeadingTag('Use [value]')).toBe('Use [value]');
+    expect(stripTrailingHeadingTag('Already [Preview] inside')).toBe('Already [Preview] inside');
+  });
+
+  it('does not strip text that is only a tag', () => {
+    expect(stripTrailingHeadingTag('[Preview]')).toBe('[Preview]');
+    expect(stripTrailingHeadingTag(' [Preview]')).toBe(' [Preview]');
   });
 });

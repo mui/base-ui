@@ -1,6 +1,8 @@
 import type * as React from 'react';
+import type { Sitemap, SitemapSection } from '@mui/internal-docs-infra/createSitemap/types';
 import type { SearchResult } from '@mui/internal-docs-infra/useSearch/types';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
+import { stripTrailingHeadingTag } from '../../mdx/remarkHeadingTags.mjs';
 
 export interface GroupedSearchResults {
   results: Array<{
@@ -21,6 +23,48 @@ export function slugifyWithParentContext(text: string, parentTitles?: string[]):
   }
 
   return slug;
+}
+
+function stripSectionHeadingTags(
+  sections: Record<string, SitemapSection> | undefined,
+): Record<string, SitemapSection> | undefined {
+  if (!sections) {
+    return sections;
+  }
+
+  return Object.fromEntries(
+    Object.entries(sections).map(([slug, section]) => [
+      slug,
+      {
+        ...section,
+        title: stripTrailingHeadingTag(section.title),
+        children: stripSectionHeadingTags(section.children),
+      },
+    ]),
+  );
+}
+
+/**
+ * Section titles in the page index keep heading badges such as `[Preview]`, but the
+ * headings render them as badges, not text, and build their IDs without them.
+ * Strip them so search shows the heading text and links to the heading.
+ */
+export function stripSitemapHeadingTags(sitemap: Sitemap): Sitemap {
+  return {
+    ...sitemap,
+    data: Object.fromEntries(
+      Object.entries(sitemap.data).map(([name, sectionData]) => [
+        name,
+        {
+          ...sectionData,
+          pages: sectionData.pages.map((page) => ({
+            ...page,
+            sections: stripSectionHeadingTags(page.sections),
+          })),
+        },
+      ]),
+    ),
+  };
 }
 
 export function normalizeSearchGroup(group: string) {

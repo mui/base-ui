@@ -28,6 +28,18 @@ function splitTrailingHeadingTag(value) {
 }
 
 /**
+ * Removes one trailing `[New]` or `[Preview]` from heading text, the same way the
+ * plugin does. Use it for text that still has the tag, such as page index section titles.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+export function stripTrailingHeadingTag(value) {
+  const split = splitTrailingHeadingTag(value);
+  return split?.text.trim() ? split.text : value;
+}
+
+/**
  * @param {Array<{ type: string, value?: string, children?: unknown[] }>} children
  * @returns {boolean}
  */
