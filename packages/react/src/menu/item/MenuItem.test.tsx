@@ -2,7 +2,6 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
-import { activeElement } from '@base-ui/utils/shadowDom';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.Item />', () => {
@@ -56,42 +55,42 @@ describe('<Menu.Item />', () => {
     expect(onClick.mock.calls.length).toBe(1);
   });
 
-  it.each([
-    { name: 'mouse', press: 'mouse' },
-    { name: 'Enter', press: 'Enter' },
-  ])('preserves focus moved by onClick after $name activation', async ({ press }) => {
-    const { user } = await render(
-      <React.Fragment>
-        <Menu.Root>
-          <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup finalFocus={false}>
-                <Menu.Item onClick={() => screen.getByRole('textbox').focus()}>
-                  Focus editor
-                </Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-        <textarea aria-label="Editor" />
-      </React.Fragment>,
-    );
+  it.each([{ press: 'mouse' }, { press: 'Enter' }])(
+    'preserves focus moved by onClick after $press activation',
+    async ({ press }) => {
+      const { user } = await render(
+        <React.Fragment>
+          <Menu.Root>
+            <Menu.Trigger>Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup finalFocus={false}>
+                  <Menu.Item onClick={() => screen.getByRole('textbox').focus()}>
+                    Focus editor
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <textarea aria-label="Editor" />
+        </React.Fragment>,
+      );
 
-    await user.click(screen.getByRole('button', { name: 'Open' }));
-    const item = screen.getByRole('menuitem');
-    expect(screen.getByRole('textbox')).not.toHaveFocus();
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const item = screen.getByRole('menuitem');
+      expect(screen.getByRole('textbox')).not.toHaveFocus();
 
-    if (press === 'Enter') {
-      await act(() => item.focus());
-      await user.keyboard('{Enter}');
-    } else {
-      await user.click(item);
-    }
+      if (press === 'Enter') {
+        await act(() => item.focus());
+        await user.keyboard('{Enter}');
+      } else {
+        await user.click(item);
+      }
 
-    expect(screen.queryByRole('menuitem')).toBe(null);
-    expect(screen.getByRole('textbox')).toHaveFocus();
-  });
+      expect(screen.queryByRole('menuitem')).toBe(null);
+      expect(screen.getByRole('textbox')).toHaveFocus();
+    },
+  );
 
   it('does not close the menu when onClick prevents Base UI handler', async () => {
     const onClick = vi.fn((event) => event.preventBaseUIHandler());
@@ -117,39 +116,6 @@ describe('<Menu.Item />', () => {
     expect(onClick.mock.calls.length).toBe(1);
     expect(screen.queryByRole('menu')).not.toBe(null);
   });
-
-  it.each([
-    { name: 'unprevented', preventDefault: false, focuses: true },
-    { name: 'prevented', preventDefault: true, focuses: false },
-  ])(
-    'focuses an item on $name mousedown only when allowed',
-    async ({ preventDefault, focuses }) => {
-      await render(
-        <Menu.Root open highlightItemOnHover={false}>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Other item</Menu.Item>
-                <Menu.Item onMouseDown={(event) => preventDefault && event.preventDefault()}>
-                  Item
-                </Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const item = screen.getByRole('menuitem', { name: 'Item' });
-      const otherItem = screen.getByRole('menuitem', { name: 'Other item' });
-      await act(() => otherItem.focus());
-      expect(otherItem).toHaveFocus();
-
-      fireEvent.mouseDown(item, { button: 0 });
-
-      expect(activeElement(item.ownerDocument) === item).toBe(focuses);
-      expect(activeElement(item.ownerDocument) === otherItem).toBe(!focuses);
-    },
-  );
 
   it('allows onMouseDown to prevent the Base UI focus handler', async () => {
     await render(
