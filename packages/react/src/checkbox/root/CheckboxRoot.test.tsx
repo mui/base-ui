@@ -509,6 +509,104 @@ describe('<Checkbox.Root />', () => {
       });
       expect(input.indeterminate).toBe(true);
     });
+
+    describe('grouped parent', () => {
+      const allValues = ['a', 'b', 'c'];
+
+      function getCheckedValues() {
+        return allValues.filter(
+          (value) => screen.getByTestId(value).getAttribute('aria-checked') === 'true',
+        );
+      }
+
+      function App(props: { disabledValue?: string }) {
+        const [value, setValue] = React.useState<string[]>([]);
+        const [indeterminate, setIndeterminate] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setIndeterminate(true)}>force</button>
+            <button onClick={() => setIndeterminate(false)}>unforce</button>
+            <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
+              <Checkbox.Root parent indeterminate={indeterminate} data-testid="parent" />
+              {allValues.map((v) => (
+                <Checkbox.Root
+                  key={v}
+                  value={v}
+                  disabled={v === props.disabledValue}
+                  data-testid={v}
+                />
+              ))}
+            </CheckboxGroup>
+          </div>
+        );
+      }
+
+      it.each([
+        { name: 'returns to the mixed value', button: 'unforce', expected: ['a'] },
+        {
+          name: 'checks every child once forced indeterminate',
+          button: 'force',
+          expected: allValues,
+        },
+      ])('$name after a full cycle', async ({ button, expected }) => {
+        const { user } = await render(<App />);
+
+        const parent = screen.getByTestId('parent');
+
+        await user.click(screen.getByTestId('a'));
+        await user.click(parent);
+        expect(getCheckedValues()).toEqual(allValues);
+
+        await user.click(parent);
+        expect(getCheckedValues()).toEqual([]);
+
+        await user.click(screen.getByRole('button', { name: button }));
+        expect(parent).toHaveAttribute('aria-checked', button === 'force' ? 'mixed' : 'false');
+        expect(getCheckedValues()).toEqual([]);
+
+        await user.click(parent);
+        expect(getCheckedValues()).toEqual(expected);
+      });
+
+      it('toggles between all and none while forced indeterminate', async () => {
+        const { user } = await render(<App />);
+
+        const parent = screen.getByTestId('parent');
+
+        await user.click(screen.getByTestId('a'));
+        await user.click(screen.getByRole('button', { name: 'force' }));
+        expect(getCheckedValues()).toEqual(['a']);
+
+        await user.click(parent);
+        expect(getCheckedValues()).toEqual(allValues);
+
+        await user.click(parent);
+        expect(getCheckedValues()).toEqual([]);
+
+        await user.click(parent);
+        expect(getCheckedValues()).toEqual(allValues);
+      });
+
+      it('keeps the cycle when forced indeterminate while already mixed', async () => {
+        // An unchecked disabled child keeps the group mixed once all others are checked.
+        const { user } = await render(<App disabledValue="a" />);
+
+        const parent = screen.getByTestId('parent');
+
+        await user.click(screen.getByTestId('b'));
+        await user.click(parent);
+        expect(parent).toHaveAttribute('aria-checked', 'mixed');
+        expect(getCheckedValues()).toEqual(['b', 'c']);
+
+        await user.click(screen.getByRole('button', { name: 'force' }));
+        await user.click(parent);
+        expect(getCheckedValues()).toEqual([]);
+
+        await user.click(screen.getByRole('button', { name: 'unforce' }));
+        await user.click(parent);
+        expect(getCheckedValues()).toEqual(['b']);
+      });
+    });
   });
 
   it('should update its state if the underlying input is toggled', async () => {
