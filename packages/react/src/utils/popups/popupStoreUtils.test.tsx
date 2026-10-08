@@ -5,8 +5,8 @@ import { flushMicrotasks } from '@mui/internal-test-utils';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './store';
+import { useImplicitActiveTrigger } from './popupRoot';
 import {
-  useImplicitActiveTrigger,
   usePopupInteractionProps,
   useTriggerDataForwarding,
   useTriggerRegistration,

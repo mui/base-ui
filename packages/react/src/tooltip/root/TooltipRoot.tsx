@@ -13,9 +13,9 @@ import {
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
-  usePopupInteractionProps,
-} from '../../utils/popups/popupStoreUtils';
-import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
+} from '../../utils/popups/popupRoot';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 import { mergeProps } from '../../merge-props';
 import { TooltipStore } from '../store/TooltipStore';
 import type { State as TooltipStoreState } from '../store/TooltipStore';
