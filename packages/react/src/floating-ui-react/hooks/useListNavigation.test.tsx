@@ -190,20 +190,23 @@ describe('useListNavigation', () => {
       button: 0,
       preventDefault: false,
       focusedItem: 1,
+      nextItem: 2,
     },
     {
       name: 'keeps focus when primary mousedown is prevented',
       button: 0,
       preventDefault: true,
       focusedItem: 0,
+      nextItem: 1,
     },
     {
       name: 'keeps focus on secondary mousedown',
       button: 2,
       preventDefault: false,
       focusedItem: 0,
+      nextItem: 1,
     },
-  ])('$name', async ({ button, preventDefault, focusedItem }) => {
+  ])('$name', async ({ button, preventDefault, focusedItem, nextItem }) => {
     render(
       <App
         focusItemOnHover={false}
@@ -223,7 +226,13 @@ describe('useListNavigation', () => {
 
     fireEvent.mouseDown(pressedItem, { button });
 
-    expect(screen.getByTestId(`item-${focusedItem}`)).toHaveFocus();
+    const focusedElement = screen.getByTestId(`item-${focusedItem}`);
+    expect(focusedElement).toHaveFocus();
+
+    fireEvent.keyDown(focusedElement, { key: 'ArrowDown' });
+    await waitFor(() => {
+      expect(screen.getByTestId(`item-${nextItem}`)).toHaveFocus();
+    });
   });
 
   it('keeps focus on the reference when an item is pressed under virtual focus', async () => {
