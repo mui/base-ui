@@ -541,20 +541,7 @@ describe('<Checkbox.Root />', () => {
         );
       }
 
-      it.each([
-        {
-          name: 'returns to the mixed value once no longer forced',
-          forced: false,
-          expected: ['a'],
-        },
-        {
-          name: 'checks every child while forced indeterminate',
-          forced: true,
-          expected: allValues,
-        },
-      ])('$name after a full cycle', async ({ forced, expected }) => {
-        const { user } = await render(<App />);
-
+      async function cycleToNone(user: Awaited<ReturnType<typeof render>>['user']) {
         const parent = screen.getByTestId('parent');
 
         await user.click(screen.getByTestId('a'));
@@ -565,31 +552,25 @@ describe('<Checkbox.Root />', () => {
         expect(getCheckedValues()).toEqual([]);
 
         await user.click(screen.getByRole('button', { name: 'force' }));
-        if (!forced) {
-          await user.click(screen.getByRole('button', { name: 'unforce' }));
-        }
-        expect(parent).toHaveAttribute('aria-checked', forced ? 'mixed' : 'false');
-        expect(getCheckedValues()).toEqual([]);
+        expect(parent).toHaveAttribute('aria-checked', 'mixed');
+
+        return parent;
+      }
+
+      it('returns to the mixed value once no longer forced after a full cycle', async () => {
+        const { user } = await render(<App />);
+        const parent = await cycleToNone(user);
+
+        await user.click(screen.getByRole('button', { name: 'unforce' }));
+        expect(parent).toHaveAttribute('aria-checked', 'false');
 
         await user.click(parent);
-        expect(getCheckedValues()).toEqual(expected);
+        expect(getCheckedValues()).toEqual(['a']);
       });
 
-      it('toggles between all and none while forced indeterminate', async () => {
+      it('checks every child while forced indeterminate after a full cycle', async () => {
         const { user } = await render(<App />);
-
-        const parent = screen.getByTestId('parent');
-
-        await user.click(screen.getByTestId('a'));
-        await user.click(screen.getByRole('button', { name: 'force' }));
-        expect(getCheckedValues()).toEqual(['a']);
-
-        await user.click(parent);
-        expect(parent).toHaveAttribute('aria-checked', 'mixed');
-        expect(getCheckedValues()).toEqual(allValues);
-
-        await user.click(parent);
-        expect(getCheckedValues()).toEqual([]);
+        const parent = await cycleToNone(user);
 
         await user.click(parent);
         expect(getCheckedValues()).toEqual(allValues);

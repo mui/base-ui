@@ -138,9 +138,10 @@ export function useCheckboxGroupParent(
           nextValue = uncontrolledState;
         }
 
-        // Landing on the combination to return to is the mixed position, which holds the cycle
-        // should that combination stop being all or none, as once a child is enabled.
-        if (nextValue.length === uncontrolledState.length) {
+        // Landing on the combination to return to is the mixed position, and with no mixed
+        // combination there is no position to keep. Either way the cycle holds should that
+        // combination stop being all or none, as once a child is enabled or the list changes.
+        if (allOnOrOff || nextValue.length === uncontrolledState.length) {
           nextStatus = 'mixed';
         }
 
