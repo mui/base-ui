@@ -19,8 +19,6 @@ const localPlugin = (relativePath) => path.join(baseDir, relativePath);
 const withMdx = nextMdx({
   options: {
     remarkPlugins: [
-      // Before transformMarkdownMetadata, so a stripped badge stays out of outline text too.
-      localPlugin('src/mdx/remarkHeadingTags.mjs'),
       'remark-gfm',
       [
         '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
@@ -40,6 +38,9 @@ const withMdx = nextMdx({
           },
         },
       ],
+      // After transformMarkdownMetadata so the page index keeps `[Preview]`/`[New]`, matching
+      // `docs-infra validate`, which doesn't run local plugins.
+      localPlugin('src/mdx/remarkHeadingTags.mjs'),
       'remark-typography',
       localPlugin('src/components/QuickNav/remarkQuickNavExcludeHeading.mjs'),
       '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths',
