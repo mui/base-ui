@@ -23,12 +23,8 @@ import type {
   AutoUpdateOptions,
   Middleware,
 } from '@floating-ui/react-dom';
-import type {
-  UseFloatingOptions,
-  UseFloatingReturn,
-  FloatingRootContext,
-  FloatingContext,
-} from '../utils/popups/types';
+import type { UseFloatingOptions, UseFloatingReturn, FloatingContext } from '../utils/popups/types';
+import type { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
 import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
 import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
@@ -131,7 +127,7 @@ type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
+  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootStore },
 ): UseAnchorPositioningReturnValue {
   return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
 }
@@ -814,7 +810,7 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: FloatingRootContext | undefined;
+  floatingRootContext?: FloatingRootStore | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
   nodeId?: string | undefined;

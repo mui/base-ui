@@ -4,10 +4,10 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useFloating as usePosition } from '@floating-ui/react-dom';
 import type { VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import type { FloatingRootStore } from '../floating-root/FloatingRootStore';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type {
   FloatingContext,
+  FloatingRootContext,
   NarrowedElement,
   ReferenceType,
   UseFloatingOptions,
@@ -20,7 +20,7 @@ import type {
  * @see https://floating-ui.com/docs/useFloating
  */
 export function useBaseUIFloating(
-  options: UseFloatingOptions & { rootContext: FloatingRootStore },
+  options: UseFloatingOptions & { rootContext: FloatingRootContext },
 ): UseFloatingReturn {
   const { nodeId, externalTree, rootContext: store } = options;
 
@@ -124,7 +124,7 @@ export function useBaseUIFloating(
       context,
       refs,
       elements,
-      rootStore: store as unknown as FloatingRootStore,
+      rootStore: store,
     }),
     [position, refs, elements, context, store],
   ) as UseFloatingReturn;
