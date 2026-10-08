@@ -74,6 +74,11 @@ jobs:
           command: pnpm docs:validate
   test_lint:
     <<: *default-job
+    resource_class: medium+
+    environment:
+      <<: *default-environment
+      # Type-aware docs linting loads the docs and component TypeScript projects.
+      NODE_OPTIONS: --max-old-space-size=4096
     steps:
       - checkout
       - code-infra/install-deps
