@@ -10,6 +10,10 @@ Base UI is a library of unstyled React components. This glossary names the conc
 Content that a component shows on top of the page while it is open, such as a popover, menu, tooltip, dialog or select list.
 _Avoid_: floating element, floating, overlay
 
+**Root**:
+The part that holds a popup's open state and groups its other parts. It renders no element of its own.
+_Avoid_: provider, container
+
 **Trigger**:
 An element the user interacts with to open or close a popup. A popup can have several triggers; the one that opened it is the **active trigger**.
 _Avoid_: reference, reference element, DOM reference
