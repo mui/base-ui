@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
 import { NOOP } from '@base-ui/utils/empty';
 import type { TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -11,9 +10,13 @@ import type {
   PopupStoreState,
   PopupTriggerStoreKeys,
 } from '../../utils/popups/store';
-import { applyPopupOpenChange } from '../../utils/popups/popupStoreUtils';
-import { createInitialPopupStoreState, popupStoreSelectors } from '../../utils/popups/store';
 import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import {
+  BasePopupStore,
+  createInitialPopupStoreState,
+  getHoverPopupInstantType,
+  popupStoreSelectors,
+} from '../../utils/popups/store';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -64,10 +67,11 @@ export type TooltipHandleStore<Payload> = Pick<
   PopupTriggerStoreKeys | 'setOpen' | 'cancelPendingOpen' | 'useSyncedValue'
 >;
 
-export class TooltipStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
+export class TooltipStore<Payload> extends BasePopupStore<
+  State<Payload>,
   Context,
-  Selectors
+  Selectors,
+  TooltipRoot.ChangeEventDetails
 > {
   constructor(
     initialState: Partial<State<Payload>>,
@@ -82,14 +86,9 @@ export class TooltipStore<Payload> extends ReactStore<
     );
   }
 
-  setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
-    applyPopupOpenChange(this, nextOpen, eventDetails as TooltipRoot.ChangeEventDetails, {
-      extraState: { openChangeReason: eventDetails.reason },
-    });
-  };
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
+    return getHoverPopupInstantType(nextOpen, eventDetails.reason);
+  }
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
   cancelPendingOpen(event: MouseEvent | PointerEvent) {
