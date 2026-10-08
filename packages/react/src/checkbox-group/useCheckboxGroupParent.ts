@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../internals/reasons';
 
@@ -11,6 +12,8 @@ export function useCheckboxGroupParent(
   const { allValues = EMPTY_ARRAY, value, onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
+  // The last value this hook produced. The cycle only holds while `value` still matches it.
+  const lastValueRef = React.useRef(value);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
@@ -43,7 +46,7 @@ export function useCheckboxGroupParent(
   });
 
   const getParentProps: UseCheckboxGroupParentReturnValue['getParentProps'] = React.useCallback(
-    () => ({
+    (forcedIndeterminate = false) => ({
       indeterminate,
       checked,
       // Children report their own rendered id, so a custom `id` survives and no unmounted
@@ -52,6 +55,18 @@ export function useCheckboxGroupParent(
         allValues.flatMap((v) => childIdsState.registry.get(v) ?? EMPTY_ARRAY).join(' ') ||
         undefined,
       onCheckedChange(_, eventDetails) {
+        let currentStatus = status;
+        // A value changed from outside is the new combination to return to, as it is after a
+        // child is clicked. So is a mixed state forced by the parent's `indeterminate` prop: it
+        // stands for a change the group's value doesn't hold, such as one in a nested group.
+        if (
+          !areArraysEqual(value, lastValueRef.current) ||
+          (forcedIndeterminate && !indeterminate)
+        ) {
+          uncontrolledStateRef.current = value;
+          currentStatus = 'mixed';
+        }
+
         const uncontrolledState = uncontrolledStateRef.current;
 
         // None except the disabled ones that are checked, which can't be changed.
@@ -69,10 +84,11 @@ export function useCheckboxGroupParent(
           uncontrolledState.length === all.length || uncontrolledState.length === 0;
 
         if (allOnOrOff) {
-          if (value.length === all.length) {
-            onValueChange(none, eventDetails);
-          } else {
-            onValueChange(all, eventDetails);
+          const nextValue = value.length === all.length ? none : all;
+          onValueChange(nextValue, eventDetails);
+
+          if (!eventDetails.isCanceled) {
+            lastValueRef.current = nextValue;
           }
           return;
         }
@@ -80,10 +96,10 @@ export function useCheckboxGroupParent(
         let nextStatus: 'on' | 'off' | 'mixed' = 'mixed';
         let nextValue = uncontrolledState;
 
-        if (status === 'mixed') {
+        if (currentStatus === 'mixed') {
           nextStatus = 'on';
           nextValue = all;
-        } else if (status === 'on') {
+        } else if (currentStatus === 'on') {
           nextStatus = 'off';
           nextValue = none;
         }
@@ -91,11 +107,12 @@ export function useCheckboxGroupParent(
         onValueChange(nextValue, eventDetails);
 
         if (!eventDetails.isCanceled) {
+          lastValueRef.current = nextValue;
           setStatus(nextStatus);
         }
       },
     }),
-    [allValues, checked, childIdsState, indeterminate, onValueChange, status, value.length],
+    [allValues, checked, childIdsState, indeterminate, onValueChange, status, value],
   );
 
   const getChildProps: UseCheckboxGroupParentReturnValue['getChildProps'] = React.useCallback(
@@ -113,6 +130,7 @@ export function useCheckboxGroupParent(
 
         if (!eventDetails.isCanceled) {
           uncontrolledStateRef.current = newValue;
+          lastValueRef.current = newValue;
           setStatus('mixed');
         }
       },
@@ -148,7 +166,7 @@ export interface UseCheckboxGroupParentReturnValue {
    * Reports the `id` of the element a child checkbox exposes.
    */
   registerChildId: (value: string, id: string) => () => void;
-  getParentProps: () => {
+  getParentProps: (forcedIndeterminate?: boolean) => {
     indeterminate: boolean;
     checked: boolean;
     'aria-controls': string | undefined;
