@@ -953,6 +953,49 @@ describe('<Select.Item />', () => {
       await waitFor(() => expect(screen.getByTestId('value').textContent).toBe('two'));
     });
 
+    it('focuses the selected item after drag-to-select so arrow navigation continues from it', async () => {
+      ignoreActWarnings();
+
+      await renderFakeTimers(
+        <Select.Root multiple highlightItemOnHover={false}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value>
+              {(value: string[]) => (value.length ? value.join(', ') : 'Select items')}
+            </Select.Value>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one">one</Select.Item>
+                <Select.Item value="two">two</Select.Item>
+                <Select.Item value="three">three</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      fireEvent.mouseDown(screen.getByTestId('trigger'));
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+
+      const option = screen.getByRole('option', { name: 'two' });
+      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+      fireEvent.pointerMove(option, { pointerType: 'mouse', buttons: 1, movementY: 8 });
+
+      expect(option).not.toHaveFocus();
+
+      await act(async () => {
+        await clock.tickAsync(500);
+      });
+      fireEvent.mouseUp(option);
+
+      expect(option).toHaveAttribute('aria-selected', 'true');
+      expect(option).toHaveFocus();
+
+      fireEvent.keyDown(option, { key: 'ArrowDown' });
+      await waitFor(() => expect(screen.getByRole('option', { name: 'three' })).toHaveFocus());
+    });
+
     it('should not treat small pointer movement as drag-to-select', async () => {
       ignoreActWarnings();
 
