@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
+import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,

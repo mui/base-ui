@@ -13,17 +13,15 @@ import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popup
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import {
-  safePolygon,
-  useDelayGroup,
-  useFocus,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-react';
-import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useDelayGroup } from '../../utils/popups/delay-group/FloatingDelayGroup';
+import { useFocus } from '../../utils/popups/interactions/useFocus';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { isMouseLikePointerType } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
-import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
+import { useHoverInteractionSharedState } from '../../utils/popups/interactions/useHoverInteractionSharedState';
+import { getDelay } from '../../utils/popups/interactions/useHoverShared';
 import * as TooltipTriggerDataAttributes from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';

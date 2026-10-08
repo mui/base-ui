@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useDismiss, FloatingTree } from '../../floating-ui-react';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { useDismiss } from '../../floating-ui-react';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import type { DialogStore } from '../store/DialogStore';
 import { usePopupInteractionProps } from '../../utils/popups';
 

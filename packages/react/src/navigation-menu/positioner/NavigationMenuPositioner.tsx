@@ -9,8 +9,8 @@ import {
   disableFocusInside,
   enableFocusInside,
   isOutsideEvent,
-} from '../../floating-ui-react/utils';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+} from '../../utils/popups/focus/tabbable';
+import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,

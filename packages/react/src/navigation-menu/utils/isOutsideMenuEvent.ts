@@ -1,6 +1,6 @@
 import { contains } from '@base-ui/utils/shadowDom';
-import type { FloatingTreeType } from '../../floating-ui-react';
-import { getNodeChildren } from '../../floating-ui-react/utils';
+import type { FloatingTreeType } from '../../utils/popups/floating-root/types';
+import { getNodeChildren } from '../../utils/popups/tree/nodes';
 
 interface Targets {
   currentTarget: HTMLElement | null;
