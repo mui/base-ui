@@ -10,7 +10,7 @@ import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import type { DialogHandle } from '../store/DialogHandle';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useClick } from '../../floating-ui-react';
+import { useClick } from '../../utils/popups/interactions/useClick';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**

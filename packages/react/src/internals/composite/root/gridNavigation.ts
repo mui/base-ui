@@ -5,7 +5,7 @@ import {
   getGridCellIndices,
   getGridNavigatedIndex,
   isListIndexDisabled,
-} from '../../../floating-ui-react/utils/composite';
+} from '../listIndex';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../composite';
 
 type CompositeGridElementsRef = React.RefObject<Array<HTMLElement | null>>;

@@ -9,7 +9,7 @@ import { clamp } from '@base-ui/utils/clamp';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { isInteractiveElement } from '../../floating-ui-react/utils';
+import { isInteractiveElement } from '../../utils/popups/element';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import * as DrawerViewportCssVars from '../viewport/DrawerViewportCssVars';

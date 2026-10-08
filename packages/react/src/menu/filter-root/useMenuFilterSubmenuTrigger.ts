@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
+import { isVirtualPointerEvent } from '../../utils/popups/event';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import { useFilterContextForList } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import type { MenuFilterItemParams, MenuFilterItemResult } from './MenuFilterContext';
