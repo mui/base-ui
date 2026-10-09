@@ -3,6 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { contains } from '@base-ui/utils/shadowDom';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -13,7 +14,7 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
-import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils';
+import { getFloatingFocusElement } from '../../utils/popups/element';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button';
 import type { FieldRootState } from '../../field/root/FieldRoot';

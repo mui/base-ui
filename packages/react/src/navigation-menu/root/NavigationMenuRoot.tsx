@@ -5,14 +5,14 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import {
   FloatingNode,
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-react';
-import type { FloatingRootContext } from '../../floating-ui-react';
-import { activeElement, contains } from '../../floating-ui-react/utils';
+} from '../../utils/popups/tree/FloatingTree';
+import type { FloatingRootContext } from '../../utils/popups/floating-root/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,

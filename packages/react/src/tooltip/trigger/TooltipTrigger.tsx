@@ -4,6 +4,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -12,18 +13,15 @@ import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popup
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import {
-  safePolygon,
-  useDelayGroup,
-  useFocus,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-react';
-import { closest, contains, getTarget } from '../../floating-ui-react/utils/element';
-import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useDelayGroup } from '../../utils/popups/delay-group/FloatingDelayGroup';
+import { useFocus } from '../../utils/popups/interactions/useFocus';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { isMouseLikePointerType } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
-import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
+import { useHoverInteractionSharedState } from '../../utils/popups/interactions/useHoverInteractionSharedState';
+import { getDelay } from '../../utils/popups/interactions/useHoverShared';
 import * as TooltipTriggerDataAttributes from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';

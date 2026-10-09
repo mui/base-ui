@@ -3,18 +3,13 @@ import * as React from 'react';
 import c from 'clsx';
 import { useId } from '@base-ui/utils/useId';
 import { useTestInteractions } from '#test-utils';
-import type { Placement } from '../../src/floating-ui-react/types';
-import {
-  arrow,
-  autoUpdate,
-  flip,
-  FloatingFocusManager,
-  FloatingPortal,
-  offset,
-  useClick,
-  useDismiss,
-  useListNavigation,
-} from '../../src/floating-ui-react';
+import type { Placement } from '@floating-ui/react-dom';
+import { arrow, autoUpdate, flip, offset } from '@floating-ui/react-dom';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
 import { useFloating } from './useFloating';
 import { Button } from './Button';
 import styles from './EmojiPicker.module.css';

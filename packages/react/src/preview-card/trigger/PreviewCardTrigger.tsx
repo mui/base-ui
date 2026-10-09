@@ -13,7 +13,9 @@ import {
   useTriggerDataForwarding,
 } from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useFocus } from '../../utils/popups/interactions/useFocus';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
 
 /**
  * A link that opens the preview card.

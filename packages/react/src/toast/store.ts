@@ -2,6 +2,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
+import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import type {
   ToastManagerAddOptions,
   ToastManagerPromiseOptions,
@@ -9,7 +10,6 @@ import type {
   ToastObject,
 } from './useToastManager';
 import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
-import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<

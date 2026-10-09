@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { useListNavigation, useTypeahead } from '../../src/floating-ui-react';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
 import { useFloating } from './useFloating';
 
 interface SelectContextValue {
