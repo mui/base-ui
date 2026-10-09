@@ -106,7 +106,12 @@ export function useHoverReferenceInteraction(
   const isClosingRef = useValueAsRef(isClosing);
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
+    // A controlled close through the `open` prop leaves the previous session's event in place,
+    // so the event only describes how the popup opened while it is open.
+    return (
+      store.select('open') &&
+      isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside)
+    );
   });
 
   const checkShouldOpen = useStableCallback(() => {
@@ -177,6 +182,11 @@ export function useHoverReferenceInteraction(
         instance.restTimeoutPending = false;
       } else {
         isHoverCloseActiveRef.current = false;
+        // An open supersedes a hover open still waiting on its rest delay, including one pending
+        // on another trigger. Left pending, the timer would reopen a retained popup after a
+        // controlled close.
+        instance.restTimeout.clear();
+        instance.restTimeoutPending = false;
       }
     }
 
@@ -192,6 +202,13 @@ export function useHoverReferenceInteraction(
     }
 
     function closeWithDelay(event: MouseEvent, runElseBranch = true) {
+      // The popup can already be closed here, through a controlled `open` or because a hover
+      // open was still pending. A close timer started now would close it once it reopens.
+      if (!store.select('open')) {
+        instance.openChangeTimeout.clear();
+        return;
+      }
+
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
       if (closeDelay) {
         instance.openChangeTimeout.start(closeDelay, () => {
