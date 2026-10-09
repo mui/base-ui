@@ -3,6 +3,9 @@ import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { Combobox } from '@base-ui/react/combobox';
 import { Menu } from '@base-ui/react/menu';
+import { PreviewCard } from '@base-ui/react/preview-card';
+import { Select } from '@base-ui/react/select';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
   act,
@@ -2578,6 +2581,211 @@ describe('<Popover.Root />', () => {
       await waitFor(() => {
         expect(triggerA).toHaveFocus();
       });
+    });
+  });
+
+  describe('nested popups from other families', () => {
+    function openPopoverOnHover() {
+      const trigger = screen.getByRole('button', { name: 'Popover' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      const positioner = screen.getByTestId('popover-positioner');
+      fireEvent.mouseLeave(trigger, { relatedTarget: positioner });
+      fireEvent.mouseEnter(positioner);
+    }
+
+    // These pin current behavior, including limitations, so a change to it is a deliberate decision.
+    it('currently closes the popover along with a hover-opened preview card inside it on Escape from the popover', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Popover</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popover-popup">
+                <button type="button">Inside</button>
+                <PreviewCard.Root>
+                  <PreviewCard.Trigger href="#" delay={0}>
+                    Card
+                  </PreviewCard.Trigger>
+                  <PreviewCard.Portal>
+                    <PreviewCard.Positioner>
+                      <PreviewCard.Popup data-testid="card-popup">Card content</PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                </PreviewCard.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Popover' }));
+      const inside = await screen.findByRole('button', { name: 'Inside' });
+      await act(async () => inside.focus());
+
+      const cardTrigger = screen.getByText('Card');
+      fireEvent.mouseEnter(cardTrigger);
+      fireEvent.mouseMove(cardTrigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('card-popup')).not.toBe(null);
+      });
+      // Focus stays in the popover, outside the preview card and its trigger.
+      expect(inside).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+
+      // Current behavior, not necessarily the desired one: the preview card is in another popup tree,
+      // so it doesn't keep the Escape from the popover. Hover content would ideally close on its own.
+      await waitFor(() => {
+        expect(screen.queryByTestId('card-popup')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+      });
+    });
+
+    it('currently closes a hover-opened popover when the pointer leaves it for a tooltip popup opened inside it', async () => {
+      await render(
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={0} closeDelay={0}>
+            Popover
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="popover-positioner">
+              <Popover.Popup data-testid="popover-popup">
+                <Tooltip.Root>
+                  <Tooltip.Trigger delay={0}>Tooltip</Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner>
+                      <Tooltip.Popup data-testid="tooltip-popup">Hint</Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      openPopoverOnHover();
+      const tooltipTrigger = screen.getByRole('button', { name: 'Tooltip' });
+      fireEvent.mouseEnter(tooltipTrigger);
+      fireEvent.mouseMove(tooltipTrigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('tooltip-popup')).not.toBe(null);
+      });
+      expect(screen.getByTestId('popover-popup')).toBeVisible();
+
+      const tooltipPopup = screen.getByTestId('tooltip-popup');
+      fireEvent.mouseLeave(tooltipTrigger, { relatedTarget: tooltipPopup });
+      fireEvent.mouseLeave(screen.getByTestId('popover-positioner'), {
+        relatedTarget: tooltipPopup,
+      });
+      fireEvent.mouseEnter(tooltipPopup);
+
+      // A known limitation: a tooltip reads the popup tree but doesn't join it (joining changes other
+      // behavior), so its popup doesn't count as part of the popover.
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+      });
+    });
+
+    it('currently closes a hover-opened popover when the pointer leaves it for a select popup opened inside it', async () => {
+      await render(
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={0} closeDelay={0}>
+            Popover
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="popover-positioner">
+              <Popover.Popup data-testid="popover-popup">
+                <Select.Root defaultValue="apple">
+                  <Select.Trigger data-testid="select-trigger">
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Portal>
+                    <Select.Positioner>
+                      <Select.Popup data-testid="select-popup">
+                        <Select.Item value="apple">Apple</Select.Item>
+                        <Select.Item value="banana">Banana</Select.Item>
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      openPopoverOnHover();
+      const selectTrigger = screen.getByTestId('select-trigger');
+      fireEvent.click(selectTrigger);
+      await waitFor(() => {
+        expect(selectTrigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      expect(screen.getByTestId('popover-popup')).toBeVisible();
+
+      const selectPopup = screen.getByTestId('select-popup');
+      fireEvent.mouseLeave(screen.getByTestId('popover-positioner'), {
+        relatedTarget: selectPopup,
+      });
+      fireEvent.mouseEnter(selectPopup);
+
+      // A known limitation: a select reads its interaction data through its own store and doesn't
+      // join the popup tree, so its popup doesn't count as part of the popover.
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+      });
+    });
+
+    it('keeps the popover open while pressing between the triggers of a nested menu', async () => {
+      // Guards the press and focus path only. The detached menu triggers register in the popover's
+      // tree, and the previous trigger's node keeps its last snapshot after the switch (a known
+      // issue, pre-existing on master); nothing here depends on the popup tree.
+      const menuHandle = Menu.createHandle();
+      const { user } = await render(
+        <Popover.Root defaultOpen>
+          <Popover.Trigger>Popover</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popover-popup">
+                <Menu.Trigger handle={menuHandle} id="menu-trigger-1" payload={1}>
+                  Menu 1
+                </Menu.Trigger>
+                <Menu.Trigger handle={menuHandle} id="menu-trigger-2" payload={2}>
+                  Menu 2
+                </Menu.Trigger>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+          <Menu.Root handle={menuHandle}>
+            {({ payload }: { payload: unknown }) => (
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="menu-popup">
+                    <Menu.Item>{`Item ${String(payload)}`}</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            )}
+          </Menu.Root>
+        </Popover.Root>,
+      );
+
+      const menuTrigger1 = screen.getByRole('button', { name: 'Menu 1' });
+      const menuTrigger2 = screen.getByRole('button', { name: 'Menu 2' });
+
+      await user.click(menuTrigger1);
+      await screen.findByRole('menuitem', { name: 'Item 1' });
+      expect(menuTrigger1).toHaveAttribute('aria-expanded', 'true');
+
+      await user.click(menuTrigger2);
+      await screen.findByRole('menuitem', { name: 'Item 2' });
+
+      expect(menuTrigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(menuTrigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.getByTestId('popover-popup')).toBeVisible();
     });
   });
 });
