@@ -3,7 +3,10 @@
 import * as React from 'react';
 import { Code } from 'docs/src/components/Code';
 import { Kbd } from 'docs/src/components/Kbd/Kbd';
-import styles from './SketchKeyControl.module.css';
+import styles from './DemoKeyControl.module.css';
+
+// The input is an extra stop in the navigation loop, before the first action.
+const INPUT_INDEX = -1;
 
 const actions = ['Rename', 'Duplicate', 'Move to folder', 'Archive', 'Delete'];
 const keyLabels: Record<string, string> = {
@@ -15,18 +18,25 @@ const keyLabels: Record<string, string> = {
   ' ': 'Space',
 };
 
-export default function SketchKeyControl() {
+export default function DemoKeyControl() {
   const id = React.useId();
   const [query, setQuery] = React.useState('');
-  // The input is an extra stop in the navigation loop.
-  const [highlightedIndex, setHighlightedIndex] = React.useState(-1);
+  const [highlightedIndex, setHighlightedIndex] = React.useState(INPUT_INDEX);
   const [lastKey, setLastKey] = React.useState('—');
   const [lastAction, setLastAction] = React.useState('');
-  const visibleActions = actions.filter((action) =>
-    action.toLowerCase().includes(query.trim().toLowerCase()),
-  );
-  const isEditing = highlightedIndex === -1;
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleActions = actions.filter((action) => action.toLowerCase().includes(normalizedQuery));
+  const lastActionIndex = visibleActions.length - 1;
+  const highlightedAction = visibleActions[highlightedIndex];
+  const isEditing = highlightedIndex === INPUT_INDEX;
   const menuId = `${id}-menu`;
+
+  function handleQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setQuery(event.currentTarget.value);
+    setHighlightedIndex(INPUT_INDEX);
+    setLastAction('');
+  }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     const { key } = event;
@@ -38,45 +48,44 @@ export default function SketchKeyControl() {
       return;
     }
 
-    if (key === 'ArrowDown' || key === 'ArrowUp') {
-      event.preventDefault();
-      if (visibleActions.length === 0) {
-        return;
-      }
-      if (key === 'ArrowDown') {
-        setHighlightedIndex(
-          highlightedIndex === visibleActions.length - 1 ? -1 : highlightedIndex + 1,
-        );
-      } else {
-        setHighlightedIndex(isEditing ? visibleActions.length - 1 : highlightedIndex - 1);
-      }
-    } else if (key === 'Home' || key === 'End') {
-      event.preventDefault();
-      if (!isEditing) {
-        setHighlightedIndex(key === 'Home' ? 0 : visibleActions.length - 1);
-        return;
-      }
+    switch (key) {
+      case 'ArrowDown':
+      case 'ArrowUp':
+        event.preventDefault();
+        if (visibleActions.length === 0) {
+          return;
+        }
 
-      // Explicit caret movement also works on macOS, where Home/End can scroll the page.
-      const input = event.currentTarget;
-      const position = key === 'Home' ? 0 : input.value.length;
-      if (event.shiftKey) {
-        const anchor =
-          (input.selectionDirection === 'backward' ? input.selectionEnd : input.selectionStart) ??
-          0;
-        input.setSelectionRange(
-          Math.min(anchor, position),
-          Math.max(anchor, position),
-          position < anchor ? 'backward' : 'forward',
-        );
-      } else {
-        input.setSelectionRange(position, position);
-      }
-    } else if (key === 'Enter') {
-      event.preventDefault();
-      if (!isEditing) {
-        setLastAction(visibleActions[highlightedIndex]);
-      }
+        if (key === 'ArrowDown') {
+          setHighlightedIndex(
+            highlightedIndex === lastActionIndex ? INPUT_INDEX : highlightedIndex + 1,
+          );
+        } else {
+          setHighlightedIndex(isEditing ? lastActionIndex : highlightedIndex - 1);
+        }
+        return;
+
+      case 'Home':
+      case 'End':
+        event.preventDefault();
+        if (isEditing) {
+          const input = event.currentTarget;
+          const position = key === 'Home' ? 0 : input.value.length;
+          moveCaret(input, position, event.shiftKey);
+        } else {
+          setHighlightedIndex(key === 'Home' ? 0 : lastActionIndex);
+        }
+        return;
+
+      case 'Enter':
+        event.preventDefault();
+        if (!isEditing) {
+          setLastAction(highlightedAction);
+        }
+        return;
+
+      default:
+        return;
     }
   }
 
@@ -93,11 +102,7 @@ export default function SketchKeyControl() {
           placeholder="Filter actions"
           autoComplete="off"
           value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setHighlightedIndex(-1);
-            setLastAction('');
-          }}
+          onChange={handleQueryChange}
           onKeyDown={handleKeyDown}
         />
         <ul id={menuId} className={styles.Menu} role="menu" aria-label="Edit actions">
@@ -128,7 +133,7 @@ export default function SketchKeyControl() {
               <Code>{isEditing ? 'Editing' : 'Browsing'}</Code>
             </dd>
             <dt>Highlighted</dt>
-            <dd>{isEditing ? 'input' : visibleActions[highlightedIndex]}</dd>
+            <dd>{isEditing ? 'input' : highlightedAction}</dd>
             <dt>Last key</dt>
             <dd>{lastKey}</dd>
           </dl>
@@ -145,5 +150,22 @@ export default function SketchKeyControl() {
         </div>
       </div>
     </div>
+  );
+}
+
+function moveCaret(input: HTMLInputElement, position: number, extendSelection: boolean) {
+  // Explicit caret movement also works on macOS, where Home/End can scroll the page.
+  if (!extendSelection) {
+    input.setSelectionRange(position, position);
+    return;
+  }
+
+  // Extend from the fixed end of the selection, not the end that moves with the caret.
+  const anchor =
+    (input.selectionDirection === 'backward' ? input.selectionEnd : input.selectionStart) ?? 0;
+  input.setSelectionRange(
+    Math.min(anchor, position),
+    Math.max(anchor, position),
+    position < anchor ? 'backward' : 'forward',
   );
 }

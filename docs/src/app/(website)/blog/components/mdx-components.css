@@ -1,9 +1,12 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
-  .MdBlogArticle > *:first-child {
+  .BlogMdArticle > *:first-child {
     margin-top: 0;
   }
 
-  .MdBlogArticleBreakout {
+  .BlogMdArticleBreakout {
     @media (min-width: 48rem) {
       margin-inline: -0.75rem;
     }

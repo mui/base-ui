@@ -1,25 +1,32 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
-  .TableBlogRoot {
+  .BlogTableRoot {
     margin-block: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-12);
+  }
+
+  .BlogTable {
     font-size: var(--font-size-14);
     line-height: 1.25rem;
     color: var(--gray-t1);
-    border: 1px solid var(--color-border);
     border-collapse: separate;
-    border-radius: var(--radius-12);
     width: 100%;
+    min-width: 40rem;
     vertical-align: top;
     border-spacing: 0;
   }
 
-  .TableBlogHead,
-  .TableBlogBody,
-  .TableBlogRow {
+  .BlogTableHead,
+  .BlogTableBody,
+  .BlogTableRow {
     vertical-align: inherit;
   }
 
-  .TableBlogColumnHeader,
-  .TableBlogCell {
+  .BlogTableColumnHeader,
+  .BlogTableCell {
     vertical-align: middle;
     text-align: initial;
     font-weight: var(--font-weight-400);
@@ -27,24 +34,16 @@
     height: 2.5rem;
   }
 
-  .TableBlogColumnHeader {
+  .BlogTableColumnHeader {
     color: var(--color-foreground);
     background-color: var(--gray-s2);
     background-clip: padding-box;
     border-bottom: 1px solid var(--color-border);
     height: calc(2.5rem + 1px);
-
-    .TableBlogHead > .TableBlogRow:first-child > &:first-child {
-      border-top-left-radius: calc(var(--radius-12) - 1px);
-    }
-
-    .TableBlogHead > .TableBlogRow:first-child > &:last-child {
-      border-top-right-radius: calc(var(--radius-12) - 1px);
-    }
   }
 
-  .TableBlogCell {
-    .TableBlogRow:not(:last-child) > & {
+  .BlogTableCell {
+    .BlogTableRow:not(:last-child) > & {
       border-bottom: 1px solid var(--color-border);
       height: calc(2.5rem + 1px);
     }

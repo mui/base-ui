@@ -5,7 +5,7 @@ import { Avatar } from '@base-ui/react/avatar';
 import './AuthorList.css';
 
 export function Root(props: React.ComponentProps<'ul'>) {
-  return <ul {...props} className={clsx('AuthorListBlogRoot', props.className)} />;
+  return <ul {...props} className={clsx('BlogAuthorList', props.className)} />;
 }
 
 interface ItemProps extends React.ComponentProps<'li'> {
@@ -15,27 +15,26 @@ interface ItemProps extends React.ComponentProps<'li'> {
 }
 
 export function Item(props: ItemProps) {
-  const { name, image, url, className, ...other } = props;
-  const initials = name
-    .split(/\s+/)
-    .map((part) => part.charAt(0))
-    .join('');
+  const { name, image, url, className, ...rest } = props;
+  const initial = name.trimStart().charAt(0);
 
   return (
-    <li {...other} className={clsx('AuthorListBlogItem', className)}>
-      <Avatar.Root className="AuthorListBlogAvatar" aria-hidden="true">
+    <li {...rest} className={clsx('BlogAuthorListItem', className)}>
+      <Avatar.Root className="BlogAuthorListAvatar" aria-hidden="true">
+        <Avatar.Fallback delay={600} className="BlogAuthorListFallback">
+          {initial}
+        </Avatar.Fallback>
         <Avatar.Image
           keepMounted
           src={image}
           alt=""
           width={24}
           height={24}
-          className="AuthorListBlogImage"
+          className="BlogAuthorListImage"
         />
-        <Avatar.Fallback className="AuthorListBlogFallback">{initials}</Avatar.Fallback>
       </Avatar.Root>
       {url ? (
-        <a className="AuthorListBlogLink" href={url}>
+        <a className="BlogAuthorListLink" href={url}>
           {name}
         </a>
       ) : (

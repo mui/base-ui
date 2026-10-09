@@ -58,8 +58,8 @@ function Heading({
 // Maintain spacing between MDX components here
 export const mdxComponentsCommon: MDXComponents = {
   a: Link,
-  code: (props) => <Code {...props} className={clsx('MdCode', props.className)} />,
   em: (props) => <em className="MdEm" {...props} />,
+  code: (props) => <Code {...props} className={clsx('MdCode', props.className)} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <Heading as="h1" className="MdH1" {...props} />
