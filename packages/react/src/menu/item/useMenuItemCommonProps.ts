@@ -139,13 +139,13 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
           store.context.allowMouseUpTriggerRef.current &&
           (!isContextMenu || event.button === 2)
         ) {
-          // The press started on the trigger and was released over the item, so the item
-          // needs a synthetic click. Its `closeOnClick` preference still applies.
           // Drag release has no mousedown on this item. Focus it before activation so
           // arrow navigation continues from it when the menu stays open.
           if (!virtualFocus) {
             itemRef.current.focus({ preventScroll: true });
           }
+          // The press started on the trigger and was released over the item, so the item
+          // needs a synthetic click. Its `closeOnClick` preference still applies.
           // `detail: 1` and `pointerType: 'mouse'` mark this as a mouse-gesture click so
           // MenuRoot and FloatingFocusManager don't treat it as a keyboard activation.
           dispatchClickWithModifiers(itemRef.current, event, {
