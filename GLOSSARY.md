@@ -20,6 +20,22 @@ An element the user interacts with to open or close a popup. A popup can have se
 _Avoid_: reference, reference element, DOM reference
 _In code_: the active trigger is `activeTriggerElement` in the popup store and `anchorElement` in `StandaloneInteractionStore`.
 
+**Owner**:
+The trigger a popup currently belongs to: usually the one that opened it, or one that claimed it later. The popup's ARIA relationships, focus return and trigger payload follow it. In code it is the **active trigger** (`activeTriggerId` and `activeTriggerElement`), and only the trigger ownership module changes it.
+_Avoid_: current trigger, selected trigger
+
+**Last trigger**:
+The trigger the mounted popup was last anchored to. Unlike the owner, it is kept after the popup unmounts, so the interactions still recognize the trigger the popup last belonged to, until a `keepMounted` positioner clears it along with the anchor. In code it is `lastTriggerElement`.
+_Avoid_: last owner, DOM reference, previous trigger
+
+**Registry version**:
+A counter that moves on whenever a trigger registers or unregisters while the popup is open. The Root settles ownership after each change, including when one trigger replaces another and the number of triggers stays the same.
+_Avoid_: trigger count
+
+**Lone-trigger claim**:
+When a popup is open without an owner and exactly one trigger is registered, that trigger becomes the owner, whether the popup has just opened or the other triggers have unmounted. It doesn't apply when the popup was opened deliberately without a trigger, such as with a handle's `open(null)`.
+_Avoid_: implicit trigger, implicit active trigger
+
 **Anchor**:
 The element or rectangle a popup is positioned against. When none is set, the component picks a default, usually the active trigger: Combobox uses its input, and Context Menu uses the point where it was opened. One set explicitly is the **anchor override**. The **anchor element** is the DOM element the popup is anchored to, kept after the popup unmounts.
 _Avoid_: reference, position reference, DOM reference
