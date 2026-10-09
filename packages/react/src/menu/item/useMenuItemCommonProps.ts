@@ -77,15 +77,16 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       tabIndex,
       'aria-selected': ariaSelected,
       onMouseDown(event: React.MouseEvent) {
-        // Real focus stays on the input or list that owns virtual navigation.
-        if (virtualFocus) {
-          event.preventDefault();
-        } else if (
+        const shouldFocusNativeButton =
           platform.engine.webkit &&
           event.currentTarget.tagName === 'BUTTON' &&
           event.button === 0 &&
-          !event.defaultPrevented
-        ) {
+          !event.defaultPrevented;
+
+        // Real focus stays on the input or list that owns virtual navigation.
+        if (virtualFocus) {
+          event.preventDefault();
+        } else if (shouldFocusNativeButton) {
           // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
           // Prevent its default blur before focusing, so focus survives until click.
           event.preventDefault();
@@ -118,12 +119,12 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
         if (contextMenuContext) {
           const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
           contextMenuContext.initialCursorPointRef.current = null;
-          if (
+          const isInitialContextMenuMouseUp =
             isContextMenu &&
             initialCursorPoint &&
             Math.abs(event.clientX - initialCursorPoint.x) <= 1 &&
-            Math.abs(event.clientY - initialCursorPoint.y) <= 1
-          ) {
+            Math.abs(event.clientY - initialCursorPoint.y) <= 1;
+          if (isInitialContextMenuMouseUp) {
             return;
           }
 
@@ -134,12 +135,10 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
           }
         }
 
-        if (
-          itemRef.current &&
-          itemMetadata.type === 'regular-item' &&
-          store.context.allowMouseUpTriggerRef.current &&
-          (!isContextMenu || event.button === 2)
-        ) {
+        const isRegularItem = itemMetadata.type === 'regular-item';
+        const isDragRelease =
+          store.context.allowMouseUpTriggerRef.current && (!isContextMenu || event.button === 2);
+        if (itemRef.current && isRegularItem && isDragRelease) {
           // The press started on the trigger and was released over the item, so the item
           // needs a synthetic click. Its `closeOnClick` preference still applies.
           // Drag release has no mousedown on this item. Focus it before activation so
