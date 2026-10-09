@@ -85,10 +85,10 @@
     "@types/node": "22.20.4",
     "@types/react": "19.3.0",
     "@typescript/native": "npm:typescript@7.0.2",
-    "@vitejs/plugin-react": "6.1.1",
-    "@vitest/browser-playwright": "5.0.2",
-    "@vitest/coverage-istanbul": "5.0.2",
-    "@vitest/ui": "5.0.2",
+    "@vitejs/plugin-react": "6.1.2",
+    "@vitest/browser-playwright": "5.0.3",
+    "@vitest/coverage-istanbul": "5.0.3",
+    "@vitest/ui": "5.0.3",
     "concurrently": "10.0.5",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
@@ -112,8 +112,8 @@
     "terser": "5.51.2",
     "tsx": "4.23.15",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vite": "8.3.1",
-    "vitest": "5.0.2"
+    "vite": "8.3.3",
+    "vitest": "5.0.3"
   },
   "config": {
     "valeVersion": "3.24.0"
