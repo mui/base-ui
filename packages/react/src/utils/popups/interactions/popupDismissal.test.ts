@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
@@ -6,6 +6,8 @@ import { createEventEmitter } from '../createEventEmitter';
 import type { FloatingEventMap } from '../types';
 import { createAttribute } from '../createAttribute';
 import {
+  createDismissSession,
+  createFocusReturnSession,
   endPressSessionOnClose,
   getInteractionType,
   getModalOutsidePressEvent,
@@ -17,7 +19,9 @@ import {
 
 function createStore() {
   const events = createEventEmitter<FloatingEventMap>();
-  return { context: { events } } as unknown as Parameters<typeof getPopupDismissal>[0];
+  return { context: { events }, setOpen() {} } as unknown as Parameters<
+    typeof getPopupDismissal
+  >[0];
 }
 
 function createDetails(overrides: Partial<FloatingUIOpenChangeDetails> = {}) {
@@ -39,46 +43,13 @@ describe('getPopupDismissal', () => {
   });
 });
 
-describe('PopupDismissal', () => {
-  it('subscribes once to openchange and calls its listeners in subscription order', () => {
-    const store = createStore();
-    const on = vi.spyOn(store.context.events, 'on');
-    const off = vi.spyOn(store.context.events, 'off');
-    const dismissal = getPopupDismissal(store);
-    const calls: string[] = [];
-
-    const removeFirst = dismissal.onOpenChange(() => calls.push('first'));
-    const removeSecond = dismissal.onOpenChange(() => calls.push('second'));
-    store.context.events.emit('openchange', createDetails());
-
-    expect(on).toHaveBeenCalledTimes(1);
-    expect(calls).toEqual(['first', 'second']);
-
-    removeFirst();
-    expect(off).not.toHaveBeenCalled();
-    removeSecond();
-    expect(off).toHaveBeenCalledTimes(1);
-
-    store.context.events.emit('openchange', createDetails());
-    expect(calls).toEqual(['first', 'second']);
-  });
-
-  it('keeps whether the current interaction started inside the React tree', () => {
-    const dismissal = getPopupDismissal(createStore());
-
-    expect(dismissal.isInsideReactTree()).toBe(false);
-    dismissal.setInsideReactTree(true);
-    expect(dismissal.isInsideReactTree()).toBe(true);
-  });
-
+describe('session factories', () => {
   it('creates fresh sessions for each adapter instance', () => {
-    const dismissal = getPopupDismissal(createStore());
-
-    const session = dismissal.createDismissSession();
+    const session = createDismissSession();
     session.sawPressWhileOpen = true;
 
-    expect(dismissal.createDismissSession().sawPressWhileOpen).toBe(false);
-    expect(dismissal.createFocusReturnSession()).toEqual({
+    expect(createDismissSession().sawPressWhileOpen).toBe(false);
+    expect(createFocusReturnSession()).toEqual({
       preventReturnFocus: false,
       pointerDownOutside: false,
       lastInteractionType: '',
@@ -99,7 +70,7 @@ describe('getModalOutsidePressEvent', () => {
 
 describe('endPressSessionOnClose', () => {
   it('ends the press session on a close but not on an open', () => {
-    const session = getPopupDismissal(createStore()).createDismissSession();
+    const session = createDismissSession();
     session.sawPressWhileOpen = true;
 
     endPressSessionOnClose(session, createDetails({ open: true }));
@@ -123,7 +94,7 @@ describe('getInteractionType', () => {
 
 describe('recordCloseForReturnFocus', () => {
   it('records the close type from the closing event', () => {
-    const session = getPopupDismissal(createStore()).createFocusReturnSession();
+    const session = createFocusReturnSession();
 
     recordCloseForReturnFocus(session, createDetails(), document);
 
@@ -133,8 +104,8 @@ describe('recordCloseForReturnFocus', () => {
   it('suppresses the return after a focus guard close or a hover mouseleave close', () => {
     const guard = document.createElement('span');
     guard.setAttribute(createAttribute('focus-guard'), '');
-    const guardSession = getPopupDismissal(createStore()).createFocusReturnSession();
-    const hoverSession = getPopupDismissal(createStore()).createFocusReturnSession();
+    const guardSession = createFocusReturnSession();
+    const hoverSession = createFocusReturnSession();
 
     recordCloseForReturnFocus(
       guardSession,
@@ -156,7 +127,7 @@ describe('recordCloseForReturnFocus', () => {
   });
 
   it('returns focus after a nested or virtual outside press, and otherwise only when preventScroll is supported', () => {
-    const session = getPopupDismissal(createStore()).createFocusReturnSession();
+    const session = createFocusReturnSession();
     const pointerDown = new PointerEvent('pointerdown', { pointerType: 'mouse', detail: 1 });
 
     session.preventReturnFocus = true;
@@ -262,7 +233,7 @@ describe('returnFocusOnClose', () => {
     const returnElement = document.createElement('button');
     const elsewhere = document.createElement('button');
     document.body.append(returnElement, elsewhere);
-    const session = getPopupDismissal(createStore()).createFocusReturnSession();
+    const session = createFocusReturnSession();
     const snapshot = {
       returnFocus: true,
       explicitReturnFocus: undefined,

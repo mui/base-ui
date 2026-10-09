@@ -21,11 +21,12 @@ import { usePopupTree } from '../tree/PopupTree';
 import type { PopupTreeStore } from '../tree/PopupTreeStore';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
+import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
 import { createAttribute } from '../createAttribute';
 import { isEventTargetWithin, isRootElement } from '../element';
 import { isReactEvent, isVirtualClick } from '../event';
-import { endPressSessionOnClose, getPopupDismissal } from './popupDismissal';
+import { createDismissSession, endPressSessionOnClose, getPopupDismissal } from './popupDismissal';
 import type { OutsidePressType } from './popupDismissal';
 
 type PressType = OutsidePressType;
@@ -131,7 +132,7 @@ export function useDismiss(
 
   const open = store.useState('open');
   const outerPopupElement = store.useState('outerPopupElement');
-  const { dataRef } = store.context;
+  const { dataRef, events } = store.context;
 
   const tree = usePopupTree(externalTree);
   const outsidePressFn = useStableCallback(
@@ -145,7 +146,7 @@ export function useDismiss(
 
   const dismissal = getPopupDismissal(store);
   // The press, touch and composition state of this instance.
-  const session = useRefWithInit(() => dismissal.createDismissSession()).current;
+  const session = useRefWithInit(createDismissSession).current;
 
   const cancelDismissOnEndTimeout = useTimeout();
   const clearInsideReactTreeTimeout = useTimeout();
@@ -154,7 +155,7 @@ export function useDismiss(
 
   const clearInsideReactTree = useStableCallback(() => {
     clearInsideReactTreeTimeout.clear();
-    dismissal.setInsideReactTree(false);
+    dismissal.insideReactTree = false;
   });
 
   const hasBlockingChild = useStableCallback((kind: 'escapeKey' | 'outsidePress') => {
@@ -217,7 +218,7 @@ export function useDismiss(
   );
 
   const markInsideReactTree = useStableCallback(() => {
-    dismissal.setInsideReactTree(true);
+    dismissal.insideReactTree = true;
     clearInsideReactTreeTimeout.start(0, clearInsideReactTree);
   });
 
@@ -260,10 +261,15 @@ export function useDismiss(
 
   // A same-batch close+reopen never renders `open === false`, so only `openchange` can
   // observe that session boundary. The effect below covers controlled flips.
-  React.useEffect(
-    () => dismissal.onOpenChange((details) => endPressSessionOnClose(session, details)),
-    [dismissal, session],
-  );
+  React.useEffect(() => {
+    function handleOpenChange(details: FloatingUIOpenChangeDetails) {
+      endPressSessionOnClose(session, details);
+    }
+    events.on('openchange', handleOpenChange);
+    return () => {
+      events.off('openchange', handleOpenChange);
+    };
+  }, [events, session]);
 
   // Not cleared in the listener effect's cleanup, which can run mid-press when a dependency
   // changes. In a closed shadow root, the marker is the only inside-press signal.
@@ -371,7 +377,7 @@ export function useDismiss(
         return;
       }
 
-      if (dismissal.isInsideReactTree()) {
+      if (dismissal.insideReactTree) {
         clearInsideReactTree();
         return;
       }

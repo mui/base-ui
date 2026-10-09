@@ -36,9 +36,11 @@ import { markOthers } from './markOthers';
 import { usePortalContext } from '../portal/PopupPortal';
 import { usePopupTree } from '../tree/PopupTree';
 import type { PopupTreeStore } from '../tree/PopupTreeStore';
+import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../../internals/constants';
 import { resolveRef } from '../../resolveRef';
 import {
+  createFocusReturnSession,
   getPopupDismissal,
   recordCloseForReturnFocus,
   resolveReturnFocusElement,
@@ -254,7 +256,7 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
   const lastTrigger = store.useState('lastTriggerElement');
   const floating = store.useState('outerPopupElement');
 
-  const { dataRef } = store.context;
+  const { dataRef, events } = store.context;
   const dismissal = getPopupDismissal(store);
 
   const getNodeId = useStableCallback(() => dataRef.current.positioning?.nodeId);
@@ -278,7 +280,7 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
   const portalContext = usePortalContext();
 
   // The interaction and return focus state of this instance.
-  const session = useRefWithInit(() => dismissal.createFocusReturnSession()).current;
+  const session = useRefWithInit(createFocusReturnSession).current;
   const isPointerDownRef = React.useRef(false);
   const lastFocusedTabbableRef = React.useRef<FocusableElement | null>(null);
 
@@ -514,8 +516,8 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
         }
 
         // https://github.com/floating-ui/floating-ui/issues/3060
-        if (dismissal.isInsideReactTree()) {
-          dismissal.setInsideReactTree(false);
+        if (dismissal.insideReactTree) {
+          dismissal.insideReactTree = false;
           return;
         }
 
@@ -545,9 +547,9 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
       if (session.pointerDownOutside) {
         return;
       }
-      dismissal.setInsideReactTree(true);
+      dismissal.insideReactTree = true;
       blurTimeout.start(0, () => {
-        dismissal.setInsideReactTree(false);
+        dismissal.insideReactTree = false;
       });
     }
 
@@ -763,12 +765,13 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
 
     addPreviouslyFocusedElement(elementFocusedBeforeOpen);
 
-    const removeOpenChangeListener = dismissal.onOpenChange((details) =>
-      recordCloseForReturnFocus(session, details, doc),
-    );
+    function handleOpenChange(details: FloatingUIOpenChangeDetails) {
+      recordCloseForReturnFocus(session, details, doc);
+    }
+    events.on('openchange', handleOpenChange);
 
     return () => {
-      removeOpenChangeListener();
+      events.off('openchange', handleOpenChange);
 
       const activeEl = activeElement(doc);
       const insideElements = getResolvedInsideElements();
@@ -820,7 +823,7 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
       });
     };
   }, [
-    dismissal,
+    events,
     session,
     disabled,
     floating,

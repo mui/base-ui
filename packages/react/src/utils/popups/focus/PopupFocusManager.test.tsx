@@ -1919,7 +1919,7 @@ describe('PopupFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          readInsideReactTree = () => getPopupDismissal(context.rootStore).isInsideReactTree();
+          readInsideReactTree = () => getPopupDismissal(context.rootStore).insideReactTree;
 
           const click = useClick(context.rootStore);
           const dismiss = useDismiss(context.rootStore);
