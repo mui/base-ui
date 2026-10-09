@@ -33,6 +33,8 @@ const selectors = {
   open: (state: FloatingRootState) => state.open,
   transitionStatus: (state: FloatingRootState) => state.transitionStatus,
   domReferenceElement: (state: FloatingRootState) => state.domReferenceElement,
+  // Without trigger ownership, the last trigger is the DOM reference itself.
+  lastTriggerElement: (state: FloatingRootState) => state.domReferenceElement,
   referenceElement: (state: FloatingRootState) => state.positionReference ?? state.referenceElement,
   floatingElement: (state: FloatingRootState) => state.floatingElement,
   floatingId: (state: FloatingRootState) => state.floatingId,

@@ -18,6 +18,7 @@ import { attachPreventUnmountOnClose } from './popupStoreUtils';
 import {
   applyOpenRequest,
   createTriggerOwnership,
+  followAnchor,
   isLoneTriggerClaimable,
   releaseUnmountedTrigger,
 } from './triggerOwnership';
@@ -256,6 +257,7 @@ export const popupStoreSelectors = {
   // Reads of the interaction hooks' store (`FloatingRootContext`).
   floatingId: (state: S) => state.floatingId,
   domReferenceElement: (state: S) => state.domReferenceElement,
+  lastTriggerElement: (state: S) => state.triggerOwnership.lastTriggerElement,
   referenceElement: (state: S) => state.positionReference ?? activeTriggerElementSelector(state),
   // A `keepMounted` positioner is reported while the popup is closed, but not while an opening
   // popup is still hidden: the hooks would otherwise try to focus or measure it before it shows.
@@ -265,26 +267,35 @@ export const popupStoreSelectors = {
 
 /**
  * Applies what follows from a change of the trigger the popup is anchored to: the trigger is
- * remembered as the DOM reference, and a position reference that followed the old trigger follows
- * the new one.
+ * remembered as the DOM reference and as the last trigger, and a position reference that followed
+ * the old trigger follows the new one. A DOM reference cleared from outside (as a `keepMounted`
+ * positioner does while the popup is unmounted) clears the last trigger too.
  */
 function syncAnchorState<State extends S>(previous: State, next: State): State {
   const previousAnchor = activeTriggerElementSelector(previous);
   const nextAnchor = activeTriggerElementSelector(next);
 
-  if (previousAnchor === nextAnchor) {
-    return next;
+  let synced = next;
+  if (previousAnchor !== nextAnchor) {
+    const followsAnchor =
+      next.positionReference === previous.positionReference &&
+      previous.positionReference === previousAnchor;
+
+    synced = {
+      ...next,
+      domReferenceElement: nextAnchor ?? next.domReferenceElement,
+      positionReference: followsAnchor ? nextAnchor : next.positionReference,
+    };
   }
 
-  const followsAnchor =
-    next.positionReference === previous.positionReference &&
-    previous.positionReference === previousAnchor;
+  if (synced.domReferenceElement !== previous.domReferenceElement) {
+    const triggerOwnership = followAnchor(synced, synced.domReferenceElement);
+    if (triggerOwnership !== synced.triggerOwnership) {
+      synced = synced === next ? { ...next, triggerOwnership } : { ...synced, triggerOwnership };
+    }
+  }
 
-  return {
-    ...next,
-    domReferenceElement: nextAnchor ?? next.domReferenceElement,
-    positionReference: followsAnchor ? nextAnchor : next.positionReference,
-  };
+  return synced;
 }
 
 export type PopupStoreSelectors = typeof popupStoreSelectors;

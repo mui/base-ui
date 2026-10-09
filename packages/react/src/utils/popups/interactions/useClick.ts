@@ -98,7 +98,7 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
       isClickLikeOpenEvent: (eventType: string | undefined) => boolean,
     ) {
       const openEvent = dataRef.current.openEvent;
-      const hasClickedOnInactiveTrigger = store.select('domReferenceElement') !== currentTarget;
+      const hasClickedOnInactiveTrigger = store.select('lastTriggerElement') !== currentTarget;
 
       if (open && hasClickedOnInactiveTrigger) {
         // Moving between triggers should always open the newly active one.

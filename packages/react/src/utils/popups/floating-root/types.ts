@@ -52,6 +52,7 @@ export interface FloatingRootContextReader {
   (key: 'open'): boolean;
   (key: 'transitionStatus'): TransitionStatus | undefined;
   (key: 'domReferenceElement'): Element | null;
+  (key: 'lastTriggerElement'): Element | null;
   (key: 'referenceElement'): ReferenceType | null;
   (key: 'floatingElement'): HTMLElement | null;
   (key: 'floatingId'): string | undefined;

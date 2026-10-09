@@ -48,26 +48,26 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
   const timeout = useTimeout();
 
   React.useEffect(() => {
-    const domReference = store.select('domReferenceElement');
+    const lastTrigger = store.select('lastTriggerElement');
 
     if (!enabled) {
       return undefined;
     }
 
-    const win = getWindow(domReference);
+    const win = getWindow(lastTrigger);
 
     // If the reference was focused and the user left the tab/window, and the
     // floating element was not open, the focus should be blocked when they
     // return to the tab/window.
     function onBlur() {
-      const currentDomReference = store.select('domReferenceElement');
+      const currentLastTrigger = store.select('lastTriggerElement');
       if (
         !store.select('open') &&
-        isHTMLElement(currentDomReference) &&
-        currentDomReference === activeElement(ownerDocument(currentDomReference))
+        isHTMLElement(currentLastTrigger) &&
+        currentLastTrigger === activeElement(ownerDocument(currentLastTrigger))
       ) {
         blockFocusRef.current = true;
-        blockedReferenceRef.current = currentDomReference;
+        blockedReferenceRef.current = currentLastTrigger;
       }
     }
 
@@ -93,7 +93,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (details.reason === REASONS.triggerPress || details.reason === REASONS.escapeKey) {
-        const referenceElement = store.select('domReferenceElement');
+        const referenceElement = store.select('lastTriggerElement');
         if (isElement(referenceElement)) {
           blockedReferenceRef.current = referenceElement;
           blockFocusRef.current = true;
@@ -191,11 +191,11 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
 
         // Wait for the window blur listener to fire.
         timeout.start(0, () => {
-          const domReference = store.select('domReferenceElement');
-          const activeEl = activeElement(ownerDocument(domReference));
+          const lastTrigger = store.select('lastTriggerElement');
+          const activeEl = activeElement(ownerDocument(lastTrigger));
 
           // Focus left the page, keep it open.
-          if (!relatedTarget && activeEl === domReference) {
+          if (!relatedTarget && activeEl === lastTrigger) {
             return;
           }
 
@@ -208,7 +208,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
           // inside a shadow root.
           if (
             contains(dataRef.current.floatingContext?.refs.floating.current, activeEl) ||
-            contains(domReference, activeEl) ||
+            contains(lastTrigger, activeEl) ||
             movedToFocusGuard
           ) {
             return;
