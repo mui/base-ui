@@ -31,7 +31,7 @@ import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
-import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
+import { useMixedToggleClickHandler } from './useMixedToggleClickHandler';
 import type { MenuHandle } from '../store/MenuHandle';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import type { MenuParent } from '../root/MenuRoot';
