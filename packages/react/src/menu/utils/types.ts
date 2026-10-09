@@ -1,8 +1,1 @@
-import type { MenuRoot } from '../root/MenuRoot';
-
-export interface MenuOpenEventDetails {
-  open: boolean;
-  reason: MenuRoot.ChangeEventReason | null;
-  nodeId: string | undefined;
-  parentNodeId: string | null;
-}
+export type { MenuOpenEventDetails } from '../../utils/popups/floating-root/types';

@@ -5,6 +5,8 @@ import type {
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
+import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
+import type { REASONS } from '../../../internals/reasons';
 
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { TransitionStatus } from '../../../internals/useTransitionStatus';
@@ -33,11 +35,88 @@ export interface ExtendedElements {
   domReference: NarrowedElement<ReferenceType> | null;
 }
 
-export interface FloatingEvents {
-  emit<T extends string>(event: T, data?: any): void;
-  on(event: string, handler: (data: any) => void): void;
-  off(event: string, handler: (data: any) => void): void;
+/**
+ * An event emitter whose events and payloads are listed in `EventMap`.
+ */
+export interface FloatingEventEmitter<EventMap extends object> {
+  emit<Name extends keyof EventMap & string>(event: Name, data: EventMap[Name]): void;
+  on<Name extends keyof EventMap & string>(
+    event: Name,
+    handler: (data: EventMap[Name]) => void,
+  ): void;
+  off<Name extends keyof EventMap & string>(
+    event: Name,
+    handler: (data: EventMap[Name]) => void,
+  ): void;
 }
+
+/**
+ * The events of one popup's interaction hooks.
+ */
+export interface FloatingEventMap {
+  /**
+   * An accepted open change, emitted by `dispatchOpenChange`.
+   */
+  openchange: FloatingUIOpenChangeDetails;
+}
+
+export type FloatingEvents = FloatingEventEmitter<FloatingEventMap>;
+
+/**
+ * Why a menu opened or closed, as reported by `menuopenchange`. The same reasons as
+ * `Menu.Root`'s `onOpenChange` (`MenuRoot.spec.tsx` checks that they match).
+ */
+export type MenuOpenChangeReason =
+  | typeof REASONS.triggerHover
+  | typeof REASONS.triggerFocus
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.focusOut
+  | typeof REASONS.listNavigation
+  | typeof REASONS.escapeKey
+  | typeof REASONS.itemPress
+  | typeof REASONS.closePress
+  | typeof REASONS.siblingOpen
+  | typeof REASONS.cancelOpen
+  | typeof REASONS.imperativeAction
+  | typeof REASONS.none;
+
+/**
+ * The payload of `menuopenchange`.
+ */
+export interface MenuOpenEventDetails {
+  open: boolean;
+  reason: MenuOpenChangeReason | null;
+  nodeId: string | undefined;
+  parentNodeId: string | null;
+}
+
+/**
+ * The events shared by the popups of one popup tree.
+ */
+export interface FloatingTreeEventMap {
+  /**
+   * A hover-opened popup closed after the pointer left it.
+   */
+  'floating.closed': MouseEvent;
+  /**
+   * A menu opened or closed.
+   */
+  menuopenchange: MenuOpenEventDetails;
+  /**
+   * A menu item was hovered, so sibling submenus of other items can close.
+   */
+  itemhover: { nodeId: string | undefined; target: Element | null };
+  /**
+   * A menu item was pressed, or a press that opened a menu was cancelled, so the open menus close.
+   */
+  close: {
+    domEvent: Event | undefined;
+    reason: typeof REASONS.itemPress | typeof REASONS.cancelOpen;
+  };
+}
+
+export type FloatingTreeEvents = FloatingEventEmitter<FloatingTreeEventMap>;
 
 export interface ContextData {
   openEvent?: Event | undefined;

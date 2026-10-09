@@ -1,4 +1,4 @@
-import type { FloatingNodeType, FloatingEvents } from '../floating-root/types';
+import type { FloatingNodeType, FloatingTreeEvents } from '../floating-root/types';
 import { createEventEmitter } from '../floating-root/createEventEmitter';
 
 /**
@@ -8,7 +8,7 @@ import { createEventEmitter } from '../floating-root/createEventEmitter';
 export class FloatingTreeStore {
   public readonly nodesRef: React.RefObject<Array<FloatingNodeType>> = { current: [] };
 
-  public readonly events: FloatingEvents = createEventEmitter();
+  public readonly events: FloatingTreeEvents = createEventEmitter();
 
   public addNode(node: FloatingNodeType) {
     this.nodesRef.current.push(node);
