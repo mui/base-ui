@@ -1,6 +1,6 @@
-import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
-import { transitionStatusMapping } from '../internals/stateAttributesMapping';
-import type { TransitionStatus } from '../internals/useTransitionStatus';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import * as CommonPopupDataAttributes from './CommonPopupDataAttributes';
 import * as CommonTriggerDataAttributes from './CommonTriggerDataAttributes';
 

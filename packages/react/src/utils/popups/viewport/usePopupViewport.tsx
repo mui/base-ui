@@ -9,12 +9,12 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
 import type { Dimensions } from '@floating-ui/react-dom';
-import { useAnimationsFinished } from '../internals/useAnimationsFinished';
-import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
+import { useAnimationsFinished } from '../../../internals/useAnimationsFinished';
+import type { StateAttributesMapping } from '../../../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
-import type { Side } from '../internals/useAnchorPositioning';
-import { useDirection } from '../direction-provider';
-import { adaptiveOrigin } from './adaptiveOriginMiddleware';
+import type { Side } from '../../../internals/useAnchorPositioning';
+import { useDirection } from '../../../direction-provider';
+import { adaptiveOrigin } from '../positioning/adaptiveOriginMiddleware';
 import * as CommonPopupCssVars from './CommonPopupCssVars';
 import * as CommonViewportDataAttributes from './CommonViewportDataAttributes';
 

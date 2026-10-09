@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
-import { NullStore } from '../../utils/NullStore';
+import { NullStore } from '../../utils/popups/NullStore';
 import type { PopupStoreContext, PopupTriggerDataStore, PopupStoreState } from '../../utils/popups';
 import {
   BasePopupStore,

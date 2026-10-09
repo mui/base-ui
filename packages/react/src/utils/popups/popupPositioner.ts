@@ -12,8 +12,8 @@ import type {
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { AdaptiveOriginMiddleware } from '../adaptiveOriginConstants';
-import { usePositioner } from '../usePositioner';
+import type { AdaptiveOriginMiddleware } from './positioning/adaptiveOriginConstants';
+import { usePositioner } from './positioning/usePositioner';
 import type { FloatingRootContext } from './floating-root/types';
 import type { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from './store';
 

@@ -15,7 +15,7 @@ import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloa
 import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { usePositioner } from '../../utils/usePositioner';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
 import * as ToastRootCssVars from '../root/ToastRootCssVars';
 
 /**

@@ -47,7 +47,7 @@ import { createCollatorItemFilter } from './utils';
 import type { FilterItemToString } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenInteractionType';
 import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';

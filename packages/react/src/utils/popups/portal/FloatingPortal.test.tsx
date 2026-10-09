@@ -5,7 +5,7 @@ import { isJSDOM } from '#test-utils';
 import { FloatingFocusManager } from '../focus/FloatingFocusManager';
 import { FloatingPortal } from './FloatingPortal';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { FloatingPortalLite } from '../../FloatingPortalLite';
+import { FloatingPortalLite } from './FloatingPortalLite';
 import type { UseFloatingPortalNodeProps } from './FloatingPortal';
 
 interface AppProps {

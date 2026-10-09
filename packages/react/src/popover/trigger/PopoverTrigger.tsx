@@ -8,7 +8,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
-} from '../../utils/popupStateMapping';
+} from '../../utils/popups/popupStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
@@ -18,10 +18,10 @@ import { useHoverReferenceInteraction } from '../../utils/popups/interactions/us
 import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
-import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
+import { useOpenMethodTriggerProps } from '../../utils/popups/interactions/useOpenInteractionType';
 
 /**
  * A button that opens the popover.

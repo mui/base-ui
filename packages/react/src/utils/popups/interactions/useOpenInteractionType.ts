@@ -4,7 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import { platform } from '@base-ui/utils/platform';
-import { useValueChanged } from '../internals/useValueChanged';
+import { useValueChanged } from '../../../internals/useValueChanged';
 
 export function useOpenMethodTriggerProps(
   open: boolean | (() => boolean),
