@@ -14236,4 +14236,52 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveFocus();
     });
   });
+
+  it('closes on Escape and keeps focus in the input after a canceled Escape close', async () => {
+    let cancelClose = true;
+    const { user } = await render(
+      <Combobox.Root
+        items={['apple', 'banana']}
+        onOpenChange={(open, eventDetails) => {
+          if (!open && cancelClose) {
+            eventDetails.cancel();
+          }
+        }}
+      >
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup">
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    await user.click(input);
+    await user.keyboard('a');
+    await screen.findByTestId('popup');
+
+    await user.keyboard('{Escape}');
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('popup')).toBeVisible();
+    expect(input).toHaveFocus();
+
+    cancelClose = false;
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+    expect(input).toHaveFocus();
+  });
 });
