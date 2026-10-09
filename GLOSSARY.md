@@ -59,8 +59,16 @@ The popups of one family that are nested inside each other, such as a menu and i
 _Avoid_: floating tree
 
 **Tree member**:
-A popup that registers a node in a popup tree: Popover, Preview Card, the Menu family, Menubar and Navigation Menu. Other popups, such as Tooltip, Select and Combobox, may read the tree but don't register a node, so a member doesn't count them as its descendants.
+A popup that registers a node in a popup tree: Popover, Preview Card, the Menu family, Menubar and Navigation Menu. Other popups, such as Tooltip, Dialog, Select and Combobox, may read the tree but don't register a node, so a member doesn't count them as its descendants. Tree membership is everything that follows from being a member: the tree queries and events, and the parent scope a member's Positioner gives the popups nested in it.
 _Avoid_: floating node
+
+**Node registration**:
+Adding a member's node to its popup tree, with the id of the popup it is nested in as the parent. Popover and Preview Card Roots register while they are mounted, open or not. Their node has a snapshot only while their Positioner is mounted: the Positioner attaches it and drops it again when it unmounts, so a member without a Positioner counts as no node.
+_Avoid_: node mounting
+
+**Node attachment**:
+Writing a member's snapshot onto its registered node, in the tree the member's Root registered it in. The member's Positioner does it after every render, once positioning has given it the values; Popover and Preview Card Positioners also remove it when they unmount.
+_Avoid_: node context update
 
 **Family tree**:
 Each popup family keeps its own popup tree. A member nested in a popup of another family records that popup's node as its parent, but it registers in its own family's tree, so the other family's tree doesn't see it. Detached Menu triggers rendered inside a Popover are the exception: outside their Menu Root, they register in the Popover's tree, and the Menu's tree events go out on it.
