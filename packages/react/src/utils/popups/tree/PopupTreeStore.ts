@@ -1,14 +1,11 @@
+import { contains } from '@base-ui/utils/shadowDom';
 import type { PopupTreeNodeType, FloatingTreeEvents } from '../types';
 import { createEventEmitter } from '../createEventEmitter';
-import {
-  descendantContains,
-  getNode,
-  getNodeAncestors,
-  getNodeChildren,
-  hasBlockingChild,
-  hasOpenDescendant,
-  treeContains,
-} from './nodes';
+
+const BUBBLE_KEYS = {
+  escapeKey: '__escapeKeyBubbles',
+  outsidePress: '__outsidePressBubbles',
+} as const;
 
 /**
  * Stores and manages floating elements in a tree structure.
@@ -29,40 +26,61 @@ export class PopupTreeStore {
       this.nodesRef.current.splice(index, 1);
     }
   }
+
   /**
    * Returns the node with the given id.
    */
   public getNode(id: string | null | undefined) {
-    return getNode(this.nodesRef.current, id);
+    return this.nodesRef.current.find((node) => node.id === id);
   }
 
   /**
    * Returns the descendants of a node, in tree order. With `onlyOpen`, closed descendants are left
    * out, but their own descendants are still searched.
    */
-  public descendants(id: string | undefined, onlyOpen = true) {
-    return getNodeChildren(this.nodesRef.current, id, onlyOpen);
+  public descendants(id: string | undefined, onlyOpen = true): Array<PopupTreeNodeType> {
+    return this.nodesRef.current
+      .filter((node) => node.parentId === id)
+      .flatMap((child) => [
+        ...(!onlyOpen || child.context?.open ? [child] : []),
+        ...this.descendants(child.id, onlyOpen),
+      ]);
   }
 
   /**
    * Returns the ancestors of a node, nearest first.
    */
   public ancestors(id: string | undefined) {
-    return getNodeAncestors(this.nodesRef.current, id);
+    const allAncestors: Array<PopupTreeNodeType> = [];
+    let currentParentId = this.getNode(id)?.parentId;
+
+    while (currentParentId) {
+      const currentNode = this.getNode(currentParentId);
+      currentParentId = currentNode?.parentId;
+
+      if (currentNode) {
+        allAncestors.push(currentNode);
+      }
+    }
+
+    return allAncestors;
   }
 
   /**
    * Whether any descendant of a node is open.
    */
   public hasOpenDescendant(id: string | undefined) {
-    return hasOpenDescendant(this.nodesRef.current, id);
+    return this.descendants(id).length > 0;
   }
 
   /**
    * Whether an open descendant of a node keeps the given dismissal from bubbling up to it.
    */
   public hasBlockingChild(id: string | undefined, dismissal: 'escapeKey' | 'outsidePress') {
-    return hasBlockingChild(this.nodesRef.current, id, dismissal);
+    const bubbleKey = BUBBLE_KEYS[dismissal];
+    return this.descendants(id).some(
+      (child) => child.context?.open && !child.context.dataRef.current[bubbleKey],
+    );
   }
 
   /**
@@ -73,13 +91,17 @@ export class PopupTreeStore {
     target: Element | null | undefined,
     onlyOpen = true,
   ) {
-    return descendantContains(this.nodesRef.current, id, target, onlyOpen);
+    return this.descendants(id, onlyOpen).some((node) =>
+      contains(node.context?.elements.floating, target),
+    );
   }
 
   /**
    * Whether the floating element of any node in the tree contains the target.
    */
   public contains(target: Element | null | undefined) {
-    return treeContains(this.nodesRef.current, target);
+    return this.nodesRef.current.some(
+      (node) => node.context && contains(node.context.elements.floating, target),
+    );
   }
 }
