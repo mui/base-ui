@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { ScrollArea } from '@base-ui/react/scroll-area';
 import styles from './index.module.css';
 
 export default function InsideScrollDialog() {
@@ -17,21 +16,14 @@ export default function InsideScrollDialog() {
                 This layout keeps the popup fully on screen while allowing its content to scroll.
               </Dialog.Description>
             </div>
-            <ScrollArea.Root className={styles.Body}>
-              <ScrollArea.Viewport className={styles.BodyViewport}>
-                <ScrollArea.Content className={styles.BodyContent}>
-                  {CONTENT_SECTIONS.map((item) => (
-                    <section className={styles.Section} key={item.title}>
-                      <h3 className={styles.SectionTitle}>{item.title}</h3>
-                      <p className={styles.SectionBody}>{item.body}</p>
-                    </section>
-                  ))}
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar className={styles.Scrollbar}>
-                <ScrollArea.Thumb className={styles.ScrollbarThumb} />
-              </ScrollArea.Scrollbar>
-            </ScrollArea.Root>
+            <div className={styles.Body}>
+              {CONTENT_SECTIONS.map((item) => (
+                <section className={styles.Section} key={item.title}>
+                  <h3 className={styles.SectionTitle}>{item.title}</h3>
+                  <p className={styles.SectionBody}>{item.body}</p>
+                </section>
+              ))}
+            </div>
             <div className={styles.Actions}>
               <Dialog.Close className={styles.Button}>Close</Dialog.Close>
             </div>

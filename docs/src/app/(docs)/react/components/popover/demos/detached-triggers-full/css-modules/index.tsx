@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { Avatar } from '@base-ui/react/avatar';
 import baseStyles from '../../_index.module.css';
 import styles from './index.module.css';
 
@@ -60,14 +59,13 @@ function ProfilePanel() {
   return (
     <div className={styles.ProfilePanel}>
       <Popover.Title className={styles.Title}>Jason Eventon</Popover.Title>
-      <Avatar.Root className={styles.Avatar}>
-        <Avatar.Image
-          src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
-          width="48"
-          height="48"
-          className={styles.AvatarImage}
-        />
-      </Avatar.Root>
+      <img
+        src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
+        width="48"
+        height="48"
+        alt=""
+        className={styles.Avatar}
+      />
       <span className={styles.Plan}>Pro plan</span>
       <div className={styles.ProfileActions}>
         <a href="#">Profile settings</a>
