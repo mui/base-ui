@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it, beforeEach } from 'vitest';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -23,8 +23,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected', '');
       expect(screen.getByRole('option', { name: 'a' })).not.toHaveAttribute('data-selected');
     });
@@ -40,8 +38,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
     });
@@ -59,8 +55,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       fireEvent.click(screen.getByRole('option', { name: 'b' }));
 
@@ -84,8 +78,6 @@ describe('<Listbox.Root />', () => {
       }
 
       await render(<TestComponent />);
-
-      await flushMicrotasks();
 
       expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
 
@@ -115,8 +107,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
 
@@ -154,8 +144,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       fireEvent.click(screen.getByRole('option', { name: 'c' }));
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
@@ -178,8 +166,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       const itemC = screen.getByRole('option', { name: 'c' });
 
@@ -208,8 +194,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const itemC = screen.getByRole('option', { name: 'c' });
       fireEvent.pointerDown(itemC, { pointerType: 'touch' });
       fireEvent.click(itemC);
@@ -236,8 +220,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       fireEvent.click(screen.getByRole('option', { name: 'c' }), { ctrlKey: true });
       fireEvent.click(screen.getByRole('option', { name: 'e' }), {
@@ -297,8 +279,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('aria-selected', 'true');
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('aria-selected', 'false');
@@ -412,8 +392,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const itemA = screen.getByRole('option', { name: 'a' });
       fireEvent.click(itemA);
 
@@ -438,8 +416,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       // Navigate to item a
       const list = screen.getByRole('listbox');
@@ -484,8 +460,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       // ArrowDown from list moves to index 1 (item b)
       const list = screen.getByRole('listbox');
       list.focus();
@@ -521,8 +495,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       // Focus list then navigate to last item
       const list = screen.getByRole('listbox');
       list.focus();
@@ -555,8 +527,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       // Click item a to select it (sets lastSelectedIndex)
       fireEvent.click(screen.getByRole('option', { name: 'a' }));
 
@@ -585,8 +555,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       // Click "a" to select it
       fireEvent.click(screen.getByRole('option', { name: 'a' }));
@@ -618,8 +586,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       // ArrowDown from list goes to index 1, then ArrowDown to index 2 (item c)
       const list = screen.getByRole('listbox');
@@ -658,8 +624,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       // ArrowDown from list goes to index 1 (item b)
       const list = screen.getByRole('listbox');
       list.focus();
@@ -691,8 +655,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const list = screen.getByRole('listbox');
       list.focus();
       fireEvent.keyDown(list, { key: 'a', ctrlKey: true });
@@ -720,8 +682,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const list = screen.getByRole('listbox');
       list.focus();
       fireEvent.keyDown(list, { key: 'a', ctrlKey: true });
@@ -747,8 +707,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const list = screen.getByRole('listbox');
       list.focus();
       fireEvent.keyDown(list, { key: 'a', ctrlKey: true });
@@ -773,8 +731,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       const list = screen.getByRole('listbox');
       list.focus();
@@ -808,8 +764,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const list = screen.getByRole('listbox');
       list.focus();
       fireEvent.keyDown(list, { key: 'ArrowDown' });
@@ -835,8 +789,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       // ArrowDown from list goes to index 1 (item b)
       const list = screen.getByRole('listbox');
@@ -877,8 +829,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const itemA = screen.getByRole('option', { name: 'a' });
       await act(() => itemA.focus());
       fireEvent.keyDown(itemA, { key: 'ArrowDown', shiftKey: true });
@@ -901,8 +851,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       const list = screen.getByRole('listbox');
       list.focus();
@@ -931,8 +879,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       // Navigate to item c: ArrowDown from list → b (index 1), ArrowDown → c (index 2)
       const list = screen.getByRole('listbox');
@@ -977,8 +923,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.Root>,
         );
 
-        await flushMicrotasks();
-
         const list = screen.getByRole('listbox');
         list.focus();
         fireEvent.keyDown(list, { key: 'ArrowRight' });
@@ -1015,8 +959,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.Root>,
         );
 
-        await flushMicrotasks();
-
         const list = screen.getByRole('listbox');
         list.focus();
         fireEvent.keyDown(list, { key: 'ArrowRight' });
@@ -1052,8 +994,6 @@ describe('<Listbox.Root />', () => {
             </Listbox.List>
           </Listbox.Root>,
         );
-
-        await flushMicrotasks();
 
         const list = screen.getByRole('listbox');
         list.focus();
@@ -1094,8 +1034,6 @@ describe('<Listbox.Root />', () => {
           </DirectionProvider>,
         );
 
-        await flushMicrotasks();
-
         const list = screen.getByRole('listbox');
         list.focus();
         // In RTL, ArrowLeft moves forward (next)
@@ -1135,8 +1073,6 @@ describe('<Listbox.Root />', () => {
           </DirectionProvider>,
         );
 
-        await flushMicrotasks();
-
         const list = screen.getByRole('listbox');
         list.focus();
         // In RTL, ArrowLeft moves forward (next)
@@ -1175,8 +1111,6 @@ describe('<Listbox.Root />', () => {
             </Listbox.Root>
           </DirectionProvider>,
         );
-
-        await flushMicrotasks();
 
         const list = screen.getByRole('listbox');
         list.focus();
@@ -1241,8 +1175,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       fireEvent.click(screen.getByRole('option', { name: 'a' }));
       fireEvent.click(screen.getByRole('option', { name: 'c' }), { shiftKey: true });
 
@@ -1260,8 +1192,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       const itemC = screen.getByRole('option', { name: 'c' });
       await act(() => itemC.focus());
@@ -1288,8 +1218,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.DragAndDropProvider>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       const list = screen.getByRole('listbox');
       list.focus();
@@ -1330,8 +1258,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const list = screen.getByRole('listbox');
       list.focus();
       fireEvent.keyDown(list, { key: 'ArrowDown' });
@@ -1362,8 +1288,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.DragAndDropProvider>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       const list = screen.getByRole('listbox');
       list.focus();
@@ -1406,8 +1330,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const list = screen.getByRole('listbox');
       list.focus();
       fireEvent.keyDown(list, { key: 'ArrowDown' });
@@ -1444,8 +1366,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const itemB = screen.getByRole('option', { name: 'b' });
       await act(() => itemB.focus());
       fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
@@ -1467,8 +1387,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.DragAndDropProvider>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       const list = screen.getByRole('listbox');
       list.focus();
@@ -1521,7 +1439,6 @@ describe('<Listbox.Root />', () => {
       }
 
       await render(<ReorderableListbox />);
-      await flushMicrotasks();
 
       // Focus item 'b' (index 1)
       const itemB = screen.getByRole('option', { name: 'b' });
@@ -1585,7 +1502,6 @@ describe('<Listbox.Root />', () => {
       }
 
       await render(<ReorderableListbox />);
-      await flushMicrotasks();
 
       const itemB = screen.getByRole('option', { name: 'b' });
       await act(() => itemB.focus());
@@ -1667,7 +1583,6 @@ describe('<Listbox.Root />', () => {
       }
 
       await render(<GroupedReorderableListbox />);
-      await flushMicrotasks();
 
       // Focus item 'b' (last in group g1)
       const itemB = screen.getByRole('option', { name: 'b' });
@@ -1720,8 +1635,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const itemB = screen.getByRole('option', { name: 'b' });
       await act(() => itemB.focus());
       fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
@@ -1749,8 +1662,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       const group = screen.getByRole('group');
       expect(group).toBeInTheDocument();
@@ -1890,8 +1801,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const list = screen.getByRole('listbox');
       const labelId = list.getAttribute('aria-labelledby');
       expect(labelId).not.toBeNull();
@@ -1922,8 +1831,6 @@ describe('<Listbox.Root />', () => {
 
       await render(<TestComponent />);
 
-      await flushMicrotasks();
-
       expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
       expect(screen.getByRole('option', { name: 'b' })).not.toHaveAttribute('data-selected');
 
@@ -1946,8 +1853,6 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      await flushMicrotasks();
-
       const hiddenInput = document.querySelector('input[name="fruit"]') as HTMLInputElement;
       expect(hiddenInput).not.toBeNull();
       expect(hiddenInput.value).toBe('apple');
@@ -1963,8 +1868,6 @@ describe('<Listbox.Root />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       const hiddenInputs = document.querySelectorAll(
         'input[name="fruits"]',

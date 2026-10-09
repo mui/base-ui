@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it, beforeEach } from 'vitest';
 import { Listbox } from '@base-ui/react/listbox';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
@@ -30,8 +30,6 @@ describe('<Listbox.Item /> Android drag-and-drop', () => {
       </Listbox.Root>,
     );
 
-    await flushMicrotasks();
-
     const handle = screen.getByTestId('handle');
     const eventWasCancelled = !fireEvent.contextMenu(handle);
     await flushMicrotasks();
@@ -47,8 +45,6 @@ describe('<Listbox.Item /> Android drag-and-drop', () => {
         </Listbox.List>
       </Listbox.Root>,
     );
-
-    await flushMicrotasks();
 
     const item = screen.getByRole('option', { name: 'a' });
     const eventWasCancelled = !fireEvent.contextMenu(item);

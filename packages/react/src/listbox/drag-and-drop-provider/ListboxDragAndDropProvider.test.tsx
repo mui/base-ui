@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, vi } from 'vitest';
+import { afterEach, beforeEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
@@ -96,7 +96,6 @@ describe('<Listbox.DragAndDropProvider />', () => {
     }
 
     await render(<TestComponent />);
-    await flushMicrotasks();
 
     const itemB = screen.getByRole('option', { name: 'b' });
     const itemD = screen.getByRole('option', { name: 'd' });
@@ -150,8 +149,6 @@ describe('<Listbox.DragAndDropProvider />', () => {
       </Listbox.Root>,
     );
 
-    await flushMicrotasks();
-
     expect(dndMocks.draggableConfigs.has(screen.getByRole('option', { name: 'a' }))).toBe(true);
     expect(dndMocks.draggableConfigs.has(screen.getByRole('option', { name: 'b' }))).toBe(false);
   });
@@ -173,8 +170,6 @@ describe('<Listbox.DragAndDropProvider />', () => {
       </Listbox.Root>,
     );
 
-    await flushMicrotasks();
-
     expect(dndMocks.draggableConfigs.has(screen.getByRole('option', { name: 'a' }))).toBe(false);
     expect(dndMocks.draggableConfigs.has(screen.getByRole('option', { name: 'b' }))).toBe(true);
   });
@@ -195,8 +190,6 @@ describe('<Listbox.DragAndDropProvider />', () => {
       </Listbox.Root>,
     );
 
-    await flushMicrotasks();
-
     expect(dndMocks.draggableConfigs.size).toBe(0);
     expect(dndMocks.dropTargetConfigs.size).toBe(0);
   });
@@ -216,8 +209,6 @@ describe('<Listbox.DragAndDropProvider />', () => {
         </Listbox.DragAndDropProvider>
       </Listbox.Root>,
     );
-
-    await flushMicrotasks();
 
     const itemB = screen.getByRole('option', { name: 'b' });
     const itemC = screen.getByRole('option', { name: 'c' });
@@ -254,8 +245,6 @@ describe('<Listbox.DragAndDropProvider />', () => {
         </Listbox.DragAndDropProvider>
       </Listbox.Root>,
     );
-
-    await flushMicrotasks();
 
     const itemB = screen.getByRole('option', { name: 'b' });
     const draggableConfig = dndMocks.draggableConfigs.get(itemB);

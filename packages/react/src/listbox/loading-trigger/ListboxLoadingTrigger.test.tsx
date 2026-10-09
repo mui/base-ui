@@ -1,11 +1,11 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import { act, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 
 async function withMockIntersectionObserver(
-  test: (notifyIntersectionObserver: () => void) => Promise<void>,
+  runTest: (notifyIntersectionObserver: () => void) => Promise<void>,
 ) {
   const originalIntersectionObserver = window.IntersectionObserver;
   let notifyIntersectionObserver: (() => void) | null = null;
@@ -39,7 +39,7 @@ async function withMockIntersectionObserver(
   window.IntersectionObserver = IntersectionObserverMock;
 
   try {
-    await test(() => {
+    await runTest(() => {
       expect(notifyIntersectionObserver).not.toBe(null);
       notifyIntersectionObserver?.();
     });
@@ -67,8 +67,6 @@ describe('<Listbox.LoadingTrigger />', () => {
           </Listbox.List>
         </Listbox.Root>,
       );
-
-      await flushMicrotasks();
 
       expect(screen.getByText('Idle')).toBeVisible();
 
