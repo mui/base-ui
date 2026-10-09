@@ -92,6 +92,32 @@ describe('<Menu.Item />', () => {
     expect(focusedAtClick).toBe(item);
   });
 
+  it('focuses a native button item on mousedown', async () => {
+    await render(
+      <Menu.Root open highlightItemOnHover={false}>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <input aria-label="Start" />
+              <Menu.Item nativeButton render={<button type="button" />} closeOnClick={false}>
+                Item
+              </Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const input = screen.getByRole('textbox', { name: 'Start' });
+    const item = screen.getByRole('menuitem', { name: 'Item' });
+    input.focus();
+    expect(input).toHaveFocus();
+
+    fireEvent.mouseDown(item);
+
+    expect(item).toHaveFocus();
+  });
+
   it.each([{ press: 'mouse' }, { press: 'Enter' }])(
     'preserves focus moved by onClick after $press activation',
     async ({ press }) => {
