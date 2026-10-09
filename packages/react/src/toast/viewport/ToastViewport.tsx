@@ -6,7 +6,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../internals/useRenderElement';

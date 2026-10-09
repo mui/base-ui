@@ -7,7 +7,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
