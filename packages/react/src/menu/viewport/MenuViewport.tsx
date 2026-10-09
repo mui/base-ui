@@ -57,7 +57,7 @@ export interface MenuViewportState {
   /**
    * Present if animations should be instant.
    */
-  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+  instant: 'dismiss' | 'click' | 'group' | 'navigation' | 'trigger-change' | undefined;
 }
 
 export interface MenuViewportProps extends BaseUIComponentProps<'div', MenuViewportState> {

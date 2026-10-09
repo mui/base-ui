@@ -40,7 +40,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   /** The element at `activeIndex` once the item list settles. Only virtual focus publishes it. */
   highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
-  instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+  instantType: 'dismiss' | 'click' | 'group' | 'navigation' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
   floatingNodeId: string | undefined;

@@ -281,4 +281,97 @@ describe('<Menu.Popup />', () => {
       expect(finalFocus).toHaveBeenLastCalledWith('mouse');
     });
   });
+
+  describe('data-instant', () => {
+    function NestedMenu(props: { keepSubmenuMounted?: boolean }) {
+      return (
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup data-testid="popup">
+                <Menu.Item>Item</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger data-testid="submenu-trigger">More</Menu.SubmenuTrigger>
+                  <Menu.Portal keepMounted={props.keepSubmenuMounted}>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu-popup">
+                        <Menu.Item>Sub item</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('is absent when the menu is opened with a mouse click', async () => {
+      const { user } = await render(<NestedMenu />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+
+      const popup = await screen.findByTestId('popup');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
+    it('is "navigation" when the menu is opened with an arrow key', async () => {
+      const { user } = await render(<NestedMenu />);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[ArrowDown]');
+
+      const popup = await screen.findByTestId('popup');
+      expect(popup).toHaveAttribute('data-instant', 'navigation');
+    });
+
+    it('is "navigation" when a submenu is opened with an arrow key', async () => {
+      const { user } = await render(<NestedMenu />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const submenuTrigger = await screen.findByTestId('submenu-trigger');
+      await user.keyboard('[ArrowDown]');
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(submenuTrigger).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowRight]');
+
+      const submenuPopup = await screen.findByTestId('submenu-popup');
+      expect(submenuPopup).toHaveAttribute('data-instant', 'navigation');
+    });
+
+    it('is "navigation" when a submenu is closed with an arrow key', async () => {
+      const { user } = await render(<NestedMenu keepSubmenuMounted />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const submenuTrigger = await screen.findByTestId('submenu-trigger');
+      await user.keyboard('[ArrowDown]');
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(submenuTrigger).toHaveFocus();
+      });
+
+      // Open with Enter so the close is what produces the navigation value.
+      await user.keyboard('[Enter]');
+      const submenuPopup = screen.getByTestId('submenu-popup');
+      await waitFor(() => {
+        expect(submenuPopup).toHaveAttribute('data-open');
+      });
+      expect(submenuPopup).toHaveAttribute('data-instant', 'click');
+
+      await user.keyboard('[ArrowLeft]');
+
+      await waitFor(() => {
+        expect(submenuPopup).toHaveAttribute('data-closed');
+      });
+      expect(submenuPopup).toHaveAttribute('data-instant', 'navigation');
+    });
+  });
 });

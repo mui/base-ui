@@ -430,6 +430,10 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
         popupOpenState.instantType = 'group';
       } else if (isKeyboardClick(reason, nativeEvent)) {
         popupOpenState.instantType = 'click';
+      } else if (reason === REASONS.listNavigation) {
+        // Arrow keys open and close menus through list navigation without dispatching a click,
+        // so they never carry the `detail === 0` marker that `isKeyboardClick` relies on.
+        popupOpenState.instantType = 'navigation';
       } else if (isDismissClose) {
         popupOpenState.instantType = 'dismiss';
       } else {
