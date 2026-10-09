@@ -807,6 +807,168 @@ describe('<PreviewCard.Root />', () => {
       expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
     });
   });
+
+  describe('popup tree membership', () => {
+    function hoverInto(trigger: HTMLElement, positioner: HTMLElement) {
+      fireEvent.mouseLeave(trigger, { relatedTarget: positioner });
+      fireEvent.mouseEnter(positioner);
+    }
+
+    it('closes a nested preview card and its parent when the pointer leaves both', async () => {
+      await render(
+        <PreviewCard.Root>
+          <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
+            Outer
+          </PreviewCard.Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner data-testid="outer-positioner">
+              <PreviewCard.Popup data-testid="outer">
+                <PreviewCard.Root>
+                  <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
+                    Inner
+                  </PreviewCard.Trigger>
+                  <PreviewCard.Portal>
+                    <PreviewCard.Positioner data-testid="inner-positioner">
+                      <PreviewCard.Popup data-testid="inner">Inner content</PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                </PreviewCard.Root>
+              </PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+
+      const outerTrigger = screen.getByText('Outer');
+      fireEvent.mouseEnter(outerTrigger);
+      fireEvent.mouseMove(outerTrigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('outer')).not.toBe(null);
+      });
+      const outerPositioner = screen.getByTestId('outer-positioner');
+      hoverInto(outerTrigger, outerPositioner);
+
+      const innerTrigger = screen.getByText('Inner');
+      fireEvent.mouseEnter(innerTrigger);
+      fireEvent.mouseMove(innerTrigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('inner')).not.toBe(null);
+      });
+      const innerPositioner = screen.getByTestId('inner-positioner');
+      fireEvent.mouseLeave(innerTrigger, { relatedTarget: innerPositioner });
+      fireEvent.mouseLeave(outerPositioner, { relatedTarget: innerPositioner });
+      fireEvent.mouseEnter(innerPositioner);
+      await flushMicrotasks();
+
+      // Moving into the nested card keeps its parent open.
+      expect(screen.getByTestId('outer')).toBeVisible();
+      expect(screen.getByTestId('inner')).toBeVisible();
+
+      fireEvent.mouseLeave(innerPositioner, { relatedTarget: document.body });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('inner')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('outer')).toBe(null);
+      });
+    });
+
+    it('closes on leave after a nested preview card closes once its portal unmounted while open', async () => {
+      function App({ innerOpen, innerPortal }: { innerOpen: boolean; innerPortal: boolean }) {
+        return (
+          <PreviewCard.Root>
+            <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
+              Outer
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="outer-positioner">
+                <PreviewCard.Popup data-testid="outer">
+                  <PreviewCard.Root open={innerOpen}>
+                    <PreviewCard.Trigger href="#">Inner</PreviewCard.Trigger>
+                    {innerPortal && (
+                      <PreviewCard.Portal>
+                        <PreviewCard.Positioner>
+                          <PreviewCard.Popup data-testid="inner">Inner content</PreviewCard.Popup>
+                        </PreviewCard.Positioner>
+                      </PreviewCard.Portal>
+                    )}
+                  </PreviewCard.Root>
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        );
+      }
+
+      const { setProps } = await render(<App innerOpen={false} innerPortal />);
+
+      const outerTrigger = screen.getByText('Outer');
+      fireEvent.mouseEnter(outerTrigger);
+      fireEvent.mouseMove(outerTrigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('outer')).not.toBe(null);
+      });
+      const outerPositioner = screen.getByTestId('outer-positioner');
+      hoverInto(outerTrigger, outerPositioner);
+
+      await setProps({ innerOpen: true, innerPortal: true });
+      expect(screen.getByTestId('inner')).toBeVisible();
+      // The nested card's portal unmounts while it's open, and then the card closes.
+      await setProps({ innerOpen: true, innerPortal: false });
+      await setProps({ innerOpen: false, innerPortal: false });
+      expect(screen.getByTestId('outer')).toBeVisible();
+
+      fireEvent.mouseLeave(outerPositioner, { relatedTarget: document.body });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('outer')).toBe(null);
+      });
+    });
+
+    it('closes on leave while a kept-mounted preview card nested in it is closed', async () => {
+      await render(
+        <PreviewCard.Root>
+          <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
+            Outer
+          </PreviewCard.Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner data-testid="outer-positioner">
+              <PreviewCard.Popup data-testid="outer">
+                <PreviewCard.Root>
+                  <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
+                    Inner
+                  </PreviewCard.Trigger>
+                  <PreviewCard.Portal keepMounted>
+                    <PreviewCard.Positioner>
+                      <PreviewCard.Popup data-testid="inner">Inner content</PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                </PreviewCard.Root>
+              </PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+
+      const outerTrigger = screen.getByText('Outer');
+      fireEvent.mouseEnter(outerTrigger);
+      fireEvent.mouseMove(outerTrigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('outer')).not.toBe(null);
+      });
+      const outerPositioner = screen.getByTestId('outer-positioner');
+      hoverInto(outerTrigger, outerPositioner);
+      // The nested card stays mounted while closed.
+      expect(screen.getByTestId('inner')).not.toBeVisible();
+
+      fireEvent.mouseLeave(outerPositioner, { relatedTarget: document.body });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('outer')).toBe(null);
+      });
+    });
+  });
 });
 
 type TestPreviewCardProps = {

@@ -2906,6 +2906,133 @@ describe('<Popover.Root />', () => {
       expect(input).toHaveValue('a');
     });
   });
+
+  describe('popup tree membership', () => {
+    it('closes on Escape and on an outside press while a popover nested in it is closed', async () => {
+      const { user } = await render(
+        <div>
+          <button type="button">Outside</button>
+          <Popover.Root>
+            <Popover.Trigger>Parent</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="parent">
+                  <Popover.Root>
+                    <Popover.Trigger>Child</Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Positioner>
+                        <Popover.Popup data-testid="child">Child</Popover.Popup>
+                      </Popover.Positioner>
+                    </Popover.Portal>
+                  </Popover.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const parentTrigger = screen.getByRole('button', { name: 'Parent' });
+      await user.click(parentTrigger);
+      await screen.findByTestId('parent');
+      expect(screen.queryByTestId('child')).toBe(null);
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByTestId('parent')).toBe(null);
+      });
+
+      await user.click(parentTrigger);
+      await screen.findByTestId('parent');
+
+      await user.click(screen.getByRole('button', { name: 'Outside' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('parent')).toBe(null);
+      });
+    });
+
+    it('closes on Escape after a nested popover closes once its portal unmounted while open', async () => {
+      function App({ childOpen, childPortal }: { childOpen: boolean; childPortal: boolean }) {
+        return (
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Parent</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="parent">
+                  <button type="button">Inside parent</button>
+                  <Popover.Root open={childOpen}>
+                    <Popover.Trigger>Child</Popover.Trigger>
+                    {childPortal && (
+                      <Popover.Portal>
+                        <Popover.Positioner>
+                          <Popover.Popup data-testid="child">Child</Popover.Popup>
+                        </Popover.Positioner>
+                      </Popover.Portal>
+                    )}
+                  </Popover.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<App childOpen childPortal />);
+      expect(screen.getByTestId('child')).toBeVisible();
+
+      // The nested popover's portal unmounts while it's open, and then the popover closes.
+      await setProps({ childOpen: true, childPortal: false });
+      await setProps({ childOpen: false, childPortal: false });
+
+      const inside = screen.getByRole('button', { name: 'Inside parent' });
+      await act(async () => inside.focus());
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('parent')).toBe(null);
+      });
+    });
+
+    it('closes a hover-opened popover on leave while a kept-mounted popover nested in it is closed', async () => {
+      await render(
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={0} closeDelay={0}>
+            Parent
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="parent-positioner">
+              <Popover.Popup data-testid="parent">
+                <Popover.Root>
+                  <Popover.Trigger>Child</Popover.Trigger>
+                  <Popover.Portal keepMounted>
+                    <Popover.Positioner>
+                      <Popover.Popup data-testid="child">Child</Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Parent' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      const positioner = screen.getByTestId('parent-positioner');
+      fireEvent.mouseLeave(trigger, { relatedTarget: positioner });
+      fireEvent.mouseEnter(positioner);
+      expect(screen.getByTestId('parent')).toBeVisible();
+      // The nested popover stays mounted while closed.
+      expect(screen.getByTestId('child')).not.toBeVisible();
+
+      fireEvent.mouseLeave(positioner, { relatedTarget: document.body });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('parent')).toBe(null);
+      });
+    });
+  });
 });
 
 type TestPopoverProps = {
