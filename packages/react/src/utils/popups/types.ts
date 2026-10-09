@@ -51,6 +51,10 @@ export interface PopupInteractionReader {
    */
   (key: 'anchorElement'): Element | null;
   /**
+   * The last trigger the popup belonged to, kept after it closes so focus can return to it.
+   */
+  (key: 'lastTriggerElement'): Element | null;
+  /**
    * The anchor the interaction hooks see: the anchor override, such as the cursor position from
    * `useClientPoint`, or else the owner's anchor (usually the active trigger). A Positioner's
    * `anchor` prop isn't included; positioning applies it on its own.

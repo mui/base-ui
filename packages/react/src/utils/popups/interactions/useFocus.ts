@@ -49,26 +49,26 @@ export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}
   const timeout = useTimeout();
 
   React.useEffect(() => {
-    const domReference = store.select('anchorElement');
+    const lastTrigger = store.select('anchorElement');
 
     if (!enabled) {
       return undefined;
     }
 
-    const win = getWindow(domReference);
+    const win = getWindow(lastTrigger);
 
     // If the reference was focused and the user left the tab/window, and the
     // floating element was not open, the focus should be blocked when they
     // return to the tab/window.
     function onBlur() {
-      const currentDomReference = store.select('anchorElement');
+      const currentLastTrigger = store.select('anchorElement');
       if (
         !store.select('open') &&
-        isHTMLElement(currentDomReference) &&
-        currentDomReference === activeElement(ownerDocument(currentDomReference))
+        isHTMLElement(currentLastTrigger) &&
+        currentLastTrigger === activeElement(ownerDocument(currentLastTrigger))
       ) {
         blockFocusRef.current = true;
-        blockedReferenceRef.current = currentDomReference;
+        blockedReferenceRef.current = currentLastTrigger;
       }
     }
 
@@ -192,11 +192,11 @@ export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}
 
         // Wait for the window blur listener to fire.
         timeout.start(0, () => {
-          const domReference = store.select('anchorElement');
-          const activeEl = activeElement(ownerDocument(domReference));
+          const lastTrigger = store.select('anchorElement');
+          const activeEl = activeElement(ownerDocument(lastTrigger));
 
           // Focus left the page, keep it open.
-          if (!relatedTarget && activeEl === domReference) {
+          if (!relatedTarget && activeEl === lastTrigger) {
             return;
           }
 
@@ -209,7 +209,7 @@ export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}
           // inside a shadow root.
           if (
             contains(storeContext.positioning?.refs.floating.current, activeEl) ||
-            contains(domReference, activeEl) ||
+            contains(lastTrigger, activeEl) ||
             movedToFocusGuard
           ) {
             return;

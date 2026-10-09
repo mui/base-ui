@@ -281,6 +281,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const open = store.useState('open');
   const domReference = store.useState('anchorElement');
+  const lastTrigger = store.useState('lastTriggerElement');
   const floating = store.useState('positionerElement');
 
   const storeContext = store.context;
@@ -869,7 +870,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         resolvedReturnFocusValue = true;
       }
 
-      const referenceReturnElement = domReference?.isConnected ? domReference : null;
+      const referenceReturnElement = lastTrigger?.isConnected ? lastTrigger : null;
       const previousReturnElement =
         elementFocusedBeforeOpen?.isConnected && getNodeName(elementFocusedBeforeOpen) !== 'body'
           ? elementFocusedBeforeOpen
@@ -964,6 +965,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     events,
     tree,
     domReference,
+    lastTrigger,
     getNodeId,
     getResolvedInsideElements,
   ]);
