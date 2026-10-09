@@ -497,16 +497,22 @@ export function useAnchorPositioningWithHook(
     strategy: positionMethod,
     whileElementsMounted: keepMounted
       ? undefined
-      : (...args) => autoUpdate(...args, autoUpdateOptions),
+      : (reference, floating, onUpdate) => {
+          // Measure with the requested strategy's offset parent, not the initial fixed one.
+          floating.style.position = positionMethod;
+          return autoUpdate(reference, floating, onUpdate, autoUpdateOptions);
+        },
     nodeId,
     externalTree,
   });
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
 
-  // Default to `fixed` when not positioned to prevent `autoFocus` scroll jumps.
-  // This ensures the popup is inside the viewport initially before it gets positioned.
-  const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
+  // Render `fixed` until positioned so `autoFocus` on insertion can't scroll to the unpositioned
+  // popup. Measuring needs `positionMethod`'s offset parent, so `whileElementsMounted` applies it
+  // first, and `keepMounted` popups (usually inserted while closed) render it once mounted.
+  const resolvedPosition: 'absolute' | 'fixed' =
+    isPositioned || (keepMounted && mounted) ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(() => {
     let base: React.CSSProperties & Record<string, unknown>;

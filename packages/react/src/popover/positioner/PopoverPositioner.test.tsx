@@ -1,4 +1,4 @@
-import { expect, vi, describe, it } from 'vitest';
+import { expect, vi, describe, it, onTestFinished } from 'vitest';
 import * as React from 'react';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
@@ -9,6 +9,7 @@ import {
   describeConformance,
   isJSDOM,
   positionerConformanceTests,
+  waitForPositioned,
   waitSingleFrame,
 } from '#test-utils';
 
@@ -48,6 +49,134 @@ describe('<Popover.Positioner />', () => {
     } finally {
       errorSpy.mockRestore();
     }
+  });
+
+  describe.skipIf(isJSDOM)('local portal positioning', () => {
+    it.each([
+      { activation: 'click', keepMounted: false },
+      { activation: 'keyboard', keepMounted: false },
+      { activation: 'click', keepMounted: true },
+      { activation: 'keyboard', keepMounted: true },
+      { activation: 'initial', keepMounted: false },
+      { activation: 'initial', keepMounted: true },
+    ])(
+      'is first shown at its final position on $activation (keepMounted: $keepMounted)',
+      async ({ activation, keepMounted }) => {
+        function Test() {
+          // A state-backed container is resolved before the portal mounts, including `keepMounted`.
+          const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
+
+          return (
+            <div
+              data-testid="scroller"
+              style={{ marginLeft: 200, width: 180, height: 200, overflow: 'auto' }}
+            >
+              <div ref={setContainer} style={{ position: 'relative', padding: '80px 16px' }}>
+                <Popover.Root defaultOpen={activation === 'initial'}>
+                  <Popover.Trigger>Trigger</Popover.Trigger>
+                  <Popover.Portal container={container} keepMounted={keepMounted}>
+                    <Popover.Positioner data-testid="positioner" side="top" sideOffset={8}>
+                      <Popover.Popup style={{ width: 140, padding: 12 }}>
+                        <a href="#details">Learn more</a>
+                      </Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              </div>
+            </div>
+          );
+        }
+
+        // Coordinates measured against the wrong offset parent are briefly shown before correcting,
+        // which can scroll the ancestor when focus moves into the popup.
+        const visiblePositions: Array<{ left: number; top: number }> = [];
+        const observer = new MutationObserver(() => {
+          const positioner = screen.queryByTestId('positioner');
+          if (positioner && getComputedStyle(positioner).opacity !== '0') {
+            const { left, top } = positioner.getBoundingClientRect();
+            visiblePositions.push({ left, top });
+          }
+        });
+        observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        onTestFinished(() => observer.disconnect());
+
+        const { user } = await render(<Test />);
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+        const scroller = screen.getByTestId('scroller');
+
+        async function expectFirstShownAtSettledPosition() {
+          const positioner = screen.getByTestId('positioner');
+          await waitForPositioned(positioner);
+          await act(async () => waitSingleFrame());
+          const settledPosition = positioner.getBoundingClientRect();
+          expect(visiblePositions.length).toBeGreaterThan(0);
+          for (const position of visiblePositions) {
+            expect(position.left).toBeCloseTo(settledPosition.left, 1);
+            expect(position.top).toBeCloseTo(settledPosition.top, 1);
+          }
+          expect(scroller.scrollTop).toBe(0);
+          expect(scroller.scrollLeft).toBe(0);
+        }
+
+        async function open() {
+          visiblePositions.length = 0;
+          if (activation === 'keyboard') {
+            await act(async () => trigger.focus());
+            await user.keyboard('{Enter}');
+          } else {
+            await user.click(trigger);
+          }
+          await waitFor(() =>
+            expect(screen.getByRole('link', { name: 'Learn more' })).toHaveFocus(),
+          );
+          await expectFirstShownAtSettledPosition();
+        }
+
+        if (activation === 'initial') {
+          await expectFirstShownAtSettledPosition();
+        } else {
+          await open();
+        }
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+        await act(async () => waitSingleFrame());
+        await open();
+      },
+    );
+  });
+
+  describe.skipIf(isJSDOM)('autofocus scroll protection', () => {
+    it.each([{ keepMounted: false }, { keepMounted: true }])(
+      'does not scroll the window when body portal content autofocuses (keepMounted: $keepMounted)',
+      async ({ keepMounted }) => {
+        onTestFinished(() => window.scrollTo(0, 0));
+        const { user } = await render(
+          <div style={{ height: 3000, paddingTop: 1100 }}>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal keepMounted={keepMounted}>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <input autoFocus aria-label="Name" />
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>,
+        );
+
+        await act(async () => {
+          window.scrollTo(0, 1000);
+          await waitSingleFrame();
+        });
+        expect(window.scrollY).toBe(1000);
+
+        await user.click(screen.getByRole('button', { name: 'Open' }));
+        await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveFocus());
+        expect(window.scrollY).toBe(1000);
+      },
+    );
   });
 
   const popupWidth = 52;
