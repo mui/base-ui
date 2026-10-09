@@ -77,11 +77,9 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       tabIndex,
       'aria-selected': ariaSelected,
       onMouseDown(event: React.MouseEvent) {
+        const isNativeButton = event.currentTarget.tagName === 'BUTTON';
         const shouldFocusNativeButton =
-          platform.engine.webkit &&
-          event.currentTarget.tagName === 'BUTTON' &&
-          event.button === 0 &&
-          !event.defaultPrevented;
+          platform.engine.webkit && isNativeButton && event.button === 0 && !event.defaultPrevented;
 
         // Real focus stays on the input or list that owns virtual navigation.
         if (virtualFocus) {
