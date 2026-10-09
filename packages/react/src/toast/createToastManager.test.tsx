@@ -843,6 +843,27 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
   });
 
   describe('calls made while no provider is subscribed', () => {
+    it('applies queued adds, updates, and closes in order', async () => {
+      const toastManager = Toast.createToastManager();
+
+      const remainingId = toastManager.add({ title: 'original', timeout: 0 });
+      toastManager.update(remainingId, (toast) => ({ title: `${toast.title} updated` }));
+      const closedId = toastManager.add({ title: 'closed', timeout: 0 });
+      toastManager.close(closedId);
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const titles = screen.getAllByTestId('title');
+      expect(titles).toHaveLength(1);
+      expect(titles[0]).toHaveTextContent('original updated');
+    });
+
     it('shows a toast added before the provider mounts', async () => {
       const toastManager = Toast.createToastManager();
 
