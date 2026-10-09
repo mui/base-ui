@@ -578,6 +578,8 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
 ) {
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
+    // Hosts sync their controlled `open` prop into the store before calling this hook.
+    getOpen: () => store.select('open'),
     ref: store.context.popupRef,
     preventUnmountOnClose: store.useState('preventUnmountingOnClose'),
     setPreventUnmountOnClose: (preventUnmountOnClose) =>
