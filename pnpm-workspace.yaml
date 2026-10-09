@@ -24,10 +24,6 @@ allowBuilds:
 #
 # Remove each entry once the parent dependency ships the fixed version on its own.
 overrides:
-  # Keep the preview's unchanged Babel plugins on published releases.
-  '@mui/internal-code-infra>@mui/internal-babel-plugin-display-name': 2.0.1-canary.1
-  '@mui/internal-code-infra>@mui/internal-babel-plugin-minify-errors': 3.0.1-canary.1
-  '@mui/internal-code-infra>@mui/internal-babel-plugin-resolve-imports': 3.0.1-canary.2
   # Screen recording is not needed for the tests and pulls in ffmpeg-static.
   '@guidepup/setup>@guidepup/record': '-'
   # via lerna -> minimatch, eslint-plugin-* -> minimatch (GHSA-3jxr-9vmj-r5cp)
