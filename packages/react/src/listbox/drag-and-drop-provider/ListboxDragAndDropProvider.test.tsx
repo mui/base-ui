@@ -125,14 +125,9 @@ describe('<Listbox.DragAndDropProvider />', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getAllByRole('option').map((el) => el.textContent)).toEqual([
-        'c',
-        'd',
-        'a',
-        'b',
-      ]);
       expect(screen.getByRole('option', { name: 'b' })).toBe(document.activeElement);
     });
+    expect(screen.getAllByRole('option').map((el) => el.textContent)).toEqual(['c', 'd', 'a', 'b']);
   });
 
   it('uses the default canDrag behavior to block disabled items from dragging', async () => {

@@ -1,7 +1,8 @@
-import * as React from 'react';
+import type * as React from 'react';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { compareItemEquality } from '../internals/itemEquality';
 import type { FieldRootContextType } from '../internals/field-root-context';
+import type { ListboxRoot } from './root/ListboxRoot';
 import type { SelectionMode } from './utils/selectionReducer';
 
 type UseFieldValidationReturnValue = FieldRootContextType['validation'];
@@ -50,10 +51,7 @@ export type Context = {
   lastSelectedIndexRef: React.RefObject<number | null>;
   pointerMoveSuppressedRef: React.RefObject<boolean>;
   validation: UseFieldValidationReturnValue;
-  setValue: (
-    nextValue: any,
-    eventDetails: import('./root/ListboxRoot').ListboxRoot.ChangeEventDetails,
-  ) => void;
+  setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
   requestHighlightReconcile: () => void;
   onLoadMore: (() => void) | undefined;
 };

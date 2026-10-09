@@ -14,13 +14,13 @@ import {
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { afterDomSettle } from '../utils/afterDomSettle';
 import { isMultipleSelectionMode } from '../utils/selectionReducer';
-import {
-  type ListboxDragAndDropProviderContext as ListboxDragAndDropContextValue,
-  ListboxDragAndDropProviderContext,
-  type ListboxDragAndDropEdge,
-  type ListboxDragAndDropItem,
-  type ListboxDragAndDropProviderOnItemsReorderEvent,
-  type ListboxDragAndDropTargetEdge,
+import { ListboxDragAndDropProviderContext } from './ListboxDragAndDropProviderContext';
+import type {
+  ListboxDragAndDropProviderContext as ListboxDragAndDropContextValue,
+  ListboxDragAndDropEdge,
+  ListboxDragAndDropItem,
+  ListboxDragAndDropProviderOnItemsReorderEvent,
+  ListboxDragAndDropTargetEdge,
 } from './ListboxDragAndDropProviderContext';
 
 /**
@@ -346,8 +346,7 @@ export interface ListboxDragAndDropProviderProps<Value = any> {
    * dropped on or moved next to, and `edge` indicates placement relative to it.
    */
   onItemsReorder?:
-    | ((event: ListboxDragAndDropProviderOnItemsReorderEvent<Value>) => void)
-    | undefined;
+    ((event: ListboxDragAndDropProviderOnItemsReorderEvent<Value>) => void) | undefined;
   /**
    * Determines whether a given item can initiate drag-and-drop.
    * Defaults to allowing all non-disabled items.

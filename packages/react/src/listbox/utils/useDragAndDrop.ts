@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import {
-  type ListboxDragAndDropEdge,
-  useListboxDragAndDropProviderContext,
-} from '../drag-and-drop-provider/ListboxDragAndDropProviderContext';
+import { useListboxDragAndDropProviderContext } from '../drag-and-drop-provider/ListboxDragAndDropProviderContext';
+import type { ListboxDragAndDropEdge } from '../drag-and-drop-provider/ListboxDragAndDropProviderContext';
 
 /**
  * Parameters for {@link useDragAndDrop}.

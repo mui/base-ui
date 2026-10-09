@@ -14,10 +14,8 @@ import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { useFieldRootContext } from '../../internals/field-root-context';
 import { useRegisterFieldControl } from '../../internals/field-register-control';
 import { useFormContext } from '../../internals/form-context';
-import {
-  type BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useLabelableId } from '../../internals/labelable-provider';
 import { stringifyAsValue } from '../../internals/resolveValueLabel';
@@ -430,8 +428,7 @@ export interface ListboxRootProps<Value> {
    * Event handler called when the value of the listbox changes.
    */
   onValueChange?:
-    | ((value: Value[], eventDetails: ListboxRootChangeEventDetails) => void)
-    | undefined;
+    ((value: Value[], eventDetails: ListboxRootChangeEventDetails) => void) | undefined;
   /**
    * Event handler called when the highlighted item changes.
    * Receives the highlighted item's value and DOM element, or `null` for both
@@ -452,9 +449,7 @@ export interface ListboxRootProps<Value> {
 export interface ListboxRootState {}
 
 export type ListboxRootChangeEventReason =
-  | typeof REASONS.itemPress
-  | typeof REASONS.listNavigation
-  | typeof REASONS.none;
+  typeof REASONS.itemPress | typeof REASONS.listNavigation | typeof REASONS.none;
 
 export type ListboxRootChangeEventDetails = BaseUIChangeEventDetails<ListboxRootChangeEventReason>;
 
