@@ -117,30 +117,6 @@ describe('<Menu.Item />', () => {
     expect(screen.queryByRole('menu')).not.toBe(null);
   });
 
-  it('allows onMouseDown to prevent the Base UI focus handler', async () => {
-    await render(
-      <Menu.Root open highlightItemOnHover={false}>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item>Other item</Menu.Item>
-              <Menu.Item onMouseDown={(event) => event.preventBaseUIHandler()}>Item</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>,
-    );
-
-    const otherItem = screen.getByRole('menuitem', { name: 'Other item' });
-    const item = screen.getByRole('menuitem', { name: 'Item' });
-    await act(() => otherItem.focus());
-    expect(otherItem).toHaveFocus();
-
-    fireEvent.mouseDown(item, { button: 0 });
-
-    expect(otherItem).toHaveFocus();
-  });
-
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {
       skip();

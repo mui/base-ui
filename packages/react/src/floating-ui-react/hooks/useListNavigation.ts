@@ -690,15 +690,6 @@ export function useListNavigation(
         forceSyncFocusRef.current = true;
         syncCurrentTarget(event);
       },
-      onMouseDown(event) {
-        // Safari may leave button and link items unfocused after a mouse press.
-        // Focus before click to match native focus timing.
-        // Virtual focus keeps DOM focus on the reference instead.
-        // https://www.w3.org/TR/uievents/event-algo.html#handle-native-mouse-down
-        if (!virtual && !event.defaultPrevented && event.button === 0) {
-          event.currentTarget.focus({ preventScroll: true });
-        }
-      },
       onMouseMove(event) {
         if (isStationaryWebKitPointer(event)) {
           return;
