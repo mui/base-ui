@@ -4,7 +4,6 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
-import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,
   Align,
@@ -16,7 +15,7 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { REASONS } from '../../internals/reasons';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
-import { usePositioner } from '../../utils/usePositioner';
+import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
 /**
@@ -29,30 +28,16 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   componentProps: PopoverPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    render,
-    className,
-    style,
-    anchor,
-    // `useAnchorPositioning` applies the same defaults to the undefined values; the names
-    // remain destructured to exclude the props from `elementProps`.
-    positionMethod,
-    side,
-    align,
-    sideOffset,
-    alignOffset,
-    collisionBoundary = 'clipping-ancestors',
-    collisionPadding,
-    arrowPadding,
-    sticky,
-    disableAnchorTracking = false,
-    collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
-    ...elementProps
-  } = componentProps;
-
   const store = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
+
+  const { element, positioning } = usePopupPositioner(store, componentProps, {
+    forwardedRef,
+    keepMounted,
+    defaults: { collisionAvoidance: POPUP_COLLISION_AVOIDANCE },
+    positioning: { nodeId },
+  });
 
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -61,30 +46,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
-  const instantType = store.useState('instantType');
-  const transitionStatus = store.useState('transitionStatus');
-  const adaptiveOrigin = store.useState('adaptiveOrigin');
-
-  const positioning = useAnchorPositioning({
-    anchor,
-    floatingRootContext: store,
-    positionMethod,
-    mounted,
-    side,
-    sideOffset,
-    align,
-    alignOffset,
-    arrowPadding,
-    collisionBoundary,
-    collisionPadding,
-    sticky,
-    disableAnchorTracking,
-    keepMounted,
-    nodeId,
-    collisionAvoidance,
-    adaptiveOrigin,
-  });
-
   const domReference = store.useState('domReferenceElement');
 
   useTriggerSwitchTransition({
@@ -102,25 +63,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     positionerElement,
     triggerElement,
   );
-
-  const setPositionerElement = store.useStateSetter('positionerElement');
-
-  const state: PopoverPositionerState = {
-    open,
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    instant: instantType,
-  };
-
-  const element = usePositioner(componentProps, state, {
-    styles: positioning.positionerStyles,
-    transitionStatus,
-    props: elementProps,
-    refs: [forwardedRef, setPositionerElement],
-    hidden: !mounted,
-    inert: !open,
-  });
 
   return (
     <PopoverPositionerContext.Provider value={positioning}>
