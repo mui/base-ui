@@ -58,6 +58,20 @@ function shiftDecimal(value: number, exponentDelta: number) {
   return Number(`${coefficient}e${Number(exponent) + exponentDelta}`);
 }
 
+// Every locale that separates thousands with '.' uses groups of exactly three digits, with one to
+// three in the leading group. Digits are ASCII and signs are stripped by the time these run.
+const LEADING_GROUP_RE = /^\d{1,3}$/;
+const GROUP_RE = /^\d{3}$/;
+
+/**
+ * Whether dot-separated text can be read as a grouped number — `['1', '234', '567', '89']` can,
+ * `['1', '2', '3']` cannot. Only the parts before the final dot are grouping candidates; the last
+ * part is the fractional digits and is left for `parseFloat` to judge.
+ */
+function isPlausiblyGrouped(parts: string[]) {
+  return LEADING_GROUP_RE.test(parts[0]) && parts.slice(1, -1).every((part) => GROUP_RE.test(part));
+}
+
 export const ANY_MINUS_RE = /[-−－‒–—﹣]/gu;
 export const ANY_PLUS_RE = /[+＋﹢]/gu;
 export const ANY_MINUS_DETECT_RE = /[-−－‒–—﹣]/;
@@ -187,10 +201,22 @@ export function parseNumber(
     return regex ? acc.replace(regex, replacement as any) : acc;
   }, input);
 
-  // Mixed-locale safety: keep only the last '.' as decimal
-  const lastDot = unformatted.lastIndexOf('.');
-  if (lastDot !== -1) {
-    unformatted = `${unformatted.slice(0, lastDot).replace(/\./g, '')}.${unformatted.slice(lastDot + 1).replace(/\./g, '')}`;
+  // Mixed-locale safety: keep only the last '.' as decimal, but only when the earlier dots sit
+  // where a group separator can sit. A European-formatted paste reaching a US-locale field
+  // arrives as `1.234.567.89`, and collapsing recovers the number the user meant. The same
+  // collapse applied to `1.2.3` invents `12.3` — a number nobody typed, committed to `value` and
+  // to the hidden input while the visible input still reads `1.2.3`. Text that is not plausibly
+  // grouped is rejected instead, which is how every other unparseable string here behaves.
+  // Runs of consecutive dots are typos rather than grouping, and squeezing them first keeps
+  // `1..5` and `....5` reading as 1.5 and 0.5.
+  const dotParts = unformatted.replace(/\.{2,}/g, '.').split('.');
+  if (dotParts.length > 2) {
+    if (!isPlausiblyGrouped(dotParts)) {
+      return null;
+    }
+    unformatted = `${dotParts.slice(0, -1).join('')}.${dotParts[dotParts.length - 1]}`;
+  } else {
+    unformatted = dotParts.join('.');
   }
 
   // Guard against Infinity inputs (ASCII and symbol)
