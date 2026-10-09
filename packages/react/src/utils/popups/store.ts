@@ -4,7 +4,12 @@ import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { createEventEmitter } from './createEventEmitter';
 import { dispatchOpenChange } from './floating-root/dispatchOpenChange';
-import type { PopupEvents, PopupInteractionContext, ReferenceType } from './types';
+import type {
+  FloatingEventMap,
+  PopupEvents,
+  PopupInteractionContext,
+  ReferenceType,
+} from './types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
@@ -173,7 +178,7 @@ export function createPopupStoreContext() {
     triggerElements: new PopupTriggerMap(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
-    events: createEventEmitter(),
+    events: createEventEmitter<FloatingEventMap>(),
     nested: false,
   };
 }
@@ -434,7 +439,7 @@ export abstract class BasePopupStore<
     // is dropped only when both are closed. A hover open may still be pending, so the hover
     // interaction hears about the dropped close to cancel it.
     if (!nextOpen && !this.state.open && !this.state.openProp) {
-      this.context.events.emit('droppedclose');
+      this.context.events.emit('droppedclose', undefined);
       return;
     }
 
