@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { getModalOutsidePressEvent } from '../../utils/popups/interactions/popupDismissal';
 import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
@@ -190,12 +191,7 @@ function PopoverInteractions({
   modal: boolean | 'trap-focus';
 }) {
   const dismiss = useDismiss(store, {
-    outsidePressEvent: {
-      // Ensure `aria-hidden` on outside elements is removed immediately
-      // on outside press when trapping focus.
-      mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
-      touch: 'sloppy',
-    },
+    outsidePressEvent: getModalOutsidePressEvent(modal),
   });
 
   // `useDismiss` is not given an `enabled` option, so it always returns both prop bags. Restore
