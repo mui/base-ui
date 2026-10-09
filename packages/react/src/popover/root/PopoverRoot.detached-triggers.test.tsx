@@ -1245,4 +1245,90 @@ describe('<Popover.Root />', () => {
       });
     });
   });
+
+  describe('return focus', () => {
+    it('returns focus to the detached trigger when the Root unmounts while open', async () => {
+      const handle = Popover.createHandle();
+
+      function App({ showRoot }: { showRoot: boolean }) {
+        return (
+          <div>
+            <Popover.Trigger handle={handle}>Trigger</Popover.Trigger>
+            {showRoot && (
+              <Popover.Root handle={handle}>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="popup">
+                      <button type="button">Inside</button>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user, setProps } = await render(<App showRoot />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+      const popup = await screen.findByTestId('popup');
+      await waitFor(() => {
+        expect(popup).toContainElement(document.activeElement as HTMLElement);
+      });
+
+      await setProps({ showRoot: false });
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('returns focus to the owning trigger after it remounts while open', async () => {
+      const handle = Popover.createHandle();
+
+      function App({ triggerKey }: { triggerKey: number }) {
+        return (
+          <div>
+            <Popover.Trigger handle={handle} key={triggerKey} id="trigger">
+              Trigger
+            </Popover.Trigger>
+            <Popover.Root handle={handle}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">
+                    <button type="button">Inside</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user, setProps } = await render(<App triggerKey={1} />);
+      const firstTrigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(firstTrigger);
+      const popup = await screen.findByTestId('popup');
+      await waitFor(() => {
+        expect(popup).toContainElement(document.activeElement as HTMLElement);
+      });
+
+      await setProps({ triggerKey: 2 });
+      const remountedTrigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(remountedTrigger).not.toBe(firstTrigger);
+      expect(screen.getByTestId('popup')).toBeVisible();
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(remountedTrigger).toHaveFocus();
+      });
+    });
+  });
 });
