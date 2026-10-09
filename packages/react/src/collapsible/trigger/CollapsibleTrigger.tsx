@@ -4,10 +4,10 @@ import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
-import { type CollapsibleRootState } from '../root/CollapsibleRoot';
+import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 
 const stateAttributesMapping: StateAttributesMapping<CollapsibleRootState> = {
   ...triggerOpenStateMapping,
@@ -43,7 +43,6 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: true,
     native: nativeButton,
   });
 

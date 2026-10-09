@@ -142,9 +142,7 @@ const LOWERCASE_CHARACTER_PATTERN = /[a-z]/;
 // before those are read. This works because the toArray() logic unwraps the lazy
 // element type in
 // https://github.com/react/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
-function unwrapLazyRenderProp<State>(
-  render: UseRenderElementComponentProps<State>['render'],
-): UseRenderElementComponentProps<State>['render'] {
+export function unwrapLazyRenderProp<Render>(render: Render): Render {
   // `$$typeof` is a React internal, absent from the public element types.
   if ((render as { $$typeof?: symbol | undefined } | undefined)?.$$typeof !== REACT_LAZY_TYPE) {
     return render;
@@ -152,7 +150,7 @@ function unwrapLazyRenderProp<State>(
   // Keep the wrapper unless it unwraps to an element, so an invalid render prop is still
   // reported as one instead of silently falling back to the default element.
   const unwrapped = React.Children.toArray(render as React.ReactNode)[0];
-  return React.isValidElement(unwrapped) ? unwrapped : render;
+  return React.isValidElement(unwrapped) ? (unwrapped as Render) : render;
 }
 
 function evaluateRenderProp<T extends React.ElementType, S>(
@@ -195,14 +193,8 @@ function evaluateRenderProp<T extends React.ElementType, S>(
 
     return React.cloneElement(render, mergedProps);
   }
-  if (element) {
-    if (typeof element === 'string') {
-      return renderTag(element, props);
-    }
-  }
-  // Unreachable, but the typings on `useRenderElement` need to be reworked
-  // to annotate it correctly.
-  throw new Error('Base UI: Render element or function are not defined.');
+  // `element` is always provided when there is no `render` prop.
+  return renderTag(element as IntrinsicTagName, props);
 }
 
 function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {

@@ -2,7 +2,7 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { createFormDataSpy, createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 
@@ -11,7 +11,7 @@ describe('<Switch.Root />', () => {
 
   describeConformance(<Switch.Root />, () => ({
     refInstanceof: window.HTMLSpanElement,
-    testComponentPropWith: 'span',
+    testRenderPropWith: 'span',
     button: true,
     render,
   }));
@@ -102,8 +102,9 @@ describe('<Switch.Root />', () => {
       expect(switchElement).toHaveAttribute('aria-checked', 'false');
     });
 
-    ['Enter', 'Space'].forEach((key) => {
-      it(`can be activated with ${key} key`, async () => {
+    it.each([{ key: 'Enter' }, { key: 'Space' }])(
+      'can be activated with $key key',
+      async ({ key }) => {
         const { user } = await render(<Switch.Root />);
 
         const switchEl = screen.getByRole('switch');
@@ -114,8 +115,8 @@ describe('<Switch.Root />', () => {
 
         await user.keyboard(`[${key}]`);
         expect(switchEl).toHaveAttribute('aria-checked', 'true');
-      });
-    });
+      },
+    );
   });
 
   describe('extra props', () => {
@@ -163,13 +164,36 @@ describe('<Switch.Root />', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
 
-      await waitFor(() => {
-        const labelB = screen.getByText('Label B');
+      const labelB = screen.getByText('Label B');
 
-        expect(labelB.id).not.toBe('');
-        expect(labelA.id).not.toBe(labelB.id);
+      await waitFor(() => {
         expect(switchEl).toHaveAttribute('aria-labelledby', labelB.id);
       });
+      expect(labelB.id).not.toBe('');
+      expect(labelB.id).not.toBe(labelA.id);
+    });
+
+    it('prefers `aria-label` over an associated label', async () => {
+      await render(
+        <React.Fragment>
+          <label>
+            <Switch.Root aria-label="Wi-Fi" />
+            Wi-Fi
+          </label>
+          <Field.Root>
+            <Field.Label>
+              <Switch.Root aria-label="Bluetooth" />
+              Bluetooth
+            </Field.Label>
+          </Field.Root>
+        </React.Fragment>,
+      );
+
+      const [nativeLabelled, fieldLabelled] = screen.getAllByRole('switch');
+      expect(nativeLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(nativeLabelled).toHaveAccessibleName('Wi-Fi');
+      expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(fieldLabelled).toHaveAccessibleName('Bluetooth');
     });
   });
 
@@ -256,65 +280,46 @@ describe('<Switch.Root />', () => {
       expect(handleClick.mock.calls.length).toBe(1);
     });
 
-    it('propagates a single click event to ancestors per user click', async () => {
-      const handleParentClick = vi.fn();
-      await render(
-        <div onClick={handleParentClick}>
-          <Switch.Root />
-        </div>,
-      );
+    it.each([false, true])(
+      'propagates a single click event to ancestors per user click (nativeButton=%s)',
+      async (nativeButton) => {
+        const handleParentClick = vi.fn();
+        await render(
+          <div onClick={handleParentClick}>
+            <Switch.Root
+              nativeButton={nativeButton}
+              render={nativeButton ? <button /> : undefined}
+            />
+          </div>,
+        );
 
-      fireEvent.click(screen.getByRole('switch'));
+        fireEvent.click(screen.getByRole('switch'));
 
-      expect(handleParentClick).toHaveBeenCalledTimes(1);
-      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
-    });
+        expect(handleParentClick).toHaveBeenCalledTimes(1);
+        expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+      },
+    );
 
-    it('does not propagate to ancestors when stopPropagation() is called', async () => {
-      const handleParentClick = vi.fn();
-      await render(
-        <div onClick={handleParentClick}>
-          <Switch.Root onClick={(event) => event.stopPropagation()} />
-        </div>,
-      );
+    it.each([false, true])(
+      'does not propagate to ancestors when stopPropagation() is called (nativeButton=%s)',
+      async (nativeButton) => {
+        const handleParentClick = vi.fn();
+        await render(
+          <div onClick={handleParentClick}>
+            <Switch.Root
+              nativeButton={nativeButton}
+              render={nativeButton ? <button /> : undefined}
+              onClick={(event) => event.stopPropagation()}
+            />
+          </div>,
+        );
 
-      fireEvent.click(screen.getByRole('switch'));
+        fireEvent.click(screen.getByRole('switch'));
 
-      expect(handleParentClick).toHaveBeenCalledTimes(0);
-      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
-    });
-
-    it('propagates a single click event to ancestors with a native button', async () => {
-      const handleParentClick = vi.fn();
-      await render(
-        <div onClick={handleParentClick}>
-          <Switch.Root nativeButton render={<button />} />
-        </div>,
-      );
-
-      fireEvent.click(screen.getByRole('switch'));
-
-      expect(handleParentClick).toHaveBeenCalledTimes(1);
-      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
-    });
-
-    it('does not propagate to ancestors when stopPropagation() is called with a native button', async () => {
-      const handleParentClick = vi.fn();
-      await render(
-        <div onClick={handleParentClick}>
-          <Switch.Root
-            nativeButton
-            render={<button />}
-            onClick={(event) => event.stopPropagation()}
-          />
-        </div>,
-      );
-
-      fireEvent.click(screen.getByRole('switch'));
-
-      expect(handleParentClick).toHaveBeenCalledTimes(0);
-      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
-    });
+        expect(handleParentClick).toHaveBeenCalledTimes(0);
+        expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+      },
+    );
   });
 
   describe('prop: disabled', () => {
@@ -591,11 +596,7 @@ describe('<Switch.Root />', () => {
     it.skipIf(isJSDOM)(
       'should include the switch value in form submission, matching native checkbox behavior',
       async () => {
-        const submitSpy = vi.fn((event) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-          return formData.get('test-switch');
-        });
+        const submitSpy = createFormDataSpy('test-switch');
 
         const { user } = await render(
           <Form onSubmit={submitSpy}>
@@ -623,11 +624,7 @@ describe('<Switch.Root />', () => {
     );
 
     it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
-      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        return formData.get('test-switch');
-      });
+      const submitSpy = createFormDataSpy('test-switch');
 
       const { user } = await render(
         <React.Fragment>
@@ -646,11 +643,7 @@ describe('<Switch.Root />', () => {
     });
 
     it.skipIf(isJSDOM)('submits uncheckedValue to an external form when off', async () => {
-      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        return formData.get('test-switch');
-      });
+      const submitSpy = createFormDataSpy('test-switch');
 
       await render(
         <React.Fragment>
@@ -668,11 +661,7 @@ describe('<Switch.Root />', () => {
     });
 
     it.skipIf(isJSDOM)('does not submit uncheckedValue when disabled', async () => {
-      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        return formData.get('test-switch');
-      });
+      const submitSpy = createFormDataSpy('test-switch');
 
       const { user } = await render(
         <form onSubmit={submitSpy}>
@@ -748,11 +737,7 @@ describe('<Switch.Root />', () => {
     it.skipIf(isJSDOM)(
       'should submit uncheckedValue when switch is off and uncheckedValue is specified',
       async () => {
-        const submitSpy = vi.fn((event) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-          return formData.get('test-switch');
-        });
+        const submitSpy = createFormDataSpy('test-switch');
 
         const { user } = await render(
           <Form onSubmit={submitSpy}>
@@ -786,11 +771,7 @@ describe('<Switch.Root />', () => {
     );
 
     it.skipIf(isJSDOM)('should submit custom uncheckedValue when switch is off', async () => {
-      const submitSpy = vi.fn((event) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        return formData.get('test-switch');
-      });
+      const submitSpy = createFormDataSpy('test-switch');
 
       const { user } = await render(
         <Form onSubmit={submitSpy}>
@@ -819,11 +800,7 @@ describe('<Switch.Root />', () => {
     it.skipIf(isJSDOM)(
       'submits custom value and uncheckedValue across an off/on/off cycle',
       async () => {
-        const submitSpy = vi.fn((event) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-          return formData.get('test-switch');
-        });
+        const submitSpy = createFormDataSpy('test-switch');
 
         const { user } = await render(
           <Form onSubmit={submitSpy}>
@@ -1053,6 +1030,48 @@ describe('<Switch.Root />', () => {
       fireEvent.focus(button);
 
       expect(button).not.toHaveAttribute('data-focused');
+    });
+
+    describe('[data-focused] without a blur event', () => {
+      function Switches(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+        const { firstMounted = true, firstDisabled = false } = props;
+        return (
+          <Field.Root data-testid="root">
+            {firstMounted && <Switch.Root data-testid="first" disabled={firstDisabled} />}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused switch becomes disabled', async () => {
+        const { setProps } = await render(<Switches />);
+
+        const button = screen.getByTestId('first');
+        act(() => {
+          button.focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+        expect(button).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+        expect(button).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused switch unmounts', async () => {
+        const { setProps } = await render(<Switches />);
+
+        act(() => {
+          screen.getByTestId('first').focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      });
     });
 
     it('prop: validationMode=onSubmit', async () => {

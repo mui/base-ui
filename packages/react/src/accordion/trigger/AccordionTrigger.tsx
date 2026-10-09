@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -43,7 +43,6 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: true,
     native: nativeButton,
   });
 

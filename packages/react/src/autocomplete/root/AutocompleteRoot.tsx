@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
-import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
+import { AriaCombobox } from '../../combobox/root/AriaCombobox';
+import type { AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
+import { stringifyAsLabel } from '../../internals/resolveValueLabel';
+import type { Group } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -127,11 +129,16 @@ export interface AutocompleteRootState extends AriaComboboxState {}
 
 export interface AutocompleteRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type AutocompleteRootChangeEventReason = AriaCombobox.ChangeEventReason;
 export type AutocompleteRootChangeEventDetails =
   BaseUIChangeEventDetails<AutocompleteRootChangeEventReason>;
+export type AutocompleteRootOpenChangeEventDetails = AutocompleteRootChangeEventDetails & {
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
+};
 
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
@@ -255,22 +262,26 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the autocomplete.
-   * Call this after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the autocomplete after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the autocomplete completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
+   * - `close`: Closes the autocomplete imperatively when called.
    */
   actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
   /**
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    ((open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void) | undefined;
+    ((open: boolean, eventDetails: AutocompleteRootOpenChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
-   * - `'pointer'`: the highlight changed due to pointer hovering.
-   * - `'none'`: the highlight changed programmatically.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
+   * - `'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the
+   *   item list changing, or the popup opening or closing.
    */
   onItemHighlighted?:
     | ((
@@ -291,6 +302,7 @@ export namespace AutocompleteRoot {
   export type Actions = AutocompleteRootActions;
   export type ChangeEventReason = AutocompleteRootChangeEventReason;
   export type ChangeEventDetails = AutocompleteRootChangeEventDetails;
+  export type OpenChangeEventDetails = AutocompleteRootOpenChangeEventDetails;
   export type HighlightEventReason = AutocompleteRootHighlightEventReason;
   export type HighlightEventDetails = AutocompleteRootHighlightEventDetails;
 }

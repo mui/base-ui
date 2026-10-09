@@ -19,9 +19,9 @@ Doesn't render its own HTML element.
 | onValueChange        | `((value: Value[] \| Value \| null, eventDetails: Select.Root.ChangeEventDetails) => void)` | -       | Event handler called when the value of the select changes.                                                                                                                                                                                                                                                                                                                                                                                        |
 | defaultOpen          | `boolean`                                                                                   | `false` | Whether the select popup is initially open. To render a controlled select popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                     |
 | open                 | `boolean`                                                                                   | -       | Whether the select popup is currently open.                                                                                                                                                                                                                                                                                                                                                                                                       |
-| onOpenChange         | `((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => void)`                   | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                   |
+| onOpenChange         | `((open: boolean, eventDetails: Select.Root.OpenChangeEventDetails) => void)`               | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                   |
 | highlightItemOnHover | `boolean`                                                                                   | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                       |
-| actionsRef           | `React.RefObject<Select.Root.Actions \| null>`                                              | -       | A ref to imperative actions. `unmount`: Manually unmounts the select.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                   |
+| actionsRef           | `React.RefObject<Select.Root.Actions \| null>`                                              | -       | A ref to imperative actions. `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the select imperatively when called.                                                               |
 | autoComplete         | `string`                                                                                    | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                      |
 | form                 | `string`                                                                                    | -       | Identifies the form that owns the hidden input.&#xA;Useful when the select is rendered outside the form.                                                                                                                                                                                                                                                                                                                                          |
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                             | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                  |
@@ -67,7 +67,7 @@ type SelectRootState = {};
 ### Root.Actions
 
 ```typescript
-type SelectRootActions = { unmount: () => void };
+type SelectRootActions = { unmount: () => void; close: () => void };
 ```
 
 ### Root.ChangeEventReason
@@ -82,6 +82,7 @@ type SelectRootChangeEventReason =
   | 'focus-out'
   | 'list-navigation'
   | 'cancel-open'
+  | 'imperative-action'
   | 'none';
 ```
 
@@ -97,6 +98,7 @@ type SelectRootChangeEventDetails = (
   | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -109,6 +111,36 @@ type SelectRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
+};
+```
+
+### Root.OpenChangeEventDetails
+
+```typescript
+type SelectRootOpenChangeEventDetails = (
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'window-resize'; event: UIEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -625,6 +657,12 @@ Renders a `<div>` element.
 | style       | `React.CSSProperties \| ((state: Select.Separator.State) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render      | `ReactElement \| ((props: HTMLProps, state: Select.Separator.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Separator Data Attributes:**
+
+| Attribute        | Type                         | Description                                 |
+| :--------------- | :--------------------------- | :------------------------------------------ |
+| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the separator. |
+
 ### Separator.Props
 
 Re-export of [Separator](#separator) props.
@@ -802,6 +840,288 @@ Re-export of [ScrollDownArrow](#scrolldownarrow) props.
 type SelectScrollDownArrowState = {};
 ```
 
+## Additional Types
+
+### SelectArrowDataAttributes
+
+Data attributes of [Arrow](#arrow).
+
+```typescript
+declare namespace SelectArrowDataAttributes {
+  /** Present when the select popup is open. */
+  const open: 'data-open';
+  /** Present when the select popup is closed. */
+  const closed: 'data-closed';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+  /** Present when the select arrow is uncentered. */
+  const uncentered: 'data-uncentered';
+}
+```
+
+### SelectBackdropDataAttributes
+
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace SelectBackdropDataAttributes {
+  /** Present when the select is open. */
+  const open: 'data-open';
+  /** Present when the select is closed. */
+  const closed: 'data-closed';
+  /** Present when the select begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the select is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### SelectIconDataAttributes
+
+Data attributes of [Icon](#icon).
+
+```typescript
+declare namespace SelectIconDataAttributes {
+  /** Present when the corresponding popup is open. */
+  const popupOpen: 'data-popup-open';
+}
+```
+
+### SelectItemDataAttributes
+
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace SelectItemDataAttributes {
+  /** Present when the select item is selected. */
+  const selected: 'data-selected';
+  /** Present when the select item is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the select item is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### SelectItemIndicatorDataAttributes
+
+Data attributes of [ItemIndicator](#itemindicator).
+
+```typescript
+declare namespace SelectItemIndicatorDataAttributes {
+  /** Present when the indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### SelectPopupDataAttributes
+
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace SelectPopupDataAttributes {
+  /** Present when the select is open. */
+  const open: 'data-open';
+  /** Present when the select is closed. */
+  const closed: 'data-closed';
+  /** Present when the select begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the select is animating out. */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+}
+```
+
+### SelectPositionerCssVariables
+
+CSS variables of [Positioner](#positioner).
+
+```typescript
+declare namespace SelectPositionerCssVariables {
+  /**
+   * The available width between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableWidth: '--available-width';
+  /**
+   * The available height between the trigger and the edge of the viewport.
+   * @type number
+   */
+  const availableHeight: '--available-height';
+  /**
+   * The anchor's width.
+   * @type number
+   */
+  const anchorWidth: '--anchor-width';
+  /**
+   * The anchor's height.
+   * @type number
+   */
+  const anchorHeight: '--anchor-height';
+  /**
+   * The coordinates that this element is anchored to. Used for animations and transitions.
+   * @type string
+   */
+  const transformOrigin: '--transform-origin';
+}
+```
+
+### SelectPositionerDataAttributes
+
+Data attributes of [Positioner](#positioner).
+
+```typescript
+declare namespace SelectPositionerDataAttributes {
+  /** Present when the select popup is open. */
+  const open: 'data-open';
+  /** Present when the select popup is closed. */
+  const closed: 'data-closed';
+  /** Present when the anchor is hidden. */
+  const anchorHidden: 'data-anchor-hidden';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type 'start' | 'center' | 'end'
+   */
+  const align: 'data-align';
+}
+```
+
+### SelectScrollDownArrowDataAttributes
+
+Data attributes of [ScrollDownArrow](#scrolldownarrow).
+
+```typescript
+declare namespace SelectScrollDownArrowDataAttributes {
+  /** Present when the scroll arrow begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the scroll arrow is animating out. */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Indicates the direction of the scroll arrow.
+   * @type 'down'
+   */
+  const direction: 'data-direction';
+  /** Present when the scroll arrow is visible. */
+  const visible: 'data-visible';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+}
+```
+
+### SelectScrollUpArrowDataAttributes
+
+Data attributes of [ScrollUpArrow](#scrolluparrow).
+
+```typescript
+declare namespace SelectScrollUpArrowDataAttributes {
+  /** Present when the scroll arrow begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the scroll arrow is animating out. */
+  const endingStyle: 'data-ending-style';
+  /**
+   * Indicates the direction of the scroll arrow.
+   * @type 'up'
+   */
+  const direction: 'data-direction';
+  /** Present when the scroll arrow is visible. */
+  const visible: 'data-visible';
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type 'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'
+   */
+  const side: 'data-side';
+}
+```
+
+### SelectSeparatorDataAttributes
+
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace SelectSeparatorDataAttributes {
+  /**
+   * Indicates the orientation of the separator.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
+### SelectTriggerDataAttributes
+
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace SelectTriggerDataAttributes {
+  /** Present when the corresponding select is open. */
+  const popupOpen: 'data-popup-open';
+  /** Present when the trigger is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the select is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the select is readonly. */
+  const readonly: 'data-readonly';
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null
+   */
+  const popupSide: 'data-popup-side';
+  /** Present when the select is required. */
+  const required: 'data-required';
+  /** Present when the select is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the select is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the select has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the select's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the select has a value (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the select trigger is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+  /** Present when the select doesn't have a value. */
+  const placeholder: 'data-placeholder';
+}
+```
+
+### SelectValueDataAttributes
+
+Data attributes of [Value](#value).
+
+```typescript
+declare namespace SelectValueDataAttributes {
+  /** Present when the select doesn't have a value. */
+  const placeholder: 'data-placeholder';
+}
+```
+
 ## External Types
 
 ### Side
@@ -841,7 +1161,7 @@ type Orientation = 'horizontal' | 'vertical';
 
 ## Export Groups
 
-- `Select.Root`: `Select.Root`, `Select.Root.Props`, `Select.Root.State`, `Select.Root.Actions`, `Select.Root.ChangeEventReason`, `Select.Root.ChangeEventDetails`
+- `Select.Root`: `Select.Root`, `Select.Root.Props`, `Select.Root.State`, `Select.Root.Actions`, `Select.Root.ChangeEventReason`, `Select.Root.ChangeEventDetails`, `Select.Root.OpenChangeEventDetails`
 - `Select.Label`: `Select.Label`, `Select.Label.State`, `Select.Label.Props`
 - `Select.Trigger`: `Select.Trigger`, `Select.Trigger.State`, `Select.Trigger.Props`
 - `Select.Value`: `Select.Value`, `Select.Value.State`, `Select.Value.Props`
@@ -860,7 +1180,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
+- `Default`: `SelectTriggerDataAttributes`, `SelectValueDataAttributes`, `SelectIconDataAttributes`, `SelectBackdropDataAttributes`, `SelectPositionerCssVariables`, `SelectPositionerDataAttributes`, `SelectPopupDataAttributes`, `SelectItemDataAttributes`, `SelectItemIndicatorDataAttributes`, `SelectArrowDataAttributes`, `SelectScrollDownArrowDataAttributes`, `SelectScrollUpArrowDataAttributes`, `SelectSeparatorDataAttributes`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootOpenChangeEventDetails`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
 
 ## Canonical Types
 
@@ -871,6 +1191,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Select.Root.Actions`: `SelectRootActions`
 - `Select.Root.ChangeEventReason`: `SelectRootChangeEventReason`
 - `Select.Root.ChangeEventDetails`: `SelectRootChangeEventDetails`
+- `Select.Root.OpenChangeEventDetails`: `SelectRootOpenChangeEventDetails`
 - `Select.Label.State`: `SelectLabelState`
 - `Select.Label.Props`: `SelectLabelProps`
 - `Select.Trigger.State`: `SelectTriggerState`

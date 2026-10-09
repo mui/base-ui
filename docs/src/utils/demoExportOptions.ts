@@ -4,7 +4,7 @@ import type {
   VariantExtraFiles,
   VariantSource,
 } from '@mui/internal-docs-infra/CodeHighlighter/types';
-import { ExportConfig } from '@mui/internal-docs-infra/useDemo';
+import type { ExportConfig } from '@mui/internal-docs-infra/useDemo';
 
 const defaultStylesLink = `<link rel="stylesheet" href="demo.css" />`;
 const htmlHeadWithDefaultStyles: ExportConfig['headTemplate'] = () => defaultStylesLink;

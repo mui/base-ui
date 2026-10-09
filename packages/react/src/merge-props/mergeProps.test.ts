@@ -307,27 +307,32 @@ describe('mergeProps', () => {
     expect(log).toEqual(['0', '1']);
   });
 
-  [true, 13, 'newValue', { key: 'value' }, ['value'], () => 'value'].forEach((eventArgument) => {
-    it('handles non-standard event handlers without error', () => {
-      const log: string[] = [];
+  it.each([
+    { name: 'a boolean', eventArgument: true },
+    { name: 'a number', eventArgument: 13 },
+    { name: 'a string', eventArgument: 'newValue' },
+    { name: 'an object', eventArgument: { key: 'value' } },
+    { name: 'an array', eventArgument: ['value'] },
+    { name: 'a function', eventArgument: () => 'value' },
+  ])('handles non-standard event handlers called with $name', ({ eventArgument }) => {
+    const log: string[] = [];
 
-      const mergedProps = mergeProps<any>(
-        {
-          onValueChange() {
-            log.push('1');
-          },
+    const mergedProps = mergeProps<any>(
+      {
+        onValueChange() {
+          log.push('1');
         },
-        {
-          onValueChange() {
-            log.push('0');
-          },
+      },
+      {
+        onValueChange() {
+          log.push('0');
         },
-      );
+      },
+    );
 
-      mergedProps.onValueChange(eventArgument);
+    mergedProps.onValueChange(eventArgument);
 
-      expect(log).toEqual(['0', '1']);
-    });
+    expect(log).toEqual(['0', '1']);
   });
 
   it('forwards all arguments for a lone non-standard event handler', () => {

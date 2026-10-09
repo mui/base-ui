@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { HTMLProps } from '../types';
+import type { HTMLProps } from '../types';
 import { useBaseUiId } from '../useBaseUiId';
 import { LabelableContext, useLabelableContext } from './LabelableContext';
 

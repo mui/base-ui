@@ -4,22 +4,28 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { useTestInteractions } from '#test-utils';
-import { useClick, useFloating, useTypeahead } from '../index';
+import { useClick, useTypeahead } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import type { UseTypeaheadProps } from './useTypeahead';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
 });
 
+interface MatchSpyProps {
+  onMatch?: ((index: number) => void) | undefined;
+}
+
 const useImpl = ({
   addUseClick = false,
   ...props
-}: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
-  list?: Array<string>;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  addUseClick?: boolean;
-}) => {
+}: MatchSpyProps &
+  Pick<UseTypeaheadProps, 'onTyping'> & {
+    list?: Array<string>;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    addUseClick?: boolean;
+  }) => {
   const [open, setOpen] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
   const { refs, context } = useFloating({
@@ -27,7 +33,7 @@ const useImpl = ({
     onOpenChange: props.onOpenChange ?? setOpen,
   });
   const listRef = React.useRef(props.list ?? ['one', 'two', 'three']);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     activeIndex,
     onMatch(index) {
@@ -36,7 +42,7 @@ const useImpl = ({
     },
     onTyping: props.onTyping,
   });
-  const click = useClick(context, {
+  const click = useClick(context.rootStore, {
     enabled: addUseClick,
   });
 
@@ -60,9 +66,11 @@ const useImpl = ({
 };
 
 function Combobox(
-  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
-    list?: Array<string>;
-  },
+  props: MatchSpyProps &
+    Pick<UseTypeaheadProps, 'onTyping'> & {
+      list?: Array<string>;
+      open?: boolean;
+    },
 ) {
   const { getReferenceProps, getFloatingProps } = useImpl(props);
   return (
@@ -74,7 +82,7 @@ function Combobox(
 }
 
 function ComboboxWithElementsRef(
-  props: Pick<UseTypeaheadProps, 'onMatch'> & {
+  props: MatchSpyProps & {
     list?: Array<string>;
     hiddenIndices?: Array<number>;
   },
@@ -87,7 +95,7 @@ function ComboboxWithElementsRef(
   });
   const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef,
     elementsRef,
     activeIndex,
@@ -126,6 +134,28 @@ function ComboboxWithElementsRef(
 }
 
 describe('useTypeahead', () => {
+  it('passes the matching keydown event to onMatch', async () => {
+    const onMatch = vi.fn();
+
+    function App() {
+      const { refs, context } = useFloating({ open: true });
+      const listRef = React.useRef(['one', 'two', 'three']);
+      const typeahead = useTypeahead(context.rootStore, { listRef, activeIndex: null, onMatch });
+      const { getReferenceProps } = useTestInteractions([typeahead]);
+      return <input {...getReferenceProps({ role: 'combobox', ref: refs.setReference })} />;
+    }
+
+    render(<App />);
+
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.keyboard('t');
+
+    expect(onMatch).toHaveBeenCalledTimes(1);
+    expect(onMatch.mock.lastCall?.[0]).toBe(1);
+    expect(onMatch.mock.lastCall?.[1].type).toBe('keydown');
+    expect(onMatch.mock.lastCall?.[1].key).toBe('t');
+  });
+
   it('rapidly focuses list items when they start with the same letter', async () => {
     const spy = vi.fn();
     render(<Combobox onMatch={spy} />);
@@ -232,7 +262,7 @@ describe('useTypeahead', () => {
     }
   });
 
-  function App1(props: Pick<UseTypeaheadProps, 'onMatch'> & { list: Array<string> }) {
+  function App1(props: MatchSpyProps & { list: Array<string> }) {
     const { getReferenceProps, getFloatingProps, activeIndex, open } = useImpl(props);
     const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -302,6 +332,26 @@ describe('useTypeahead', () => {
     vi.advanceTimersByTime(750);
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenCalledWith(false);
+  });
+
+  it('onTyping is called when the popup closes without moving focus', async () => {
+    const spy = vi.fn();
+    const { rerender } = render(<Combobox open onTyping={spy} />);
+
+    expect(spy).not.toHaveBeenCalled();
+
+    act(() => screen.getByRole('combobox').focus());
+    await userEvent.keyboard('t');
+    expect(spy.mock.calls).toEqual([[true]]);
+
+    rerender(<Combobox open={false} onTyping={spy} />);
+    expect(spy.mock.calls).toEqual([[true], [false]]);
+
+    vi.advanceTimersByTime(750);
+    expect(spy.mock.calls).toEqual([[true], [false]]);
+
+    rerender(<Combobox open onTyping={spy} />);
+    expect(spy.mock.calls).toEqual([[true], [false]]);
   });
 
   it('skips hidden items when matching with elementsRef', async () => {

@@ -6,6 +6,23 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.ItemIndicator />', () => {
   const { render } = createRenderer();
 
+  function TestComponent({ value, keepMounted }: { value: string; keepMounted?: boolean }) {
+    return (
+      <Select.Root value={value} open>
+        <Select.Trigger />
+        <Select.Positioner>
+          <Select.Popup>
+            <Select.Item value="a">
+              a
+              <Select.ItemIndicator keepMounted={keepMounted} data-testid="indicator" />
+            </Select.Item>
+            <Select.Item value="b">b</Select.Item>
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Root>
+    );
+  }
+
   describeConformance(<Select.ItemIndicator />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
@@ -56,5 +73,51 @@ describe('<Select.ItemIndicator />', () => {
     await waitFor(() => {
       expect(indicator).not.toHaveAttribute('data-ending-style');
     });
+  });
+
+  it('mounts only while selected when keepMounted is false', async () => {
+    const { setProps } = await render(<TestComponent value="b" />);
+
+    expect(screen.queryByTestId('indicator')).toBe(null);
+
+    await setProps({ value: 'a' });
+
+    const indicator = screen.getByTestId('indicator');
+    expect(indicator).toHaveAttribute('data-selected');
+    expect(indicator).toHaveAttribute('aria-hidden', 'true');
+    expect(indicator).not.toHaveAttribute('selected');
+
+    await setProps({ value: 'b' });
+
+    expect(screen.queryByTestId('indicator')).toBe(null);
+
+    await setProps({ value: 'a' });
+
+    expect(screen.getByTestId('indicator')).toHaveAttribute('data-selected');
+  });
+
+  it('preserves the kept-mounted element across selection changes', async () => {
+    const { setProps } = await render(<TestComponent value="b" keepMounted />);
+    const indicator = screen.getByTestId('indicator');
+
+    expect(indicator).not.toHaveAttribute('data-selected');
+
+    await setProps({ value: 'a' });
+
+    expect(screen.getByTestId('indicator')).toBe(indicator);
+    expect(indicator).toHaveAttribute('data-selected');
+
+    await setProps({ value: 'b' });
+
+    expect(screen.getByTestId('indicator')).toBe(indicator);
+    expect(indicator).not.toHaveAttribute('data-selected');
+    await waitFor(() => {
+      expect(indicator).not.toHaveAttribute('data-ending-style');
+    });
+
+    await setProps({ value: 'a' });
+
+    expect(screen.getByTestId('indicator')).toBe(indicator);
+    expect(indicator).toHaveAttribute('data-selected');
   });
 });

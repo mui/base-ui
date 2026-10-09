@@ -15,11 +15,11 @@ import {
   shift,
   useClick,
   useDismiss,
-  useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  useHover,
 } from '../../src/floating-ui-react';
+import { useFloating } from './useFloating';
+import { useHover } from './useHover';
 import styles from './Popover.module.css';
 
 /** @internal */
@@ -129,8 +129,8 @@ function PopoverComponent({
     useHover(hover ? context : fallbackContext, {
       handleClose: safePolygon({ blockPointerEvents: true }),
     }),
-    useClick(context),
-    useDismiss(context, {
+    useClick(context.rootStore),
+    useDismiss(context.rootStore, {
       bubbles,
     }),
   ]);
@@ -151,7 +151,7 @@ function PopoverComponent({
         )}
       <FloatingPortal>
         {open && (
-          <FloatingFocusManager context={context} modal={modal}>
+          <FloatingFocusManager context={context.rootStore} modal={modal}>
             <div
               className={styles.Floating}
               ref={refs.setFloating}

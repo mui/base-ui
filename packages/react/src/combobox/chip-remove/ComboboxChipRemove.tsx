@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../internals/use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import { findItemIndex } from '../../internals/itemEquality';
 
 /**
@@ -49,7 +50,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     disabled,
   };
 
-  function clearActiveIndexForRemovedItem(removedItem: any) {
+  function clearActiveIndexForRemovedItem(removedItem: any, event: Event) {
     const activeIndex = store.state.activeIndex;
 
     if (activeIndex == null) {
@@ -66,7 +67,8 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     if (removedIndex !== -1 && activeIndex === removedIndex) {
       store.context.setIndices({
         activeIndex: null,
-        type: store.context.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
+        type: getHighlightReason(event),
+        event,
       });
     }
   }
@@ -77,7 +79,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
     const removedItem = selectedValue[index];
 
-    clearActiveIndexForRemovedItem(removedItem);
+    clearActiveIndexForRemovedItem(removedItem, event.nativeEvent);
 
     store.context.setSelectedValue(
       selectedValue.filter((_: any, i: number) => i !== index),

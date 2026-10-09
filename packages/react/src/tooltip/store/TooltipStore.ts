@@ -1,19 +1,17 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { NOOP } from '@base-ui/utils/empty';
-import { type TooltipRoot } from '../root/TooltipRoot';
+import type { TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
   applyPopupOpenChange,
   createInitialPopupStoreState,
-  PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
   PopupTriggerMap,
-  type PopupTriggerStoreKeys,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -41,6 +39,10 @@ const selectors = {
   disableHoverablePopup: (state: State<unknown>) => state.disableHoverablePopup,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
   closeOnClick: (state: State<unknown>) => state.closeOnClick,
+  // Active and inactive trigger props are the same object, so a constant for triggers that discard
+  // them keeps those triggers from re-rendering when the props change.
+  appliedTriggerProps: (state: State<unknown>, apply: boolean) =>
+    apply ? state.activeTriggerProps : undefined,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
     state.adaptiveOrigin,

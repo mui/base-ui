@@ -1,30 +1,44 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
+import { platform } from '@base-ui/utils/platform';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { MenuParent, MenuRoot } from '../root/MenuRoot';
+import type { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { HTMLProps } from '../../internals/types';
+import type { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
   createInitialPopupStoreState,
-  PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
   PopupTriggerMap,
-  type PopupTriggerStoreKeys,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean | undefined;
   openMethod: InteractionType | null;
+  /** Whether the popup last opened from the keyboard or an assistive-technology press. */
+  keyboardOpen: boolean;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
+  /** The `Menu.List` element, which takes the `menu` role from the popup when rendered. */
+  listElement: HTMLElement | null;
+  /**
+   * Props a filter root adds to its triggers (dialog semantics and the key relay to the input).
+   * Published by the filter implementation so a plain menu never bundles them.
+   */
+  filterTriggerProps: HTMLProps;
+  /** List navigation props for the element that holds real focus under virtual focus. */
+  inputProps: HTMLProps;
+  /** Whether this menu's filter input has focus. */
+  inputFocused: boolean;
+  /** The element at `activeIndex` once the item list settles. Only virtual focus publishes it. */
+  highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
@@ -43,8 +57,19 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly typingRef: React.RefObject<boolean>;
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
+  /** Why the next `activeIndex` write happens, consumed by `onItemHighlighted` on commit. */
+  highlightReason: MenuRoot.HighlightEventReason;
+  /** The event that caused the next `activeIndex` write, reported along with `highlightReason`. */
+  highlightEvent: Event | undefined;
+  /** The item last committed as highlighted, kept in every menu so reasons compare against it. */
+  reportedItem: HTMLElement | undefined;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
+  /** The element that holds real focus while virtual list navigation is active. */
+  virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
+  /** Whether a filterable menu's trigger was last pressed by a screen reader. */
+  virtualPress?: boolean | undefined;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
+  readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
 
@@ -58,6 +83,7 @@ const selectors = {
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
   openMethod: (state: State<unknown>) => state.openMethod,
+  keyboardOpen: (state: State<unknown>) => state.keyboardOpen,
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
   highlightItemOnHover: (state: State<unknown>) => state.highlightItemOnHover,
@@ -70,9 +96,31 @@ const selectors = {
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   },
   activeIndex: (state: State<unknown>) => state.activeIndex,
+  listElement: (state: State<unknown>) => state.listElement,
+  /** The trigger's `aria-controls`: the list when one holds the `menu` role, else the popup. */
+  triggerControlsId: (state: State<unknown>, triggerId: string | undefined) => {
+    const popupId = popupStoreSelectors.triggerPopupId(state, triggerId);
+    return popupId ? state.listElement?.id || popupId : undefined;
+  },
+  filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
+  inputProps: (state: State<unknown>) => state.inputProps,
+  // `aria-selected` is invalid on `menuitem`, but Safari VoiceOver needs it for arrow-key
+  // navigation. Limit it to WebKit while the input has focus so normal VoiceOver navigation
+  // does not encounter the invalid attribute.
+  webkitAriaSelected: (state: State<unknown>, highlighted: boolean) =>
+    platform.engine.webkit && state.inputFocused && highlighted ? true : undefined,
+  highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
-  instantType: (state: State<unknown>) => state.instantType,
+  // `trigger-change` describes a popup moving between triggers, which only has
+  // meaning while it is open. Dropping it once closed keeps a late or stale
+  // restoration from marking a closing popup instant and skipping its exit
+  // transition, including on close paths that never reach `setOpen` — a
+  // controlled consumer committing `open={false}` goes straight through the prop.
+  instantType: (state: State<unknown>) =>
+    state.instantType === 'trigger-change' && !popupStoreSelectors.open(state)
+      ? undefined
+      : state.instantType,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
   floatingTreeRoot: (state: State<unknown>): FloatingTreeStore => {
     if (state.parent.type === 'menu') {
@@ -122,43 +170,50 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
 
     super(state, createInitialContext(triggerElements), selectors);
 
-    // Set up propagation of state from parent menu if applicable.
-    this.unsubscribeParentListener = this.observe('parent', (parent) => {
-      this.unsubscribeParentListener?.();
-
+    // Share the mouse-up trigger ref of the parent menu, if any. This observes the store's own
+    // state, so the subscription lives exactly as long as the store and needs no cleanup.
+    void this.observe('parent', (parent) => {
       if (parent.type === 'menu') {
-        let rootId = parent.store.select('rootId');
-        let floatingTreeRoot = parent.store.select('floatingTreeRoot');
-        let keyboardEventRelay = parent.store.select('keyboardEventRelay');
-
-        this.unsubscribeParentListener = parent.store.subscribe(() => {
-          const nextRootId = parent.store.select('rootId');
-          const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
-          const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
-
-          if (
-            rootId === nextRootId &&
-            floatingTreeRoot === nextFloatingTreeRoot &&
-            keyboardEventRelay === nextKeyboardEventRelay
-          ) {
-            return;
-          }
-
-          rootId = nextRootId;
-          floatingTreeRoot = nextFloatingTreeRoot;
-          keyboardEventRelay = nextKeyboardEventRelay;
-          this.notifyAll();
-        });
-
         this.context.allowMouseUpTriggerRef = parent.store.context.allowMouseUpTriggerRef;
+      } else if (parent.type !== undefined) {
+        this.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
+      }
+    });
+  }
+
+  /**
+   * Propagates changes of the parent menu's shared tree state to this store's subscribers.
+   * The owning `Menu.Root` calls it from an effect so the parent store subscription is released
+   * when the submenu unmounts.
+   * @returns A function that removes the parent store subscription.
+   */
+  subscribeToParentMenu() {
+    const parent = this.state.parent;
+    if (parent.type !== 'menu') {
+      return undefined;
+    }
+
+    let rootId = parent.store.select('rootId');
+    let floatingTreeRoot = parent.store.select('floatingTreeRoot');
+    let keyboardEventRelay = parent.store.select('keyboardEventRelay');
+
+    return parent.store.subscribe(() => {
+      const nextRootId = parent.store.select('rootId');
+      const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
+      const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
+
+      if (
+        rootId === nextRootId &&
+        floatingTreeRoot === nextFloatingTreeRoot &&
+        keyboardEventRelay === nextKeyboardEventRelay
+      ) {
         return;
       }
 
-      if (parent.type !== undefined) {
-        this.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
-      }
-
-      this.unsubscribeParentListener = null;
+      rootId = nextRootId;
+      floatingTreeRoot = nextFloatingTreeRoot;
+      keyboardEventRelay = nextKeyboardEventRelay;
+      this.notifyAll();
     });
   }
 
@@ -166,7 +221,34 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
-  private unsubscribeParentListener: (() => void) | null = null;
+  setActiveIndex(
+    activeIndex: number | null,
+    reason: MenuRoot.HighlightEventReason,
+    event?: Event | undefined,
+  ) {
+    // Only a write that changes the index is reported. Tagging a no-op, or a write back to the
+    // reported item before the change commits, would let a later registry-driven re-emit report
+    // this reason instead of `none`.
+    if (this.state.activeIndex !== activeIndex) {
+      const item =
+        activeIndex === null ? undefined : this.context.itemDomElements.current[activeIndex];
+      const isWriteBack = item === this.context.reportedItem;
+      this.context.highlightReason = isWriteBack ? 'none' : reason;
+      this.context.highlightEvent = isWriteBack ? undefined : event;
+    }
+    this.set('activeIndex', activeIndex);
+  }
+
+  highlightItem(
+    element: Element | null,
+    reason: MenuRoot.HighlightEventReason,
+    event?: Event | undefined,
+  ) {
+    const index = this.context.itemDomElements.current.indexOf(element as HTMLElement);
+    if (index > -1) {
+      this.setActiveIndex(index, reason, event);
+    }
+  }
 }
 
 /**
@@ -193,8 +275,13 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     typingRef: { current: false },
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
+    highlightReason: 'none',
+    highlightEvent: undefined,
+    reportedItem: undefined,
     allowMouseUpTriggerRef: { current: false },
+    virtualFocusRef: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
+    beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
     triggerElements,
@@ -212,6 +299,7 @@ function createInitialState<Payload>(
     disabled: false,
     modal: true,
     openMethod: null,
+    keyboardOpen: false,
     allowMouseEnter: false,
     highlightItemOnHover: true,
     parent: {
@@ -219,13 +307,18 @@ function createInitialState<Payload>(
     },
     rootId: undefined,
     activeIndex: null,
+    listElement: null,
+    filterTriggerProps: EMPTY_OBJECT,
+    inputProps: EMPTY_OBJECT,
+    inputFocused: false,
+    highlightedItem: undefined,
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
     floatingTreeRoot: new FloatingTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,
-    itemProps: EMPTY_OBJECT as HTMLProps,
+    itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
+import { getSide, getAlignment, getSideAxis } from '@floating-ui/utils';
+import type { Rect } from '@floating-ui/utils';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -12,18 +13,20 @@ import {
   offset,
   shift as floatingShift,
   size,
-  type UseFloatingOptions,
-  type UseFloatingReturn,
-  type Placement,
-  type FloatingRootContext,
-  type VirtualElement,
-  type Padding,
-  type FloatingContext,
-  type Side as PhysicalSide,
-  type MiddlewareState,
-  type AutoUpdateOptions,
-  type Middleware,
-  type FloatingTreeStore,
+} from '../floating-ui-react';
+import type {
+  UseFloatingOptions,
+  UseFloatingReturn,
+  Placement,
+  FloatingRootContext,
+  VirtualElement,
+  Padding,
+  FloatingContext,
+  Side as PhysicalSide,
+  MiddlewareState,
+  AutoUpdateOptions,
+  Middleware,
+  FloatingTreeStore,
 } from '../floating-ui-react';
 import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
@@ -161,12 +164,6 @@ export function useAnchorPositioningWithHook(
     externalTree,
   } = params;
 
-  const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
-
-  if (!mounted && mountSide !== null) {
-    setMountSide(null);
-  }
-
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
@@ -182,6 +179,15 @@ export function useAnchorPositioningWithHook(
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
+  const [mountPlacement, setMountPlacement] = React.useState<Placement | null>(null);
+
+  if (!mounted && mountPlacement !== null) {
+    setMountPlacement(null);
+  }
+
+  const lockAlign = lazyFlip === 'placement';
+  const mountSide = mountPlacement ? getSide(mountPlacement) : null;
+  const mountAlign = mountPlacement && lockAlign ? getAlignment(mountPlacement) || 'center' : null;
   const side =
     mountSide ||
     (
@@ -195,7 +201,8 @@ export function useAnchorPositioningWithHook(
       } satisfies Record<Side, PhysicalSide>
     )[sideParam];
 
-  const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
+  const placementAlign = mountAlign || align;
+  const placement = placementAlign === 'center' ? side : (`${side}-${placementAlign}` as Placement);
 
   let collisionPadding = collisionPaddingParam as {
     top: number;
@@ -337,10 +344,12 @@ export function useAnchorPositioningWithHook(
       );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
+  // Keyed on the alignment actually being requested, not the raw prop: a locked alignment can
+  // differ from `align`, and the ordering has to match the placement that is asked for.
   if (
     collisionAvoidanceSide === 'shift' ||
     collisionAvoidanceAlign === 'shift' ||
-    align === 'center'
+    placementAlign === 'center'
   ) {
     middleware.push(shiftMiddleware, flipMiddleware);
   } else {
@@ -376,7 +385,6 @@ export function useAnchorPositioningWithHook(
         element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
         // No padding for the fake arrow: it would displace aligned popups on narrow anchors.
         padding: arrowRef.current ? arrowPadding : 0,
-        offsetParent: 'floating',
       }),
       [arrowPadding],
     ),
@@ -582,14 +590,28 @@ export function useAnchorPositioningWithHook(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  // Locks the flip (makes it "sticky") so it doesn't prefer a given placement
-  // and flips back lazily, not eagerly. Ideal for filtered lists that change
-  // the size of the popup dynamically to avoid unwanted flipping when typing.
+  // Locks the flipped side, and the alignment too when the consumer opts in, while filtering
+  // resizes the popup.
   useIsoLayoutEffect(() => {
-    if (lazyFlip && mounted && isPositioned && renderedSide !== side) {
-      setMountSide(renderedSide);
+    if (
+      lazyFlip &&
+      mounted &&
+      isPositioned &&
+      (renderedSide !== side || (lockAlign && renderedAlign !== placementAlign))
+    ) {
+      setMountPlacement(renderedPlacement);
     }
-  }, [lazyFlip, mounted, isPositioned, renderedSide, side]);
+  }, [
+    lazyFlip,
+    lockAlign,
+    mounted,
+    isPositioned,
+    renderedPlacement,
+    renderedSide,
+    renderedAlign,
+    side,
+    placementAlign,
+  ]);
 
   const arrowStyles = React.useMemo(
     () => ({
@@ -802,7 +824,11 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
         rootBoundary?: 'layoutViewport' | undefined;
       }
     | undefined;
-  lazyFlip?: boolean | undefined;
+  /**
+   * Locks a flipped placement so it doesn't flip back eagerly while filtering resizes the
+   * popup. `true` locks the side only; `'placement'` also locks the alignment.
+   */
+  lazyFlip?: boolean | 'placement' | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**
    * Optional middleware that can replace the measured reference rect before offsets and collision
