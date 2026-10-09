@@ -9,8 +9,8 @@ import {
   disableFocusInside,
   enableFocusInside,
   isOutsideEvent,
-} from '../../floating-ui-react/utils';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+} from '../../utils/popups/focus/tabbable';
+import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
@@ -22,11 +22,12 @@ import type {
   Side,
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import { useNavigationMenuAnchorPositioning } from '../utils/useNavigationMenuAnchorPositioning';
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { usePositioner } from '../../utils/usePositioner';
+import { adaptiveOrigin } from '../../utils/popups/positioning/adaptiveOriginMiddleware';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
@@ -107,7 +108,10 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
 
-  const positioning = useNavigationMenuAnchorPositioning({
+  // The active trigger supplies the root store after the positioner has already rendered.
+  const fallbackRootContext = useFloatingRootContext({ open: keepMounted ? mounted : undefined });
+
+  const positioning = useAnchorPositioning({
     anchor: anchor ?? domReference,
     positionMethod,
     mounted,
@@ -121,7 +125,8 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     sticky,
     disableAnchorTracking,
     keepMounted,
-    floatingRootContext,
+    floatingRootContext: floatingRootContext || undefined,
+    fallbackRootContext,
     collisionAvoidance,
     shift: { rootBoundary: 'layoutViewport' },
     nodeId,

@@ -1,6 +1,6 @@
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import * as DialogPopupDataAttributes from '../popup/DialogPopupDataAttributes';
 

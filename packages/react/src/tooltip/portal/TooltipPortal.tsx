@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPortalContext } from './TooltipPortalContext';
-import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
+import { FloatingPortalLite } from '../../utils/popups/portal/FloatingPortalLite';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**

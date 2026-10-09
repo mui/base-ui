@@ -3,17 +3,17 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useId } from '@base-ui/utils/useId';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import {
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
-  contains,
-} from '../../floating-ui-react/utils';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+} from '../../utils/popups/focus/tabbable';
+import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();

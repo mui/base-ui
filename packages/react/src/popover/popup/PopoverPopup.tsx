@@ -2,20 +2,21 @@
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
+import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { REASONS } from '../../internals/reasons';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
-import { ClosePartContext, useClosePartCount } from '../../utils/closePart';
+import { ClosePartContext, useClosePartCount } from '../utils/closePart';
 import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
 
 /**
@@ -47,8 +48,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const mounted = store.useState('mounted');
   const openReason = store.useState('openChangeReason');
   const activeTriggerElement = store.useState('activeTriggerElement');
-  const floatingContext = store.useState('floatingRootContext');
-  const floatingId = floatingContext.useState('floatingId');
+  const floatingId = store.useState('floatingId');
   const disabled = store.useState('disabled');
   const openOnHover = store.useState('openOnHover');
   const closeDelay = store.useState('closeDelay');
@@ -63,7 +63,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
   });
 
-  useHoverFloatingInteraction(floatingContext, { enabled: openOnHover && !disabled, closeDelay });
+  useHoverFloatingInteraction(store, { enabled: openOnHover && !disabled, closeDelay });
 
   const resolvedInitialFocus =
     initialFocus === undefined ? createDefaultInitialFocus(store.context.popupRef) : initialFocus;
@@ -106,7 +106,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingContext}
+      context={store}
       openInteractionType={openMethod}
       modal={focusManagerModal}
       disabled={!mounted || openReason === REASONS.triggerHover}

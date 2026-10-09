@@ -4,7 +4,7 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**

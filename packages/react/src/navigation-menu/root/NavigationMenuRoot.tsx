@@ -5,14 +5,14 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import {
   FloatingNode,
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-react';
-import type { FloatingRootContext } from '../../floating-ui-react';
-import { activeElement, contains } from '../../floating-ui-react/utils';
+} from '../../utils/popups/tree/FloatingTree';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,
@@ -102,7 +102,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const [activationDirection, setActivationDirection] =
     React.useState<NavigationMenuRootContext['activationDirection']>(null);
   const [floatingRootContext, setFloatingRootContext] = React.useState<
-    FloatingRootContext | undefined
+    FloatingRootStore | undefined
   >(undefined);
   const [viewportInert, setViewportInert] = React.useState(false);
 

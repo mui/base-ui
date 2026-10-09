@@ -3,6 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import type { MenuSubmenuRoot, MenuSubmenuRootProps } from '../submenu-root/MenuSubmenuRoot';
 import { MenuRootInternal } from '../root/MenuRoot';
@@ -18,8 +19,8 @@ import {
   isCrossOrientationCloseKey,
   isCrossOrientationOpenKey,
   isMainOrientationKey,
-} from '../../floating-ui-react/hooks/useListNavigation';
-import { activeElement, contains, stopEvent } from '../../floating-ui-react/utils';
+} from '../../utils/popups/interactions/useListNavigation';
+import { stopEvent } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { moveHighlightFrom } from '../filter-root/moveHighlightFrom';

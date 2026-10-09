@@ -30,6 +30,7 @@ import {
   waitSingleFrame,
 } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { MenuStore } from '../store/MenuStore';
 import { useMenuRootContext } from './MenuRootContext';
@@ -3604,6 +3605,156 @@ describe('<Menu.Root />', () => {
       unsubscribe();
 
       expect(submenuListener).toHaveBeenCalled();
+    });
+  });
+
+  describe('open change requests', () => {
+    it('reports two identical requests made in one tick twice', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <React.Fragment>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger-a">
+            Trigger A
+          </Menu.Trigger>
+          <Menu.Trigger handle={handle} id="trigger-b">
+            Trigger B
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger A' }));
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+      onOpenChange.mockClear();
+
+      await act(async () => {
+        handle.open('trigger-b');
+        handle.open('trigger-b');
+      });
+
+      expect(onOpenChange).toHaveBeenCalledTimes(2);
+      expect(screen.getByRole('button', { name: 'Trigger B' })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+    });
+
+    it('ignores a request made before the root has mounted', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+
+      function OpenOnMount() {
+        React.useLayoutEffect(() => {
+          handle.open('trigger');
+        }, []);
+        return null;
+      }
+
+      await render(
+        <React.Fragment>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <OpenOnMount />
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>,
+      );
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+
+    it('marks a close without a reason as a dismissal', async () => {
+      const handle = Menu.createHandle();
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle}>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="popup">
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await act(async () => {
+        handle.open('trigger');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+
+      await act(async () => {
+        handle.store.setOpen(
+          false,
+          createChangeEventDetails(undefined as unknown as typeof REASONS.none),
+        );
+      });
+
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+    });
+
+    it('commits a hover open after the hover event has been dispatched', async () => {
+      const menuPresentDuringEvent: boolean[] = [];
+      await render(
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={0}>
+            Trigger
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      function recordMenu() {
+        menuPresentDuringEvent.push(screen.queryByRole('menu') !== null);
+      }
+
+      // The trigger opens from a native `mouseenter` listener. One added after it runs once the
+      // menu has handled the event. The event is dispatched outside `act()`, so React commits the
+      // open on its own schedule.
+      ignoreActWarnings();
+      trigger.addEventListener('mouseenter', recordMenu);
+      try {
+        trigger.dispatchEvent(new MouseEvent('mouseenter'));
+      } finally {
+        trigger.removeEventListener('mouseenter', recordMenu);
+      }
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+      expect(menuPresentDuringEvent).toEqual([false]);
     });
   });
 });

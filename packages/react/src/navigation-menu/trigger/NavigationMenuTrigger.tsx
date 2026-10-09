@@ -9,28 +9,21 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { closest, contains } from '@base-ui/utils/shadowDom';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import {
-  safePolygon,
-  useClick,
-  useFloatingRootContext,
-  useFloatingTree,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-react';
-import {
-  applySafePolygonPointerEventsMutation,
-  clearSafePolygonPointerEventsMutation,
-  useHoverInteractionSharedState,
-} from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
-import {
-  closest,
-  contains,
   getTabbableNearElement,
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
-  stopEvent,
-} from '../../floating-ui-react/utils';
-import type { HandleCloseContextBase } from '../../floating-ui-react/hooks/useHoverShared';
+} from '../../utils/popups/focus/tabbable';
+import { stopEvent } from '../../utils/popups/event';
+import type { HandleCloseContextBase } from '../../utils/popups/interactions/useHoverShared';
 import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../internals/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
@@ -40,8 +33,8 @@ import {
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import { FocusGuard } from '../../utils/FocusGuard';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
@@ -482,23 +475,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  const hoverInteractionState = useHoverInteractionSharedState(context);
+  const hoverIntent = useHoverIntent(context);
   const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
 
   React.useEffect(() => {
     if (!open) {
       context.context.dataRef.current.openEvent = undefined;
-      hoverInteractionState.pointerType = undefined;
-      hoverInteractionState.interactedInside = false;
-      hoverInteractionState.restTimeoutPending = false;
-      hoverInteractionState.openChangeTimeout.clear();
-      hoverInteractionState.restTimeout.clear();
+      hoverIntent.reset();
+      hoverIntent.cancelPendingOpen();
     }
 
-    return () => {
-      clearSafePolygonPointerEventsMutation(hoverInteractionState);
-    };
-  }, [context, hoverInteractionState, open]);
+    return hoverIntent.restoreOutsidePointerEvents;
+  }, [context, hoverIntent, open]);
 
   const getInlineHandleCloseContext = useStableCallback(() => {
     if (!nested || positionerElement || !triggerElementRef.current || !hoverFloatingElement) {
@@ -600,7 +588,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         const applyPointerEventsMutation = () => {
           const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
 
-          applySafePolygonPointerEventsMutation(hoverInteractionState, {
+          hoverIntent.blockOutsidePointerEvents({
             scopeElement,
             referenceElement: currentTarget,
             floatingElement: hoverFloatingElement,
@@ -650,7 +638,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleTriggerPointerDown(event: React.PointerEvent) {
     handleSetPointerType(event);
-    clearSafePolygonPointerEventsMutation(hoverInteractionState);
+    hoverIntent.restoreOutsidePointerEvents();
   }
 
   const defaultProps: HTMLProps = {
@@ -670,7 +658,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
     onMouseLeave() {
       if (value == null) {
-        clearSafePolygonPointerEventsMutation(hoverInteractionState);
+        hoverIntent.restoreOutsidePointerEvents();
       }
     },
     onKeyDown(event) {

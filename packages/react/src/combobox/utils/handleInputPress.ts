@@ -1,8 +1,9 @@
 import { isElement } from '@floating-ui/utils/dom';
 import type * as React from 'react';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getTarget, isInteractiveElement } from '../../floating-ui-react/utils/element';
+import { isInteractiveElement } from '../../utils/popups/element';
 import type { ComboboxStore } from '../store';
 
 export function handleInputPress(

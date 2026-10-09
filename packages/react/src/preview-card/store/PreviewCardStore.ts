@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
+import { NOOP } from '@base-ui/utils/empty';
 import type {
   InlineRectCoords,
   PopupStoreContext,
@@ -7,17 +7,19 @@ import type {
   PopupTriggerStoreKeys,
 } from '../../utils/popups';
 import {
-  applyPopupOpenChange,
+  BasePopupStore,
+  createFloatingRootContextValues,
   createInitialPopupStoreState,
+  getHoverPopupInstantType,
   popupStoreSelectors,
   PopupTriggerMap,
   updateInlineRectCoords,
 } from '../../utils/popups';
 import type { PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
-import { NullStore } from '../../utils/NullStore';
+import { NullStore } from '../../utils/popups/NullStore';
 import { CLOSE_DELAY } from '../utils/constants';
-import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
@@ -47,13 +49,14 @@ type Selectors = typeof selectors;
  */
 export type PreviewCardHandleStore<Payload> = Pick<
   PreviewCardStore<Payload>,
-  PopupTriggerStoreKeys
+  PopupTriggerStoreKeys | 'setOpen'
 >;
 
-export class PreviewCardStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
+export class PreviewCardStore<Payload> extends BasePopupStore<
+  State<Payload>,
   Context,
-  Selectors
+  Selectors,
+  PreviewCardRoot.ChangeEventDetails
 > {
   constructor(
     initialState: Partial<State<Payload>>,
@@ -62,41 +65,41 @@ export class PreviewCardStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
-      createInitialState<Payload>(initialState, triggerElements, floatingId, nested),
-      createInitialContext(triggerElements),
+      createInitialState<Payload>(initialState, floatingId),
+      createInitialContext(triggerElements, nested),
       selectors,
     );
   }
 
-  public setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<PreviewCardRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) {
     const { inlineRectCoordsRef } = this.context;
 
-    applyPopupOpenChange(this, nextOpen, eventDetails as PreviewCardRoot.ChangeEventDetails, {
-      onBeforeDispatch() {
-        // Capture the hovered inline-rect coordinates so the card anchors to the
-        // exact point on the link that was hovered.
-        const event = eventDetails.event;
-        if (
-          nextOpen &&
-          eventDetails.reason === REASONS.triggerHover &&
-          eventDetails.trigger &&
-          'clientX' in event &&
-          'clientY' in event &&
-          inlineRectCoordsRef.current?.element !== eventDetails.trigger
-        ) {
-          updateInlineRectCoords(
-            inlineRectCoordsRef,
-            eventDetails.trigger,
-            event.clientX,
-            event.clientY,
-          );
-        }
-      },
-    });
-  };
+    // Capture the hovered inline-rect coordinates so the card anchors to the
+    // exact point on the link that was hovered.
+    const event = eventDetails.event;
+    if (
+      nextOpen &&
+      eventDetails.reason === REASONS.triggerHover &&
+      eventDetails.trigger &&
+      'clientX' in event &&
+      'clientY' in event &&
+      inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
+      updateInlineRectCoords(
+        inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
+    }
+
+    return getHoverPopupInstantType(nextOpen, eventDetails.reason);
+  }
+
+  protected prepareUnmount() {
+    this.context.inlineRectCoordsRef.current = undefined;
+    return {};
+  }
 }
 
 /**
@@ -107,21 +110,20 @@ export class PreviewCardStore<Payload> extends ReactStore<
 export function createNullPreviewCardStore<Payload>(): PreviewCardHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
 
-  return new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+  const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
+    Object.freeze(createInitialState<Payload>(undefined)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
+  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,
-  nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
+    ...createInitialPopupStoreState<Payload>(floatingId),
     instantType: undefined,
     adaptiveOrigin: undefined,
     closeDelay: CLOSE_DELAY,
@@ -131,12 +133,13 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
   return {
     popupRef: React.createRef<HTMLElement | null>(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
     inlineRectCoordsRef: { current: undefined },
+    ...createFloatingRootContextValues(nested),
   };
 }

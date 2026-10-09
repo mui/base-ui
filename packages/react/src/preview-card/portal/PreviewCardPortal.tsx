@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPortalContext } from './PreviewCardPortalContext';
-import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
+import { FloatingPortalLite } from '../../utils/popups/portal/FloatingPortalLite';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**

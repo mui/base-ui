@@ -13,7 +13,7 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { getHighlightReason } from '../../utils/getHighlightReason';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxClearState> = {
   ...transitionStatusMapping,

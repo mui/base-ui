@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { contains } from '@base-ui/utils/shadowDom';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -10,7 +11,6 @@ import type { Side } from '../../internals/useAnchorPositioning';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { handleInputPress } from '../utils/handleInputPress';
 import { useListEmpty, usePopupSide } from '../utils/parts';
-import { contains } from '../../floating-ui-react/utils/element';
 
 /**
  * A wrapper for the input and its associated controls.

@@ -6,19 +6,19 @@ import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { contains } from '@base-ui/utils/shadowDom';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
 import {
-  safePolygon,
-  useClick,
   useFloatingTree,
-  useFocus,
-  useHoverReferenceInteraction,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-react';
-import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { contains } from '../../floating-ui-react/utils';
+} from '../../utils/popups/tree/FloatingTree';
+import { useFocus } from '../../utils/popups/interactions/useFocus';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
@@ -30,12 +30,12 @@ import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popup
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
-import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
+import { useMixedToggleClickHandler } from './useMixedToggleClickHandler';
 import type { MenuHandle } from '../store/MenuHandle';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { mergeProps } from '../../merge-props';
 
 /**
@@ -75,7 +75,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const thisTriggerId = useBaseUiId(idProp);
 
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const controlsId = store.useState('triggerControlsId', thisTriggerId);
 
@@ -173,7 +172,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
   const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
 
-  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+  const hoverProps = useHoverReferenceInteraction(store, {
     enabled:
       openOnHover &&
       !disabled &&
@@ -186,7 +185,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
-    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   // Whether to ignore clicks to open the menu.
@@ -194,7 +192,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
-  const click = useClick(floatingRootContext, {
+  const click = useClick(store, {
     enabled: !disabled,
     event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
     toggle: true,
@@ -202,7 +200,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 
-  const focus = useFocus(floatingRootContext, {
+  const focus = useFocus(store, {
     enabled: !disabled && parentMenubarHasSubmenuOpen,
   });
 

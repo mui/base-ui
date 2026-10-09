@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -29,7 +29,6 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const descriptionElementId = store.useState('descriptionElementId');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
-  const floatingRootContext = store.useState('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
@@ -40,7 +39,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
   const role = store.useState('role');
-  const floatingId = floatingRootContext.useState('floatingId');
+  const floatingId = store.useState('floatingId');
 
   useDialogPortalContext();
 
@@ -96,7 +95,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      context={store}
       openInteractionType={openMethod}
       disabled={!mounted}
       closeOnFocusOut={!disablePointerDismissal}

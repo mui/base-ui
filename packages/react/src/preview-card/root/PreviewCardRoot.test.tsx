@@ -784,6 +784,29 @@ describe('<PreviewCard.Root />', () => {
       });
     });
   });
+
+  describe('close requests', () => {
+    it('does not report a trigger for an Escape close', async () => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <PreviewCard.Root defaultOpen onOpenChange={onOpenChange}>
+          <PreviewCard.Trigger href="#">Trigger</PreviewCard.Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await user.keyboard('[Escape]');
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+    });
+  });
 });
 
 type TestPreviewCardProps = {

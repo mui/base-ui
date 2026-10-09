@@ -1,15 +1,17 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
 import { NOOP } from '@base-ui/utils/empty';
 import type { TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { NullStore } from '../../utils/NullStore';
-import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import { NullStore } from '../../utils/popups/NullStore';
+import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
+import { dispatchOpenChange } from '../../utils/popups/floating-root/dispatchOpenChange';
 import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
-  applyPopupOpenChange,
+  BasePopupStore,
+  createFloatingRootContextValues,
   createInitialPopupStoreState,
+  getHoverPopupInstantType,
   popupStoreSelectors,
   PopupTriggerMap,
 } from '../../utils/popups';
@@ -63,10 +65,11 @@ export type TooltipHandleStore<Payload> = Pick<
   PopupTriggerStoreKeys | 'setOpen' | 'cancelPendingOpen' | 'useSyncedValue'
 >;
 
-export class TooltipStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
+export class TooltipStore<Payload> extends BasePopupStore<
+  State<Payload>,
   Context,
-  Selectors
+  Selectors,
+  TooltipRoot.ChangeEventDetails
 > {
   constructor(
     initialState: Partial<State<Payload>>,
@@ -75,24 +78,21 @@ export class TooltipStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
-      createInitialState<Payload>(initialState, triggerElements, floatingId, nested),
-      createInitialContext(triggerElements),
+      createInitialState<Payload>(initialState, floatingId),
+      createInitialContext(triggerElements, nested),
       selectors,
     );
   }
 
-  setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
-    applyPopupOpenChange(this, nextOpen, eventDetails as TooltipRoot.ChangeEventDetails, {
-      extraState: { openChangeReason: eventDetails.reason },
-    });
-  };
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
+    return getHoverPopupInstantType(nextOpen, eventDetails.reason);
+  }
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
   cancelPendingOpen(event: MouseEvent | PointerEvent) {
-    this.state.floatingRootContext.dispatchOpenChange(
+    dispatchOpenChange(
+      this.context,
+      this.select('open'),
       false,
       createChangeEventDetails(REASONS.triggerPress, event),
     );
@@ -110,7 +110,7 @@ export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
 
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+    Object.freeze(createInitialState<Payload>(undefined)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
@@ -119,12 +119,10 @@ export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,
-  nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
+    ...createInitialPopupStoreState<Payload>(floatingId),
     disabled: false,
     instantType: undefined,
     isInstantPhase: false,
@@ -140,11 +138,12 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
   return {
     popupRef: React.createRef<HTMLElement | null>(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
+    ...createFloatingRootContextValues(nested),
   };
 }
