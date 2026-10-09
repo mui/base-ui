@@ -16,7 +16,7 @@ import { REASONS } from '../../internals/reasons';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
-import { ClosePartContext, useClosePartCount } from '../../utils/closePart';
+import { ClosePartContext, useClosePartCount } from '../utils/closePart';
 import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
 
 /**
