@@ -690,12 +690,6 @@ export function useListNavigation(
         forceSyncFocusRef.current = true;
         syncCurrentTarget(event);
       },
-      onClick({ currentTarget }) {
-        // Safari. Skipped under virtual focus, which must keep real focus on the reference.
-        if (!virtual) {
-          currentTarget.focus({ preventScroll: true });
-        }
-      },
       onMouseMove(event) {
         if (isStationaryWebKitPointer(event)) {
           return;

@@ -2689,6 +2689,85 @@ describe('<Menu.Root />', () => {
         expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(1);
       });
 
+      it('continues arrow navigation from a checkbox item selected by drag release', async () => {
+        ignoreActWarnings();
+        const { user } = await render(
+          <Menu.Root>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.CheckboxItem>Two</Menu.CheckboxItem>
+                  <Menu.Item>Three</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        fireEvent.mouseDown(trigger);
+
+        const firstItem = await screen.findByRole('menuitem', { name: 'One' });
+        const checkboxItem = screen.getByRole('menuitemcheckbox', { name: 'Two' });
+        const thirdItem = screen.getByRole('menuitem', { name: 'Three' });
+        await waitFor(() => {
+          expect(firstItem).toHaveFocus();
+        });
+
+        await wait(200);
+
+        fireEvent.mouseUp(checkboxItem);
+
+        await waitFor(() => {
+          expect(checkboxItem).toHaveAttribute('aria-checked', 'true');
+        });
+        expect(checkboxItem).toHaveFocus();
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(thirdItem).toHaveFocus();
+        });
+      });
+
+      it('focuses a disabled item on drag release without activating it', async () => {
+        ignoreActWarnings();
+        const onClick = vi.fn();
+        await render(
+          <Menu.Root highlightItemOnHover={false}>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.Item disabled onClick={onClick}>
+                    Two
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        fireEvent.mouseDown(screen.getByRole('button', { name: 'Toggle' }));
+
+        const firstItem = await screen.findByRole('menuitem', { name: 'One' });
+        const disabledItem = screen.getByRole('menuitem', { name: 'Two' });
+        await waitFor(() => {
+          expect(firstItem).toHaveFocus();
+        });
+
+        await wait(200);
+        fireEvent.mouseUp(disabledItem);
+        await flushMicrotasks();
+
+        expect(disabledItem).toHaveFocus();
+        expect(onClick).not.toHaveBeenCalled();
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+      });
+
       it('closes the menu on click, drag outside, release', async () => {
         const { userEvent: user, page } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');

@@ -2,6 +2,7 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
+import { platform } from '@base-ui/utils/platform';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.Item />', () => {
@@ -55,6 +56,131 @@ describe('<Menu.Item />', () => {
     expect(onClick.mock.calls.length).toBe(1);
   });
 
+  it.skipIf(isJSDOM)('focuses an item before mouseup and click without hover focus', async () => {
+    let focusedAtMouseUp: Element | null = null;
+    let focusedAtClick: Element | null = null;
+    const { user } = await render(
+      <Menu.Root open highlightItemOnHover={false}>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <input aria-label="Start" />
+              <Menu.Item
+                closeOnClick={false}
+                onMouseUp={(event) => {
+                  focusedAtMouseUp = event.currentTarget.ownerDocument.activeElement;
+                }}
+                onClick={(event) => {
+                  focusedAtClick = event.currentTarget.ownerDocument.activeElement;
+                }}
+              >
+                Item
+              </Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const input = screen.getByRole('textbox', { name: 'Start' });
+    const item = screen.getByRole('menuitem', { name: 'Item' });
+    await user.click(input);
+    expect(input).toHaveFocus();
+
+    await user.click(item);
+
+    expect(focusedAtMouseUp).toBe(item);
+    expect(focusedAtClick).toBe(item);
+  });
+
+  it.skipIf(!platform.engine.webkit)(
+    'focuses a native button item on mousedown in WebKit',
+    async () => {
+      await render(
+        <Menu.Root open highlightItemOnHover={false}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <input aria-label="Start" />
+                <Menu.Item nativeButton render={<button type="button" />} closeOnClick={false}>
+                  Item
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const input = screen.getByRole('textbox', { name: 'Start' });
+      const item = screen.getByRole('menuitem', { name: 'Item' });
+      input.focus();
+      expect(input).toHaveFocus();
+
+      fireEvent.mouseDown(item);
+
+      expect(item).toHaveFocus();
+    },
+  );
+
+  it.skipIf(platform.engine.webkit)(
+    'does not prevent native button mousedown outside WebKit',
+    async () => {
+      await render(
+        <Menu.Root open highlightItemOnHover={false}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item nativeButton render={<button type="button" />}>
+                  Item
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const item = screen.getByRole('menuitem', { name: 'Item' });
+      expect(fireEvent.mouseDown(item)).toBe(true);
+    },
+  );
+
+  it.each([{ press: 'mouse' }, { press: 'Enter' }])(
+    'preserves focus moved by onClick after $press activation',
+    async ({ press }) => {
+      const { user } = await render(
+        <React.Fragment>
+          <Menu.Root>
+            <Menu.Trigger>Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup finalFocus={false}>
+                  <Menu.Item onClick={() => screen.getByRole('textbox').focus()}>
+                    Focus editor
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <textarea aria-label="Editor" />
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const item = screen.getByRole('menuitem');
+      expect(screen.getByRole('textbox')).not.toHaveFocus();
+
+      if (press === 'Enter') {
+        await act(() => item.focus());
+        await user.keyboard('{Enter}');
+      } else {
+        await user.click(item);
+      }
+
+      expect(screen.queryByRole('menuitem')).toBe(null);
+      expect(screen.getByRole('textbox')).toHaveFocus();
+    },
+  );
+
   it('does not close the menu when onClick prevents Base UI handler', async () => {
     const onClick = vi.fn((event) => event.preventBaseUIHandler());
     const { user } = await render(
@@ -78,24 +204,6 @@ describe('<Menu.Item />', () => {
 
     expect(onClick.mock.calls.length).toBe(1);
     expect(screen.queryByRole('menu')).not.toBe(null);
-  });
-
-  it('allows onMouseDown to call preventBaseUIHandler', async () => {
-    await render(
-      <Menu.Root open>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item onMouseDown={(event) => event.preventBaseUIHandler()}>Item</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>,
-    );
-
-    const item = screen.getByRole('menuitem');
-
-    expect(() => fireEvent.mouseDown(item)).not.toThrow();
   });
 
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {

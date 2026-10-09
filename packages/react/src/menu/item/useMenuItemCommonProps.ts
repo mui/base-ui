@@ -9,10 +9,6 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
-function preventMouseDownDefault(event: React.MouseEvent) {
-  event.preventDefault();
-}
-
 export interface UseMenuItemCommonPropsParameters {
   /**
    * Whether to close the menu when the item is clicked.
@@ -80,8 +76,21 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       role: 'menuitem' as const,
       tabIndex,
       'aria-selected': ariaSelected,
-      // Real focus stays on the input or list that owns virtual navigation.
-      onMouseDown: virtualFocus ? preventMouseDownDefault : undefined,
+      onMouseDown(event: React.MouseEvent) {
+        const isNativeButton = event.currentTarget.tagName === 'BUTTON';
+        const isPrimaryPress = event.button === 0;
+        const isWebKit = platform.engine.webkit;
+
+        // Real focus stays on the input or list that owns virtual navigation.
+        if (virtualFocus) {
+          event.preventDefault();
+        } else if (isWebKit && isNativeButton && isPrimaryPress && !event.defaultPrevented) {
+          // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
+          // Prevent its default blur before focusing, so focus survives until click.
+          event.preventDefault();
+          itemRef.current?.focus({ preventScroll: true });
+        }
+      },
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -126,19 +135,23 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
 
         if (
           itemRef.current &&
+          itemMetadata.type === 'regular-item' &&
           store.context.allowMouseUpTriggerRef.current &&
           (!isContextMenu || event.button === 2)
         ) {
-          // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
-          // We trigger the click and override the `closeOnClick` preference to always close the menu.
-          if (itemMetadata.type === 'regular-item') {
-            // `detail: 1` and `pointerType: 'mouse'` mark this as a mouse-gesture click so
-            // MenuRoot and FloatingFocusManager don't treat it as a keyboard activation.
-            dispatchClickWithModifiers(itemRef.current, event, {
-              detail: 1,
-              pointerType: 'mouse',
-            });
+          // Drag release has no mousedown on this item. Focus it before activation so
+          // arrow navigation continues from it when the menu stays open.
+          if (!virtualFocus) {
+            itemRef.current.focus({ preventScroll: true });
           }
+          // The press started on the trigger and was released over the item, so the item
+          // needs a synthetic click. Its `closeOnClick` preference still applies.
+          // `detail: 1` and `pointerType: 'mouse'` mark this as a mouse-gesture click so
+          // MenuRoot and FloatingFocusManager don't treat it as a keyboard activation.
+          dispatchClickWithModifiers(itemRef.current, event, {
+            detail: 1,
+            pointerType: 'mouse',
+          });
         }
       },
     }),
