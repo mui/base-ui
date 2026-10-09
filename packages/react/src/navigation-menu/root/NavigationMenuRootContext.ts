@@ -14,7 +14,7 @@ export interface NavigationMenuRootContext<Value = any> {
   value: NavigationMenuRoot.Value<Value>;
   setValue: (
     value: NavigationMenuRoot.Value<Value>,
-    eventDetails: NavigationMenuRoot.ChangeEventDetails,
+    eventDetails: Omit<NavigationMenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => void;
   transitionStatus: TransitionStatus;
   mounted: boolean;

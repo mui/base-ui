@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import {
-  DirectionProvider,
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import type {
   useDirection,
-  type DirectionProviderProps,
-  type TextDirection,
+  DirectionProviderProps,
+  TextDirection,
 } from '@base-ui/react/direction-provider';
 
 const direction = null as unknown as ReturnType<typeof useDirection>;

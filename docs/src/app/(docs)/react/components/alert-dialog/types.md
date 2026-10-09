@@ -11,17 +11,17 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                                                                           | Default | Description                                                                                                                                                                                                                                                      |
-| :------------------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultOpen          | `boolean`                                                                      | `false` | Whether the dialog is initially open. To render a controlled dialog, use the `open` prop instead.                                                                                                                                                                |
-| open                 | `boolean`                                                                      | -       | Whether the dialog is currently open.                                                                                                                                                                                                                            |
-| onOpenChange         | `((open: boolean, eventDetails: AlertDialog.Root.ChangeEventDetails) => void)` | -       | Event handler called when the alert dialog is opened or closed.                                                                                                                                                                                                  |
-| actionsRef           | `React.RefObject<AlertDialog.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Manually unmounts the alert dialog.&#xA;Call this after any externally controlled closing animation finishes.`close`: Closes the alert dialog imperatively when called.                                                  |
-| defaultTriggerId     | `string \| null`                                                               | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.                                                                                                          |
-| handle               | `AlertDialog.Handle<Payload>`                                                  | -       | A handle to associate the alert dialog with a trigger.&#xA;If specified, allows external triggers to control the alert dialog's open state.&#xA;Can be created with the AlertDialog.createHandle() method.                                                       |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                    | -       | Event handler called after any animations complete when the dialog is opened or closed.                                                                                                                                                                          |
-| triggerId            | `string \| null`                                                               | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled dialog.&#xA;There's no need to specify this prop when the dialog is uncontrolled (that is, when the `open` prop is not set). |
-| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                       | -       | The content of the dialog.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                          |
+| Prop                 | Type                                                                           | Default | Description                                                                                                                                                                                                                                                                                                                                                                                           |
+| :------------------- | :----------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen          | `boolean`                                                                      | `false` | Whether the dialog is initially open. To render a controlled dialog, use the `open` prop instead.                                                                                                                                                                                                                                                                                                     |
+| open                 | `boolean`                                                                      | -       | Whether the dialog is currently open.                                                                                                                                                                                                                                                                                                                                                                 |
+| onOpenChange         | `((open: boolean, eventDetails: AlertDialog.Root.ChangeEventDetails) => void)` | -       | Event handler called when the alert dialog is opened or closed.                                                                                                                                                                                                                                                                                                                                       |
+| actionsRef           | `React.RefObject<AlertDialog.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Ends the closing phase of the alert dialog after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the alert dialog completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the alert dialog imperatively when called. |
+| defaultTriggerId     | `string \| null`                                                               | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.                                                                                                                                                                                                                                               |
+| handle               | `AlertDialog.Handle<Payload>`                                                  | -       | A handle to associate the alert dialog with a trigger.&#xA;If specified, allows external triggers to control the alert dialog's open state.&#xA;Can be created with the AlertDialog.createHandle() method.                                                                                                                                                                                            |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                    | -       | Event handler called after any animations complete when the dialog is opened or closed.                                                                                                                                                                                                                                                                                                               |
+| triggerId            | `string \| null`                                                               | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled dialog.&#xA;There's no need to specify this prop when the dialog is uncontrolled (that is, when the `open` prop is not set).                                                                                                                                      |
+| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                       | -       | The content of the dialog.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                                                                                               |
 
 ### Root.Props
 
@@ -74,7 +74,8 @@ type AlertDialogRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  preventUnmountOnClose: preventUnmountOnClose;
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
 };
 ```
 
@@ -405,18 +406,111 @@ Closes the dialog.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
+## Additional Types
+
+### AlertDialogBackdropDataAttributes
+
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace AlertDialogBackdropDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### AlertDialogCloseDataAttributes
+
+Data attributes of [Close](#close).
+
+```typescript
+declare namespace AlertDialogCloseDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### AlertDialogPopupCssVariables
+
+CSS variables of [Popup](#popup).
+
+```typescript
+declare namespace AlertDialogPopupCssVariables {
+  /**
+   * Indicates how many dialogs are nested within.
+   * @type number
+   */
+  const nestedDialogs: '--nested-dialogs';
+}
+```
+
+### AlertDialogPopupDataAttributes
+
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace AlertDialogPopupDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the dialog is nested within another dialog. */
+  const nested: 'data-nested';
+  /** Present when the dialog has other open dialogs nested within it. */
+  const nestedDialogOpen: 'data-nested-dialog-open';
+}
+```
+
+### AlertDialogTriggerDataAttributes
+
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace AlertDialogTriggerDataAttributes {
+  /** Present when the trigger is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the corresponding alert dialog is open. */
+  const popupOpen: 'data-popup-open';
+}
+```
+
+### AlertDialogViewportDataAttributes
+
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace AlertDialogViewportDataAttributes {
+  /** Present when the dialog is open. */
+  const open: 'data-open';
+  /** Present when the dialog is closed. */
+  const closed: 'data-closed';
+  /** Present when the dialog begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the dialog is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the dialog is nested within another dialog. */
+  const nested: 'data-nested';
+  /** Present when the dialog has other open dialogs nested within it. */
+  const nestedDialogOpen: 'data-nested-dialog-open';
+}
+```
+
 ## External Types
 
 ### PayloadChildRenderFunction
 
 ```typescript
 type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
-```
-
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
 ```
 
 ### InteractionType
@@ -438,7 +532,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 - `AlertDialog.Viewport`: `AlertDialog.Viewport`, `AlertDialog.Viewport.State`, `AlertDialog.Viewport.Props`
 - `AlertDialog.Handle`
 - `AlertDialog.createHandle`
-- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
+- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogBackdropDataAttributes`, `AlertDialogCloseDataAttributes`, `AlertDialogPopupCssVariables`, `AlertDialogPopupDataAttributes`, `AlertDialogTriggerDataAttributes`, `AlertDialogViewportDataAttributes`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
 
 ## Canonical Types
 

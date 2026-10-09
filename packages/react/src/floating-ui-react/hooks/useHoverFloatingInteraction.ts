@@ -10,7 +10,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
-import type { FloatingContext, FloatingRootContext } from '../types';
+import type { FloatingRootContext } from '../types';
 import { closest, contains, getTarget } from '../utils/element';
 import { getNodeChildren } from '../utils/nodes';
 import {
@@ -50,12 +50,10 @@ export type UseHoverFloatingInteractionProps = {
  * Provides hover interactions that should be attached to the floating element.
  */
 export function useHoverFloatingInteraction(
-  context: FloatingRootContext | FloatingContext,
+  store: FloatingRootContext,
   parameters: UseHoverFloatingInteractionProps = {},
 ): void {
   const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');

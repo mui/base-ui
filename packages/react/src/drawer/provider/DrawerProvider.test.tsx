@@ -1,12 +1,32 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { screen } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { useDrawerProviderContext } from './DrawerProviderContext';
 
 const manualDrawer = {};
 const missingDrawer = {};
+
+// Test files don't load Node types.
+interface NodeProcess {
+  getBuiltinModule(id: 'node:v8'): { setFlagsFromString: (flags: string) => void };
+  getBuiltinModule(id: 'node:vm'): { runInNewContext: (code: string) => () => void };
+}
+
+async function collectGarbage() {
+  const nodeProcess = process as unknown as NodeProcess;
+  nodeProcess.getBuiltinModule('node:v8').setFlagsFromString('--expose-gc');
+  const gc = nodeProcess.getBuiltinModule('node:vm').runInNewContext('gc');
+
+  for (let i = 0; i < 3; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => {
+      setTimeout(resolve);
+    });
+    gc();
+  }
+}
 
 function ProviderControls() {
   const context = useDrawerProviderContext();
@@ -109,20 +129,40 @@ describe('<Drawer.Provider />', () => {
     expect(background).toHaveAttribute('data-inactive', '');
   });
 
-  it('does not retain closed drawer registrations', async () => {
-    const onRender = vi.fn();
+  // Forcing GC needs V8 access through Node, so this only runs in jsdom.
+  it.skipIf(!isJSDOM)('releases closed drawers once they are removed', async () => {
+    const drawerRefs: WeakRef<object>[] = [];
+
+    function RegisterClosedDrawers() {
+      const context = useDrawerProviderContext()!;
+      return (
+        <button
+          onClick={() => {
+            for (let i = 0; i < 10; i += 1) {
+              const drawer = {};
+              drawerRefs.push(new WeakRef(drawer));
+              context.setDrawerOpen(drawer, false);
+              context.removeDrawer(drawer);
+            }
+          }}
+        >
+          Register closed drawers
+        </button>
+      );
+    }
+
     const { user } = await render(
-      <React.Profiler id="provider" onRender={onRender}>
-        <Drawer.Provider>
-          <ProviderControls />
-        </Drawer.Provider>
-      </React.Profiler>,
+      <Drawer.Provider>
+        <RegisterClosedDrawers />
+      </Drawer.Provider>,
     );
 
-    onRender.mockClear();
-    await user.click(screen.getByRole('button', { name: 'Register closed' }));
+    await user.click(screen.getByRole('button', { name: 'Register closed drawers' }));
+    expect(drawerRefs).toHaveLength(10);
 
-    expect(onRender).not.toHaveBeenCalled();
+    await collectGarbage();
+
+    expect(drawerRefs.filter((ref) => ref.deref() !== undefined)).toHaveLength(0);
   });
 
   it('synchronizes and restores visual state on Drawer.Indent', async () => {

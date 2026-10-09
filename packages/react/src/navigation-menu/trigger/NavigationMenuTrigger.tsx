@@ -48,7 +48,7 @@ import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useButton } from '../../internals/use-button';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { getCssDimensions } from '../../utils/getCssDimensions';
-import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
+import type { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
@@ -431,7 +431,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleOpenChange(
     nextOpen: boolean,
-    eventDetails: NavigationMenuRoot.ChangeEventDetails,
+    eventDetails: Omit<NavigationMenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) {
     const isHover = eventDetails.reason === REASONS.triggerHover;
 

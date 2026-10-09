@@ -99,8 +99,10 @@
   "99": "Base UI: %sHandle.open() was called with the trigger id \"%s\", but no matching trigger is registered with this handle. An anchored popup cannot open without a trigger to anchor to. Pass the id of a mounted %s.Trigger that has this handle set on its \"handle\" prop.",
   "100": "Base UI: the `items` prop received an object that is not a collection, so its items cannot be read. Pass an array of items, an array of groups with items, or the result of `createItems()`. See https://base-ui.com/react/components/combobox#createitems",
   "101": "Base UI: SelectRootPropsContext is missing. Select parts must be placed within <Select.Root>.",
-  "102": "Base UI: ListboxDragAndDropProviderContext is missing. Use <Listbox.DragAndDropProvider>.",
-  "103": "Base UI: ListboxItemContext is missing. ListboxItem parts must be placed within <Listbox.Item>.",
-  "104": "Base UI: ListboxGroupContext is missing. ListboxGroup parts must be placed within <Listbox.Group>.",
-  "105": "Base UI: ListboxRootContext is missing. Listbox parts must be placed within <Listbox.Root>."
+  "103": "Base UI: Filter parts are missing their filter context and cannot access the query or items. Wrap the component root in its filter provider.",
+  "104": "Base UI: <Menu.%s> must be placed in a menu wrapped in <Menu.FilterProvider>. It reads the filter query and the matching items from the provider, which a plain menu does not have. Wrap the <Menu.Root> or <Menu.SubmenuRoot> it belongs to in <Menu.FilterProvider>. See https://base-ui.com/react/components/menu#filtering",
+  "105": "Base UI: ListboxDragAndDropProviderContext is missing. Use <Listbox.DragAndDropProvider>.",
+  "106": "Base UI: ListboxGroupContext is missing. ListboxGroup parts must be placed within <Listbox.Group>.",
+  "107": "Base UI: ListboxItemContext is missing. ListboxItem parts must be placed within <Listbox.Item>.",
+  "108": "Base UI: ListboxRootContext is missing. Listbox parts must be placed within <Listbox.Root>."
 }

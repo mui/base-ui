@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/ecaf36c894f9e8bc68959b23bf33e45aefeb319c/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/71a01dd6186f601475e5c9ad15a4c55cc782ca6f/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -35,7 +35,7 @@ default-job: &default-job
   working_directory: /tmp/base-ui
   executor:
     name: code-infra/mui-node
-    node-version: '22.23.2'
+    node-version: '22.23.3'
 
 default-context: &default-context
   context:
@@ -137,7 +137,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps:
@@ -153,7 +153,7 @@ jobs:
     resource_class: medium+
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -167,7 +167,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -226,7 +226,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -243,7 +243,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.62.1-noble
+      playwright-img-version: v1.63.0-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -311,6 +311,15 @@ workflows:
       - test_benchmark:
           <<: *default-context
           name: 'Benchmark tests'
+  # On master merges rather than every push: in September 2026 these jobs used 26% of the repo's
+  # credits, and every failure they had that the regular JSDOM/browser jobs didn't was a flake or an
+  # infra error.
+  react-compiler:
+    when:
+      and:
+        - equal: [pipeline, << pipeline.parameters.workflow >>]
+        - equal: [master, << pipeline.git.branch >>]
+    jobs:
       - test_unit_compiler:
           <<: *default-context
           name: 'JSDOM tests (React Compiler)'

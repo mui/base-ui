@@ -1,6 +1,10 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
-import { Drawer } from '@base-ui/react/drawer';
+import {
+  Drawer,
+  DrawerCloseDataAttributes,
+  DrawerTriggerDataAttributes,
+} from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, firePointer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
@@ -573,11 +577,29 @@ function MissingRootContextConsumer() {
 describe('<Drawer.Root />', () => {
   const { render } = createRenderer();
 
+  it('exposes the attributes rendered by borrowed trigger and close parts', async () => {
+    const { user } = await render(
+      <Drawer.Root modal={false}>
+        <Drawer.Trigger>Open</Drawer.Trigger>
+        <Drawer.Trigger disabled>Disabled</Drawer.Trigger>
+        <Drawer.Close disabled>Close</Drawer.Close>
+      </Drawer.Root>,
+    );
+
+    const disabledTrigger = screen.getByRole('button', { name: 'Disabled' });
+    expect(disabledTrigger).toHaveAttribute(DrawerTriggerDataAttributes.disabled);
+
+    const closeButton = screen.getByRole('button', { name: 'Close' });
+    expect(closeButton).toHaveAttribute(DrawerCloseDataAttributes.disabled);
+
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute(DrawerTriggerDataAttributes.popupOpen);
+  });
+
   it.skipIf(isJSDOM)('uses a size-based swipe threshold', async () => {
     const handleOpenChange = vi.fn();
     await render(<TestCase onOpenChange={handleOpenChange} />);
-
-    await flushMicrotasks();
 
     const viewport = screen.getByTestId('viewport');
     const popup = screen.getByTestId('popup');
@@ -636,7 +658,6 @@ describe('<Drawer.Root />', () => {
       </div>,
     );
 
-    await flushMicrotasks();
     expect(screen.queryByTestId('payload')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Trigger 1' }));
@@ -650,6 +671,53 @@ describe('<Drawer.Root />', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Trigger 2' }));
     await flushMicrotasks();
     expect(screen.getByTestId('payload').textContent).toBe('2');
+  });
+
+  it('does not re-render inactive detached triggers when the popup opens and closes', async () => {
+    const handle = Drawer.createHandle();
+    const bystander = { renders: 0 };
+
+    const { user } = await render(
+      <div>
+        <Drawer.Trigger handle={handle}>Trigger 1</Drawer.Trigger>
+        <Drawer.Trigger
+          handle={handle}
+          render={(props) => {
+            bystander.renders += 1;
+            return <button {...props} />;
+          }}
+        >
+          Trigger 2
+        </Drawer.Trigger>
+        <Drawer.Root handle={handle}>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup">
+                <Drawer.Close>Close</Drawer.Close>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </div>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+
+    async function openAndClose() {
+      await user.click(trigger);
+      expect(await screen.findByTestId('popup')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    }
+
+    bystander.renders = 0;
+    await openAndClose();
+    await openAndClose();
+    expect(bystander.renders).toBe(0);
   });
 
   it('supports imperative actions with handles', async () => {
@@ -821,7 +889,6 @@ describe('<Drawer.Root />', () => {
 
   it('resets the active snap point when closing', async () => {
     await render(<SnapPointResetCase />);
-    await flushMicrotasks();
 
     const closeButton = screen.getByTestId('close');
     fireEvent.click(closeButton);
@@ -833,7 +900,6 @@ describe('<Drawer.Root />', () => {
 
   it('resets to the default snap point when provided', async () => {
     await render(<DefaultSnapPointResetCase />);
-    await flushMicrotasks();
 
     expect(screen.getByTestId('active-snap').textContent).toBe('300px');
 
@@ -848,7 +914,6 @@ describe('<Drawer.Root />', () => {
   it('provides event details when snap point changes', async () => {
     const handleSnapPointChange = vi.fn();
     await render(<SnapPointChangeDetailsCase onSnapPointChange={handleSnapPointChange} />);
-    await flushMicrotasks();
 
     const closeButton = screen.getByTestId('close');
     fireEvent.click(closeButton);
@@ -862,7 +927,6 @@ describe('<Drawer.Root />', () => {
 
   it('does not reset snap point when a close is canceled', async () => {
     await render(<CanceledCloseSnapPointResetCase />);
-    await flushMicrotasks();
 
     expect(screen.getByTestId('active-snap').textContent).toBe('1');
 
@@ -1047,7 +1111,6 @@ describe('<Drawer.Root />', () => {
 
     try {
       await render(<CanceledSwipeCloseCase />);
-      await flushMicrotasks();
 
       const viewport = screen.getByTestId('viewport');
       const popup = screen.getByTestId('popup');
@@ -1078,7 +1141,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<ControlledAlwaysOpenCase onOpenChange={handleOpenChange} />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1117,7 +1179,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<ControlledSwipeCloseSnapPointCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1139,7 +1200,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<CanceledSwipeCloseSnapPointCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1234,7 +1294,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointSequentialSkipCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1254,6 +1313,62 @@ describe('<Drawer.Root />', () => {
     },
   );
 
+  it.skipIf(isJSDOM).each([false, true])(
+    'advances on a short flick with a trailing stationary sample: %s',
+    async (phantom) => {
+      const env = setupSwipeTestEnv();
+
+      try {
+        await render(<SnapPointSequentialSkipCase />);
+
+        const viewport = screen.getByTestId('viewport');
+        env.pointAt(screen.getByTestId('popup'));
+
+        await simulateTimedSwipe(viewport, [
+          { type: 'down', x: 100, y: 500, time: 992 },
+          { type: 'move', x: 100, y: 500, time: 1000 },
+          { type: 'move', x: 100, y: 488, time: 1016 },
+          { type: 'move', x: 100, y: 476, time: 1032 },
+          { type: 'move', x: 100, y: 464, time: 1048 },
+          ...(phantom ? [{ type: 'move' as const, x: 100, y: 463.5, time: 1064 }] : []),
+          { type: 'up', x: 100, y: phantom ? 463.5 : 464, time: phantom ? 1072 : 1056 },
+        ]);
+
+        expect(screen.getByTestId('active-snap').textContent).toBe('300px');
+      } finally {
+        env.cleanup();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'stays on the current snap point after repeated stationary samples',
+    async () => {
+      const env = setupSwipeTestEnv();
+
+      try {
+        await render(<SnapPointSequentialSkipCase />);
+
+        const viewport = screen.getByTestId('viewport');
+        env.pointAt(screen.getByTestId('popup'));
+
+        await simulateTimedSwipe(viewport, [
+          { type: 'down', x: 100, y: 500, time: 992 },
+          { type: 'move', x: 100, y: 500, time: 1000 },
+          { type: 'move', x: 100, y: 460, time: 1016 },
+          { type: 'move', x: 100, y: 460, time: 1032 },
+          { type: 'move', x: 100, y: 460, time: 1048 },
+          { type: 'move', x: 100, y: 460, time: 1064 },
+          { type: 'up', x: 100, y: 460, time: 1072 },
+        ]);
+
+        expect(screen.getByTestId('active-snap').textContent).toBe('100px');
+      } finally {
+        env.cleanup();
+      }
+    },
+  );
+
   it.skipIf(isJSDOM)(
     'advances to the next snap point on fast flicks when snapToSequentialPoints is enabled',
     async () => {
@@ -1261,7 +1376,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointSequentialSkipCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1287,7 +1401,6 @@ describe('<Drawer.Root />', () => {
 
     try {
       await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
-      await flushMicrotasks();
 
       const viewport = screen.getByTestId('viewport');
       const popup = screen.getByTestId('popup');
@@ -1316,7 +1429,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1586,9 +1698,10 @@ describe('<Drawer.Root />', () => {
       const env = setupSwipeTestEnv();
 
       try {
-        await render(
-          <SnapPointGestureCase initialSnapPoint="100px" rejectClose snapToSequentialPoints />,
-        );
+        // Start from a non-default snap point. Root's open change handler resets the snap point
+        // to the default ('100px') even when the parent rejects the close, so only a
+        // non-default starting point shows that the rejected dismissal restores it.
+        await render(<SnapPointGestureCase initialSnapPoint="300px" rejectClose />);
         const viewport = screen.getByTestId('viewport');
         env.pointAt(screen.getByTestId('popup'));
 
@@ -1602,7 +1715,7 @@ describe('<Drawer.Root />', () => {
           await waitSingleFrame();
         });
 
-        expect(screen.getByTestId('active-snap').textContent).toBe('100px');
+        expect(screen.getByTestId('active-snap').textContent).toBe('300px');
         expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
       } finally {
         env.cleanup();
@@ -1641,56 +1754,182 @@ describe('<Drawer.Root />', () => {
     }
   });
 
-  it('closes when CloseWatcher emits a close event', async () => {
-    const handleOpenChange = vi.fn();
-
+  describe('CloseWatcher', () => {
     class CloseWatcherStub extends EventTarget {
       static instances: CloseWatcherStub[] = [];
-      onclose: ((this: CloseWatcherStub, ev: Event) => void) | null = null;
-      oncancel: ((this: CloseWatcherStub, ev: Event) => void) | null = null;
-      destroy = vi.fn();
-      close = vi.fn();
-      requestClose = vi.fn();
+      active = true;
+
       constructor() {
         super();
         CloseWatcherStub.instances.push(this);
       }
+
+      destroy() {
+        this.active = false;
+      }
+
+      // Mirrors the browser: `cancel` fires first and can only be prevented while the page has
+      // history-action activation; otherwise the watcher is destroyed before `close` fires.
+      requestClose(cancelable: boolean) {
+        if (!this.active) {
+          return;
+        }
+
+        const cancelEvent = new Event('cancel', { cancelable });
+        this.dispatchEvent(cancelEvent);
+        if (cancelEvent.defaultPrevented) {
+          return;
+        }
+
+        this.destroy();
+        this.dispatchEvent(new Event('close'));
+      }
     }
 
-    const originalCloseWatcher = (window as Window & { CloseWatcher?: unknown | undefined })
-      .CloseWatcher;
-    (window as Window & { CloseWatcher?: typeof CloseWatcherStub | undefined }).CloseWatcher =
-      CloseWatcherStub;
+    const win = window as Window & { CloseWatcher?: unknown | undefined };
+    const originalCloseWatcher = win.CloseWatcher;
 
-    try {
-      await render(
-        <Drawer.Root defaultOpen onOpenChange={handleOpenChange}>
+    beforeEach(() => {
+      CloseWatcherStub.instances = [];
+      win.CloseWatcher = CloseWatcherStub;
+    });
+
+    afterEach(() => {
+      win.CloseWatcher = originalCloseWatcher;
+    });
+
+    function TestDrawer({
+      children = 'Drawer',
+      ...props
+    }: Omit<Drawer.Root.Props, 'children'> & { children?: React.ReactNode }) {
+      return (
+        <Drawer.Root {...props}>
           <Drawer.Portal>
             <Drawer.Viewport>
-              <Drawer.Popup>Drawer</Drawer.Popup>
+              <Drawer.Popup>{children}</Drawer.Popup>
             </Drawer.Viewport>
           </Drawer.Portal>
-        </Drawer.Root>,
+        </Drawer.Root>
       );
+    }
 
-      await flushMicrotasks();
+    function currentWatcher() {
+      return CloseWatcherStub.instances[CloseWatcherStub.instances.length - 1];
+    }
 
-      const instance = CloseWatcherStub.instances[CloseWatcherStub.instances.length - 1];
-      expect(instance).not.toBeUndefined();
-
+    async function requestClose(cancelable = true) {
       await act(async () => {
-        instance.dispatchEvent(new Event('close'));
-        instance.dispatchEvent(new Event('close'));
-        await flushMicrotasks();
+        currentWatcher().requestClose(cancelable);
       });
+    }
+
+    it('closes when the watcher requests a close', async () => {
+      const handleOpenChange = vi.fn();
+      await render(<TestDrawer defaultOpen onOpenChange={handleOpenChange} />);
+
+      await requestClose();
+
+      expect(handleOpenChange).toHaveBeenCalledExactlyOnceWith(
+        false,
+        expect.objectContaining({ reason: REASONS.closeWatcher }),
+      );
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(currentWatcher().active).toBe(false);
+    });
+
+    it('keeps the same watcher active when a cancelable close request is canceled', async () => {
+      let shouldCancel = true;
+      const handleOpenChange = vi.fn((_open: boolean, details: Drawer.Root.ChangeEventDetails) => {
+        if (shouldCancel) {
+          details.cancel();
+        }
+      });
+      await render(<TestDrawer defaultOpen onOpenChange={handleOpenChange} />);
+      const watcher = currentWatcher();
+      const instanceCount = CloseWatcherStub.instances.length;
+
+      await requestClose();
 
       expect(handleOpenChange).toHaveBeenCalledTimes(1);
-      const lastCall = handleOpenChange.mock.calls[handleOpenChange.mock.calls.length - 1];
-      expect(lastCall?.[0]).toBe(false);
-      expect(lastCall?.[1]?.reason).toBe(REASONS.closeWatcher);
-    } finally {
-      (window as Window & { CloseWatcher?: unknown | undefined }).CloseWatcher =
-        originalCloseWatcher;
-    }
+      expect(screen.getByRole('dialog')).not.toBe(null);
+      expect(CloseWatcherStub.instances).toHaveLength(instanceCount);
+      expect(watcher.active).toBe(true);
+
+      shouldCancel = false;
+      await requestClose();
+
+      expect(handleOpenChange).toHaveBeenCalledTimes(2);
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(watcher.active).toBe(false);
+    });
+
+    it('closes on a close request that cannot be prevented even if onOpenChange cancels it', async () => {
+      const handleOpenChange = vi.fn((_open: boolean, details: Drawer.Root.ChangeEventDetails) => {
+        details.cancel();
+      });
+      await render(<TestDrawer defaultOpen onOpenChange={handleOpenChange} />);
+
+      await requestClose(false);
+
+      expect(handleOpenChange).toHaveBeenCalledTimes(1);
+      const details = handleOpenChange.mock.calls[0][1];
+      expect(details.event.cancelable).toBe(false);
+      expect(details.isCanceled).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(currentWatcher().active).toBe(false);
+    });
+
+    it.each([false, true])(
+      'steps through content on back presses until one cannot be prevented (controlled: %s)',
+      async (controlled) => {
+        function SteppedDrawer() {
+          const [open, setOpen] = React.useState(true);
+          const [step, setStep] = React.useState(2);
+          return (
+            <TestDrawer
+              defaultOpen
+              open={controlled ? open : undefined}
+              onOpenChange={(nextOpen, details) => {
+                if (step > 0 && details.event.cancelable) {
+                  details.cancel();
+                  setStep(step - 1);
+                  return;
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              step {step}
+            </TestDrawer>
+          );
+        }
+
+        await render(<SteppedDrawer />);
+        const watcher = currentWatcher();
+        const instanceCount = CloseWatcherStub.instances.length;
+
+        await requestClose();
+        expect(screen.getByRole('dialog')).toHaveTextContent('step 1');
+        expect(CloseWatcherStub.instances).toHaveLength(instanceCount);
+        expect(watcher.active).toBe(true);
+
+        await requestClose(false);
+        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(watcher.active).toBe(false);
+      },
+    );
+
+    it('destroys the watcher on unmount', async () => {
+      const handleOpenChange = vi.fn((_open: boolean, details: Drawer.Root.ChangeEventDetails) => {
+        details.cancel();
+      });
+      const { unmount } = await render(<TestDrawer defaultOpen onOpenChange={handleOpenChange} />);
+      const watcher = currentWatcher();
+
+      await requestClose();
+      expect(watcher.active).toBe(true);
+
+      unmount();
+      expect(watcher.active).toBe(false);
+    });
   });
 });

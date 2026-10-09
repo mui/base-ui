@@ -17,15 +17,11 @@ import {
   closestSnapPointIndex,
   getSnapPointSwipeMovement,
   useDrawerSnapPoints,
-  type ResolvedDrawerSnapPoint,
 } from '../root/useDrawerSnapPoints';
+import type { ResolvedDrawerSnapPoint } from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import {
-  getDisplacement,
-  useSwipeDismiss,
-  type SwipeDirection,
-  type UseSwipeDismissProgressDetails,
-} from '../../utils/useSwipeDismiss';
+import { getDisplacement, useSwipeDismiss } from '../../utils/useSwipeDismiss';
+import type { SwipeDirection, UseSwipeDismissProgressDetails } from '../../utils/useSwipeDismiss';
 import * as DrawerPopupCssVars from '../popup/DrawerPopupCssVars';
 import * as DrawerPopupDataAttributes from '../popup/DrawerPopupDataAttributes';
 import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
@@ -35,8 +31,12 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
-import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
-import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../internals/constants';
+import { findScrollableTouchTarget } from '../../utils/scrollable';
+import type { ScrollAxis } from '../../utils/scrollable';
+import {
+  BASE_UI_SWIPE_IGNORE_ATTRIBUTE,
+  BASE_UI_SWIPE_IGNORE_SELECTOR,
+} from '../../internals/constants';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -56,14 +56,19 @@ const MAX_SWIPE_RELEASE_SCALAR = 1;
 const AXIS_LOCK_SLOP = 6;
 const AXIS_LOCK_BIAS = 2;
 const DRAWER_CONTENT_SELECTOR = `[${DRAWER_CONTENT_ATTRIBUTE}]`;
+const AXIS_SWIPE_IGNORE_SELECTORS: Record<ScrollAxis, string> = {
+  horizontal: `[${BASE_UI_SWIPE_IGNORE_ATTRIBUTE}="x"]`,
+  vertical: `[${BASE_UI_SWIPE_IGNORE_ATTRIBUTE}="y"]`,
+};
 
 interface TouchScrollState {
   startX: number;
   startY: number;
   lastX: number;
   lastY: number;
+  startedInPopup: boolean;
   scrollTarget: HTMLElement | null;
-  hasCrossAxisScrollableContent: boolean;
+  hasCrossAxisGestureTarget: boolean;
   allowSwipe: boolean | null;
   preserveNativeCrossAxisScroll: boolean;
   drawerAxisAttributed: boolean;
@@ -355,15 +360,29 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return false;
       }
 
+      const nativeEvent = details.nativeEvent;
+      const touchLike = 'touches' in nativeEvent || nativeEvent.pointerType === 'touch';
+      const touchState = touchLike ? touchScrollStateRef.current : null;
+
       const doc = popupElement.ownerDocument;
       const elementAtPoint = getElementAtPoint(popupElement.getRootNode(), position.x, position.y);
-      if (!elementAtPoint || !contains(popupElement, elementAtPoint)) {
+      // Activation can be deferred until after a touch that started inside has left the popup.
+      if (!touchState?.startedInPopup && !contains(popupElement, elementAtPoint)) {
         return false;
       }
 
-      const nativeEvent = details.nativeEvent;
-      const touchLike = 'touches' in nativeEvent || nativeEvent.pointerType === 'touch';
       if (touchLike && shouldIgnoreSwipeForTextSelection(doc, popupElement)) {
+        return false;
+      }
+
+      // Over a cross-axis gesture target, stay pending until the drawer axis wins the gesture.
+      // Starting on touchstart would leave the drawer swiping (and settling on release) while the
+      // cross-axis target handles the drag.
+      if (
+        touchState?.hasCrossAxisGestureTarget &&
+        !touchState.drawerAxisAttributed &&
+        touchState.allowSwipe !== true
+      ) {
         return false;
       }
 
@@ -687,7 +706,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
   React.useEffect(() => {
     const rootElement = viewportElement ?? popupElementState;
-    if (!rootElement) {
+    // A non-passive document listener makes all touch scrolling wait on the main thread.
+    if (!rootElement || !open || !mounted) {
       return undefined;
     }
 
@@ -706,7 +726,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
       const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
 
-      if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
+      if (allowTouchMove || nestedDrawerOpen) {
         return;
       }
 
@@ -910,6 +930,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             event.clientX,
             event.clientY,
           );
+          // Pointer drags capture the pointer on press, so they can't wait to see which axis the
+          // gesture takes; any `data-base-ui-swipe-ignore` value ignores them.
           if (isSwipeIgnoredTarget(elementAtPoint) || isDrawerContentTarget(elementAtPoint)) {
             return;
           }
@@ -976,15 +998,24 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
           virtualKeyboard?.onTouchStart(event);
 
-          if (isSwipeIgnoredTarget(elementAtPoint)) {
+          // `x`/`y` hand touch drags along that axis to the element. Any value other than the
+          // cross-axis one ignores the swipe outright; a cross-axis element is arbitrated like a
+          // native cross-axis scroller below.
+          if (
+            closest(
+              elementAtPoint,
+              `${BASE_UI_SWIPE_IGNORE_SELECTOR}:not(${AXIS_SWIPE_IGNORE_SELECTORS[crossScrollAxis]})`,
+            )
+          ) {
             resetTouchSwipeState(true);
             return;
           }
           ignoreTouchSwipeRef.current = false;
 
           const scrollTarget = findScrollableTouchTarget(target, rootElement, scrollAxis);
-          const hasCrossAxisScrollableContent =
-            findScrollableTouchTarget(target, rootElement, crossScrollAxis) != null;
+          const hasCrossAxisGestureTarget =
+            findScrollableTouchTarget(target, rootElement, crossScrollAxis) != null ||
+            closest(elementAtPoint, AXIS_SWIPE_IGNORE_SELECTORS[crossScrollAxis]) != null;
 
           let allowSwipe: boolean | null = null;
           if (scrollTarget) {
@@ -998,8 +1029,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             startY: touch.clientY,
             lastX: touch.clientX,
             lastY: touch.clientY,
+            startedInPopup: contains(popupRef.current, elementAtPoint),
             scrollTarget,
-            hasCrossAxisScrollableContent,
+            hasCrossAxisGestureTarget,
             allowSwipe,
             preserveNativeCrossAxisScroll: false,
             drawerAxisAttributed: false,
@@ -1132,7 +1164,8 @@ function updateTouchScrollPosition(touchState: TouchScrollState, touch: Touch): 
 }
 
 /**
- * Arbitrates a touchmove between the drawer swipe and a native cross-axis scroll.
+ * Arbitrates a touchmove between the drawer swipe and a cross-axis gesture: a native scroll, or an
+ * element marked with the cross-axis `data-base-ui-swipe-ignore` value.
  * Returns `true` when the move must be left alone — either because the cross axis already won the
  * gesture, or because neither axis has passed the slop yet and the gesture cannot be attributed.
  */
@@ -1152,7 +1185,7 @@ function shouldYieldTouchMove(
   if (
     touchState.drawerAxisAttributed ||
     touchState.allowSwipe === true ||
-    !touchState.hasCrossAxisScrollableContent
+    !touchState.hasCrossAxisGestureTarget
   ) {
     return false;
   }

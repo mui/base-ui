@@ -4,7 +4,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
-import { useClick, useDismiss, useFloating, useListNavigation } from '../index';
+import { useClick, useDismiss, useListNavigation } from '../index';
+import { useFloating } from '../../../test/floating-ui-tests/useFloating';
 import { gridNavigation } from './gridNavigation';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -32,8 +33,8 @@ function App(
     onOpenChange: setOpen,
   });
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useClick(context),
-    useListNavigation(context, {
+    useClick(context.rootStore),
+    useListNavigation(context.rootStore, {
       ...props,
       listRef,
       activeIndex,
@@ -114,7 +115,7 @@ function VirtualizedGridRows({
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-    useListNavigation(context, {
+    useListNavigation(context.rootStore, {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,
@@ -331,8 +332,8 @@ describe('useListNavigation', () => {
       });
 
       const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-        useDismiss(context),
-        useListNavigation(context, {
+        useDismiss(context.rootStore),
+        useListNavigation(context.rootStore, {
           listRef,
           activeIndex,
           onNavigate: setActiveIndex,
@@ -676,6 +677,24 @@ describe('useListNavigation', () => {
       expect(spy).toHaveBeenCalledTimes(2);
       expect(spy.mock.calls.some((args) => args[0] === null)).toBe(true);
       await flushMicrotasks();
+    });
+  });
+
+  describe('reference focus', () => {
+    it('clears ordinary item focus when the open reference receives focus', async () => {
+      render(<App />);
+      const reference = screen.getByRole('button');
+
+      fireEvent.keyDown(reference, { key: 'ArrowDown' });
+      await waitFor(() => {
+        expect(screen.getByTestId('item-0')).toHaveFocus();
+      });
+
+      await act(async () => {
+        reference.focus();
+      });
+
+      expect(screen.getByTestId('item-0')).toHaveAttribute('aria-selected', 'false');
     });
   });
 
@@ -1475,8 +1494,8 @@ describe('useListNavigation', () => {
         onOpenChange: setOpen,
       });
       const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
-        useClick(context),
-        useListNavigation(context, {
+        useClick(context.rootStore),
+        useListNavigation(context.rootStore, {
           listRef,
           activeIndex,
           onNavigate: setActiveIndex,

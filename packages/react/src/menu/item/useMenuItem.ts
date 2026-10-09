@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
-import { HTMLProps } from '../../internals/types';
-import { MenuStore } from '../store/MenuStore';
+import type { HTMLProps } from '../../internals/types';
+import type { MenuStore } from '../store/MenuStore';
 import { useMenuItemCommonProps } from './useMenuItemCommonProps';
 
 export const REGULAR_ITEM = {
@@ -49,12 +49,12 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
       return mergeProps<'div'>(
         commonProps,
         {
-          onMouseEnter() {
+          onMouseEnter(event) {
             if (itemMetadata.type !== 'submenu-trigger') {
               return;
             }
 
-            itemMetadata.setActive();
+            itemMetadata.setActive(event.nativeEvent);
           },
         },
         externalProps,
@@ -122,7 +122,7 @@ export type UseMenuItemMetadata =
   | typeof REGULAR_ITEM
   | {
       type: 'submenu-trigger';
-      setActive: () => void;
+      setActive: (event: MouseEvent) => void;
     };
 
 export interface UseMenuItemReturnValue {

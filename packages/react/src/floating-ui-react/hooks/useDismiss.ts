@@ -16,8 +16,8 @@ import {
 } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
 import { useFloatingTree } from '../components/FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { REASONS } from '../../internals/reasons';
@@ -113,10 +113,7 @@ export interface UseDismissProps {
  * the user presses the `escape` key or outside of the floating element.
  * @see https://floating-ui.com/docs/useDismiss
  */
-export function useDismiss(
-  context: FloatingRootContext | FloatingContext,
-  props: UseDismissProps = {},
-): ElementProps {
+export function useDismiss(store: FloatingRootContext, props: UseDismissProps = {}): ElementProps {
   const {
     enabled = true,
     escapeKey = true,
@@ -126,8 +123,6 @@ export function useDismiss(
     bubbles,
     externalTree,
   } = props;
-
-  const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
@@ -163,6 +158,8 @@ export function useDismiss(
 
   const cancelDismissOnEndTimeout = useTimeout();
   const clearInsideReactTreeTimeout = useTimeout();
+  // Outlives effect re-runs so a pending reset can't leave `isComposingRef` stuck.
+  const compositionTimeout = useTimeout();
 
   const clearInsideReactTree = useStableCallback(() => {
     clearInsideReactTreeTimeout.clear();
@@ -207,9 +204,12 @@ export function useDismiss(
         return;
       }
 
+      const native = isReactEvent(event) ? event.nativeEvent : event;
+
       // Wait until IME is settled. Pressing `Escape` while composing should
-      // close the compose menu, but not the floating element.
-      if (isComposingRef.current) {
+      // close the compose menu, but not the floating element. The ref covers Safari, which fires
+      // `compositionend` before `keydown`; `isComposing` covers compositions that began while closed.
+      if (isComposingRef.current || native.isComposing) {
         return;
       }
 
@@ -217,7 +217,6 @@ export function useDismiss(
         return;
       }
 
-      const native = isReactEvent(event) ? event.nativeEvent : event;
       const eventDetails = createChangeEventDetails(REASONS.escapeKey, native);
 
       store.setOpen(false, eventDetails);
@@ -291,12 +290,19 @@ export function useDismiss(
     };
   }, [events]);
 
+  // Not cleared in the listener effect's cleanup, which can run mid-press when a dependency
+  // changes. In a closed shadow root, the marker is the only inside-press signal.
+  React.useEffect(() => clearInsideReactTree, [clearInsideReactTree]);
+
   React.useEffect(() => {
     if (!open || !enabled) {
       // Reset in the effect body, not the cleanup, which also runs when a dependency
       // changes mid-gesture.
       if (!open) {
         sawPressWhileOpenRef.current = false;
+        isComposingRef.current = false;
+        currentPointerTypeRef.current = '';
+        touchStateRef.current = null;
       }
       return clearInsideReactTree;
     }
@@ -304,7 +310,6 @@ export function useDismiss(
     dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
     dataRef.current.__outsidePressBubbles = outsidePressBubbles;
 
-    const compositionTimeout = new Timeout();
     const preventedPressSuppressionTimeout = new Timeout();
     const doc = ownerDocument(floatingElement);
 
@@ -315,8 +320,10 @@ export function useDismiss(
 
     function handleCompositionEnd() {
       // Safari fires `compositionend` before `keydown`, so we need to wait
-      // until the next tick to set `isComposing` to `false`.
+      // until the next tick to set `isComposing` to `false`. Set it here too, since closing
+      // resets it while a composition can continue into the next open session.
       // https://bugs.webkit.org/show_bug.cgi?id=165004
+      isComposingRef.current = true;
       compositionTimeout.start(
         // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
         // Only apply to WebKit for the test to remain 0ms.
@@ -740,11 +747,9 @@ export function useDismiss(
 
     return () => {
       unsubscribe();
-      compositionTimeout.clear();
       preventedPressSuppressionTimeout.clear();
       resetPressStartState();
       suppressNextOutsideClickRef.current = false;
-      clearInsideReactTree();
     };
   }, [
     dataRef,
@@ -764,6 +769,7 @@ export function useDismiss(
     tree,
     store,
     cancelDismissOnEndTimeout,
+    compositionTimeout,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(

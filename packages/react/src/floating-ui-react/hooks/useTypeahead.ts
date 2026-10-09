@@ -4,8 +4,9 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { isElementVisible, isListIndexDisabled, type DisabledIndices } from '../utils/composite';
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import { isElementVisible, isListIndexDisabled } from '../utils/composite';
+import type { DisabledIndices } from '../utils/composite';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';
 
@@ -24,7 +25,7 @@ export interface UseTypeaheadProps {
   /**
    * Callback invoked with the matching index if found as the user types.
    */
-  onMatch?: ((index: number) => void) | undefined;
+  onMatch?: ((index: number, event: React.KeyboardEvent) => void) | undefined;
   /**
    * Optional list of item elements that correspond to `listRef` indices.
    * When an element exists for an index, typeahead skips it if it is hidden by
@@ -68,24 +69,20 @@ export interface UseTypeaheadProps {
  * types, often used in tandem with `useListNavigation()`.
  * @see https://floating-ui.com/docs/useTypeahead
  */
-export function useTypeahead(
-  context: FloatingRootContext | FloatingContext,
-  props: UseTypeaheadProps,
-): ElementProps {
+export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
   const {
     listRef,
     elementsRef,
     activeIndex,
     onMatch: onMatchProp,
     disabledIndices,
-    onTyping,
+    onTyping: onTypingProp,
     enabled = true,
     resetMs = 750,
     selectedIndex = null,
   } = props;
 
-  const store = 'rootStore' in context ? context.rootStore : context;
-
+  const onTyping = useStableCallback(onTypingProp);
   const open = store.useState('open');
 
   const timeout = useTimeout();
@@ -198,7 +195,7 @@ export function useTypeahead(
     const index = getMatchingIndex(listContent, stringRef.current, startIndex);
 
     if (index !== -1) {
-      onMatchProp?.(index);
+      onMatchProp?.(index, event);
       matchIndexRef.current = index;
     } else if (event.key !== ' ') {
       stringRef.current = '';
@@ -235,8 +232,9 @@ export function useTypeahead(
 
     if (stringRef.current !== '') {
       stringRef.current = '';
+      onTyping?.(false);
     }
-  }, [open, selectedIndex, timeout]);
+  }, [open, selectedIndex, timeout, onTyping]);
 
   const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
 

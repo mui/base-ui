@@ -4,11 +4,11 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
-import {
-  type Side,
-  type Align,
-  useAnchorPositioning,
-  type UseAnchorPositioningSharedParameters,
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Side,
+  Align,
+  UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';

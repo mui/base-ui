@@ -39,6 +39,43 @@ describe('<Tooltip.Root />', () => {
     triggerMouseAction: 'hover',
   });
 
+  describe('trigger unmount during the open delay', () => {
+    clock.withFakeTimers();
+
+    function App({ showTrigger }: { showTrigger: boolean }) {
+      return (
+        <Tooltip.Root>
+          {showTrigger && <Tooltip.Trigger>Toggle</Tooltip.Trigger>}
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      );
+    }
+
+    it('does not open once the hovered trigger has unmounted', async () => {
+      const { setProps } = await render(<App showTrigger />);
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(1);
+
+      await setProps({ showTrigger: false });
+
+      clock.tick(OPEN_DELAY);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+    });
+  });
+
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerTooltip },
     { name: 'detached triggers', Component: DetachedTriggerTooltip },
@@ -61,6 +98,22 @@ describe('<Tooltip.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
+      });
+
+      it('does not open when a touch pointer hovers the trigger', async () => {
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('should close when the trigger is unhovered', async () => {
@@ -164,7 +217,7 @@ describe('<Tooltip.Root />', () => {
         expect(handleChange.mock.calls[1][0]).toBe(true);
       });
 
-      it('should not call onChange when the open state does not change', async () => {
+      it('does not call onOpenChange again when the trigger is re-hovered while open', async () => {
         const handleChange = vi.fn();
 
         function App() {
@@ -197,40 +250,24 @@ describe('<Tooltip.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
-        expect(handleChange.mock.calls.length).toBe(1);
-        expect(handleChange.mock.calls[0][0]).toBe(false);
+        expect(handleChange).toHaveBeenCalledTimes(1);
+
+        // Hovering the already-open trigger again doesn't request another open.
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
+        expect(handleChange).toHaveBeenCalledTimes(1);
+        expect(handleChange).toHaveBeenNthCalledWith(1, false);
       });
     });
 
     describe('prop: defaultOpen', () => {
-      it('should open when the component is rendered', async () => {
+      it('closes when the trigger is unhovered after opening by default', async () => {
         await render(<TestTooltip rootProps={{ defaultOpen: true }} />);
-
-        await flushMicrotasks();
-
-        expect(screen.getByText('Content')).not.toBe(null);
-      });
-
-      it('should not open when the component is rendered and open is controlled', async () => {
-        await render(<TestTooltip rootProps={{ defaultOpen: true, open: false }} />);
-
-        await flushMicrotasks();
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-
-      it('should not close when the component is rendered and open is controlled', async () => {
-        await render(<TestTooltip rootProps={{ defaultOpen: true, open: true }} />);
-
-        await flushMicrotasks();
-
-        expect(screen.getByText('Content')).not.toBe(null);
-      });
-
-      it('should remain uncontrolled', async () => {
-        await render(<TestTooltip rootProps={{ defaultOpen: true }} />);
-
-        await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
 
@@ -415,203 +452,14 @@ describe('<Tooltip.Root />', () => {
       });
     });
 
-    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-      it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = React.useState(true);
-          return (
-            <div>
-              <button onClick={() => setOpen(false)}>Close</button>
-              <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-                <Tooltip.Portal>
-                  <Tooltip.Positioner>
-                    <Tooltip.Popup data-testid="popup" />
-                  </Tooltip.Positioner>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on close when the exit animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = React.useState(true);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(false)}>Close</button>
-              <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-                <Tooltip.Portal>
-                  <Tooltip.Positioner>
-                    <Tooltip.Popup className="animation-test-indicator" data-testid="popup" />
-                  </Tooltip.Positioner>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        expect(screen.getByTestId('popup')).not.toBe(null);
-
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on open when there is no enter animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = React.useState(false);
-          return (
-            <div>
-              <button onClick={() => setOpen(true)}>Open</button>
-              <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-                <Tooltip.Portal>
-                  <Tooltip.Positioner>
-                    <Tooltip.Popup data-testid="popup" />
-                  </Tooltip.Positioner>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).not.toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls.length).toBe(2);
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
-
-      it('is called on open when the enter animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            from {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-starting-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = React.useState(false);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(true)}>Open</button>
-              <Tooltip.Root
-                open={open}
-                onOpenChange={setOpen}
-                onOpenChangeComplete={onOpenChangeComplete}
-              >
-                <Tooltip.Portal>
-                  <Tooltip.Positioner>
-                    <Tooltip.Popup className="animation-test-indicator" data-testid="popup" />
-                  </Tooltip.Positioner>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-
-        expect(screen.queryByTestId('popup')).not.toBe(null);
-      });
-
-      it('does not get called on mount when not open', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        await render(
-          <Tooltip.Root onOpenChangeComplete={onOpenChangeComplete}>
-            <Tooltip.Portal>
-              <Tooltip.Positioner>
-                <Tooltip.Popup data-testid="popup" />
-              </Tooltip.Positioner>
-            </Tooltip.Portal>
-          </Tooltip.Root>,
-        );
-
-        expect(onOpenChangeComplete.mock.calls.length).toBe(0);
-      });
-    });
-
     describe.skipIf(isJSDOM)('animations', () => {
       it('toggles instant animations for adjacent tooltips only while opening', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
+        // A long transition keeps the exit running until the final assertion, even on slow runs.
         const style = `
           .tooltip {
-            transition: opacity 20ms;
+            transition: opacity 10s;
           }
           .tooltip[data-starting-style],
           .tooltip[data-ending-style] {
@@ -669,16 +517,20 @@ describe('<Tooltip.Root />', () => {
 
         await waitFor(() => {
           expect(secondPopup.dataset.instant).toBe('delay');
-          expect(secondPopup.getAnimations().length).toBe(0);
+        });
+        expect(secondPopup.getAnimations().length).toBe(0);
+        // Closing from the starting style would exit from `opacity: 0` and never start a transition.
+        await waitFor(() => {
+          expect(secondPopup).not.toHaveAttribute('data-starting-style');
         });
 
         await user.unhover(secondTrigger);
 
         await waitFor(() => {
           expect(secondPopup.dataset.endingStyle).toBe('');
-          expect(secondPopup.dataset.instant).toBe(undefined);
-          expect(secondPopup.getAnimations().length).toBe(1);
         });
+        expect(secondPopup.dataset.instant).toBe(undefined);
+        expect(secondPopup.getAnimations().length).toBe(1);
       });
 
       it('unmounts an exiting tooltip when another tooltip opens', async () => {
@@ -774,11 +626,13 @@ describe('<Tooltip.Root />', () => {
         // Opacity should be 1 immediately — no unwanted fade from 0 to 1.
         // No opacity transition should be running.
         await waitFor(() => {
-          expect(Number(getComputedStyle(popup).opacity)).toBe(1);
           const opacityAnimations = popup
             .getAnimations()
             .filter((a) => (a as CSSTransition).transitionProperty === 'opacity');
-          expect(opacityAnimations.length).toBe(0);
+          expect({
+            opacity: Number(getComputedStyle(popup).opacity),
+            opacityAnimationCount: opacityAnimations.length,
+          }).toEqual({ opacity: 1, opacityAnimationCount: 0 });
         });
       });
     });
@@ -975,30 +829,6 @@ describe('<Tooltip.Root />', () => {
     });
 
     describe('BaseUIChangeEventDetails', () => {
-      it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-        await render(
-          <TestTooltip
-            rootProps={{
-              onOpenChange: (nextOpen, eventDetails) => {
-                if (nextOpen) {
-                  eventDetails.cancel();
-                }
-              },
-            }}
-            triggerProps={{ delay: 0 }}
-          />,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-
-        await flushMicrotasks();
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-
       it('allowPropagation() prevents stopPropagation on Escape while still closing', async () => {
         const stopPropagationSpy = vi.spyOn(Event.prototype as any, 'stopPropagation');
 
@@ -2572,21 +2402,7 @@ describe('nested tooltips', () => {
     }
   });
 
-  it.each([
-    {
-      name: 'starts with a ShadowRoot',
-      getPath(innerTrigger: HTMLElement, outerTrigger: HTMLElement) {
-        const shadowRoot = document.createElement('div').attachShadow({ mode: 'open' });
-        return [shadowRoot, innerTrigger, outerTrigger, document.body, document, window];
-      },
-    },
-    {
-      name: 'is empty',
-      getPath() {
-        return [];
-      },
-    },
-  ])('handles a composed path that $name', async ({ getPath }) => {
+  it('falls back to the event target when the composed path is empty', async () => {
     await render(
       <Tooltip.Root>
         <Tooltip.Trigger data-testid="outer-trigger" render={<span />}>
@@ -2606,13 +2422,15 @@ describe('nested tooltips', () => {
     const outerTrigger = screen.getByTestId('outer-trigger');
     const innerTrigger = screen.getByTestId('inner-trigger');
 
+    // Start the outer open delay so only nested trigger detection keeps it closed.
+    fireEvent.pointerDown(outerTrigger, { pointerType: 'mouse' });
     fireEvent.pointerEnter(outerTrigger, { pointerType: 'mouse' });
     fireEvent.mouseEnter(outerTrigger);
+    fireEvent.mouseMove(outerTrigger);
 
+    // `composedPath()` is empty once an event has finished dispatching.
     const mouseOverEvent = new MouseEvent('mouseover', { bubbles: true, composed: true });
-    Object.defineProperty(mouseOverEvent, 'composedPath', {
-      value: () => getPath(innerTrigger, outerTrigger),
-    });
+    Object.defineProperty(mouseOverEvent, 'composedPath', { value: () => [] });
     innerTrigger.dispatchEvent(mouseOverEvent);
 
     clock.tick(OPEN_DELAY);

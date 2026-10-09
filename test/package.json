@@ -7,8 +7,8 @@
   "devDependencies": {
     "@base-ui/react": "workspace:*",
     "@base-ui/utils": "workspace:*",
-    "@playwright/test": "1.62.1",
-    "@testing-library/dom": "10.4.1",
+    "@playwright/test": "1.63.0",
+    "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -17,9 +17,9 @@
     "is-wsl": "3.1.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "react-router": "8.3.1",
+    "react-router": "8.4.0",
     "util": "0.12.5",
-    "webpack": "5.110.3",
-    "yargs": "18.1.0"
+    "webpack": "5.111.1",
+    "yargs": "18.2.0"
   }
 }

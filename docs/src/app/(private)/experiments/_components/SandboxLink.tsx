@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { createCodeSandbox } from 'docs/src/blocks/createCodeSandbox/createCodeSandbox';
-import { DemoFile } from 'docs/src/blocks/Demo';
+import type { DemoFile } from 'docs/src/blocks/Demo';
 import { resolveDependencies } from 'docs/src/utils/demoExportOptions';
 import { Button } from './Button';
 

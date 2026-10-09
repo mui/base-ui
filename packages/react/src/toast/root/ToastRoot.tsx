@@ -13,7 +13,7 @@ import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import {

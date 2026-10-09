@@ -1,10 +1,10 @@
 import type { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootContext } from '../../floating-ui-react';
 import { FloatingRootStore } from '../../floating-ui-react/components/FloatingRootStore';
-import { TransitionStatus } from '../../internals/useTransitionStatus';
-import { PopupTriggerMap } from './popupTriggerMap';
-import { HTMLProps } from '../../internals/types';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { PopupTriggerMap } from './popupTriggerMap';
+import type { HTMLProps } from '../../internals/types';
 
 /**
  * State common to all popup stores.
@@ -177,7 +177,10 @@ function triggerOwnsOpenPopupOrIsOnlyTrigger(state: S, triggerId: string | undef
 export const popupStoreSelectors = {
   open: openSelector,
   mounted: (state: S) => state.mounted,
-  transitionStatus: (state: S) => state.transitionStatus,
+  // `open` is written synchronously on an open change; `mounted`/`transitionStatus` sync in a
+  // layout effect. Match useTransitionStatus so a retained popup does not miss its starting phase.
+  transitionStatus: (state: S) =>
+    openSelector(state) && !state.mounted ? 'starting' : state.transitionStatus,
   floatingRootContext: (state: S) => state.floatingRootContext,
   triggerCount: (state: S) => state.triggerCount,
   preventUnmountingOnClose: (state: S) => state.preventUnmountingOnClose,

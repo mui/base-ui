@@ -9,6 +9,8 @@
     flex-shrink: 0;
     margin-inline: 1px;
     font-family: var(--default-font-family);
+    /* Undo Tailwind preflight's `font-feature-settings: normal` so the features match the surrounding text */
+    font-feature-settings: inherit;
     font-weight: var(--font-weight-400);
     white-space: nowrap;
 

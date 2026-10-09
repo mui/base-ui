@@ -1,16 +1,9 @@
 import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
-import {
-  act,
-  createRenderer,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Field.Control />', () => {
   const { render, renderToString } = createRenderer();
@@ -26,7 +19,8 @@ describe('<Field.Control />', () => {
   it('avoids rerendering for uncontrolled input changes', async () => {
     const renderCountRef = { current: 0 };
 
-    renderNonStrict(
+    // Count renders of Field.Control itself: the render function runs every time it renders.
+    await renderNonStrict(
       <Field.Root>
         <Field.Control
           data-testid="control"
@@ -71,7 +65,7 @@ describe('<Field.Control />', () => {
       );
     }
 
-    renderNonStrict(<App />);
+    await renderNonStrict(<App />);
 
     const control = screen.getByTestId('control');
 
@@ -344,6 +338,48 @@ describe('<Field.Control />', () => {
     expect(root).not.toHaveAttribute('data-filled');
   });
 
+  it('forwards a changing defaultValue without warning', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      const { setProps } = await render(
+        <Field.Root data-testid="root">
+          <Field.Control defaultValue="" />
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      expect(root).not.toHaveAttribute('data-filled');
+
+      await setProps({ children: <Field.Control defaultValue="value" /> });
+
+      expect(screen.getByRole('textbox')).toHaveValue('value');
+      expect(root).toHaveAttribute('data-filled', '');
+      expect(errorSpy).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('keeps filled state from the edited value when defaultValue changes', async () => {
+    const { setProps } = await render(
+      <Field.Root data-testid="root">
+        <Field.Control defaultValue="" />
+      </Field.Root>,
+    );
+
+    const root = screen.getByTestId('root');
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'typed' } });
+    expect(root).toHaveAttribute('data-filled', '');
+
+    await setProps({ children: <Field.Control defaultValue="next" /> });
+    await setProps({ children: <Field.Control defaultValue="" /> });
+
+    expect(input).toHaveValue('typed');
+    expect(root).toHaveAttribute('data-filled', '');
+  });
+
   it('sets filled state from a controlled value on a custom element', async () => {
     await render(
       <Field.Root data-testid="root">
@@ -394,8 +430,8 @@ describe('<Field.Control />', () => {
   });
 
   it.skipIf(isJSDOM)('validates once when Enter implicitly submits a form', async () => {
-    const { userEvent } = await import('vitest/browser');
-    const user = userEvent.setup();
+    // Real browser input is needed: implicit form submission on Enter is browser behavior.
+    const { userEvent: user } = await import('vitest/browser');
     const validate = vi.fn(() => null);
     const handleSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
 
@@ -417,8 +453,8 @@ describe('<Field.Control />', () => {
   });
 
   it.skipIf(isJSDOM)('validates when Enter does not implicitly submit the form', async () => {
-    const { userEvent } = await import('vitest/browser');
-    const user = userEvent.setup();
+    // Real browser input is needed: implicit form submission on Enter is browser behavior.
+    const { userEvent: user } = await import('vitest/browser');
     const validate = vi.fn(() => null);
     const handleSubmit = vi.fn();
 
@@ -442,8 +478,8 @@ describe('<Field.Control />', () => {
   it.skipIf(isJSDOM)(
     'validates when a disabled submit button blocks implicit submission',
     async () => {
-      const { userEvent } = await import('vitest/browser');
-      const user = userEvent.setup();
+      // Real browser input is needed: implicit form submission on Enter is browser behavior.
+      const { userEvent: user } = await import('vitest/browser');
       const validate = vi.fn(() => null);
       const handleSubmit = vi.fn();
 
@@ -525,6 +561,102 @@ describe('<Field.Control />', () => {
 
     expect(control).toHaveAttribute('aria-invalid', 'true');
     expect(screen.getByText('Required')).toBeInTheDocument();
+  });
+
+  describe('[data-focused]', () => {
+    function Controls(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+      const { firstMounted = true, firstDisabled = false } = props;
+      return (
+        <React.Fragment>
+          <Field.Root data-testid="root">
+            <Field.Label data-testid="label">Name</Field.Label>
+            {firstMounted && <Field.Control data-testid="first" disabled={firstDisabled} />}
+          </Field.Root>
+          <button type="button" data-testid="outside" />
+        </React.Fragment>
+      );
+    }
+
+    it('is removed when the focused control becomes disabled', async () => {
+      const { setProps } = await render(<Controls />);
+
+      const control = screen.getByTestId('first');
+      act(() => {
+        control.focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      expect(control).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      expect(control).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('label')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is removed when the field root becomes disabled', async () => {
+      function TestCase(props: { disabled?: boolean }) {
+        const { disabled = false } = props;
+        return (
+          <Field.Root data-testid="root" disabled={disabled}>
+            <Field.Control data-testid="control" />
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestCase />);
+
+      act(() => {
+        screen.getByTestId('control').focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ disabled: true });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+    });
+
+    it('can be re-acquired after the control is re-enabled', async () => {
+      const { setProps } = await render(<Controls />);
+
+      const control = screen.getByTestId('first');
+      act(() => {
+        control.focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+
+      // Browsers move focus off a disabled control; jsdom leaves it as the active element.
+      act(() => {
+        screen.getByTestId('outside').focus();
+      });
+
+      await setProps({ firstDisabled: false });
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+
+      act(() => {
+        control.focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+    });
+
+    it('is removed when the focused control unmounts', async () => {
+      const { setProps } = await render(<Controls />);
+
+      act(() => {
+        screen.getByTestId('first').focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('label')).not.toHaveAttribute('data-focused');
+    });
   });
 
   it.skipIf(isJSDOM)('should sync focused state when autoFocus is used with SSR', async () => {
