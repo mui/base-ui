@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
+import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
@@ -54,7 +54,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const floatingRootContext = store.useState('floatingRootContext');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const openReason = store.useState('openChangeReason');
@@ -68,7 +67,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const positioning = useAnchorPositioning({
     anchor,
-    floatingRootContext,
+    floatingRootContext: store,
     positionMethod,
     mounted,
     side,
@@ -86,7 +85,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     adaptiveOrigin,
   });
 
-  const domReference = floatingRootContext.useState('domReferenceElement');
+  const domReference = store.useState('domReferenceElement');
 
   useTriggerSwitchTransition({
     store,

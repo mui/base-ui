@@ -8,9 +8,9 @@ import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
 
 const shiftSpy = vi.hoisted(() => vi.fn());
 
-vi.mock('../floating-ui-react', async () => {
+vi.mock('@floating-ui/react-dom', async () => {
   const actual =
-    await vi.importActual<typeof import('../floating-ui-react')>('../floating-ui-react');
+    await vi.importActual<typeof import('@floating-ui/react-dom')>('@floating-ui/react-dom');
 
   return {
     ...actual,

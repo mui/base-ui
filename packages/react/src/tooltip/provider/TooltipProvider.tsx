@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingDelayGroup } from '../../floating-ui-react';
+import { FloatingDelayGroup } from '../../utils/popups/delay-group/FloatingDelayGroup';
 import { TooltipProviderContext } from './TooltipProviderContext';
 
 /**

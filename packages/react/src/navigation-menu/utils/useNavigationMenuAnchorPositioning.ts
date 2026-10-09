@@ -1,7 +1,7 @@
 'use client';
-import { useBaseUIFloating } from '../../floating-ui-react/hooks/useFloating';
-import { useFloatingRootContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
-import type { UseFloatingOptions } from '../../floating-ui-react/types';
+import { useBaseUIFloating } from '../../utils/popups/positioning/useFloating';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import type { UseFloatingOptions } from '../../utils/popups/floating-root/types';
 import { useAnchorPositioningWithHook } from '../../internals/useAnchorPositioning';
 import type {
   UseAnchorPositioningParameters,

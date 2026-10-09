@@ -1,11 +1,20 @@
-import { describe, expect, it } from 'vitest';
-import { createInitialPopupStoreState, popupStoreSelectors } from './store';
-import type { PopupStoreState } from './store';
+import { describe, expect, it, vi } from 'vitest';
+import * as React from 'react';
+import {
+  BasePopupStore,
+  createFloatingRootContextValues,
+  createInitialPopupStoreState,
+  getHoverPopupInstantType,
+  popupStoreSelectors,
+} from './store';
+import type { PopupOpenChangeEventDetails, PopupStoreContext, PopupStoreState } from './store';
 import { PopupTriggerMap } from './popupTriggerMap';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 function createState(state: Partial<PopupStoreState<unknown>>) {
   return {
-    ...createInitialPopupStoreState(new PopupTriggerMap()),
+    ...createInitialPopupStoreState(),
     activeTriggerId: 'trigger',
     ...state,
   };
@@ -147,5 +156,232 @@ describe('popupStoreSelectors', () => {
         ),
       ).toBe(undefined);
     });
+  });
+});
+
+type TestState = PopupStoreState<unknown> & { extra: number };
+
+class TestPopupStore extends BasePopupStore<
+  TestState,
+  PopupStoreContext<PopupOpenChangeEventDetails>,
+  typeof popupStoreSelectors,
+  PopupOpenChangeEventDetails
+> {
+  readonly steps: string[] = [];
+
+  ignoreOpenChange = false;
+
+  dropOpenChange = false;
+
+  closeTrigger: Element | undefined = undefined;
+
+  constructor(
+    onOpenChange: (open: boolean, eventDetails: PopupOpenChangeEventDetails) => void,
+    state: Partial<TestState> = {},
+  ) {
+    const triggerElements = new PopupTriggerMap();
+    super(
+      { ...createInitialPopupStoreState(), extra: 0, ...state },
+      {
+        triggerElements,
+        popupRef: React.createRef<HTMLElement>(),
+        onOpenChange,
+        onOpenChangeComplete: undefined,
+        ...createFloatingRootContextValues(),
+      },
+      popupStoreSelectors,
+    );
+
+    this.context.events.on('openchange', () => {
+      this.steps.push('notify');
+    });
+    this.subscribe(() => {
+      this.steps.push('commit');
+    });
+  }
+
+  protected isOpenChangeIgnored() {
+    return this.ignoreOpenChange;
+  }
+
+  protected getCloseTrigger() {
+    return this.closeTrigger;
+  }
+
+  protected isOpenChangeDropped() {
+    return this.dropOpenChange;
+  }
+
+  protected prepareOpenChange() {
+    this.steps.push('prepare');
+    return { extra: 1 };
+  }
+
+  protected completeOpenChange() {
+    this.steps.push('complete');
+  }
+}
+
+function createDetails(reason: string, trigger?: Element) {
+  return createChangeEventDetails(reason, undefined, trigger);
+}
+
+describe('BasePopupStore', () => {
+  describe('setOpen', () => {
+    it('calls onOpenChange, notifies interactions, prepares, commits once and completes, in that order', () => {
+      const store = new TestPopupStore(() => {
+        store.steps.push('onOpenChange');
+      });
+
+      store.setOpen(true, createDetails(REASONS.triggerPress));
+
+      expect(store.steps).toEqual(['onOpenChange', 'notify', 'prepare', 'commit', 'complete']);
+    });
+
+    it('notifies interactions about a dropped change without committing it', () => {
+      const onOpenChange = vi.fn();
+      const store = new TestPopupStore(onOpenChange);
+      store.dropOpenChange = true;
+
+      store.setOpen(true, createDetails(REASONS.triggerPress));
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(store.steps).toEqual(['notify']);
+      expect(store.state.open).toBe(false);
+    });
+
+    it('commits the open state, the reason and the extra state together', () => {
+      const store = new TestPopupStore(() => {});
+      const trigger = document.createElement('button');
+      trigger.id = 'trigger';
+
+      store.setOpen(true, createDetails(REASONS.triggerPress, trigger));
+
+      expect(store.state.open).toBe(true);
+      expect(store.state.activeTriggerId).toBe('trigger');
+      expect(store.state.activeTriggerElement).toBe(trigger);
+      expect(store.state.openChangeReason).toBe(REASONS.triggerPress);
+      expect(store.state.extra).toBe(1);
+    });
+
+    it('stops a cancelled change before it is prepared, notified or committed', () => {
+      const store = new TestPopupStore((_open, eventDetails) => {
+        eventDetails.cancel();
+      });
+
+      store.setOpen(true, createDetails(REASONS.triggerPress));
+
+      expect(store.steps).toEqual([]);
+      expect(store.state.open).toBe(false);
+    });
+
+    it('does not call onOpenChange for an ignored change', () => {
+      const onOpenChange = vi.fn();
+      const store = new TestPopupStore(onOpenChange);
+      store.ignoreOpenChange = true;
+
+      store.setOpen(true, createDetails(REASONS.triggerPress));
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(store.steps).toEqual([]);
+    });
+
+    it('calls onOpenChange for a close request while closed', () => {
+      const onOpenChange = vi.fn();
+      const store = new TestPopupStore(onOpenChange);
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports no trigger for a close request that carries none by default', () => {
+      const onOpenChange = vi.fn();
+      const trigger = document.createElement('button');
+      trigger.id = 'trigger';
+      const store = new TestPopupStore(onOpenChange, {
+        open: true,
+        mounted: true,
+        activeTriggerId: 'trigger',
+        activeTriggerElement: trigger,
+      });
+      store.context.triggerElements.add('trigger', trigger);
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+      expect(store.state.activeTriggerElement).toBe(trigger);
+    });
+
+    it('reports the close trigger the store names for a close request that carries none', () => {
+      const onOpenChange = vi.fn();
+      const store = new TestPopupStore(onOpenChange, { open: true });
+      const trigger = document.createElement('button');
+      store.closeTrigger = trigger;
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(trigger);
+    });
+
+    it('keeps the popup mounted when onOpenChange prevents unmounting on close', () => {
+      const store = new TestPopupStore(
+        (_open, eventDetails) => {
+          eventDetails.preventUnmountOnClose();
+        },
+        { open: true },
+      );
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+
+      expect(store.state.preventUnmountingOnClose).toBe(true);
+    });
+
+    it('ignores a request to keep the popup mounted from a cancelled close', () => {
+      const store = new TestPopupStore(
+        (_open, eventDetails) => {
+          eventDetails.preventUnmountOnClose();
+          eventDetails.cancel();
+        },
+        { open: true },
+      );
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+
+      expect(store.state.open).toBe(true);
+      expect(store.state.preventUnmountingOnClose).toBe(false);
+    });
+  });
+});
+
+describe('getHoverPopupInstantType', () => {
+  it.each([
+    {
+      name: 'a focus open',
+      open: true,
+      reason: REASONS.triggerFocus,
+      expected: { instantType: 'focus' },
+    },
+    {
+      name: 'a trigger press close',
+      open: false,
+      reason: REASONS.triggerPress,
+      expected: { instantType: 'dismiss' },
+    },
+    {
+      name: 'an Escape close',
+      open: false,
+      reason: REASONS.escapeKey,
+      expected: { instantType: 'dismiss' },
+    },
+    {
+      name: 'a hover open',
+      open: true,
+      reason: REASONS.triggerHover,
+      expected: { instantType: undefined },
+    },
+    { name: 'any other change', open: true, reason: REASONS.none, expected: {} },
+  ])('maps $name', ({ open, reason, expected }) => {
+    expect(getHoverPopupInstantType(open, reason)).toStrictEqual(expected);
   });
 });

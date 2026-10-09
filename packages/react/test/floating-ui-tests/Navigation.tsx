@@ -2,19 +2,14 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTestInteractions } from '#test-utils';
-import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
-import {
-  flip,
-  FloatingFocusManager,
-  FloatingNode,
-  FloatingPortal,
-  offset,
-  safePolygon,
-  shift,
-  useDismiss,
-  useFloatingNodeId,
-  useFocus,
-} from '../../src/floating-ui-react';
+import { flip, offset, shift } from '@floating-ui/react-dom';
+import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
+import { FloatingNode, useFloatingNodeId } from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useFocus } from '../../src/utils/popups/interactions/useFocus';
 import { useFloating } from './useFloating';
 import { useHover } from './useHover';
 import styles from './Navigation.module.css';

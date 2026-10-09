@@ -9,7 +9,7 @@ import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
-import { useHoverFloatingInteraction } from '../../floating-ui-react';
+import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 /**
@@ -31,7 +31,6 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  const floatingContext = store.useState('floatingRootContext');
   const disabled = store.useState('disabled');
   const closeDelay = store.useState('closeDelay');
 
@@ -45,7 +44,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     },
   });
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverFloatingInteraction(store, {
     enabled: !disabled,
     closeDelay,
   });

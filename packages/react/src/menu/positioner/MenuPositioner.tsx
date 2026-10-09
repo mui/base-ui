@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { FloatingNode } from '../../floating-ui-react';
+import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -59,7 +59,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const contextMenuContext = useContextMenuRootContext(true);
 
   const parent = store.useState('parent');
-  const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -73,7 +72,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
-  const domReference = floatingRootContext.useState('domReferenceElement');
+  const domReference = store.useState('domReferenceElement');
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -105,7 +104,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const positioner = useAnchorPositioning({
     anchor,
-    floatingRootContext,
+    floatingRootContext: store,
     positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
     mounted,
     side: computedSide,

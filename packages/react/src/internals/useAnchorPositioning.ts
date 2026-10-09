@@ -13,24 +13,27 @@ import {
   offset,
   shift as floatingShift,
   size,
-} from '../floating-ui-react';
+} from '@floating-ui/react-dom';
 import type {
-  UseFloatingOptions,
-  UseFloatingReturn,
   Placement,
-  FloatingRootContext,
   VirtualElement,
   Padding,
-  FloatingContext,
   Side as PhysicalSide,
   MiddlewareState,
   AutoUpdateOptions,
   Middleware,
-  FloatingTreeStore,
-} from '../floating-ui-react';
-import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
+} from '@floating-ui/react-dom';
+import type {
+  UseFloatingOptions,
+  UseFloatingReturn,
+  FloatingRootContext,
+  FloatingContext,
+} from '../utils/popups/floating-root/types';
+import { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
+import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
+import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
-import { arrow } from '../floating-ui-react/middleware/arrow';
+import { arrow } from '../utils/popups/positioning/arrow';
 import { hide } from '../utils/hideMiddleware';
 import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
 import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
@@ -458,14 +461,20 @@ export function useAnchorPositioningWithHook(
 
   useIsoLayoutEffect(() => {
     // Ensure positioning doesn't run initially for `keepMounted` elements that
-    // aren't initially open.
+    // aren't initially open. Popup stores derive the anchor and floating elements from their
+    // own state, so only a `FloatingRootStore` keeps copies of them to clear.
     if (!mounted && floatingRootContext) {
-      floatingRootContext.update({
-        referenceElement: null,
-        floatingElement: null,
-        domReferenceElement: null,
-        positionReference: null,
-      });
+      if (floatingRootContext instanceof FloatingRootStore) {
+        floatingRootContext.update({
+          referenceElement: null,
+          floatingElement: null,
+          domReferenceElement: null,
+          positionReference: null,
+        });
+      } else {
+        floatingRootContext.set('domReferenceElement', null);
+        floatingRootContext.set('positionReference', null);
+      }
     }
   }, [mounted, floatingRootContext]);
 
