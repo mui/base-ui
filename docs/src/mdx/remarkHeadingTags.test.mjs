@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import remarkHeadingTags from './remarkHeadingTags.mjs';
+import remarkHeadingTags, { stripTrailingHeadingTag } from './remarkHeadingTags.mjs';
+import { remarkPlugins } from '../../next.config.mjs';
 
 /**
  * @param {string} markdown
@@ -47,10 +48,49 @@ describe('remarkHeadingTags', () => {
     expect(heading.data.hProperties['data-heading-badge']).toBe('Preview');
   });
 
+  it('leaves a tag on an h1 in the heading text', () => {
+    const [pageHeading, sectionHeading] = headings('# Menu [New]\n\n## Menu [New]\n');
+
+    expect(pageHeading.children[0].value).toBe('Menu [New]');
+    expect(pageHeading.data).toBeUndefined();
+    expect(sectionHeading.children[0].value).toBe('Menu');
+    expect(sectionHeading.data.hProperties['data-heading-badge']).toBe('New');
+  });
+
   it('does not strip a heading that is only a tag', () => {
     const [heading] = headings('### [Preview]\n');
 
     expect(heading.children[0].value).toBe('[Preview]');
     expect(heading.data).toBeUndefined();
+  });
+});
+
+describe('stripTrailingHeadingTag', () => {
+  it('removes a trailing tag from heading text', () => {
+    expect(stripTrailingHeadingTag('FilterProvider [Preview]')).toBe('FilterProvider');
+    expect(stripTrailingHeadingTag('Chip [New] [Preview]')).toBe('Chip [New]');
+  });
+
+  it('leaves text without a trailing tag unchanged', () => {
+    expect(stripTrailingHeadingTag('Use [value]')).toBe('Use [value]');
+    expect(stripTrailingHeadingTag('Already [Preview] inside')).toBe('Already [Preview] inside');
+  });
+
+  it('does not strip text that is only a tag', () => {
+    expect(stripTrailingHeadingTag('[Preview]')).toBe('[Preview]');
+    expect(stripTrailingHeadingTag(' [Preview]')).toBe(' [Preview]');
+  });
+});
+
+describe('docs MDX pipeline', () => {
+  it('runs remarkHeadingTags after transformMarkdownMetadata so the page index keeps the tag', () => {
+    const names = remarkPlugins.map((plugin) => (Array.isArray(plugin) ? plugin[0] : plugin));
+    const metadataIndex = names.indexOf(
+      '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
+    );
+    const headingTagsIndex = names.findIndex((name) => name.endsWith('/remarkHeadingTags.mjs'));
+
+    expect(metadataIndex).not.toBe(-1);
+    expect(headingTagsIndex).toBeGreaterThan(metadataIndex);
   });
 });
