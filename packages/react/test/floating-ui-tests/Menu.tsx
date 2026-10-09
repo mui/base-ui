@@ -26,9 +26,19 @@ import { useListNavigation } from '../../src/utils/popups/interactions/useListNa
 import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
 import { useFocus } from '../../src/utils/popups/interactions/useFocus';
 import { useFloating } from './useFloating';
+import type { PopupTreeStore } from '../../src/utils/popups/tree/PopupTreeStore';
 import { gridNavigation } from '../../src/utils/popups/interactions/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './Menu.module.css';
+
+// This fixture's menus talk through their own, untyped tree events.
+type FixtureTree = Omit<PopupTreeStore, 'events'> & {
+  events: {
+    emit(event: string, data?: any): void;
+    on(event: string, handler: (data: any) => void): void;
+    off(event: string, handler: (data: any) => void): void;
+  };
+};
 
 type MenuContextType = {
   getItemProps: ReturnType<typeof useTestInteractions>['getItemProps'];
@@ -86,7 +96,7 @@ export const MenuComponent = React.forwardRef<
   const elementsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
 
-  const tree = usePopupTree();
+  const tree = usePopupTree() as FixtureTree | null;
   const nodeId = usePopupNodeId();
   const parentId = usePopupParentNodeId();
   const isNested = parentId != null;
@@ -319,7 +329,7 @@ export const MenuItem = React.forwardRef<
 >(function MenuItem({ label, disabled, ...props }, forwardedRef) {
   const menu = React.useContext(MenuContext);
   const item = useCompositeListItem({ label: disabled ? null : label });
-  const tree = usePopupTree();
+  const tree = usePopupTree() as FixtureTree | null;
   const isActive = item.index === menu.activeIndex;
 
   return (

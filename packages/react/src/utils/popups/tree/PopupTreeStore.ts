@@ -1,4 +1,4 @@
-import type { PopupTreeNodeType, PopupEvents } from '../types';
+import type { PopupTreeNodeType, FloatingTreeEvents } from '../types';
 import { createEventEmitter } from '../createEventEmitter';
 
 /**
@@ -8,7 +8,7 @@ import { createEventEmitter } from '../createEventEmitter';
 export class PopupTreeStore {
   public readonly nodesRef: React.RefObject<Array<PopupTreeNodeType>> = { current: [] };
 
-  public readonly events: PopupEvents = createEventEmitter();
+  public readonly events: FloatingTreeEvents = createEventEmitter();
 
   public addNode(node: PopupTreeNodeType) {
     this.nodesRef.current.push(node);
