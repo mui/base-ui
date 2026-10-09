@@ -30,18 +30,23 @@ const TrackedPopup = React.forwardRef(function TrackedPopup(
 describe.skipIf(isJSDOM)('Menu popup transition state', () => {
   const { render } = createRenderer();
 
-  it.each([
-    { controlled: false, keepMounted: false, defaultOpen: false },
-    { controlled: false, keepMounted: false, defaultOpen: true },
-    { controlled: false, keepMounted: true, defaultOpen: false },
-    { controlled: false, keepMounted: true, defaultOpen: true },
-    { controlled: true, keepMounted: false, defaultOpen: false },
-    { controlled: true, keepMounted: false, defaultOpen: true },
-    { controlled: true, keepMounted: true, defaultOpen: false },
-    { controlled: true, keepMounted: true, defaultOpen: true },
-  ])(
-    'starts each opening once (controlled=$controlled, keepMounted=$keepMounted, defaultOpen=$defaultOpen)',
-    async ({ controlled, keepMounted, defaultOpen }) => {
+  it.each(
+    [
+      { controlled: false, keepMounted: false, defaultOpen: false },
+      { controlled: false, keepMounted: false, defaultOpen: true },
+      { controlled: false, keepMounted: true, defaultOpen: false },
+      { controlled: false, keepMounted: true, defaultOpen: true },
+      { controlled: true, keepMounted: false, defaultOpen: false },
+      { controlled: true, keepMounted: false, defaultOpen: true },
+      { controlled: true, keepMounted: true, defaultOpen: false },
+      { controlled: true, keepMounted: true, defaultOpen: true },
+    ].flatMap((testCase) => [
+      { ...testCase, ancestorContainer: false },
+      { ...testCase, ancestorContainer: true },
+    ]),
+  )(
+    'starts each opening once (controlled=$controlled, keepMounted=$keepMounted, defaultOpen=$defaultOpen, ancestorContainer=$ancestorContainer)',
+    async ({ controlled, keepMounted, defaultOpen, ancestorContainer }) => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
       const states: PopupState[] = [];
       function onState(state: PopupState) {
@@ -57,12 +62,13 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
 
       function TestMenu() {
         const [open, setOpen] = React.useState(defaultOpen);
+        const container = React.useRef<HTMLDivElement>(null);
         return (
-          <React.Fragment>
+          <div ref={container} data-testid="container">
             <style>{`
-                  .transition-state-popup { opacity: 0; transition: opacity 10s linear; }
-                  .transition-state-popup[data-enter] { opacity: 1; }
-                `}</style>
+                .transition-state-popup { opacity: 0; transition: opacity 10s linear; }
+                .transition-state-popup[data-enter] { opacity: 1; }
+              `}</style>
             <Menu.Root
               open={controlled ? open : undefined}
               defaultOpen={defaultOpen}
@@ -70,7 +76,11 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
               onOpenChangeComplete={completed}
             >
               <Menu.Trigger>Toggle</Menu.Trigger>
-              <Menu.Portal keepMounted={keepMounted}>
+              <Menu.Portal
+                keepMounted={keepMounted}
+                container={ancestorContainer ? container : undefined}
+                data-testid="portal"
+              >
                 <Menu.Positioner>
                   <Menu.Popup
                     className="transition-state-popup"
@@ -83,7 +93,7 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
                 </Menu.Positioner>
               </Menu.Portal>
             </Menu.Root>
-          </React.Fragment>
+          </div>
         );
       }
 
@@ -123,6 +133,10 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
       } else {
         await openMenu();
       }
+
+      expect(screen.getByTestId('portal').parentElement).toBe(
+        ancestorContainer ? screen.getByTestId('container') : document.body,
+      );
 
       async function closeAndReopen() {
         completed.mockClear();
