@@ -117,12 +117,12 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
         if (contextMenuContext) {
           const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
           contextMenuContext.initialCursorPointRef.current = null;
-          const isInitialContextMenuMouseUp =
+          if (
             isContextMenu &&
             initialCursorPoint &&
             Math.abs(event.clientX - initialCursorPoint.x) <= 1 &&
-            Math.abs(event.clientY - initialCursorPoint.y) <= 1;
-          if (isInitialContextMenuMouseUp) {
+            Math.abs(event.clientY - initialCursorPoint.y) <= 1
+          ) {
             return;
           }
 
@@ -133,10 +133,12 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
           }
         }
 
-        const isRegularItem = itemMetadata.type === 'regular-item';
-        const isDragRelease =
-          store.context.allowMouseUpTriggerRef.current && (!isContextMenu || event.button === 2);
-        if (itemRef.current && isRegularItem && isDragRelease) {
+        if (
+          itemRef.current &&
+          itemMetadata.type === 'regular-item' &&
+          store.context.allowMouseUpTriggerRef.current &&
+          (!isContextMenu || event.button === 2)
+        ) {
           // The press started on the trigger and was released over the item, so the item
           // needs a synthetic click. Its `closeOnClick` preference still applies.
           // Drag release has no mousedown on this item. Focus it before activation so
