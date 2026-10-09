@@ -20,6 +20,12 @@ export type State = {
   transitionStatus: TransitionStatus;
   forceMounted: boolean;
 
+  /**
+   * Whether the popup's open/close transition should be instant, and why.
+   * Mirrors the `instantType` state of `Menu`.
+   */
+  instantType: 'dismiss' | undefined;
+
   inline: boolean;
 
   activeIndex: number | null;
@@ -174,6 +180,8 @@ export const selectors = {
   },
 
   transitionStatus: (state: State) => state.transitionStatus,
+
+  instantType: (state: State) => state.instantType,
 
   popupProps: (state: State) => state.popupProps,
   listProps: (state: State) => state.listProps,
