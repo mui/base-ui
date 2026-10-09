@@ -57,7 +57,7 @@
   "57": "Base UI: SelectItemContext is missing. SelectItem parts must be placed within <Select.Item>.",
   "58": "Base UI: <Select.Portal> is missing.",
   "59": "Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.",
-  "60": "Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.",
+  "60": "Base UI: SelectRootStoreContext is missing. Select parts must be placed within <Select.Root>.",
   "61": "Base UI: SelectFloatingContext is missing. Select parts must be placed within <Select.Root>.",
   "62": "Base UI: SliderRootContext is missing. Slider parts must be placed within <Slider.Root>.",
   "63": "Base UI: SwitchRootContext is missing. Switch parts must be placed within <Switch.Root>.",
@@ -100,5 +100,6 @@
   "100": "Base UI: the `items` prop received an object that is not a collection, so its items cannot be read. Pass an array of items, an array of groups with items, or the result of `createItems()`. See https://base-ui.com/react/components/combobox#createitems",
   "101": "Base UI: SelectRootPropsContext is missing. Select parts must be placed within <Select.Root>.",
   "103": "Base UI: Filter parts are missing their filter context and cannot access the query or items. Wrap the component root in its filter provider.",
-  "104": "Base UI: <Menu.%s> must be placed in a menu wrapped in <Menu.FilterProvider>. It reads the filter query and the matching items from the provider, which a plain menu does not have. Wrap the <Menu.Root> or <Menu.SubmenuRoot> it belongs to in <Menu.FilterProvider>. See https://base-ui.com/react/components/menu#filtering"
+  "104": "Base UI: <Menu.%s> must be placed in a menu wrapped in <Menu.FilterProvider>. It reads the filter query and the matching items from the provider, which a plain menu does not have. Wrap the <Menu.Root> or <Menu.SubmenuRoot> it belongs to in <Menu.FilterProvider>. See https://base-ui.com/react/components/menu#filtering",
+  "105": "Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>."
 }

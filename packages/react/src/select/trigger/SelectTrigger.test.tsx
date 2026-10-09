@@ -19,7 +19,7 @@ describe('<Select.Trigger />', () => {
 
     try {
       await expect(render(<Select.Trigger />)).rejects.toThrow(
-        'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
+        'Base UI: SelectRootStoreContext is missing. Select parts must be placed within <Select.Root>.',
       );
     } finally {
       errorSpy.mockRestore();

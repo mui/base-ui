@@ -3,7 +3,11 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
+import {
+  useSelectFloatingContext,
+  useSelectRootStoreContext,
+  useSelectRootContext,
+} from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
@@ -56,17 +60,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...elementProps
   } = componentProps;
 
-  const store = useSelectRootContext();
+  const store = useSelectRootStoreContext();
   const floatingRootContext = useSelectFloatingContext();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const modal = store.useState('modal');
-  const value = store.useState('value');
+  const context = useSelectRootContext();
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const triggerElement = store.useState('triggerElement');
-  const isItemEqualToValue = store.useState('isItemEqualToValue');
   const transitionStatus = store.useState('transitionStatus');
 
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
@@ -149,11 +152,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
       const eventDetails = createChangeEventDetails(REASONS.none);
 
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
+      if (prevSize !== 0 && !context.multiple && context.value !== null) {
         const selectedValueIndex = findItemIndex(
           store.context.valuesRef.current,
-          value,
-          isItemEqualToValue,
+          context.value,
+          context.isItemEqualToValue,
         );
         if (selectedValueIndex === -1) {
           const initialSelectedValue = store.context.initialValueRef.current;
@@ -162,7 +165,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
             findItemIndex(
               store.context.valuesRef.current,
               initialSelectedValue,
-              isItemEqualToValue,
+              context.isItemEqualToValue,
             ) !== -1;
           const nextValue = hasInitial ? initialSelectedValue : null;
           store.context.setValue(nextValue, eventDetails);
@@ -174,16 +177,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         }
       }
 
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-        const nextValue = value.filter(
+      if (prevSize !== 0 && context.multiple && Array.isArray(context.value)) {
+        const nextValue = context.value.filter(
           (selectedItemValue) =>
             findItemIndex(
               store.context.valuesRef.current,
               selectedItemValue,
-              isItemEqualToValue,
+              context.isItemEqualToValue,
             ) !== -1,
         );
-        if (nextValue.length !== value.length) {
+        if (nextValue.length !== context.value.length) {
           store.context.setValue(nextValue, eventDetails);
 
           if (nextValue.length === 0) {
