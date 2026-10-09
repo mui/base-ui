@@ -16,14 +16,14 @@ export const mdxComponents = {
     ...props
   }: React.ComponentProps<'pre'> & React.ComponentProps<typeof CodeBlockPreComputed>) =>
     'data-precompute' in props ? (
-      <CodeBlock.Root className="MdFigure MdBlogArticleBreakout">
+      <CodeBlock.Root className="MdFigure BlogMdArticleBreakout">
         <CodeBlockPreComputed {...props} />
       </CodeBlock.Root>
     ) : (
       <CodeBlock.Pre {...props} />
     ),
   table: (props: React.ComponentProps<'table'>) => (
-    <Table.Root {...props} className="MdBlogArticleBreakout" />
+    <Table.Root {...props} className="BlogMdArticleBreakout" />
   ),
   thead: Table.Head,
   tbody: Table.Body,
@@ -34,7 +34,7 @@ export const mdxComponents = {
   // Custom components
   Diagram,
   Figure: (props: React.ComponentProps<'figure'>) => (
-    <Figure.Root {...props} className="MdBlogArticleBreakout" />
+    <Figure.Root {...props} className="BlogMdArticleBreakout" />
   ),
   FigureFrame: Figure.Frame,
   Figcaption: Figure.Caption,

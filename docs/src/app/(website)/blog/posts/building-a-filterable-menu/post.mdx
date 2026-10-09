@@ -1,7 +1,10 @@
-import videoFilterableMenu from './video-filterable-menu.mp4';
-import videoKeyboardInteraction from './video-keyboard-interaction.mp4';
-import videoHoverInteraction from './video-hover-interaction.mp4';
-import SketchKeyControl from './SketchKeyControl';
+import videoDarkFilterableMenu from './video-dark-filterable-menu.mp4';
+import videoLightFilterableMenu from './video-light-filterable-menu.mp4';
+import videoDarkKeyboardInteraction from './video-dark-keyboard-interaction.mp4';
+import videoLightKeyboardInteraction from './video-light-keyboard-interaction.mp4';
+import videoDarkHoverInteraction from './video-dark-hover-interaction.mp4';
+import videoLightHoverInteraction from './video-light-hover-interaction.mp4';
+import DemoKeyControl from './DemoKeyControl';
 import DiagramAccessibility from './DiagramAccessibility';
 
 # Building a filterable menu that works for everyone
@@ -13,7 +16,14 @@ import DiagramAccessibility from './DiagramAccessibility';
 
 <Figure>
   <FigureFrame>
-    <Video src={videoFilterableMenu} label="Filterable menu interaction" width={800} height={540} />
+    <Video
+      src={videoLightFilterableMenu}
+      darkSrc={videoDarkFilterableMenu}
+      autoPlay
+      label="Filterable menu interaction"
+      width={800}
+      height={540}
+    />
   </FigureFrame>
 </Figure>
 
@@ -135,10 +145,10 @@ Try it below. This is a small sketch of the behavior rather than Base UI itself
 
 <Figure>
   <FigureFrame>
-    <SketchKeyControl />
+    <DemoKeyControl />
   </FigureFrame>
   <Figcaption>
-    Simplified for illustration; the real component also handles groups, submenus and IME
+    Simplified for illustration; the real component also handles groups, submenus, and IME
     composition.
   </Figcaption>
 </Figure>
@@ -152,7 +162,9 @@ With the keyboard, the intent is clear. Pressing <kbd>→</kbd> on a highlighted
 <Figure>
   <FigureFrame>
     <Video
-      src={videoKeyboardInteraction}
+      src={videoLightKeyboardInteraction}
+      darkSrc={videoDarkKeyboardInteraction}
+      autoPlay
       label="Filterable menu keyboard demonstration"
       width={800}
       height={540}
@@ -169,7 +181,9 @@ Hovering over a trigger isn't as clear-cut. The pointer might simply pass over i
 <Figure>
   <FigureFrame>
     <Video
-      src={videoHoverInteraction}
+      src={videoLightHoverInteraction}
+      darkSrc={videoDarkHoverInteraction}
+      autoPlay
       label="Filterable menu hover demonstration"
       width={800}
       height={540}
@@ -197,7 +211,7 @@ We use a text input with `role="searchbox"` instead, a combination [permitted by
 
 ## Bugs we found in plain old Menu
 
-Revisiting Menu testing with screen readers for filterables also uncovered bugs in Menu and shared popup code that affected every menu, filterable or not. We fixed them separately so everyone benefits.
+Revisiting Menu testing with screen readers for filterables also uncovered bugs in Menu and shared popup code that affected every menu (filterable or not). We fixed them separately so everyone benefits.
 
 1. **Double announcements in VoiceOver.** A menu group could announce its name twice. The group was named by `Menu.GroupLabel`, but the same label appeared as another stop for the virtual cursor. With the new dialog affordance, a custom scrollbar could also be counted as something to explore, even though a screen reader user could not reach it. The [accessibility-tree fix](https://github.com/mui/base-ui/pull/5598) removed the redundant stops while keeping the group named and the content scrollable.
 2. **Getting lost on the way out.** <kbd>Shift</kbd>+<kbd>Tab</kbd> out of an open menu trigger could drop focus onto the page body. A [shared focus-guard fix](https://github.com/mui/base-ui/pull/5733) corrected that path. On iPhone VoiceOver, returning from a submenu to its trigger left the submenu open, so moving forward entered it again instead of reaching the next item in the parent menu. [Closing the submenu on that focus return](https://github.com/mui/base-ui/pull/5793) restored the path forward.
@@ -236,7 +250,7 @@ The input is the most visible addition. But getting the interactions and accessi
 
 ---
 
-Try it yourself in the [Menu docs preview](https://deploy-preview-5527--base-ui.netlify.app/react/components/menu#filtering)
+Try it yourself in the [Menu docs](/react/components/menu#filtering)
 
 export const post = {
   authors: ['jenna', 'james'],

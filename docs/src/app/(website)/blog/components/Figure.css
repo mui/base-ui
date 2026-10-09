@@ -1,23 +1,18 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
-  .FigureBlogRoot {
+  .BlogFigure {
     margin-block: var(--space-20) var(--space-24);
     margin-inline: 0;
   }
 
-  .FigureBlogFrame {
+  .BlogFigureFrame {
     border: 1px solid var(--color-border);
     border-radius: var(--radius-12);
-    overflow: hidden;
-
-    > img,
-    > video {
-      display: block;
-      max-width: 100%;
-      height: auto;
-    }
   }
 
-  .FigureBlogCaption {
+  .BlogFigureCaption {
     padding: var(--space-8) var(--space-12);
     color: var(--gray-t1);
     font-size: var(--font-size-15);

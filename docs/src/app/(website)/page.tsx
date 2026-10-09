@@ -164,28 +164,30 @@ export default async function Homepage() {
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
       {latestPost && (
-        <section className="bui-d-c">
-          <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
-            <h2 className="Text sz-2">Latest from the desk</h2>
+        <React.Fragment>
+          <section className="bui-d-c">
+            <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
+              <h2 className="Text sz-2">Latest from the desk</h2>
+            </div>
+            <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
+              <h3 className="Text sz-3">
+                <HeadingLink href={`/blog/${latestPost.slug}`}>{latestPost.title}</HeadingLink>
+              </h3>
+              <p className="Text sz-2">{latestPost.description}</p>
+              <Link
+                className="Text sz-2 bui-d-if bui-mt-5"
+                href={`/blog/${latestPost.slug}`}
+                withArrow
+              >
+                Read more
+              </Link>
+            </div>
+          </section>
+          <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
+            <div className="Separator" role="separator" aria-hidden="true"></div>
           </div>
-          <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
-            <h3 className="Text sz-3">
-              <HeadingLink href={`/blog/${latestPost.slug}`}>{latestPost.title}</HeadingLink>
-            </h3>
-            <p className="Text sz-2">{latestPost.description}</p>
-            <Link
-              className="Text sz-2 bui-d-if bui-mt-5"
-              href={`/blog/${latestPost.slug}`}
-              withArrow
-            >
-              Read more
-            </Link>
-          </div>
-        </section>
+        </React.Fragment>
       )}
-      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
-        <div className="Separator" role="separator" aria-hidden="true"></div>
-      </div>
       <section className="bui-d-c">
         <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text sz-2">So you know who to blame</h2>

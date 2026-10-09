@@ -4,7 +4,6 @@ import './css/index.css';
 
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
-
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
 import { LogoLink } from 'docs/src/components/LogoLink';
@@ -42,7 +41,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
               </div>
               <nav
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-5 bui-gce-8 bp2:bui-gcs-5 bp2:bui-gce-9 bp3:bui-gcs-5 bp3:bui-gce-7"
-                aria-label="Website"
+                aria-label="social links"
               >
                 <Link className="Text sz-1" href="https://x.com/base_ui">
                   X

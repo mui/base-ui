@@ -1,10 +1,17 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
-  .DiagramBlogRoot {
-    overflow-x: auto;
+  .BlogDiagram {
+    border-radius: var(--radius-12);
+    overflow: hidden;
+  }
+
+  .BlogDiagramViewport {
     padding: var(--space-20);
   }
 
-  .DiagramBlogContent > svg {
+  .BlogDiagramContent > svg {
     display: block;
     width: 100%;
     height: auto;

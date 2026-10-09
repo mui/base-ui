@@ -1,7 +1,8 @@
 import 'server-only';
 import path from 'node:path';
 import { globby } from 'globby';
-import type { Metadata } from 'next';
+import type { ExtractedMetadata } from '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata/types';
+
 import { authors } from 'docs/src/data/authors';
 import type { Author, AuthorId } from 'docs/src/data/authors';
 import type * as MDXModule from '*.mdx';
@@ -12,8 +13,8 @@ type BlogPostMetadata = {
 };
 
 type BlogPostModule = typeof MDXModule & {
-  metadata: Metadata;
-  post?: BlogPostMetadata;
+  metadata: ExtractedMetadata;
+  post: BlogPostMetadata;
 };
 
 export async function getPosts() {
@@ -24,9 +25,7 @@ export async function getPosts() {
   const posts = await Promise.all(
     files.map(async (file) => {
       const slug = file.slice(0, -'/post.mdx'.length);
-      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-        throw new Error(`Invalid blog slug "${slug}". Use lowercase words separated by hyphens.`);
-      }
+
       const {
         default: Content,
         metadata,
@@ -35,16 +34,11 @@ export async function getPosts() {
 
       const publishedAt = post?.publishedAt;
       if (!(publishedAt instanceof Date) || Number.isNaN(publishedAt.getTime())) {
-        throw new Error(
-          `Invalid publication date for blog post "${slug}". Set post.publishedAt to a valid Date.`,
-        );
+        throw new Error(`Blog post "${slug}": set post.publishedAt to a valid Date.`);
       }
 
-      const titleSuffix = ' · Base UI';
-      const metadataTitle = String(metadata.title ?? '');
-      const title = metadataTitle.endsWith(titleSuffix)
-        ? metadataTitle.slice(0, -titleSuffix.length)
-        : metadataTitle;
+      const metadataTitle = metadata.title ?? '';
+      const title = metadataTitle.replace(/ · Base UI$/, '');
 
       return {
         slug,
@@ -52,10 +46,10 @@ export async function getPosts() {
         metadata,
         title,
         description: metadata.description,
-        authors: (post?.authors ?? []).map((id): Author => {
+        authors: post.authors.map((id): Author => {
           if (!Object.hasOwn(authors, id)) {
             throw new Error(
-              `Unknown author ID "${id}" in blog post "${slug}". Add the author to docs/src/data/authors.ts or correct post.authors.`,
+              `Blog post "${slug}": missing author "${id}" in docs/src/data/authors.ts.`,
             );
           }
           return authors[id];
@@ -68,4 +62,8 @@ export async function getPosts() {
   return posts.sort(
     (a, b) => b.publishedAt.getTime() - a.publishedAt.getTime() || a.slug.localeCompare(b.slug),
   );
+}
+
+export async function getPostBySlug(slug: string) {
+  return (await getPosts()).find((post) => post.slug === slug);
 }
