@@ -8,6 +8,12 @@ export const PreviewCardRootContext = React.createContext<PreviewCardRootContext
   undefined,
 );
 
+/**
+ * The id of the preview card's node in the popup tree. The Root registers the node; the Positioner
+ * provides it as the parent of popups nested inside the preview card.
+ */
+export const PreviewCardTreeNodeIdContext = React.createContext<string | undefined>(undefined);
+
 export function usePreviewCardRootContext(optional?: false): PreviewCardRootContext;
 export function usePreviewCardRootContext(optional: true): PreviewCardRootContext | undefined;
 export function usePreviewCardRootContext(optional?: boolean) {
