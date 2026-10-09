@@ -15,6 +15,7 @@ export { waitForPositioned } from './waitForPositioned';
 export { describeConformance } from './describeConformance';
 export { detachedTriggersConformanceTests } from './detachedTriggersConformanceTests';
 export { dialogRootSharedTests } from './dialogRootSharedTests';
+export { dragRegistrationConformanceTests } from './dragRegistrationConformanceTests';
 export { popupConformanceTests } from './popupConformanceTests';
 export { popupFocusPropsTests } from './popupFocusPropsTests';
 export { popupListConformanceTests } from './popupListConformanceTests';

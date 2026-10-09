@@ -33,9 +33,9 @@ afterEach(() => {
   // `warn` and `error` share one log-once store, so this also clears deduplicated warnings.
   resetBuiltError();
   resetSourceError();
-  // Drop animation frame callbacks that were scheduled but never ran (e.g. under fake timers torn
-  // down before the frame fired). The scheduler is process-global, so without this they would leak
-  // into a later test and run there against stale state.
+  // Drop animation frame callbacks that were scheduled but never ran, for example when fake timers
+  // are removed before the frame fires. The scheduler is process-global, so they would otherwise
+  // run in a later test against stale state.
   resetBuiltScheduler();
   resetSourceScheduler();
 });
@@ -43,8 +43,29 @@ afterEach(() => {
 globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
 
 if (typeof window !== 'undefined' && window?.navigator?.userAgent?.includes('jsdom')) {
+  let nextRafId = 1;
+  const rafTimers = new Map<number, ReturnType<typeof setTimeout>>();
   globalThis.requestAnimationFrame = (cb) => {
-    setTimeout(() => cb(0), 0);
-    return 0;
+    const id = nextRafId;
+    nextRafId += 1;
+    rafTimers.set(
+      id,
+      setTimeout(() => {
+        rafTimers.delete(id);
+        cb(performance.now());
+      }, 0),
+    );
+    return id;
   };
+  globalThis.cancelAnimationFrame = (id) => {
+    const timer = rafTimers.get(id);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      rafTimers.delete(id);
+    }
+  };
+
+  if (typeof document.elementFromPoint !== 'function') {
+    document.elementFromPoint = () => null;
+  }
 }
