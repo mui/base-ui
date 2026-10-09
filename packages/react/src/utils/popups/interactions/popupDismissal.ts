@@ -3,7 +3,7 @@ import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getTarget } from '@base-ui/utils/shadowDom';
-import type { PopupInteractionStore, PopupInteractionContext } from '../types';
+import type { PopupInteractionContext } from '../types';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
 import { createAttribute } from '../createAttribute';
@@ -109,7 +109,13 @@ export interface FocusReturnSession {
   pendingReturnFocus: { cancelled: boolean } | null;
 }
 
-type OpenChangeListener = (details: FloatingUIOpenChangeDetails) => void;
+/**
+ * The popup store members a `PopupDismissal` relies on. Popup stores, `FloatingRootStore` and the
+ * detached trigger views of popup stores all satisfy it.
+ */
+export interface PopupDismissalStore {
+  readonly context: PopupInteractionContext;
+}
 
 /**
  * The dismissal and focus return state of one popup. Shared by its `useDismiss` (on the Root) and
@@ -117,75 +123,56 @@ type OpenChangeListener = (details: FloatingUIOpenChangeDetails) => void;
  * right times.
  */
 export class PopupDismissal {
-  private insideReactTree = false;
-
-  private readonly openChangeListeners = new Set<OpenChangeListener>();
-
-  constructor(private readonly store: Pick<PopupInteractionStore, 'context'>) {}
-
   /**
    * Whether the current press or focus change started inside the popup's React tree, including its
    * portaled children. Set by the popup's capture handlers and cleared on the next tick.
    */
-  isInsideReactTree() {
-    return this.insideReactTree;
-  }
-
-  setInsideReactTree(value: boolean) {
-    this.insideReactTree = value;
-  }
+  insideReactTree = false;
 
   /**
-   * Creates the state of one `useDismiss` instance.
+   * The focus guard rendered before an open popup's trigger. Shared with the focus manager through
+   * `getInsideElements` so that blurring the trigger onto this guard does not close the popup
+   * before the guard's own focus handler runs.
    */
-  createDismissSession(): DismissSession {
-    return {
-      pressStartedInside: false,
-      pressStartPrevented: false,
-      suppressNextOutsideClick: false,
-      sawPressWhileOpen: false,
-      compositionEndPending: false,
-      currentPointerType: '',
-      touchState: null,
-    };
-  }
+  readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null> = { current: null };
 
   /**
-   * Creates the state of one focus manager instance.
+   * The focus guard rendered after an open popup's trigger, which tabbing forward out of the popup
+   * lands on.
    */
-  createFocusReturnSession(): FocusReturnSession {
-    return {
-      preventReturnFocus: false,
-      pointerDownOutside: false,
-      lastInteractionType: '',
-      closeType: '',
-      pendingReturnFocus: null,
-    };
-  }
+  readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null> = { current: null };
 
   /**
-   * Listens to the popup's accepted open changes. The popup's emitter has a single subscriber,
-   * which calls the listeners in the order they subscribed.
-   *
-   * @returns A function that removes the listener.
+   * The focus guard at the start of the popup's content.
    */
-  onOpenChange(listener: OpenChangeListener) {
-    const { events } = this.store.context;
-    if (this.openChangeListeners.size === 0) {
-      events.on('openchange', this.handleOpenChange);
-    }
-    this.openChangeListeners.add(listener);
+  readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null> = { current: null };
+}
 
-    return () => {
-      this.openChangeListeners.delete(listener);
-      if (this.openChangeListeners.size === 0) {
-        events.off('openchange', this.handleOpenChange);
-      }
-    };
-  }
+/**
+ * Creates the state of one `useDismiss` instance.
+ */
+export function createDismissSession(): DismissSession {
+  return {
+    pressStartedInside: false,
+    pressStartPrevented: false,
+    suppressNextOutsideClick: false,
+    sawPressWhileOpen: false,
+    compositionEndPending: false,
+    currentPointerType: '',
+    touchState: null,
+  };
+}
 
-  private handleOpenChange = (details: FloatingUIOpenChangeDetails) => {
-    this.openChangeListeners.forEach((listener) => listener(details));
+/**
+ * Creates the state of one focus manager instance.
+ */
+export function createFocusReturnSession(): FocusReturnSession {
+  return {
+    preventReturnFocus: false,
+    pointerDownOutside: false,
+    lastInteractionType: '',
+    closeType: '',
+    pendingReturnFocus: null,
   };
 }
 
@@ -194,10 +181,10 @@ const dismissals = new WeakMap<PopupInteractionContext, PopupDismissal>();
 /**
  * Returns the popup's `PopupDismissal`, creating it on first use.
  */
-export function getPopupDismissal(store: Pick<PopupInteractionStore, 'context'>): PopupDismissal {
+export function getPopupDismissal(store: PopupDismissalStore): PopupDismissal {
   let dismissal = dismissals.get(store.context);
   if (!dismissal) {
-    dismissal = new PopupDismissal(store);
+    dismissal = new PopupDismissal();
     dismissals.set(store.context, dismissal);
   }
   return dismissal;

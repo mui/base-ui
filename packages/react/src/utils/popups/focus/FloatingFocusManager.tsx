@@ -37,9 +37,11 @@ import { markOthers } from './markOthers';
 import { usePortalContext } from '../portal/FloatingPortal';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
+import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../../internals/constants';
 import { resolveRef } from '../../resolveRef';
 import {
+  createFocusReturnSession,
   getPopupDismissal,
   recordCloseForReturnFocus,
   resolveReturnFocusElement,
@@ -262,6 +264,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const floating = store.useState('positionerElement');
 
   const storeContext = store.context;
+  const { events } = storeContext;
   const dismissal = getPopupDismissal(store);
 
   const getNodeId = useStableCallback(() => storeContext.positioning?.nodeId);
@@ -285,7 +288,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const portalContext = usePortalContext();
 
   // The interaction and return focus state of this instance.
-  const session = useRefWithInit(() => dismissal.createFocusReturnSession()).current;
+  const session = useRefWithInit(createFocusReturnSession).current;
   const isPointerDownRef = React.useRef(false);
   const lastFocusedTabbableRef = React.useRef<FocusableElement | null>(null);
 
@@ -523,8 +526,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         }
 
         // https://github.com/floating-ui/floating-ui/issues/3060
-        if (dismissal.isInsideReactTree()) {
-          dismissal.setInsideReactTree(false);
+        if (dismissal.insideReactTree) {
+          dismissal.insideReactTree = false;
           return;
         }
 
@@ -554,9 +557,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       if (session.pointerDownOutside) {
         return;
       }
-      dismissal.setInsideReactTree(true);
+      dismissal.insideReactTree = true;
       blurTimeout.start(0, () => {
-        dismissal.setInsideReactTree(false);
+        dismissal.insideReactTree = false;
       });
     }
 
@@ -778,12 +781,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         : elementFocusedBeforeOpen,
     );
 
-    const removeOpenChangeListener = dismissal.onOpenChange((details) =>
-      recordCloseForReturnFocus(session, details, doc),
-    );
+    function handleOpenChange(details: FloatingUIOpenChangeDetails) {
+      recordCloseForReturnFocus(session, details, doc);
+    }
+    events.on('openchange', handleOpenChange);
 
     return () => {
-      removeOpenChangeListener();
+      events.off('openchange', handleOpenChange);
 
       const activeEl = activeElement(doc);
       const insideElements = getResolvedInsideElements();
@@ -846,7 +850,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       });
     };
   }, [
-    dismissal,
+    events,
     session,
     disabled,
     floating,
