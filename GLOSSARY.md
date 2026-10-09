@@ -25,3 +25,7 @@ _Avoid_: reference, position reference
 **Positioner**:
 The part that places a popup next to its anchor and keeps it there as the page scrolls or resizes.
 _Avoid_: floating element, floating wrapper
+
+**Hover intent**:
+The logic that decides when hovering a trigger opens its popup and when leaving closes it. It covers the open and close delays, waiting for the pointer to rest, and the safe polygon that keeps the popup open while the pointer travels from the trigger to it. Each popup has one, shared by all its triggers.
+_Avoid_: hover interaction, hover state, useHover
