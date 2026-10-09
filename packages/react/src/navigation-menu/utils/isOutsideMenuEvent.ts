@@ -1,5 +1,5 @@
-import type { FloatingTreeType } from '../../floating-ui-react';
-import { contains, getNodeChildren } from '../../floating-ui-react/utils';
+import { contains } from '@base-ui/utils/shadowDom';
+import type { FloatingTreeType } from '../../utils/popups/floating-root/types';
 
 interface Targets {
   currentTarget: HTMLElement | null;
@@ -16,11 +16,7 @@ interface Params {
 export function isOutsideMenuEvent({ currentTarget, relatedTarget }: Targets, params: Params) {
   const { popupElement, rootRef, tree, nodeId } = params;
 
-  const nodeChildrenContains = tree
-    ? getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
-        contains(node.context?.elements.floating, relatedTarget),
-      )
-    : false;
+  const nodeChildrenContains = tree ? tree.descendantContains(nodeId, relatedTarget) : false;
 
   if (!popupElement) {
     return !contains(rootRef.current, relatedTarget) && !nodeChildrenContains;

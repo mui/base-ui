@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -10,7 +11,6 @@ import { getOffset } from '../utils/getOffset';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
-import { contains } from '../../floating-ui-react/utils';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import * as ScrollAreaRootCssVars from './ScrollAreaRootCssVars';
 import * as ScrollAreaScrollbarDataAttributes from '../scrollbar/ScrollAreaScrollbarDataAttributes';

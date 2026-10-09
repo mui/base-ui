@@ -1,7 +1,7 @@
 import {
   CommonPopupDataAttributes,
   CommonTriggerDataAttributes,
-} from '../../utils/popupStateMapping';
+} from '../../utils/popups/popupStateMapping';
 
 /**
  * Present when the corresponding popup is open.

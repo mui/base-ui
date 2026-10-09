@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
-import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
+import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
+import type { FloatingFocusManagerProps } from '../../utils/popups/focus/FloatingFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -10,7 +11,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -22,6 +23,7 @@ import { useRenderedId } from '../../internals/resolveRenderedId';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import { MenuFilterImplContext, useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import type { MenuFilterParentHandoff } from '../filter-root/MenuFilterContext';
+import { getPopupDismissal } from '../../utils/popups/interactions/popupDismissal';
 
 interface MenuPopupPlainProps extends MenuPopup.Props {
   /** A filter root's own initial focus target; the plain default focuses the popup or its list. */
@@ -47,6 +49,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
 
   const { store, defaultFloatingId, setRenderedFloatingId, virtualFocus, orientation } =
     useMenuRootContext();
+  const dismissal = getPopupDismissal(store);
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -60,7 +63,6 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -120,7 +122,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
     };
   }, [floatingTreeRoot.events, store]);
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverFloatingInteraction(store, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
   });
@@ -192,7 +194,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
 
   return (
     <FloatingFocusManager
-      context={floatingContext}
+      context={store}
       openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}
@@ -201,16 +203,12 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       initialFocus={initialFocus}
       restoreFocus
       getInsideElements={
-        parent.type === undefined
-          ? () => [store.context.beforeTriggerFocusGuardRef.current]
-          : undefined
+        parent.type === undefined ? () => [dismissal.beforeTriggerFocusGuardRef.current] : undefined
       }
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
-      nextFocusableElement={
-        parent.type === undefined ? store.context.triggerFocusTargetRef : undefined
-      }
-      beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
+      nextFocusableElement={parent.type === undefined ? dismissal.triggerFocusTargetRef : undefined}
+      beforeContentFocusGuardRef={dismissal.beforeContentFocusGuardRef}
     >
       {element}
     </FloatingFocusManager>

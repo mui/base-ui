@@ -2,21 +2,17 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTestInteractions } from '#test-utils';
-import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
-import {
-  flip,
-  FloatingFocusManager,
-  FloatingNode,
-  FloatingPortal,
-  offset,
-  safePolygon,
-  shift,
-  useDismiss,
-  useFloatingNodeId,
-  useFocus,
-} from '../../src/floating-ui-react';
+import { flip, offset, shift } from '@floating-ui/react-dom';
+import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
+import { FloatingNode, useFloatingNodeId } from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
+import { useHoverFloatingInteraction } from '../../src/utils/popups/interactions/useHoverFloatingInteraction';
+import { useHoverReferenceInteraction } from '../../src/utils/popups/interactions/useHoverReferenceInteraction';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useFocus } from '../../src/utils/popups/interactions/useFocus';
 import { useFloating } from './useFloating';
-import { useHover } from './useHover';
 import styles from './Navigation.module.css';
 
 interface SubItemProps {
@@ -61,10 +57,15 @@ export const NavigationItem = React.forwardRef<
     placement: 'right-start',
   });
 
+  const hoverStore = hasChildren ? context.rootStore : fallbackContext;
+  const hoverReferenceProps = useHoverReferenceInteraction(hoverStore, {
+    handleClose: safePolygon(),
+    triggerElementRef: hasChildren ? refs.domReference : undefined,
+  });
+  useHoverFloatingInteraction(hoverStore);
+
   const { getReferenceProps, getFloatingProps } = useTestInteractions([
-    useHover(hasChildren ? context : fallbackContext, {
-      handleClose: safePolygon(),
-    }),
+    { reference: hoverReferenceProps },
     useFocus(context.rootStore, {
       enabled: hasChildren,
     }),

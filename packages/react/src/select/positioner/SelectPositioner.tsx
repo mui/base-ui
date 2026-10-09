@@ -13,14 +13,14 @@ import type {
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { clearStyles } from '../popup/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { findItemIndex } from '../../internals/itemEquality';
-import { usePositioner } from '../../utils/usePositioner';
-import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 

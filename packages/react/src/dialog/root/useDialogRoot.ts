@@ -2,8 +2,9 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import { useDismiss } from '../../floating-ui-react';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { getModalOutsidePressEvent } from '../../utils/popups/interactions/popupDismissal';
 import type { DialogStore } from '../store/DialogStore';
 import { usePopupInteractionProps } from '../../utils/popups';
 
@@ -21,23 +22,17 @@ export function DialogInteractions({
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
-  const floatingRootContext = store.useState('floatingRootContext');
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const [ownNestedOpenDrawers, setOwnNestedOpenDrawers] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(store, {
     outsidePressEvent() {
-      if (store.context.internalBackdropRef.current || store.context.backdropRef.current) {
-        return 'intentional';
-      }
-      // Ensure `aria-hidden` on outside elements is removed immediately
-      // on outside press when trapping focus.
-      return {
-        mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
-        touch: 'sloppy',
-      };
+      return getModalOutsidePressEvent(
+        modal,
+        Boolean(store.context.internalBackdropRef.current || store.context.backdropRef.current),
+      );
     },
     outsidePress(event) {
       if (!store.context.outsidePressEnabledRef.current) {

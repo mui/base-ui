@@ -4,8 +4,8 @@ import {
   getMaxListIndex,
   getMinListIndex,
   getNextListIndex,
-} from '../../floating-ui-react/utils/composite';
-import { isMainOrientationToEndKey } from '../../floating-ui-react/hooks/useListNavigation';
+} from '../../internals/composite/listIndex';
+import { isMainOrientationToEndKey } from '../../utils/popups/interactions/useListNavigation';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 import type { MenuStore } from '../store/MenuStore';

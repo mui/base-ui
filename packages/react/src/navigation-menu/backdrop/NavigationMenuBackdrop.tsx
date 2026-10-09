@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 
 /**
  * A backdrop for the navigation menu popup.

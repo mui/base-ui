@@ -6,19 +6,16 @@ import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './';
 import {
-  applyPopupOpenChange,
+  createFloatingRootContextValues,
   createInitialPopupStoreState,
   createPopupOpenState,
   PopupTriggerMap,
   popupStoreSelectors,
-  useImplicitActiveTrigger,
   usePopupInteractionProps,
-  useTriggerDataForwarding,
+  useTriggerOwnership,
   useTriggerRegistration,
 } from './';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import { useSettleTriggerOwnership } from './popupRoot';
 import type { BaseUIChangeEventDetails } from '../../types';
 
 type TestStore = ReactStore<
@@ -36,11 +33,12 @@ function createStore() {
     PopupStoreContext<unknown>,
     PopupStoreSelectors
   >(
-    createInitialPopupStoreState(triggerElements),
+    createInitialPopupStoreState(),
     {
       triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
+      ...createFloatingRootContextValues(),
     },
     popupStoreSelectors,
   ) as TestStore;
@@ -90,7 +88,9 @@ function TestForwardedTrigger({
   payload?: unknown;
 }) {
   const elementRef = React.useRef<Element | null>(null);
-  const { registerTrigger } = useTriggerDataForwarding(id, elementRef, store, { payload });
+  const { registerTrigger } = useTriggerOwnership(id, elementRef, store, 'first-registrant', {
+    payload,
+  });
 
   useIsoLayoutEffect(() => {
     elementRef.current = element;
@@ -104,34 +104,13 @@ function TestForwardedTrigger({
   return null;
 }
 
-function PopupIdTest({
-  store,
-  floatingId,
-  onOpenChange,
-}: {
-  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
-  floatingId: string | undefined;
-  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-}) {
-  useSyncedFloatingRootContext({
-    popupStore: store,
-    floatingRootContext: store.state.floatingRootContext,
-    floatingId,
-    nested: false,
-    onOpenChange,
-  });
-
-  store.useState('popupId');
-  return null;
-}
-
 function ImplicitActiveTriggerTest({ store }: { store: TestStore }) {
-  useImplicitActiveTrigger(store);
+  useSettleTriggerOwnership(store);
   return null;
 }
 
 function CloseOnActiveTriggerUnmountTest({ store }: { store: TestStore }) {
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
+  useSettleTriggerOwnership(store, { closeOnActiveTriggerUnmount: true });
   return null;
 }
 
@@ -154,7 +133,7 @@ function ImplicitTriggerUnmountTest({
   element: HTMLElement;
 }) {
   const [triggerVisible, setTriggerVisible] = React.useState(true);
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
+  useSettleTriggerOwnership(store, { closeOnActiveTriggerUnmount: true });
 
   if (!triggerVisible) {
     return null;
@@ -229,7 +208,8 @@ describe('PopupTriggerMap', () => {
 describe('useTriggerRegistration', () => {
   it('registers and unregisters closed triggers through the context map without notifying the store', () => {
     const store = createStore();
-    const spy = vi.spyOn(store, 'set');
+    const spy = vi.fn();
+    store.subscribe(spy);
     const element = document.createElement('button');
 
     const { unmount } = render(
@@ -238,19 +218,20 @@ describe('useTriggerRegistration', () => {
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
     expect(store.context.triggerElements.hasElement(element)).toBe(true);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
   });
 
   it('re-registers closed triggers when the trigger id changes without notifying the store', () => {
     const store = createStore();
-    const spy = vi.spyOn(store, 'set');
+    const spy = vi.fn();
+    store.subscribe(spy);
     const element = document.createElement('button');
 
     const { rerender, unmount } = render(
@@ -258,20 +239,20 @@ describe('useTriggerRegistration', () => {
     );
 
     expect(store.context.triggerElements.getById('first')).toBe(element);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     rerender(<TestTrigger id="second" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('first')).toBeUndefined();
     expect(store.context.triggerElements.getById('second')).toBe(element);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('second')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -376,7 +357,7 @@ describe('useTriggerRegistration', () => {
     });
   });
 
-  it('keeps triggerCount reactive while the popup is open', () => {
+  it('keeps the lone-trigger flag reactive while the popup is open', () => {
     const store = createStore();
     const element = document.createElement('button');
     store.set('open', true);
@@ -384,11 +365,11 @@ describe('useTriggerRegistration', () => {
     const { unmount } = render(<TestTrigger id="trigger" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
   });
 
   it('claims the only registered trigger when a closed popup opens', () => {
@@ -403,14 +384,14 @@ describe('useTriggerRegistration', () => {
     );
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe(null);
 
     act(() => {
       store.set('open', true);
     });
 
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe('trigger');
     expect(store.state.activeTriggerElement).toBe(element);
   });
@@ -430,8 +411,8 @@ describe('useTriggerRegistration', () => {
       store.update(createPopupOpenState(store.state, true, undefined));
     });
 
-    expect(store.state.triggerCount).toBe(1);
-    expect(store.state.openedWithoutTrigger).toBe(true);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
+    expect(store.state.triggerOwnership.openedWithoutTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe(null);
     expect(store.state.activeTriggerElement).toBe(null);
   });
@@ -456,7 +437,7 @@ describe('useTriggerRegistration', () => {
     act(() => {
       store.set('open', false);
     });
-    expect(store.state.openedWithoutTrigger).toBe(false);
+    expect(store.state.triggerOwnership.openedWithoutTrigger).toBe(false);
 
     act(() => {
       store.set('open', true);
@@ -532,7 +513,7 @@ describe('useTriggerRegistration', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
 
@@ -547,7 +528,7 @@ describe('useTriggerRegistration', () => {
       expect(store.setOpen).toHaveBeenCalledTimes(1);
     });
 
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe(null);
     expect(store.state.activeTriggerElement).toBe(null);
     expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
@@ -580,7 +561,6 @@ describe('useTriggerRegistration', () => {
         store.update({
           activeTriggerId: pendingTriggerId,
           activeTriggerElement: null,
-          triggerCount: 0,
         });
       });
 
@@ -689,7 +669,7 @@ describe('useTriggerRegistration', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
 
@@ -705,7 +685,7 @@ describe('useTriggerRegistration', () => {
 
     expect(store.context.triggerElements.getById('first')).toBe(replacement);
     expect(store.context.triggerElements.getById('second')).toBe(second);
-    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(replacement);
     expect(store.state.open).toBe(true);
@@ -732,7 +712,7 @@ describe('useTriggerRegistration', () => {
 
     await flushMicrotasks();
 
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe('registered-id');
     expect(store.state.activeTriggerElement).toBe(element);
     expect(store.state.open).toBe(true);
@@ -796,7 +776,7 @@ describe('useTriggerRegistration', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
 
@@ -814,12 +794,12 @@ describe('useTriggerRegistration', () => {
     expect(store.state.open).toBe(true);
     expect(store.context.triggerElements.getById('first')).toBeUndefined();
     expect(store.context.triggerElements.getById('second')).toBe(second);
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
   });
 
-  it('resets triggerCount when the popup closes', () => {
+  it('resets the lone-trigger flag when the popup closes', () => {
     const store = createStore();
     const element = document.createElement('button');
 
@@ -832,32 +812,30 @@ describe('useTriggerRegistration', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
 
     act(() => {
       store.set('open', false);
     });
 
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
   });
 });
 
 describe('popupId selector', () => {
-  it('syncs the floating id into the popup store for trigger ownership selectors', () => {
+  it('uses the floating id as the popup id', () => {
     const store = createStore();
 
-    render(<PopupIdTest store={store} floatingId="popup-id" onOpenChange={vi.fn()} />);
+    store.set('floatingId', 'popup-id');
 
-    expect(store.state.floatingId).toBe('popup-id');
     expect(store.select('popupId')).toBe('popup-id');
   });
 
   it('omits popup id when the floating id is empty', () => {
     const store = createStore();
 
-    render(<PopupIdTest store={store} floatingId="" onOpenChange={vi.fn()} />);
+    store.set('floatingId', '');
 
-    expect(store.state.floatingId).toBe('');
     expect(store.select('popupId')).toBeUndefined();
   });
 
@@ -879,10 +857,17 @@ describe('popupId selector', () => {
   it('associates a lone trigger with the popup id unless the popup opened without a trigger', () => {
     const store = createStore();
 
-    store.update({ open: true, floatingId: 'popup-id', triggerCount: 1 });
+    store.update({
+      open: true,
+      floatingId: 'popup-id',
+      triggerOwnership: { ...store.state.triggerOwnership, hasLoneTrigger: true },
+    });
     expect(store.select('triggerPopupId', 'trigger')).toBe('popup-id');
 
-    store.set('openedWithoutTrigger', true);
+    store.set('triggerOwnership', {
+      ...store.state.triggerOwnership,
+      openedWithoutTrigger: true,
+    });
     expect(store.select('triggerPopupId', 'trigger')).toBeUndefined();
   });
 });
@@ -920,7 +905,7 @@ describe('usePopupInteractionProps', () => {
 
 describe('getPopupOpenState', () => {
   it('clears a previous unmount-prevention request when opening', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const state = createInitialPopupStoreState();
     state.preventUnmountingOnClose = true;
 
     const nextState = createPopupOpenState(state, true, undefined);
@@ -930,7 +915,7 @@ describe('getPopupOpenState', () => {
   });
 
   it('sets the unmount-prevention request when closing', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const state = createInitialPopupStoreState();
 
     const nextState = createPopupOpenState(state, false, undefined, true);
 
@@ -938,7 +923,7 @@ describe('getPopupOpenState', () => {
   });
 
   it('preserves the active trigger when closing without a trigger', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const state = createInitialPopupStoreState();
     const trigger = document.createElement('button');
     state.activeTriggerId = 'trigger-id';
     state.activeTriggerElement = trigger;
@@ -950,132 +935,26 @@ describe('getPopupOpenState', () => {
   });
 
   it('records whether an open request carried a trigger', () => {
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const state = createInitialPopupStoreState();
     const trigger = document.createElement('button');
     trigger.id = 'trigger-id';
 
-    expect(createPopupOpenState(state, true, undefined).openedWithoutTrigger).toBe(true);
-    expect(createPopupOpenState(state, true, trigger).openedWithoutTrigger).toBe(false);
+    expect(createPopupOpenState(state, true, undefined).triggerOwnership.openedWithoutTrigger).toBe(
+      true,
+    );
+    expect(createPopupOpenState(state, true, trigger).triggerOwnership.openedWithoutTrigger).toBe(
+      false,
+    );
   });
 
   it('keeps the trigger-less open flag through a close request', () => {
     // A controlled root may decline the close and stay open; the Root resets the flag itself once
     // the popup is effectively closed.
-    const state = createInitialPopupStoreState(new PopupTriggerMap());
-    state.openedWithoutTrigger = true;
+    const state = createInitialPopupStoreState();
+    state.triggerOwnership = { ...state.triggerOwnership, openedWithoutTrigger: true };
 
-    expect(createPopupOpenState(state, false, undefined).openedWithoutTrigger).toBe(true);
-  });
-});
-
-describe('applyPopupOpenChange', () => {
-  type OpenChangeState = PopupStoreState<unknown> & {
-    instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
-    openChangeReason?: string;
-  };
-  type OpenChangeDetails = BaseUIChangeEventDetails<string> & { preventUnmountOnClose(): void };
-
-  function createOpenChangeStore() {
-    const order: string[] = [];
-    const state: OpenChangeState = {
-      ...createInitialPopupStoreState(new PopupTriggerMap()),
-      instantType: undefined,
-      openChangeReason: undefined,
-    };
-
-    const dispatchOpenChange = vi
-      .spyOn(state.floatingRootContext, 'dispatchOpenChange')
-      .mockImplementation(() => {
-        order.push('dispatchOpenChange');
-      });
-    const onOpenChange = vi.fn((_open: boolean, _details: BaseUIChangeEventDetails<string>) => {
-      order.push('onOpenChange');
-    });
-    const update = vi.fn(
-      <const Key extends keyof OpenChangeState>(_state: Pick<OpenChangeState, Key>) => {
-        order.push('update');
-      },
-    );
-
-    const store = {
-      context: { onOpenChange },
-      state,
-      update,
-    };
-
-    return { store, order, onOpenChange, dispatchOpenChange, update };
-  }
-
-  function createDetails(reason: string) {
-    return createChangeEventDetails(reason) as OpenChangeDetails;
-  }
-
-  it('runs the full sequence in order when the change is not canceled', () => {
-    const { store, order, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
-    const details = createDetails(REASONS.triggerFocus);
-    const onBeforeDispatch = vi.fn(() => {
-      order.push('onBeforeDispatch');
-    });
-
-    applyPopupOpenChange(store, true, details, {
-      onBeforeDispatch,
-    });
-
-    expect(onOpenChange).toHaveBeenCalledWith(true, details);
-    expect(dispatchOpenChange).toHaveBeenCalledWith(true, details);
-    expect(update).toHaveBeenCalledTimes(1);
-    expect(order).toEqual(['onOpenChange', 'onBeforeDispatch', 'dispatchOpenChange', 'update']);
-  });
-
-  it('notifies onOpenChange but short-circuits before dispatch when canceled', () => {
-    const { store, onOpenChange, dispatchOpenChange, update } = createOpenChangeStore();
-    onOpenChange.mockImplementation((_open, details) => {
-      details.cancel();
-    });
-    const onBeforeDispatch = vi.fn();
-
-    applyPopupOpenChange(store, true, createDetails(REASONS.triggerPress), { onBeforeDispatch });
-
-    expect(onOpenChange).toHaveBeenCalledTimes(1);
-    expect(onBeforeDispatch).not.toHaveBeenCalled();
-    expect(dispatchOpenChange).not.toHaveBeenCalled();
-    expect(update).not.toHaveBeenCalled();
-  });
-
-  it('merges extraState into the update with `open` always reflecting nextOpen', () => {
-    const { store, update } = createOpenChangeStore();
-
-    applyPopupOpenChange(store, true, createDetails(REASONS.triggerFocus), {
-      // `open: false` here must be overridden by `nextOpen` (true).
-      extraState: { open: false, openChangeReason: REASONS.triggerFocus },
-    });
-
-    const updatedState = update.mock.calls[0][0];
-    expect(updatedState.open).toBe(true);
-    expect(updatedState.openChangeReason).toBe(REASONS.triggerFocus);
-  });
-
-  it('maps the change reason to instantType', () => {
-    const focusStore = createOpenChangeStore();
-    applyPopupOpenChange(focusStore.store, true, createDetails(REASONS.triggerFocus));
-    expect(focusStore.update.mock.calls[0][0].instantType).toBe('focus');
-
-    const pressStore = createOpenChangeStore();
-    applyPopupOpenChange(pressStore.store, false, createDetails(REASONS.triggerPress));
-    expect(pressStore.update.mock.calls[0][0].instantType).toBe('dismiss');
-
-    const escapeStore = createOpenChangeStore();
-    applyPopupOpenChange(escapeStore.store, false, createDetails(REASONS.escapeKey));
-    expect(escapeStore.update.mock.calls[0][0].instantType).toBe('dismiss');
-
-    const hoverStore = createOpenChangeStore();
-    applyPopupOpenChange(hoverStore.store, true, createDetails(REASONS.triggerHover));
-    const hoverState = hoverStore.update.mock.calls[0][0];
-    expect('instantType' in hoverState).toBe(true);
-    expect(hoverState.instantType).toBeUndefined();
-
-    const noneStore = createOpenChangeStore();
-    applyPopupOpenChange(noneStore.store, true, createDetails(REASONS.none));
-    expect('instantType' in noneStore.update.mock.calls[0][0]).toBe(false);
+    expect(
+      createPopupOpenState(state, false, undefined).triggerOwnership.openedWithoutTrigger,
+    ).toBe(true);
   });
 });

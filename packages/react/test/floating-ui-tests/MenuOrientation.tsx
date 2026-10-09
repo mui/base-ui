@@ -3,33 +3,41 @@ import * as React from 'react';
 import c from 'clsx';
 import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { useTestInteractions } from '#test-utils';
+import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
 import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
+import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
-  autoUpdate,
-  flip,
-  FloatingFocusManager,
   FloatingNode,
-  FloatingPortal,
   FloatingTree,
-  offset,
-  safePolygon,
-  shift,
-  useClick,
-  useDismiss,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
-  useListNavigation,
-  useTypeahead,
-} from '../../src/floating-ui-react';
+} from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
+import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useHoverFloatingInteraction } from '../../src/utils/popups/interactions/useHoverFloatingInteraction';
+import { useHoverReferenceInteraction } from '../../src/utils/popups/interactions/useHoverReferenceInteraction';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
 import { useFloating } from './useFloating';
-import { useHover } from './useHover';
-import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
+import type { FloatingTreeStore } from '../../src/utils/popups/tree/FloatingTreeStore';
+import { gridNavigation } from '../../src/utils/popups/interactions/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './MenuOrientation.module.css';
+
+// This fixture's menus talk through their own, untyped tree events.
+type FixtureTree = Omit<FloatingTreeStore, 'events'> & {
+  events: {
+    emit(event: string, data?: any): void;
+    on(event: string, handler: (data: any) => void): void;
+    off(event: string, handler: (data: any) => void): void;
+  };
+};
 
 type MenuContextType = {
   getItemProps: ReturnType<typeof useTestInteractions>['getItemProps'];
@@ -80,7 +88,7 @@ export const MenuComponent = React.forwardRef<
   const elementsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
 
-  const tree = useFloatingTree();
+  const tree = useFloatingTree() as FixtureTree | null;
   const nodeId = useFloatingNodeId();
   const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
@@ -103,12 +111,15 @@ export const MenuComponent = React.forwardRef<
     whileElementsMounted: autoUpdate,
   });
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
-  const hoverContext = isNested && allowHover ? context : fallbackContext;
+  const hoverStore = isNested && allowHover ? context.rootStore : fallbackContext;
 
-  const hover = useHover(hoverContext, {
+  const hoverReferenceProps = useHoverReferenceInteraction(hoverStore, {
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
+    triggerElementRef: hoverStore === fallbackContext ? undefined : refs.domReference,
   });
+  useHoverFloatingInteraction(hoverStore);
+  const hover = React.useMemo(() => ({ reference: hoverReferenceProps }), [hoverReferenceProps]);
   const click = useClick(context.rootStore, {
     event: 'mousedown',
     toggle: !isNested || !allowHover,
@@ -313,7 +324,7 @@ export const MenuItem = React.forwardRef<
 >(function MenuItem({ label, disabled, ...props }, forwardedRef) {
   const menu = React.useContext(MenuContext);
   const item = useCompositeListItem({ label: disabled ? null : label });
-  const tree = useFloatingTree();
+  const tree = useFloatingTree() as FixtureTree | null;
   const isActive = item.index === menu.activeIndex;
 
   return (

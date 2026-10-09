@@ -4,12 +4,12 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
-import { useHoverFloatingInteraction } from '../../floating-ui-react';
+import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 /**
@@ -31,7 +31,6 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  const floatingContext = store.useState('floatingRootContext');
   const closeDelay = store.useState('closeDelay');
 
   useOpenChangeComplete({
@@ -44,7 +43,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     },
   });
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverFloatingInteraction(store, {
     closeDelay,
   });
 

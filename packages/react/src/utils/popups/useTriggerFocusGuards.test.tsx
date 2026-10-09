@@ -225,5 +225,44 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
         },
       );
     });
+
+    it('focuses the element after the trigger when the closed trigger renders a different element', async () => {
+      await render(
+        <div>
+          <Component.Root modal={false}>
+            <Component.Trigger
+              nativeButton={false}
+              // Closing replaces the trigger's DOM node.
+              render={(props, state) => (state.open ? <span {...props} /> : <div {...props} />)}
+            >
+              Toggle
+            </Component.Trigger>
+            <Component.Portal>
+              <Component.Positioner>
+                <Component.Popup data-testid="popup">
+                  {name === 'Menu' ? (
+                    <Menu.Item data-testid="inside">Inside</Menu.Item>
+                  ) : (
+                    <button data-testid="inside">Inside</button>
+                  )}
+                </Component.Popup>
+              </Component.Positioner>
+            </Component.Portal>
+          </Component.Root>
+          <button data-testid="after">After</button>
+        </div>,
+      );
+
+      const openTrigger = await openPopup();
+      await act(async () => screen.getByTestId('inside').focus());
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(screen.getByRole('button', { name: 'Toggle' })).not.toBe(openTrigger);
+      expect(screen.getByTestId('after')).toHaveFocus();
+    });
   });
 });

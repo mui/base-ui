@@ -5,6 +5,7 @@ import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils'
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
+import { Popover } from '@base-ui/react/popover';
 import {
   describeConformance,
   createRenderer,
@@ -12,6 +13,9 @@ import {
   resetBrowserPointer,
   positionerConformanceTests,
 } from '#test-utils';
+
+import { useMenuRootContext } from '../root/MenuRootContext';
+import type { MenuOpenEventDetails } from '../utils/types';
 
 const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
 
@@ -645,5 +649,131 @@ describe('<Menu.Positioner />', () => {
         </Menu.Portal>
       </Menu.Root>
     ),
+  });
+
+  describe('menuopenchange across popup families', () => {
+    function MenuOpenChangeLog({ log }: { log: string[] }) {
+      const { store } = useMenuRootContext();
+      const tree = store.useState('floatingTreeRoot');
+
+      React.useEffect(() => {
+        function handleMenuOpenChange(details: MenuOpenEventDetails) {
+          const positionerMounted = document.querySelector('[data-testid="menu-positioner"]');
+          log.push(
+            `open=${details.open} parent=${details.parentNodeId == null ? 'none' : 'set'} positioner=${positionerMounted != null}`,
+          );
+        }
+
+        tree.events.on('menuopenchange', handleMenuOpenChange);
+        return () => {
+          tree.events.off('menuopenchange', handleMenuOpenChange);
+        };
+      }, [tree, log]);
+
+      return null;
+    }
+
+    it('fires while the positioner is mounted for a menu nested in a popover', async () => {
+      const log: string[] = [];
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Popover</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Menu.Root>
+                  <MenuOpenChangeLog log={log} />
+                  <Menu.Trigger>Menu</Menu.Trigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="menu-positioner">
+                      <Menu.Popup>
+                        <Menu.Item>Item</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Popover' }));
+      log.push('popover opened');
+      await user.click(await screen.findByRole('button', { name: 'Menu' }));
+      await screen.findByRole('menuitem', { name: 'Item' });
+      log.push('menu opened');
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByTestId('menu-positioner')).toBe(null);
+      });
+      log.push('menu closed');
+
+      // The menu's parent is the popover's node. The test renderer uses StrictMode, which runs the
+      // emitting effect twice on open, so `open=true` appears twice.
+      expect(log).toEqual([
+        'popover opened',
+        'open=true parent=set positioner=true',
+        'open=true parent=set positioner=true',
+        'menu opened',
+        'open=false parent=set positioner=true',
+        'menu closed',
+      ]);
+    });
+
+    it('fires while the positioner is mounted for a menu with a popover nested in it', async () => {
+      const log: string[] = [];
+      const { user } = await render(
+        <Menu.Root>
+          <MenuOpenChangeLog log={log} />
+          <Menu.Trigger>Menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="menu-positioner">
+              <Menu.Popup>
+                <Popover.Root>
+                  <Popover.Trigger>Popover</Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Positioner>
+                      <Popover.Popup data-testid="popover-popup">
+                        <button type="button">Inside</button>
+                      </Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Menu' }));
+      await screen.findByTestId('menu-positioner');
+      log.push('menu opened');
+      await user.click(screen.getByRole('button', { name: 'Popover' }));
+      await screen.findByTestId('popover-popup');
+      log.push('popover opened');
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+      });
+      log.push(`popover closed, menu open=${screen.queryByTestId('menu-positioner') != null}`);
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByTestId('menu-positioner')).toBe(null);
+      });
+      log.push('menu closed');
+
+      // The nested popover doesn't take part in the menu's events. The test renderer uses
+      // StrictMode, which runs the emitting effect twice on open, so `open=true` appears twice.
+      expect(log).toEqual([
+        'open=true parent=none positioner=true',
+        'open=true parent=none positioner=true',
+        'menu opened',
+        'popover opened',
+        'popover closed, menu open=true',
+        'open=false parent=none positioner=true',
+        'menu closed',
+      ]);
+    });
   });
 });

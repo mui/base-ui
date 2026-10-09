@@ -11,7 +11,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
 import { formatNumber } from '@base-ui/utils/formatNumber';
-import { activeElement } from '../../floating-ui-react/utils';
+import { activeElement } from '@base-ui/utils/shadowDom';
 import type { InputMode } from './NumberFieldRootContext';
 import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';

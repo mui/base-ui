@@ -5,24 +5,27 @@ import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
 import { mergeProps } from '../../merge-props';
-import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { useTriggerRegistration } from '../../utils/popups';
+import { updateTriggerOwnership, useTriggerOwnership } from '../../utils/popups';
+import { setOwnerElement } from '../../utils/popups/triggerOwnership';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { getPopupDismissal } from '../../utils/popups/interactions/popupDismissal';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -53,6 +56,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const submenuRootContext = useMenuSubmenuRootContext();
 
   const { store, parentVirtualFocus } = context;
+  const dismissal = getPopupDismissal(store);
   const parentMenuStore = context.parent.store;
 
   const listItem = useCompositeListItem({ guess: true, label });
@@ -61,48 +65,30 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const open = store.useState('open');
   const focusReturnedThroughGuardRef = React.useRef(false);
   const positionerElement = store.useState('positionerElement');
-  const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
-  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
-
-  // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
-  // lifetime; the latest `closeDelay` is read when it runs.
-  const registerTrigger = useStableCallback((element: Element | null) => {
-    baseRegisterTrigger(element);
-
-    const activeTriggerElement = store.select('activeTriggerElement');
-    if (
-      element !== null &&
-      store.select('open') &&
-      (activeTriggerElement === element || store.select('activeTriggerId') == null)
-    ) {
-      store.update({
-        activeTriggerId: thisTriggerId ?? null,
-        activeTriggerElement: element,
-        closeDelay,
-      });
-    }
-  });
-
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
+
+  // The submenu trigger claims its submenu with its own rule; the latest `closeDelay` is applied
+  // along with the claim.
+  const { registerTrigger } = useTriggerOwnership(
+    thisTriggerId,
+    triggerElementRef,
+    store,
+    'submenu',
+    {
+      closeDelay,
+    },
+  );
 
   const handleTriggerElementRef = React.useCallback(
     (el: HTMLElement | null) => {
       triggerElementRef.current = el;
-      store.set('activeTriggerElement', el);
+      updateTriggerOwnership(store, setOwnerElement(el));
     },
     [store],
   );
-
-  // A stable ref does not re-fire when the id changes, so register the rendered element here
-  // instead. On React 17 the id also starts out `undefined`, so this is what registers the trigger
-  // at all.
-  useIsoLayoutEffect(() => {
-    registerTrigger(triggerElementRef.current);
-    return () => registerTrigger(null);
-  }, [registerTrigger, thisTriggerId, store]);
 
   useIsoLayoutEffect(() => {
     if (!open || !positionerElement) {
@@ -110,7 +96,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     }
 
     function handleGuardFocusOut(event: FocusEvent) {
-      if (getTarget(event) === store.context.beforeContentFocusGuardRef.current) {
+      if (getTarget(event) === dismissal.beforeContentFocusGuardRef.current) {
         focusReturnedThroughGuardRef.current = event.relatedTarget === triggerElementRef.current;
       }
     }
@@ -122,7 +108,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
       focusReturnedThroughGuardRef.current = false;
       positionerElement.removeEventListener('focusout', handleGuardFocusOut, true);
     };
-  }, [open, positionerElement, store]);
+  }, [open, positionerElement, store, dismissal]);
 
   store.useSyncedValue('closeDelay', closeDelay);
 
@@ -173,7 +159,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
 
   const hoverEnabled = store.useState('hoverEnabled');
 
-  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+  const hoverProps = useHoverReferenceInteraction(store, {
     enabled: hoverEnabled && openOnHover && !disabled,
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
@@ -183,13 +169,12 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     shouldOpen: delay > 0 ? () => parentMenuStore.select('allowMouseEnter') : undefined,
     triggerElementRef,
     externalTree: floatingTreeRoot,
-    isClosing: () => store.select('transitionStatus') === 'ending',
     // Chrome can drop the trigger's `mouseleave` during a fast pointer sweep,
     // leaving a stale submenu open (see #5152) — cancel from `mouseout` too.
     guardStaleOpen: true,
   });
 
-  const click = useClick(floatingRootContext, {
+  const click = useClick(store, {
     enabled: !disabled,
     event: 'mousedown',
     // Without toggling, TalkBack users cannot close the submenu to reach the next parent menu

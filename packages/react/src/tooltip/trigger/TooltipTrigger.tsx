@@ -4,26 +4,24 @@ import { isElement } from '@floating-ui/utils/dom';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerOwnership } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import {
-  safePolygon,
-  useDelayGroup,
-  useFocus,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-react';
-import { closest, contains, getTarget } from '../../floating-ui-react/utils/element';
-import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useDelayGroup } from '../../utils/popups/delay-group/FloatingDelayGroup';
+import { useFocus } from '../../utils/popups/interactions/useFocus';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { isMouseLikePointerType } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
-import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
+import { useHoverIntent } from '../../utils/popups/interactions/hoverIntent';
+import { getDelay } from '../../utils/popups/interactions/useHoverShared';
 import * as TooltipTriggerDataAttributes from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';
@@ -71,16 +69,16 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
   const closeDelayWithDefault = closeDelay ?? 0;
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerOwnership(
     thisTriggerId,
     triggerElementRef,
     store,
+    'first-registrant',
     {
       payload,
       closeOnClick,
@@ -89,13 +87,10 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   );
 
   const providerDelay = useTooltipProviderContext();
-  const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(
-    floatingRootContext,
-    {
-      open: isOpenedByThisTrigger,
-    },
-  );
-  const hoverInteraction = useHoverInteractionSharedState(floatingRootContext);
+  const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(store, {
+    open: isOpenedByThisTrigger,
+  });
+  const hoverIntent = useHoverIntent(store);
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
 
@@ -135,15 +130,13 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
     isNestedTriggerHoveredRef.current = nestedTriggerHovered;
     if (nestedTriggerHovered) {
-      hoverInteraction.openChangeTimeout.clear();
-      hoverInteraction.restTimeout.clear();
-      hoverInteraction.restTimeoutPending = false;
+      hoverIntent.cancelPendingOpen();
       nestedTriggerOpenTimeout.clear();
     }
     return nestedTriggerHovered;
   }
 
-  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+  const hoverProps = useHoverReferenceInteraction(store, {
     enabled: !disabled,
     mouseOnly: true,
     move: false,
@@ -157,13 +150,12 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
-    isClosing: () => store.select('transitionStatus') === 'ending',
     shouldOpen() {
       return !isNestedTriggerHoveredRef.current;
     },
   });
 
-  const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
+  const focusProps = useFocus(store, { enabled: !disabled }).reference;
 
   const handleNestedTriggerHover = (event: MouseEvent) => {
     const wasNestedTriggerHovered = isNestedTriggerHoveredRef.current;

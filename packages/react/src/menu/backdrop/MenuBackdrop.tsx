@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { REASONS } from '../../internals/reasons';

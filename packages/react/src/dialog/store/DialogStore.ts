@@ -1,14 +1,15 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
+import { NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
-import { NullStore } from '../../utils/NullStore';
+import { NullStore } from '../../utils/popups/NullStore';
 import type { PopupStoreContext, PopupTriggerDataStore, PopupStoreState } from '../../utils/popups';
 import {
+  BasePopupStore,
+  createFloatingRootContextValues,
   createInitialPopupStoreState,
   popupStoreSelectors,
   PopupTriggerMap,
-  createPopupOpenState,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -44,6 +45,8 @@ const selectors = {
   titleElementId: (state: State<unknown>) => state.titleElementId,
   viewportElement: (state: State<unknown>) => state.viewportElement,
   role: (state: State<unknown>) => state.role,
+  // Dialogs have no positioner, so the interaction hooks treat the popup as the floating element.
+  floatingElement: (state: State<unknown>) => state.popupElement,
 };
 
 /**
@@ -51,12 +54,14 @@ const selectors = {
  * `DialogStore` and the inert fallback store satisfy it, so a trigger can read from whichever
  * store the handle currently exposes.
  */
-export type DialogHandleStore<Payload> = PopupTriggerDataStore<State<Payload>>;
+export type DialogHandleStore<Payload> = PopupTriggerDataStore<State<Payload>> &
+  Pick<DialogStore<Payload>, 'setOpen'>;
 
-export class DialogStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
+export class DialogStore<Payload> extends BasePopupStore<
+  State<Payload>,
   Context,
-  typeof selectors
+  typeof selectors,
+  DialogRoot.ChangeEventDetails
 > {
   constructor(
     initialState: Partial<State<Payload>> | undefined,
@@ -64,35 +69,26 @@ export class DialogStore<Payload> extends ReactStore<
     nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
-    const state = createInitialState<Payload>(initialState, triggerElements, floatingId, nested);
+    const state = createInitialState<Payload>(initialState, floatingId);
 
-    super(state, createInitialContext(triggerElements), selectors);
+    super(state, createInitialContext(triggerElements, nested), selectors);
   }
 
-  public setOpen = (
-    nextOpen: boolean,
-    eventDetails: Omit<DialogRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
-  ) => {
-    (eventDetails as DialogRoot.ChangeEventDetails).preventUnmountOnClose = () => {
+  protected getCloseTrigger() {
+    // When closing the dialog, pass the old trigger to the onOpenChange event
+    // so it's not reset too early (potentially causing focus issues in controlled scenarios).
+    return this.state.activeTriggerId != null
+      ? (this.state.activeTriggerElement ?? undefined)
+      : undefined;
+  }
+
+  // The request is recorded as soon as it's made, so `onOpenChange` can make it after an `await`.
+  protected attachPreventUnmountOnClose(eventDetails: DialogRoot.ChangeEventDetails) {
+    eventDetails.preventUnmountOnClose = () => {
       this.set('preventUnmountingOnClose', true);
     };
-
-    if (!nextOpen && eventDetails.trigger == null && this.state.activeTriggerId != null) {
-      // When closing the dialog, pass the old trigger to the onOpenChange event
-      // so it's not reset too early (potentially causing focus issues in controlled scenarios).
-      eventDetails.trigger = this.state.activeTriggerElement ?? undefined;
-    }
-
-    this.context.onOpenChange?.(nextOpen, eventDetails as DialogRoot.ChangeEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-    this.update(createPopupOpenState(this.state, nextOpen, eventDetails.trigger));
-  };
+    return () => false;
+  }
 }
 
 /**
@@ -103,21 +99,20 @@ export class DialogStore<Payload> extends ReactStore<
 export function createNullDialogStore<Payload>(): DialogHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
 
-  return new NullStore<Readonly<State<Payload>>, Context, typeof selectors>(
-    Object.freeze(createInitialState<Payload>(undefined, triggerElements)),
+  const store = new NullStore<Readonly<State<Payload>>, Context, typeof selectors>(
+    Object.freeze(createInitialState<Payload>(undefined)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
+  return Object.assign(store, { setOpen: NOOP });
 }
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,
-  nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
+    ...createInitialPopupStoreState<Payload>(floatingId),
     modal: true,
     disablePointerDismissal: false,
     viewportElement: null,
@@ -134,7 +129,7 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
   return {
     popupRef: React.createRef<HTMLElement>(),
     backdropRef: React.createRef<HTMLDivElement>(),
@@ -143,5 +138,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     triggerElements,
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
+    ...createFloatingRootContextValues(nested),
   };
 }

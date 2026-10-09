@@ -186,6 +186,7 @@ describe('<Tooltip.Root />', () => {
     openInteractions: ['hover', 'focus'],
     ariaExpanded: false,
     throwOnMissingTrigger: true,
+    closesOnActiveTriggerUnmount: true,
   });
 
   describe('does not re-render inactive triggers', () => {

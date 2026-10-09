@@ -13,27 +13,30 @@ import {
   offset,
   shift as floatingShift,
   size,
-} from '../floating-ui-react';
+} from '@floating-ui/react-dom';
 import type {
-  UseFloatingOptions,
-  UseFloatingReturn,
   Placement,
-  FloatingRootContext,
   VirtualElement,
   Padding,
-  FloatingContext,
   Side as PhysicalSide,
   MiddlewareState,
   AutoUpdateOptions,
   Middleware,
-  FloatingTreeStore,
-} from '../floating-ui-react';
-import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
+} from '@floating-ui/react-dom';
+import type {
+  UseFloatingOptions,
+  UseFloatingReturn,
+  FloatingRootContext,
+  FloatingContext,
+} from '../utils/popups/floating-root/types';
+import { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
+import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
+import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
-import { arrow } from '../floating-ui-react/middleware/arrow';
-import { hide } from '../utils/hideMiddleware';
-import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
-import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
+import { arrow } from '../utils/popups/positioning/arrow';
+import { hide } from '../utils/popups/positioning/hideMiddleware';
+import { DEFAULT_SIDES } from '../utils/popups/positioning/adaptiveOriginConstants';
+import * as CommonPositionerCssVars from '../utils/popups/positioning/CommonPositionerCssVars';
 
 const AVAILABLE_WIDTH_VAR = CommonPositionerCssVars.availableWidth;
 const AVAILABLE_HEIGHT_VAR = CommonPositionerCssVars.availableHeight;
@@ -122,21 +125,13 @@ interface SideShiftMode {
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 
-type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
-
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
-): UseAnchorPositioningReturnValue {
-  return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
-}
-
-export function useAnchorPositioningWithHook(
-  params: UseAnchorPositioningParameters,
-  useFloatingHook: UseFloatingHook,
+  params: UseAnchorPositioningParameters &
+    ({ floatingRootContext: FloatingRootContext } | { fallbackRootContext: FloatingRootContext }),
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -146,7 +141,7 @@ export function useAnchorPositioningWithHook(
     sideOffset = 0,
     align = 'center',
     alignOffset = 0,
-    collisionBoundary,
+    collisionBoundary = 'clipping-ancestors',
     collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
@@ -155,6 +150,7 @@ export function useAnchorPositioningWithHook(
     // Private parameters
     keepMounted = false,
     floatingRootContext,
+    fallbackRootContext,
     mounted,
     collisionAvoidance,
     shift,
@@ -458,14 +454,20 @@ export function useAnchorPositioningWithHook(
 
   useIsoLayoutEffect(() => {
     // Ensure positioning doesn't run initially for `keepMounted` elements that
-    // aren't initially open.
+    // aren't initially open. Popup stores derive the anchor and floating elements from their
+    // own state, so only a `FloatingRootStore` keeps copies of them to clear.
     if (!mounted && floatingRootContext) {
-      floatingRootContext.update({
-        referenceElement: null,
-        floatingElement: null,
-        domReferenceElement: null,
-        positionReference: null,
-      });
+      if (floatingRootContext instanceof FloatingRootStore) {
+        floatingRootContext.update({
+          referenceElement: null,
+          floatingElement: null,
+          domReferenceElement: null,
+          positionReference: null,
+        });
+      } else {
+        floatingRootContext.set('domReferenceElement', null);
+        floatingRootContext.set('positionReference', null);
+      }
     }
   }, [mounted, floatingRootContext]);
 
@@ -489,8 +491,9 @@ export function useAnchorPositioningWithHook(
     context,
     isPositioned,
     floatingStyles: originalFloatingStyles,
-  } = useFloatingHook({
-    rootContext: floatingRootContext,
+  } = useBaseUIFloating({
+    // The parameter type guarantees one of them.
+    rootContext: (floatingRootContext ?? fallbackRootContext) as FloatingRootContext,
     open: keepMounted ? mounted : undefined,
     placement,
     middleware,
@@ -813,8 +816,12 @@ export interface UseAnchorPositioningSharedParameters {
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
+  /**
+   * Positions against this store while `floatingRootContext` is missing. Unlike
+   * `floatingRootContext`, it isn't cleared while the positioner is unmounted.
+   */
+  fallbackRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
-  disableAnchorTracking: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
@@ -829,6 +836,10 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    * popup. `true` locks the side only; `'placement'` also locks the alignment.
    */
   lazyFlip?: boolean | 'placement' | undefined;
+  /**
+   * Ignored. Positioning no longer attaches the popup tree node; the option is kept so this
+   * published subpath's parameters don't change.
+   */
   externalTree?: FloatingTreeStore | undefined;
   /**
    * Optional middleware that can replace the measured reference rect before offsets and collision

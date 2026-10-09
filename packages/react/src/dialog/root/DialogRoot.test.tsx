@@ -2135,6 +2135,127 @@ describe('<Dialog.Root />', () => {
       expect(field).not.toHaveFocus();
     },
   );
+
+  describe.skipIf(isJSDOM)('close requests', () => {
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    it('keeps the dialog mounted when onOpenChange prevents unmounting after an await', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const { user } = await render(
+        <div>
+          <style>
+            {`
+              @keyframes dialog-await-exit { to { opacity: 0; } }
+              .dialog-await-popup[data-ending-style] { animation: dialog-await-exit 200ms; }
+            `}
+          </style>
+          <Dialog.Root
+            defaultOpen
+            onOpenChange={async (open, eventDetails) => {
+              if (!open) {
+                await Promise.resolve();
+                eventDetails.preventUnmountOnClose();
+              }
+            }}
+          >
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup" className="dialog-await-popup">
+                Content
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+
+      await user.keyboard('[Escape]');
+      await wait(400);
+
+      expect(screen.queryByTestId('popup')).not.toBe(null);
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+    });
+  });
+
+  describe('dismissal across popup families', () => {
+    it('closes a trap-focus dialog without a backdrop on a mouse press outside before focus moves there', async () => {
+      const { user } = await render(
+        <div>
+          <button type="button" data-testid="outside">
+            Outside
+          </button>
+          <Dialog.Root modal="trap-focus">
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup">
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      await screen.findByTestId('popup');
+      await flushMicrotasks();
+      const outside = screen.getByTestId('outside');
+      expect(outside.closest('[aria-hidden]')).toHaveAttribute('aria-hidden', 'true');
+
+      fireEvent.pointerDown(outside, { pointerType: 'mouse', button: 0 });
+      await flushMicrotasks();
+
+      // The press start closes the dialog and clears `aria-hidden`, before the press can move
+      // focus outside.
+      expect(screen.queryByTestId('popup')).toBe(null);
+      expect(outside.closest('[aria-hidden]')).toBe(null);
+    });
+
+    it('closes only a nested select on Escape and returns focus to its trigger', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          <Dialog.Trigger>Dialog</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="dialog-popup">
+              <Select.Root defaultValue="a">
+                <Select.Trigger data-testid="select-trigger">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="a">A</Select.Item>
+                      <Select.Item value="b">B</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Dialog' }));
+      const selectTrigger = await screen.findByTestId('select-trigger');
+      await user.click(selectTrigger);
+      await waitFor(() => {
+        expect(selectTrigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      await waitFor(() => {
+        expect(document.activeElement).toHaveAttribute('role', 'option');
+      });
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(selectTrigger).toHaveAttribute('aria-expanded', 'false');
+      });
+      expect(screen.getByTestId('dialog-popup')).toBeVisible();
+      await waitFor(() => {
+        expect(selectTrigger).toHaveFocus();
+      });
+    });
+  });
 });
 
 // The viewport takes its overflow from <html>, falling back to <body> when <html> doesn't
@@ -2158,18 +2279,17 @@ function DialogOpenChangeSpy(props: {
 }) {
   const { onOpenChange } = props;
   const store = useDialogRootContext();
-  const floatingRootContext = store.useState('floatingRootContext');
 
   React.useEffect(() => {
     function handleOpenChange(details: { open: boolean; reason: string | null | undefined }) {
       onOpenChange(details);
     }
 
-    floatingRootContext.context.events.on('openchange', handleOpenChange);
+    store.context.events.on('openchange', handleOpenChange);
     return () => {
-      floatingRootContext.context.events.off('openchange', handleOpenChange);
+      store.context.events.off('openchange', handleOpenChange);
     };
-  }, [floatingRootContext, onOpenChange]);
+  }, [store, onOpenChange]);
 
   return null;
 }

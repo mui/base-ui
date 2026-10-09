@@ -7194,4 +7194,52 @@ describe('<Select.Root />', () => {
       expect(triggerRenders).toBe(0);
     });
   });
+
+  it('closes on Escape and returns focus to the trigger after a canceled Escape close', async () => {
+    let cancelClose = true;
+    const { user } = await render(
+      <Select.Root
+        defaultValue="a"
+        onOpenChange={(open, eventDetails) => {
+          if (!open && cancelClose) {
+            eventDetails.cancel();
+          }
+        }}
+      >
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">A</Select.Item>
+              <Select.Item value="b">B</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    await user.click(trigger);
+    await waitFor(() => {
+      expect(document.activeElement).toHaveAttribute('role', 'option');
+    });
+
+    await user.keyboard('{Escape}');
+    await flushMicrotasks();
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(document.activeElement).toHaveAttribute('role', 'option');
+
+    cancelClose = false;
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+    await waitFor(() => {
+      expect(trigger).toHaveFocus();
+    });
+  });
 });

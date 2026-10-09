@@ -11,11 +11,11 @@ import type {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
-import { useFloatingRootContext } from '../../floating-ui-react';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
 import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { usePositioner } from '../../utils/usePositioner';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
 import * as ToastRootCssVars from '../root/ToastRootCssVars';
 
 /**

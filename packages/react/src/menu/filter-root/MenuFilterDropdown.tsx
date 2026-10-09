@@ -5,7 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from '../../menubar/MenubarContext';
-import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
+import { isVirtualPointerEvent } from '../../utils/popups/event';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
