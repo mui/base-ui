@@ -4,7 +4,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
-import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,
   Align,
@@ -13,7 +12,7 @@ import type {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { usePositioner } from '../../utils/usePositioner';
+import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { createInlineMiddleware } from '../../utils/popups';
 
 /**
@@ -26,55 +25,22 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   componentProps: PreviewCardPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    render,
-    className,
-    anchor,
-    positionMethod = 'absolute',
-    side = 'bottom',
-    align = 'center',
-    sideOffset = 0,
-    alignOffset = 0,
-    collisionBoundary = 'clipping-ancestors',
-    collisionPadding = 5,
-    arrowPadding = 5,
-    sticky = false,
-    disableAnchorTracking = false,
-    collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
-    style,
-    ...elementProps
-  } = componentProps;
-
   const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
   const nodeId = useFloatingNodeId();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
-  const instantType = store.useState('instantType');
-  const transitionStatus = store.useState('transitionStatus');
-  const adaptiveOrigin = store.useState('adaptiveOrigin');
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
-  const positioning = useAnchorPositioning({
-    anchor,
-    floatingRootContext: store,
-    positionMethod,
-    mounted,
-    side,
-    sideOffset,
-    align,
-    alignOffset,
-    arrowPadding,
-    collisionBoundary,
-    collisionPadding,
-    sticky,
-    disableAnchorTracking,
+  const { element, positioning } = usePopupPositioner(store, componentProps, {
+    forwardedRef,
     keepMounted,
-    nodeId,
-    collisionAvoidance,
-    adaptiveOrigin,
-    inline: createInlineMiddleware(inlineRectCoordsRef),
+    defaults: { collisionAvoidance: POPUP_COLLISION_AVOIDANCE },
+    positioning: {
+      nodeId,
+      inline: createInlineMiddleware(inlineRectCoordsRef),
+    },
   });
   const updatePosition = positioning.update;
 
@@ -83,23 +49,6 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
       updatePosition();
     }
   }, [open, mounted, updatePosition]);
-
-  const state: PreviewCardPositionerState = {
-    open,
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    instant: instantType,
-  };
-
-  const element = usePositioner(componentProps, state, {
-    styles: positioning.positionerStyles,
-    transitionStatus,
-    props: elementProps,
-    refs: [forwardedRef, store.useStateSetter('positionerElement')],
-    hidden: !mounted,
-    inert: !open,
-  });
 
   return (
     <PreviewCardPositionerContext.Provider value={positioning}>

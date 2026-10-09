@@ -149,7 +149,7 @@ export function useAnchorPositioningWithHook(
     sideOffset = 0,
     align = 'center',
     alignOffset = 0,
-    collisionBoundary,
+    collisionBoundary = 'clipping-ancestors',
     collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
@@ -823,7 +823,6 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   keepMounted?: boolean | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
-  disableAnchorTracking: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
