@@ -1006,17 +1006,17 @@ describe('Composite', () => {
               data-testid="1"
               // TS doesn't like the disabled attribute on non-interactive elements
               // but testing library refuses to focus disabled interactive elements
-              // @ts-ignore
+              // @ts-expect-error A span has no disabled prop; exercise focus on an aria-disabled non-interactive element.
               render={<span data-disabled aria-disabled="true" disabled />}
             />
             <CompositeItem
               data-testid="2"
-              // @ts-ignore
+              // @ts-expect-error A span has no disabled prop; exercise focus on an aria-disabled non-interactive element.
               render={<span data-disabled aria-disabled="true" disabled />}
             />
             <CompositeItem
               data-testid="3"
-              // @ts-ignore
+              // @ts-expect-error A span has no disabled prop; exercise focus on an aria-disabled non-interactive element.
               render={<span data-disabled aria-disabled="true" disabled />}
             />
           </CompositeRoot>

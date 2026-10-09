@@ -206,8 +206,8 @@ importers:
         specifier: 7.59.3
         version: 7.59.3(@types/node@22.20.4)
       '@mui/internal-code-infra':
-        specifier: 0.1.1-canary.6
-        version: 0.1.1-canary.6(@next/eslint-plugin-next@16.3.6(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0)))(@types/node@22.20.4)(@typescript-eslint/eslint-plugin@8.71.0(@typescript-eslint/parser@8.71.0(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript-eslint/parser@8.71.0(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript/typescript6@6.0.2)(bluebird@3.7.2)(eslint-import-resolver-node@0.3.10(supports-color@7.2.0))(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(postcss@8.5.28)(prettier@3.9.9)(stylelint@17.15.0(@typescript/typescript6@6.0.2)(supports-color@7.2.0))(supports-color@7.2.0)(vitest@5.0.2)
+        specifier: 0.1.1-canary.9
+        version: 0.1.1-canary.9(@next/eslint-plugin-next@16.3.6(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0)))(@types/node@22.20.4)(@typescript-eslint/eslint-plugin@8.71.0(@typescript-eslint/parser@8.71.0(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript-eslint/parser@8.71.0(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript/typescript6@6.0.2)(bluebird@3.7.2)(eslint-import-resolver-node@0.3.10(supports-color@7.2.0))(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(postcss@8.5.28)(prettier@3.9.9)(stylelint@17.15.0(@typescript/typescript6@6.0.2)(supports-color@7.2.0))(supports-color@7.2.0)(vitest@5.0.2)
       '@mui/internal-netlify-cache':
         specifier: 0.1.1-canary.1
         version: 0.1.1-canary.1
@@ -811,16 +811,16 @@ packages:
     resolution: {integrity: sha512-9ytjzGwxjm9Uz7I9avfbt5vlQt6uk9uRRESzJjqrznl6WKvI6dwYTo+vJ3U02Wrq/mR3iql/PzhvHhKdJIAjDQ==}
     engines: {node: '>=20'}
 
-  '@argos-ci/api-client@0.31.0':
-    resolution: {integrity: sha512-7EdoiHRc4BvuDxp6/8CbkehCMu5bFYEJPjssYFvOR5FqCq50hT9+GxDuQ4pULpbXUZOVl1vhZ4b8ed4fe7rVCQ==}
+  '@argos-ci/api-client@0.31.1':
+    resolution: {integrity: sha512-QkJ6/1xzoolhYqYYTtRH4iTc6FFY3TVtLyjb1BFytif4RsvW+uwozhZCU0oPDRxR2rCmBQD9miVB+km9nDhh7Q==}
     engines: {node: '>=22.0.0'}
 
-  '@argos-ci/core@6.8.5':
-    resolution: {integrity: sha512-6JeGMOY2uSj3eZxYl1P+EdLuM84VJ/qBaDAKDRrSup039CGzHDEU/eEZwwRDiGhChNQ8UPDOWRTyd+0qvtzHgQ==}
+  '@argos-ci/core@6.8.6':
+    resolution: {integrity: sha512-B8xZUSocftDVc2pw2Su63e6KKPx928iQLLqNjV/xOTqnRrRGUAMnlezsHZZ/T6UpX1U9eRR3at/kDZa4bTVYmQ==}
     engines: {node: '>=22.0.0'}
 
-  '@argos-ci/util@4.2.0':
-    resolution: {integrity: sha512-HZCNwbJqoaL3pwhnEXH+HJYUPeOMv7rWyCrQaT6IcKZCrdYGOFkG72uXbDvoa84y/FvVSWPV2ja2Ryv0I8ViUg==}
+  '@argos-ci/util@4.2.1':
+    resolution: {integrity: sha512-TriX5ahqHmIZg8eiSkL/b7to29bybxZ1x8VRMxwW998RLuYrXqg73vUI+LrhD2zksAchS61KjuCcMF/AC6s7Aw==}
     engines: {node: '>=22.0.0'}
 
   '@asamuzakjp/css-color@4.1.2':
@@ -2405,8 +2405,8 @@ packages:
     resolution: {integrity: sha512-XGhvlZA9u8iVSkhF3gWcj6KU0/qwoorxft/eYo67ZQFXTp+jCVVq1Ya4hR4IwCwsgrWYEPa779275jdW9EraAA==}
     hasBin: true
 
-  '@mui/internal-code-infra@0.1.1-canary.6':
-    resolution: {integrity: sha512-GYBWmD1h1qu5mRZSknqTzfmViX1YZicBsrcQ5ojxbtYhmjBaDVcR2z/rcLa5hwy/c2Pb46244cEKC2tao7Wa3A==}
+  '@mui/internal-code-infra@0.1.1-canary.9':
+    resolution: {integrity: sha512-jP733WNz47KQGob7u4Xnx6lTTCyF9K79L5IYU2AeXsSV7qGr8BwPNfzLgIPdEIxOfpSDTwA3blT8RkVStN19TA==}
     hasBin: true
     peerDependencies:
       '@next/eslint-plugin-next': '*'
@@ -6282,6 +6282,10 @@ packages:
     resolution: {integrity: sha512-cezEd/DTyyht9cvSSURyygXPfy04GtWO/5e6ZPvH7fCtjKz9PYOmuawphw1Ctd1f6C+5JypXfGD7ahNMXvevBA==}
     engines: {node: '>=18'}
 
+  globals@17.13.0:
+    resolution: {integrity: sha512-RwMTC61u7hrG3ZJMkZQOK4JLJrKS8QtoTii63EmWvFXHqycY9FObBJQCbsLxSO8kjKhWE5kV1GC+Vb1g3RI0Zg==}
+    engines: {node: '>=18'}
+
   globalthis@1.0.4:
     resolution: {integrity: sha512-DpLKbNU4WylpxJykQujfCcwYWiV/Jhm50Goo0wrVILAv5jOr9d+H+UR3PhSCD2rCCEIg0uc+G+muBTwD54JhDQ==}
     engines: {node: '>= 0.4'}
@@ -9850,7 +9854,7 @@ snapshots:
       typescript: 5.6.1-rc
       validate-npm-package-name: 5.0.1
 
-  '@argos-ci/api-client@0.31.0(supports-color@7.2.0)':
+  '@argos-ci/api-client@0.31.1(supports-color@7.2.0)':
     dependencies:
       debug: 4.4.3(supports-color@7.2.0)
       openapi-fetch: 0.17.0
@@ -9858,10 +9862,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@argos-ci/core@6.8.5(@types/node@22.20.4)(supports-color@7.2.0)':
+  '@argos-ci/core@6.8.6(@types/node@22.20.4)(supports-color@7.2.0)':
     dependencies:
-      '@argos-ci/api-client': 0.31.0(supports-color@7.2.0)
-      '@argos-ci/util': 4.2.0
+      '@argos-ci/api-client': 0.31.1(supports-color@7.2.0)
+      '@argos-ci/util': 4.2.1
       convict: 6.2.5
       debug: 4.4.3(supports-color@7.2.0)
       fast-glob: 3.3.3
@@ -9873,7 +9877,7 @@ snapshots:
       - '@types/node'
       - supports-color
 
-  '@argos-ci/util@4.2.0': {}
+  '@argos-ci/util@4.2.1': {}
 
   '@asamuzakjp/css-color@4.1.2':
     dependencies:
@@ -11585,9 +11589,9 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.1.1-canary.6(@next/eslint-plugin-next@16.3.6(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0)))(@types/node@22.20.4)(@typescript-eslint/eslint-plugin@8.71.0(@typescript-eslint/parser@8.71.0(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript-eslint/parser@8.71.0(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript/typescript6@6.0.2)(bluebird@3.7.2)(eslint-import-resolver-node@0.3.10(supports-color@7.2.0))(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(postcss@8.5.28)(prettier@3.9.9)(stylelint@17.15.0(@typescript/typescript6@6.0.2)(supports-color@7.2.0))(supports-color@7.2.0)(vitest@5.0.2)':
+  '@mui/internal-code-infra@0.1.1-canary.9(@next/eslint-plugin-next@16.3.6(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0)))(@types/node@22.20.4)(@typescript-eslint/eslint-plugin@8.71.0(@typescript-eslint/parser@8.71.0(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript-eslint/parser@8.71.0(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(@typescript/typescript6@6.0.2)(bluebird@3.7.2)(eslint-import-resolver-node@0.3.10(supports-color@7.2.0))(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(postcss@8.5.28)(prettier@3.9.9)(stylelint@17.15.0(@typescript/typescript6@6.0.2)(supports-color@7.2.0))(supports-color@7.2.0)(vitest@5.0.2)':
     dependencies:
-      '@argos-ci/core': 6.8.5(@types/node@22.20.4)(supports-color@7.2.0)
+      '@argos-ci/core': 6.8.6(@types/node@22.20.4)(supports-color@7.2.0)
       '@babel/cli': 8.0.6(@babel/core@8.0.6)
       '@babel/core': 8.0.6
       '@babel/plugin-syntax-jsx': 8.0.1(@babel/core@8.0.6)
@@ -11640,7 +11644,7 @@ snapshots:
       eslint-plugin-testing-library: 7.16.2(@typescript/typescript6@6.0.2)(eslint@10.11.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
       execa: 10.0.1
       git-url-parse: 16.1.0
-      globals: 17.12.0
+      globals: 17.13.0
       globby: 16.2.4
       html-validate: 11.16.1(vitest@5.0.2)
       minimatch: 10.2.6
@@ -15973,6 +15977,8 @@ snapshots:
   globals@15.15.0: {}
 
   globals@17.12.0: {}
+
+  globals@17.13.0: {}
 
   globalthis@1.0.4:
     dependencies:
