@@ -14,6 +14,7 @@ import { attachPreventUnmountOnClose } from './popupStoreUtils';
 import {
   applyOpenRequest,
   createTriggerOwnership,
+  followAnchor,
   isLoneTriggerClaimable,
   releaseUnmountedOwner,
 } from './triggerOwnership';
@@ -258,6 +259,7 @@ export const popupStoreSelectors = {
   // Reads of the interaction hooks' store (`PopupInteractionStore`).
   defaultPopupId: (state: S) => state.defaultPopupId,
   anchorElement: (state: S) => state.anchorElement,
+  lastTriggerElement: (state: S) => state.triggerOwnership.lastTriggerElement,
   anchor: (state: S) => state.anchorOverride ?? activeTriggerElementSelector(state),
   // A `keepMounted` positioner is reported while the popup is closed, but not while an opening
   // popup is still hidden: the hooks would otherwise try to focus or measure it before it shows.
@@ -267,25 +269,34 @@ export const popupStoreSelectors = {
 
 /**
  * Applies what follows from a change of the trigger the popup is anchored to: the trigger is
- * remembered as the anchor element, and an anchor override that followed the old trigger follows
- * the new one.
+ * remembered as the anchor element and as the last trigger, and an anchor override that followed
+ * the old trigger follows the new one. An anchor element cleared from outside (as a `keepMounted`
+ * positioner does while the popup is unmounted) clears the last trigger too.
  */
 function syncAnchorState<State extends S>(previous: State, next: State): State {
   const previousAnchor = activeTriggerElementSelector(previous);
   const nextAnchor = activeTriggerElementSelector(next);
 
-  if (previousAnchor === nextAnchor) {
-    return next;
+  let synced = next;
+  if (previousAnchor !== nextAnchor) {
+    const followsAnchor =
+      next.anchorOverride === previous.anchorOverride && previous.anchorOverride === previousAnchor;
+
+    synced = {
+      ...next,
+      anchorElement: nextAnchor ?? next.anchorElement,
+      anchorOverride: followsAnchor ? nextAnchor : next.anchorOverride,
+    };
   }
 
-  const followsAnchor =
-    next.anchorOverride === previous.anchorOverride && previous.anchorOverride === previousAnchor;
+  if (synced.anchorElement !== previous.anchorElement) {
+    const triggerOwnership = followAnchor(synced, synced.anchorElement);
+    if (triggerOwnership !== synced.triggerOwnership) {
+      synced = synced === next ? { ...next, triggerOwnership } : { ...synced, triggerOwnership };
+    }
+  }
 
-  return {
-    ...next,
-    anchorElement: nextAnchor ?? next.anchorElement,
-    anchorOverride: followsAnchor ? nextAnchor : next.anchorOverride,
-  };
+  return synced;
 }
 
 export type PopupStoreSelectors = typeof popupStoreSelectors;

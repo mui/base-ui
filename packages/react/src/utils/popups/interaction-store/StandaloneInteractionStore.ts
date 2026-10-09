@@ -50,6 +50,8 @@ const selectors = {
   open: (state: StandaloneInteractionState) => state.open,
   transitionStatus: (state: StandaloneInteractionState) => state.transitionStatus,
   anchorElement: (state: StandaloneInteractionState) => state.anchorElement,
+  // Without trigger ownership, the last trigger is the anchor element itself.
+  lastTriggerElement: (state: StandaloneInteractionState) => state.anchorElement,
   anchor: (state: StandaloneInteractionState) => state.anchorOverride ?? state.baseAnchor,
   outerPopupElement: (state: StandaloneInteractionState) => state.outerPopupElement,
   defaultPopupId: (state: StandaloneInteractionState) => state.defaultPopupId,

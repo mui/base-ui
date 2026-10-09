@@ -56,6 +56,10 @@ export interface PopupInteractionReader {
    */
   (key: 'anchorElement'): Element | null;
   /**
+   * The last trigger the popup belonged to, kept after it closes so focus can return to it.
+   */
+  (key: 'lastTriggerElement'): Element | null;
+  /**
    * What the popup is positioned against: an anchor set explicitly, or else the active trigger.
    */
   (key: 'anchor'): ReferenceType | null;
