@@ -1,16 +1,17 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { createRenderer, detachedTriggersConformanceTests, isJSDOM } from '#test-utils';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Popover } from '@base-ui/react/popover';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
 
   // Stands in for ref mergers like `@rc-component/util`'s `useComposeRef`, which retain the
   // callback they were first given.
@@ -208,6 +209,294 @@ describe('<Popover.Root />', () => {
     openInteractions: ['click'],
     ariaExpanded: true,
     throwOnMissingTrigger: true,
+  });
+
+  describe('does not re-render inactive triggers', () => {
+    async function renderPopover({
+      rootProps,
+      triggerProps,
+      popupChildren,
+    }: {
+      rootProps?: Popover.Root.Props;
+      triggerProps?: Popover.Trigger.Props;
+      popupChildren?: React.ReactNode;
+    } = {}) {
+      const handle = Popover.createHandle();
+      const inactiveTrigger = { renders: 0 };
+
+      const { user } = await render(
+        <div>
+          <Popover.Trigger handle={handle} id="trigger-1" {...triggerProps}>
+            Trigger 1
+          </Popover.Trigger>
+          <Popover.Trigger handle={handle} id="trigger-2" {...triggerProps}>
+            Trigger 2
+          </Popover.Trigger>
+          <Popover.Trigger
+            handle={handle}
+            id="trigger-3"
+            {...triggerProps}
+            render={(props) => {
+              inactiveTrigger.renders += 1;
+              return <button {...props} />;
+            }}
+          >
+            Trigger 3
+          </Popover.Trigger>
+          <Popover.Root handle={handle} {...rootProps}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup">
+                  Content
+                  {popupChildren}
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      inactiveTrigger.renders = 0;
+      return {
+        user,
+        handle,
+        inactiveTrigger,
+        trigger: screen.getByRole('button', { name: 'Trigger 1' }),
+        trigger2: screen.getByRole('button', { name: 'Trigger 2' }),
+      };
+    }
+
+    async function expectOpenedBy(trigger: HTMLElement) {
+      expect(await screen.findByTestId('popup')).not.toBe(null);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+    }
+
+    async function expectClosed(trigger: HTMLElement) {
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    }
+
+    it('when a click opens and closes the popup', async () => {
+      const { user, inactiveTrigger, trigger } = await renderPopover();
+
+      async function openAndClose() {
+        await user.click(trigger);
+        await expectOpenedBy(trigger);
+        await user.click(trigger);
+        await expectClosed(trigger);
+      }
+
+      await openAndClose();
+      await openAndClose();
+
+      expect(inactiveTrigger.renders).toBe(0);
+    });
+
+    it('when a touch press opens and closes the popup', async () => {
+      const { user, inactiveTrigger, trigger } = await renderPopover();
+
+      async function openAndClose() {
+        await user.pointer({ keys: '[TouchA]', target: trigger });
+        await expectOpenedBy(trigger);
+        await user.pointer({ keys: '[TouchA]', target: trigger });
+        await expectClosed(trigger);
+      }
+
+      await openAndClose();
+      await openAndClose();
+
+      expect(inactiveTrigger.renders).toBe(0);
+    });
+
+    it('when a modal popup closes from Popover.Close', async () => {
+      const { user, inactiveTrigger, trigger } = await renderPopover({
+        rootProps: { modal: true },
+        popupChildren: <Popover.Close>Close</Popover.Close>,
+      });
+
+      async function openAndClose() {
+        await user.click(trigger);
+        await expectOpenedBy(trigger);
+        await user.click(screen.getByRole('button', { name: 'Close' }));
+        await expectClosed(trigger);
+      }
+
+      await openAndClose();
+      await openAndClose();
+
+      expect(inactiveTrigger.renders).toBe(0);
+    });
+
+    it('when the popup moves to another trigger', async () => {
+      const { user, inactiveTrigger, trigger, trigger2 } = await renderPopover();
+
+      await user.click(trigger);
+      await expectOpenedBy(trigger);
+      await user.click(trigger2);
+      await expectOpenedBy(trigger2);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('data-pressed');
+      expect(trigger2).toHaveAttribute('data-pressed');
+      expect(trigger.previousElementSibling).toBe(null);
+      expect(trigger2.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+      expect(trigger2.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+      await user.click(trigger2);
+      await expectClosed(trigger2);
+
+      expect(inactiveTrigger.renders).toBe(0);
+    });
+
+    describe('with openOnHover', () => {
+      clock.withFakeTimers();
+
+      it('when a hover opens the popup', async () => {
+        const { handle, inactiveTrigger, trigger } = await renderPopover({
+          triggerProps: { openOnHover: true, delay: 0, closeDelay: 0 },
+        });
+
+        async function openAndClose() {
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+          await flushMicrotasks();
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+          // Covers the patient-click window ending while open.
+          clock.tick(PATIENT_CLICK_THRESHOLD);
+          fireEvent.mouseLeave(trigger);
+          await act(() => handle.close());
+          await flushMicrotasks();
+          expect(screen.queryByTestId('popup')).toBe(null);
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        }
+
+        await openAndClose();
+        await openAndClose();
+
+        expect(inactiveTrigger.renders).toBe(0);
+      });
+
+      it('when a press takes over a hover-opened popup', async () => {
+        const { handle, inactiveTrigger, trigger } = await renderPopover({
+          triggerProps: { openOnHover: true, delay: 0, closeDelay: 0 },
+        });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+
+        // A press inside the patient-click window keeps it open and changes the open reason.
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+        expect(trigger).toHaveAttribute('data-pressed');
+
+        fireEvent.mouseLeave(trigger);
+        await act(() => handle.close());
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popup')).toBe(null);
+
+        expect(inactiveTrigger.renders).toBe(0);
+      });
+    });
+  });
+
+  describe('after a prop-only reopen', () => {
+    clock.withFakeTimers();
+
+    it('keeps the popup open when the last hovered trigger is pressed', async () => {
+      const handle = Popover.createHandle();
+      let setOpen: (open: boolean) => void = () => {};
+
+      function App() {
+        const [open, setOpenState] = React.useState(false);
+        setOpen = setOpenState;
+        return (
+          <div>
+            <Popover.Trigger handle={handle} id="trigger-1" openOnHover delay={0}>
+              Trigger 1
+            </Popover.Trigger>
+            <Popover.Trigger handle={handle} id="trigger-2">
+              Trigger 2
+            </Popover.Trigger>
+            <Popover.Root handle={handle} open={open} onOpenChange={setOpenState}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('popup')).not.toBe(null);
+      // End the hover's patient-click window so only the close-time reset keeps the click sticky.
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      await act(async () => setOpen(false));
+      await flushMicrotasks();
+      expect(screen.queryByTestId('popup')).toBe(null);
+
+      await act(async () => setOpen(true));
+      await flushMicrotasks();
+      expect(screen.queryByTestId('popup')).not.toBe(null);
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('popup')).not.toBe(null);
+    });
+  });
+
+  it('dismisses a keyboard-reopened popup on a virtual outside click after a touch session', async () => {
+    const handle = Popover.createHandle();
+    const { user } = await render(
+      <React.Fragment>
+        <button>Outside</button>
+        <Popover.Trigger handle={handle} id="trigger">
+          Trigger
+        </Popover.Trigger>
+        <Popover.Root handle={handle}>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup">Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      </React.Fragment>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await user.click(trigger);
+    const popup = await screen.findByTestId('popup');
+
+    fireEvent.pointerDown(popup, { pointerType: 'touch', button: 0 });
+    fireEvent.pointerUp(popup, { pointerType: 'touch', button: 0 });
+    fireEvent.click(popup);
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+
+    await act(async () => trigger.focus());
+    await user.keyboard('[Enter]');
+    await screen.findByTestId('popup');
+
+    // Virtual clicks have no pointerdown to replace the previous session's touch type.
+    fireEvent.click(screen.getByRole('button', { name: 'Outside' }), { detail: 0 });
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
   });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
