@@ -9,7 +9,6 @@ import { createChangeEventDetails } from '../../../internals/createBaseUIEventDe
 import { REASONS } from '../../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
 import type { FloatingRootContext } from '../floating-root/types';
-import { getNodeChildren } from '../tree/nodes';
 import { useHoverIntent } from './hoverIntent';
 
 export type UseHoverFloatingInteractionProps = {
@@ -89,7 +88,7 @@ export function useHoverFloatingInteraction(
     }
 
     function hasParentChildren() {
-      return !!(tree && parentId && getNodeChildren(tree.nodesRef.current, parentId).length > 0);
+      return !!(tree && parentId && tree.hasOpenDescendant(parentId));
     }
 
     function onFloatingMouseEnter() {

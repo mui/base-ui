@@ -25,7 +25,6 @@ import { REASONS } from '../../../internals/reasons';
 import { createAttribute } from '../createAttribute';
 import { isEventTargetWithin, isRootElement } from '../element';
 import { isReactEvent, isVirtualClick } from '../event';
-import { getNodeChildren } from '../tree/nodes';
 
 type PressType = 'intentional' | 'sloppy';
 
@@ -167,16 +166,10 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     dataRef.current.insideReactTree = false;
   });
 
-  const hasBlockingChild = useStableCallback(
-    (bubbleKey: '__escapeKeyBubbles' | '__outsidePressBubbles') => {
-      const nodeId = dataRef.current.positioning?.nodeId;
-      const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
-
-      return children.some(
-        (child) => child.context?.open && !child.context.dataRef.current[bubbleKey],
-      );
-    },
-  );
+  const hasBlockingChild = useStableCallback((dismissal: 'escapeKey' | 'outsidePress') => {
+    const nodeId = dataRef.current.positioning?.nodeId;
+    return tree ? tree.hasBlockingChild(nodeId, dismissal) : false;
+  });
 
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
     return (
@@ -214,7 +207,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         return;
       }
 
-      if (!escapeKeyBubbles && hasBlockingChild('__escapeKeyBubbles')) {
+      if (!escapeKeyBubbles && hasBlockingChild('escapeKey')) {
         return;
       }
 
@@ -378,9 +371,9 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       const nodeId = dataRef.current.positioning?.nodeId;
       const targetIsInsideChildren =
         tree &&
-        getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
-          isEventTargetWithin(event, node.context?.elements.floating),
-        );
+        tree
+          .descendants(nodeId)
+          .some((node) => isEventTargetWithin(event, node.context?.elements.floating));
 
       return isEventWithinOwnElements(event) || targetIsInsideChildren;
     }
@@ -512,7 +505,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         return;
       }
 
-      if (hasBlockingChild('__outsidePressBubbles')) {
+      if (hasBlockingChild('outsidePress')) {
         return;
       }
 
