@@ -19,12 +19,13 @@ import {
 import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useHoverFloatingInteraction } from '../../src/utils/popups/interactions/useHoverFloatingInteraction';
+import { useHoverReferenceInteraction } from '../../src/utils/popups/interactions/useHoverReferenceInteraction';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
 import { useFocus } from '../../src/utils/popups/interactions/useFocus';
 import { useFloating } from './useFloating';
-import { useHover } from './useHover';
 import { gridNavigation } from '../../src/utils/popups/interactions/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './Menu.module.css';
@@ -108,12 +109,15 @@ export const MenuComponent = React.forwardRef<
     whileElementsMounted: autoUpdate,
   });
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
-  const hoverContext = isNested && allowHover ? context : fallbackContext;
+  const hoverStore = isNested && allowHover ? context.rootStore : fallbackContext;
 
-  const hover = useHover(hoverContext, {
+  const hoverReferenceProps = useHoverReferenceInteraction(hoverStore, {
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
+    triggerElementRef: hoverStore === fallbackContext ? undefined : refs.domReference,
   });
+  useHoverFloatingInteraction(hoverStore);
+  const hover = React.useMemo(() => ({ reference: hoverReferenceProps }), [hoverReferenceProps]);
   const click = useClick(context.rootStore, {
     event: 'mousedown',
     toggle: !isNested || !allowHover,
