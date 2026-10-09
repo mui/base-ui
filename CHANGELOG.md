@@ -4,7 +4,7 @@
 
 <!-- generated comparing v1.8.0...master -->
 
-_Oct 8, 2026_
+_Oct 9, 2026_
 
 ### General changes
 

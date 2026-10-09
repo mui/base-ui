@@ -11,7 +11,7 @@ export const releases: Release[] = [
     latest: true,
     version: 'v1.9.0',
     versionSlug: 'v1-9-0',
-    date: '2026-10-08',
+    date: '2026-10-09',
     highlights: [
       'New menu filtering behavior (preview).',
       'Improve mount performance of large lists in Combobox, Menu, and Select.',

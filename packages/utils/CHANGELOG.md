@@ -2,7 +2,7 @@
 
 ## 0.5.0
 
-_Oct 8, 2026_
+_Oct 9, 2026_
 
 - Add Shadow DOM-safe `closest` (#5450) by @atomiks
 - Add hydration hooks, `isHTMLElement`, and `lruMemoize` (#5542) by @romgrk
