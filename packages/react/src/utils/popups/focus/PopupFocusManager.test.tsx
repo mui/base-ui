@@ -1908,7 +1908,7 @@ describe('PopupFocusManager', () => {
       });
 
       test('clears outside pointer state between keep-mounted open sessions', async () => {
-        let readInsideReactTree = () => false;
+        let readInsideReactTree: () => boolean | undefined = () => false;
 
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);

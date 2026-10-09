@@ -6,6 +6,7 @@ import type { VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { usePopupTree } from '../tree/PopupTree';
 import type {
+  FloatingPositioningData,
   PopupPositioningContext,
   PopupInteractionStore,
   NarrowedElement,
@@ -109,8 +110,18 @@ export function useBaseUIFloating(
     }
   }, [anchorElement]);
 
+  const positioning = React.useMemo<FloatingPositioningData>(
+    () => ({
+      placement: position.placement,
+      elements,
+      nodeId,
+      refs: { floating: position.refs.floating },
+    }),
+    [position.placement, elements, nodeId, position.refs.floating],
+  );
+
   useIsoLayoutEffect(() => {
-    store.context.dataRef.current.floatingContext = context;
+    store.context.dataRef.current.positioning = positioning;
 
     const node = tree?.nodesRef.current.find((n) => n.id === nodeId);
     if (node) {

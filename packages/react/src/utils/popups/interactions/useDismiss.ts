@@ -172,7 +172,7 @@ export function useDismiss(
 
   const hasBlockingChild = useStableCallback(
     (bubbleKey: '__escapeKeyBubbles' | '__outsidePressBubbles') => {
-      const nodeId = dataRef.current.floatingContext?.nodeId;
+      const nodeId = dataRef.current.positioning?.nodeId;
       const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
 
       return children.some(
@@ -378,7 +378,7 @@ export function useDismiss(
     }
 
     function isEventWithinPopupTree(event: Event) {
-      const nodeId = dataRef.current.floatingContext?.nodeId;
+      const nodeId = dataRef.current.positioning?.nodeId;
       const targetIsInsideChildren =
         tree &&
         getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
