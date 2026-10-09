@@ -937,6 +937,31 @@ describe('<Collapsible.Panel />', () => {
       expect(panel.style.animationName).toBe('none');
       expect(panel.style.animationDuration).toBe('100ms');
     });
+
+    it('does not render the `hidden` attribute on a closed hiddenUntilFound panel', async () => {
+      const { hydrate } = await renderToString(
+        <Collapsible.Root>
+          <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+          <Collapsible.Panel data-testid="panel" hiddenUntilFound>
+            {PANEL_CONTENT}
+          </Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const serverPanel = screen.getByTestId('panel');
+
+      expect(serverPanel).not.toHaveAttribute('hidden');
+      expect(serverPanel.style.contentVisibility).toBe('hidden');
+      expect(serverPanel.style.height).toBe('0px');
+
+      await hydrate();
+
+      const panel = screen.getByTestId('panel');
+
+      expect(panel).toHaveAttribute('hidden', 'until-found');
+      expect(panel.style.contentVisibility).toBe('');
+      expect(panel.style.height).toBe('');
+    });
   });
 
   describe.skipIf(isJSDOM || reactMajor < 19)('React.Activity', () => {
