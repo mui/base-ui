@@ -52,6 +52,11 @@ export function usePopupNodeId(externalTree?: PopupTreeStore): string | undefine
 export interface PopupTreeNodeProps {
   children?: React.ReactNode;
   id: string | undefined;
+  /**
+   * Whether the node's snapshot is dropped when this scope unmounts, so the node counts as absent
+   * again. For members whose Root keeps the node registered after their Positioner unmounts.
+   */
+  detachOnUnmount?: boolean | undefined;
 }
 
 /**
@@ -60,9 +65,22 @@ export interface PopupTreeNodeProps {
  * @internal
  */
 export function PopupTreeNode(props: PopupTreeNodeProps): React.JSX.Element {
-  const { children, id } = props;
+  const { children, id, detachOnUnmount = false } = props;
 
   const parentId = usePopupParentNodeId();
+  const tree = usePopupTree();
+
+  useIsoLayoutEffect(() => {
+    if (!detachOnUnmount) {
+      return undefined;
+    }
+    return () => {
+      const node = tree?.getNode(id);
+      if (node) {
+        node.context = undefined;
+      }
+    };
+  }, [detachOnUnmount, tree, id]);
 
   return (
     <PopupTreeNodeContext.Provider value={React.useMemo(() => ({ id, parentId }), [id, parentId])}>
