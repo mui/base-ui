@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import type { UserEvent } from '@testing-library/user-event';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM } from '#test-utils';
@@ -34,6 +34,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
     openInteractions,
     ariaExpanded,
     throwOnMissingTrigger,
+    closesOnActiveTriggerUnmount,
   } = config;
 
   const primaryInteraction = openInteractions[0];
@@ -48,6 +49,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
       mode,
       handle,
       triggerCount = 2,
+      triggerNumbers = Array.from({ length: triggerCount }, (_, index) => index + 1),
       rootProps,
       rootMounted = true,
       rootFirst = false,
@@ -57,8 +59,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
     } = props;
     const detached = mode === 'detached';
 
-    let triggers: React.ReactNode = Array.from({ length: triggerCount }, (_, index) => {
-      const number = index + 1;
+    let triggers: React.ReactNode = triggerNumbers.map((number) => {
       return (
         <Trigger
           key={number}
@@ -435,6 +436,103 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
               }
             });
           }
+
+          describe('trigger ownership', () => {
+            it('lets the first of several triggers mounting into an open popup claim it', async () => {
+              const { setProps } = await render(
+                <Fixture
+                  mode={mode}
+                  handle={getHandle()}
+                  triggerNumbers={[]}
+                  rootProps={{ defaultOpen: true }}
+                />,
+              );
+
+              await waitForPopupOpen();
+
+              await setProps({ triggerNumbers: [1, 2] });
+
+              expectActiveTrigger(1);
+            });
+
+            it('leaves the popup without an active trigger when `triggerId` is controlled as null', async () => {
+              const { setProps } = await render(
+                <Fixture
+                  mode={mode}
+                  handle={getHandle()}
+                  rootProps={{ open: true, triggerId: 'trigger-2' }}
+                />,
+              );
+
+              await waitForPopupOpen();
+              expectActiveTrigger(2);
+
+              await setProps({ rootProps: { open: true, triggerId: null } });
+
+              expect(screen.getByTestId('popup')).toBeVisible();
+              expectActiveTrigger(null);
+            });
+
+            it.skipIf(closesOnActiveTriggerUnmount)(
+              'keeps the popup open with the same owner when the owner unmounts',
+              async () => {
+                const { user, setProps } = await render(
+                  <Fixture mode={mode} handle={getHandle()} />,
+                );
+
+                await openWith(primaryInteraction, user, getTrigger(1));
+                await waitForPopupOpen();
+                expectActiveTrigger(1);
+
+                await setProps({ triggerNumbers: [2] });
+                await flushMicrotasks();
+
+                expect(screen.getByTestId('popup')).toBeVisible();
+                expect(getTrigger(2)).not.toHaveAttribute('data-popup-open');
+
+                // The owner is kept: the same trigger is active again once it mounts back.
+                await setProps({ triggerNumbers: [1, 2] });
+
+                expectActiveTrigger(1);
+              },
+            );
+
+            it.skipIf(!closesOnActiveTriggerUnmount)(
+              'closes when a pending owner, registered in the same commit the previous owner unmounted, later unmounts',
+              async () => {
+                const onOpenChange = vi.fn();
+                const { setProps } = await render(
+                  <Fixture
+                    mode={mode}
+                    handle={getHandle()}
+                    triggerNumbers={[1]}
+                    rootProps={{ open: true, triggerId: 'trigger-1', onOpenChange }}
+                  />,
+                );
+
+                await waitForPopupOpen();
+
+                // Ownership moves to a trigger that has not mounted yet.
+                const rootProps = { open: true, triggerId: 'trigger-2', onOpenChange };
+                await setProps({ rootProps });
+                // The previous owner unmounts in the same commit the pending owner mounts, so the
+                // number of registered triggers stays the same.
+                await setProps({ rootProps, triggerNumbers: [2] });
+                await flushMicrotasks();
+
+                expect(onOpenChange).not.toHaveBeenCalled();
+                // The pending owner registered and forwarded its payload.
+                expect(screen.getByTestId('content').textContent).toBe('2');
+
+                await setProps({ rootProps, triggerNumbers: [] });
+
+                await waitFor(() => {
+                  expect(onOpenChange).toHaveBeenCalled();
+                });
+                expect(onOpenChange.mock.calls[0][0]).toBe(false);
+              },
+            );
+          });
         });
       },
     );
@@ -744,12 +842,20 @@ export interface DetachedTriggersTestConfig {
    * opening unassociated with a warning (Dialog).
    */
   throwOnMissingTrigger: boolean;
+  /**
+   * Whether the popup closes when its active trigger unmounts (Tooltip and Preview Card).
+   */
+  closesOnActiveTriggerUnmount: boolean;
 }
 
 interface FixtureProps {
   mode: 'contained' | 'detached';
   handle?: DetachedTriggersTestHandle | undefined;
   triggerCount?: number;
+  /**
+   * Numbers of the triggers to render. Defaults to `1` to `triggerCount`.
+   */
+  triggerNumbers?: number[];
   rootProps?: Record<string, unknown>;
   rootMounted?: boolean;
   /**

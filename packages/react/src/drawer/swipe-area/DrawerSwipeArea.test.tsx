@@ -905,6 +905,34 @@ describe('<Drawer.SwipeArea />', () => {
     expect(storeRef.current!.context.triggerElements.size).toBe(1);
   });
 
+  it.each([
+    { name: 'claims its lone trigger', withSwipeArea: false },
+    { name: 'does not claim a trigger that shares it with a swipe area', withSwipeArea: true },
+  ])('a drawer opened without a trigger $name', async ({ withSwipeArea }) => {
+    function App({ open }: { open: boolean }) {
+      return (
+        <Drawer.Root open={open}>
+          <Drawer.Trigger data-testid="trigger">Open</Drawer.Trigger>
+          {withSwipeArea && <Drawer.SwipeArea />}
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>Content</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<App open={false} />);
+    const trigger = screen.getByTestId('trigger');
+    expect(trigger).not.toHaveAttribute('data-popup-open');
+
+    await setProps({ open: true });
+
+    // The swipe area counts as a trigger, so the trigger is no longer the only one to claim.
+    expect(trigger.hasAttribute('data-popup-open')).toBe(!withSwipeArea);
+  });
+
   it('opens the drawer when swiped with touch events', async () => {
     await render(
       <Drawer.Root>
