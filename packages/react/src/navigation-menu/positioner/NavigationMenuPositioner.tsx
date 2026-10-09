@@ -28,6 +28,7 @@ import { NavigationMenuPositionerContext } from './NavigationMenuPositionerConte
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { adaptiveOrigin } from '../../utils/popups/positioning/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/popups/positioning/usePositioner';
+import { useFloatingNodeSnapshot } from '../../utils/popups/tree/PopupTree';
 
 const EMPTY_ROOT_CONTEXT = getEmptyInteractionStore();
 
@@ -136,6 +137,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     // and position transition simultaneously when side=top or side=left.
     adaptiveOrigin,
   });
+  useFloatingNodeSnapshot(nodeId, positioning.context);
 
   const state: NavigationMenuPositionerState = {
     open,

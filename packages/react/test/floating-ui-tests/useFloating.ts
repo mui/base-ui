@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useBaseUIFloating } from '../../src/utils/popups/positioning/useFloating';
+import { useFloatingNodeSnapshot } from '../../src/utils/popups/tree/PopupTree';
 import { useStandaloneInteractionStore } from '../../src/utils/popups/interaction-store/useStandaloneInteractionStore';
 import type { StandaloneInteractionStore } from '../../src/utils/popups/interaction-store/StandaloneInteractionStore';
 import type {
@@ -50,6 +51,8 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   store.useSyncedValue('outerPopupElement', syncedFloatingElement);
 
   const floating = useBaseUIFloating({ ...options, rootContext: store });
+  // Floating UI's `useFloating` also attaches the node's snapshot for the popup tree.
+  useFloatingNodeSnapshot(options.nodeId, floating.context, options.externalTree);
   const baseRefs = floating.refs;
 
   const setReference = React.useCallback(

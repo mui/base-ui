@@ -3,10 +3,10 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { PopupTree, usePopupNodeId } from '../../utils/popups/tree/PopupTree';
+import { PopupTree, usePopupNodeId, usePopupTree } from '../../utils/popups/tree/PopupTree';
 import {
   PreviewCardRootContext,
-  PreviewCardTreeNodeIdContext,
+  PreviewCardTreeNodeContext,
   usePreviewCardRootContext,
 } from './PreviewCardContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -42,10 +42,12 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   const shouldRenderInteractions = open || mounted || handle != null;
 
   const treeNodeId = usePopupNodeId();
+  const tree = usePopupTree();
+  const treeNode = React.useMemo(() => ({ id: treeNodeId, tree }), [treeNodeId, tree]);
 
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
-      <PreviewCardTreeNodeIdContext.Provider value={treeNodeId}>
+      <PreviewCardTreeNodeContext.Provider value={treeNode}>
         {renderPopupRootChildren({
           store,
           handle,
@@ -53,7 +55,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
           children,
           payload,
         })}
-      </PreviewCardTreeNodeIdContext.Provider>
+      </PreviewCardTreeNodeContext.Provider>
     </PreviewCardRootContext.Provider>
   );
 }
