@@ -9,10 +9,6 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
-function preventMouseDownDefault(event: React.MouseEvent) {
-  event.preventDefault();
-}
-
 export interface UseMenuItemCommonPropsParameters {
   /**
    * Whether to close the menu when the item is clicked.
@@ -95,7 +91,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       onMouseDown(event: React.MouseEvent) {
         // Real focus stays on the input or list that owns virtual navigation.
         if (virtualFocus) {
-          preventMouseDownDefault(event);
+          event.preventDefault();
         } else if (nativeButton && event.button === 0 && !event.defaultPrevented) {
           // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
           // Prevent its default blur before focusing, so focus survives until click.
