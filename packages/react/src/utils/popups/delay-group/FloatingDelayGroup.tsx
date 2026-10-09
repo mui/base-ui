@@ -52,12 +52,12 @@ export interface FloatingDelayGroupProps {
 }
 
 /**
- * Experimental next version of `FloatingDelayGroup` to become the default
- * in the future. This component is not yet stable.
  * Provides context for a group of floating elements that should share a
- * `delay`. Unlike `FloatingDelayGroup`, `useDelayGroup` with this
- * component does not cause a re-render of unrelated consumers of the
- * context when the delay changes.
+ * `delay`. Once one of them opens, the others open instantly until
+ * `timeoutMs` passes after it closes.
+ * Consumers read the delay through refs, so changing it doesn't re-render
+ * unrelated consumers of the context.
+ * Based on `NextFloatingDelayGroup` from `@floating-ui/react`.
  * @see https://floating-ui.com/docs/FloatingDelayGroup
  * @internal
  */
