@@ -79,24 +79,17 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       onMouseDown(event: React.MouseEvent) {
         const isNativeButton = event.currentTarget.tagName === 'BUTTON';
         const isPrimaryPress = event.button === 0;
+        const isWebKit = platform.engine.webkit;
 
         // Real focus stays on the input or list that owns virtual navigation.
         if (virtualFocus) {
           event.preventDefault();
-          return;
+        } else if (isWebKit && isNativeButton && isPrimaryPress && !event.defaultPrevented) {
+          // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
+          // Prevent its default blur before focusing, so focus survives until click.
+          event.preventDefault();
+          itemRef.current?.focus({ preventScroll: true });
         }
-
-        if (!platform.engine.webkit || !isNativeButton) {
-          return;
-        }
-        if (!isPrimaryPress || event.defaultPrevented) {
-          return;
-        }
-
-        // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
-        // Prevent its default blur before focusing, so focus survives until click.
-        event.preventDefault();
-        itemRef.current?.focus({ preventScroll: true });
       },
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
