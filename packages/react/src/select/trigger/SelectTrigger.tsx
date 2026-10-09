@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -19,6 +20,7 @@ import { useButton } from '../../internals/use-button';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { NOOP } from '../../internals/noop';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../internals/useAnchorPositioning';
@@ -100,6 +102,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
   const selectedDelayTimeout = useTimeout();
+  const removeMouseUpListenerRef = React.useRef<() => void>(NOOP);
 
   React.useEffect(() => {
     if (open) {
@@ -124,9 +127,18 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     };
 
     timeoutMouseDown.clear();
+    // A press released before the listener was added leaves it waiting for an unrelated mouseup.
+    removeMouseUpListenerRef.current();
 
     return undefined;
   }, [open, store, timeoutMouseDown, selectedDelayTimeout]);
+
+  React.useEffect(() => {
+    return () => {
+      // A pending listener would keep this select's elements alive until the next mouseup.
+      removeMouseUpListenerRef.current();
+    };
+  }, []);
 
   const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
@@ -202,7 +214,10 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
         // Firefox can fire this upon mousedown
         timeoutMouseDown.start(0, () => {
-          doc.addEventListener('mouseup', handleMouseUp, { once: true });
+          removeMouseUpListenerRef.current();
+          removeMouseUpListenerRef.current = addEventListener(doc, 'mouseup', handleMouseUp, {
+            once: true,
+          });
         });
       },
     },
