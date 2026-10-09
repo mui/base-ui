@@ -410,6 +410,10 @@ export interface ReturnFocusSnapshot {
    * Whether focus was inside the floating tree when the cleanup ran.
    */
   isFocusInsideFloatingTree: boolean;
+  /**
+   * The type of the interaction that closed the popup, when the cleanup ran.
+   */
+  closeType: InteractionType;
 }
 
 /**
@@ -419,14 +423,15 @@ export interface ReturnFocusSnapshot {
  * target, focus that has already moved outside the floating tree is respected; an explicit target
  * is focused regardless. A keyboard close makes the focus visible.
  *
- * @returns The options to focus `snapshot.returnElement` with, or `null` to leave focus alone.
+ * @returns The element to focus and the options to focus it with, or `null` to leave focus alone.
  */
 export function returnFocusOnClose(
   session: FocusReturnSession,
   job: { cancelled: boolean },
   snapshot: ReturnFocusSnapshot,
-): FocusOptions | null {
-  const { returnFocus, returnElement, activeElement, body, isFocusInsideFloatingTree } = snapshot;
+): { element: HTMLElement; options: FocusOptions } | null {
+  const { returnFocus, returnElement, activeElement, body, isFocusInsideFloatingTree, closeType } =
+    snapshot;
   const hasExplicitReturnFocus = snapshot.explicitReturnFocus ?? typeof returnFocus !== 'boolean';
 
   if (
@@ -445,9 +450,9 @@ export function returnFocusOnClose(
     return null;
   }
 
-  const focusOptions: FocusOptions = { preventScroll: true };
-  if (session.closeType === 'keyboard') {
-    focusOptions.focusVisible = true;
+  const options: FocusOptions = { preventScroll: true };
+  if (closeType === 'keyboard') {
+    options.focusVisible = true;
   }
-  return focusOptions;
+  return { element: returnElement, options };
 }

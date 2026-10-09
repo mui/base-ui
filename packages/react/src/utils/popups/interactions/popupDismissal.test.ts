@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
 import { createEventEmitter } from '../floating-root/createEventEmitter';
@@ -269,6 +270,7 @@ describe('returnFocusOnClose', () => {
       activeElement: document.body as Element | null,
       body: document.body,
       isFocusInsideFloatingTree: false,
+      closeType: '' as InteractionType,
     };
     return {
       session,
@@ -285,13 +287,15 @@ describe('returnFocusOnClose', () => {
     const { session, snapshot, cleanup } = setup();
 
     expect(returnFocusOnClose(session, { cancelled: false }, snapshot)).toEqual({
-      preventScroll: true,
+      element: snapshot.returnElement,
+      options: { preventScroll: true },
     });
 
-    session.closeType = 'keyboard';
-    expect(returnFocusOnClose(session, { cancelled: false }, snapshot)).toEqual({
-      preventScroll: true,
-      focusVisible: true,
+    expect(
+      returnFocusOnClose(session, { cancelled: false }, { ...snapshot, closeType: 'keyboard' }),
+    ).toEqual({
+      element: snapshot.returnElement,
+      options: { preventScroll: true, focusVisible: true },
     });
     cleanup();
   });
