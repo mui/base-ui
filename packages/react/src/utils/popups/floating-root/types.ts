@@ -141,11 +141,6 @@ export interface ContextData {
    */
   openEvent?: Event | undefined;
   /**
-   * Whether the current press or focus started inside the popup's React tree. Written by
-   * `useDismiss` and `FloatingFocusManager`.
-   */
-  insideReactTree?: boolean | undefined;
-  /**
    * The popup's positioning. Written by `useFloating()`.
    */
   positioning?: FloatingPositioningData | undefined;

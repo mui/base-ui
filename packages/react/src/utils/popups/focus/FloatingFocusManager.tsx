@@ -38,6 +38,7 @@ import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../../internals/constants';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { resolveRef } from '../../resolveRef';
+import { getPopupDismissal } from '../interactions/popupDismissal';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
   const win = ownerWindow(getTarget(event));
@@ -277,6 +278,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const floating = store.useState('floatingElement');
 
   const { events, dataRef } = store.context;
+  const dismissal = getPopupDismissal(store);
 
   const getNodeId = useStableCallback(() => dataRef.current.positioning?.nodeId);
 
@@ -538,8 +540,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         }
 
         // https://github.com/floating-ui/floating-ui/issues/3060
-        if (dataRef.current.insideReactTree) {
-          dataRef.current.insideReactTree = false;
+        if (dismissal.isInsideReactTree()) {
+          dismissal.setInsideReactTree(false);
           return;
         }
 
@@ -569,9 +571,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       if (pointerDownOutsideRef.current) {
         return;
       }
-      dataRef.current.insideReactTree = true;
+      dismissal.setInsideReactTree(true);
       blurTimeout.start(0, () => {
-        dataRef.current.insideReactTree = false;
+        dismissal.setInsideReactTree(false);
       });
     }
 
@@ -605,6 +607,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     isUntrappedTypeableCombobox,
     getNodeId,
     dataRef,
+    dismissal,
     blurTimeout,
     pointerDownTimeout,
     restoreFocusFrame,
