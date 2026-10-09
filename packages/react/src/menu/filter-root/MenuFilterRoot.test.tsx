@@ -103,6 +103,84 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
 
   describe('filtering', () => {
+    it.each([
+      { locale: 'ca', label: 'col·legi', query: 'collegi' },
+      { locale: 'da', label: 'a a', query: 'aa' },
+    ])(
+      'excludes a distinct $locale label after filtering by $query',
+      async ({ locale, label, query }) => {
+        const { user } = await render(
+          <Menu.FilterProvider locale={locale}>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item>{label}</Menu.Item>
+                    </Menu.List>
+                    <Menu.Empty>No results</Menu.Empty>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.type(input, query);
+
+        expect(screen.queryByRole('menuitem', { name: label })).toBeNull();
+        expect(await screen.findByText('No results')).toBeVisible();
+      },
+    );
+
+    it.each([
+      { label: 'Sign-in', query: 'signin' },
+      { label: 'Résumé', query: 'Re\u0301sume\u0301' },
+    ])(
+      'keeps $label available for keyboard activation when filtering by $query',
+      async ({ label, query }) => {
+        const onClick = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider locale="en" autoHighlight>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item onClick={onClick}>{label}</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.List>
+                    <Menu.Empty>No results</Menu.Empty>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.type(input, query);
+
+        const item = screen.getByRole('menuitem', { name: label });
+        expect(screen.queryByRole('menuitem', { name: 'Delete' })).toBeNull();
+        expect(screen.queryByText('No results')).toBeNull();
+        expect(input).toHaveFocus();
+        await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', item.id));
+
+        await user.keyboard('[Enter]');
+
+        expect(onClick).toHaveBeenCalledTimes(1);
+        await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+      },
+    );
+
     it.skipIf(isJSDOM).each(['ArrowDown', 'ArrowUp'])(
       'ignores %s in the input while the popup animates out',
       async (key) => {
