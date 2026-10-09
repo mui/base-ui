@@ -51,8 +51,9 @@ The function will receive the merged props up to that point (going from left to 
 so in the case of `(obj1, obj2, fn, obj3)`, `fn` will receive the merged props of `obj1` and `obj2`.
 The function is responsible for chaining event handlers if needed (that is, we don't run the merge logic).
 
-Event handlers returned by functions are wrapped with Base UI's event enhancements. The function is still
-responsible for respecting `event.baseUIHandlerPrevented` when it manually calls a previous event handler.
+Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
+They must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.
+They are also not wrapped, so their event only has `preventBaseUIHandler` when a later handler is merged with them.
 
 **Parameters:**
 
@@ -69,7 +70,7 @@ responsible for respecting `event.baseUIHandlerPrevented` when it manually calls
 The merged props.
 
 ```tsx
-type ReturnValue = WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
+type ReturnValue = WithMaybeBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
 ```
 
 ### mergePropsN
@@ -92,5 +93,5 @@ fewer prop sets for better performance.
 The merged props.
 
 ```tsx
-type ReturnValue = WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
+type ReturnValue = WithMaybeBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
 ```

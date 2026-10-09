@@ -382,8 +382,8 @@ type FieldValidityState = {
   };
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
-  value: unknown;
   errors: string[];
+  value: unknown;
   error: string;
   initialValue: unknown;
 };

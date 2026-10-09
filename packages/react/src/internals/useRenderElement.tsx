@@ -4,8 +4,15 @@ import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps, WithBaseUIEvent } from './types';
-import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
+import type {
+  BaseUIComponentProps,
+  ComponentRenderFn,
+  HTMLProps,
+  WithBaseUIEvent,
+  WithMaybeBaseUIEvent,
+} from './types';
+import type { StateAttributesMapping } from './getStateAttributesProps';
+import { getStateAttributesProps } from './getStateAttributesProps';
 import { resolveClassName } from '../utils/resolveClassName';
 import { resolveStyle } from '../utils/resolveStyle';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
@@ -232,11 +239,8 @@ function renderTag(Tag: string, props: Record<string, any>) {
 }
 
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
-  ? WithBaseUIEvent<React.JSX.IntrinsicElements[TagName]>
-  : WithBaseUIEvent<React.HTMLAttributes<any>>;
-type RenderPropsGetter<TagName> = (
-  props: RenderFunctionProps<TagName>,
-) => RenderFunctionProps<TagName>;
+  ? React.JSX.IntrinsicElements[TagName]
+  : React.HTMLAttributes<any>;
 
 export type UseRenderElementParameters<
   State,
@@ -266,8 +270,14 @@ export type UseRenderElementParameters<
    * Intrinsic props to be spread on the rendered element.
    */
   props?:
-    | RenderFunctionProps<TagName>
-    | Array<RenderFunctionProps<TagName> | RenderPropsGetter<TagName> | undefined>
+    | WithBaseUIEvent<RenderFunctionProps<TagName>>
+    | Array<
+        | WithBaseUIEvent<RenderFunctionProps<TagName>>
+        | undefined
+        | ((
+            props: WithMaybeBaseUIEvent<RenderFunctionProps<TagName>>,
+          ) => WithMaybeBaseUIEvent<RenderFunctionProps<TagName>>)
+      >
     | undefined;
   /**
    * A mapping of state to `data-*` attributes.
