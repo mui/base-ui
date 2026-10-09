@@ -24,6 +24,9 @@ const stateAttributesMapping: StateAttributesMapping<ComboboxClearState> = {
  * Clears the value when clicked.
  * Renders a `<button>` element.
  *
+ * To render this without the default "x" glyph when using `render`, also pass
+ * `children={null}` — for example `<Combobox.Clear children={null} render={<CustomIcon />} />`.
+ *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxClear = React.forwardRef(function ComboboxClear(

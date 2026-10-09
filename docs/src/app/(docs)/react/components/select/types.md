@@ -258,6 +258,9 @@ type SelectValueState = {
 An icon that indicates that the trigger button opens a select popup.
 Renders a `<span>` element.
 
+To render this without the default arrow glyph when using `render`, also pass
+`children={null}` — for example `<Select.Icon children={null} render={<CustomIcon />} />`.
+
 **Icon Props:**
 
 | Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
@@ -740,6 +743,9 @@ type SelectItemTextState = {};
 Indicates whether the select item is selected.
 Renders a `<span>` element.
 
+To render this without the default checkmark glyph when using `render`, also pass
+`children={null}` — for example `<Select.ItemIndicator children={null} render={<CustomIcon />} />`.
+
 **ItemIndicator Props:**
 
 | Prop        | Type                                                                                               | Default | Description                                                                                                                                                                                   |
@@ -777,6 +783,9 @@ type SelectItemIndicatorState = {
 An element that scrolls the select popup up when hovered. Does not render when using touch input.
 Renders a `<div>` element.
 
+To render this without the default arrow glyph when using `render`, also pass
+`children={null}` — for example `<Select.ScrollUpArrow children={null} render={<CustomIcon />} />`.
+
 **ScrollUpArrow Props:**
 
 | Prop        | Type                                                                                               | Default | Description                                                                                                                                                                                   |
@@ -810,6 +819,9 @@ type SelectScrollUpArrowState = {};
 
 An element that scrolls the select popup down when hovered. Does not render when using touch input.
 Renders a `<div>` element.
+
+To render this without the default arrow glyph when using `render`, also pass
+`children={null}` — for example `<Select.ScrollDownArrow children={null} render={<CustomIcon />} />`.
 
 **ScrollDownArrow Props:**
 

@@ -9,6 +9,9 @@ import { ItemIndicator } from '../../utils/ItemIndicator';
  * Indicates whether the select item is selected.
  * Renders a `<span>` element.
  *
+ * To render this without the default checkmark glyph when using `render`, also pass
+ * `children={null}` — for example `<Select.ItemIndicator children={null} render={<CustomIcon />} />`.
+ *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
