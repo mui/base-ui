@@ -42,6 +42,22 @@ _Avoid_: reference, position reference
 The part that places a popup next to its anchor and keeps it there as the page scrolls or resizes.
 _Avoid_: floating element, floating wrapper
 
+**Popup tree**:
+The popups of one family that are nested inside each other, such as a menu and its submenus, plus anything from another family that registers in it, such as detached Menu triggers rendered inside a Popover. Tree members find their open descendants and ancestors through it, so a parent popup can tell that a child keeps an Escape press or an outside press from reaching it, or that the pointer is moving into a child. It also carries events the members share, such as a menu item being hovered.
+_Avoid_: floating tree
+
+**Tree member**:
+A popup that registers a node in a popup tree: Popover, Preview Card, the Menu family, Menubar and Navigation Menu. Other popups, such as Tooltip, Select and Combobox, may read the tree but don't register a node, so a member doesn't count them as its descendants.
+_Avoid_: floating node
+
+**Family tree**:
+Each popup family keeps its own popup tree. A member nested in a popup of another family records that popup's node as its parent, but it registers in its own family's tree, so the other family's tree doesn't see it. Detached Menu triggers rendered inside a Popover are the exception: outside their Menu Root, they register in the Popover's tree, and the Menu's tree events go out on it.
+_Avoid_: shared tree
+
+**Snapshot**:
+What a tree member publishes on its node for the other members: whether it is open, its floating and trigger elements, and its interaction data. It is written in a layout effect after the member renders, not read live from its store, so a node the member stops updating keeps its last snapshot. That snapshot can go stale: when a Menu switches triggers, the previous trigger's node keeps reporting the Menu as open, so a parent may still treat it as an open child (a known issue).
+_Avoid_: node context, floating context
+
 **Hover intent**:
 The logic that decides when hovering a trigger opens its popup and when leaving closes it. It covers the open and close delays, waiting for the pointer to rest, and the safe polygon that keeps the popup open while the pointer travels from the trigger to it. Each popup has one, shared by all its triggers.
 _Avoid_: hover interaction, hover state, useHover
