@@ -65,7 +65,7 @@
     "@types/unist": "3.0.3",
     "cross-env": "10.1.0",
     "mdast-util-mdx-jsx": "3.2.0",
-    "motion": "13.4.5",
+    "motion": "14.0.0",
     "prettier": "3.9.9",
     "remark-stringify": "11.0.0",
     "rimraf": "6.1.3",
