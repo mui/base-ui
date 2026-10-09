@@ -24,6 +24,7 @@ describe('<MenuRoot />', () => {
     openInteractions: ['click'],
     ariaExpanded: true,
     throwOnMissingTrigger: true,
+    closesOnActiveTriggerUnmount: false,
   });
 
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
