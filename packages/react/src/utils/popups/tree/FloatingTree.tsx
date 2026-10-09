@@ -4,7 +4,12 @@ import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import type { FloatingNodeType, FloatingTreeType } from '../floating-root/types';
+import type {
+  FloatingContext,
+  FloatingNodeSnapshot,
+  FloatingNodeType,
+  FloatingTreeType,
+} from '../floating-root/types';
 import { FloatingTreeStore } from './FloatingTreeStore';
 
 const FloatingNodeContext = React.createContext<FloatingNodeType | null>(null);
@@ -49,14 +54,57 @@ export function useFloatingNodeId(externalTree?: FloatingTreeStore): string | un
   return id;
 }
 
+/**
+ * Attaches a tree member's snapshot to its registered node: whether it is open, its elements and
+ * its interaction data. Written in a layout effect after every render, so it's a snapshot rather
+ * than live state: a node the member stops updating keeps its last one.
+ *
+ * The member's Positioner calls it right after positioning, which supplies the values.
+ *
+ * @param nodeId The id of the member's node.
+ * @param floatingContext The positioning context the snapshot is taken from.
+ * @param externalTree The tree the node is registered in, instead of the one from context.
+ * @param detachOnUnmount Whether the snapshot is dropped when the caller unmounts, so the node
+ *   counts as absent again. For members whose Root keeps the node registered after their
+ *   Positioner unmounts.
+ */
+export function useFloatingNodeSnapshot(
+  nodeId: string | undefined,
+  floatingContext: Pick<FloatingContext, 'open' | 'elements' | 'dataRef'>,
+  externalTree?: FloatingTreeStore | null,
+  detachOnUnmount = false,
+) {
+  const tree = useFloatingTree(externalTree ?? undefined);
+  const { open, elements, dataRef } = floatingContext;
+
+  const snapshot = React.useMemo<FloatingNodeSnapshot>(
+    () => ({ open, elements, dataRef }),
+    [open, elements, dataRef],
+  );
+
+  useIsoLayoutEffect(() => {
+    const node = tree?.getNode(nodeId);
+    if (node) {
+      node.context = snapshot;
+    }
+  });
+
+  useIsoLayoutEffect(() => {
+    if (!detachOnUnmount) {
+      return undefined;
+    }
+    return () => {
+      const node = tree?.getNode(nodeId);
+      if (node) {
+        node.context = undefined;
+      }
+    };
+  }, [detachOnUnmount, tree, nodeId]);
+}
+
 export interface FloatingNodeProps {
   children?: React.ReactNode;
   id: string | undefined;
-  /**
-   * Whether the node's snapshot is dropped when this scope unmounts, so the node counts as absent
-   * again. For members whose Root keeps the node registered after their Positioner unmounts.
-   */
-  detachOnUnmount?: boolean | undefined;
 }
 
 /**
@@ -65,22 +113,9 @@ export interface FloatingNodeProps {
  * @internal
  */
 export function FloatingNode(props: FloatingNodeProps): React.JSX.Element {
-  const { children, id, detachOnUnmount = false } = props;
+  const { children, id } = props;
 
   const parentId = useFloatingParentNodeId();
-  const tree = useFloatingTree();
-
-  useIsoLayoutEffect(() => {
-    if (!detachOnUnmount) {
-      return undefined;
-    }
-    return () => {
-      const node = tree?.getNode(id);
-      if (node) {
-        node.context = undefined;
-      }
-    };
-  }, [detachOnUnmount, tree, id]);
 
   return (
     <FloatingNodeContext.Provider value={React.useMemo(() => ({ id, parentId }), [id, parentId])}>

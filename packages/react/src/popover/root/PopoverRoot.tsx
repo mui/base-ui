@@ -3,10 +3,14 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { getModalOutsidePressEvent } from '../../utils/popups/interactions/popupDismissal';
-import { FloatingTree, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
+import {
+  FloatingTree,
+  useFloatingNodeId,
+  useFloatingTree,
+} from '../../utils/popups/tree/FloatingTree';
 import {
   PopoverRootContext,
-  PopoverTreeNodeIdContext,
+  PopoverTreeNodeContext,
   usePopoverRootContext,
 } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
@@ -55,10 +59,12 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
   const shouldRenderInteractions = open || mounted || handle != null;
 
   const treeNodeId = useFloatingNodeId();
+  const tree = useFloatingTree();
+  const treeNode = React.useMemo(() => ({ id: treeNodeId, tree }), [treeNodeId, tree]);
 
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
-      <PopoverTreeNodeIdContext.Provider value={treeNodeId}>
+      <PopoverTreeNodeContext.Provider value={treeNode}>
         {renderPopupRootChildren({
           store,
           handle,
@@ -68,7 +74,7 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
           children,
           payload,
         })}
-      </PopoverTreeNodeIdContext.Provider>
+      </PopoverTreeNodeContext.Provider>
     </PopoverRootContext.Provider>
   );
 });

@@ -836,6 +836,10 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    * popup. `true` locks the side only; `'placement'` also locks the alignment.
    */
   lazyFlip?: boolean | 'placement' | undefined;
+  /**
+   * Ignored. Positioning no longer attaches the popup tree node; the option is kept so this
+   * published subpath's parameters don't change.
+   */
   externalTree?: FloatingTreeStore | undefined;
   /**
    * Optional middleware that can replace the measured reference rect before offsets and collision

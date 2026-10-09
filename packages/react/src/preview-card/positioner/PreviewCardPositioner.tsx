@@ -1,12 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import {
-  PreviewCardTreeNodeIdContext,
-  usePreviewCardRootContext,
-} from '../root/PreviewCardContext';
+import { PreviewCardTreeNodeContext, usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
+import { FloatingNode, useFloatingNodeSnapshot } from '../../utils/popups/tree/FloatingTree';
 import type {
   Side,
   Align,
@@ -30,8 +27,10 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 ) {
   const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
-  // The Root registers the node; the Positioner scopes nested popups under it.
-  const nodeId = React.useContext(PreviewCardTreeNodeIdContext);
+  // The Root registers the node; the Positioner attaches its snapshot to the same tree and scopes
+  // nested popups under it.
+  const treeNode = React.useContext(PreviewCardTreeNodeContext);
+  const nodeId = treeNode?.id;
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -46,6 +45,8 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
       inline: createInlineMiddleware(inlineRectCoordsRef),
     },
   });
+  // The Root keeps the node registered once the Positioner unmounts, so the snapshot is dropped then.
+  useFloatingNodeSnapshot(nodeId, positioning.context, treeNode?.tree, true);
   const updatePosition = positioning.update;
 
   useIsoLayoutEffect(() => {
@@ -56,9 +57,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   return (
     <PreviewCardPositionerContext.Provider value={positioning}>
-      <FloatingNode id={nodeId} detachOnUnmount>
-        {element}
-      </FloatingNode>
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PreviewCardPositionerContext.Provider>
   );
 });
