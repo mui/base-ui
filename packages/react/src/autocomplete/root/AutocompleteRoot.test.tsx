@@ -1,8 +1,11 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createFormDataSpy, createRenderer, isJSDOM } from '#test-utils';
+import { platform } from '@base-ui/utils/platform';
+import { createFormDataSpy, createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 import { Autocomplete, AutocompleteSeparatorDataAttributes } from '@base-ui/react/autocomplete';
+import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
@@ -3151,6 +3154,205 @@ describe('<Autocomplete.Root />', () => {
         'aria-describedby',
         screen.getByTestId('description').id,
       );
+    });
+  });
+
+  describe('inline list in an open dialog', () => {
+    const commands = ['Rename', 'Delete', 'Duplicate', 'Share'];
+
+    function CommandPalette({ items = commands }: { items?: string[] }) {
+      return (
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup
+              aria-label="Command palette"
+              style={{ position: 'fixed', top: 20, left: 20, width: 300 }}
+            >
+              <Autocomplete.Root inline autoHighlight="always" items={items} filter={null}>
+                <Autocomplete.Input data-testid="input" />
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
+
+    function expectHighlighted(name: string) {
+      expect(screen.getByTestId('input')).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name }).id,
+      );
+      expect(screen.getByRole('option', { name })).toHaveAttribute('data-highlighted');
+    }
+
+    it('keeps the first item highlighted after the pointer leaves an item', async () => {
+      await render(<CommandPalette />);
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+      expectHighlighted('Rename');
+
+      const share = screen.getByRole('option', { name: 'Share' });
+      fireEvent.mouseMove(share);
+      expectHighlighted('Share');
+
+      fireEvent.pointerLeave(share);
+      fireEvent.mouseLeave(share);
+      expectHighlighted('Rename');
+    });
+
+    it('keeps the first item highlighted after the pointer leaves an item in a third-party dialog', async () => {
+      await render(
+        <div role="dialog" aria-label="Command palette">
+          <Autocomplete.Root inline autoHighlight="always" items={commands}>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.List>
+              {(item: string) => (
+                <Autocomplete.Item key={item} value={item}>
+                  {item}
+                </Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+          </Autocomplete.Root>
+        </div>,
+      );
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+      expectHighlighted('Rename');
+
+      const share = screen.getByRole('option', { name: 'Share' });
+      fireEvent.mouseMove(share);
+      expectHighlighted('Share');
+
+      fireEvent.pointerLeave(share);
+      fireEvent.mouseLeave(share);
+      expectHighlighted('Rename');
+    });
+
+    it.skipIf(isJSDOM || !platform.engine.blink)(
+      'keeps the first item highlighted after a real pointer leaves an item',
+      async ({ onTestFinished }) => {
+        const { cdp } = await import('vitest/browser');
+        onTestFinished(resetBrowserPointer);
+        const reactGlobals = globalThis as typeof globalThis & {
+          IS_REACT_ACT_ENVIRONMENT?: boolean;
+        };
+
+        await render(<CommandPalette />);
+        const input = screen.getByTestId('input');
+        await act(async () => input.focus());
+        expectHighlighted('Rename');
+
+        const frame = window.frameElement as HTMLIFrameElement | null;
+        const frameRect = frame?.getBoundingClientRect();
+        const scale = frameRect ? frameRect.width / window.innerWidth : 1;
+        const toPagePoint = (x: number, y: number) => ({
+          x: (frameRect?.left ?? 0) + x * scale,
+          y: (frameRect?.top ?? 0) + y * scale,
+        });
+        const shareRect = screen.getByRole('option', { name: 'Share' }).getBoundingClientRect();
+        const session = cdp() as CDPSession;
+        const move = (point: { x: number; y: number }) =>
+          session.send('Input.dispatchMouseEvent', {
+            type: 'mouseMoved',
+            ...point,
+            button: 'none',
+            buttons: 0,
+            pointerType: 'mouse',
+          });
+
+        // Real events can't be wrapped in `act()`.
+        reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
+        try {
+          await move(toPagePoint(shareRect.left + shareRect.width / 2, shareRect.top + 2));
+          await waitFor(() =>
+            expect(screen.getByRole('option', { name: 'Share' })).toHaveAttribute(
+              'data-highlighted',
+            ),
+          );
+
+          await move(toPagePoint(window.innerWidth - 2, window.innerHeight - 2));
+          await waitFor(() =>
+            expect(screen.getByRole('option', { name: 'Rename' })).toHaveAttribute(
+              'data-highlighted',
+            ),
+          );
+        } finally {
+          reactGlobals.IS_REACT_ACT_ENVIRONMENT = true;
+        }
+      },
+    );
+
+    it('clears the highlight when an uncontrolled inline root closes in a keepMounted dialog', async () => {
+      const onItemHighlighted = vi.fn();
+      const onCommand = vi.fn();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <Dialog.Root open={open} onOpenChange={setOpen}>
+            <Dialog.Portal keepMounted>
+              <Dialog.Popup aria-label="Command palette">
+                <Autocomplete.Root
+                  inline
+                  autoHighlight="always"
+                  items={commands}
+                  onItemHighlighted={onItemHighlighted}
+                >
+                  <Autocomplete.Input />
+                  <Autocomplete.List>
+                    {(item: string) => (
+                      <Autocomplete.Item
+                        key={item}
+                        value={item}
+                        onClick={() => {
+                          onCommand(item);
+                          setOpen(false);
+                        }}
+                      >
+                        {item}
+                      </Autocomplete.Item>
+                    )}
+                  </Autocomplete.List>
+                </Autocomplete.Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'Sh');
+      expect(screen.getByRole('option', { name: 'Share' })).toHaveAttribute('data-highlighted');
+      onItemHighlighted.mockClear();
+
+      await user.keyboard('{Enter}');
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+      expect(onCommand).toHaveBeenLastCalledWith('Share');
+      expect(onItemHighlighted.mock.calls.map(([value]) => value)).toEqual([undefined]);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
+    it('highlights the first item once results arrive after the query changed', async () => {
+      const { setProps } = await render(<CommandPalette items={[]} />);
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+      fireEvent.change(input, { target: { value: 'sh' } });
+      expect(screen.queryByRole('option')).toBe(null);
+
+      await setProps({ items: ['Share', 'Shred'] });
+      expectHighlighted('Share');
+
+      await setProps({ items: [] });
+      await setProps({ items: ['Shred'] });
+      expectHighlighted('Shred');
     });
   });
 });

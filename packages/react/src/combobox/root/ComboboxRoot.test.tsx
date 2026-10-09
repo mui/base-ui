@@ -11257,6 +11257,137 @@ describe('<Combobox.Root />', () => {
       },
     );
 
+    it('clears the highlight after an uncontrolled inline list closes in a keepMounted dialog', async () => {
+      const onItemHighlighted = vi.fn();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <Dialog.Root open={open} onOpenChange={setOpen}>
+            <Dialog.Trigger>Choose fruit</Dialog.Trigger>
+            <Dialog.Portal keepMounted>
+              <Dialog.Popup aria-label="Fruit chooser">
+                <Combobox.Root
+                  inline
+                  items={['Apple', 'Banana', 'Cherry']}
+                  onItemHighlighted={onItemHighlighted}
+                  onValueChange={() => setOpen(false)}
+                >
+                  <Combobox.Input />
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'Ba');
+      await user.keyboard('{ArrowDown}');
+      expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+      onItemHighlighted.mockClear();
+
+      await user.keyboard('{Enter}');
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+      expect(onItemHighlighted.mock.calls.map(([value]) => value)).toEqual([undefined]);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      await user.click(screen.getByRole('button', { name: 'Choose fruit' }));
+      await waitFor(() => expect(input).toHaveFocus());
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      expect(screen.getByRole('option', { name: 'Banana' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+    });
+
+    it('returns the highlight to the selected item when the query is cleared in an open dialog', async () => {
+      const { user } = await render(
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup aria-label="Fruit chooser">
+              <Combobox.Root
+                inline
+                autoHighlight
+                items={['Apple', 'Banana', 'Cherry']}
+                defaultValue="Banana"
+              >
+                <Combobox.Input />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'Ch');
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Cherry' })).toHaveAttribute('data-highlighted'),
+      );
+
+      await user.clear(input);
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted'),
+      );
+    });
+
+    it('keeps the selected item highlighted after Enter selects it in an open dialog', async () => {
+      const { user } = await render(
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup aria-label="Fruit chooser">
+              <Combobox.Root
+                inline
+                autoHighlight
+                items={['Apple', 'Banana', 'Cherry']}
+                defaultValue="Banana"
+              >
+                <Combobox.Input />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'Ch');
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Cherry' })).toHaveAttribute('data-highlighted'),
+      );
+
+      await user.keyboard('{Enter}');
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Cherry' })).toHaveAttribute(
+          'aria-selected',
+          'true',
+        ),
+      );
+      await flushMicrotasks();
+      expect(screen.getByRole('dialog')).toBeVisible();
+      expect(screen.getByRole('option', { name: 'Cherry' })).toHaveAttribute('data-highlighted');
+    });
+
     it('clears the highlight when an inline list in an unbound dialog unmounts', async () => {
       await render(
         <Combobox.Root inline items={['Apple', 'Banana', 'Cherry']}>
