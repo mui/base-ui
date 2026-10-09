@@ -82,7 +82,7 @@
     "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@testing-library/jest-dom": "7.0.1",
-    "@types/node": "22.20.4",
+    "@types/node": "22.20.5",
     "@types/react": "19.3.0",
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitejs/plugin-react": "6.1.1",
