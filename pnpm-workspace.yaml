@@ -56,6 +56,7 @@ overrides:
   # via @vitest/browser (GHSA-96hv-2xvq-fx4p)
   ws: '^8.22.0'
 engineStrict: true
+enablePrePostScripts: true
 updateNotifier: false
 autoDedupe: true
 blockExoticSubdeps: true
