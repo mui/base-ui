@@ -321,7 +321,8 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    */
   nodeId?: string | undefined;
   /**
-   * External FloatingTree to use when the one provided by context can't be used.
+   * Ignored. Positioning no longer attaches the popup tree node (see `useFloatingNodeSnapshot`);
+   * kept for compatibility with the `useAnchorPositioning` subpath.
    */
   externalTree?: FloatingTreeStore | undefined;
 }
