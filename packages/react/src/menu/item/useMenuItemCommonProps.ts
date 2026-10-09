@@ -46,6 +46,8 @@ export interface UseMenuItemCommonPropsParameters {
    * Metadata for checking item type before triggering click.
    */
   itemMetadata: UseMenuItemMetadata;
+  /** Whether the item renders a native button. */
+  nativeButton?: boolean | undefined;
 }
 
 /**
@@ -53,7 +55,17 @@ export interface UseMenuItemCommonPropsParameters {
  * This hook extracts the shared logic for id, role, tabIndex, and interaction handlers.
  */
 export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters): HTMLProps {
-  const { closeOnClick, highlighted, id, nodeId, store, typingRef, itemRef, itemMetadata } = params;
+  const {
+    closeOnClick,
+    highlighted,
+    id,
+    nodeId,
+    store,
+    typingRef,
+    itemRef,
+    itemMetadata,
+    nativeButton,
+  } = params;
 
   const rootContext = useMenuRootContext();
   const contextMenuContext = useContextMenuRootContext(true);
@@ -80,8 +92,17 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       role: 'menuitem' as const,
       tabIndex,
       'aria-selected': ariaSelected,
-      // Real focus stays on the input or list that owns virtual navigation.
-      onMouseDown: virtualFocus ? preventMouseDownDefault : undefined,
+      onMouseDown(event: React.MouseEvent) {
+        // Real focus stays on the input or list that owns virtual navigation.
+        if (virtualFocus) {
+          preventMouseDownDefault(event);
+        } else if (nativeButton && event.button === 0 && !event.defaultPrevented) {
+          // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
+          // Prevent its default blur before focusing, so focus survives until click.
+          event.preventDefault();
+          itemRef.current?.focus({ preventScroll: true });
+        }
+      },
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -161,6 +182,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       itemMetadata.type,
       ariaSelected,
       virtualFocus,
+      nativeButton,
     ],
   );
 }
