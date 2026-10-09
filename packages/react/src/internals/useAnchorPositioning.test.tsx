@@ -2,8 +2,8 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { useFloating } from '../../test/floating-ui-tests/useFloating';
-import { useAnchorPositioningWithHook } from './useAnchorPositioning';
+import { useFloatingRootContext } from '../utils/popups/floating-root/useFloatingRootContext';
+import { useAnchorPositioning } from './useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
 
 const shiftSpy = vi.hoisted(() => vi.fn());
@@ -24,26 +24,25 @@ vi.mock('@floating-ui/react-dom', async () => {
 function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameters['shift'] }) {
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
-  const positioning = useAnchorPositioningWithHook(
-    {
-      anchor: anchorRef,
-      mounted: true,
-      positionMethod: 'absolute',
-      side: 'bottom',
-      align: 'center',
-      sideOffset: 0,
-      alignOffset: 0,
-      collisionBoundary: 'clipping-ancestors',
-      collisionPadding: 5,
-      sticky: false,
-      arrowPadding: 5,
-      disableAnchorTracking: false,
-      keepMounted: false,
-      collisionAvoidance: { fallbackAxisSide: 'none' },
-      shift: props.shift,
-    },
-    useFloating,
-  );
+  const rootContext = useFloatingRootContext({});
+  const positioning = useAnchorPositioning({
+    anchor: anchorRef,
+    mounted: true,
+    positionMethod: 'absolute',
+    side: 'bottom',
+    align: 'center',
+    sideOffset: 0,
+    alignOffset: 0,
+    collisionBoundary: 'clipping-ancestors',
+    collisionPadding: 5,
+    sticky: false,
+    arrowPadding: 5,
+    disableAnchorTracking: false,
+    keepMounted: false,
+    collisionAvoidance: { fallbackAxisSide: 'none' },
+    shift: props.shift,
+    floatingRootContext: rootContext,
+  });
 
   return (
     <React.Fragment>
@@ -63,26 +62,25 @@ function TestLazyFlip(props: {
   const [shrunk, setShrunk] = React.useState(false);
   const height = shrunk ? 10 : 100;
 
-  const positioning = useAnchorPositioningWithHook(
-    {
-      anchor: anchorRef,
-      mounted: true,
-      positionMethod: 'fixed',
-      side,
-      align,
-      sideOffset: 0,
-      alignOffset: 0,
-      collisionBoundary: 'clipping-ancestors',
-      collisionPadding: 5,
-      sticky: false,
-      arrowPadding: 5,
-      disableAnchorTracking: false,
-      keepMounted: false,
-      collisionAvoidance: { fallbackAxisSide: 'none' },
-      lazyFlip,
-    },
-    useFloating,
-  );
+  const rootContext = useFloatingRootContext({});
+  const positioning = useAnchorPositioning({
+    anchor: anchorRef,
+    mounted: true,
+    positionMethod: 'fixed',
+    side,
+    align,
+    sideOffset: 0,
+    alignOffset: 0,
+    collisionBoundary: 'clipping-ancestors',
+    collisionPadding: 5,
+    sticky: false,
+    arrowPadding: 5,
+    disableAnchorTracking: false,
+    keepMounted: false,
+    collisionAvoidance: { fallbackAxisSide: 'none' },
+    lazyFlip,
+    floatingRootContext: rootContext,
+  });
 
   return (
     <React.Fragment>

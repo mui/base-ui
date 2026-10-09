@@ -125,21 +125,13 @@ interface SideShiftMode {
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 
-type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
-
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
-): UseAnchorPositioningReturnValue {
-  return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
-}
-
-export function useAnchorPositioningWithHook(
-  params: UseAnchorPositioningParameters,
-  useFloatingHook: UseFloatingHook,
+  params: UseAnchorPositioningParameters &
+    ({ floatingRootContext: FloatingRootContext } | { fallbackRootContext: FloatingRootContext }),
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -158,6 +150,7 @@ export function useAnchorPositioningWithHook(
     // Private parameters
     keepMounted = false,
     floatingRootContext,
+    fallbackRootContext,
     mounted,
     collisionAvoidance,
     shift,
@@ -498,8 +491,9 @@ export function useAnchorPositioningWithHook(
     context,
     isPositioned,
     floatingStyles: originalFloatingStyles,
-  } = useFloatingHook({
-    rootContext: floatingRootContext,
+  } = useBaseUIFloating({
+    // The parameter type guarantees one of them.
+    rootContext: (floatingRootContext ?? fallbackRootContext) as FloatingRootContext,
     open: keepMounted ? mounted : undefined,
     placement,
     middleware,
@@ -822,6 +816,11 @@ export interface UseAnchorPositioningSharedParameters {
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
+  /**
+   * Positions against this store while `floatingRootContext` is missing. Unlike
+   * `floatingRootContext`, it isn't cleared while the positioner is unmounted.
+   */
+  fallbackRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
