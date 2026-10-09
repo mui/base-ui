@@ -24,6 +24,7 @@ import { PopupTreeNode, PopupTree, usePopupNodeId, usePopupParentNodeId } from '
 import { PopupPortal } from '../portal/PopupPortal';
 import { useClick } from '../interactions/useClick';
 import { useDismiss } from '../interactions/useDismiss';
+import { getPopupDismissal } from '../interactions/popupDismissal';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 import type { PopupFocusManagerProps } from './PopupFocusManager';
 import { Main as Navigation } from '../../../../test/floating-ui-tests/Navigation';
@@ -1918,7 +1919,7 @@ describe('PopupFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          readInsideReactTree = () => context.dataRef.current.insideReactTree;
+          readInsideReactTree = () => getPopupDismissal(context.rootStore).isInsideReactTree();
 
           const click = useClick(context.rootStore);
           const dismiss = useDismiss(context.rootStore);

@@ -6,6 +6,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
   getComputedStyle,
   getParentNode,
@@ -20,13 +21,14 @@ import { usePopupTree } from '../tree/PopupTree';
 import type { PopupTreeStore } from '../tree/PopupTreeStore';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
 import { createAttribute } from '../createAttribute';
 import { isEventTargetWithin, isRootElement } from '../element';
 import { isReactEvent, isVirtualClick } from '../event';
+import { endPressSessionOnClose, getPopupDismissal } from './popupDismissal';
+import type { OutsidePressType } from './popupDismissal';
 
-type PressType = 'intentional' | 'sloppy';
+type PressType = OutsidePressType;
 
 function alwaysFalse() {
   return false;
@@ -129,7 +131,7 @@ export function useDismiss(
 
   const open = store.useState('open');
   const outerPopupElement = store.useState('outerPopupElement');
-  const { dataRef, events } = store.context;
+  const { dataRef } = store.context;
 
   const tree = usePopupTree(externalTree);
   const outsidePressFn = useStableCallback(
@@ -141,23 +143,9 @@ export function useDismiss(
 
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
 
-  const pressStartedInsideRef = React.useRef(false);
-  const pressStartPreventedRef = React.useRef(false);
-  // Ignore only the very next outside click after dragging from inside to outside.
-  const suppressNextOutsideClickRef = React.useRef(false);
-  // A click whose press began before the floating element opened is the tail of that
-  // gesture (e.g. the drag-release that opened it), not a new outside press.
-  const sawPressWhileOpenRef = React.useRef(false);
-  const isComposingRef = React.useRef(false);
-  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
-
-  const touchStateRef = React.useRef<{
-    startTime: number;
-    startX: number;
-    startY: number;
-    dismissOnTouchEnd: boolean;
-    dismissOnMouseDown: boolean;
-  } | null>(null);
+  const dismissal = getPopupDismissal(store);
+  // The press, touch and composition state of this instance.
+  const session = useRefWithInit(() => dismissal.createDismissSession()).current;
 
   const cancelDismissOnEndTimeout = useTimeout();
   const clearInsideReactTreeTimeout = useTimeout();
@@ -166,12 +154,12 @@ export function useDismiss(
 
   const clearInsideReactTree = useStableCallback(() => {
     clearInsideReactTreeTimeout.clear();
-    dataRef.current.insideReactTree = false;
+    dismissal.setInsideReactTree(false);
   });
 
-  const hasBlockingChild = useStableCallback((dismissal: 'escapeKey' | 'outsidePress') => {
+  const hasBlockingChild = useStableCallback((kind: 'escapeKey' | 'outsidePress') => {
     const nodeId = dataRef.current.positioning?.nodeId;
-    return tree ? tree.hasBlockingChild(nodeId, dismissal) : false;
+    return tree ? tree.hasBlockingChild(nodeId, kind) : false;
   });
 
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
@@ -206,7 +194,7 @@ export function useDismiss(
       // Wait until IME is settled. Pressing `Escape` while composing should
       // close the compose menu, but not the floating element. The ref covers Safari, which fires
       // `compositionend` before `keydown`; `isComposing` covers compositions that began while closed.
-      if (isComposingRef.current || native.isComposing) {
+      if (session.isComposing || native.isComposing) {
         return;
       }
 
@@ -229,7 +217,7 @@ export function useDismiss(
   );
 
   const markInsideReactTree = useStableCallback(() => {
-    dataRef.current.insideReactTree = true;
+    dismissal.setInsideReactTree(true);
     clearInsideReactTreeTimeout.start(0, clearInsideReactTree);
   });
 
@@ -247,9 +235,9 @@ export function useDismiss(
         return;
       }
 
-      if (!pressStartedInsideRef.current) {
-        pressStartedInsideRef.current = true;
-        pressStartPreventedRef.current = false;
+      if (!session.pressStartedInside) {
+        session.pressStartedInside = true;
+        session.pressStartPrevented = false;
       }
     },
   );
@@ -264,28 +252,18 @@ export function useDismiss(
         return;
       }
 
-      if (pressStartedInsideRef.current) {
-        pressStartPreventedRef.current = true;
+      if (session.pressStartedInside) {
+        session.pressStartPrevented = true;
       }
     },
   );
 
   // A same-batch close+reopen never renders `open === false`, so only `openchange` can
   // observe that session boundary. The effect below covers controlled flips.
-  React.useEffect(() => {
-    function handleOpenChange(details: FloatingUIOpenChangeDetails) {
-      // Only the closing half ends the session: `setOpen(true)` on an already-open
-      // element (hovering an inactive trigger) must not drop a press mid-gesture.
-      if (!details.open) {
-        sawPressWhileOpenRef.current = false;
-      }
-    }
-
-    events.on('openchange', handleOpenChange);
-    return () => {
-      events.off('openchange', handleOpenChange);
-    };
-  }, [events]);
+  React.useEffect(
+    () => dismissal.onOpenChange((details) => endPressSessionOnClose(session, details)),
+    [dismissal, session],
+  );
 
   // Not cleared in the listener effect's cleanup, which can run mid-press when a dependency
   // changes. In a closed shadow root, the marker is the only inside-press signal.
@@ -296,10 +274,10 @@ export function useDismiss(
       // Reset in the effect body, not the cleanup, which also runs when a dependency
       // changes mid-gesture.
       if (!open) {
-        sawPressWhileOpenRef.current = false;
-        isComposingRef.current = false;
-        currentPointerTypeRef.current = '';
-        touchStateRef.current = null;
+        session.sawPressWhileOpen = false;
+        session.isComposing = false;
+        session.currentPointerType = '';
+        session.touchState = null;
       }
       return clearInsideReactTree;
     }
@@ -312,7 +290,7 @@ export function useDismiss(
 
     function handleCompositionStart() {
       compositionTimeout.clear();
-      isComposingRef.current = true;
+      session.isComposing = true;
     }
 
     function handleCompositionEnd() {
@@ -320,33 +298,33 @@ export function useDismiss(
       // until the next tick to set `isComposing` to `false`. Set it here too, since closing
       // resets it while a composition can continue into the next open session.
       // https://bugs.webkit.org/show_bug.cgi?id=165004
-      isComposingRef.current = true;
+      session.isComposing = true;
       compositionTimeout.start(
         // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
         // Only apply to WebKit for the test to remain 0ms.
         platform.engine.webkit ? 5 : 0,
         () => {
-          isComposingRef.current = false;
+          session.isComposing = false;
         },
       );
     }
 
     function suppressImmediateOutsideClickAfterPreventedStart() {
-      suppressNextOutsideClickRef.current = true;
+      session.suppressNextOutsideClick = true;
       // Firefox can emit the synthetic outside click in a later task after
       // pointer lock exit, so microtask clearing is too early here.
       preventedPressSuppressionTimeout.start(0, () => {
-        suppressNextOutsideClickRef.current = false;
+        session.suppressNextOutsideClick = false;
       });
     }
 
     function resetPressStartState() {
-      pressStartedInsideRef.current = false;
-      pressStartPreventedRef.current = false;
+      session.pressStartedInside = false;
+      session.pressStartPrevented = false;
     }
 
     function getOutsidePressEvent(): PressType {
-      const type = currentPointerTypeRef.current as 'pen' | 'mouse' | 'touch' | '';
+      const type = session.currentPointerType as 'pen' | 'mouse' | 'touch' | '';
       const computedType = type === 'pen' || !type ? 'mouse' : type;
 
       const outsidePressEventValue = getOutsidePressEventProp();
@@ -387,13 +365,13 @@ export function useDismiss(
         // leftover drag-out suppression so this press's eventual click can dismiss.
         if (event.type !== 'click' && !isEventWithinOwnElements(event)) {
           preventedPressSuppressionTimeout.clear();
-          suppressNextOutsideClickRef.current = false;
+          session.suppressNextOutsideClick = false;
         }
         clearInsideReactTree();
         return;
       }
 
-      if (dataRef.current.insideReactTree) {
+      if (dismissal.isInsideReactTree()) {
         clearInsideReactTree();
         return;
       }
@@ -489,7 +467,7 @@ export function useDismiss(
         if (
           (event as MouseEvent).detail !== 0 &&
           !isVirtualClick(event as MouseEvent) &&
-          !sawPressWhileOpenRef.current
+          !session.sawPressWhileOpen
         ) {
           return;
         }
@@ -497,9 +475,9 @@ export function useDismiss(
         // A press that starts inside and ends outside gets one suppressed
         // outside click. Run this after inside-target checks so inside clicks
         // don't consume the one-shot suppression.
-        if (suppressNextOutsideClickRef.current) {
+        if (session.suppressNextOutsideClick) {
           preventedPressSuppressionTimeout.clear();
-          suppressNextOutsideClickRef.current = false;
+          session.suppressNextOutsideClick = false;
           return;
         }
       }
@@ -542,7 +520,7 @@ export function useDismiss(
 
       const touch = event.touches[0];
       if (touch) {
-        touchStateRef.current = {
+        session.touchState = {
           startTime: Date.now(),
           startX: touch.clientX,
           startY: touch.clientY,
@@ -551,9 +529,9 @@ export function useDismiss(
         };
 
         cancelDismissOnEndTimeout.start(1000, () => {
-          if (touchStateRef.current) {
-            touchStateRef.current.dismissOnTouchEnd = false;
-            touchStateRef.current.dismissOnMouseDown = false;
+          if (session.touchState) {
+            session.touchState.dismissOnTouchEnd = false;
+            session.touchState.dismissOnMouseDown = false;
           }
         });
       }
@@ -576,7 +554,7 @@ export function useDismiss(
     }
 
     function handleTouchStartCapture(event: TouchEvent) {
-      currentPointerTypeRef.current = 'touch';
+      session.currentPointerType = 'touch';
       addTargetEventListenerOnce(event, handleTouchStart);
     }
 
@@ -588,15 +566,15 @@ export function useDismiss(
       if (event.type === 'pointerdown') {
         // Only a primary press can produce a `click`.
         if (event.button === 0) {
-          sawPressWhileOpenRef.current = true;
+          session.sawPressWhileOpen = true;
         }
-        currentPointerTypeRef.current = (event as PointerEvent).pointerType;
+        session.currentPointerType = (event as PointerEvent).pointerType;
       }
 
       if (
         event.type === 'mousedown' &&
-        touchStateRef.current &&
-        !touchStateRef.current.dismissOnMouseDown
+        session.touchState &&
+        !session.touchState.dismissOnMouseDown
       ) {
         return;
       }
@@ -614,14 +592,14 @@ export function useDismiss(
       // A cancelled gesture produces no click. Not cleared on `pointerup`: the click
       // fires after it and must still find the press.
       if (event.type === 'pointercancel') {
-        sawPressWhileOpenRef.current = false;
+        session.sawPressWhileOpen = false;
       }
 
-      if (!pressStartedInsideRef.current) {
+      if (!session.pressStartedInside) {
         return;
       }
 
-      const pressStartedInsideDefaultPrevented = pressStartPreventedRef.current;
+      const pressStartedInsideDefaultPrevented = session.pressStartPrevented;
       resetPressStartState();
 
       if (getOutsidePressEvent() !== 'intentional') {
@@ -654,14 +632,14 @@ export function useDismiss(
       }
 
       preventedPressSuppressionTimeout.clear();
-      suppressNextOutsideClickRef.current = true;
+      session.suppressNextOutsideClick = true;
       clearInsideReactTree();
     }
 
     function handleTouchMove(event: TouchEvent) {
       if (
         getOutsidePressEvent() !== 'sloppy' ||
-        !touchStateRef.current ||
+        !session.touchState ||
         isEventWithinOwnElements(event)
       ) {
         return;
@@ -672,18 +650,18 @@ export function useDismiss(
         return;
       }
 
-      const deltaX = Math.abs(touch.clientX - touchStateRef.current.startX);
-      const deltaY = Math.abs(touch.clientY - touchStateRef.current.startY);
+      const deltaX = Math.abs(touch.clientX - session.touchState.startX);
+      const deltaY = Math.abs(touch.clientY - session.touchState.startY);
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       if (distance > 5) {
-        touchStateRef.current.dismissOnTouchEnd = true;
+        session.touchState.dismissOnTouchEnd = true;
       }
 
       if (distance > 10) {
         closeOnPressOutside(event);
         cancelDismissOnEndTimeout.clear();
-        touchStateRef.current = null;
+        session.touchState = null;
       }
     }
 
@@ -694,18 +672,18 @@ export function useDismiss(
     function handleTouchEnd(event: TouchEvent) {
       if (
         getOutsidePressEvent() !== 'sloppy' ||
-        !touchStateRef.current ||
+        !session.touchState ||
         isEventWithinOwnElements(event)
       ) {
         return;
       }
 
-      if (touchStateRef.current.dismissOnTouchEnd) {
+      if (session.touchState.dismissOnTouchEnd) {
         closeOnPressOutside(event);
       }
 
       cancelDismissOnEndTimeout.clear();
-      touchStateRef.current = null;
+      session.touchState = null;
     }
 
     function handleTouchEndCapture(event: TouchEvent) {
@@ -746,10 +724,12 @@ export function useDismiss(
       unsubscribe();
       preventedPressSuppressionTimeout.clear();
       resetPressStartState();
-      suppressNextOutsideClickRef.current = false;
+      session.suppressNextOutsideClick = false;
     };
   }, [
     dataRef,
+    dismissal,
+    session,
     outerPopupElement,
     escapeKey,
     outsidePressEnabled,
