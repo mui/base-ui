@@ -354,6 +354,17 @@ export function releaseOwner(): TriggerOwnershipChanges {
 }
 
 /**
+ * Unmounted: the popup finished closing and unmounted. The owner is released, unless a request
+ * reopened the popup during its exit: that request's trigger stays the owner. The last trigger is
+ * kept either way.
+ *
+ * @param open Whether the popup is open, meaning a request reopened it during the exit.
+ */
+export function releaseUnmountedOwner(open: boolean): TriggerOwnershipChanges | null {
+  return open ? null : releaseOwner();
+}
+
+/**
  * Anchor change: the trigger the mounted popup is anchored to changed. A new anchor becomes the
  * last trigger; the anchor being cleared (as a `keepMounted` positioner does while the popup is
  * unmounted) clears it.

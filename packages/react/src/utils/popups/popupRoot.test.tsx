@@ -3,7 +3,7 @@ import * as React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useImplicitActiveTrigger } from './popupRoot';
+import { useSettleTriggerOwnership } from './popupRoot';
 import { createPopupOpenState } from './store';
 import {
   createTestPopupStore,
@@ -13,12 +13,12 @@ import {
 import type { TestPopupStore } from '../../../test/popupStoreTestUtils';
 
 function ImplicitActiveTriggerTest({ store }: { store: TestPopupStore }) {
-  useImplicitActiveTrigger(store);
+  useSettleTriggerOwnership(store);
   return null;
 }
 
 function CloseOnActiveTriggerUnmountTest({ store }: { store: TestPopupStore }) {
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
+  useSettleTriggerOwnership(store, { closeOnActiveTriggerUnmount: true });
   return null;
 }
 
@@ -41,7 +41,7 @@ function ImplicitTriggerUnmountTest({
   element: HTMLElement;
 }) {
   const [triggerVisible, setTriggerVisible] = React.useState(true);
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
+  useSettleTriggerOwnership(store, { closeOnActiveTriggerUnmount: true });
 
   if (!triggerVisible) {
     return null;
@@ -55,7 +55,7 @@ function ImplicitTriggerUnmountTest({
   );
 }
 
-describe('useImplicitActiveTrigger', () => {
+describe('useSettleTriggerOwnership', () => {
   it('claims the only registered trigger when a closed popup opens', () => {
     const store = createTestPopupStore();
     const element = document.createElement('button');
@@ -68,14 +68,14 @@ describe('useImplicitActiveTrigger', () => {
     );
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe(null);
 
     act(() => {
       store.set('open', true);
     });
 
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe('trigger');
     expect(store.state.activeTriggerElement).toBe(element);
   });
@@ -95,8 +95,8 @@ describe('useImplicitActiveTrigger', () => {
       store.update(createPopupOpenState(store.state, true, undefined));
     });
 
-    expect(store.state.triggerCount).toBe(1);
-    expect(store.state.openedWithoutTrigger).toBe(true);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
+    expect(store.state.triggerOwnership.openedWithoutTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe(null);
     expect(store.state.activeTriggerElement).toBe(null);
   });
@@ -121,7 +121,7 @@ describe('useImplicitActiveTrigger', () => {
     act(() => {
       store.set('open', false);
     });
-    expect(store.state.openedWithoutTrigger).toBe(false);
+    expect(store.state.triggerOwnership.openedWithoutTrigger).toBe(false);
 
     act(() => {
       store.set('open', true);
@@ -197,7 +197,7 @@ describe('useImplicitActiveTrigger', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
 
@@ -212,7 +212,7 @@ describe('useImplicitActiveTrigger', () => {
       expect(store.setOpen).toHaveBeenCalledTimes(1);
     });
 
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe(null);
     expect(store.state.activeTriggerElement).toBe(null);
     expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
@@ -245,7 +245,6 @@ describe('useImplicitActiveTrigger', () => {
         store.update({
           activeTriggerId: pendingTriggerId,
           activeTriggerElement: null,
-          triggerCount: 0,
         });
       });
 
@@ -354,7 +353,7 @@ describe('useImplicitActiveTrigger', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
 
@@ -370,7 +369,7 @@ describe('useImplicitActiveTrigger', () => {
 
     expect(store.context.triggerElements.getById('first')).toBe(replacement);
     expect(store.context.triggerElements.getById('second')).toBe(second);
-    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(replacement);
     expect(store.state.open).toBe(true);
@@ -397,7 +396,7 @@ describe('useImplicitActiveTrigger', () => {
 
     await flushMicrotasks();
 
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe('registered-id');
     expect(store.state.activeTriggerElement).toBe(element);
     expect(store.state.open).toBe(true);
@@ -461,7 +460,7 @@ describe('useImplicitActiveTrigger', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
 
@@ -479,12 +478,12 @@ describe('useImplicitActiveTrigger', () => {
     expect(store.state.open).toBe(true);
     expect(store.context.triggerElements.getById('first')).toBeUndefined();
     expect(store.context.triggerElements.getById('second')).toBe(second);
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
   });
 
-  it('resets triggerCount when the popup closes', () => {
+  it('resets the lone-trigger flag when the popup closes', () => {
     const store = createTestPopupStore();
     const element = document.createElement('button');
 
@@ -497,12 +496,12 @@ describe('useImplicitActiveTrigger', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
 
     act(() => {
       store.set('open', false);
     });
 
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
   });
 });

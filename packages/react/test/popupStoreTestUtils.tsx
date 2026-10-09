@@ -12,10 +12,7 @@ import type {
   PopupStoreSelectors,
   PopupStoreState,
 } from '../src/utils/popups/store';
-import {
-  useTriggerDataForwarding,
-  useTriggerRegistration,
-} from '../src/utils/popups/popupStoreUtils';
+import { useTriggerOwnership, useTriggerRegistration } from '../src/utils/popups/popupStoreUtils';
 import type { BaseUIChangeEventDetails } from '../src/types';
 
 export type TestPopupStore = ReactStore<
@@ -91,7 +88,9 @@ export function TestForwardedTrigger({
   payload?: unknown;
 }) {
   const elementRef = React.useRef<Element | null>(null);
-  const { registerTrigger } = useTriggerDataForwarding(id, elementRef, store, { payload });
+  const { registerTrigger } = useTriggerOwnership(id, elementRef, store, 'first-registrant', {
+    payload,
+  });
 
   useIsoLayoutEffect(() => {
     elementRef.current = element;
