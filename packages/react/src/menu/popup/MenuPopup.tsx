@@ -286,7 +286,7 @@ export interface MenuPopupState {
   /**
    * Whether transitions should be skipped.
    */
-  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+  instant: 'dismiss' | 'click' | 'group' | 'navigation' | 'trigger-change' | undefined;
 }
 
 export namespace MenuPopup {

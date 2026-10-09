@@ -1208,6 +1208,20 @@ describe('<Menubar />', () => {
     expect(owner).not.toHaveAttribute('role');
   });
 
+  it('keeps the group instant type when a contained menu is opened with an arrow key', async () => {
+    const { user } = await render(<ContainedTriggerMenubar />);
+
+    const fileTrigger = screen.getByTestId('file-trigger');
+    await act(async () => {
+      fileTrigger.focus();
+    });
+
+    await user.keyboard('{ArrowDown}');
+
+    const fileMenu = await screen.findByTestId('file-menu');
+    expect(fileMenu).toHaveAttribute('data-instant', 'group');
+  });
+
   describe('disabled state', () => {
     it('keeps the menubar reachable when the first trigger is disabled', async () => {
       const { user } = await render(
