@@ -5,7 +5,6 @@ import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import { useMenuFilterItem } from '../filter-root/MenuFilterContext';
@@ -21,7 +20,8 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { useTriggerRegistration } from '../../utils/popups';
+import { updateTriggerOwnership, useTriggerOwnership } from '../../utils/popups';
+import { setOwnerElement } from '../../utils/popups/triggerOwnership';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -66,44 +66,27 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
-  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
-
-  // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
-  // lifetime; the latest `closeDelay` is read when it runs.
-  const registerTrigger = useStableCallback((element: Element | null) => {
-    baseRegisterTrigger(element);
-
-    const activeTriggerElement = store.select('activeTriggerElement');
-    if (
-      element !== null &&
-      store.select('open') &&
-      (activeTriggerElement === element || store.select('activeTriggerId') == null)
-    ) {
-      store.update({
-        activeTriggerId: thisTriggerId ?? null,
-        activeTriggerElement: element,
-        closeDelay,
-      });
-    }
-  });
-
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
+
+  // The submenu trigger claims its submenu with its own rule; the latest `closeDelay` is applied
+  // along with the claim.
+  const { registerTrigger } = useTriggerOwnership(
+    thisTriggerId,
+    triggerElementRef,
+    store,
+    'submenu',
+    {
+      closeDelay,
+    },
+  );
 
   const handleTriggerElementRef = React.useCallback(
     (el: HTMLElement | null) => {
       triggerElementRef.current = el;
-      store.set('activeTriggerElement', el);
+      updateTriggerOwnership(store, setOwnerElement(el));
     },
     [store],
   );
-
-  // A stable ref does not re-fire when the id changes, so register the rendered element here
-  // instead. On React 17 the id also starts out `undefined`, so this is what registers the trigger
-  // at all.
-  useIsoLayoutEffect(() => {
-    registerTrigger(triggerElementRef.current);
-    return () => registerTrigger(null);
-  }, [registerTrigger, thisTriggerId, store]);
 
   useIsoLayoutEffect(() => {
     if (!open || !positionerElement) {

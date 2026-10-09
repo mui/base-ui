@@ -15,6 +15,13 @@ import type { HTMLProps } from '../../internals/types';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { attachPreventUnmountOnClose } from './popupStoreUtils';
+import {
+  applyOpenRequest,
+  createTriggerOwnership,
+  isLoneTriggerClaimable,
+  releaseUnmountedTrigger,
+} from './triggerOwnership';
+import type { TriggerOwnershipRecord } from './triggerOwnership';
 
 /**
  * State common to all popup stores.
@@ -40,10 +47,6 @@ export type PopupStoreState<Payload> = {
 
   floatingId: string | undefined;
   /**
-   * Number of trigger elements currently registered for this popup.
-   */
-  triggerCount: number;
-  /**
    * Whether to prevent unmounting the popup when closed.
    * Useful for interacting with JS animation libraries that control unmounting themselves.
    */
@@ -55,26 +58,23 @@ export type PopupStoreState<Payload> = {
   payload: Payload | undefined;
 
   /**
-   * ID of the currently active trigger.
+   * ID of the currently active trigger. Written only through the `triggerOwnership` module.
    */
   activeTriggerId: string | null;
   /**
-   * The currently active trigger DOM element.
+   * The currently active trigger DOM element. Written only through the `triggerOwnership` module.
    */
   activeTriggerElement: Element | null;
   /**
-   * The last trigger element the popup was anchored to. Unlike `activeTriggerElement`, it is kept
-   * once the popup unmounts, so the interaction hooks still recognize the trigger that the popup
-   * last belonged to.
+   * The rest of the trigger ownership bookkeeping. Written only through the `triggerOwnership`
+   * module.
+   */
+  triggerOwnership: TriggerOwnershipRecord;
+  /**
+   * The element the popup is positioned against: the last trigger element the mounted popup was
+   * anchored to. It is kept once the popup unmounts, until a `keepMounted` positioner clears it.
    */
   domReferenceElement: Element | null;
-  /**
-   * Whether the popup is open because of a request that deliberately carried no trigger, such as a
-   * handle's `open(null)` or `openWithPayload()`. While set, a lone registered trigger is not
-   * implicitly associated with the popup, so its trigger-owned state (such as `payload`) is not
-   * forwarded. Reset by the Root once the popup is effectively closed.
-   */
-  openedWithoutTrigger: boolean;
   /**
    * The reason for the last accepted open change.
    */
@@ -120,13 +120,10 @@ export function createInitialPopupStoreState<Payload>(
     mounted: false,
     transitionStatus: undefined,
     floatingId,
-    triggerCount: 0,
     preventUnmountingOnClose: false,
     payload: undefined,
-    activeTriggerId: null,
-    activeTriggerElement: null,
+    ...createTriggerOwnership(),
     domReferenceElement: null,
-    openedWithoutTrigger: false,
     openChangeReason: null,
     triggerIdProp: undefined,
     popupElement: null,
@@ -211,8 +208,7 @@ function triggerOwnsOpenPopupOrIsOnlyTrigger(state: S, triggerId: string | undef
     triggerId !== undefined &&
     openSelector(state) &&
     activeTriggerIdSelector(state) == null &&
-    !state.openedWithoutTrigger &&
-    state.triggerCount === 1
+    isLoneTriggerClaimable(state, state.triggerOwnership.hasLoneTrigger)
   );
 }
 
@@ -223,7 +219,7 @@ export const popupStoreSelectors = {
   // layout effect. Match useTransitionStatus so a retained popup does not miss its starting phase.
   transitionStatus: (state: S) =>
     openSelector(state) && !state.mounted ? 'starting' : state.transitionStatus,
-  triggerCount: (state: S) => state.triggerCount,
+  registryVersion: (state: S) => state.triggerOwnership.registryVersion,
   preventUnmountingOnClose: (state: S) => state.preventUnmountingOnClose,
   payload: (state: S) => state.payload,
 
@@ -299,7 +295,7 @@ type PopupOpenState = Pick<
   | 'preventUnmountingOnClose'
   | 'activeTriggerId'
   | 'activeTriggerElement'
-  | 'openedWithoutTrigger'
+  | 'triggerOwnership'
 >;
 
 export function createPopupOpenState(
@@ -316,28 +312,10 @@ export function createPopupOpenState(
     preventUnmountingOnClose = true;
   }
 
-  const triggerId = trigger?.id ?? null;
-  let activeTriggerId = state.activeTriggerId;
-  let activeTriggerElement = state.activeTriggerElement;
-
-  // If a popup is closing, the `trigger` may be undefined.
-  // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-  if (triggerId || open) {
-    activeTriggerId = triggerId;
-    activeTriggerElement = trigger ?? null;
-  }
-
   return {
     open,
     preventUnmountingOnClose,
-    activeTriggerId,
-    activeTriggerElement,
-    // An open request without a trigger (a handle's `open(null)` or `openWithPayload()`) must not
-    // be reassociated with a lone registered trigger later on. Controlled and default opens never
-    // pass through here, so they keep claiming a lone trigger. A close request keeps the flag: a
-    // controlled root may decline it and stay open, so the Root clears the flag only once the
-    // popup is effectively closed.
-    openedWithoutTrigger: open ? trigger == null : state.openedWithoutTrigger,
+    ...applyOpenRequest(state, open, trigger),
   };
 }
 
@@ -364,7 +342,11 @@ export type PopupUnmountState<State extends PopupStoreState<unknown>> = Partial<
 >;
 
 type PopupUnmountKey =
-  'activeTriggerId' | 'activeTriggerElement' | 'mounted' | 'preventUnmountingOnClose';
+  | 'activeTriggerId'
+  | 'activeTriggerElement'
+  | 'triggerOwnership'
+  | 'mounted'
+  | 'preventUnmountingOnClose';
 
 /**
  * The store of a popup Root. It holds the state every popup shares and runs every open change in
@@ -506,9 +488,8 @@ export abstract class BasePopupStore<
    * Clears what the open session left behind once the popup has finished closing and unmounted.
    */
   resetOnUnmount(): void {
-    const unmountState: Pick<PopupStoreState<unknown>, PopupUnmountKey> = {
-      activeTriggerId: null,
-      activeTriggerElement: null,
+    const unmountState: Partial<Pick<PopupStoreState<unknown>, PopupUnmountKey>> = {
+      ...releaseUnmountedTrigger(),
       mounted: false,
       preventUnmountingOnClose: false,
     };

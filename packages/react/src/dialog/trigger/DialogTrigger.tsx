@@ -8,7 +8,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import type { DialogHandle } from '../store/DialogHandle';
-import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore, useTriggerOwnership } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { useOpenMethodTriggerProps } from '../../utils/popups/interactions/useOpenInteractionType';
@@ -50,10 +50,11 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerOwnership(
     thisTriggerId,
     triggerElementRef,
     store,
+    'first-registrant',
     {
       payload,
     },

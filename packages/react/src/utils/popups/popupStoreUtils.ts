@@ -13,6 +13,13 @@ import type {
   popupStoreSelectors,
   PopupTriggerDataStore,
 } from './store';
+import {
+  changeTriggerRegistry,
+  claimOnRegister,
+  claimSubmenuOnRegister,
+  setOwnerElement,
+} from './triggerOwnership';
+import type { TriggerOwnershipChanges, TriggerOwnershipState } from './triggerOwnership';
 
 export const FOCUSABLE_POPUP_PROPS = {
   tabIndex: -1,
@@ -29,10 +36,29 @@ export function createDefaultInitialFocus(popupRef: React.RefObject<HTMLElement 
     interactionType === 'touch' ? popupRef.current : true;
 }
 
-function syncTriggerCount(store: PopupTriggerDataStore<PopupStoreState<unknown>>) {
-  const triggerCount = store.context.triggerElements.size;
-  if (store.select('open') && store.state.triggerCount !== triggerCount) {
-    store.set('triggerCount', triggerCount);
+/**
+ * Commits ownership changes returned by the `triggerOwnership` module.
+ */
+export function updateTriggerOwnership(
+  store: Pick<ReactStore<PopupStoreState<unknown>, any, any>, 'update'>,
+  changes: TriggerOwnershipChanges,
+  stateUpdates?: object | null,
+) {
+  // The module only returns the fields that change, so none of them is `undefined`.
+  store.update({ ...changes, ...stateUpdates } as Pick<
+    PopupStoreState<unknown>,
+    keyof TriggerOwnershipState
+  >);
+}
+
+function syncTriggerRegistry(store: PopupTriggerDataStore<PopupStoreState<unknown>>) {
+  const changes = changeTriggerRegistry(
+    store.state,
+    store.context.triggerElements,
+    store.select('open'),
+  );
+  if (changes) {
+    updateTriggerOwnership(store, changes);
   }
 }
 
@@ -80,14 +106,14 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
         registeredStore.context.triggerElements.getById(registration.id) === registration.element
       ) {
         registeredStore.context.triggerElements.delete(registration.id);
-        syncTriggerCount(registeredStore);
+        syncTriggerRegistry(registeredStore);
       }
     }
 
     if (element !== null && id !== undefined) {
       registrationRef.current = { store, id, element };
       store.context.triggerElements.add(id, element);
-      syncTriggerCount(store);
+      syncTriggerRegistry(store);
     }
   });
 }
@@ -103,53 +129,73 @@ export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClos
 }
 
 /**
- * Sets up trigger data forwarding to the store.
+ * The claim rule a trigger applies when it registers.
+ *
+ * - `'first-registrant'`: the owner refreshes its element, and a trigger that registers into an
+ *   open, unowned popup claims it. Used by regular triggers.
+ * - `'submenu'`: a submenu trigger claims its open submenu when it owns it or it has no owner.
+ * - `'none'`: the part only counts as a trigger, such as a drawer swipe area.
+ */
+export type TriggerClaimRule = 'first-registrant' | 'submenu' | 'none';
+
+/**
+ * Registers a trigger with its popup and applies the trigger's side of the ownership rules.
+ *
+ * It registers the element the trigger renders, migrating it when the store or id changes, claims
+ * the popup according to `claim`, and forwards `stateUpdates` (such as the trigger's `payload`)
+ * while the trigger owns the popup.
  *
  * @param triggerId Id of the trigger.
  * @param triggerElementRef Ref for the trigger DOM element.
  * @param store The Store instance managing the popup state.
- * @param stateUpdates An object with state updates to apply when the trigger is active.
+ * @param claim The claim rule the trigger applies when it registers.
+ * @param stateUpdates State to apply while the trigger owns the popup. With the `'submenu'` rule,
+ *   it is applied only when the trigger claims the popup.
  */
-export function useTriggerDataForwarding<
+export function useTriggerOwnership<
   State extends PopupStoreState<unknown>,
-  const Key extends keyof Omit<State, 'activeTriggerId' | 'activeTriggerElement'>,
+  const Key extends keyof Omit<
+    State,
+    'activeTriggerId' | 'activeTriggerElement' | 'triggerOwnership'
+  > = never,
 >(
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
   store: PopupTriggerDataStore<State>,
-  stateUpdates: Pick<State, Key>,
+  claim: TriggerClaimRule,
+  stateUpdates: Pick<State, Key> = EMPTY_OBJECT as Pick<State, Key>,
 ) {
-  const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
+  // Only regular triggers react to owning the mounted popup, so other parts don't subscribe.
+  const isMountedByThisTrigger = store.useState(
+    'isMountedByTrigger',
+    claim === 'first-registrant' ? triggerId : undefined,
+  );
 
   const baseRegisterTrigger = useTriggerRegistration(triggerId, store);
 
-  // Applies trigger-owned state (active-trigger ownership and payload) when the trigger registers.
-  // Stable so payload/`stateUpdates` changes do not change the ref identity (which would needlessly
-  // churn registration); it reads the latest closure values when invoked.
-  const applyTriggerData = useStableCallback((element: Element) => {
+  // Applies the claim rule when the trigger registers. Stable so payload/`stateUpdates` changes do
+  // not change the ref identity (which would needlessly churn registration); it reads the latest
+  // closure values when invoked.
+  const applyClaim = useStableCallback((element: Element) => {
     const open = store.select('open');
-    const activeTriggerId = store.select('activeTriggerId');
+    const ownerId = store.select('activeTriggerId');
 
-    if (activeTriggerId === triggerId) {
-      const changes = {
-        activeTriggerElement: element,
-        ...(open ? stateUpdates : null),
-      } as Pick<Readonly<State>, Key | 'activeTriggerElement'>;
-      store.update(changes);
-      return;
-    }
-
-    if (activeTriggerId == null && open && !store.state.openedWithoutTrigger) {
-      // If a popup is already open, a detached trigger can mount before any active trigger
-      // has been established. Claim the first registered trigger so trigger-owned focus
-      // management and ARIA relationships work. A popup opened deliberately without a trigger
-      // stays unassociated so the trigger's `payload` does not replace the programmatic one.
-      const changes = {
-        activeTriggerId: triggerId ?? null,
-        activeTriggerElement: element,
-        ...stateUpdates,
-      } as Pick<Readonly<State>, Key | 'activeTriggerId' | 'activeTriggerElement'>;
-      store.update(changes);
+    if (claim === 'first-registrant') {
+      const result = claimOnRegister(store.state, triggerId, element, open, ownerId);
+      if (result) {
+        updateTriggerOwnership(store, result.changes, result.forwardState ? stateUpdates : null);
+      }
+    } else if (claim === 'submenu') {
+      const changes = claimSubmenuOnRegister(
+        triggerId,
+        element,
+        open,
+        ownerId,
+        store.select('activeTriggerElement'),
+      );
+      if (changes) {
+        updateTriggerOwnership(store, changes, stateUpdates);
+      }
     }
   });
 
@@ -158,27 +204,26 @@ export function useTriggerDataForwarding<
   const registerTrigger = useStableCallback((element: Element | null) => {
     baseRegisterTrigger(element);
     if (element) {
-      applyTriggerData(element);
+      applyClaim(element);
     }
   });
 
   // A stable ref does not re-fire on a store or id change, so migrate here instead: unregister from
   // the previous store, then register the element the trigger still renders into the current one.
+  // On React 17 the id also starts out `undefined`, so this is what registers the trigger at all.
   useIsoLayoutEffect(() => {
     registerTrigger(triggerElementRef.current);
     return () => registerTrigger(null);
   }, [registerTrigger, triggerElementRef, store, triggerId]);
 
+  // Only regular triggers keep forwarding their state while they own the popup.
+  const forwardsWhileOwner = claim === 'first-registrant' && isMountedByThisTrigger;
   useIsoLayoutEffect(() => {
-    if (isMountedByThisTrigger) {
-      const changes = {
-        activeTriggerElement: triggerElementRef.current,
-        ...stateUpdates,
-      } as Pick<Readonly<State>, Key | 'activeTriggerElement'>;
-      store.update(changes);
+    if (forwardsWhileOwner) {
+      updateTriggerOwnership(store, setOwnerElement(triggerElementRef.current), stateUpdates);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMountedByThisTrigger, store, triggerElementRef, ...Object.values(stateUpdates)]);
+  }, [forwardsWhileOwner, store, triggerElementRef, ...Object.values(stateUpdates)]);
 
   return { registerTrigger, isMountedByThisTrigger };
 }

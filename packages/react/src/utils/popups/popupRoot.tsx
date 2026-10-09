@@ -17,6 +17,14 @@ import type {
   popupStoreSelectors,
   PopupTriggerDataStore,
 } from './store';
+import { updateTriggerOwnership } from './popupStoreUtils';
+import {
+  createTriggerOwnership,
+  isTriggerStillLost,
+  releaseLostTrigger,
+  settleTriggerOwnership,
+} from './triggerOwnership';
+import type { TriggerOwnershipState } from './triggerOwnership';
 
 /**
  * The props every popup Root shares.
@@ -41,8 +49,9 @@ export interface PopupRootActions {
  */
 export type PopupRootInitialState = Pick<
   PopupStoreState<unknown>,
-  'open' | 'openProp' | 'activeTriggerId' | 'triggerIdProp'
->;
+  'open' | 'openProp' | 'triggerIdProp'
+> &
+  TriggerOwnershipState;
 
 export interface UsePopupRootOptions {
   /**
@@ -137,7 +146,12 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
   const store = usePopupRootStore(
     (initialFloatingId, nested) =>
       createStore(
-        { open: defaultOpen, openProp, activeTriggerId: defaultTriggerId, triggerIdProp },
+        {
+          open: defaultOpen,
+          openProp,
+          triggerIdProp,
+          ...createTriggerOwnership(defaultTriggerId),
+        },
         initialFloatingId,
         nested,
       ),
@@ -155,7 +169,7 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Store['state']['payload'];
 
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount });
+  useSettleTriggerOwnership(store, { closeOnActiveTriggerUnmount });
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(
     open,
     store,
@@ -262,29 +276,19 @@ function PopupHandleAttachment<Store>({
 }
 
 /**
- * Keeps trigger registration state synchronized while the popup is open.
+ * Settles trigger ownership after every commit that changed the open state, the owner or the
+ * trigger registry. See `settleTriggerOwnership` for the rules.
  *
- * When a popup opens without an explicit trigger id and exactly one trigger is registered, that
- * trigger is claimed as the active trigger, unless the open request deliberately carried no trigger
- * (`openedWithoutTrigger`). When the active trigger id is still registered but its
- * element changed, the active element is refreshed. When the active trigger id is missing from the
- * registry but the same element is still registered under a different id (e.g. the rendered trigger
- * carries its own DOM `id` that differs from Base UI's internal trigger id), the active id is
- * reassociated to the registered id instead of being treated as lost. When the active trigger
- * unregisters, the default path preserves existing ownership so non-closing popup families do not
- * silently claim a different trigger while staying open.
+ * If `closeOnActiveTriggerUnmount` is enabled, losing a resolved owner requests a close after a
+ * microtask, so a same-tick replacement trigger with the same id can register first. If the close
+ * is cancelled, the popup keeps its owner instead of claiming another trigger.
  *
- * If `closeOnActiveTriggerUnmount` is enabled, unregistering a previously resolved active trigger
- * requests a close after a microtask so a same-tick replacement trigger with the same id can
- * register first. An active trigger id that has not matched a registered trigger yet is treated as
- * pending and does not request a close.
- *
- * This should be called on the Root part.
+ * Exported for tests; popup Roots run it through `usePopupRoot`.
  *
  * @param store The Store instance managing the popup state.
  * @param options Options for active trigger unmount behavior.
  */
-export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>(
+export function useSettleTriggerOwnership<State extends PopupStoreState<unknown>>(
   store: PopupTriggerDataStore<State> & {
     setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>): void;
   },
@@ -293,131 +297,49 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   } = {},
 ) {
   const { closeOnActiveTriggerUnmount = false } = options;
-  // Distinguishes a trigger that unmounted from a new active trigger that has not hydrated yet.
-  const resolvedActiveTriggerIdRef = React.useRef<string | null>(null);
   const open = store.useState('open');
-  const reactiveTriggerCount = store.useState('triggerCount');
-  // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
-  // another trigger while the popup stays open (e.g. a focus/hover handoff between triggers).
+  // Every registration change while open moves the registry version on, including a commit where
+  // one trigger replaces another, so settling reruns after each of them.
+  const registryVersion = store.useState('registryVersion');
+  // Settle again when ownership moves to another trigger while the popup stays open (e.g. a
+  // focus/hover handoff between triggers).
   const activeTriggerId = store.useState('activeTriggerId');
-  // Subscribe to the active trigger element so the reconciliation reruns when a pending active
-  // trigger registers in a commit where the trigger count nets out unchanged (registration
-  // forwards the element to the store when the registering trigger matches the active id).
-  // Without this, the id would never be marked resolved and a later genuine unmount would be
-  // misclassified as pending, disabling `closeOnActiveTriggerUnmount`.
-  const reactiveActiveTriggerElement = store.useState('activeTriggerElement');
 
   useIsoLayoutEffect(() => {
-    if (!open) {
-      resolvedActiveTriggerIdRef.current = null;
-      if (store.state.triggerCount !== 0) {
-        store.set('triggerCount', 0);
-      }
-      // The flag is cleared only here, once the popup is effectively closed: a controlled root may
-      // decline a close request and stay open, and a controlled close never reaches
-      // `createPopupOpenState` at all.
-      if (store.state.openedWithoutTrigger) {
-        store.set('openedWithoutTrigger', false);
-      }
-      return;
+    const registry = store.context.triggerElements;
+    const { changes, lostTriggerId } = settleTriggerOwnership(
+      store.state,
+      registry,
+      open,
+      store.select('activeTriggerId'),
+    );
+
+    if (changes) {
+      updateTriggerOwnership(store, changes);
     }
 
-    const triggerCount = store.context.triggerElements.size;
-    const stateUpdates = {} as Pick<
-      State,
-      'triggerCount' | 'activeTriggerId' | 'activeTriggerElement'
-    >;
-
-    if (store.state.triggerCount !== triggerCount) {
-      stateUpdates.triggerCount = triggerCount;
-    }
-
-    const currentActiveTriggerId = store.select('activeTriggerId');
-    let lostActiveTriggerId: string | null = null;
-
-    if (currentActiveTriggerId) {
-      const activeTriggerElement = store.context.triggerElements.getById(currentActiveTriggerId);
-      if (!activeTriggerElement) {
-        for (const [triggerId, triggerElement] of store.context.triggerElements.entries()) {
-          if (triggerElement === store.state.activeTriggerElement) {
-            stateUpdates.activeTriggerId = triggerId;
-            stateUpdates.activeTriggerElement = triggerElement;
-            resolvedActiveTriggerIdRef.current = triggerId;
-            break;
+    if (lostTriggerId && closeOnActiveTriggerUnmount) {
+      // Defer so a same-tick replacement trigger with the same id can register first.
+      queueMicrotask(() => {
+        if (
+          isTriggerStillLost(
+            lostTriggerId,
+            registry,
+            store.select('open'),
+            store.select('activeTriggerId'),
+          )
+        ) {
+          const eventDetails = createChangeEventDetails(REASONS.none);
+          store.setOpen(false, eventDetails);
+          // If closing is canceled, keep the previous active trigger ownership for the
+          // still-open popup instead of claiming another trigger implicitly.
+          if (!eventDetails.isCanceled) {
+            updateTriggerOwnership(store, releaseLostTrigger());
           }
         }
-
-        if (stateUpdates.activeTriggerId === undefined) {
-          if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
-            lostActiveTriggerId = currentActiveTriggerId;
-          } else {
-            resolvedActiveTriggerIdRef.current = null;
-          }
-        }
-      } else {
-        resolvedActiveTriggerIdRef.current = currentActiveTriggerId;
-        if (activeTriggerElement !== store.state.activeTriggerElement) {
-          stateUpdates.activeTriggerElement = activeTriggerElement;
-        }
-      }
-    } else {
-      resolvedActiveTriggerIdRef.current = null;
+      });
     }
-
-    if (
-      !lostActiveTriggerId &&
-      !currentActiveTriggerId &&
-      !store.state.openedWithoutTrigger &&
-      triggerCount === 1
-    ) {
-      const iteratorResult = store.context.triggerElements.entries().next();
-      if (!iteratorResult.done) {
-        const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
-        stateUpdates.activeTriggerId = implicitTriggerId;
-        stateUpdates.activeTriggerElement = implicitTriggerElement;
-        resolvedActiveTriggerIdRef.current = implicitTriggerId;
-      }
-    }
-
-    if (
-      stateUpdates.triggerCount !== undefined ||
-      stateUpdates.activeTriggerId !== undefined ||
-      stateUpdates.activeTriggerElement !== undefined
-    ) {
-      store.update(stateUpdates);
-    }
-
-    if (lostActiveTriggerId) {
-      if (closeOnActiveTriggerUnmount) {
-        // Defer so a same-tick replacement trigger with the same id can register first.
-        queueMicrotask(() => {
-          if (
-            store.select('open') &&
-            store.select('activeTriggerId') === lostActiveTriggerId &&
-            !store.context.triggerElements.getById(lostActiveTriggerId)
-          ) {
-            const eventDetails = createChangeEventDetails(REASONS.none);
-            store.setOpen(false, eventDetails);
-            // If closing is canceled, keep the previous active trigger ownership for the
-            // still-open popup instead of claiming another trigger implicitly.
-            if (!eventDetails.isCanceled) {
-              store.update({
-                activeTriggerId: null,
-                activeTriggerElement: null,
-              });
-            }
-          }
-        });
-      }
-    }
-  }, [
-    open,
-    store,
-    reactiveTriggerCount,
-    activeTriggerId,
-    reactiveActiveTriggerElement,
-    closeOnActiveTriggerUnmount,
-  ]);
+  }, [open, store, registryVersion, activeTriggerId, closeOnActiveTriggerUnmount]);
 }
 
 /**
