@@ -7,7 +7,9 @@ import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
 import { FloatingDelayGroup, useDelayGroup } from './FloatingDelayGroup';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { useHover } from '../../../../test/floating-ui-tests/useHover';
+import { useHoverFloatingInteraction } from '../interactions/useHoverFloatingInteraction';
+import { useHoverReferenceInteraction } from '../interactions/useHoverReferenceInteraction';
+import { getDelay } from '../interactions/useHoverShared';
 
 interface Props {
   label: string;
@@ -23,8 +25,14 @@ function Tooltip({ children, label }: Props) {
   });
 
   const { delayRef, isInstantPhase } = useDelayGroup(context.rootStore, { open });
-  const hover = useHover(context, { delay: () => delayRef.current });
-  const { getReferenceProps } = useTestInteractions([hover]);
+  const hoverReferenceProps = useHoverReferenceInteraction(context.rootStore, {
+    delay: () => delayRef.current,
+    triggerElementRef: refs.domReference,
+  });
+  useHoverFloatingInteraction(context.rootStore, {
+    closeDelay: () => getDelay(delayRef.current, 'close') ?? 0,
+  });
+  const { getReferenceProps } = useTestInteractions([{ reference: hoverReferenceProps }]);
 
   const renderCount = React.useRef(0);
   const renderCountRef = React.useRef<HTMLSpanElement | null>(null);
