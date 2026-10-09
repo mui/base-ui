@@ -13,7 +13,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
-import { FocusGuard } from '../../FocusGuard';
+import { FocusGuard } from './FocusGuard';
 import { isTypeableCombobox, getFloatingFocusElement, isTypeableElement } from '../element';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../event';
 import {

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { PreviewCardHandle } from '../store/PreviewCardHandle';

@@ -1,4 +1,4 @@
-import { CommonTriggerDataAttributes } from '../../utils/popupStateMapping';
+import { CommonTriggerDataAttributes } from '../../utils/popups/popupStateMapping';
 
 /**
  * Present when the trigger is disabled.
