@@ -21,7 +21,7 @@ import { useHoverReferenceInteraction } from '../../utils/popups/interactions/us
 import { isMouseLikePointerType } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useHoverInteractionSharedState } from '../../utils/popups/interactions/useHoverInteractionSharedState';
+import { useHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import { getDelay } from '../../utils/popups/interactions/useHoverShared';
 import * as TooltipTriggerDataAttributes from './TooltipTriggerDataAttributes';
 
@@ -90,7 +90,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(store, {
     open: isOpenedByThisTrigger,
   });
-  const hoverInteraction = useHoverInteractionSharedState(store);
+  const hoverIntent = useHoverIntent(store);
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
 
@@ -130,9 +130,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
     isNestedTriggerHoveredRef.current = nestedTriggerHovered;
     if (nestedTriggerHovered) {
-      hoverInteraction.openChangeTimeout.clear();
-      hoverInteraction.restTimeout.clear();
-      hoverInteraction.restTimeoutPending = false;
+      hoverIntent.cancelPendingOpen();
       nestedTriggerOpenTimeout.clear();
     }
     return nestedTriggerHovered;
