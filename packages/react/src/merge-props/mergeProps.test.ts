@@ -544,9 +544,9 @@ describe('mergeProps', () => {
           },
         },
         (props) => ({
-          onClick(event: BaseUIEvent<React.MouseEvent>) {
-            // Call preventBaseUIHandler to signal prevention
-            event.preventBaseUIHandler();
+          onClick(event) {
+            // Getter handlers are not augmented by mergeProps, but the later handler augmented this event
+            event.preventBaseUIHandler?.();
             log.push('getter-handler');
             // Manually calling the previous handler - this bypasses automatic prevention!
             props.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
@@ -577,9 +577,9 @@ describe('mergeProps', () => {
           },
         },
         (props) => ({
-          onClick(event: BaseUIEvent<React.MouseEvent>) {
-            // Call preventBaseUIHandler to signal prevention
-            event.preventBaseUIHandler();
+          onClick(event) {
+            // Getter handlers are not augmented by mergeProps, but the later handler augmented this event
+            event.preventBaseUIHandler?.();
             log.push('getter-handler');
             // Check the flag before manually calling previous handlers - this respects prevention
             if (!event.baseUIHandlerPrevented) {

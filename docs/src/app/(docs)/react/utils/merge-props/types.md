@@ -53,6 +53,7 @@ The function is responsible for chaining event handlers if needed (that is, we d
 
 Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
 They must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.
+They are also not wrapped, so their event only has `preventBaseUIHandler` when a later handler is merged with them.
 
 **Parameters:**
 
@@ -69,7 +70,7 @@ They must check `event.baseUIHandlerPrevented` themselves and bail out if it's t
 The merged props.
 
 ```tsx
-type ReturnValue = WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
+type ReturnValue = WithMaybeBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
 ```
 
 ### mergePropsN
@@ -92,5 +93,5 @@ fewer prop sets for better performance.
 The merged props.
 
 ```tsx
-type ReturnValue = WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
+type ReturnValue = WithMaybeBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
 ```

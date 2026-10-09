@@ -4,7 +4,13 @@ import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
+import type {
+  BaseUIComponentProps,
+  ComponentRenderFn,
+  HTMLProps,
+  WithBaseUIEvent,
+  WithMaybeBaseUIEvent,
+} from './types';
 import type { StateAttributesMapping } from './getStateAttributesProps';
 import { getStateAttributesProps } from './getStateAttributesProps';
 import { resolveClassName } from '../utils/resolveClassName';
@@ -264,11 +270,13 @@ export type UseRenderElementParameters<
    * Intrinsic props to be spread on the rendered element.
    */
   props?:
-    | RenderFunctionProps<TagName>
+    | WithBaseUIEvent<RenderFunctionProps<TagName>>
     | Array<
-        | RenderFunctionProps<TagName>
+        | WithBaseUIEvent<RenderFunctionProps<TagName>>
         | undefined
-        | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
+        | ((
+            props: WithMaybeBaseUIEvent<RenderFunctionProps<TagName>>,
+          ) => WithMaybeBaseUIEvent<RenderFunctionProps<TagName>>)
       >
     | undefined;
   /**
