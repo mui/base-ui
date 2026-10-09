@@ -98,28 +98,47 @@ export function useFloatingPortalNode(
         setPortalNode(null);
         setContainerElement(null);
       }
-      return;
+      return undefined;
     }
 
-    const resolvedContainer =
-      (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
-      parentPortalNode ??
-      document.body;
-
-    if (resolvedContainer == null) {
-      if (containerRef.current) {
-        containerRef.current = null;
-        setPortalNode(null);
-        setContainerElement(null);
+    let cancelled = false;
+    function resolveContainer() {
+      if (cancelled) {
+        return;
       }
-      return;
+
+      const resolvedContainer =
+        (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
+        parentPortalNode ??
+        document.body;
+
+      if (resolvedContainer == null) {
+        if (containerRef.current) {
+          containerRef.current = null;
+          setPortalNode(null);
+          setContainerElement(null);
+        }
+        return;
+      }
+
+      if (containerRef.current !== resolvedContainer) {
+        containerRef.current = resolvedContainer;
+        setPortalNode(null);
+        setContainerElement(resolvedContainer);
+      }
     }
 
-    if (containerRef.current !== resolvedContainer) {
-      containerRef.current = resolvedContainer;
-      setPortalNode(null);
-      setContainerElement(resolvedContainer);
+    if (containerProp && !isNode(containerProp) && !containerProp.current) {
+      // Ancestor and later sibling refs attach after this layout effect. Wait until the commit
+      // finishes before resolving an empty ref so the portal never mounts in the wrong container.
+      queueMicrotask(resolveContainer);
+    } else {
+      resolveContainer();
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [containerProp, parentPortalNode]);
 
   const portalElement = useRenderElement('div', componentProps, {
