@@ -78,23 +78,23 @@ export default function ExampleListboxCustomShortcuts() {
           highlightedRef.current = value != null && element != null ? { value, element } : null;
         }}
       >
-        <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
+        <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-neutral-900 dark:text-neutral-100">
           Layers
         </Listbox.Label>
         <Listbox.DragAndDropProvider
           onItemsReorder={(event) => setItems((prev) => reorder(prev, event))}
         >
           <Listbox.List
-            className="box-border w-56 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+            className="box-border w-56 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-neutral-200 dark:outline-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-500"
             onKeyDown={handleKeyDown}
           >
             {items.map(({ label, value, icon }) => (
               <Listbox.Item
                 key={value}
                 value={value}
-                className="relative z-0 grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 text-gray-900 outline-hidden select-none before:absolute before:inset-x-1 before:inset-y-0 before:z-[-1] before:rounded-xs data-[highlighted]:before:bg-gray-100 data-[selected]:before:bg-blue-800/10 data-[selected]:data-[highlighted]:before:bg-blue-800/18 data-[dragging]:opacity-50 data-[drop-target-edge=before]:after:absolute data-[drop-target-edge=before]:after:top-[-1px] data-[drop-target-edge=before]:after:left-1 data-[drop-target-edge=before]:after:right-1 data-[drop-target-edge=before]:after:h-0.5 data-[drop-target-edge=before]:after:bg-blue-800 data-[drop-target-edge=before]:after:content-[''] data-[drop-target-edge=after]:after:absolute data-[drop-target-edge=after]:after:bottom-[-1px] data-[drop-target-edge=after]:after:left-1 data-[drop-target-edge=after]:after:right-1 data-[drop-target-edge=after]:after:h-0.5 data-[drop-target-edge=after]:after:bg-blue-800 data-[drop-target-edge=after]:after:content-[''] pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
+                className="relative z-0 grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 text-neutral-900 dark:text-neutral-100 outline-hidden select-none before:absolute before:inset-x-1 before:inset-y-0 before:z-[-1] before:rounded-xs data-[highlighted]:before:bg-neutral-100 dark:data-[highlighted]:before:bg-neutral-800 data-[selected]:before:bg-blue-500/10 data-[selected]:data-[highlighted]:before:bg-blue-500/18 data-[dragging]:opacity-50 data-[drop-target-edge=before]:after:absolute data-[drop-target-edge=before]:after:top-[-1px] data-[drop-target-edge=before]:after:left-1 data-[drop-target-edge=before]:after:right-1 data-[drop-target-edge=before]:after:h-0.5 data-[drop-target-edge=before]:after:bg-blue-500 data-[drop-target-edge=before]:after:content-[''] data-[drop-target-edge=after]:after:absolute data-[drop-target-edge=after]:after:bottom-[-1px] data-[drop-target-edge=after]:after:left-1 data-[drop-target-edge=after]:after:right-1 data-[drop-target-edge=after]:after:h-0.5 data-[drop-target-edge=after]:after:bg-blue-500 data-[drop-target-edge=after]:after:content-[''] pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
               >
-                <LayerIcon type={icon} className="size-4 text-gray-400" />
+                <LayerIcon type={icon} className="size-4 text-neutral-400" />
                 <Listbox.ItemText>{label}</Listbox.ItemText>
               </Listbox.Item>
             ))}

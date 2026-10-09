@@ -17,6 +17,10 @@
   font-weight: 500;
   color: oklch(20.5% 0 0deg);
   cursor: default;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(97% 0 0deg);
+  }
 }
 
 .List {
@@ -33,7 +37,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid oklch(87% 0 0deg);
+    outline: 1px solid oklch(37.1% 0 0deg);
   }
 
   &:focus-visible {
@@ -59,6 +63,10 @@
   -webkit-user-select: none;
   user-select: none;
 
+  @media (prefers-color-scheme: dark) {
+    color: oklch(97% 0 0deg);
+  }
+
   @media (pointer: coarse) {
     padding-block: 0.625rem;
     font-size: 0.925rem;
@@ -77,14 +85,26 @@
     inset-inline: 0.25rem;
     border-radius: 0.25rem;
     background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
   }
 
   &[data-disabled] {
     color: oklch(70.8% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(55.6% 0 0deg);
+    }
   }
 
   &[data-disabled][data-highlighted]::before {
     background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(20.5% 0 0deg);
+    }
   }
 }
 
@@ -112,4 +132,8 @@
 .ItemArtist {
   font-size: 0.75rem;
   color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
 }
