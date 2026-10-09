@@ -55,6 +55,43 @@ describe('<Menu.Item />', () => {
     expect(onClick.mock.calls.length).toBe(1);
   });
 
+  it.skipIf(isJSDOM)('focuses an item before mouseup and click without hover focus', async () => {
+    let focusedAtMouseUp: Element | null = null;
+    let focusedAtClick: Element | null = null;
+    const { user } = await render(
+      <Menu.Root open highlightItemOnHover={false}>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <input aria-label="Start" />
+              <Menu.Item
+                closeOnClick={false}
+                onMouseUp={(event) => {
+                  focusedAtMouseUp = event.currentTarget.ownerDocument.activeElement;
+                }}
+                onClick={(event) => {
+                  focusedAtClick = event.currentTarget.ownerDocument.activeElement;
+                }}
+              >
+                Item
+              </Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const input = screen.getByRole('textbox', { name: 'Start' });
+    const item = screen.getByRole('menuitem', { name: 'Item' });
+    await user.click(input);
+    expect(input).toHaveFocus();
+
+    await user.click(item);
+
+    expect(focusedAtMouseUp).toBe(item);
+    expect(focusedAtClick).toBe(item);
+  });
+
   it.each([{ press: 'mouse' }, { press: 'Enter' }])(
     'preserves focus moved by onClick after $press activation',
     async ({ press }) => {
