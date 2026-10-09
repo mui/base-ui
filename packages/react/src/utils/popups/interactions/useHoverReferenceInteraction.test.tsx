@@ -5,7 +5,7 @@ import { isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 import { safePolygon } from './safePolygon';
 import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
-import { useHoverInteractionSharedState } from './useHoverInteractionSharedState';
+import { useHoverIntent } from './hoverIntent';
 import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
 import type { UseHoverReferenceInteractionProps } from './useHoverReferenceInteraction';
 import type { FloatingRootStore } from '../floating-root/FloatingRootStore';
@@ -21,8 +21,8 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
       useHoverReferenceInteraction(context.rootStore, {
         handleClose: safePolygon({ blockPointerEvents: block }),
       });
-      const hoverInteraction = useHoverInteractionSharedState(context.rootStore);
-      blockPointerEvents = hoverInteraction.handleCloseOptions?.blockPointerEvents;
+      const hoverIntent = useHoverIntent(context.rootStore);
+      blockPointerEvents = hoverIntent.handleCloseOptions?.blockPointerEvents;
 
       return null;
     }
