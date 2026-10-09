@@ -8,6 +8,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import {
   useImplicitActiveTrigger,
+  useOpenProp,
   useOpenStateTransitions,
   PopupHandleAttachment,
   usePopupRootStore,
@@ -62,7 +63,7 @@ export function useRenderDialogRoot<Payload>(
     true,
   );
 
-  store.useControlledProp('openProp', openProp);
+  useOpenProp(store, openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useSyncedValues(rootState);

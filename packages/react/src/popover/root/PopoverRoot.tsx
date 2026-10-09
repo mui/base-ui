@@ -13,6 +13,7 @@ import {
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
+  useOpenProp,
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
@@ -44,7 +45,7 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
     triggerIdProp,
   });
 
-  store.useControlledProp('openProp', openProp);
+  useOpenProp(store, openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   const open = store.useState('open');
