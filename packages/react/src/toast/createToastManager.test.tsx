@@ -1,10 +1,11 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, reactMajor, screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { List } from './utils/test-utils';
 import type { ToastObject } from './useToastManager';
+import type { ToastManager } from './createToastManager';
 
 describe.skipIf(!isJSDOM)('createToastManager', () => {
   const { render, clock } = createRenderer();
@@ -838,6 +839,162 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
 
       expect(onCloseSpy1.mock.calls.length).toBe(1);
       expect(onCloseSpy2.mock.calls.length).toBe(1);
+    });
+  });
+
+  describe('calls made while no provider is subscribed', () => {
+    it('shows a toast added before the provider mounts', async () => {
+      const toastManager = Toast.createToastManager();
+
+      toastManager.add({ title: 'added before mount' });
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      expect(screen.getByTestId('title')).toHaveTextContent('added before mount');
+    });
+
+    it('shows a toast added in a mount effect inside the provider', async () => {
+      const toastManager = Toast.createToastManager();
+
+      // Descendant effects run before the provider's own effects, so this call happens before the
+      // provider has subscribed to the manager. The id keeps StrictMode's second run an upsert.
+      function AddOnMount() {
+        React.useEffect(() => {
+          toastManager.add({ id: 'mount', title: 'added on mount' });
+        }, []);
+        return null;
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <AddOnMount />
+        </Toast.Provider>,
+      );
+
+      expect(screen.getByTestId('title')).toHaveTextContent('added on mount');
+    });
+
+    it('does not queue calls made on the server', async () => {
+      const toastManager = Toast.createToastManager();
+
+      vi.stubGlobal('window', undefined);
+      try {
+        toastManager.add({ title: 'added on the server' });
+      } finally {
+        vi.unstubAllGlobals();
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      expect(screen.queryByTestId('title')).toBe(null);
+    });
+
+    describe.skipIf(reactMajor < 19)('React.Activity', () => {
+      const Activity = (
+        React as typeof React & {
+          Activity: React.ComponentType<{ mode: 'visible' | 'hidden'; children: React.ReactNode }>;
+        }
+      ).Activity;
+
+      function App(props: { visible: boolean; toastManager: ToastManager }) {
+        return (
+          <Activity mode={props.visible ? 'visible' : 'hidden'}>
+            <Toast.Provider toastManager={props.toastManager}>
+              <Toast.Viewport>
+                <List />
+              </Toast.Viewport>
+            </Toast.Provider>
+          </Activity>
+        );
+      }
+
+      it('shows a toast added while the provider is hidden once it is revealed', async () => {
+        const toastManager = Toast.createToastManager();
+        const { setProps } = await render(<App visible toastManager={toastManager} />);
+
+        await act(async () => setProps({ visible: false }));
+        await act(async () => {
+          toastManager.add({ title: 'added while hidden' });
+        });
+
+        expect(screen.queryByTestId('title')).toBe(null);
+
+        await act(async () => setProps({ visible: true }));
+
+        expect(screen.getByTestId('title')).toHaveTextContent('added while hidden');
+
+        // The auto-dismiss timer starts once the toast reaches the revealed provider.
+        await clock.tickAsync(5000);
+
+        expect(screen.queryByTestId('title')).toBe(null);
+      });
+
+      it('closes a toast closed while the provider is hidden once it is revealed', async () => {
+        const toastManager = Toast.createToastManager();
+        const { setProps } = await render(<App visible toastManager={toastManager} />);
+
+        let toastId = '';
+        await act(async () => {
+          toastId = toastManager.add({ title: 'title', timeout: 0 });
+        });
+
+        expect(screen.getByTestId('title')).toHaveTextContent('title');
+
+        await act(async () => setProps({ visible: false }));
+        await act(async () => {
+          toastManager.close(toastId);
+        });
+        await act(async () => setProps({ visible: true }));
+
+        expect(screen.queryByTestId('title')).toBe(null);
+      });
+
+      it('shows the outcome of a promise toast created while the provider is hidden once it is revealed', async () => {
+        const toastManager = Toast.createToastManager();
+        const { setProps } = await render(<App visible toastManager={toastManager} />);
+
+        await act(async () => setProps({ visible: false }));
+
+        // The provider only handles the queued promise after `promise()` has returned, so the
+        // manager must keep the provider's derived promise from rejecting unhandled (Vitest fails
+        // the run on unhandled rejections).
+
+        let caughtError: unknown;
+        await act(async () => {
+          toastManager
+            .promise(Promise.reject(new Error('failed')), {
+              loading: 'loading',
+              success: 'success',
+              error: 'error',
+            })
+            .catch((error) => {
+              caughtError = error;
+            });
+        });
+
+        expect(caughtError).toBeInstanceOf(Error);
+        expect(screen.queryByTestId('description')).toBe(null);
+
+        await act(async () => setProps({ visible: true }));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('description')).toHaveTextContent('error');
+      });
     });
   });
 });

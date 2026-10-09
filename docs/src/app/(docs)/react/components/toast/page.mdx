@@ -62,6 +62,8 @@ This enables you to queue a toast from anywhere in the app (such as in functions
 
 The created `toastManager` exposes the same `add`, `close`, `update`, and `promise` methods as the `Toast.useToastManager()` hook. Unlike the hook, it does not return the reactive `toasts` array, since it lives outside the React tree.
 
+Calls made before the `<Toast.Provider>` using the manager has mounted, or while it is inside a hidden `<Activity>`, are queued and applied in order once it mounts or is revealed.
+
 ```tsx title="Creating a manager instance"
 const toastManager = Toast.createToastManager();
 ```
