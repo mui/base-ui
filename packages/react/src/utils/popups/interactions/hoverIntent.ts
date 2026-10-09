@@ -15,7 +15,6 @@ import type {
 } from '../types';
 import { isInteractiveElement } from '../element';
 import { isMouseLikePointerType } from '../event';
-import { getNodeChildren } from '../tree/nodes';
 import type { HandleClose, HandleCloseContextBase, HandleCloseOptions } from './useHoverShared';
 import {
   getDelay,
@@ -431,8 +430,8 @@ export class HoverIntent {
 
     const doc = ownerDocument(positionerElement);
 
-    const parentFloating = tree?.nodesRef.current.find((node) => node.id === parentId)?.context
-      ?.elements.floating as HTMLElement | null;
+    const parentFloating = tree?.getNode(parentId)?.context?.elements
+      .floating as HTMLElement | null;
 
     if (parentFloating) {
       parentFloating.style.pointerEvents = '';
@@ -485,9 +484,7 @@ export class HoverIntent {
       tree &&
       currentNodeId &&
       isElement(relatedTarget) &&
-      getNodeChildren(tree.nodesRef.current, currentNodeId, false).some((node) =>
-        contains(node.context?.elements.floating, relatedTarget),
-      );
+      tree.descendantContains(currentNodeId, relatedTarget, false);
 
     if (isMovingIntoDescendantFloating) {
       return;

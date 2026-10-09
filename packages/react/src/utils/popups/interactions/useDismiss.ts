@@ -24,7 +24,6 @@ import { REASONS } from '../../../internals/reasons';
 import { createAttribute } from '../createAttribute';
 import { isEventTargetWithin, isRootElement } from '../element';
 import { isReactEvent, isVirtualClick } from '../event';
-import { getNodeChildren } from '../tree/nodes';
 
 type PressType = 'intentional' | 'sloppy';
 
@@ -182,16 +181,10 @@ export function useDismiss(
     storeContext.insideReactTree = false;
   });
 
-  const hasBlockingChild = useStableCallback(
-    (bubbleKey: 'escapeKeyBubbles' | 'outsidePressBubbles') => {
-      const nodeId = storeContext.positioning?.nodeId;
-      const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
-
-      return children.some(
-        (child) => child.context?.open && !child.context.rootStore.context[bubbleKey],
-      );
-    },
-  );
+  const hasBlockingChild = useStableCallback((dismissal: 'escapeKey' | 'outsidePress') => {
+    const nodeId = storeContext.positioning?.nodeId;
+    return tree ? tree.hasBlockingChild(nodeId, dismissal) : false;
+  });
 
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
     return (
@@ -231,7 +224,7 @@ export function useDismiss(
         return;
       }
 
-      if (!escapeKeyBubbles && hasBlockingChild('escapeKeyBubbles')) {
+      if (!escapeKeyBubbles && hasBlockingChild('escapeKey')) {
         return;
       }
 
@@ -399,9 +392,9 @@ export function useDismiss(
       const nodeId = storeContext.positioning?.nodeId;
       const targetIsInsideChildren =
         tree &&
-        getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
-          isEventTargetWithin(event, node.context?.elements.floating),
-        );
+        tree
+          .descendants(nodeId)
+          .some((node) => isEventTargetWithin(event, node.context?.elements.floating));
 
       return isEventWithinOwnElements(event) || targetIsInsideChildren;
     }
@@ -533,7 +526,7 @@ export function useDismiss(
         return;
       }
 
-      if (hasBlockingChild('outsidePressBubbles')) {
+      if (hasBlockingChild('outsidePress')) {
         return;
       }
 

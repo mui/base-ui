@@ -120,7 +120,7 @@ export function useBaseUIFloating(
   useIsoLayoutEffect(() => {
     store.context.positioning = positioning;
 
-    const node = tree?.nodesRef.current.find((n) => n.id === nodeId);
+    const node = tree?.getNode(nodeId);
     if (node) {
       node.context = context;
     }
