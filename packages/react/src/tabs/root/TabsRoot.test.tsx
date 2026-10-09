@@ -2539,7 +2539,9 @@ describe('<Tabs.Root />', () => {
               value={value}
               onValueChange={(nextValue) => {
                 onValueChange(nextValue);
-                Promise.resolve().then(() => setValue(nextValue));
+                if (nextValue !== null) {
+                  Promise.resolve().then(() => setValue(nextValue));
+                }
               }}
             >
               <Tabs.List activateOnFocus={activateOnFocus}>
