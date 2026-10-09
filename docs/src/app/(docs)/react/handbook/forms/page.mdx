@@ -100,13 +100,13 @@ import { Slider } from '@base-ui/react/slider';
 <Form>
   <Field.Root>
     {/* @highlight-start */}
-    <Fieldset.Root render={<Slider.Root />}>
+    <Fieldset.Root render={<Slider.Root defaultValue={[25, 75]} />}>
       <Fieldset.Legend>Price range</Fieldset.Legend>
       {/* @highlight-end */}
       <Slider.Control>
         <Slider.Track>
-          <Slider.Thumb aria-label="Minimum price" />
-          <Slider.Thumb aria-label="Maximum price" />
+          <Slider.Thumb index={0} aria-label="Minimum price" />
+          <Slider.Thumb index={1} aria-label="Maximum price" />
         </Slider.Track>
       </Slider.Control>
       {/* @highlight */}
@@ -118,8 +118,18 @@ import { Slider } from '@base-ui/react/slider';
     <Fieldset.Root render={<RadioGroup />}>
       <Fieldset.Legend>Storage type</Fieldset.Legend>
       {/* @highlight-end */}
-      <Radio.Root value="ssd" />
-      <Radio.Root value="hdd" />
+      <Field.Item>
+        <Field.Label>
+          <Radio.Root value="ssd" />
+          SSD
+        </Field.Label>
+      </Field.Item>
+      <Field.Item>
+        <Field.Label>
+          <Radio.Root value="hdd" />
+          HDD
+        </Field.Label>
+      </Field.Item>
       {/* @highlight */}
     </Fieldset.Root>
   </Field.Root>
