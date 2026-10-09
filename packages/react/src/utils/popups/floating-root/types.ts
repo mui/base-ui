@@ -1,4 +1,5 @@
 import type {
+  Placement,
   UseFloatingOptions as UsePositionOptions,
   UseFloatingReturn as UsePositionFloatingReturn,
   VirtualElement,
@@ -118,10 +119,51 @@ export interface FloatingTreeEventMap {
 
 export type FloatingTreeEvents = FloatingEventEmitter<FloatingTreeEventMap>;
 
+/**
+ * What `useFloating()` publishes about a positioned popup for the interaction hooks: its placement
+ * and elements, and the id of its node in the popup tree. Written in a layout effect after every
+ * render.
+ */
+export interface FloatingPositioningData {
+  placement: Placement;
+  elements: ExtendedElements;
+  nodeId: string | undefined;
+  refs: { floating: React.RefObject<HTMLElement | null> };
+}
+
+/**
+ * Values one popup's interaction hooks share with each other, and with other popups in the same
+ * popup tree, without re-rendering.
+ */
 export interface ContextData {
+  /**
+   * The event that opened the popup. Written by `dispatchOpenChange`; NavigationMenu clears it.
+   */
   openEvent?: Event | undefined;
-  floatingContext?: FloatingContext | undefined;
-  [key: string]: any;
+  /**
+   * Whether the current press or focus started inside the popup's React tree. Written by
+   * `useDismiss` and `FloatingFocusManager`.
+   */
+  insideReactTree?: boolean | undefined;
+  /**
+   * The popup's positioning. Written by `useFloating()`.
+   */
+  positioning?: FloatingPositioningData | undefined;
+  /**
+   * The popup's list navigation orientation, which nested lists read from their parent. Written by
+   * `useListNavigation`.
+   */
+  orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
+  /**
+   * Whether an Escape key press bubbles to the parent popup. Written by `useDismiss` and never
+   * cleared.
+   */
+  __escapeKeyBubbles?: boolean | undefined;
+  /**
+   * Whether an outside press bubbles to the parent popup. Written by `useDismiss` and never
+   * cleared.
+   */
+  __outsidePressBubbles?: boolean | undefined;
 }
 
 /**

@@ -10,7 +10,7 @@ import { createChangeEventDetails } from '../../../internals/createBaseUIEventDe
 import { REASONS } from '../../../internals/reasons';
 import type {
   Delay,
-  FloatingContext,
+  FloatingPositioningData,
   FloatingRootContext,
   FloatingRootContextValues,
   FloatingTreeType,
@@ -314,7 +314,7 @@ export class HoverIntent {
     this.restTimeout.clear();
     this.restTimeoutPending = false;
 
-    const handleCloseContextBase = this.getFloatingContext() ?? options.getHandleCloseContext?.();
+    const handleCloseContextBase = this.getPositioning() ?? options.getHandleCloseContext?.();
 
     if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
       return;
@@ -502,7 +502,7 @@ export class HoverIntent {
       return;
     }
 
-    const currentNodeId = this.getFloatingContext()?.nodeId ?? options.nodeId;
+    const currentNodeId = this.getPositioning()?.nodeId ?? options.nodeId;
     const relatedTarget = event.relatedTarget;
     const isMovingIntoDescendantFloating =
       tree &&
@@ -582,11 +582,11 @@ export class HoverIntent {
   }
 
   /**
-   * The safe polygon reads the popup's placement and tree node id from the positioning context.
+   * The safe polygon reads the popup's placement and tree node id from the positioning data.
    * `useFloating()` keeps it up to date in a layout effect.
    */
-  private getFloatingContext(): FloatingContext | undefined {
-    return this.store.context.dataRef.current.floatingContext;
+  private getPositioning(): FloatingPositioningData | undefined {
+    return this.store.context.dataRef.current.positioning;
   }
 }
 

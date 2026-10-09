@@ -279,7 +279,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const { events, dataRef } = store.context;
 
-  const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
+  const getNodeId = useStableCallback(() => dataRef.current.positioning?.nodeId);
 
   const ignoreInitialFocus = initialFocus === false;
   // A typeable combobox reference (e.g. input/textarea) with `initialFocus={false}`

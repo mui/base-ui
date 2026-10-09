@@ -207,7 +207,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
           // and not the element that actually has received focus if it is located
           // inside a shadow root.
           if (
-            contains(dataRef.current.floatingContext?.refs.floating.current, activeEl) ||
+            contains(dataRef.current.positioning?.refs.floating.current, activeEl) ||
             contains(lastTrigger, activeEl) ||
             movedToFocusGuard
           ) {
