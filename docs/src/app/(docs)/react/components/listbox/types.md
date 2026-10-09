@@ -392,6 +392,43 @@ type ListboxLoadingTriggerState = {
 
 ## Additional Types
 
+### ListboxItemDataAttributes
+
+Data attributes of [Item](#item).
+
+```typescript
+declare namespace ListboxItemDataAttributes {
+  /** Present when the listbox item is selected. */
+  const selected: 'data-selected';
+  /** Present when the listbox item is highlighted. */
+  const highlighted: 'data-highlighted';
+  /** Present when the listbox item is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the listbox item is being dragged. */
+  const dragging: 'data-dragging';
+  /** Present when the listbox item is a drop target. */
+  const dropTarget: 'data-drop-target';
+  /**
+   * Indicates the closest edge when the item is a drop target.
+   * The value is `'before'` or `'after'`.
+   */
+  const dropTargetEdge: 'data-drop-target-edge';
+}
+```
+
+### ListboxListDataAttributes
+
+Data attributes of [List](#list).
+
+```typescript
+declare namespace ListboxListDataAttributes {
+  /** Present when the listbox is disabled. */
+  const disabled: 'data-disabled';
+  /** Indicates the orientation of the listbox. */
+  const orientation: 'data-orientation';
+}
+```
+
 ### SelectionMode
 
 The selection mode determines how user interactions (clicks, keyboard)
@@ -427,7 +464,7 @@ type ListboxDragAndDropTargetEdge = 'before' | 'after';
 - `Listbox.Group`: `Listbox.Group`, `Listbox.Group.State`, `Listbox.Group.Props`
 - `Listbox.GroupLabel`: `Listbox.GroupLabel`, `Listbox.GroupLabel.State`, `Listbox.GroupLabel.Props`
 - `Listbox.LoadingTrigger`: `Listbox.LoadingTrigger`, `Listbox.LoadingTrigger.State`, `Listbox.LoadingTrigger.Props`
-- `Default`: `SelectionMode`, `ListboxRootActions`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemTextState`, `ListboxItemTextProps`, `ListboxItemDragHandleState`, `ListboxItemDragHandleProps`, `ListboxDragAndDropProviderState`, `ListboxDragAndDropProviderProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`, `ListboxLoadingTriggerState`, `ListboxLoadingTriggerProps`
+- `Default`: `SelectionMode`, `ListboxListDataAttributes`, `ListboxItemDataAttributes`, `ListboxRootActions`, `ListboxRootProps`, `ListboxRootState`, `ListboxRootChangeEventReason`, `ListboxRootChangeEventDetails`, `ListboxLabelState`, `ListboxLabelProps`, `ListboxListState`, `ListboxListProps`, `ListboxItemState`, `ListboxItemProps`, `ListboxItemIndicatorState`, `ListboxItemIndicatorProps`, `ListboxItemTextState`, `ListboxItemTextProps`, `ListboxItemDragHandleState`, `ListboxItemDragHandleProps`, `ListboxDragAndDropProviderState`, `ListboxDragAndDropProviderProps`, `ListboxGroupState`, `ListboxGroupProps`, `ListboxGroupLabelState`, `ListboxGroupLabelProps`, `ListboxLoadingTriggerState`, `ListboxLoadingTriggerProps`
 
 ## Canonical Types
 

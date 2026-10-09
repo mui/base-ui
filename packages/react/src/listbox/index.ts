@@ -12,3 +12,6 @@ export type * from './group/ListboxGroup';
 export type * from './group-label/ListboxGroupLabel';
 export type * from './loading-trigger/ListboxLoadingTrigger';
 export type { SelectionMode } from './utils/selectionReducer';
+
+export * as ListboxListDataAttributes from './list/ListboxListDataAttributes';
+export * as ListboxItemDataAttributes from './item/ListboxItemDataAttributes';
