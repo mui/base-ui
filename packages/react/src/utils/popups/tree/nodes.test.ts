@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import type { FloatingContext } from '../floating-root/types';
+import type { ContextData, FloatingNodeSnapshot } from '../floating-root/types';
 import {
   descendantContains,
   getNode,
@@ -10,8 +10,8 @@ import {
   treeContains,
 } from './nodes';
 
-const contextOpen = { open: true } as FloatingContext;
-const contextClosed = { open: false } as FloatingContext;
+const contextOpen = createContext(true);
+const contextClosed = createContext(false);
 
 test('getNodeChildren returns an array of children, ignoring closed ones when onlyOpenChildren=true', () => {
   expect(
@@ -124,13 +124,13 @@ test('getNodeAncestors returns an array of ancestors', () => {
 
 function createContext(
   open: boolean,
-  options: { floating?: HTMLElement; data?: FloatingContext['dataRef']['current'] } = {},
+  options: { floating?: HTMLElement; data?: ContextData } = {},
 ) {
   return {
     open,
     elements: { floating: options.floating ?? null, domReference: null },
     dataRef: { current: options.data ?? {} },
-  } as unknown as FloatingContext;
+  } satisfies FloatingNodeSnapshot;
 }
 
 test('getNode returns the node with the given id', () => {

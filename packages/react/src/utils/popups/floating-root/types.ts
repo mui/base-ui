@@ -217,10 +217,22 @@ export type FloatingContext = Omit<
   rootStore: FloatingRootContext;
 };
 
+/**
+ * What a popup tree member publishes about itself for the other members: whether it is open, its
+ * elements, and its interaction hooks' shared data. It is a snapshot taken in a layout effect after
+ * the member renders, not live state, so a node the member no longer updates keeps its last
+ * snapshot.
+ */
+export interface FloatingNodeSnapshot {
+  open: boolean;
+  elements: Pick<ExtendedElements, 'floating' | 'domReference'>;
+  dataRef: React.RefObject<ContextData>;
+}
+
 export interface FloatingNodeType {
   id: string | undefined;
   parentId: string | null;
-  context?: FloatingContext | undefined;
+  context?: FloatingNodeSnapshot | undefined;
 }
 
 export type FloatingTreeType = FloatingTreeStore;

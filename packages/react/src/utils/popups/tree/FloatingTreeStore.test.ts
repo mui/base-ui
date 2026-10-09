@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import type { FloatingContext } from '../floating-root/types';
+import type { FloatingNodeSnapshot } from '../floating-root/types';
 import { FloatingTreeStore } from './FloatingTreeStore';
 
 function createContext(open: boolean, floating: HTMLElement | null = null) {
@@ -7,7 +7,7 @@ function createContext(open: boolean, floating: HTMLElement | null = null) {
     open,
     elements: { floating, domReference: null },
     dataRef: { current: {} },
-  } as unknown as FloatingContext;
+  } satisfies FloatingNodeSnapshot;
 }
 
 it('answers queries about the nodes it holds', () => {

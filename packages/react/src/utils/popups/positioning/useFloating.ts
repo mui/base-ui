@@ -7,6 +7,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type {
   FloatingContext,
+  FloatingNodeSnapshot,
   FloatingPositioningData,
   FloatingRootContext,
   NarrowedElement,
@@ -120,12 +121,17 @@ export function useBaseUIFloating(
     [position.placement, elements, nodeId, position.refs.floating],
   );
 
+  const snapshot = React.useMemo<FloatingNodeSnapshot>(
+    () => ({ open, elements, dataRef: store.context.dataRef }),
+    [open, elements, store],
+  );
+
   useIsoLayoutEffect(() => {
     store.context.dataRef.current.positioning = positioning;
 
     const node = tree?.getNode(nodeId);
     if (node) {
-      node.context = context;
+      node.context = snapshot;
     }
   });
 
