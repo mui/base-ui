@@ -3,7 +3,6 @@ import { Timeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import type { Rect, Side } from '@floating-ui/react-dom';
 import type { HandleClose, HandleCloseOptions } from './useHoverShared';
-import { getNodeChildren } from '../tree/nodes';
 
 /* eslint-disable no-nested-ternary */
 
@@ -165,7 +164,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
       }
 
       function hasOpenChildNode() {
-        return Boolean(tree && getNodeChildren(tree.nodesRef.current, nodeId).length > 0);
+        return Boolean(tree && tree.hasOpenDescendant(nodeId));
       }
 
       function closeIfNoOpenChild() {

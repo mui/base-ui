@@ -9,7 +9,6 @@ import { createChangeEventDetails } from '../../../internals/createBaseUIEventDe
 import { REASONS } from '../../../internals/reasons';
 import { usePopupParentNodeId, usePopupTree } from '../tree/PopupTree';
 import type { PopupInteractionStore } from '../types';
-import { getNodeChildren } from '../tree/nodes';
 import { useHoverIntent } from './hoverIntent';
 
 export type UseHoverFloatingInteractionProps = {
@@ -89,7 +88,7 @@ export function useHoverPopupInteraction(
     }
 
     function hasParentChildren() {
-      return !!(tree && parentId && getNodeChildren(tree.nodesRef.current, parentId).length > 0);
+      return !!(tree && parentId && tree.hasOpenDescendant(parentId));
     }
 
     function onFloatingMouseEnter() {

@@ -25,7 +25,6 @@ import {
   getPreviousTabbable,
 } from './tabbable';
 import type { FocusableElement } from './tabbable';
-import { getNodeAncestors, getNodeChildren } from '../tree/nodes';
 import { isElementVisible } from '../../../internals/composite/listIndex';
 import type { PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
@@ -475,19 +474,23 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
           triggers.hasMatchingElement((trigger) => contains(trigger, relatedTarget)) ||
           isRelatedFocusGuard ||
           (tree &&
-            (getNodeChildren(tree.nodesRef.current, nodeId).find(
-              (node) =>
-                contains(node.context?.elements.floating, relatedTarget) ||
-                contains(node.context?.elements.domReference, relatedTarget),
-            ) ||
-              getNodeAncestors(tree.nodesRef.current, nodeId).find(
+            (tree
+              .descendants(nodeId)
+              .find(
                 (node) =>
-                  [
-                    node.context?.elements.floating,
-                    getPopupFocusElement(node.context?.elements.floating),
-                  ].includes(relatedTarget) ||
-                  node.context?.elements.domReference === relatedTarget,
-              )))
+                  contains(node.context?.elements.floating, relatedTarget) ||
+                  contains(node.context?.elements.domReference, relatedTarget),
+              ) ||
+              tree
+                .ancestors(nodeId)
+                .find(
+                  (node) =>
+                    [
+                      node.context?.elements.floating,
+                      getPopupFocusElement(node.context?.elements.floating),
+                    ].includes(relatedTarget) ||
+                    node.context?.elements.domReference === relatedTarget,
+                )))
         );
 
         if (currentTarget === domReference && popupFocusElement) {
@@ -618,7 +621,7 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
       portalContext?.portalNode?.querySelectorAll(`[${createAttribute('portal')}]`) || [],
     );
 
-    const ancestors = tree ? getNodeAncestors(tree.nodesRef.current, getNodeId()) : [];
+    const ancestors = tree ? tree.ancestors(getNodeId()) : [];
     const rootAncestorComboboxDomReference = ancestors.find((node) =>
       isTypeableCombobox(node.context?.elements.domReference || null),
     )?.context?.elements.domReference;
@@ -879,10 +882,7 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
       const isFocusInsidePopupTree =
         contains(floating, activeEl) ||
         insideElements.some((element) => element === activeEl || contains(element, activeEl)) ||
-        (tree &&
-          getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
-            contains(node.context?.elements.floating, activeEl),
-          ));
+        (tree && tree.descendantContains(getNodeId(), activeEl, false));
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
