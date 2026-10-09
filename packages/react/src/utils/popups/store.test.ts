@@ -1005,16 +1005,22 @@ describe('createPopupOpenState', () => {
     const trigger = document.createElement('button');
     trigger.id = 'trigger-id';
 
-    expect(createPopupOpenState(state, true, undefined, false).openedWithoutTrigger).toBe(true);
-    expect(createPopupOpenState(state, true, trigger, false).openedWithoutTrigger).toBe(false);
+    expect(
+      createPopupOpenState(state, true, undefined, false).triggerOwnership.openedWithoutTrigger,
+    ).toBe(true);
+    expect(
+      createPopupOpenState(state, true, trigger, false).triggerOwnership.openedWithoutTrigger,
+    ).toBe(false);
   });
 
   it('keeps the trigger-less open flag through a close request', () => {
     // A controlled root may decline the close and stay open; the Root resets the flag itself once
     // the popup is effectively closed.
     const state = createInitialPopupStoreState();
-    state.openedWithoutTrigger = true;
+    state.triggerOwnership = { ...state.triggerOwnership, openedWithoutTrigger: true };
 
-    expect(createPopupOpenState(state, false, undefined, false).openedWithoutTrigger).toBe(true);
+    expect(
+      createPopupOpenState(state, false, undefined, false).triggerOwnership.openedWithoutTrigger,
+    ).toBe(true);
   });
 });

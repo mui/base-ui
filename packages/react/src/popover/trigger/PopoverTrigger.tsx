@@ -19,7 +19,7 @@ import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
-import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
+import { useTriggerOwnership } from '../../utils/popups/popupStoreUtils';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/popups/interactions/useOpenInteractionType';
@@ -65,10 +65,11 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerOwnership(
     thisTriggerId,
     triggerElementRef,
     store,
+    'first-registrant',
     {
       payload,
       disabled,

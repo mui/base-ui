@@ -113,8 +113,8 @@ function withRecord(
  * Open or close request.
  *
  * An open request makes its trigger the owner, or leaves the popup without one when it carries no
- * trigger. A close request keeps the owner unless it names a trigger, so exit animations play and
- * focus returns to the trigger that opened the popup. The trigger is identified by its DOM id here;
+ * trigger. A close request keeps the owner unless it names a different trigger, so exit animations
+ * play and focus returns to the trigger that opened the popup. The trigger is identified by its DOM id here;
  * settling hands the owner over to the trigger's registered id when the two differ.
  *
  * @param state The current ownership state.
@@ -129,7 +129,9 @@ export function applyOpenRequest(
   const triggerId = trigger?.id ?? null;
 
   let { activeTriggerId, activeTriggerElement } = state;
-  if (triggerId || open) {
+  // The active id can differ from the element's own `id` once the Root matches the element to its
+  // registered trigger id, so a close naming the active trigger keeps it.
+  if (open || (triggerId && trigger !== state.activeTriggerElement)) {
     activeTriggerId = triggerId;
     activeTriggerElement = trigger ?? null;
   }
@@ -351,6 +353,17 @@ export function isTriggerStillLost(
  */
 export function releaseOwner(): TriggerOwnershipChanges {
   return { activeTriggerId: null, activeTriggerElement: null };
+}
+
+/**
+ * Unmounted: the popup finished closing and unmounted. The owner is released, unless a request
+ * reopened the popup during its exit: that request's trigger stays the owner. The last trigger is
+ * kept either way.
+ *
+ * @param open Whether the popup is open, meaning a request reopened it during the exit.
+ */
+export function releaseUnmountedOwner(open: boolean): TriggerOwnershipChanges | null {
+  return open ? null : releaseOwner();
 }
 
 /**

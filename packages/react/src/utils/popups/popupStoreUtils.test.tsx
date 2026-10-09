@@ -70,7 +70,8 @@ describe('PopupTriggerMap', () => {
 describe('useTriggerRegistration', () => {
   it('registers and unregisters closed triggers through the context map without notifying the store', () => {
     const store = createTestPopupStore();
-    const spy = vi.spyOn(store, 'set');
+    const spy = vi.fn();
+    store.subscribe(spy);
     const element = document.createElement('button');
 
     const { unmount } = render(
@@ -79,19 +80,20 @@ describe('useTriggerRegistration', () => {
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
     expect(store.context.triggerElements.hasElement(element)).toBe(true);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
   });
 
   it('re-registers closed triggers when the trigger id changes without notifying the store', () => {
     const store = createTestPopupStore();
-    const spy = vi.spyOn(store, 'set');
+    const spy = vi.fn();
+    store.subscribe(spy);
     const element = document.createElement('button');
 
     const { rerender, unmount } = render(
@@ -99,20 +101,20 @@ describe('useTriggerRegistration', () => {
     );
 
     expect(store.context.triggerElements.getById('first')).toBe(element);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     rerender(<TestTrigger id="second" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('first')).toBeUndefined();
     expect(store.context.triggerElements.getById('second')).toBe(element);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('second')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -217,7 +219,7 @@ describe('useTriggerRegistration', () => {
     });
   });
 
-  it('keeps triggerCount reactive while the popup is open', () => {
+  it('keeps the lone-trigger flag reactive while the popup is open', () => {
     const store = createTestPopupStore();
     const element = document.createElement('button');
     store.set('open', true);
@@ -225,11 +227,11 @@ describe('useTriggerRegistration', () => {
     const { unmount } = render(<TestTrigger id="trigger" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
-    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
-    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
   });
 });
 
@@ -268,10 +270,17 @@ describe('popupId selector', () => {
   it('associates a lone trigger with the popup id unless the popup opened without a trigger', () => {
     const store = createTestPopupStore();
 
-    store.update({ open: true, defaultPopupId: 'popup-id', triggerCount: 1 });
+    store.update({
+      open: true,
+      defaultPopupId: 'popup-id',
+      triggerOwnership: { ...store.state.triggerOwnership, hasLoneTrigger: true },
+    });
     expect(store.select('triggerPopupId', 'trigger')).toBe('popup-id');
 
-    store.set('openedWithoutTrigger', true);
+    store.set('triggerOwnership', {
+      ...store.state.triggerOwnership,
+      openedWithoutTrigger: true,
+    });
     expect(store.select('triggerPopupId', 'trigger')).toBeUndefined();
   });
 });

@@ -9,6 +9,7 @@ import {
   isLoneTriggerClaimable,
   isTriggerStillLost,
   releaseOwner,
+  releaseUnmountedOwner,
   settleTriggerOwnership,
 } from './triggerOwnership';
 import type { TriggerOwnershipRecord, TriggerOwnershipState } from './triggerOwnership';
@@ -352,8 +353,16 @@ describe('triggerOwnership', () => {
   });
 
   describe('releasing the owner', () => {
-    it('releases the owner when it is lost or the popup unmounts', () => {
+    it('releases the owner when it is lost', () => {
       expect(releaseOwner()).toEqual({ activeTriggerId: null, activeTriggerElement: null });
+    });
+
+    it('releases the owner on unmount unless a request reopened the popup during its exit', () => {
+      expect(releaseUnmountedOwner(false)).toEqual({
+        activeTriggerId: null,
+        activeTriggerElement: null,
+      });
+      expect(releaseUnmountedOwner(true)).toBe(null);
     });
   });
 

@@ -9,7 +9,7 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 import { getInlineRectTriggerProps } from '../../utils/popups/inlineRect';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
-import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
+import { useTriggerOwnership } from '../../utils/popups/popupStoreUtils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
@@ -56,10 +56,11 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerOwnership(
     thisTriggerId,
     triggerElementRef,
     store,
+    'first-registrant',
     {
       payload,
       closeDelay: closeDelayWithDefault,

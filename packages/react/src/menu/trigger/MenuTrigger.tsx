@@ -27,7 +27,7 @@ import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
-import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
+import { useTriggerOwnership } from '../../utils/popups/popupStoreUtils';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
@@ -92,10 +92,11 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeId = useFloatingParentNodeId();
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerOwnership(
     thisTriggerId,
     triggerElementRef,
     store,
+    'first-registrant',
     {
       payload,
       closeDelay,
