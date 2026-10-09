@@ -32,7 +32,8 @@ import { useDismiss } from '../interactions/useDismiss';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
 import { Main as Navigation } from '../../../../test/floating-ui-tests/Navigation';
-import { useHover } from '../../../../test/floating-ui-tests/useHover';
+import { useHoverFloatingInteraction } from '../interactions/useHoverFloatingInteraction';
+import { useHoverReferenceInteraction } from '../interactions/useHoverReferenceInteraction';
 
 // TODO (@Janpot) It looks like the toHaveFocus assertion from @mui/internal-test-utils
 // is not working correctly with iframes and nested documents. Helper as a workaround
@@ -2704,9 +2705,14 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          const hover = useHover(context);
+          const hoverReferenceProps = useHoverReferenceInteraction(context.rootStore, {
+            triggerElementRef: refs.domReference,
+          });
+          useHoverFloatingInteraction(context.rootStore);
 
-          const { getReferenceProps, getFloatingProps } = useTestInteractions([hover]);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([
+            { reference: hoverReferenceProps },
+          ]);
 
           return (
             <>
@@ -2745,9 +2751,14 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          const hover = useHover(context);
+          const hoverReferenceProps = useHoverReferenceInteraction(context.rootStore, {
+            triggerElementRef: refs.domReference,
+          });
+          useHoverFloatingInteraction(context.rootStore);
 
-          const { getReferenceProps, getFloatingProps } = useTestInteractions([hover]);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([
+            { reference: hoverReferenceProps },
+          ]);
 
           return (
             <>

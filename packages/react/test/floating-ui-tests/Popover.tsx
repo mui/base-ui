@@ -14,9 +14,10 @@ import {
 import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useHoverFloatingInteraction } from '../../src/utils/popups/interactions/useHoverFloatingInteraction';
+import { useHoverReferenceInteraction } from '../../src/utils/popups/interactions/useHoverReferenceInteraction';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useFloating } from './useFloating';
-import { useHover } from './useHover';
 import styles from './Popover.module.css';
 
 /** @internal */
@@ -121,11 +122,16 @@ function PopoverComponent({
   const descriptionId = `${id}-description`;
   const triggerId = `${id}-trigger`;
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
+  const hoverStore = hover ? context.rootStore : fallbackContext;
+
+  const hoverReferenceProps = useHoverReferenceInteraction(hoverStore, {
+    handleClose: safePolygon({ blockPointerEvents: true }),
+    triggerElementRef: hover ? refs.domReference : undefined,
+  });
+  useHoverFloatingInteraction(hoverStore);
 
   const { getReferenceProps, getFloatingProps } = useTestInteractions([
-    useHover(hover ? context : fallbackContext, {
-      handleClose: safePolygon({ blockPointerEvents: true }),
-    }),
+    { reference: hoverReferenceProps },
     useClick(context.rootStore),
     useDismiss(context.rootStore, {
       bubbles,
