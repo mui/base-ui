@@ -78,18 +78,25 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       'aria-selected': ariaSelected,
       onMouseDown(event: React.MouseEvent) {
         const isNativeButton = event.currentTarget.tagName === 'BUTTON';
-        const shouldFocusNativeButton =
-          platform.engine.webkit && isNativeButton && event.button === 0 && !event.defaultPrevented;
+        const isPrimaryPress = event.button === 0;
 
         // Real focus stays on the input or list that owns virtual navigation.
         if (virtualFocus) {
           event.preventDefault();
-        } else if (shouldFocusNativeButton) {
-          // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
-          // Prevent its default blur before focusing, so focus survives until click.
-          event.preventDefault();
-          itemRef.current?.focus({ preventScroll: true });
+          return;
         }
+
+        if (!platform.engine.webkit || !isNativeButton) {
+          return;
+        }
+        if (!isPrimaryPress || event.defaultPrevented) {
+          return;
+        }
+
+        // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
+        // Prevent its default blur before focusing, so focus survives until click.
+        event.preventDefault();
+        itemRef.current?.focus({ preventScroll: true });
       },
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
