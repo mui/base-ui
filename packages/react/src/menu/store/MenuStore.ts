@@ -72,9 +72,6 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
   /** Whether a filterable menu's trigger was last pressed by a screen reader. */
   virtualPress?: boolean | undefined;
-  readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
-  readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
-  readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   /** The event that last opened or closed the menu. Cleared once the menu is closed. */
   openEvent: Event | undefined;
   /**
@@ -399,9 +396,6 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
     reportedItem: undefined,
     allowMouseUpTriggerRef: { current: false },
     virtualFocusRef: undefined,
-    triggerFocusTargetRef: React.createRef<HTMLElement>(),
-    beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
-    beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     openEvent: undefined,
     allowTouchToClose: true,
     allowTouchToCloseTimeout: new Timeout(),

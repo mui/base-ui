@@ -1,14 +1,18 @@
 import type * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getTarget } from '@base-ui/utils/shadowDom';
-import type { FloatingRootContext, FloatingRootContextValues } from '../floating-root/types';
+import type { FloatingRootContextValues } from '../floating-root/types';
+import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
 import { createAttribute } from '../createAttribute';
 import { isVirtualClick, isVirtualPointerEvent } from '../event';
 import { resolveRef } from '../../resolveRef';
+import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
+import { getTabbableNearElement, isOutsideEvent } from '../focus/tabbable';
 
 /**
  * When an outside press dismisses a popup.
@@ -111,6 +115,18 @@ export interface FocusReturnSession {
 type OpenChangeListener = (details: FloatingUIOpenChangeDetails) => void;
 
 /**
+ * The popup store members a `PopupDismissal` relies on. Popup stores, `FloatingRootStore` and the
+ * detached trigger views of popup stores all satisfy it.
+ *
+ * A dismissal keeps the store it was first requested with, so every caller must pass the same
+ * store for a given `context`: the dismissal's focus guards close the popup through that store.
+ */
+export interface PopupDismissalStore {
+  readonly context: FloatingRootContextValues;
+  setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<typeof REASONS.focusOut>): void;
+}
+
+/**
  * The dismissal and focus return state of one popup. Shared by its `useDismiss` (on the Root) and
  * its focus manager (on the Popup), which stay thin adapters that attach their listeners at the
  * right times.
@@ -120,7 +136,88 @@ export class PopupDismissal {
 
   private readonly openChangeListeners = new Set<OpenChangeListener>();
 
-  constructor(private readonly store: Pick<FloatingRootContext, 'context'>) {}
+  /**
+   * The focus guard rendered before an open popup's trigger. Shared with the focus manager through
+   * `getInsideElements` so that blurring the trigger onto this guard does not close the popup
+   * before the guard's own focus handler runs.
+   */
+  readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null> = { current: null };
+
+  /**
+   * The focus guard rendered after an open popup's trigger, which tabbing forward out of the popup
+   * lands on.
+   */
+  readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null> = { current: null };
+
+  /**
+   * The focus guard at the start of the popup's content.
+   */
+  readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null> = { current: null };
+
+  constructor(private readonly store: PopupDismissalStore) {}
+
+  /**
+   * Focus guard rule: focusing the guard before the trigger closes the popup and moves focus to the
+   * tabbable element before the trigger.
+   *
+   * @param event The guard's focus event.
+   * @param positionerElement The popup's positioner.
+   * @param triggerElementRef The trigger, used as the anchor if the guard unmounted. Read after the
+   *   close, as closing may re-render the trigger into a different element.
+   */
+  handleBeforeTriggerGuardFocus(
+    event: React.FocusEvent<HTMLElement>,
+    positionerElement: HTMLElement | null,
+    triggerElementRef: React.RefObject<HTMLElement | null>,
+  ) {
+    this.closeAndFocus(event, -1, positionerElement, triggerElementRef);
+  }
+
+  /**
+   * Focus guard rule: focusing the guard after the trigger moves focus into the popup when focus
+   * comes from outside it, and otherwise (tabbing forward out of the popup) closes the popup and
+   * moves focus to the tabbable element after the trigger.
+   *
+   * @param event The guard's focus event.
+   * @param positionerElement The popup's positioner.
+   * @param triggerElementRef The trigger, used as the anchor if the guard unmounted. Read after the
+   *   close, as closing may re-render the trigger into a different element.
+   */
+  handleTriggerFocusTargetFocus(
+    event: React.FocusEvent<HTMLElement>,
+    positionerElement: HTMLElement | null,
+    triggerElementRef: React.RefObject<HTMLElement | null>,
+  ) {
+    if (positionerElement && isOutsideEvent(event, positionerElement)) {
+      this.beforeContentFocusGuardRef.current?.focus();
+    } else {
+      this.closeAndFocus(event, 1, positionerElement, triggerElementRef);
+    }
+  }
+
+  private closeAndFocus(
+    event: React.FocusEvent<HTMLElement>,
+    direction: 1 | -1,
+    positionerElement: HTMLElement | null,
+    triggerElementRef: React.RefObject<HTMLElement | null>,
+  ) {
+    const guard = event.currentTarget;
+
+    ReactDOM.flushSync(() => {
+      this.store.setOpen(
+        false,
+        createChangeEventDetails(REASONS.focusOut, event.nativeEvent, guard),
+      );
+    });
+
+    // The close callback may change the tab order. Resolve it after the flush, using the trigger as
+    // the anchor if the guard unmounted, even when its tabIndex is -1.
+    getTabbableNearElement(
+      guard.isConnected ? guard : triggerElementRef.current,
+      direction,
+      positionerElement,
+    )?.focus();
+  }
 
   /**
    * Whether the current press or focus change started inside the popup's React tree, including its
@@ -193,7 +290,7 @@ const dismissals = new WeakMap<FloatingRootContextValues, PopupDismissal>();
 /**
  * Returns the popup's `PopupDismissal`, creating it on first use.
  */
-export function getPopupDismissal(store: Pick<FloatingRootContext, 'context'>): PopupDismissal {
+export function getPopupDismissal(store: PopupDismissalStore): PopupDismissal {
   let dismissal = dismissals.get(store.context);
   if (!dismissal) {
     dismissal = new PopupDismissal(store);

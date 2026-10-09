@@ -23,6 +23,7 @@ import { useRenderedId } from '../../internals/resolveRenderedId';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import { MenuFilterImplContext, useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import type { MenuFilterParentHandoff } from '../filter-root/MenuFilterContext';
+import { getPopupDismissal } from '../../utils/popups/interactions/popupDismissal';
 
 interface MenuPopupPlainProps extends MenuPopup.Props {
   /** A filter root's own initial focus target; the plain default focuses the popup or its list. */
@@ -48,6 +49,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
 
   const { store, defaultFloatingId, setRenderedFloatingId, virtualFocus, orientation } =
     useMenuRootContext();
+  const dismissal = getPopupDismissal(store);
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -201,16 +203,12 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       initialFocus={initialFocus}
       restoreFocus
       getInsideElements={
-        parent.type === undefined
-          ? () => [store.context.beforeTriggerFocusGuardRef.current]
-          : undefined
+        parent.type === undefined ? () => [dismissal.beforeTriggerFocusGuardRef.current] : undefined
       }
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
-      nextFocusableElement={
-        parent.type === undefined ? store.context.triggerFocusTargetRef : undefined
-      }
-      beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
+      nextFocusableElement={parent.type === undefined ? dismissal.triggerFocusTargetRef : undefined}
+      beforeContentFocusGuardRef={dismissal.beforeContentFocusGuardRef}
     >
       {element}
     </FloatingFocusManager>

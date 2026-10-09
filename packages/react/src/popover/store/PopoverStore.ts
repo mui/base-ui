@@ -33,9 +33,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
-  readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
-  readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
-  readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
   // Only read when a trigger is pressed, so it isn't reactive state.
   stickIfOpen: boolean;
@@ -205,9 +202,6 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
     popupRef: React.createRef<HTMLElement>(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
-    triggerFocusTargetRef: React.createRef<HTMLElement>(),
-    beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
-    beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     stickIfOpenTimeout: new Timeout(),
     stickIfOpen: true,
     triggerElements,

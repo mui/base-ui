@@ -17,7 +17,9 @@ import {
 
 function createStore() {
   const events = createEventEmitter<FloatingEventMap>();
-  return { context: { events } } as unknown as Parameters<typeof getPopupDismissal>[0];
+  return { context: { events }, setOpen() {} } as unknown as Parameters<
+    typeof getPopupDismissal
+  >[0];
 }
 
 function createDetails(overrides: Partial<FloatingUIOpenChangeDetails> = {}) {

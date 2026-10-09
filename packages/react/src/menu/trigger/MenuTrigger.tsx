@@ -37,6 +37,7 @@ import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { mergeProps } from '../../merge-props';
+import { getPopupDismissal } from '../../utils/popups/interactions/popupDismissal';
 
 /**
  * A button that opens the menu.
@@ -71,6 +72,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
     );
   }
+  const dismissal = getPopupDismissal(store);
 
   const thisTriggerId = useBaseUiId(idProp);
 
@@ -290,13 +292,13 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     return (
       <React.Fragment>
         <FocusGuard
-          ref={store.context.beforeTriggerFocusGuardRef}
+          ref={dismissal.beforeTriggerFocusGuardRef}
           onFocus={handlePreFocusGuardFocus}
           key={`${thisTriggerId}-pre-focus-guard`}
         />
         <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
         <FocusGuard
-          ref={store.context.triggerFocusTargetRef}
+          ref={dismissal.triggerFocusTargetRef}
           onFocus={handleFocusTargetFocus}
           key={`${thisTriggerId}-post-focus-guard`}
         />
