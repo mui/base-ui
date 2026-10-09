@@ -58,12 +58,6 @@ function App(
                 style = hideFirstItem ? { display: 'none' } : firstItemStyle;
               }
 
-              const itemProps = getItemProps({
-                ref(node: HTMLLIElement) {
-                  listRef.current[index] = node;
-                },
-              });
-
               return (
                 // eslint-disable-next-line
                 <li
@@ -78,7 +72,11 @@ function App(
                       ? props.disabledIndices?.(index)
                       : props.disabledIndices?.includes(index))
                   }
-                  {...itemProps}
+                  {...getItemProps({
+                    ref(node: HTMLLIElement) {
+                      listRef.current[index] = node;
+                    },
+                  })}
                 >
                   {string}
                 </li>
