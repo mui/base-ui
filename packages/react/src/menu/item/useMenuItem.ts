@@ -42,7 +42,6 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     typingRef,
     itemRef,
     itemMetadata,
-    nativeButton,
   });
 
   const getItemProps = React.useCallback(
