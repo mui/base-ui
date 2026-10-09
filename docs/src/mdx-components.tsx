@@ -56,7 +56,7 @@ function Heading({
 }
 
 // Maintain spacing between MDX components here
-export const mdxComponents: MDXComponents = {
+export const mdxComponentsCommon: MDXComponents = {
   a: Link,
   em: (props) => <em className="MdEm" {...props} />,
   code: (props) => <Code {...props} className={clsx('MdCode', props.className)} />,
@@ -75,6 +75,22 @@ export const mdxComponents: MDXComponents = {
   ol: (props) => <ol className="MdOl" {...props} />,
   kbd: Kbd,
   figure: (props) => <figure className="MdFigure" {...props} />,
+  hr: (props) => <hr className="MdHr" {...props} />,
+  // Custom components
+  Meta: (props: React.ComponentProps<'meta'>) => {
+    if (props.name === 'description' && String(props.content).length > 170) {
+      throw new Error("Meta description shouldn't be longer than 170 chars");
+    }
+    // At build time, `transformMarkdownMetadata` extracts <Meta> attributes
+    // and injects them as `export const metadata = { ... }` into the compiled
+    // MDX. Next.js picks that export up and emits the <meta> tag itself, so
+    // rendering one here would produce a duplicate.
+    return null;
+  },
+};
+
+export const mdxComponents: MDXComponents = {
+  ...mdxComponentsCommon,
   pre: ({ tabIndex, ...props }) => {
     if ('data-precompute' in props) {
       return (
@@ -97,16 +113,6 @@ export const mdxComponents: MDXComponents = {
   TypeRef,
   TypePropRef,
   QuickNav,
-  Meta: (props: React.ComponentProps<'meta'>) => {
-    if (props.name === 'description' && String(props.content).length > 170) {
-      throw new Error("Meta description shouldn't be longer than 170 chars");
-    }
-    // At build time, `transformMarkdownMetadata` extracts <Meta> attributes
-    // and injects them as `export const metadata = { ... }` into the compiled
-    // MDX. Next.js picks that export up and emits the <meta> tag itself, so
-    // rendering one here would produce a duplicate.
-    return null;
-  },
   Subtitle: (props) => <Subtitle {...props} />,
 };
 

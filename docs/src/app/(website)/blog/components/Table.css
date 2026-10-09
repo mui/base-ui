@@ -1,0 +1,51 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
+@layer components {
+  .BlogTableRoot {
+    margin-block: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-12);
+  }
+
+  .BlogTable {
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
+    color: var(--gray-t1);
+    border-collapse: separate;
+    width: 100%;
+    min-width: 40rem;
+    vertical-align: top;
+    border-spacing: 0;
+  }
+
+  .BlogTableHead,
+  .BlogTableBody,
+  .BlogTableRow {
+    vertical-align: inherit;
+  }
+
+  .BlogTableColumnHeader,
+  .BlogTableCell {
+    vertical-align: middle;
+    text-align: initial;
+    font-weight: var(--font-weight-400);
+    padding: 0.5rem 0.75rem;
+    height: 2.5rem;
+  }
+
+  .BlogTableColumnHeader {
+    color: var(--color-foreground);
+    background-color: var(--gray-s2);
+    background-clip: padding-box;
+    border-bottom: 1px solid var(--color-border);
+    height: calc(2.5rem + 1px);
+  }
+
+  .BlogTableCell {
+    .BlogTableRow:not(:last-child) > & {
+      border-bottom: 1px solid var(--color-border);
+      height: calc(2.5rem + 1px);
+    }
+  }
+}

@@ -28,6 +28,20 @@
   }
 
   .Text.sz-3 {
+    font-size: 28px;
+    line-height: 32px;
+    text-wrap: balance;
+    font-family:
+      'die grotesk b',
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Helvetica Neue',
+      arial,
+      sans-serif;
+  }
+
+  .Text.sz-4 {
     font-size: var(--font-size-34);
     line-height: 34px;
     text-wrap: balance;
@@ -41,7 +55,7 @@
       sans-serif;
   }
 
-  .Text.sz-4 {
+  .Text.sz-5 {
     font-size: 42px;
     line-height: 44px;
     text-wrap: balance;
@@ -67,6 +81,20 @@
     }
 
     .Text.bp2\:sz-3 {
+      font-size: 28px;
+      line-height: 32px;
+      text-wrap: balance;
+      font-family:
+        'die grotesk b',
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Helvetica Neue',
+        arial,
+        sans-serif;
+    }
+
+    .Text.bp2\:sz-4 {
       font-size: var(--font-size-34);
       line-height: 34px;
       text-wrap: balance;
@@ -80,7 +108,7 @@
         sans-serif;
     }
 
-    .Text.bp2\:sz-4 {
+    .Text.bp2\:sz-5 {
       font-size: 42px;
       line-height: 44px;
       text-wrap: balance;

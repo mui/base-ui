@@ -19,9 +19,8 @@ const localPlugin = (relativePath) => path.join(baseDir, relativePath);
 const withMdx = nextMdx({
   options: {
     remarkPlugins: [
-      // Before transformMarkdownMetadata, so a stripped badge stays out of outline text too.
-      localPlugin('src/mdx/remarkHeadingTags.mjs'),
       'remark-gfm',
+      [localPlugin('src/mdx/pipeline/remarkPreprocess.mjs'), { baseDir }],
       [
         '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
         {
@@ -40,23 +39,9 @@ const withMdx = nextMdx({
           },
         },
       ],
-      'remark-typography',
-      localPlugin('src/components/QuickNav/remarkQuickNavExcludeHeading.mjs'),
-      '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths',
-      '@mui/internal-docs-infra/pipeline/transformMarkdownCode',
+      [localPlugin('src/mdx/pipeline/remarkPipeline.mjs'), { baseDir }],
     ],
-    rehypePlugins: [
-      '@mui/internal-docs-infra/pipeline/transformHtmlCodeBlock',
-      localPlugin('src/components/CodeBlock/rehypeEagerCodeBlocks.mjs'),
-      '@mui/internal-docs-infra/pipeline/transformHtmlCodeInline',
-      '@mui/internal-docs-infra/pipeline/enhanceCodeInline',
-      localPlugin('src/components/QuickNav/rehypeSlug.mjs'),
-      localPlugin('src/components/QuickNav/rehypeConcatHeadings.mjs'),
-      '@stefanprobst/rehype-extract-toc',
-      localPlugin('src/components/QuickNav/rehypeQuickNav.mjs'),
-      localPlugin('src/components/Subtitle/rehypeSubtitle.mjs'),
-      localPlugin('src/components/Kbd/rehypeKbd.mjs'),
-    ],
+    rehypePlugins: [[localPlugin('src/mdx/pipeline/rehypePipeline.mjs'), { baseDir }]],
   },
 });
 
@@ -89,6 +74,9 @@ const nextConfig = {
   pageExtensions: ['mdx', 'tsx'],
   turbopack: {
     rules: {
+      '*.mp4': {
+        type: 'asset',
+      },
       './src/app/**/types.ts': {
         as: '*.ts',
         loaders: [
@@ -117,8 +105,15 @@ const nextConfig = {
       },
     },
   },
-  webpack: (config, { defaultLoaders }) => {
+  webpack: (config, { defaultLoaders, dir, config: { distDir } }) => {
     // for production builds
+    config.module.rules.push({
+      test: /\.mp4$/i,
+      type: 'asset/resource',
+      generator: {
+        outputPath: () => path.relative(config.output.path, path.resolve(dir, distDir)),
+      },
+    });
     config.module.rules.push({
       test: /[/\\\\]src[/\\\\]app[/\\\\].*[/\\\\]types\.ts$/,
       use: [
