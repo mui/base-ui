@@ -68,6 +68,23 @@ describe('filterable menu initial highlight', () => {
     expect(input).toHaveFocus();
   });
 
+  it.each([
+    { key: 'ArrowDown', position: 'first', name: 'Rename' },
+    { key: 'ArrowUp', position: 'last', name: 'Delete' },
+  ])('highlights the $position enabled action when $key opens the menu', async ({ key, name }) => {
+    const { user } = await render(<Test />);
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+    await act(async () => trigger.focus());
+    await user.keyboard(`[${key}]`);
+
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+    expect(input).toHaveAttribute(
+      'aria-activedescendant',
+      screen.getByRole('menuitem', { name }).id,
+    );
+  });
+
   it('clears the initial highlight when typing and permits an empty result', async () => {
     const { user } = await render(<Test />);
     await act(async () => screen.getByRole('button', { name: 'Actions' }).focus());
