@@ -1,7 +1,7 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM, resetBrowserPointer, waitSingleFrame } from '#test-utils';
 
@@ -164,6 +164,107 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
 
       expect(input).toHaveValue('pro');
     });
+  });
+
+  describe('prop: filter', () => {
+    it.skipIf(isJSDOM)(
+      'keeps externally filtered items while the submenu animates out',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const folders = ['Projects', 'Photos', 'Archive'];
+        const onValueChange = vi.fn();
+
+        function ExternalFilterSubmenu() {
+          const { contains } = Menu.useFilter();
+          const [query, setQuery] = React.useState('');
+          const results = folders.filter((folder) => contains(folder, query));
+
+          return (
+            <React.Fragment>
+              <style>{`
+                @keyframes filter-submenu-external-exit-test {
+                  to { opacity: 0; }
+                }
+                .filter-submenu-external-exit-test[data-ending-style] {
+                  animation: filter-submenu-external-exit-test 10s linear;
+                }
+              `}</style>
+              <Menu.Root open>
+                <Menu.Trigger>Actions</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.FilterProvider
+                        filter={null}
+                        value={query}
+                        onValueChange={(value, eventDetails) => {
+                          onValueChange(value, eventDetails.reason);
+                          setQuery(value);
+                        }}
+                      >
+                        <Menu.SubmenuRoot defaultOpen>
+                          <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup
+                                data-testid="submenu-popup"
+                                className="filter-submenu-external-exit-test"
+                              >
+                                <Menu.Input aria-label="Filter folders" />
+                                <Menu.List data-testid="submenu-list">
+                                  {results.map((folder) => (
+                                    <Menu.Item key={folder}>{folder}</Menu.Item>
+                                  ))}
+                                </Menu.List>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </React.Fragment>
+          );
+        }
+
+        function getFolderNames() {
+          return within(screen.getByTestId('submenu-list'))
+            .getAllByRole('menuitem')
+            .map((item) => item.textContent);
+        }
+
+        const { user } = await render(<ExternalFilterSubmenu />);
+
+        const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        await user.click(input);
+        await user.type(input, 'p');
+        await waitFor(() => {
+          expect(getFolderNames()).toEqual(['Projects', 'Photos']);
+        });
+
+        await user.keyboard('[Escape]');
+
+        const popup = screen.getByTestId('submenu-popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(getFolderNames()).toEqual(['Projects', 'Photos']);
+        expect(input).toHaveValue('p');
+        expect(onValueChange).not.toHaveBeenCalledWith('', 'popup-close');
+
+        popup.getAnimations().forEach((animation) => animation.finish());
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu-popup')).toBe(null);
+        });
+        await waitFor(() => {
+          expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
+        });
+      },
+    );
   });
 
   describe.skipIf(isJSDOM)('inside a plain parent menu', () => {

@@ -13,8 +13,10 @@ interface UseFilterDropdownCloseQueryParameters {
 }
 
 /**
- * Clears the committed value when a filter popup closes while retaining the displayed query and
- * filtered items until the exit transition completes.
+ * Retains the displayed query and filtered items while a filter popup closes, and clears the
+ * committed value once it has unmounted. The input lives inside the popup, so the value stays in
+ * use until then: clearing it earlier would change whatever the consumer renders from it, such
+ * as externally filtered items, while the popup animates out.
  */
 export function useFilterDropdownCloseQuery(parameters: UseFilterDropdownCloseQueryParameters) {
   const { open, mounted, value, onValueChange } = parameters;
@@ -28,9 +30,12 @@ export function useFilterDropdownCloseQuery(parameters: UseFilterDropdownCloseQu
     previousOpenRef.current = open;
     if (wasOpen && !open && value !== '') {
       setCloseQuery(value);
-      onValueChange('', createChangeEventDetails(REASONS.popupClose));
     } else if ((open || !mounted) && closeQuery !== null) {
+      // A reopen that interrupts the exit never unmounts, so it settles the pending reset too.
       setCloseQuery(null);
+      if (value !== '') {
+        onValueChange('', createChangeEventDetails(REASONS.popupClose));
+      }
     }
   }, [open, mounted, value, closeQuery, onValueChange]);
 

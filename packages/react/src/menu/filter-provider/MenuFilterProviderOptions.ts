@@ -33,8 +33,8 @@ export interface MenuFilterProviderOptions {
   defaultValue?: string | undefined;
   /**
    * The filter query. Use when controlled.
-   * When the popup closes, `onValueChange` is called with an empty query. The controlled
-   * value changes only when the consumer updates this prop.
+   * Once the popup has finished closing, `onValueChange` is called with an empty query. The
+   * controlled value changes only when the consumer updates this prop.
    */
   value?: string | undefined;
   /**
