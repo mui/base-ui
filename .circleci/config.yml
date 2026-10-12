@@ -275,6 +275,10 @@ jobs:
           # TEMPORARY: not uploaded while `Benchmark CLI` uploads instead, since both write the
           # commit's `benchmark.json` and the PR comment. Restore before merging.
           command: pnpm test:benchmark:vitest
+      # TEMPORARY: kept to compare the benchmark setups on repeated runs.
+      - store_artifacts:
+          path: test/performance/benchmarks/results.json
+          destination: vitest-head.json
 
   test_benchmark_cli:
     <<: *default-job
@@ -313,6 +317,10 @@ jobs:
           key: benchmark-packed-v1-{{ checksum ".benchmark-baseline-sha" }}
           paths:
             - test/benchmark/.benchmark/packed
+      # TEMPORARY: kept to compare the benchmark setups on repeated runs.
+      - store_artifacts:
+          path: test/benchmark/.benchmark/results/report.json
+          destination: benchmark-report.json
 
 workflows:
   pipeline:

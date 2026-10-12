@@ -14,5 +14,6 @@ routeTree.gen.ts
 
 # TODO: fix lint violations and remove these ignores
 /CHANGELOG.old.md
-/CLAUDE.md/test/benchmark/src/__bench__
+/CLAUDE.md
+/test/benchmark/src/__bench__
 .benchmark
