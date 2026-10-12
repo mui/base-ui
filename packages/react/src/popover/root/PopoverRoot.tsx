@@ -56,8 +56,12 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
 
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.update({ stickIfOpen: true, openChangeReason: null });
+  const { forceUnmount } = useOpenStateTransitions(store, {
+    open,
+    openProp,
+    onUnmount() {
+      store.update({ stickIfOpen: true, openChangeReason: null });
+    },
   });
 
   store.useSyncedValues({

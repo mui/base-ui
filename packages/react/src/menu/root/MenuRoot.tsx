@@ -221,14 +221,14 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   });
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(store, {
     open,
-    store,
-    () => {
+    openProp,
+    onUnmount() {
       store.set('allowMouseEnter', false);
     },
     animateInitialOpen,
-  );
+  });
 
   const runOnceAnimationsFinish = useAnimationsFinished(store.context.popupRef);
 

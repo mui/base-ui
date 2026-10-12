@@ -559,27 +559,33 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  * Sets up the transition status listeners and handles unmounting when needed.
  * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store.
  *
- * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
- * @param onUnmount Optional callback to be called when the popup is unmounted.
- * @param animateInitialOpen Whether a popup that mounts already open should still play its enter
- *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
- *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
- *   only mounts in response to something the user did, such as a submenu inside a menu popup.
+ * @param parameters.open Whether the popup is open.
+ * @param parameters.openProp The controlled `open` prop. The store syncs it in a layout effect,
+ *   so `open` trails it by a commit.
+ * @param parameters.onUnmount Optional callback to be called when the popup is unmounted.
+ * @param parameters.animateInitialOpen Whether a popup that mounts already open should still play
+ *   its enter transition. Defaults to `false`, so content that was open on the first render (a
+ *   `defaultOpen` popup on page load, SSR'd markup) appears without animating. Opt in for popups
+ *   whose subtree only mounts in response to something the user did, such as a submenu inside a
+ *   menu popup.
  *
  * @returns A function to forcibly unmount the popup. It is a no-op once the popup is already
  *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
  */
 export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
-  open: boolean,
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
-  onUnmount?: () => void,
-  animateInitialOpen?: boolean,
+  parameters: {
+    open: boolean;
+    openProp: boolean | undefined;
+    onUnmount?: (() => void) | undefined;
+    animateInitialOpen?: boolean | undefined;
+  },
 ) {
+  const { open, openProp, onUnmount, animateInitialOpen } = parameters;
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
-    // Hosts sync their controlled `open` prop into the store before calling this hook.
-    getOpen: () => store.select('open'),
+    openProp,
     ref: store.context.popupRef,
     preventUnmountOnClose: store.useState('preventUnmountingOnClose'),
     setPreventUnmountOnClose: (preventUnmountOnClose) =>

@@ -86,7 +86,6 @@ describe('useTransitionStatus', () => {
     });
     expect(screen.getByTestId('status')).toHaveAttribute('data-status', 'starting');
 
-    // A forced unmount batched with the close skips the ending phase.
     await act(async () => {
       controls.current!.setMounted(false);
       controls.current!.setOpen(false);

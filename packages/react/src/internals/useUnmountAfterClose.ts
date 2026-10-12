@@ -16,12 +16,11 @@ export interface UseUnmountAfterCloseParameters {
    */
   ref: React.RefObject<HTMLElement | null>;
   /**
-   * Reads the latest open state when it can run ahead of the rendered `open`, such as a store
-   * that syncs a controlled `open` prop in a layout effect declared before this hook. An
-   * `unmount` batched with a controlled close then takes effect in the commit that still renders
-   * the popup open instead of being dropped.
+   * The controlled `open` prop, for hosts whose rendered `open` trails it by a commit (such as a
+   * store that syncs the prop in a layout effect). An `unmount` batched with a controlled close
+   * then takes effect in the commit that still renders the popup open.
    */
-  getOpen?: (() => boolean) | undefined;
+  openProp?: boolean | undefined;
   /**
    * Whether the current close cycle asked to keep the popup mounted until the `unmount` action
    * is called. Ignored while `open`.
@@ -55,7 +54,7 @@ export interface UseUnmountAfterCloseParameters {
 export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters) {
   const {
     open,
-    getOpen,
+    openProp,
     ref,
     preventUnmountOnClose,
     setPreventUnmountOnClose: setPreventUnmountOnCloseParam,
@@ -110,7 +109,7 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
     }
     if (pendingUnmountRef.current) {
       pendingUnmountRef.current = false;
-      if (mountedRef.current && (!open || getOpen?.() === false)) {
+      if (mountedRef.current && (!open || openProp === false)) {
         unmount();
       }
     }
