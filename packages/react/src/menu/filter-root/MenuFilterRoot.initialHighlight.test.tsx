@@ -78,11 +78,9 @@ describe('filterable menu initial highlight', () => {
     await user.keyboard(`[${key}]`);
 
     const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    const item = screen.getByRole('menuitem', { name });
     await waitFor(() => expect(input).toHaveFocus());
-    expect(input).toHaveAttribute(
-      'aria-activedescendant',
-      screen.getByRole('menuitem', { name }).id,
-    );
+    expect(input).toHaveAttribute('aria-activedescendant', item.id);
   });
 
   it('clears the initial highlight when typing and permits an empty result', async () => {
