@@ -9,33 +9,18 @@ import { isInteractiveElement } from '../utils';
 export { isInteractiveElement };
 
 export class HoverInteraction {
-  pointerType: string | undefined;
-  interactedInside: boolean;
-  handler: ((event: MouseEvent) => void) | undefined;
-  blockMouseMove: boolean;
-  performedPointerEventsMutation: boolean;
-  pointerEventsScopeElement: HTMLElement | SVGSVGElement | null;
-  pointerEventsReferenceElement: HTMLElement | SVGSVGElement | null;
-  pointerEventsFloatingElement: HTMLElement | null;
-  restTimeoutPending: boolean;
-  openChangeTimeout: Timeout;
-  restTimeout: Timeout;
-  handleCloseOptions: SafePolygonOptions | undefined;
-
-  constructor() {
-    this.pointerType = undefined;
-    this.interactedInside = false;
-    this.handler = undefined;
-    this.blockMouseMove = true;
-    this.performedPointerEventsMutation = false;
-    this.pointerEventsScopeElement = null;
-    this.pointerEventsReferenceElement = null;
-    this.pointerEventsFloatingElement = null;
-    this.restTimeoutPending = false;
-    this.openChangeTimeout = new Timeout();
-    this.restTimeout = new Timeout();
-    this.handleCloseOptions = undefined;
-  }
+  pointerType: string | undefined = undefined;
+  interactedInside: boolean = false;
+  handler: ((event: MouseEvent) => void) | undefined = undefined;
+  blockMouseMove: boolean = true;
+  performedPointerEventsMutation: boolean = false;
+  pointerEventsScopeElement: HTMLElement | SVGSVGElement | null = null;
+  pointerEventsReferenceElement: HTMLElement | SVGSVGElement | null = null;
+  pointerEventsFloatingElement: HTMLElement | null = null;
+  restTimeoutPending: boolean = false;
+  openChangeTimeout: Timeout = new Timeout();
+  restTimeout: Timeout = new Timeout();
+  handleCloseOptions: SafePolygonOptions | undefined = undefined;
 
   static create(): HoverInteraction {
     return new HoverInteraction();

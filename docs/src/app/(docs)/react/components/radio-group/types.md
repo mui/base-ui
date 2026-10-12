@@ -215,6 +215,52 @@ type RadioGroupChangeEventDetails = {
 
 ## Additional Types
 
+### RadioGroupDataAttributes
+
+Data attributes of [RadioGroup](#radiogroup).
+
+```typescript
+declare namespace RadioGroupDataAttributes {
+  /** Present when the radio group is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### RadioIndicatorDataAttributes
+
+Data attributes of [Indicator](#indicator).
+
+```typescript
+declare namespace RadioIndicatorDataAttributes {
+  /** Present when the radio is checked. */
+  const checked: 'data-checked';
+  /** Present when the radio is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the radio is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the radio is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the radio is required. */
+  const required: 'data-required';
+  /** Present when the radio indicator begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the radio indicator is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the radio is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the radio is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the radio has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the radio's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the radio is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the radio is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
 ### RadioIndicatorProps
 
 ```typescript
@@ -269,6 +315,37 @@ type RadioIndicatorState = {
   /** Whether the radio button is focused (when wrapped in Field.Root). */
   focused: boolean;
 };
+```
+
+### RadioRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace RadioRootDataAttributes {
+  /** Present when the radio is checked. */
+  const checked: 'data-checked';
+  /** Present when the radio is not checked. */
+  const unchecked: 'data-unchecked';
+  /** Present when the radio is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the radio is readonly. */
+  const readonly: 'data-readonly';
+  /** Present when the radio is required. */
+  const required: 'data-required';
+  /** Present when the radio is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the radio is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the radio has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the radio's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the radio is checked (when wrapped in Field.Root). */
+  const filled: 'data-filled';
+  /** Present when the radio is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
 ### RadioRootProps
@@ -339,8 +416,8 @@ type RadioRootState = {
 
 ## Export Groups
 
-- `RadioGroup`: `RadioGroup`, `RadioGroup.State`, `RadioGroup.Props`, `RadioGroup.ChangeEventReason`, `RadioGroup.ChangeEventDetails`, `RadioGroupState`, `RadioGroupProps`, `RadioGroupChangeEventReason`, `RadioGroupChangeEventDetails`
-- `Radio`: `Radio.Root`, `Radio.Root.State`, `Radio.Root.Props`, `Radio.Indicator`, `Radio.Indicator.Props`, `Radio.Indicator.State`, `RadioRootState`, `RadioRootProps`, `RadioIndicatorProps`, `RadioIndicatorState`
+- `RadioGroup`: `RadioGroup`, `RadioGroup.State`, `RadioGroup.Props`, `RadioGroup.ChangeEventReason`, `RadioGroup.ChangeEventDetails`, `RadioGroupDataAttributes`, `RadioGroupState`, `RadioGroupProps`, `RadioGroupChangeEventReason`, `RadioGroupChangeEventDetails`
+- `Radio`: `Radio.Root`, `Radio.Root.State`, `Radio.Root.Props`, `Radio.Indicator`, `Radio.Indicator.Props`, `Radio.Indicator.State`, `RadioRootDataAttributes`, `RadioIndicatorDataAttributes`, `RadioRootState`, `RadioRootProps`, `RadioIndicatorProps`, `RadioIndicatorState`
 
 ## Canonical Types
 

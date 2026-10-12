@@ -129,6 +129,7 @@ describe('useTestInteractions', () => {
   });
 
   it('prop getters are memoized', () => {
+    const renderedGetters: Array<ReturnType<typeof useTestInteractions>> = [];
     const effectRuns = vi.fn();
 
     function App() {
@@ -142,7 +143,9 @@ describe('useTestInteractions', () => {
         [],
       );
 
-      const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions(propsList);
+      const interactions = useTestInteractions(propsList);
+      const { getReferenceProps, getFloatingProps, getItemProps } = interactions;
+      renderedGetters.push(interactions);
 
       React.useEffect(() => {
         effectRuns();
@@ -154,7 +157,11 @@ describe('useTestInteractions', () => {
 
     render(<App />);
 
-    // The getters must be stable across the re-render forced by the effect.
+    // The state update re-renders once; stable getters keep the effect from firing again.
     expect(effectRuns).toHaveBeenCalledTimes(1);
+    expect(renderedGetters).toHaveLength(2);
+    expect(renderedGetters[1].getReferenceProps).toBe(renderedGetters[0].getReferenceProps);
+    expect(renderedGetters[1].getFloatingProps).toBe(renderedGetters[0].getFloatingProps);
+    expect(renderedGetters[1].getItemProps).toBe(renderedGetters[0].getItemProps);
   });
 });

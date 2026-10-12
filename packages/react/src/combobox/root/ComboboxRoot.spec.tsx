@@ -607,3 +607,21 @@ function FilterArgumentApp() {
     </React.Fragment>
   );
 }
+
+<Combobox.Root
+  onItemHighlighted={(_item, details) => {
+    if (details.reason === 'pointer') {
+      expectType<MouseEvent | PointerEvent, typeof details.event>(details.event);
+      // @ts-expect-error Hover can report a MouseEvent without pointer-specific methods.
+      details.event.getCoalescedEvents();
+      if (details.event instanceof PointerEvent) {
+        expectType<PointerEvent, typeof details.event>(details.event);
+        details.event.getCoalescedEvents();
+      }
+    } else if (details.reason === 'keyboard') {
+      expectType<KeyboardEvent, typeof details.event>(details.event);
+    } else {
+      expectType<Event, typeof details.event>(details.event);
+    }
+  }}
+/>;

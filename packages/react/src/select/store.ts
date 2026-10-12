@@ -40,7 +40,14 @@ export type State = {
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
-  itemProps: HTMLProps;
+  // Root values every item reads, combined so each item needs a single subscription for them.
+  itemRoot: {
+    props: HTMLProps;
+    multiple: boolean;
+    disabled: boolean;
+    readOnly: boolean;
+    isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
+  };
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
@@ -147,7 +154,7 @@ export const selectors = {
 
   popupProps: (state: State) => state.popupProps,
   triggerProps: (state: State) => state.triggerProps,
-  itemProps: (state: State) => state.itemProps,
+  itemRoot: (state: State) => state.itemRoot,
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,
   listElement: (state: State) => state.listElement,

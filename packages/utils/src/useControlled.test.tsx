@@ -117,6 +117,15 @@ describe('useControlled', () => {
   });
 
   describe('prop: defaultValue', () => {
+    it('stores a function default value instead of calling it', () => {
+      const defaultValue = () => 'called';
+      const { result } = renderHook(() =>
+        useControlled({ controlled: undefined, default: defaultValue, name: 'TestComponent' }),
+      );
+
+      expect(result.current[0]).toBe(defaultValue);
+    });
+
     it('warns when changed after initial rendering', () => {
       let setProps: (newProps: any) => void;
 

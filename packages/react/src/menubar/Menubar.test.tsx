@@ -5,10 +5,13 @@ import {
   createRenderer,
   describeConformance,
   isJSDOM,
+  isScrollLocked,
+  pressWithTouch,
   resetBrowserPointer,
   wait,
 } from '#test-utils';
 import { Menubar } from '@base-ui/react/menubar';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from './MenubarContext';
@@ -80,6 +83,33 @@ describe('<Menubar />', () => {
       editTrigger,
       new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
     );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('edit-menu')).toBe(null);
+    });
+  });
+
+  it('closes on a touch item click immediately after focus opens another menu', async () => {
+    const { user } = await render(<ContainedTriggerMenubar />);
+
+    await user.click(screen.getByTestId('file-trigger'));
+    await screen.findByTestId('file-menu');
+
+    // Freeze timers so the 300ms touch-click cooldown started by the focus-open is still
+    // active when the item is clicked.
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        screen.getByTestId('edit-trigger').focus();
+      });
+
+      fireEvent(
+        screen.getByTestId('edit-item-1'),
+        new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
 
     await waitFor(() => {
       expect(screen.queryByTestId('edit-menu')).toBe(null);
@@ -290,11 +320,11 @@ describe('<Menubar />', () => {
 
         await user.tab();
 
+        const fileTrigger = screen.getByTestId('file-trigger');
         await waitFor(() => {
-          const fileTrigger = screen.getByTestId('file-trigger');
           expect(fileTrigger).toHaveFocus();
-          expect(screen.queryByTestId('file-menu')).toBe(null);
         });
+        expect(screen.queryByTestId('file-menu')).toBe(null);
 
         await wait(50);
 
@@ -566,6 +596,10 @@ describe('<Menubar />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('share-menu')).not.toBe(null);
         });
+        // The submenu focuses its first item a frame after opening.
+        await waitFor(() => {
+          expect(screen.getByTestId('share-item-1')).toHaveFocus();
+        });
 
         // Close submenu with left arrow
         await user.keyboard('{ArrowLeft}');
@@ -764,25 +798,23 @@ describe('<Menubar />', () => {
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
-        fireEvent.pointerDown(fileTrigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(fileTrigger);
+        pressWithTouch(fileTrigger);
 
         await screen.findByTestId('file-menu');
 
         const shareTrigger = await screen.findByTestId('share-trigger');
-        fireEvent.pointerDown(shareTrigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(shareTrigger);
+        pressWithTouch(shareTrigger);
 
         await screen.findByTestId('share-menu');
 
         const outside = screen.getByTestId('outside');
-        fireEvent.pointerDown(outside, { pointerType: 'touch' });
-        fireEvent.mouseDown(outside);
+        pressWithTouch(outside);
 
+        // The submenu lives inside the file menu, so it is gone once the file menu closes.
         await waitFor(() => {
-          expect(screen.queryByTestId('share-menu')).toBe(null);
           expect(screen.queryByTestId('file-menu')).toBe(null);
         });
+        expect(screen.queryByTestId('share-menu')).toBe(null);
       });
     });
 
@@ -805,19 +837,13 @@ describe('<Menubar />', () => {
 
         const trigger = screen.getByTestId('file-trigger');
 
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
+        pressWithTouch(trigger);
 
         const menu = await screen.findByRole('menu');
         const doc = menu.ownerDocument;
 
         await waitFor(() => {
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(true);
+          expect(isScrollLocked(doc)).toBe(true);
         });
       });
 
@@ -839,18 +865,12 @@ describe('<Menubar />', () => {
 
         const trigger = screen.getByTestId('file-trigger');
 
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
+        pressWithTouch(trigger);
 
         const menu = await screen.findByRole('menu');
         const doc = menu.ownerDocument;
 
-        const isScrollLocked =
-          doc.documentElement.style.overflow === 'hidden' ||
-          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-          doc.body.style.overflow === 'hidden';
-
-        expect(isScrollLocked).toBe(false);
+        expect(isScrollLocked(doc)).toBe(false);
       });
 
       it('updates scroll lock when handing off between top-level touch-opened menus', async () => {
@@ -883,22 +903,15 @@ describe('<Menubar />', () => {
         const editTrigger = screen.getByTestId('edit-trigger');
         const doc = fileTrigger.ownerDocument;
 
-        fireEvent.pointerDown(fileTrigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(fileTrigger);
+        pressWithTouch(fileTrigger);
 
         await screen.findByTestId('file-menu');
 
         await waitFor(() => {
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(true);
+          expect(isScrollLocked(doc)).toBe(true);
         });
 
-        fireEvent.pointerDown(editTrigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(editTrigger);
+        pressWithTouch(editTrigger);
 
         await screen.findByTestId('edit-menu');
 
@@ -907,12 +920,7 @@ describe('<Menubar />', () => {
         });
 
         await waitFor(() => {
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(false);
+          expect(isScrollLocked(doc)).toBe(false);
         });
       });
     });
@@ -1083,6 +1091,80 @@ describe('<Menubar />', () => {
         await render(<Menubar orientation="vertical" />);
         expect(screen.getByRole('menubar')).toHaveAttribute('aria-orientation', 'vertical');
       });
+
+      it('moves between triggers with the main-axis arrow keys when vertical', async () => {
+        const { user } = await render(
+          <Menubar orientation="vertical">
+            <Menu.Root>
+              <Menu.Trigger data-testid="first-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>New</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root>
+              <Menu.Trigger data-testid="second-trigger">Edit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Undo</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const firstTrigger = screen.getByTestId('first-trigger');
+        await act(async () => {
+          firstTrigger.focus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+
+        expect(screen.getByTestId('second-trigger')).toHaveFocus();
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      it.each([
+        { direction: 'ltr', openKey: 'ArrowRight', oppositeKey: 'ArrowLeft' },
+        { direction: 'rtl', openKey: 'ArrowLeft', oppositeKey: 'ArrowRight' },
+      ] as const)(
+        'opens a menu of a vertical $direction menubar with $openKey',
+        async ({ direction, openKey, oppositeKey }) => {
+          const { user } = await render(
+            <DirectionProvider direction={direction}>
+              <Menubar orientation="vertical">
+                <Menu.Root>
+                  <Menu.Trigger data-testid="first-trigger">File</Menu.Trigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>New</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menubar>
+            </DirectionProvider>,
+          );
+
+          const firstTrigger = screen.getByTestId('first-trigger');
+          await act(async () => {
+            firstTrigger.focus();
+          });
+
+          await user.keyboard(`[${oppositeKey}]`);
+          expect(screen.queryByRole('menu')).toBe(null);
+
+          await user.keyboard(`[${openKey}]`);
+
+          await screen.findByRole('menu');
+        },
+      );
 
       it('sets role="menuitem" on menu triggers', async () => {
         await render(<TestMenubar />);
@@ -1482,3 +1564,64 @@ function MultipleContainedTriggersMenubar(props: Menubar.Props) {
     </Menubar>
   );
 }
+
+describe('filterable menubar menus', () => {
+  const { render } = createRenderer();
+
+  beforeEach(async () => {
+    await resetBrowserPointer();
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
+  it.each(['horizontal', 'vertical'] as const)(
+    'preserves %s trigger navigation',
+    async (orientation) => {
+      const { user } = await render(
+        <Menubar orientation={orientation}>
+          <Menu.FilterProvider>
+            <Menu.Root>
+              <Menu.Trigger>File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter file actions" />
+                    <Menu.List>
+                      <Menu.Item>New file</Menu.Item>
+                      <Menu.Item>Open file</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Edit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Copy</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+      const file = screen.getByRole('menuitem', { name: 'File' });
+      const edit = screen.getByRole('menuitem', { name: 'Edit' });
+      const nextKey = orientation === 'vertical' ? '[ArrowDown]' : '[ArrowRight]';
+      const openKey = orientation === 'vertical' ? '[ArrowRight]' : '[ArrowDown]';
+      await act(async () => file.focus());
+      await user.keyboard(nextKey);
+      await waitFor(() => expect(edit).toHaveFocus());
+      expect(screen.queryByRole('searchbox')).toBe(null);
+
+      await act(async () => file.focus());
+      await user.keyboard(openKey);
+      const input = await screen.findByRole('searchbox');
+      await waitFor(() => expect(input).toHaveFocus());
+      expect(screen.getByRole('menuitem', { name: 'New file' })).toHaveAttribute(
+        'data-highlighted',
+      );
+    },
+  );
+});

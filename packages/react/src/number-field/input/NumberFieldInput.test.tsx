@@ -533,10 +533,11 @@ describe('<NumberField.Input />', () => {
     );
     const input = screen.getByRole('textbox');
     await act(async () => input.focus());
-    fireEvent.change(input, { target: { value: '1.5' } });
-    expect(input).toHaveValue('1.5');
+    // 1.3 is off the 0.5 step grid, so any snapping on blur would change it.
+    fireEvent.change(input, { target: { value: '1.3' } });
+    expect(input).toHaveValue('1.3');
     fireEvent.blur(input);
-    expect(input).toHaveValue((1.5).toLocaleString());
+    expect(input).toHaveValue((1.3).toLocaleString());
   });
 
   it('should commit validated number on blur (step and min)', async () => {

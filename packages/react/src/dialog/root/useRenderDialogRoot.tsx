@@ -86,7 +86,10 @@ export function useRenderDialogRoot<Payload>(
     [forceUnmount, store],
   );
 
-  const shouldRenderInteractions = open || mounted;
+  // Detached triggers share this one Root, so mounting its interactions eagerly is cheap. The
+  // trigger props they publish then stay stable, so opening and closing doesn't re-render inactive
+  // triggers.
+  const shouldRenderInteractions = open || mounted || handle != null;
 
   return (
     <DialogRootContext.Provider value={store as DialogStore<unknown>}>

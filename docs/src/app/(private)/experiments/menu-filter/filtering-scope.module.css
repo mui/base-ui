@@ -1,0 +1,98 @@
+.Page {
+  display: grid;
+  gap: 1rem;
+  max-width: 52rem;
+}
+
+.Page h1,
+.Page h2,
+.Page p {
+  margin: 0;
+}
+
+.Examples {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.Option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: max-content;
+}
+
+.Example {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+}
+
+.Trigger,
+.Input {
+  box-sizing: border-box;
+  height: 2.5rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background: canvas;
+  color: var(--color-gray-900);
+  font: inherit;
+}
+
+.Trigger {
+  justify-self: start;
+  padding-inline: 0.875rem;
+  font-weight: 500;
+}
+
+.Input {
+  width: 14rem;
+  margin: 0.25rem;
+  padding-inline: 0.75rem;
+  outline: none;
+}
+
+.Trigger:focus-visible,
+.Input[data-highlighted] {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+.Positioner {
+  outline: 0;
+}
+
+.Popup {
+  box-sizing: border-box;
+  min-width: 14rem;
+  padding-block: 0.25rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background: canvas;
+  color: var(--color-gray-900);
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 15%);
+  outline: 0;
+}
+
+.List {
+  outline: 0;
+}
+
+.Item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  outline: 0;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Item[data-highlighted] {
+  background: var(--color-gray-100);
+}

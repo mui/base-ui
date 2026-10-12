@@ -52,26 +52,21 @@ Working with Tooltip is a common example.
 
 You can also use the `render` prop to override the rendered element of the component.
 
-For example, `<Menu.Item>` renders a `<div>` by default.
-The code snippet below shows how to render it as an `<a>` element so that it works like a link.
+For example, `<Accordion.Header>` renders an `<h3>` element by default.
+The code snippet below shows how to render it as an `<h2>` element so that it fits the heading hierarchy of the page.
 
 ```tsx title="index.tsx"
-import { Menu } from '@base-ui/react/menu';
+import { Accordion } from '@base-ui/react/accordion';
 
 export default () => (
-  <Menu.Root>
-    <Menu.Trigger>Song</Menu.Trigger>
-    <Menu.Portal>
-      <Menu.Positioner>
-        <Menu.Popup>
-          {/* prettier-ignore */}
-          <Menu.Item render={<a href="base-ui.com" />}>
-            Add to Library
-          </Menu.Item>
-        </Menu.Popup>
-      </Menu.Positioner>
-    </Menu.Portal>
-  </Menu.Root>
+  <Accordion.Root>
+    <Accordion.Item>
+      <Accordion.Header render={<h2 />}>
+        <Accordion.Trigger>What is Base UI?</Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Panel>Base UI is a library of unstyled React components.</Accordion.Panel>
+    </Accordion.Item>
+  </Accordion.Root>
 );
 ```
 

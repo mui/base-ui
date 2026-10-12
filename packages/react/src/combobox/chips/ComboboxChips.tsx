@@ -22,16 +22,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
   const store = useComboboxRootContext();
 
-  const open = store.useState('open');
   const hasSelectionChips = store.useState('hasSelectionChips');
-
-  const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<number | undefined>(
-    undefined,
-  );
-
-  if (open && highlightedChipIndex !== undefined) {
-    setHighlightedChipIndex(undefined);
-  }
 
   const chipsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -50,14 +41,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
     ],
   });
 
-  const contextValue: ComboboxChipsContext = React.useMemo(
-    () => ({
-      highlightedChipIndex,
-      setHighlightedChipIndex,
-      chipsRef,
-    }),
-    [highlightedChipIndex, setHighlightedChipIndex, chipsRef],
-  );
+  const contextValue: ComboboxChipsContext = React.useMemo(() => ({ chipsRef }), []);
 
   return (
     <ComboboxChipsContext.Provider value={contextValue}>

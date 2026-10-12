@@ -26,7 +26,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
   const { render, className, style, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
-  const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
+  const { chipsRef } = useComboboxChipsContext()!;
   const direction = useDirection();
 
   const disabled = store.useState('disabled');
@@ -58,24 +58,31 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 
       stopEvent(event);
 
-      store.context.setIndices({
-        activeIndex: null,
-        selectedIndex: null,
-        type: REASONS.keyboard,
+      // Commit the removal before focusing so `chipsRef` reflects the remaining chips.
+      ReactDOM.flushSync(() => {
+        store.context.setIndices({
+          activeIndex: null,
+          selectedIndex: null,
+          type: REASONS.keyboard,
+          event: event.nativeEvent,
+        });
+        store.context.setSelectedValue(
+          selectedValue.filter((_: any, i: number) => i !== index),
+          createChangeEventDetails(REASONS.none, event.nativeEvent),
+        );
       });
-      store.context.setSelectedValue(
-        selectedValue.filter((_: any, i: number) => i !== index),
-        createChangeEventDetails(REASONS.none, event.nativeEvent),
-      );
     } else if (event.key === 'Enter' || event.key === ' ') {
       stopEvent(event);
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       stopEvent(event);
-      store.context.setOpen(
-        true,
-        createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-      );
+      // The input may mount when opening.
+      ReactDOM.flushSync(() => {
+        store.context.setOpen(
+          true,
+          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+        );
+      });
       nextIndex = undefined;
     } else if (
       // Check for printable characters (letters, numbers, symbols)
@@ -108,10 +115,6 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           }
 
           const nextIndex = handleKeyDown(event);
-
-          ReactDOM.flushSync(() => {
-            setHighlightedChipIndex(nextIndex);
-          });
 
           if (nextIndex === undefined) {
             store.context.inputRef.current?.focus();

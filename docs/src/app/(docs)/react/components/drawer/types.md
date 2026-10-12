@@ -177,6 +177,13 @@ Renders a `<button>` element.
 | style        | `React.CSSProperties \| ((state: Drawer.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                          |
 | render       | `ReactElement \| ((props: HTMLProps, state: Drawer.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.        |
 
+**Trigger Data Attributes:**
+
+| Attribute       | Type | Description                                    |
+| :-------------- | :--- | :--------------------------------------------- |
+| data-popup-open | -    | Present when the corresponding dialog is open. |
+| data-disabled   | -    | Present when the trigger is disabled.          |
+
 ### Trigger.Props
 
 Re-export of [Trigger](#trigger) props.
@@ -414,6 +421,12 @@ Renders a `<button>` element.
 | style        | `React.CSSProperties \| ((state: Drawer.Close.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: Drawer.Close.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Close Data Attributes:**
+
+| Attribute     | Type | Description                          |
+| :------------ | :--- | :----------------------------------- |
+| data-disabled | -    | Present when the button is disabled. |
+
 ### Close.Props
 
 Re-export of [Close](#close) props.
@@ -643,6 +656,195 @@ Re-export of [VirtualKeyboardProvider](#virtualkeyboardprovider) props.
 type DrawerVirtualKeyboardProviderState = {};
 ```
 
+## Additional Types
+
+### DrawerBackdropCssVariables
+
+CSS variables of [Backdrop](#backdrop).
+
+```typescript
+declare namespace DrawerBackdropCssVariables {
+  /**
+   * The swipe progress of the drawer gesture.
+   * @type number
+   */
+  const swipeProgress: '--drawer-swipe-progress';
+}
+```
+
+### DrawerBackdropDataAttributes
+
+Data attributes of [Backdrop](#backdrop).
+
+```typescript
+declare namespace DrawerBackdropDataAttributes {
+  /** Present when the drawer is open. */
+  const open: 'data-open';
+  /** Present when the drawer is closed. */
+  const closed: 'data-closed';
+  /** Present when the drawer begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the drawer is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### DrawerCloseDataAttributes
+
+Data attributes of [Close](#close).
+
+```typescript
+declare namespace DrawerCloseDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### DrawerPopupCssVariables
+
+CSS variables of [Popup](#popup).
+
+```typescript
+declare namespace DrawerPopupCssVariables {
+  /**
+   * The number of nested drawers that are currently open.
+   * @type number
+   */
+  const nestedDrawers: '--nested-drawers';
+  /**
+   * The height of the drawer popup.
+   * @type CSS
+   */
+  const height: '--drawer-height';
+  /**
+   * The height of the frontmost open drawer in the current nested drawer stack.
+   * @type CSS
+   */
+  const frontmostHeight: '--drawer-frontmost-height';
+  /**
+   * The swipe movement on the X axis.
+   * @type CSS
+   */
+  const swipeMovementX: '--drawer-swipe-movement-x';
+  /**
+   * The swipe movement on the Y axis.
+   * @type CSS
+   */
+  const swipeMovementY: '--drawer-swipe-movement-y';
+  /**
+   * The snap point offset used for translating the drawer.
+   * @type CSS
+   */
+  const snapPointOffset: '--drawer-snap-point-offset';
+  /**
+   * A scalar (0.1-1) used to scale the swipe release transition duration in CSS.
+   * @type number
+   */
+  const swipeStrength: '--drawer-swipe-strength';
+}
+```
+
+### DrawerPopupDataAttributes
+
+Data attributes of [Popup](#popup).
+
+```typescript
+declare namespace DrawerPopupDataAttributes {
+  /** Present when the drawer is open. */
+  const open: 'data-open';
+  /** Present when the drawer is closed. */
+  const closed: 'data-closed';
+  /** Present when the drawer begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the drawer is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the drawer is at the expanded (full-height) snap point. */
+  const expanded: 'data-expanded';
+  /** Present when a nested drawer is open. */
+  const nestedDrawerOpen: 'data-nested-drawer-open';
+  /** Present when a nested drawer is being swiped. */
+  const nestedDrawerSwiping: 'data-nested-drawer-swiping';
+  /** Present when the drawer is dismissed by swiping. */
+  const swipeDismiss: 'data-swipe-dismiss';
+  /**
+   * Indicates the swipe direction.
+   * @type 'up' | 'down' | 'left' | 'right'
+   */
+  const swipeDirection: 'data-swipe-direction';
+  /** Present when the drawer is being swiped. */
+  const swiping: 'data-swiping';
+}
+```
+
+### DrawerSwipeAreaDataAttributes
+
+Data attributes of [SwipeArea](#swipearea).
+
+```typescript
+declare namespace DrawerSwipeAreaDataAttributes {
+  /** Present when the drawer is open. */
+  const open: 'data-open';
+  /** Present when the drawer is closed. */
+  const closed: 'data-closed';
+  /** Present when the swipe area is disabled. */
+  const disabled: 'data-disabled';
+  /**
+   * Indicates the swipe direction.
+   * @type 'up' | 'down' | 'left' | 'right'
+   */
+  const swipeDirection: 'data-swipe-direction';
+  /** Present when the drawer is being swiped. */
+  const swiping: 'data-swiping';
+}
+```
+
+### DrawerTriggerDataAttributes
+
+Data attributes of [Trigger](#trigger).
+
+```typescript
+declare namespace DrawerTriggerDataAttributes {
+  /** Present when the trigger is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the corresponding dialog is open. */
+  const popupOpen: 'data-popup-open';
+}
+```
+
+### DrawerViewportCssVariables
+
+CSS variables of [Viewport](#viewport).
+
+```typescript
+declare namespace DrawerViewportCssVariables {
+  /**
+   * The software keyboard inset, measured from the bottom edge of the layout viewport.
+   * Present only when the drawer is wrapped in `Drawer.VirtualKeyboardProvider`.
+   * @type CSS
+   */
+  const keyboardInset: '--drawer-keyboard-inset';
+}
+```
+
+### DrawerViewportDataAttributes
+
+Data attributes of [Viewport](#viewport).
+
+```typescript
+declare namespace DrawerViewportDataAttributes {
+  /** Present when the drawer is open. */
+  const open: 'data-open';
+  /** Present when the drawer is closed. */
+  const closed: 'data-closed';
+  /** Present when the drawer begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the drawer is animating out. */
+  const endingStyle: 'data-ending-style';
+  /** Present when the drawer is nested within another drawer. */
+  const nested: 'data-nested';
+}
+```
+
 ## External Types
 
 ### InteractionType
@@ -694,7 +896,7 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 - `Drawer.VirtualKeyboardProvider`: `Drawer.VirtualKeyboardProvider`, `Drawer.VirtualKeyboardProvider.State`, `Drawer.VirtualKeyboardProvider.Props`
 - `Drawer.createHandle`
 - `Drawer.Handle`
-- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
+- `Default`: `DrawerBackdropCssVariables`, `DrawerBackdropDataAttributes`, `DrawerPopupCssVariables`, `DrawerPopupDataAttributes`, `DrawerSwipeAreaDataAttributes`, `DrawerViewportCssVariables`, `DrawerViewportDataAttributes`, `DrawerTriggerDataAttributes`, `DrawerCloseDataAttributes`, `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
 
 ## Canonical Types
 

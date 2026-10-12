@@ -24,12 +24,12 @@ export class Store<State> {
    *
    * Do not modify properties in state directly. Instead, use the provided methods to ensure proper state management and listener notification.
    */
-  state: State;
+  declare state: State;
 
-  private listeners: Set<Listener<State>>;
+  declare private listeners: Set<Listener<State>>;
 
   // Internal state to handle recursive `setState()` calls
-  private updateTick: number;
+  declare private updateTick: number;
 
   constructor(state: State) {
     this.state = state;

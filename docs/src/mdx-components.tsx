@@ -17,6 +17,44 @@ interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
 }
 
+type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+
+function HeadingBadge({ children }: { children: React.ReactNode }) {
+  return <span className="MdHeadingBadge">{children}</span>;
+}
+
+function Heading({
+  as: Tag,
+  className,
+  children,
+  id,
+  link = false,
+  'data-heading-badge': headingBadge,
+  ...otherProps
+}: React.ComponentProps<HeadingLevel> & {
+  as: HeadingLevel;
+  link?: boolean;
+  'data-heading-badge'?: string;
+}) {
+  const badge = headingBadge ? <HeadingBadge>{headingBadge}</HeadingBadge> : null;
+
+  return (
+    <Tag className={className} id={id} {...otherProps}>
+      {link ? (
+        <HeadingLink id={id}>
+          {children}
+          {badge}
+        </HeadingLink>
+      ) : (
+        <React.Fragment>
+          {children}
+          {badge}
+        </React.Fragment>
+      )}
+    </Tag>
+  );
+}
+
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
@@ -24,25 +62,13 @@ export const mdxComponents: MDXComponents = {
   code: (props) => <Code {...props} className={clsx('MdCode', props.className)} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
-    <h1 className="MdH1" {...props} />
+    <Heading as="h1" className="MdH1" {...props} />
   ),
-  h2: ({ children, id, ...otherProps }) => {
-    return (
-      <h2 className="MdH2" id={id} {...otherProps}>
-        <HeadingLink id={id}>{children}</HeadingLink>
-      </h2>
-    );
-  },
-  h3: ({ children, id, ...otherProps }) => {
-    return (
-      <h3 className="MdH3" id={id} {...otherProps}>
-        <HeadingLink id={id}>{children}</HeadingLink>
-      </h3>
-    );
-  },
-  h4: (props) => <h4 className="MdH4" {...props} />,
-  h5: (props) => <h5 className="MdH5" {...props} />,
-  h6: (props) => <h6 className="MdH6" {...props} />,
+  h2: (props) => <Heading as="h2" className="MdH2" link {...props} />,
+  h3: (props) => <Heading as="h3" className="MdH3" link {...props} />,
+  h4: (props) => <Heading as="h4" className="MdH4" {...props} />,
+  h5: (props) => <Heading as="h5" className="MdH5" {...props} />,
+  h6: (props) => <Heading as="h6" className="MdH6" {...props} />,
   p: (props) => <p className="MdP" {...props} />,
   li: (props) => <li className="MdListItem" {...props} />,
   ul: (props) => <ul className="MdUl" {...props} />,

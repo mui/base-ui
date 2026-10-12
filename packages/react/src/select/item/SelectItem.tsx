@@ -51,16 +51,18 @@ export const SelectItem = React.memo(
     });
 
     const store = useSelectRootContext();
-    const itemProps = store.useState('itemProps');
-    const multiple = store.useState('multiple');
-    const selectDisabled = store.useState('disabled');
-    const readOnly = store.useState('readOnly');
+    const {
+      props: itemProps,
+      multiple,
+      disabled: selectDisabled,
+      readOnly,
+      isItemEqualToValue,
+    } = store.useState('itemRoot');
     const disabled = selectDisabled || disabledProp;
     const highlighted = store.useState('isActive', listItem.index);
     const open = store.useState('open');
     const selected = store.useState('isSelected', itemValue);
     const selectedByFocus = store.useState('isSelectedByFocus', listItem.index);
-    const isItemEqualToValue = store.useState('isItemEqualToValue');
 
     const index = listItem.index;
 

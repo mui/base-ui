@@ -36,10 +36,10 @@ export interface UseClickProps {
   /**
    * If already open from another event such as the `useHover()` Hook,
    * determines whether to keep the floating element open when clicking the
-   * reference element for the first time.
+   * reference element for the first time. A getter is read when the press is handled.
    * @default true
    */
-  stickIfOpen?: boolean | undefined;
+  stickIfOpen?: boolean | (() => boolean) | undefined;
   /**
    * Touch-only delay (ms) before opening. Useful to allow mobile viewport/keyboard to settle.
    * @default 0
@@ -114,7 +114,7 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
         return true;
       }
 
-      if (openEvent && stickIfOpen) {
+      if (openEvent && (typeof stickIfOpen === 'function' ? stickIfOpen() : stickIfOpen)) {
         // Preserve hover/focus-opened popups until the matching click-like event closes them.
         return !isClickLikeOpenEvent(openEvent.type);
       }
@@ -158,10 +158,19 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
 
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
+        // A screen reader press opens synchronously, so the popup's focus lands before the reader
+        // re-syncs focus to its cursor, which would otherwise read as a stray move.
         const target = getTarget(nativeEvent);
+        const isTypeable = isTypeableElement(target);
 
-        if (isTypeableElement(target)) {
-          setOpenWithTouchDelay(nextOpen, nativeEvent, target as HTMLElement, pointerType);
+        if (isTypeable || pointerType === 'virtual') {
+          // A virtual press may target a descendant of the trigger; the trigger is what opened.
+          setOpenWithTouchDelay(
+            nextOpen,
+            nativeEvent,
+            (isTypeable ? target : event.currentTarget) as HTMLElement,
+            pointerType,
+          );
           return;
         }
 

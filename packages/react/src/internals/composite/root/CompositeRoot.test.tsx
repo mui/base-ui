@@ -1,14 +1,7 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import {
-  act,
-  createRenderer,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
-import { isJSDOM } from '#test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
 import type { CompositeMetadata } from '../list/CompositeList';
@@ -72,7 +65,7 @@ describe('Composite', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const item1 = screen.getByTestId('1');
       const item2 = screen.getByTestId('2');
@@ -108,7 +101,7 @@ describe('Composite', () => {
     });
 
     it('uncontrolled mode', async () => {
-      render(
+      await render(
         <CompositeRoot>
           <CompositeItem data-testid="1">1</CompositeItem>
           <CompositeItem data-testid="2">2</CompositeItem>
@@ -163,7 +156,7 @@ describe('Composite', () => {
     });
 
     it('keeps native input behavior when the native target differs from the synthetic target', async () => {
-      render(
+      await render(
         <CompositeRoot orientation="horizontal">
           <CompositeItem data-testid="1">1</CompositeItem>
           <div data-testid="host" />
@@ -253,8 +246,8 @@ describe('Composite', () => {
           </CompositeRoot>
         );
       }
-      const { user, rerender } = render(<App items={['1', '2', '3']} />);
-      rerender(<App items={['1', '3', '2']} />);
+      const { user, rerender } = await render(<App items={['1', '2', '3']} />);
+      await rerender(<App items={['1', '3', '2']} />);
 
       const item1 = screen.getByTestId('1');
       const item3 = screen.getByTestId('3');
@@ -280,8 +273,10 @@ describe('Composite', () => {
         }
         // StrictMode masks the bug: it re-runs the item registration effects when
         // the containers move, which re-sorts the indices even without the fix.
-        const { user, rerender } = render(<App groups={['a', 'b', 'c']} />, { strict: false });
-        rerender(<App groups={['b', 'a', 'c']} />);
+        const { user, rerender } = await render(<App groups={['a', 'b', 'c']} />, {
+          strict: false,
+        });
+        await rerender(<App groups={['b', 'a', 'c']} />);
 
         const itemA = screen.getByTestId('a');
         const itemB = screen.getByTestId('b');
@@ -301,7 +296,7 @@ describe('Composite', () => {
 
     describe('Home and End keys', () => {
       it('Home key moves focus to the first item', async () => {
-        render(
+        await render(
           <CompositeRoot enableHomeAndEndKeys>
             <CompositeItem data-testid="1">1</CompositeItem>
             <CompositeItem data-testid="2">2</CompositeItem>
@@ -322,7 +317,7 @@ describe('Composite', () => {
       });
 
       it('End key moves focus to the last item', async () => {
-        render(
+        await render(
           <CompositeRoot enableHomeAndEndKeys>
             <CompositeItem data-testid="1">1</CompositeItem>
             <CompositeItem data-testid="2">2</CompositeItem>
@@ -407,7 +402,7 @@ describe('Composite', () => {
 
     describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
-        render(
+        await render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot orientation="horizontal">
@@ -461,7 +456,7 @@ describe('Composite', () => {
       });
 
       it('both horizontal and vertical orientation', async () => {
-        render(
+        await render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot orientation="both">
@@ -800,7 +795,7 @@ describe('Composite', () => {
 
     describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
-        render(
+        await render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot grid={threeColsGrid} orientation="horizontal" enableHomeAndEndKeys>
@@ -978,7 +973,7 @@ describe('Composite', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const item1 = screen.getByTestId('1');
       const item3 = screen.getByTestId('3');
@@ -1217,7 +1212,7 @@ describe('Composite', () => {
 
   describe('prop: modifierKeys', () => {
     it('prevents arrow key navigation when any modifier key is pressed by default', async () => {
-      render(
+      await render(
         <CompositeRoot>
           <CompositeItem data-testid="1">1</CompositeItem>
           <CompositeItem data-testid="2">2</CompositeItem>
@@ -1248,7 +1243,7 @@ describe('Composite', () => {
     });
 
     it('specifies allowed modifier keys that do not prevent arrow key navigation when pressed', async () => {
-      render(
+      await render(
         <CompositeRoot modifierKeys={['Alt', 'Meta']}>
           <CompositeItem data-testid="1">1</CompositeItem>
           <CompositeItem data-testid="2">2</CompositeItem>

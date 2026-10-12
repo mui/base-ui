@@ -583,6 +583,62 @@ type SliderLabelState = {
 
 ## Additional Types
 
+### SliderControlDataAttributes
+
+Data attributes of [Control](#control).
+
+```typescript
+declare namespace SliderControlDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### SliderIndicatorDataAttributes
+
+Data attributes of [Indicator](#indicator).
+
+```typescript
+declare namespace SliderIndicatorDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
 ### SliderRootChangeEventCustomProperties
 
 ```typescript
@@ -590,6 +646,120 @@ type SliderRootChangeEventCustomProperties = {
   /** The index of the active thumb at the time of the change. */
   activeThumbIndex: number;
 };
+```
+
+### SliderRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace SliderRootDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### SliderThumbDataAttributes
+
+Data attributes of [Thumb](#thumb).
+
+```typescript
+declare namespace SliderThumbDataAttributes {
+  /** Indicates the index of the thumb in range sliders. */
+  const index: 'data-index';
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### SliderTrackDataAttributes
+
+Data attributes of [Track](#track).
+
+```typescript
+declare namespace SliderTrackDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### SliderValueDataAttributes
+
+Data attributes of [Value](#value).
+
+```typescript
+declare namespace SliderValueDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
 ### ThumbMetadata
@@ -615,7 +785,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Slider.Track`: `Slider.Track`, `Slider.Track.State`, `Slider.Track.Props`
 - `Slider.Thumb`: `Slider.Thumb`, `Slider.Thumb.State`, `Slider.Thumb.Props`
 - `Slider.Indicator`: `Slider.Indicator`, `Slider.Indicator.State`, `Slider.Indicator.Props`
-- `Default`: `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderLabelState`, `SliderLabelProps`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
+- `Default`: `SliderRootDataAttributes`, `SliderValueDataAttributes`, `SliderControlDataAttributes`, `SliderTrackDataAttributes`, `SliderThumbDataAttributes`, `SliderIndicatorDataAttributes`, `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderLabelState`, `SliderLabelProps`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
 
 ## Canonical Types
 
