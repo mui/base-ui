@@ -117,6 +117,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
       return () => {
         selectedDelayTimeout.clear();
+        // A press released before the listener was added leaves it waiting for an unrelated
+        // mouseup, which would also keep this select's elements alive after unmount.
+        removeMouseUpListenerRef.current();
       };
     }
 
@@ -127,18 +130,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     };
 
     timeoutMouseDown.clear();
-    // A press released before the listener was added leaves it waiting for an unrelated mouseup.
-    removeMouseUpListenerRef.current();
 
     return undefined;
   }, [open, store, timeoutMouseDown, selectedDelayTimeout]);
-
-  React.useEffect(() => {
-    return () => {
-      // A pending listener would keep this select's elements alive until the next mouseup.
-      removeMouseUpListenerRef.current();
-    };
-  }, []);
 
   const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,

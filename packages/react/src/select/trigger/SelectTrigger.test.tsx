@@ -165,7 +165,7 @@ describe('<Select.Trigger />', () => {
       });
     });
 
-    it('ignores a later mouseup off the trigger once a released press closed the popup', async () => {
+    it('ignores a mouseup off the trigger after Escape closes a tap-opened popup', async () => {
       const onOpenChange = vi.fn();
       const { user, trigger } = await pressTrigger({ releaseImmediately: true, onOpenChange });
 
