@@ -164,6 +164,68 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
 
       expect(input).toHaveValue('pro');
     });
+
+    it('resets the controlled query when an item press closes the whole menu', async () => {
+      const onValueChange = vi.fn();
+
+      function ControlledSubmenu() {
+        const [inputValue, setInputValue] = React.useState('');
+
+        return (
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="parent-popup">
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.FilterProvider
+                    value={inputValue}
+                    onValueChange={(nextValue, eventDetails) => {
+                      onValueChange(nextValue, eventDetails.reason);
+                      setInputValue(nextValue);
+                    }}
+                  >
+                    <Menu.SubmenuRoot defaultOpen>
+                      <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Input aria-label="Filter folders" />
+                            <Menu.List>
+                              <Menu.Item>Projects</Menu.Item>
+                              <Menu.Item>Archive</Menu.Item>
+                            </Menu.List>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterProvider>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { user } = await render(<ControlledSubmenu />);
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await user.type(input, 'p');
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Archive' })).toBe(null);
+      });
+      expect(onValueChange.mock.calls).toEqual([['p', 'input-change']]);
+
+      await user.click(screen.getByRole('menuitem', { name: 'Projects' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('parent-popup')).toBe(null);
+      });
+      expect(onValueChange.mock.calls).toEqual([
+        ['p', 'input-change'],
+        ['', 'popup-close'],
+      ]);
+    });
   });
 
   describe('prop: filter', () => {

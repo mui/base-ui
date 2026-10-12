@@ -4791,6 +4791,53 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       });
       expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
     });
+
+    it.skipIf(isJSDOM)(
+      'resets the query when the menu is removed as its exit transition completes',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const onValueChange = vi.fn();
+
+        function RemovedOnCloseMenu() {
+          const [rendered, setRendered] = React.useState(true);
+
+          if (!rendered) {
+            return null;
+          }
+
+          return (
+            <ControlledQueryMenu
+              onValueChange={onValueChange}
+              rootProps={{
+                onOpenChangeComplete(open) {
+                  if (!open) {
+                    setRendered(false);
+                  }
+                },
+              }}
+            />
+          );
+        }
+
+        const { user } = await render(<RemovedOnCloseMenu />);
+        await openAndType(user, 'ap');
+
+        await user.keyboard('[Escape]');
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(onValueChange).not.toHaveBeenCalledWith('', 'popup-close');
+
+        popup.getAnimations().forEach((animation) => animation.finish());
+
+        await waitFor(() => {
+          expect(screen.queryByRole('button', { name: 'Fruit' })).toBe(null);
+        });
+        expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
+      },
+    );
   });
 
   describe('canceling changes', () => {
