@@ -168,6 +168,12 @@ describe('NumberField parse', () => {
       },
     );
 
+    it('parses a localized exponent separator typed with ASCII digits', () => {
+      const format = { notation: 'scientific' } as const;
+      // The fa-IR separator is `×۱۰^`, with Persian digits
+      expect(parseNumber('1.235×10^3', 'fa-IR', format)).toBe(1235);
+    });
+
     it('parses scientific notation permille values', () => {
       expect(parseNumber('1e-7‰', 'en-US')).toBe(1e-10);
     });
@@ -270,6 +276,158 @@ describe('NumberField parse', () => {
       );
       expect(parseNumber(en, 'en-US', { style: 'currency', currency: 'EUR' })).toBe(1234.56);
       expect(parseNumber(fr, 'fr-FR', { style: 'currency', currency: 'EUR' })).toBe(1234.56);
+    });
+
+    it.each([
+      { name: 'pt-BR BRL', locale: 'pt-BR', format: { style: 'currency', currency: 'BRL' } },
+      { name: 'pt-BR USD', locale: 'pt-BR', format: { style: 'currency', currency: 'USD' } },
+      { name: 'pt-BR EUR', locale: 'pt-BR', format: { style: 'currency', currency: 'EUR' } },
+      { name: 'en-US CHF', locale: 'en-US', format: { style: 'currency', currency: 'CHF' } },
+      { name: 'eu-ES percent', locale: 'eu-ES', format: { style: 'percent' } },
+    ] as const)('parses a prefix symbol followed by a space ($name)', ({ locale, format }) => {
+      const formatter = new Intl.NumberFormat(locale, format);
+      const value = format.style === 'percent' ? 0.14 : 13.5;
+
+      expect(parseNumber(formatter.format(value), locale, format)).toBe(value);
+      expect(parseNumber(formatter.format(-value), locale, format)).toBe(-value);
+    });
+
+    it('parses typed negatives with a spaced prefix symbol', () => {
+      const brl = { style: 'currency', currency: 'BRL' } as const;
+      expect(parseNumber('-R$ 14,00', 'pt-BR', brl)).toBe(-14);
+      expect(parseNumber('-R$ 14,00', 'pt-BR', brl)).toBe(-14);
+      expect(parseNumber('-R$ 1.234,567', 'pt-BR', brl)).toBe(-1234.567);
+      expect(parseNumber('R$ 1.234,567', 'pt-BR', brl)).toBe(1234.567);
+      expect(parseNumber('-US$ 13,00', 'pt-BR', { style: 'currency', currency: 'USD' })).toBe(-13);
+      expect(parseNumber('-€ 13', 'pt-BR', { style: 'currency', currency: 'EUR' })).toBe(-13);
+      expect(parseNumber('-CHF 13.50', 'en-US', { style: 'currency', currency: 'CHF' })).toBe(
+        -13.5,
+      );
+      expect(parseNumber('−% 14', 'eu-ES', { style: 'percent' })).toBe(-0.14);
+      expect(parseNumber('−% 14', 'eu-ES', { style: 'percent' })).toBe(-0.14);
+    });
+
+    it.each([
+      { name: 'pl-PL celsius', locale: 'pl-PL', unit: 'celsius' },
+      { name: 'pl-PL hour', locale: 'pl-PL', unit: 'hour' },
+      { name: 'pl-PL week', locale: 'pl-PL', unit: 'week' },
+      { name: 'fr-FR week', locale: 'fr-FR', unit: 'week' },
+      { name: 'de-CH hour', locale: 'de-CH', unit: 'hour' },
+      { name: 'da-DK month', locale: 'da-DK', unit: 'month' },
+      { name: 'ru-RU yard', locale: 'ru-RU', unit: 'yard' },
+      { name: 'ru-RU fluid-ounce', locale: 'ru-RU', unit: 'fluid-ounce' },
+      { name: 'en-US kilometer-per-hour', locale: 'en-US', unit: 'kilometer-per-hour' },
+      { name: 'en-US mile-per-hour', locale: 'en-US', unit: 'mile-per-hour' },
+    ] as const)('parses an abbreviated unit label ($name)', ({ locale, unit }) => {
+      const format = { style: 'unit', unit } as const;
+      const formatter = new Intl.NumberFormat(locale, format);
+
+      [1, 2, 5, 21.5, -21.5, 1234.5].forEach((value) => {
+        expect(parseNumber(formatter.format(value), locale, format)).toBe(value);
+      });
+    });
+
+    it('parses typed values with a period in the unit label', () => {
+      const celsius = { style: 'unit', unit: 'celsius' } as const;
+      expect(parseNumber('21,7 st. C', 'pl-PL', celsius)).toBe(21.7);
+      expect(parseNumber('-21,7 st. C', 'pl-PL', celsius)).toBe(-21.7);
+      expect(parseNumber('21,7 st.', 'pl-PL', celsius)).toBe(21.7);
+      expect(parseNumber('2,5 sem.', 'fr-FR', { style: 'unit', unit: 'week' })).toBe(2.5);
+    });
+
+    it.each([
+      { name: 'bn-BD', locale: 'bn-BD' },
+      { name: 'as-IN', locale: 'as-IN' },
+      { name: 'mr-IN', locale: 'mr-IN' },
+      { name: 'ne-NP', locale: 'ne-NP' },
+      { name: 'my-MM', locale: 'my-MM' },
+      { name: 'dz-BT', locale: 'dz-BT' },
+      { name: 'en-US with Thai digits', locale: 'en-US-u-nu-thai' },
+    ])('parses the default digits of the numbering system ($name)', ({ locale }) => {
+      const percent = { style: 'percent', maximumFractionDigits: 1 } as const;
+      const currency = { style: 'currency', currency: 'USD' } as const;
+
+      [1234.5, -1234.5, 0.07].forEach((value) => {
+        expect(parseNumber(new Intl.NumberFormat(locale).format(value), locale)).toBe(value);
+        expect(
+          parseNumber(new Intl.NumberFormat(locale, currency).format(value), locale, currency),
+        ).toBe(value);
+      });
+      expect(
+        parseNumber(new Intl.NumberFormat(locale, percent).format(0.125), locale, percent),
+      ).toBe(0.125);
+    });
+
+    it('parses ASCII digits in a locale with non-Latin digits', () => {
+      expect(parseNumber('1234.5', 'bn-BD')).toBe(1234.5);
+      expect(parseNumber('-12', 'mr-IN')).toBe(-12);
+    });
+
+    it('parses digits from the numberingSystem option', () => {
+      const format = { numberingSystem: 'deva' } as const;
+      const formatted = new Intl.NumberFormat('en-US', format).format(1234.5);
+
+      expect(parseNumber(formatted, 'en-US', format)).toBe(1234.5);
+    });
+
+    it.each([
+      { name: 'en-US USD', locale: 'en-US', currency: 'USD' },
+      { name: 'fr-FR EUR', locale: 'fr-FR', currency: 'EUR' },
+      { name: 'ja-JP JPY', locale: 'ja-JP', currency: 'JPY' },
+      { name: 'ar USD', locale: 'ar', currency: 'USD' },
+      { name: 'de-DE EUR (minus sign)', locale: 'de-DE', currency: 'EUR' },
+    ])('parses accounting negatives ($name)', ({ locale, currency }) => {
+      const format = { style: 'currency', currency, currencySign: 'accounting' } as const;
+      const formatter = new Intl.NumberFormat(locale, format);
+
+      expect(parseNumber(formatter.format(-13), locale, format)).toBe(-13);
+      expect(parseNumber(formatter.format(13), locale, format)).toBe(13);
+    });
+
+    it('parses typed accounting negatives', () => {
+      const format = { style: 'currency', currency: 'USD', currencySign: 'accounting' } as const;
+      expect(parseNumber('($14.00)', 'en-US', format)).toBe(-14);
+      expect(parseNumber('(14)', 'en-US', format)).toBe(-14);
+      expect(parseNumber('($14.00', 'en-US', format)).toBe(null);
+    });
+
+    it('does not read parentheses as a negative without the accounting format', () => {
+      expect(parseNumber('($14.00)', 'en-US', { style: 'currency', currency: 'USD' })).toBe(null);
+    });
+
+    it('does not read a hyphen inside a unit label as a minus sign', () => {
+      const format = { style: 'unit', unit: 'acre', unitDisplay: 'long' } as const;
+      // Irish uses `7 n-acra`, while the label for 1 is `acra`
+      const formatted = new Intl.NumberFormat('ga', format).format(7);
+
+      expect(parseNumber(formatted, 'ga', format)).toBe(7);
+    });
+
+    it('does not rescale a unit whose label contains a percent sign', () => {
+      const format = { style: 'unit', unit: 'celsius-per-percent' } as const;
+      const formatted = new Intl.NumberFormat('pl-PL', format).format(0.01);
+
+      expect(parseNumber(formatted, 'pl-PL', format)).toBe(0.01);
+      // Long percent labels change with the plural form (`٢٪` but words for 1 in ar-EG)
+      const percent = { style: 'unit', unit: 'percent', unitDisplay: 'long' } as const;
+      expect(parseNumber(new Intl.NumberFormat('ar-EG', percent).format(2), 'ar-EG', percent)).toBe(
+        2,
+      );
+      // A typed percent sign still scales other units
+      expect(parseNumber('12%', 'en-US', { style: 'unit', unit: 'kilogram' })).toBe(0.12);
+    });
+
+    it('scales percent style even when a unit option is also set', () => {
+      // Intl ignores `unit` outside unit style
+      expect(parseNumber('13%', 'en-US', { style: 'percent', unit: 'percent' })).toBe(0.13);
+    });
+
+    it('collapses many dots in linear time', () => {
+      const input = '.0'.repeat(40000);
+      const start = performance.now();
+
+      expect(parseNumber(input, 'en-US')).toBe(0);
+      expect(performance.now() - start).toBeLessThan(200);
     });
 
     it('parses units with different formats', () => {

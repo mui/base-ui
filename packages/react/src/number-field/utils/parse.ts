@@ -7,8 +7,7 @@ const HAN_NUMERALS = '零〇一二三四五六七八九';
 // Arabic-Indic (U+0660–0669), Persian (U+06F0–06F9), and fullwidth (U+FF10–FF19) digits are
 // contiguous ranges whose bases are divisible by 16, so `charCode % 16` is the digit value for
 // all three systems.
-const NON_ASCII_DIGIT_RE = /[٠-٩۰-۹０-９]/g;
-const HAN_RE = /[零〇一二三四五六七八九]/g;
+const NON_ASCII_DIGIT_RE = /[٠-٩۰-۹０-９]/;
 
 export const PERCENTAGES = ['%', '٪', '％', '﹪'];
 export const PERMILLE = ['‰', '؉'];
@@ -19,8 +18,6 @@ export const FULLWIDTH_GROUP = '，'; // U+FF0C
 
 export const PERCENT_RE = /[%٪％﹪]/;
 export const PERMILLE_RE = /[‰؉]/;
-const PERCENT_GLOBAL_RE = /[%٪％﹪]/g;
-const PERMILLE_GLOBAL_RE = /[‰؉]/g;
 
 // Detection regexes (non-global to avoid lastIndex side effects). Arabic-Indic and Persian
 // digits share one regex because both resolve to the `ar` locale heuristic.
@@ -50,8 +47,6 @@ export const FORMAT_CONTROL_DETECT_RE = /\p{Cf}/u;
 const FORMAT_CONTROL_GLOBAL_RE = /\p{Cf}/gu;
 export const PLUS_SIGNS_WITH_ASCII = ['+', '＋', '﹢'];
 export const MINUS_SIGNS_WITH_ASCII = ['-', '−', '－', '‒', '–', '—', '﹣'];
-
-const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 function shiftDecimal(value: number, exponentDelta: number) {
   const [coefficient, exponent = '0'] = String(value).split('e');
@@ -104,6 +99,14 @@ export function getNumberLocaleDetails(
   return { ...result, decimal };
 }
 
+// The digits 0–9 of the formatter's numbering system, such as `০`–`৯` for bn-BD.
+export function getLocaleDigits(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
+  const { numberingSystem } = getFormatter(locale, options).resolvedOptions();
+  return Array.from(
+    getFormatter(locale, { numberingSystem, useGrouping: false }).format(9876543210),
+  ).reverse();
+}
+
 export function parseNumber(
   formattedNumber: string,
   locale?: Intl.LocalesArgument,
@@ -111,6 +114,19 @@ export function parseNumber(
 ) {
   // Normalize control characters and whitespace; remove bidi/format controls
   let input = formattedNumber.replace(FORMAT_CONTROL_GLOBAL_RE, '').trim();
+
+  // Heuristic locale detection
+  let computedLocale = locale;
+  if (computedLocale === undefined) {
+    if (ARABIC_PERSIAN_DETECT_RE.test(input)) {
+      computedLocale = 'ar';
+    } else if (HAN_DETECT_RE.test(input)) {
+      computedLocale = 'zh';
+    }
+  }
+
+  const { group, decimal, exponentSeparator } = getNumberLocaleDetails(computedLocale, options);
+  const localeDigits = getLocaleDigits(computedLocale, options);
 
   // Normalize unicode minus/plus to ASCII, handle leading/trailing signs
   input = input.replace(ANY_MINUS_RE, '-').replace(ANY_PLUS_RE, '+');
@@ -127,89 +143,88 @@ export function parseNumber(
 
   input = input.replace(/([+-])\s*$/, takeSign).replace(/^\s*([+-])/, takeSign);
 
-  // Heuristic locale detection
-  let computedLocale = locale;
-  if (computedLocale === undefined) {
-    if (ARABIC_PERSIAN_DETECT_RE.test(input)) {
-      computedLocale = 'ar';
-    } else if (HAN_DETECT_RE.test(input)) {
-      computedLocale = 'zh';
-    }
+  // Accounting formats show negatives in parentheses, such as `($1.00)`
+  if (options?.currencySign === 'accounting') {
+    input = input.replace(/^\s*\((.*)\)\s*$/, (match, inner: string) => {
+      isNegative = true;
+      return inner;
+    });
   }
 
-  const { group, decimal, currency, exponentSeparator } = getNumberLocaleDetails(
-    computedLocale,
-    options,
-  );
+  // Remove the formatter's own labels while they still match exactly, so a `.` inside a label
+  // (`st. C`) can't be read as a separator. Signs are taken first, so a hyphen left behind by a
+  // label that only partly matches (`7 n-acra`) isn't read as one.
+  const formatter = getFormatter(computedLocale, options);
+  [SAMPLE_FORMAT_NUMBER, 1].forEach((value) => {
+    formatter.formatToParts(value).forEach((part) => {
+      if (part.type === 'currency' || part.type === 'unit') {
+        input = input.replaceAll(part.value.replace(FORMAT_CONTROL_GLOBAL_RE, ''), '');
+      }
+    });
+  });
 
-  // Build robust unit regex from all unit parts (such as "km/h")
-  const unitParts = getFormatter(computedLocale, options)
-    .formatToParts(1)
-    .filter((p) => p.type === 'unit')
-    .map((p) => escapeRegExp(p.value));
-  const unitRegex = unitParts.length ? new RegExp(unitParts.join('|'), 'g') : null;
+  // Numeral systems to ASCII digits
+  const toAsciiDigits = (text: string) =>
+    text.replace(/[\p{Nd}零〇一二三四五六七八九]/gu, (ch) => {
+      const localeDigit = localeDigits.indexOf(ch);
+      const hanDigit = HAN_NUMERALS.indexOf(ch);
+      if (localeDigit !== -1) {
+        return String(localeDigit);
+      }
+      if (hanDigit !== -1) {
+        return String(Math.max(hanDigit - 1, 0));
+      }
+      return NON_ASCII_DIGIT_RE.test(ch) ? String(ch.charCodeAt(0) % 16) : ch;
+    });
 
-  let groupRegex: RegExp | null = null;
+  input = toAsciiDigits(input);
+  // The exponent separator can contain digits (`×۱۰^` in fa-IR), typed in either numeral system
+  if (exponentSeparator) {
+    input = input.replaceAll(toAsciiDigits(exponentSeparator), 'e');
+  }
+  // A separator always comes before a digit, so drop dots that don't, such as the one left by a
+  // partially deleted unit label (`21,5 st.`)
+  input = input.replace(/\.(?!\d)/g, '');
+
   if (group) {
-    const isSpaceGroup = /\p{Zs}/u.test(group);
-    const isApostropheGroup = group === "'" || group === '’';
-
-    // Check if the group separator is a space-like character.
-    // If so, we'll replace all such characters with an empty string.
-    if (isSpaceGroup) {
-      groupRegex = /\p{Zs}/gu;
-    } else if (isApostropheGroup) {
+    let groupPattern: string | RegExp = group;
+    if (/\p{Zs}/u.test(group)) {
+      groupPattern = /\p{Zs}/gu;
+    } else if (/['’]/.test(group)) {
       // Some environments format numbers with ASCII apostrophe and others with a curly apostrophe.
-      groupRegex = /['’]/g;
-    } else {
-      groupRegex = new RegExp(escapeRegExp(group), 'g');
+      groupPattern = /['’]/g;
     }
+    input = input.replaceAll(groupPattern, '');
   }
 
-  const replacements: Array<[RegExp | null, string | ((m: string) => string)]> = [
-    [groupRegex, ''],
-    [new RegExp(escapeRegExp(decimal), 'g'), '.'],
-    // Fullwidth/Arabic punctuation
-    [/[．٫]/g, '.'], // FULLWIDTH_DECIMAL, ARABIC DECIMAL SEPARATOR (U+066B)
-    [/[，٬]/g, ''], // FULLWIDTH_GROUP, ARABIC THOUSANDS SEPARATOR (U+066C)
-    // Currency & unit labels
-    [currency ? new RegExp(escapeRegExp(currency), 'g') : null, ''],
-    [unitRegex, ''],
-    [PERCENT_GLOBAL_RE, ''],
-    [PERMILLE_GLOBAL_RE, ''],
-    [exponentSeparator ? new RegExp(escapeRegExp(exponentSeparator), 'g') : null, 'e'],
-    // Numeral systems to ASCII digits
-    [NON_ASCII_DIGIT_RE, (ch: string) => String(ch.charCodeAt(0) % 16)],
-    [HAN_RE, (ch: string) => String(Math.max(HAN_NUMERALS.indexOf(ch) - 1, 0))],
-  ];
-
-  let unformatted = replacements.reduce((acc, [regex, replacement]) => {
-    return regex ? acc.replace(regex, replacement as any) : acc;
-  }, input);
+  let unformatted = input
+    .replaceAll(decimal, '.')
+    .replace(/[．٫]/g, '.') // FULLWIDTH_DECIMAL, ARABIC DECIMAL SEPARATOR (U+066B)
+    .replace(/[，٬%٪％﹪‰؉]/g, '') // FULLWIDTH_GROUP, ARABIC THOUSANDS SEPARATOR, percent, permille
+    // Remove the space a prefix label leaves behind (`R$ 13,00` → ` 13.00`), which would otherwise
+    // separate the sign from the digits
+    .trim();
 
   // Mixed-locale safety: keep only the last '.' as decimal
-  const lastDot = unformatted.lastIndexOf('.');
-  if (lastDot !== -1) {
-    unformatted = `${unformatted.slice(0, lastDot).replace(/\./g, '')}.${unformatted.slice(lastDot + 1).replace(/\./g, '')}`;
-  }
+  const integerParts = unformatted.split('.');
+  const fraction = integerParts.pop() ?? '';
+  unformatted = integerParts.length ? `${integerParts.join('')}.${fraction}` : fraction;
 
   // Guard against Infinity inputs (ASCII and symbol)
   if (/^[-+]?Infinity$/i.test(input) || input.includes('∞')) {
     return null;
   }
 
-  const parseTarget = (isNegative ? '-' : '') + unformatted;
+  let num = parseFloat((isNegative ? '-' : '') + unformatted);
 
-  let num = parseFloat(parseTarget);
-
-  const style = options?.style;
-  const isUnitPercent = style === 'unit' && options?.unit === 'percent';
-  const hasPercentSymbol = PERCENT_RE.test(formattedNumber) || style === 'percent';
-  const hasPermilleSymbol = PERMILLE_RE.test(formattedNumber);
-
-  if (hasPermilleSymbol) {
+  // Check for a typed `%` after the labels are gone, so a unit whose label contains one
+  // (`celsius-per-percent`) isn't rescaled
+  if (PERMILLE_RE.test(input)) {
     num = shiftDecimal(num, -3);
-  } else if (!isUnitPercent && hasPercentSymbol) {
+  } else if (
+    !(options?.style === 'unit' && options.unit === 'percent') &&
+    (PERCENT_RE.test(input) || options?.style === 'percent')
+  ) {
     num = shiftDecimal(num, -2);
   }
 

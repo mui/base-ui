@@ -1396,6 +1396,180 @@ describe('<NumberField.Input />', () => {
     expect(input.value).toBe((1234.5).toLocaleString('fr-FR'));
   });
 
+  it('commits an edited negative pt-BR currency value on blur', async () => {
+    const format = { style: 'currency', currency: 'BRL' } as const;
+    const formatter = new Intl.NumberFormat('pt-BR', format);
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        name="price"
+        locale="pt-BR"
+        format={format}
+        defaultValue={-13}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(-13));
+
+    // Replace the `3` in `-R$ 13,00`.
+    const digitIndex = input.value.indexOf('13') + 1;
+    input.setSelectionRange(digitIndex, digitIndex + 1);
+    await user.keyboard('4');
+    expect(input).toHaveValue(formatter.format(-14));
+    expect(onValueChange.mock.lastCall?.[0]).toBe(-14);
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(-14);
+    expect(input).toHaveValue(formatter.format(-14));
+    expect(document.querySelector<HTMLInputElement>('input[name="price"]')).toHaveValue(-14);
+
+    await act(async () => input.focus());
+    await user.keyboard('{ArrowUp}');
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(-13);
+  });
+
+  it('commits an edited value whose unit label contains a period (pl-PL)', async () => {
+    const format = { style: 'unit', unit: 'celsius' } as const;
+    const formatter = new Intl.NumberFormat('pl-PL', format);
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="pl-PL"
+        format={format}
+        defaultValue={21.5}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(21.5));
+
+    // Replace the fraction digit in `21,5 st. C`.
+    const digitIndex = input.value.indexOf('5');
+    input.setSelectionRange(digitIndex, digitIndex + 1);
+    await user.keyboard('7');
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(21.7);
+    expect(input).toHaveValue(formatter.format(21.7));
+  });
+
+  it('accepts typed digits of the locale numbering system (bn-BD)', async () => {
+    const formatter = new Intl.NumberFormat('bn-BD');
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="bn-BD"
+        defaultValue={12}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(12));
+
+    input.setSelectionRange(input.value.length, input.value.length);
+    await user.keyboard(formatter.format(3));
+
+    expect(input).toHaveValue(formatter.format(123));
+    expect(onValueChange.mock.lastCall?.[0]).toBe(123);
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(123);
+  });
+
+  it('commits the stored value, not the compact text, on blur with rounding options', async () => {
+    const onValueCommitted = vi.fn();
+    const fractionDigits = { notation: 'compact', maximumFractionDigits: 1 } as const;
+    const significantDigits = { notation: 'compact', maximumSignificantDigits: 2 } as const;
+
+    const { setProps } = await render(
+      <NumberField.Root
+        locale="en-US"
+        format={fractionDigits}
+        defaultValue={1234}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(new Intl.NumberFormat('en-US', fractionDigits).format(1234));
+
+    fireEvent.blur(input);
+
+    // `1.2K` isn't read back as 1.2, and rounding to 1 fraction digit keeps 1234
+    expect(onValueCommitted).not.toHaveBeenCalled();
+
+    await setProps({
+      format: significantDigits,
+      defaultValue: 1234,
+      locale: 'en-US',
+      onValueCommitted,
+    });
+    await act(async () => input.focus());
+    expect(input).toHaveValue(new Intl.NumberFormat('en-US', significantDigits).format(1234));
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(1200);
+  });
+
+  it('commits an edited accounting negative on blur', async () => {
+    const format = { style: 'currency', currency: 'USD', currencySign: 'accounting' } as const;
+    const formatter = new Intl.NumberFormat('en-US', format);
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="en-US"
+        format={format}
+        defaultValue={-13}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(-13));
+
+    // Replace the `3` in `($13.00)`.
+    const digitIndex = input.value.indexOf('13') + 1;
+    input.setSelectionRange(digitIndex, digitIndex + 1);
+    await user.keyboard('4');
+    expect(input).toHaveValue(formatter.format(-14));
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(-14);
+    expect(input).toHaveValue(formatter.format(-14));
+  });
+
   it('warns in development when clipboard text cannot be read during paste handling', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 

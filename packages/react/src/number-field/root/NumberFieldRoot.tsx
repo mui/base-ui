@@ -23,6 +23,7 @@ import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   getFormatParts,
+  getLocaleDigits,
   getNumberLocaleDetails,
   PERMILLE,
   PERCENTAGES,
@@ -182,6 +183,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         keys.add(' ');
       }
     });
+    // Digits follow the locale's numbering system, such as `১২` in bn-BD
+    addAll(getLocaleDigits(locale, format));
 
     const allowPercentSymbols =
       formatStyle === 'percent' || (formatStyle === 'unit' && format?.unit === 'percent');
@@ -201,6 +204,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     addAll(PLUS_SIGNS_WITH_ASCII);
     if (minWithDefault < 0 || allowOutOfRange) {
       addAll(MINUS_SIGNS_WITH_ASCII);
+      // Accounting formats show negatives in parentheses, such as `($1.00)`
+      if (format?.currencySign === 'accounting') {
+        addAll(['(', ')']);
+      }
     }
 
     return keys;
