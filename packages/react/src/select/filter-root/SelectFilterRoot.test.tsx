@@ -570,6 +570,155 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     });
   });
 
+  describe('prop: virtualized', () => {
+    const manyItems = Array.from({ length: 100 }, (_, index) => ({
+      value: `v${index}`,
+      label: `Item ${index}`,
+    }));
+
+    function WindowedList(props: { start: number }) {
+      const items = Select.useFilteredItems<{ value: string; label: string }>();
+      return items.slice(props.start, props.start + 5).map((item, offset) => (
+        <Select.Item key={item.value} index={props.start + offset} value={item.value}>
+          <Select.ItemText>{item.label}</Select.ItemText>
+        </Select.Item>
+      ));
+    }
+
+    // Mounts five options around the highlighted one, as a virtualizer scrolled to it would.
+    function Virtualized(props: { root?: Partial<Select.Root.Props<string>> }) {
+      const [start, setStart] = React.useState(0);
+      return (
+        <Select.FilterProvider virtualized>
+          <Select.Root
+            items={manyItems}
+            onItemHighlighted={(value, { index }) => {
+              if (value !== undefined) {
+                setStart(Math.max(0, index - 2));
+              }
+            }}
+            {...props.root}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Input aria-label="Filter items" />
+                  <Select.Empty>No matches</Select.Empty>
+                  <Select.List>
+                    <WindowedList start={start} />
+                  </Select.List>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Select.FilterProvider>
+      );
+    }
+
+    async function openWithKeyboard(user: Awaited<ReturnType<typeof render>>['user']) {
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('[Enter]');
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      return input;
+    }
+
+    it('filters the root items and renders the matches from useFilteredItems', async () => {
+      const { user } = await render(<Virtualized />);
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('Item 9');
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+        'Item 9',
+        'Item 90',
+        'Item 91',
+        'Item 92',
+        'Item 93',
+      ]);
+
+      await user.keyboard('zz');
+      expect(screen.queryAllByRole('option')).toHaveLength(0);
+      expect(await screen.findByText('No matches')).toBeVisible();
+    });
+
+    it('navigates to and selects items beyond the mounted options', async () => {
+      const { user } = await render(<Virtualized />);
+      const input = await openWithKeyboard(user);
+      expect(screen.queryByRole('option', { name: 'Item 7' })).toBe(null);
+
+      await user.keyboard(
+        '[ArrowDown][ArrowDown][ArrowDown][ArrowDown][ArrowDown][ArrowDown][ArrowDown]',
+      );
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Item 7' }).id,
+        );
+      });
+
+      await user.keyboard('[Enter]');
+      expect(screen.getByTestId('value')).toHaveTextContent('Item 7');
+    });
+
+    it('moves the highlight to the last filtered item with End', async () => {
+      const { user } = await render(<Virtualized />);
+      const input = await openWithKeyboard(user);
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Item 0' }).id,
+        );
+      });
+
+      await user.keyboard('[End]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Item 99' }).id,
+        );
+      });
+    });
+
+    it('opens at a selected item that is not mounted', async () => {
+      const { user } = await render(<Virtualized root={{ defaultValue: 'v50' }} />);
+      await user.click(screen.getByTestId('trigger'));
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Item 50' })).toHaveAttribute('data-highlighted');
+      });
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Item 50' }).id,
+      );
+    });
+
+    it('throws when useFilteredItems is called without a filter provider', async () => {
+      function Probe() {
+        Select.useFilteredItems();
+        return null;
+      }
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      try {
+        await expect(render(<Probe />)).rejects.toThrow(
+          'Base UI: Select.useFilteredItems() must be called inside a select wrapped in',
+        );
+      } finally {
+        errorSpy.mockRestore();
+      }
+    });
+  });
+
   describe('prop: readOnly and disabled', () => {
     it('does not commit a highlighted option with Enter while read-only', async () => {
       const onValueChange = vi.fn();

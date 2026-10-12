@@ -10,6 +10,10 @@ import type { HTMLProps } from '../../internals/types';
 import type { SelectFilterProvider } from '../filter-provider/SelectFilterProvider';
 import { SelectFilterImplContext, SelectFilterNavigationContext } from './SelectFilterContext';
 import { SELECT_FILTER_IMPL } from './SelectFilterImpl';
+import { SelectFilteredItemsContext } from './SelectFilteredItemsContext';
+import { getFilter } from '../../internals/filter';
+import { isGroupedItems, stringifyAsLabel } from '../../internals/resolveValueLabel';
+import { findSelectionIndex } from '../../internals/itemEquality';
 
 export interface SelectFilterDropdownProps {
   openedByKeyboard: boolean;
@@ -17,6 +21,7 @@ export interface SelectFilterDropdownProps {
   filter: FilterDropdownFilter | null | undefined;
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
+  virtualized: boolean;
   navigationProps: HTMLProps;
   onValueChange: (value: string, details: SelectFilterProvider.ChangeEventDetails) => void;
   children?: React.ReactNode;
@@ -27,7 +32,8 @@ export interface SelectFilterDropdownProps {
  * engine the list the select navigates plus the props for the input that holds real focus.
  */
 export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
-  const { navigationProps, ...dropdownProps } = props;
+  const { navigationProps, virtualized, ...dropdownProps } = props;
+  const { filter, locale } = dropdownProps;
 
   const store = useSelectRootContext();
   const open = store.useState('open');
@@ -36,6 +42,11 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
   const id = store.useState('id');
   const triggerElement = store.useState('triggerElement');
   const activeIndex = store.useState('activeIndex');
+  const items = store.useState('items');
+  const itemToStringLabel = store.useState('itemToStringLabel');
+  const value = store.useState('value');
+  const multiple = store.useState('multiple');
+  const isItemEqualToValue = store.useState('isItemEqualToValue');
 
   const query = useFilterDropdownCloseQuery({
     open,
@@ -43,6 +54,39 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
     value: props.value,
     onValueChange: props.onValueChange,
   });
+
+  const defaultMatchItem = React.useMemo(() => getFilter({ locale }).contains, [locale]);
+
+  const { filteredItems, filteredValues } = React.useMemo(() => {
+    const filterQuery = query.trim();
+    const matchItem = filterQuery === '' || filter === null ? null : (filter ?? defaultMatchItem);
+    const entries: readonly any[] = Array.isArray(items)
+      ? items
+      : Object.entries(items ?? {}).map(([itemValue, label]) => ({ value: itemValue, label }));
+
+    const matches = (item: any) =>
+      matchItem === null ||
+      matchItem(
+        typeof item.label === 'string'
+          ? item.label
+          : stringifyAsLabel(item.value, itemToStringLabel),
+        filterQuery,
+      );
+
+    const nextItems = isGroupedItems(entries)
+      ? entries
+          .map((group) => ({ ...group, items: group.items.filter(matches) }))
+          .filter((group) => group.items.length > 0)
+      : entries.filter(matches);
+    const flatItems = isGroupedItems(nextItems)
+      ? nextItems.flatMap((group) => group.items)
+      : nextItems;
+
+    return {
+      filteredItems: nextItems,
+      filteredValues: flatItems.map((item: any) => item.value),
+    };
+  }, [items, query, filter, defaultMatchItem, itemToStringLabel]);
 
   const getActiveIndex = useStableCallback(() => store.state.activeIndex);
   const setActiveIndex = useStableCallback((index: number | null) => {
@@ -66,27 +110,88 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
 
   useIsoLayoutEffect(syncActiveItem, [activeIndex, syncActiveItem]);
 
+  // A virtualized list mounts only some options. Its navigable list holds a position for every
+  // filtered item and the mounted options at their indexes. The positioner's item list resets
+  // that array as the popup mounts, so it is rewritten from this registry.
+  const virtualItemsRef = React.useRef(new Map<number, HTMLElement | null>());
+
+  const syncVirtualList = useStableCallback(() => {
+    const list = store.context.listRef.current;
+    list.length = 0;
+    list.length = filteredValues.length;
+    virtualItemsRef.current.forEach((element, index) => {
+      list[index] = element;
+    });
+  });
+
+  const registerVirtualItem = useStableCallback((index: number, element: HTMLElement | null) => {
+    const virtualItems = virtualItemsRef.current;
+    virtualItems.set(index, element);
+    syncVirtualList();
+    syncActiveItem();
+    return () => {
+      if (virtualItems.get(index) === element) {
+        virtualItems.delete(index);
+        syncVirtualList();
+      }
+    };
+  });
+
+  // The values and the selected position come from the filtered `items` too.
+  useIsoLayoutEffect(() => {
+    if (!virtualized) {
+      return;
+    }
+    store.context.valuesRef.current = filteredValues;
+    syncVirtualList();
+    if (!store.state.open) {
+      store.set(
+        'selectedIndex',
+        findSelectionIndex(filteredValues, value, isItemEqualToValue, multiple),
+      );
+    }
+  }, [virtualized, filteredValues, value, isItemEqualToValue, multiple, store, syncVirtualList]);
+
+  const virtualizedCount = virtualized ? filteredValues.length : null;
   const navigationContext: SelectFilterNavigationContext = React.useMemo(
-    () => ({ navigationProps, activeItemId, syncActiveItem }),
-    [navigationProps, activeItemId, syncActiveItem],
+    () => ({
+      navigationProps,
+      activeItemId,
+      syncActiveItem,
+      virtualizedCount,
+      registerVirtualItem,
+      syncVirtualList,
+    }),
+    [
+      navigationProps,
+      activeItemId,
+      syncActiveItem,
+      virtualizedCount,
+      registerVirtualItem,
+      syncVirtualList,
+    ],
   );
 
   return (
     <SelectFilterImplContext.Provider value={SELECT_FILTER_IMPL}>
       <SelectFilterNavigationContext.Provider value={navigationContext}>
-        <FilterDropdownRoot
-          {...dropdownProps}
-          open={open}
-          disabled={disabled}
-          query={query}
-          // Trust the rendered element's id once it exists: an explicitly empty id must not
-          // fall back to a registered id that no element carries.
-          triggerId={triggerElement ? triggerElement.id || null : id}
-          listRef={store.context.listRef}
-          getActiveIndex={getActiveIndex}
-          setActiveIndex={setActiveIndex}
-          focusOwnerRef={store.context.virtualFocusRef}
-        />
+        <SelectFilteredItemsContext.Provider value={filteredItems}>
+          <FilterDropdownRoot
+            {...dropdownProps}
+            // The rendered options of a virtualized list are already filtered.
+            filter={virtualized ? null : filter}
+            open={open}
+            disabled={disabled}
+            query={query}
+            // Trust the rendered element's id once it exists: an explicitly empty id must not
+            // fall back to a registered id that no element carries.
+            triggerId={triggerElement ? triggerElement.id || null : id}
+            listRef={store.context.listRef}
+            getActiveIndex={getActiveIndex}
+            setActiveIndex={setActiveIndex}
+            focusOwnerRef={store.context.virtualFocusRef}
+          />
+        </SelectFilteredItemsContext.Provider>
       </SelectFilterNavigationContext.Provider>
     </SelectFilterImplContext.Provider>
   );

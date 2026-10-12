@@ -34,6 +34,7 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
     filter,
     autoHighlight = false,
     locale,
+    virtualized = false,
   } = filterOptions;
 
   const [open, setOpen] = useControlled({
@@ -88,6 +89,7 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
       filter={filter}
       autoHighlight={autoHighlight}
       locale={locale}
+      virtualized={virtualized}
       onValueChange={handleQueryChange}
       navigationProps={navigationProps}
     >

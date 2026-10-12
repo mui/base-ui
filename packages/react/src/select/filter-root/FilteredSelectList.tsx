@@ -5,6 +5,7 @@ import { contains } from '@base-ui/utils/shadowDom';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { NOOP } from '@base-ui/utils/empty';
 import { activeElement, getTarget } from '../../floating-ui-react/utils';
 import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
 import {
@@ -13,7 +14,11 @@ import {
   useFilterDropdownValueContext,
 } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { refocusOwner } from '../../filter-dropdown/utils/refocusOwner';
-import { useCompositeListContext } from '../../internals/composite/list/CompositeListContext';
+import {
+  CompositeListContext,
+  useCompositeListContext,
+} from '../../internals/composite/list/CompositeListContext';
+import type { CompositeListContextValue } from '../../internals/composite/list/CompositeListContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { styleDisableScrollbar } from '../../utils/styles';
@@ -22,6 +27,13 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import type { SelectListProps } from '../list/SelectList';
 import { useSelectFilterNavigationContext } from './SelectFilterContext';
 import { useSelectFilterKeyDown } from './useSelectFilterKeyDown';
+
+const DETACHED_LIST: CompositeListContextValue<unknown> = {
+  register: NOOP,
+  unregister: NOOP,
+  subscribeMapChange: () => NOOP,
+  nextIndexRef: { current: 0 },
+};
 
 /**
  * The option list of a filterable select: a listbox inside the popup dialog that holds the
@@ -38,7 +50,7 @@ export const FilteredSelectList = React.forwardRef(function FilteredSelectList(
   const { labelId: fieldLabelId } = useLabelableContext();
   const { onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
-  const { syncActiveItem } = useSelectFilterNavigationContext();
+  const { syncActiveItem, virtualizedCount, syncVirtualList } = useSelectFilterNavigationContext();
   const { subscribeMapChange } = useCompositeListContext();
 
   const id = store.useState('id');
@@ -74,6 +86,13 @@ export const FilteredSelectList = React.forwardRef(function FilteredSelectList(
   const previousItemsRef = React.useRef<readonly (HTMLElement | null)[] | null>(null);
 
   const handleItemMapChange = useStableCallback(() => {
+    if (virtualizedCount !== null) {
+      // The positioner's item list just reset the shared array.
+      syncVirtualList();
+      syncActiveItem();
+      return;
+    }
+
     const items = [...listRef.current];
     const previousItems = previousItemsRef.current;
     if (
@@ -102,6 +121,15 @@ export const FilteredSelectList = React.forwardRef(function FilteredSelectList(
     return subscribeMapChange(handleItemMapChange);
   }, [subscribeMapChange, handleItemMapChange]);
 
+  // The positioner's item list can reset the shared array again as it mounts, after every layout
+  // effect here has run, without reporting a change.
+  React.useEffect(() => {
+    if (virtualizedCount !== null) {
+      syncVirtualList();
+      syncActiveItem();
+    }
+  }, [virtualizedCount, syncVirtualList, syncActiveItem]);
+
   const listProps = mergeProps<typeof FilterDropdownList>(
     {
       id: id === undefined ? undefined : `${id}-list`,
@@ -122,6 +150,16 @@ export const FilteredSelectList = React.forwardRef(function FilteredSelectList(
   );
 
   const ref = useMergedRefs(forwardedRef, setListElement);
+
+  if (virtualizedCount !== null) {
+    // A virtualized list mounts only some options, which register at their own indexes instead
+    // of their DOM positions.
+    listProps.children = (
+      <CompositeListContext.Provider value={DETACHED_LIST}>
+        {listProps.children}
+      </CompositeListContext.Provider>
+    );
+  }
 
   return <FilterDropdownList {...listProps} ref={ref} />;
 });

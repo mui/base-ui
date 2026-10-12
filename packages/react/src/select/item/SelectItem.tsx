@@ -39,6 +39,7 @@ const SelectItemPlain = React.forwardRef(function SelectItem(
     style,
     value: itemValue = null,
     label,
+    index: indexProp,
     disabled: disabledProp = false,
     nativeButton = false,
     ...elementProps
@@ -49,6 +50,7 @@ const SelectItemPlain = React.forwardRef(function SelectItem(
     guess: true,
     label,
     textRef,
+    index: indexProp,
   });
 
   const store = useSelectRootContext();
@@ -70,13 +72,17 @@ const SelectItemPlain = React.forwardRef(function SelectItem(
   const itemRef = React.useRef<HTMLDivElement | null>(null);
 
   useIsoLayoutEffect(() => {
+    // A virtualized list's values come from the filtered `items`, not the mounted items.
+    if (indexProp != null) {
+      return undefined;
+    }
     const values = store.context.valuesRef.current;
     values[index] = itemValue;
 
     return () => {
       delete values[index];
     };
-  }, [index, itemValue, store]);
+  }, [index, indexProp, itemValue, store]);
 
   useIsoLayoutEffect(() => {
     const selectedValue = store.state.value;
@@ -268,7 +274,11 @@ export const SelectItem = React.memo(
     forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const useItemFilter = useSelectFilterImpl()?.useItem ?? useUnfilteredItem;
-    const filter = useItemFilter({ label: props.label, children: props.children });
+    const filter = useItemFilter({
+      label: props.label,
+      index: props.index,
+      children: props.children,
+    });
     const ref = useMergedRefs(forwardedRef, filter.ref);
     if (!filter.visible) {
       return null;
@@ -314,6 +324,11 @@ export interface SelectItemProps
    * Defaults to the item text content if not provided.
    */
   label?: string | undefined;
+  /**
+   * The index of the item in the list of filtered items.
+   * Only needed when the list is virtualized.
+   */
+  index?: number | undefined;
 }
 
 export namespace SelectItem {

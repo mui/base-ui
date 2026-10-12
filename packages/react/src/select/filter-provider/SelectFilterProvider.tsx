@@ -13,7 +13,16 @@ import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdo
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export function SelectFilterProvider(props: SelectFilterProvider.Props): React.JSX.Element {
-  const { children, filter, value, defaultValue, onValueChange, autoHighlight, locale } = props;
+  const {
+    children,
+    filter,
+    value,
+    defaultValue,
+    onValueChange,
+    autoHighlight,
+    locale,
+    virtualized,
+  } = props;
 
   const contextValue = React.useMemo(
     () => ({
@@ -25,9 +34,10 @@ export function SelectFilterProvider(props: SelectFilterProvider.Props): React.J
         onValueChange,
         autoHighlight,
         locale,
+        virtualized,
       },
     }),
-    [filter, value, defaultValue, onValueChange, autoHighlight, locale],
+    [filter, value, defaultValue, onValueChange, autoHighlight, locale, virtualized],
   );
 
   return (

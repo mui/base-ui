@@ -26,8 +26,15 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { selectors } from '../store';
 import type { SelectStoreContext, State as StoreState } from '../store';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIHighlightEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import { REASONS } from '../../internals/reasons';
 import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -117,6 +124,7 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
     highlightItemOnHover = true,
+    onItemHighlighted: onItemHighlightedProp,
     children,
     virtualFocus = false,
     virtualFocusInitialHighlight = false,
@@ -416,6 +424,26 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
 
   const dismiss = useDismiss(floatingContext);
 
+  const onItemHighlighted = useStableCallback(onItemHighlightedProp);
+  // The navigation event behind the next highlight change, reported as its reason.
+  const highlightEventRef = React.useRef<Event | undefined>(undefined);
+  const reportedIndexRef = React.useRef<number | null>(null);
+
+  useIsoLayoutEffect(() => {
+    const event = highlightEventRef.current;
+    highlightEventRef.current = undefined;
+    if (activeIndex === reportedIndexRef.current) {
+      return;
+    }
+    reportedIndexRef.current = activeIndex;
+    if (onItemHighlightedProp) {
+      onItemHighlighted(
+        activeIndex === null ? undefined : valuesRef.current[activeIndex],
+        createGenericEventDetails(getHighlightReason(event), event, { index: activeIndex ?? -1 }),
+      );
+    }
+  }, [activeIndex, onItemHighlighted, onItemHighlightedProp]);
+
   const navigationSelectedIndex = virtualFocus && !virtualFocusSelectedIndex ? null : selectedIndex;
 
   const listNavigation = useListNavigation(floatingContext, {
@@ -434,12 +462,15 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     loopFocus: virtualFocus,
     allowEscape: virtualFocus && allowEscape,
     resetOnPointerLeave,
-    onNavigate(nextActiveIndex) {
+    onNavigate(nextActiveIndex, event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
         return;
       }
 
+      if (nextActiveIndex !== store.state.activeIndex) {
+        highlightEventRef.current = event?.nativeEvent;
+      }
       store.set('activeIndex', nextActiveIndex);
     },
     focusItemOnHover: highlightItemOnHover,
@@ -748,6 +779,19 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    */
   highlightItemOnHover?: boolean | undefined;
   /**
+   * Callback fired when the user navigates through the list and highlights an item.
+   * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
+   * - `'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the
+   *   item list changing, or the popup opening or closing.
+   */
+  onItemHighlighted?:
+    | ((itemValue: Value | undefined, eventDetails: SelectRoot.HighlightEventDetails) => void)
+    | undefined;
+  /**
    * Whether the select popup is initially open.
    *
    * To render a controlled select popup, use the `open` prop instead.
@@ -865,6 +909,19 @@ export type SelectRootOpenChangeEventDetails = SelectRootChangeEventDetails & {
 
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 
+export type SelectRootHighlightEventReason =
+  typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
+
+export type SelectRootHighlightEventDetails = BaseUIHighlightEventDetails<
+  SelectRootHighlightEventReason,
+  {
+    /**
+     * The index of the highlighted item in the list, or `-1` when no item is highlighted.
+     */
+    index: number;
+  }
+>;
+
 export namespace SelectRoot {
   export type Props<Value, Multiple extends boolean | undefined = false> = SelectRootProps<
     Value,
@@ -875,4 +932,6 @@ export namespace SelectRoot {
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
   export type OpenChangeEventDetails = SelectRootOpenChangeEventDetails;
+  export type HighlightEventReason = SelectRootHighlightEventReason;
+  export type HighlightEventDetails = SelectRootHighlightEventDetails;
 }

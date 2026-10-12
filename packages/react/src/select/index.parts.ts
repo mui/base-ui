@@ -24,3 +24,4 @@ export { SelectInput as Input } from './input/SelectInput';
 export { SelectClear as Clear } from './clear/SelectClear';
 export { SelectEmpty as Empty } from './empty/SelectEmpty';
 export { getFilter as useFilter } from '../internals/filter';
+export { useFilteredItems } from './filter-root/SelectFilteredItemsContext';

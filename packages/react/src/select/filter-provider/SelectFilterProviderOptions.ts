@@ -22,6 +22,13 @@ export interface SelectFilterProviderOptions {
    */
   autoHighlight?: boolean | 'always' | undefined;
   /**
+   * Whether the items are being externally virtualized.
+   * The select then filters the `items` passed to `Select.Root`. Render the matches from
+   * `Select.useFilteredItems()` and pass each `Select.Item` its `index`.
+   * @default false
+   */
+  virtualized?: boolean | undefined;
+  /**
    * The locale the default `filter` uses for string comparison.
    * Defaults to the user's runtime locale.
    */

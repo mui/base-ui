@@ -1,7 +1,11 @@
 'use client';
+import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { SelectFilterItemParams, SelectFilterItemResult } from './SelectFilterContext';
+import { useSelectFilterNavigationContext } from './SelectFilterContext';
 
 function preventDefault(event: React.MouseEvent) {
   event.preventDefault();
@@ -13,7 +17,22 @@ function preventDefault(event: React.MouseEvent) {
  * `aria-activedescendant`.
  */
 export function useFilteredSelectItem(params: SelectFilterItemParams): SelectFilterItemResult {
-  const { visible, ref } = useFilterDropdownItem(params);
+  const { index } = params;
+  const { visible, ref: filterRef } = useFilterDropdownItem(params);
+  const { virtualizedCount, registerVirtualItem } = useSelectFilterNavigationContext();
   const id = useBaseUiId();
+
+  const elementRef = React.useRef<HTMLElement | null>(null);
+  const ref = useMergedRefs(filterRef, elementRef);
+  const registersAtIndex = virtualizedCount !== null && index != null;
+
+  // A virtualized list mounts only some options, each at its position among the filtered items.
+  useIsoLayoutEffect(() => {
+    if (!registersAtIndex) {
+      return undefined;
+    }
+    return registerVirtualItem(index, elementRef.current);
+  }, [registersAtIndex, index, registerVirtualItem]);
+
   return { visible, ref, props: { id, tabIndex: -1, onMouseDown: preventDefault } };
 }

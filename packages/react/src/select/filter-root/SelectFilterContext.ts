@@ -8,6 +8,7 @@ import type { FilteredSelectGroup } from './FilteredSelectGroup';
 
 export interface SelectFilterItemParams {
   label: string | undefined;
+  index: number | undefined;
   children: React.ReactNode;
 }
 
@@ -68,6 +69,12 @@ export interface SelectFilterNavigationContext {
   activeItemId: string | undefined;
   /** Re-reads the highlighted option once the list's items settle. */
   syncActiveItem: () => void;
+  /** The number of filtered items when the list is virtualized, otherwise `null`. */
+  virtualizedCount: number | null;
+  /** Registers a mounted option of a virtualized list at its index among the filtered items. */
+  registerVirtualItem: (index: number, element: HTMLElement | null) => () => void;
+  /** Rewrites the navigable list of a virtualized list from its mounted options. */
+  syncVirtualList: () => void;
 }
 
 // The engine's own context check fires first when a part renders outside the provider.
@@ -75,6 +82,9 @@ export const SelectFilterNavigationContext = React.createContext<SelectFilterNav
   navigationProps: EMPTY_OBJECT,
   activeItemId: undefined,
   syncActiveItem: NOOP,
+  virtualizedCount: null,
+  registerVirtualItem: () => NOOP,
+  syncVirtualList: NOOP,
 });
 
 export function useSelectFilterNavigationContext(): SelectFilterNavigationContext {
