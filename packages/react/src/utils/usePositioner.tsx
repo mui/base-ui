@@ -1,4 +1,5 @@
 'use client';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { popupStateMapping } from './popupStateMapping';
 import { useRenderElement } from '../internals/useRenderElement';
 import type { UseRenderElementComponentProps } from '../internals/useRenderElement';
@@ -11,7 +12,15 @@ interface UsePositionerOptions {
   props?: React.ComponentProps<'div'> | undefined;
   refs?: React.Ref<HTMLDivElement> | (React.Ref<HTMLDivElement> | undefined)[] | undefined;
   hidden?: boolean | undefined;
-  inert?: boolean | undefined;
+  /**
+   * Whether the popup is logically closed (still mounted for its exit animation).
+   * Applies HTML `inert` and disables pointer events.
+   */
+  closed?: boolean | undefined;
+  /**
+   * Disables pointer events only.
+   */
+  disablePointerEvents?: boolean | undefined;
 }
 
 /**
@@ -21,11 +30,19 @@ interface UsePositionerOptions {
 export function usePositioner<State extends Record<string, any>>(
   componentProps: UseRenderElementComponentProps<State>,
   state: State,
-  { styles, transitionStatus, props, refs, hidden, inert = false }: UsePositionerOptions,
+  {
+    styles,
+    transitionStatus,
+    props,
+    refs,
+    hidden,
+    closed = false,
+    disablePointerEvents = false,
+  }: UsePositionerOptions,
 ) {
   const style: React.CSSProperties = { ...styles };
 
-  if (inert) {
+  if (closed || disablePointerEvents) {
     style.pointerEvents = 'none';
   }
 
@@ -33,7 +50,7 @@ export function usePositioner<State extends Record<string, any>>(
     state,
     ref: refs,
     props: [
-      { role: 'presentation', hidden, style },
+      { role: 'presentation', hidden, style, inert: inertValue(closed) },
       getDisabledMountTransitionStyles(transitionStatus),
       props,
     ],

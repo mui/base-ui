@@ -1,9 +1,10 @@
-import { afterEach, expect, vi, describe, beforeEach, it } from 'vitest';
+import { afterEach, beforeAll, expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import {
   createRenderer,
   describeConformance,
+  holdExit,
   isJSDOM,
   isScrollLocked,
   pressWithTouch,
@@ -15,6 +16,8 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from './MenubarContext';
+import { useMenuRootContext } from '../menu/root/MenuRootContext';
+import type { FloatingUIOpenChangeDetails } from '../internals/types';
 
 describe('<Menubar />', () => {
   beforeEach(async () => {
@@ -49,7 +52,12 @@ describe('<Menubar />', () => {
   });
 
   it('ignores a delayed touch click immediately after focus opens another menu', async () => {
-    const { user } = await render(<ContainedTriggerMenubar />);
+    const handleInternalOpenChange = vi.fn();
+    const { user } = await render(
+      <ContainedTriggerMenubar
+        editMenuChildren={<OpenChangeSpy onOpenChange={handleInternalOpenChange} />}
+      />,
+    );
 
     await user.click(screen.getByTestId('file-trigger'));
     await screen.findByTestId('file-menu');
@@ -65,12 +73,15 @@ describe('<Menubar />', () => {
         editTrigger.focus();
       });
       screen.getByTestId('edit-menu');
+      handleInternalOpenChange.mockClear();
 
       fireEvent(
         editTrigger,
         new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
       );
       expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+      // The ignored click isn't reported as an internal close either.
+      expect(handleInternalOpenChange.mock.calls.length).toBe(0);
 
       await act(async () => {
         vi.advanceTimersByTime(310);
@@ -1275,11 +1286,118 @@ describe('<Menubar />', () => {
       expect(handleClick).not.toHaveBeenCalled();
     });
   });
+
+  describe.skipIf(isJSDOM)('while a menu is closing', () => {
+    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
+    beforeAll(async () => {
+      ({ userEvent: user } = await import('vitest/browser'));
+    });
+
+    beforeEach(() => {
+      ignoreActWarnings();
+      // Each assertion sees the previous menu mid-exit.
+      holdExit();
+    });
+
+    function ClosingMenubar() {
+      return (
+        <Menubar>
+          <Menu.Root>
+            <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="file-positioner">
+                <Menu.Popup data-testid="file-popup">
+                  <Menu.Item data-testid="file-item">Open</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Root>
+            <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="edit-positioner">
+                <Menu.Popup data-testid="edit-popup">
+                  <Menu.Item>Copy</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>
+      );
+    }
+
+    function getActiveElement() {
+      return document.activeElement as HTMLElement | null;
+    }
+
+    async function expectFileMenuToStayClosed() {
+      await waitFor(() => {
+        expect(screen.getByTestId('file-popup')).toHaveAttribute('data-ending-style');
+      });
+      expect(screen.getByTestId('file-positioner')).toHaveAttribute('inert');
+      // Give a stray focus return to the File trigger the chance to reopen its menu.
+      await wait(100);
+      expect(screen.getByTestId('file-trigger')).not.toHaveAttribute('data-popup-open');
+      expect(screen.getByTestId('file-positioner')).toHaveAttribute('inert');
+    }
+
+    it('keeps the previous menu closed when hovering another trigger', async () => {
+      await render(<ClosingMenubar />);
+
+      await user.click(screen.getByTestId('file-trigger'));
+      await waitFor(() => {
+        expect(screen.getByTestId('file-popup')).toHaveFocus();
+      });
+
+      await user.hover(screen.getByTestId('edit-trigger'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('edit-popup')).toContainElement(getActiveElement());
+      });
+      await expectFileMenuToStayClosed();
+      expect(screen.getByTestId('edit-popup')).toContainElement(getActiveElement());
+    });
+
+    it('keeps the previous menu closed when ArrowRight opens the next one', async () => {
+      await render(<ClosingMenubar />);
+
+      await act(async () => {
+        screen.getByTestId('file-trigger').focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByTestId('file-item')).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowRight}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('edit-popup')).toContainElement(getActiveElement());
+      });
+      await expectFileMenuToStayClosed();
+      expect(screen.getByTestId('edit-popup')).toContainElement(getActiveElement());
+    });
+  });
 });
 
-function ContainedTriggerMenubar(props: Menubar.Props) {
+function OpenChangeSpy(props: { onOpenChange: (details: FloatingUIOpenChangeDetails) => void }) {
+  const { onOpenChange } = props;
+  const floatingRootContext = useMenuRootContext().store.useState('floatingRootContext');
+
+  React.useEffect(() => {
+    floatingRootContext.context.events.on('openchange', onOpenChange);
+    return () => {
+      floatingRootContext.context.events.off('openchange', onOpenChange);
+    };
+  }, [floatingRootContext, onOpenChange]);
+
+  return null;
+}
+
+function ContainedTriggerMenubar(props: Menubar.Props & { editMenuChildren?: React.ReactNode }) {
+  const { editMenuChildren, ...menubarProps } = props;
   return (
-    <Menubar {...props} style={{ maxWidth: '25vw', display: 'flex' }}>
+    <Menubar {...menubarProps} style={{ maxWidth: '25vw', display: 'flex' }}>
       <Menu.Root>
         <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
         <Menu.Portal>
@@ -1304,6 +1422,7 @@ function ContainedTriggerMenubar(props: Menubar.Props) {
       </Menu.Root>
       <Menu.Root>
         <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+        {editMenuChildren}
         <Menu.Portal>
           <Menu.Positioner data-testid="edit-menu">
             <Menu.Popup>

@@ -27,7 +27,12 @@ import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
-import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
+import {
+  AFTER_TRIGGER,
+  BEFORE_TRIGGER,
+  focusRoute,
+  getFocusRoute,
+} from '../../floating-ui-react/utils/focusRoute';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
@@ -159,7 +164,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   React.useEffect(() => {
     const doc = ownerDocument(triggerRef.current);
 
-    if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
+    if (isOpenedByThisTrigger && store.select('openReason') === REASONS.triggerHover) {
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
 
       return () => {
@@ -190,9 +195,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   });
 
   // Whether to ignore clicks to open the menu.
-  // `lastOpenChangeReason` doesn't need to be reactive here, as we need to run this
+  // `openReason` doesn't need to be reactive here, as we need to run this
   // only when `isOpenedByThisTrigger` changes.
-  const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
+  const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('openReason'));
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled,
@@ -220,11 +225,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
   // A filterable menu keeps real focus inside its popup and publishes what its trigger needs.
   const filterTriggerProps = store.useState('filterTriggerProps');
-
-  const { handlePreFocusGuardFocus, handleFocusTargetFocus } = useTriggerFocusGuards(
-    store,
-    triggerElementRef,
-  );
 
   const state: MenuTriggerState = {
     disabled,
@@ -288,17 +288,20 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   // regardless of whether the focus guards are rendered or not.
 
   if (isOpenedByThisTrigger) {
+    const route = getFocusRoute(floatingRootContext);
+    const handleGuardFocus = (event: React.FocusEvent<HTMLElement>) =>
+      focusRoute(floatingRootContext, event);
     return (
       <React.Fragment>
         <FocusGuard
-          ref={store.context.beforeTriggerFocusGuardRef}
-          onFocus={handlePreFocusGuardFocus}
+          ref={route[BEFORE_TRIGGER]}
+          onFocus={handleGuardFocus}
           key={`${thisTriggerId}-pre-focus-guard`}
         />
         <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
         <FocusGuard
-          ref={store.context.triggerFocusTargetRef}
-          onFocus={handleFocusTargetFocus}
+          ref={route[AFTER_TRIGGER]}
+          onFocus={handleGuardFocus}
           key={`${thisTriggerId}-post-focus-guard`}
         />
       </React.Fragment>

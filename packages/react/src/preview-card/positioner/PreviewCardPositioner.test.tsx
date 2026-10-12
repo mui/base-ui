@@ -1,10 +1,11 @@
-import { afterEach, expect, vi, describe, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import {
   createRenderer,
   describeConformance,
+  holdExit,
   isJSDOM,
   positionerConformanceTests,
 } from '#test-utils';
@@ -835,6 +836,56 @@ describe('<PreviewCard.Positioner />', () => {
       await waitFor(() => {
         expectWithin(positioner.getBoundingClientRect().y, expectedY);
       });
+    });
+  });
+
+  // The browser blurs a focused element once an ancestor becomes `inert`; jsdom doesn't.
+  describe.skipIf(isJSDOM)('while closing', () => {
+    let user: Awaited<typeof import('vitest/browser')>['userEvent'];
+    beforeAll(async () => {
+      ({ userEvent: user } = await import('vitest/browser'));
+    });
+
+    beforeEach(() => {
+      ignoreActWarnings();
+    });
+
+    it('does not keep focus inside the closing card', async () => {
+      holdExit();
+      await render(
+        <PreviewCard.Root>
+          <PreviewCard.Trigger href="#" delay={0} closeDelay={0} data-testid="trigger">
+            Link
+          </PreviewCard.Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner data-testid="positioner">
+              <PreviewCard.Popup data-testid="popup">
+                <button>Inside</button>
+              </PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+
+      await user.hover(screen.getByTestId('trigger'));
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-open');
+      });
+      const button = screen.getByRole('button', { name: 'Inside' });
+      await user.click(button);
+      expect(button).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      });
+      expect(positioner).toHaveAttribute('inert');
+
+      await waitFor(() => {
+        expect(button).not.toHaveFocus();
+      });
+      expect(positioner).not.toContainElement(document.activeElement as HTMLElement | null);
     });
   });
 });

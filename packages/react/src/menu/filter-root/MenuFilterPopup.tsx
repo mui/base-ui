@@ -21,18 +21,18 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
   const open = store.useState('open');
   const parent = store.useState('parent');
   const openMethod = store.useState('openMethod');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const openReason = store.useState('openReason');
 
   const interactionProps = useMenuFilterPopup(orientation);
 
-  const openedByHover = open && lastOpenChangeReason === REASONS.triggerHover;
+  const openedByHover = openReason === REASONS.triggerHover;
   const mayFocusInput =
     parent.type !== 'menu' ||
     (open &&
       (openMethod === 'keyboard' ||
-        lastOpenChangeReason === REASONS.listNavigation ||
-        lastOpenChangeReason === REASONS.triggerHover ||
-        lastOpenChangeReason === REASONS.triggerPress));
+        openReason === REASONS.listNavigation ||
+        openedByHover ||
+        openReason === REASONS.triggerPress));
 
   // The input holds real focus; the popup is never the focus target.
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = false;

@@ -16,7 +16,6 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
     initialFocus: testInitialFocus = true,
     triggerRole = 'button',
     alwaysMounted = false,
-    mouseCloseType = 'mouse',
   } = config;
 
   function Test(props: { popupProps?: PopupFocusProps; withPopupInputs?: boolean }) {
@@ -328,7 +327,7 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
-      expect(finalFocusSpy).toHaveBeenNthCalledWith(1, mouseCloseType);
+      expect(finalFocusSpy).toHaveBeenNthCalledWith(1, 'mouse');
 
       await user.click(trigger);
       await screen.findByText('Close');
@@ -401,10 +400,4 @@ export interface PopupFocusPropsTestsConfig {
    * @default false
    */
   alwaysMounted?: boolean;
-  /**
-   * The close type passed to a `finalFocus` function when the "Close" control is clicked with a
-   * mouse. Only set it to document a popup whose close control doesn't report the pointer type.
-   * @default 'mouse'
-   */
-  mouseCloseType?: InteractionType;
 }

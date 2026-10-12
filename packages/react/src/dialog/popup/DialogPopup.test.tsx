@@ -3,7 +3,13 @@ import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
-import { describeConformance, createRenderer, isJSDOM, popupFocusPropsTests } from '#test-utils';
+import {
+  closingPopupConformanceTests,
+  describeConformance,
+  createRenderer,
+  isJSDOM,
+  popupFocusPropsTests,
+} from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
   const { render } = createRenderer();
@@ -522,6 +528,24 @@ describe('<Dialog.Popup />', () => {
 
       expect(parentDialog).toHaveAttribute('data-nested-dialog-open');
       expect(nestedDialog).not.toHaveAttribute('data-nested-dialog-open');
+    });
+  });
+
+  describe('during the exit animation', () => {
+    describe('non-modal', () => {
+      closingPopupConformanceTests({
+        createComponent: (props) => (
+          <Dialog.Root modal={false} {...props.root}>
+            <Dialog.Trigger {...props.trigger}>Open dialog</Dialog.Trigger>
+            <Dialog.Portal {...props.portal}>
+              <Dialog.Popup {...props.popup}>Dialog</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ),
+        render,
+        triggerMouseAction: 'click',
+        closing: { inert: 'popup', returnFocus: true, focusGuards: true },
+      });
     });
   });
 });

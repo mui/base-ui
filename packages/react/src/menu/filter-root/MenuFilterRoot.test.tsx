@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   act,
   fireEvent,
@@ -17,6 +18,7 @@ import type userEvent from '@testing-library/user-event';
 import {
   createRenderer,
   firePointer,
+  holdExit,
   isJSDOM,
   resetBrowserPointer,
   waitSingleFrame,
@@ -104,7 +106,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
   describe('filtering', () => {
     it.skipIf(isJSDOM).each(['ArrowDown', 'ArrowUp'])(
-      'ignores %s in the input while the popup animates out',
+      'ignores %s that reaches the input while the popup animates out',
       async (key) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
         onTestFinished(() => {
@@ -146,9 +148,12 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         await waitFor(() => expect(input).toHaveFocus());
         await user.keyboard('[Escape]');
         expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
-        expect(input).toHaveFocus();
+        // Focus returns to the trigger when the menu closes, so the key goes to the input directly.
+        await waitFor(() => expect(trigger).toHaveFocus());
 
-        await user.keyboard(`[${key}]`);
+        await act(async () => {
+          input.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+        });
 
         expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -159,7 +164,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       { name: 'an empty query', query: '', matches: 2 },
       { name: 'a query', query: 're', matches: 1 },
     ])(
-      'ignores text typed in the input while the popup animates out with $name',
+      'ignores an edit that reaches the input while the popup animates out with $name',
       async ({ query, matches }) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
         onTestFinished(() => {
@@ -206,7 +211,8 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
         await user.keyboard('[Escape]');
         expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
-        expect(input).toHaveFocus();
+        // Focus returns to the trigger when the menu closes, so the edit goes to the input directly.
+        await waitFor(() => expect(trigger).toHaveFocus());
         // The closing popup keeps showing the query it closed with.
         expect(input).toHaveValue(query);
         const changesBeforeTyping = onValueChange.mock.calls.map(([value, details]) => [
@@ -214,7 +220,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
           details.reason,
         ]);
 
-        await user.keyboard('n');
+        fireEvent.change(input, { target: { value: `${query}n` } });
 
         expect(onValueChange.mock.calls.map(([value, details]) => [value, details.reason])).toEqual(
           changesBeforeTyping,
@@ -1655,97 +1661,81 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(onValueChange.mock.calls[0][1].reason).toBe('popup-close');
     });
 
-    it.skipIf(isJSDOM)(
-      'keeps submenu filtering updated during the exit transition',
-      async ({ onTestFinished }) => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-        onTestFinished(() => {
-          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-        });
+    it('keeps submenu filtering updated during the exit transition', async () => {
+      const exit = holdExit();
+      let addApricot = () => {};
+      let closeSubmenu = () => {};
 
-        let addApricot = () => {};
-        let closeSubmenu = () => {};
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        const [items, setItems] = React.useState(['Apple', 'Banana']);
+        addApricot = () => setItems((currentItems) => [...currentItems, 'Apricot']);
+        closeSubmenu = () => setOpen(false);
 
-        function Test() {
-          const [open, setOpen] = React.useState(true);
-          const [items, setItems] = React.useState(['Apple', 'Banana']);
-          addApricot = () => setItems((currentItems) => [...currentItems, 'Apricot']);
-          closeSubmenu = () => setOpen(false);
+        return (
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterProvider>
+                    <Menu.SubmenuRoot open={open} onOpenChange={setOpen}>
+                      <Menu.SubmenuTrigger>Fruit</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="popup">
+                            <Menu.Input aria-label="Filter fruit" />
+                            <Menu.List>
+                              {items.map((item) => (
+                                <Menu.Item key={item}>{item}</Menu.Item>
+                              ))}
+                            </Menu.List>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterProvider>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
 
-          return (
-            <React.Fragment>
-              <style>{`
-                @keyframes filter-menu-close-test {
-                  to { opacity: 0; }
-                }
-                .filter-menu-close-test[data-ending-style] {
-                  animation: filter-menu-close-test 10s linear;
-                }
-              `}</style>
-              <Menu.Root defaultOpen>
-                <Menu.Trigger>Actions</Menu.Trigger>
-                <Menu.Portal>
-                  <Menu.Positioner>
-                    <Menu.Popup>
-                      <Menu.FilterProvider>
-                        <Menu.SubmenuRoot open={open} onOpenChange={setOpen}>
-                          <Menu.SubmenuTrigger>Fruit</Menu.SubmenuTrigger>
-                          <Menu.Portal>
-                            <Menu.Positioner>
-                              <Menu.Popup data-testid="popup" className="filter-menu-close-test">
-                                <Menu.Input aria-label="Filter fruit" />
-                                <Menu.List>
-                                  {items.map((item) => (
-                                    <Menu.Item key={item}>{item}</Menu.Item>
-                                  ))}
-                                </Menu.List>
-                              </Menu.Popup>
-                            </Menu.Positioner>
-                          </Menu.Portal>
-                        </Menu.SubmenuRoot>
-                      </Menu.FilterProvider>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.Root>
-            </React.Fragment>
-          );
-        }
-
-        const { user } = await render(<Test />);
-        const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
-        await user.click(input);
-        await user.type(input, 'ap');
-        await waitFor(() => {
-          expect(input).toHaveValue('ap');
-        });
-        await act(async () => {
-          closeSubmenu();
-        });
-
-        const popup = screen.getByTestId('popup');
-        await waitFor(() => {
-          expect(popup).toHaveAttribute('data-ending-style');
-        });
+      const { user } = await render(<Test />);
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      await user.click(input);
+      await user.type(input, 'ap');
+      await waitFor(() => {
         expect(input).toHaveValue('ap');
-        await act(async () => {
-          addApricot();
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menuitem', { name: 'Apricot' })).toBeVisible();
-        });
-        expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
+      });
+      await act(async () => {
+        ReactDOM.flushSync(() => closeSubmenu());
+        // Focus returns to the submenu trigger at the logical close.
+        await Promise.resolve();
+      });
+      expect(screen.getByRole('menuitem', { name: 'Fruit' })).toHaveFocus();
 
-        popup.getAnimations().forEach((animation) => animation.finish());
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+      expect(input).toHaveValue('ap');
+      await act(async () => {
+        addApricot();
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Apricot' })).toBeVisible();
+      });
+      expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
 
-        await user.click(screen.getByRole('menuitem', { name: 'Fruit' }));
-        expect(await screen.findByRole('searchbox', { name: 'Filter fruit' })).toHaveValue('');
-        expect(await screen.findByRole('menuitem', { name: 'Banana' })).toBeVisible();
-      },
-    );
+      await exit.release();
+      expect(screen.queryByTestId('popup')).toBe(null);
+
+      await user.click(screen.getByRole('menuitem', { name: 'Fruit' }));
+      expect(await screen.findByRole('searchbox', { name: 'Filter fruit' })).toHaveValue('');
+      expect(await screen.findByRole('menuitem', { name: 'Banana' })).toBeVisible();
+    });
 
     it('leaves the uncontrolled query and visible items unchanged when a change is canceled', async () => {
       const { user } = await render(

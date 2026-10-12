@@ -121,7 +121,7 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
   const direction = useDirection();
 
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
-    // Like a plain menu, ignore keys while the popup animates out with the input still focused.
+    // Like a plain menu, ignore keys that reach the input while the popup animates out.
     if (!store.select('open')) {
       return;
     }

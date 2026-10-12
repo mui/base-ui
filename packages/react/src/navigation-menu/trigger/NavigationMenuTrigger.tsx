@@ -25,8 +25,6 @@ import {
   closest,
   contains,
   getTabbableNearElement,
-  getNextTabbable,
-  getPreviousTabbable,
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
@@ -429,11 +427,24 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     transitionStatus,
   ]);
 
+  const context = useFloatingRootContext({
+    open,
+    onOpenChange: handleOpenChange,
+    elements: {
+      reference: triggerElement,
+      floating: hoverFloatingElement,
+    },
+  });
+
   function handleOpenChange(
     nextOpen: boolean,
     eventDetails: Omit<NavigationMenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) {
     const isHover = eventDetails.reason === REASONS.triggerHover;
+
+    // An item has no open-change transaction, so every request reaches the floating interactions,
+    // including the ones it ignores below.
+    context.dispatchOpenChange(nextOpen, eventDetails);
 
     if (!interactionsEnabled) {
       return;
@@ -472,15 +483,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       changeState();
     }
   }
-
-  const context = useFloatingRootContext({
-    open,
-    onOpenChange: handleOpenChange,
-    elements: {
-      reference: triggerElement,
-      floating: hoverFloatingElement,
-    },
-  });
 
   const hoverInteractionState = useHoverInteractionSharedState(context);
   const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
@@ -742,8 +744,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
               if (referenceElement && isOutsideEvent(event, referenceElement)) {
                 beforeInsideRef.current?.focus();
               } else {
-                const prevTabbable = getPreviousTabbable(triggerElement);
-                prevTabbable?.focus();
+                (
+                  getTabbableNearElement(event.currentTarget, -1, [], false) ?? triggerElement
+                )?.focus();
               }
             }}
           />
@@ -758,18 +761,15 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                 const elementToFocus = afterInsideRef.current || triggerElement;
                 elementToFocus?.focus();
               } else {
-                let nextTabbable = getNextTabbable(triggerElement);
-
-                if (
-                  nested &&
-                  !positionerElement &&
-                  referenceElement &&
-                  nextTabbable &&
-                  contains(referenceElement, nextTabbable)
-                ) {
-                  nextTabbable = getTabbableNearElement(afterInsideRef.current, 1);
-                }
-
+                const nextTabbable =
+                  getTabbableNearElement(
+                    event.currentTarget,
+                    1,
+                    // A nested menu without a positioner renders its viewport inline after the
+                    // trigger. Skip the content that focus is leaving.
+                    nested && !positionerElement ? [referenceElement] : [],
+                    false,
+                  ) ?? triggerElement;
                 nextTabbable?.focus();
 
                 if ((!nested || positionerElement) && !contains(rootRef.current, nextTabbable)) {

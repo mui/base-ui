@@ -177,7 +177,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     if (
       nestedTriggerHovered &&
       store.select('open') &&
-      store.select('lastOpenChangeReason') === REASONS.triggerHover
+      store.select('openReason') === REASONS.triggerHover
     ) {
       store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
       return;

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -79,6 +80,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
         role,
         ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
+        inert: inertValue(!open),
         onKeyDown(event: React.KeyboardEvent) {
           if (COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();

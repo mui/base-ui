@@ -57,7 +57,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const floatingRootContext = store.useState('floatingRootContext');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
-  const openReason = store.useState('openChangeReason');
+  const openReason = store.useState('openReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
@@ -120,7 +120,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
-    inert: !open,
+    closed: !open,
   });
 
   return (

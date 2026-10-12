@@ -41,6 +41,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+  /** The reason of the latest accepted open or close. `openReason` tells why the menu opened. */
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
   floatingNodeId: string | undefined;
@@ -68,9 +69,6 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
   /** Whether a filterable menu's trigger was last pressed by a screen reader. */
   virtualPress?: boolean | undefined;
-  readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
-  readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
-  readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
 
 const selectors = {
@@ -280,9 +278,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     reportedItem: undefined,
     allowMouseUpTriggerRef: { current: false },
     virtualFocusRef: undefined,
-    triggerFocusTargetRef: React.createRef<HTMLElement>(),
-    beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
-    beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
     triggerElements,
   };
