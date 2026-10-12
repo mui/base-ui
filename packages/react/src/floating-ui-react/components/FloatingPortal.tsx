@@ -89,8 +89,13 @@ export function useFloatingPortalNode(
   });
 
   const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
+  const [refCheck, setRefCheck] = React.useState<object | null>(null);
+  const pendingRefCheckRef = React.useRef<object | null>(null);
 
   useIsoLayoutEffect(() => {
+    const isRefCheck = refCheck !== null && pendingRefCheckRef.current === refCheck;
+    pendingRefCheckRef.current = null;
+
     // Wait for the container to be resolved if explicitly `null`.
     if (containerProp === null) {
       if (containerRef.current) {
@@ -128,18 +133,28 @@ export function useFloatingPortalNode(
       }
     }
 
-    if (containerProp && !isNode(containerProp) && !containerProp.current) {
-      // Ancestor and later sibling refs attach after this layout effect. Wait until the commit
-      // finishes before resolving an empty ref so the portal never mounts in the wrong container.
-      queueMicrotask(resolveContainer);
-    } else {
+    const isEmptyRef = containerProp && !isNode(containerProp) && !containerProp.current;
+    if (isEmptyRef && !isRefCheck) {
+      // Ancestor and later sibling refs attach after this layout effect. A state update re-runs it
+      // synchronously after the commit, before paint, so the portal never mounts elsewhere.
+      const token = {};
+      pendingRefCheckRef.current = token;
+      setRefCheck(token);
+      return undefined;
+    }
+
+    if (!isEmptyRef) {
       resolveContainer();
+    }
+    if (isRefCheck) {
+      // Later updates in this task can still attach, move, or clear the ref.
+      queueMicrotask(resolveContainer);
     }
 
     return () => {
       cancelled = true;
     };
-  }, [containerProp, parentPortalNode]);
+  }, [containerProp, parentPortalNode, refCheck]);
 
   const portalElement = useRenderElement('div', componentProps, {
     ref: [ref, setPortalNodeRef],

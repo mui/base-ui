@@ -223,6 +223,50 @@ describe.each([
     },
   );
 
+  test('mounts inside an ancestor ref during a synchronous render', () => {
+    function Test() {
+      const container = React.useRef<HTMLDivElement>(null);
+      return (
+        <div ref={container} data-testid="container">
+          <Portal container={container}>
+            <div data-testid="content" />
+          </Portal>
+        </div>
+      );
+    }
+
+    render(<Test />);
+
+    expect(screen.getByTestId('container')).toContainElement(screen.getByTestId('content'));
+  });
+
+  test('uses a container that a later update in the same task replaces', async () => {
+    function Test() {
+      const container = React.useRef<HTMLDivElement>(null);
+      const [step, setStep] = React.useState(0);
+
+      useIsoLayoutEffect(() => {
+        if (step < 2) {
+          setStep(step + 1);
+        }
+      }, [step]);
+
+      const containerId = step < 2 ? 'first' : 'second';
+      return (
+        <React.Fragment>
+          <Portal container={container} data-testid="portal">
+            <div data-testid="content" />
+          </Portal>
+          <div key={containerId} ref={container} data-testid={containerId} />
+        </React.Fragment>
+      );
+    }
+
+    await renderPortal(<Test />, { strict: false });
+
+    expect(screen.getByTestId('portal').parentElement).toBe(screen.getByTestId('second'));
+  });
+
   test.each([{ nested: false }, { nested: true }])(
     'uses the fallback container when a ref stays empty (nested=$nested)',
     async ({ nested }) => {
