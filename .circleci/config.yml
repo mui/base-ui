@@ -311,7 +311,9 @@ jobs:
             # TEMPORARY: the dashboard preview of mui/mui-public#1898, since production does not read
             # version 2 benchmark reports yet. Remove before merging.
             CI_REPORT_API_URL: https://code-infra-dashboard-pr-1898.onrender.com
-          command: pnpm test:benchmark --baseline "$(cat .benchmark-baseline-sha)"
+          # 30 rounds before deciding, then at most 1 minute per benchmark, to keep a pull request's
+          # check short.
+          command: pnpm test:benchmark --sample-size 30 --timeout 1 --baseline "$(cat .benchmark-baseline-sha)"
       - save_cache:
           name: Save the packed-baseline cache
           key: benchmark-packed-v1-{{ checksum ".benchmark-baseline-sha" }}
