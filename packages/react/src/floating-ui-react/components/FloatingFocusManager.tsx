@@ -94,9 +94,15 @@ function addPreviouslyFocusedElement(element: Element | null | undefined) {
   }
 }
 
-function getPreviouslyFocusedElement() {
+function getPreviouslyFocusedElement(visibleOnly?: boolean) {
   clearDisconnectedPreviouslyFocusedElements();
-  return previouslyFocusedElements[previouslyFocusedElements.length - 1]?.deref();
+  for (let i = previouslyFocusedElements.length - 1; i >= 0; i -= 1) {
+    const element = previouslyFocusedElements[i].deref();
+    if (!visibleOnly || canReturnFocusTo(element)) {
+      return element;
+    }
+  }
+  return undefined;
 }
 
 function getFirstTabbableElement(container: Element | null) {
@@ -109,6 +115,13 @@ function getFirstTabbableElement(container: Element | null) {
   }
 
   return tabbable(container)[0] || container;
+}
+
+// Elements inside a closed `keepMounted` popup stay connected but hidden, so they can't take focus.
+// `[hidden]` covers browsers without `checkVisibility()`.
+function canReturnFocusTo(element: Element | null | undefined) {
+  const target = getFirstTabbableElement(element ?? null);
+  return isElementVisible(target) && !closest(target, '[hidden]');
 }
 
 function handleTabIndex(floatingFocusElement: HTMLElement) {
@@ -860,9 +873,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         resolvedReturnFocusValue = true;
       }
 
-      const referenceReturnElement = domReference?.isConnected ? domReference : null;
+      const referenceReturnElement = canReturnFocusTo(domReference) ? domReference : null;
       const previousReturnElement =
-        elementFocusedBeforeOpen?.isConnected && getNodeName(elementFocusedBeforeOpen) !== 'body'
+        elementFocusedBeforeOpen !== doc.body && canReturnFocusTo(elementFocusedBeforeOpen)
           ? elementFocusedBeforeOpen
           : null;
 
@@ -871,7 +884,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         : referenceReturnElement || previousReturnElement;
 
       if (!defaultReturnElement) {
-        defaultReturnElement = getPreviouslyFocusedElement() || null;
+        defaultReturnElement = getPreviouslyFocusedElement(true) || null;
       }
 
       if (typeof resolvedReturnFocusValue === 'boolean') {
@@ -897,7 +910,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
       const closeType = closeTypeRef.current;
-      const returnElement = getReturnElement(closeType);
 
       const job = { cancelled: false };
       pendingReturnFocusRef.current = job;
@@ -906,6 +918,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (pendingReturnFocusRef.current === job) {
           pendingReturnFocusRef.current = null;
         }
+        // Resolved after the closing commit so the visibility checks see its DOM updates.
+        const returnElement = getReturnElement(closeType);
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);

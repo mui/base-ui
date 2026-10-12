@@ -2337,6 +2337,86 @@ describe('FloatingFocusManager', () => {
     });
   });
 
+  describe('prop: returnFocus', () => {
+    test('true: returns focus to the first tabbable element inside a `display: contents` reference', async () => {
+      function App() {
+        const [isOpen, setIsOpen] = React.useState(false);
+        const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+        return (
+          <>
+            <div ref={refs.setReference} style={{ display: 'contents' }}>
+              <button onClick={() => setIsOpen(true)}>open</button>
+            </div>
+            {isOpen && (
+              <FloatingFocusManager context={context.rootStore}>
+                <div ref={refs.setFloating}>
+                  <button onClick={() => setIsOpen(false)}>close</button>
+                </div>
+              </FloatingFocusManager>
+            )}
+          </>
+        );
+      }
+
+      render(<App />);
+
+      const open = screen.getByRole('button', { name: 'open' });
+      expect(document.body).toHaveFocus();
+      fireEvent.click(open);
+
+      const close = screen.getByRole('button', { name: 'close' });
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
+
+      fireEvent.click(close);
+
+      await waitFor(() => {
+        expect(open).toHaveFocus();
+      });
+    });
+
+    test('true: returns focus to a reference revealed in the same commit that unmounts the floating element', async () => {
+      function App() {
+        const [isOpen, setIsOpen] = React.useState(false);
+        const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+        return (
+          <>
+            <button ref={refs.setReference} hidden={isOpen} onClick={() => setIsOpen(true)}>
+              open
+            </button>
+            {isOpen && (
+              <FloatingFocusManager context={context.rootStore}>
+                <div ref={refs.setFloating}>
+                  <button onClick={() => setIsOpen(false)}>close</button>
+                </div>
+              </FloatingFocusManager>
+            )}
+          </>
+        );
+      }
+
+      render(<App />);
+
+      const open = screen.getByRole('button', { name: 'open' });
+      fireEvent.click(open);
+
+      const close = screen.getByRole('button', { name: 'close' });
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
+      expect(open).toHaveAttribute('hidden');
+
+      fireEvent.click(close);
+
+      await waitFor(() => {
+        expect(open).toHaveFocus();
+      });
+    });
+  });
+
   describe.skipIf(!isJSDOM)(
     'JSDOM-only coverage: combobox, focus return, hover and tabIndex scenarios',
     () => {
