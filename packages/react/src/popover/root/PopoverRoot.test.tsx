@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Popover } from '@base-ui/react/popover';
 import { Combobox } from '@base-ui/react/combobox';
 import { Menu } from '@base-ui/react/menu';
@@ -1908,6 +1909,43 @@ describe('<Popover.Root />', () => {
 
         expect(screen.queryByRole('dialog')).toBe(null);
         expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+      });
+
+      it('clears the starting style when a controlled close and `unmount` are batched right after opening', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        let setOpenFromTest: (open: boolean) => void = () => {};
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          setOpenFromTest = setOpen;
+          return (
+            <TestPopover
+              rootProps={{
+                open,
+                actionsRef,
+                onOpenChange: (nextOpen) => {
+                  setOpen(nextOpen);
+                  if (!nextOpen) {
+                    actionsRef.current!.unmount();
+                  }
+                },
+              }}
+              portalProps={{ keepMounted: true }}
+            />
+          );
+        }
+
+        await render(<App />);
+
+        await act(async () => {
+          // Close before the frame that clears the starting style.
+          ReactDOM.flushSync(() => setOpenFromTest(true));
+          expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-starting-style');
+          actionsRef.current!.close();
+        });
+
+        expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-closed');
+        expect(screen.getByTestId('popover-popup')).not.toHaveAttribute('data-starting-style');
       });
 
       it('closes the popover when the `close` method is called', async () => {

@@ -66,4 +66,32 @@ describe('useTransitionStatus', () => {
 
     expect(screen.getByTestId('status')).toHaveAttribute('data-status', 'none');
   });
+
+  it('clears the starting status when an unmount and a close are batched', async () => {
+    vi.spyOn(AnimationFrame, 'request').mockImplementation(() => 1);
+    const controls: {
+      current: { setOpen: (open: boolean) => void; setMounted: (mounted: boolean) => void } | null;
+    } = { current: null };
+
+    function UnmountableTest() {
+      const [open, setOpen] = React.useState(false);
+      const { transitionStatus, setMounted } = useTransitionStatus(open);
+      controls.current = { setOpen, setMounted };
+      return <div data-testid="status" data-status={transitionStatus ?? 'none'} />;
+    }
+
+    await render(<UnmountableTest />);
+    await act(async () => {
+      controls.current!.setOpen(true);
+    });
+    expect(screen.getByTestId('status')).toHaveAttribute('data-status', 'starting');
+
+    // A forced unmount batched with the close skips the ending phase.
+    await act(async () => {
+      controls.current!.setMounted(false);
+      controls.current!.setOpen(false);
+    });
+
+    expect(screen.getByTestId('status')).toHaveAttribute('data-status', 'none');
+  });
 });
