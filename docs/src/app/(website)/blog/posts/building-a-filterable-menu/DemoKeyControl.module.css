@@ -41,7 +41,7 @@
     color: inherit;
     font: inherit;
     line-height: 1;
-    font-size: var(--font-size-16);
+    font-size: var(--font-size-14);
 
     &::placeholder {
       color: var(--gray-t1);

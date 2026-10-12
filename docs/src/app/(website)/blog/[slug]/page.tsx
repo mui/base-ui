@@ -52,11 +52,13 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <React.Fragment>
-      <h1 className="Text sz-4 bp2:sz-5 bui-gcs-1 bui-gce-9 bp1:bui-gce-8 bp2:bui-gce-7 bp4:bui-gce-5">
+      <h1
+        className="Text sz-4 bp2:sz-5 bui-gcs-1 bui-gce-9 bp2:bui-gce-7 bp3:bui-gcs-3 bp3:bui-gce-8 bp4:bui-gce-7"
+        style={{ textWrap: 'pretty' }}
+      >
         {post.title}
       </h1>
-      <hr className="bui-gcs-1 bui-gce-5" />
-      <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3" style={{ color: 'var(--gray-t1)' }}>
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gce-3" style={{ color: 'var(--gray-t1)' }}>
         <time dateTime={post.publishedAt.toISOString()} className="bui-d-b">
           {post.publishedAt.toLocaleDateString('en', {
             dateStyle: 'long',

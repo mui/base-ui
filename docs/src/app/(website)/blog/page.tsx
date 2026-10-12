@@ -11,7 +11,6 @@ export default async function BlogPage() {
   return (
     <React.Fragment>
       <h1 className="Text sz-4 bp2:sz-5 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">Notes on interfaces</h1>
-      <hr className="bui-gcs-1 bui-gce-5" />
       <ul className="List bui-d-c">
         {posts.map((post, index) => (
           <li key={post.slug} className="bui-d-c">

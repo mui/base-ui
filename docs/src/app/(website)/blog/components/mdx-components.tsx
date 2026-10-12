@@ -16,7 +16,7 @@ export const mdxComponents = {
     ...props
   }: React.ComponentProps<'pre'> & React.ComponentProps<typeof CodeBlockPreComputed>) =>
     'data-precompute' in props ? (
-      <CodeBlock.Root className="MdFigure BlogMdArticleBreakout">
+      <CodeBlock.Root className="MdFigure BlogMdArticleBreakout" showCopy={false}>
         <CodeBlockPreComputed {...props} />
       </CodeBlock.Root>
     ) : (

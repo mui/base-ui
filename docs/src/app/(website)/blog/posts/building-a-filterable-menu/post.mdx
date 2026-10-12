@@ -5,7 +5,6 @@ import videoLightKeyboardInteraction from './video-light-keyboard-interaction.mp
 import videoDarkHoverInteraction from './video-dark-hover-interaction.mp4';
 import videoLightHoverInteraction from './video-light-hover-interaction.mp4';
 import DemoKeyControl from './DemoKeyControl';
-import DiagramAccessibility from './DiagramAccessibility';
 
 # Building a filterable menu that works for everyone
 
@@ -107,15 +106,6 @@ Inside, the dialog affordance helps communicate to screen reader users that they
 | NVDA (Windows)    | Insert, or Caps Lock if enabled                                  | Down Arrow       |
 
 VoiceOver goes even further and announces that the dialog contains two items. It doesn't say what they are, but the count reinforces that there's more to explore. In our case, those two items are the input and the menu.
-
-<Figure>
-  <FigureFrame>
-    <Diagram minWidth={600}>
-      <DiagramAccessibility />
-    </Diagram>
-  </FigureFrame>
-  <Figcaption>Accessibility structure of a filterable menu.</Figcaption>
-</Figure>
 
 ## Navigating with the keyboard
 
@@ -254,5 +244,5 @@ Try it yourself in the [Menu docs](/react/components/menu#filtering)
 
 export const post = {
   authors: ['jenna', 'james'],
-  publishedAt: new Date('2026-10-07'),
+  publishedAt: new Date('2026-10-14'),
 };

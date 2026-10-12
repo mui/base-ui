@@ -52,6 +52,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 <Link className="Text sz-1" href="https://base-ui.com/r/discord">
                   Discord
                 </Link>
+                <Link className="Text sz-1" href="/blog">
+                  Blog
+                </Link>
               </nav>
               <div className="bui-d-n bp3:bui-d-f bui-fd-c bui-g-2 bui-ai-s bui-gcs-7 bui-gce-9">
                 <SearchControls mobileTriggerClassName="bui-d-n" />
