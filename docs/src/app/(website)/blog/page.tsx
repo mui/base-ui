@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, ResolvingMetadata } from 'next';
 import clsx from 'clsx';
 import { Link } from 'docs/src/components/Link';
 import { getPosts } from './posts';
@@ -46,14 +46,22 @@ export default async function BlogPage() {
   );
 }
 
-export const metadata: Metadata = {
-  title: { absolute: 'Blog · Base UI' },
-  description: 'Articles about Base UI and building accessible user interfaces.',
-  alternates: { canonical: '/blog' },
-  openGraph: {
-    type: 'website',
+const description = 'Design and engineering notes from the Base UI team.';
+
+export async function generateMetadata(
+  _props: unknown,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  return {
     title: 'Blog',
-    description: 'Articles about Base UI and building accessible user interfaces.',
-    url: '/blog',
-  },
-};
+    description,
+    alternates: { canonical: '/blog' },
+    openGraph: {
+      ...(await parent).openGraph,
+      type: 'website',
+      title: 'Blog',
+      description,
+      url: '/blog',
+    },
+  };
+}
