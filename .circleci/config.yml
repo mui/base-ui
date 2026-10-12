@@ -272,9 +272,47 @@ jobs:
             echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
       - run:
           name: Run head benchmarks
+          # TEMPORARY: not uploaded while `Benchmark CLI` uploads instead, since both write the
+          # commit's `benchmark.json` and the PR comment. Restore before merging.
+          command: pnpm test:benchmark:vitest
+
+  test_benchmark_cli:
+    <<: *default-job
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.63.0-noble
+    # Building both sides is most of the setup time, and more logical CPUs leave the browser less to
+    # contend with while sampling. The `benchmark` CLI warns below 3.
+    resource_class: large
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - run:
+          name: Resolve the baseline commit
+          # On a pull request the fork point, on master the previous commit.
+          command: |
+            set -e
+            BASE_SHA=$(pnpm code-infra baseline --base-branch master)
+            echo "Baseline commit: $BASE_SHA"
+            echo "$BASE_SHA" > .benchmark-baseline-sha
+      - restore_cache:
+          name: Restore the packed-baseline cache
+          keys:
+            - benchmark-packed-v1-{{ checksum ".benchmark-baseline-sha" }}
+      - run:
+          name: Run benchmarks
+          no_output_timeout: 30m
           environment:
             BENCHMARK_UPLOAD: 'true'
-          command: pnpm test:benchmark
+            # TEMPORARY: the dashboard preview of mui/mui-public#1898, since production does not read
+            # version 2 benchmark reports yet. Remove before merging.
+            CI_REPORT_API_URL: https://code-infra-dashboard-pr-1898.onrender.com
+          command: pnpm test:benchmark --baseline "$(cat .benchmark-baseline-sha)"
+      - save_cache:
+          name: Save the packed-baseline cache
+          key: benchmark-packed-v1-{{ checksum ".benchmark-baseline-sha" }}
+          paths:
+            - test/benchmark/.benchmark/packed
 
 workflows:
   pipeline:
@@ -311,6 +349,9 @@ workflows:
       - test_benchmark:
           <<: *default-context
           name: 'Benchmark tests'
+      - test_benchmark_cli:
+          <<: *default-context
+          name: 'Benchmark CLI'
   # On master merges rather than every push: in September 2026 these jobs used 26% of the repo's
   # credits, and every failure they had that the regular JSDOM/browser jobs didn't was a flake or an
   # infra error.

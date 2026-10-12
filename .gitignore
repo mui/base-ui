@@ -48,3 +48,7 @@ test-results/
 
 # Benchmark results
 test/performance/benchmarks/results.json
+
+# `benchmark` CLI output and generated pages
+.benchmark/
+test/benchmark/src/__bench__/
