@@ -5,6 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { ownerWindow } from '@base-ui/utils/owner';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
@@ -230,17 +231,26 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       const selectionStart = target.selectionStart;
       const selectionEnd = target.selectionEnd;
       const textContent = target.value;
+      // The caret follows the input's own text direction, which can differ from the
+      // composite's, such as an email field with `dir="ltr"` in a right-to-left toolbar.
+      let caretForwardKey = forwardKey;
+      let caretBackwardKey = backwardKey;
+      if (orientation !== 'vertical') {
+        const isInputRtl = ownerWindow(target).getComputedStyle(target).direction === 'rtl';
+        caretForwardKey = isInputRtl ? ARROW_LEFT : ARROW_RIGHT;
+        caretBackwardKey = isInputRtl ? ARROW_RIGHT : ARROW_LEFT;
+      }
       // return to native textbox behavior when
       // 1 - Shift is held to make a text selection, or if there already is a text selection
       if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
         return;
       }
       // 2 - arrow-ing forward and not in the last position of the text
-      if (event.key !== backwardKey && selectionStart < textContent.length) {
+      if (event.key !== caretBackwardKey && selectionStart < textContent.length) {
         return;
       }
       // 3 -arrow-ing backward and not in the first position of the text
-      if (event.key !== forwardKey && selectionStart > 0) {
+      if (event.key !== caretForwardKey && selectionStart > 0) {
         return;
       }
     }

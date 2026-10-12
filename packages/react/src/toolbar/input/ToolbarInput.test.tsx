@@ -95,11 +95,13 @@ describe('<Toolbar.Input />', () => {
       async (direction, nextKey, previousKey) => {
         const { user } = await render(
           <DirectionProvider direction={direction}>
-            <Toolbar.Root orientation="horizontal">
-              <Toolbar.Button data-testid="before" />
-              <Toolbar.Input defaultValue="abcd" />
-              <Toolbar.Button data-testid="after" />
-            </Toolbar.Root>
+            <div dir={direction}>
+              <Toolbar.Root orientation="horizontal">
+                <Toolbar.Button data-testid="before" />
+                <Toolbar.Input defaultValue="abcd" />
+                <Toolbar.Button data-testid="after" />
+              </Toolbar.Root>
+            </div>
           </DirectionProvider>,
         );
         const input = screen.getByRole('textbox') as HTMLInputElement;
@@ -133,6 +135,40 @@ describe('<Toolbar.Input />', () => {
         expect(before).toHaveFocus();
       },
     );
+
+    it('follows the caret of a left-to-right input in a right-to-left toolbar', async () => {
+      const { user } = await render(
+        <DirectionProvider direction="rtl">
+          <div dir="rtl">
+            <Toolbar.Root orientation="horizontal">
+              <Toolbar.Button data-testid="before" />
+              <Toolbar.Input dir="ltr" defaultValue="abcd" />
+              <Toolbar.Button data-testid="after" />
+            </Toolbar.Root>
+          </div>
+        </DirectionProvider>,
+      );
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+      const before = screen.getByTestId('before');
+
+      await user.keyboard('[Tab]');
+      await user.keyboard(`[${ARROW_LEFT}]`);
+      expect(input).toHaveFocus();
+
+      input.setSelectionRange(0, 0);
+      await user.keyboard(`[${ARROW_RIGHT}]`);
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(1);
+
+      input.setSelectionRange(4, 4);
+      await user.keyboard(`[${ARROW_LEFT}]`);
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(3);
+
+      input.setSelectionRange(4, 4);
+      await user.keyboard(`[${ARROW_RIGHT}]`);
+      expect(before).toHaveFocus();
+    });
 
     // when navigating through RTL text in real browsers the arrow keys for
     // moving the text insertion cursor is also reversed from LTR but this doesn't
