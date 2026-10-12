@@ -7,7 +7,7 @@ import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilte
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { HTMLProps } from '../../internals/types';
-import type { SelectFilterRoot } from './SelectFilterRoot';
+import type { SelectFilterProvider } from '../filter-provider/SelectFilterProvider';
 import { SelectFilterImplContext, SelectFilterNavigationContext } from './SelectFilterContext';
 import { SELECT_FILTER_IMPL } from './SelectFilterImpl';
 
@@ -18,7 +18,7 @@ export interface SelectFilterDropdownProps {
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
   navigationProps: HTMLProps;
-  onValueChange: (value: string, details: SelectFilterRoot.InputValueChangeEventDetails) => void;
+  onValueChange: (value: string, details: SelectFilterProvider.ChangeEventDetails) => void;
   children?: React.ReactNode;
 }
 

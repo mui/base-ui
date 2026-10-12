@@ -42,6 +42,18 @@ export function useSelectFilterImpl(): SelectFilterImpl | null {
   return React.useContext(SelectFilterImplContext);
 }
 
+/** Throws when a filter part renders in a select that isn't wrapped in `Select.FilterProvider`. */
+export function useSelectFilterPart(part: string) {
+  if (useSelectFilterImpl() === null) {
+    throw new Error(
+      `Base UI: <Select.${part}> must be placed in a select wrapped in <Select.FilterProvider>. ` +
+        'It reads the filter query and the matching items from the provider, which a plain ' +
+        'select does not have. Wrap the <Select.Root> it belongs to in <Select.FilterProvider>. ' +
+        'See https://base-ui.com/react/components/select#filtering',
+    );
+  }
+}
+
 const UNFILTERED: SelectFilterItemResult = { visible: true, ref: null };
 
 /** The hook a plain select's items call in place of the injected one. */

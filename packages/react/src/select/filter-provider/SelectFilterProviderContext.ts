@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { SelectFilterRoot } from '../filter-root/SelectFilterRoot';
-import type { SelectFilterProviderProps } from './SelectFilterProvider';
-
-export type SelectFilterOptions = Omit<SelectFilterProviderProps, 'children'>;
+import type { SelectFilterProviderOptions } from './SelectFilterProviderOptions';
 
 /**
  * What `Select.FilterProvider` hands to the root directly inside it: the filterable root
@@ -11,7 +9,7 @@ export type SelectFilterOptions = Omit<SelectFilterProviderProps, 'children'>;
  */
 export interface SelectFilterProviderContext {
   Root: typeof SelectFilterRoot;
-  options: SelectFilterOptions;
+  options: SelectFilterProviderOptions;
 }
 
 /** Non-null only directly below a provider. The root that consumes it resets it. */

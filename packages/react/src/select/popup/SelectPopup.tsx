@@ -43,23 +43,13 @@ const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
 interface SelectPopupPlainProps extends SelectPopupProps {
   /** A filter root's own initial focus target; the plain default focuses the highlighted item. */
   initialFocus?: FloatingFocusManagerProps['initialFocus'] | undefined;
-  /** Whether a filter root traps focus in the popup. */
-  modal?: boolean | undefined;
 }
 
 export const SelectPopupPlain = React.forwardRef(function SelectPopup(
   componentProps: SelectPopupPlainProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    render,
-    className,
-    style,
-    finalFocus,
-    initialFocus,
-    modal: modalProp = false,
-    ...elementProps
-  } = componentProps;
+  const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
 
   const store = useSelectRootContext();
   const multiple = store.useState('multiple');
@@ -489,7 +479,7 @@ export const SelectPopupPlain = React.forwardRef(function SelectPopup(
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
         context={floatingRootContext}
-        modal={modalProp}
+        modal={false}
         disabled={!mounted}
         openInteractionType={openMethod}
         initialFocus={initialFocus}

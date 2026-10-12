@@ -50,7 +50,7 @@ import {
 } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
-import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
+import { isKeyboardClick, isKeyboardOpen } from '../../utils/isKeyboardOpen';
 
 /**
  * @internal

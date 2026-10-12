@@ -20,7 +20,7 @@ export { SelectSeparator as Separator } from './separator/SelectSeparator';
 
 // Filtering. The provider is the only part that bundles the filter implementation.
 export { SelectFilterProvider as FilterProvider } from './filter-provider/SelectFilterProvider';
-export { SelectFilterInput as FilterInput } from './filter-input/SelectFilterInput';
-export { SelectFilterClear as FilterClear } from './filter-clear/SelectFilterClear';
-export { SelectFilterEmpty as FilterEmpty } from './filter-empty/SelectFilterEmpty';
+export { SelectInput as Input } from './input/SelectInput';
+export { SelectClear as Clear } from './clear/SelectClear';
+export { SelectEmpty as Empty } from './empty/SelectEmpty';
 export { getFilter as useFilter } from '../internals/filter';

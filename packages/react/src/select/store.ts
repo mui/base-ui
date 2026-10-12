@@ -82,7 +82,7 @@ export type SelectStoreContext = {
   readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   readonly initialValueRef: React.RefObject<any>;
   /**
-   * Whether real focus stays on `Select.FilterInput` while the list is navigated with
+   * Whether real focus stays on `Select.Input` while the list is navigated with
    * `aria-activedescendant`. Set by the filter root and fixed for the store's lifetime.
    */
   readonly virtualFocus: boolean;

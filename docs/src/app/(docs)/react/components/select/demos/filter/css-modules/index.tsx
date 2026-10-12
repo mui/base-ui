@@ -103,16 +103,16 @@ function FilterablePopup(props: FilterablePopupProps) {
   return (
     <Select.Popup className={styles.Popup}>
       <div className={styles.InputContainer}>
-        <Select.FilterInput
+        <Select.Input
           className={styles.Input}
           aria-label={props.inputLabel}
           placeholder={props.placeholder}
         />
-        <Select.FilterClear className={styles.Clear} aria-label="Clear filter">
+        <Select.Clear className={styles.Clear} aria-label="Clear filter">
           <ClearIcon />
-        </Select.FilterClear>
+        </Select.Clear>
       </div>
-      <Select.FilterEmpty className={styles.Empty}>{props.emptyText}</Select.FilterEmpty>
+      <Select.Empty className={styles.Empty}>{props.emptyText}</Select.Empty>
       <Select.ScrollUpArrow className={styles.ScrollArrow}>
         <CaretUpIcon />
       </Select.ScrollUpArrow>

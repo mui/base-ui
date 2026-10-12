@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useMenuFilterPopup } from './useMenuFilterPopup';
+import { useFilterDropdownPopup } from '../../filter-dropdown/popup/useFilterDropdownPopup';
 import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
 import { MenuPopupPlain } from '../popup/MenuPopup';
 import type { MenuPopupProps } from '../popup/MenuPopup';
@@ -23,7 +23,7 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
   const openMethod = store.useState('openMethod');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
-  const interactionProps = useMenuFilterPopup(orientation);
+  const interactionProps = useFilterDropdownPopup(orientation, 'Menu');
 
   const openedByHover = open && lastOpenChangeReason === REASONS.triggerHover;
   const mayFocusInput =

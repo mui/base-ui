@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import type { FilterDropdownRoot as FilterDropdownRootNamespace } from '../../filter-dropdown/root/FilterDropdownRoot';
-import { isKeyboardOpen } from './isKeyboardOpen';
+import { isKeyboardOpen } from '../../utils/isKeyboardOpen';
 import type { HTMLProps } from '../../internals/types';
 import { SelectRootInternal } from '../root/SelectRoot';
 import type { SelectRoot } from '../root/SelectRoot';
-import type { SelectFilterRootFilterProps } from './SelectFilterRootFilterProps';
+import type { SelectFilterProvider } from '../filter-provider/SelectFilterProvider';
+import type { SelectFilterProviderOptions } from '../filter-provider/SelectFilterProviderOptions';
 import { SelectFilterDropdown } from './SelectFilterDropdown';
 
 /**
@@ -24,14 +24,17 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
     open: openProp,
     defaultOpen = false,
     onOpenChange,
-    inputValue: inputValueProp,
-    defaultInputValue = '',
-    onInputValueChange,
+    filterOptions,
+    ...otherProps
+  } = props;
+  const {
+    value: queryProp,
+    defaultValue: defaultQuery = '',
+    onValueChange: onQueryChange,
     filter,
     autoHighlight = false,
     locale,
-    ...otherProps
-  } = props;
+  } = filterOptions;
 
   const [open, setOpen] = useControlled({
     controlled: openProp,
@@ -39,21 +42,29 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
     name: 'SelectFilterRoot',
     state: 'open',
   });
-  const [inputValue, setInputValue] = useControlled({
-    controlled: inputValueProp,
-    default: defaultInputValue,
+  const [query, setQuery] = useControlled({
+    controlled: queryProp,
+    default: defaultQuery,
     name: 'SelectFilterRoot',
-    state: 'inputValue',
+    state: 'value',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
+  // Navigation starts from the selected option until the query changes during this open.
+  const [queryChanged, setQueryChanged] = React.useState(false);
+  const [previousOpen, setPreviousOpen] = React.useState(open);
+  if (open !== previousOpen) {
+    setPreviousOpen(open);
+    setQueryChanged(false);
+  }
 
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
 
-  const handleInputValueChange = useStableCallback(
-    (nextValue: string, details: SelectFilterRoot.InputValueChangeEventDetails) => {
-      onInputValueChange?.(nextValue, details);
+  const handleQueryChange = useStableCallback(
+    (nextQuery: string, details: SelectFilterProvider.ChangeEventDetails) => {
+      onQueryChange?.(nextQuery, details);
       if (!details.isCanceled) {
-        setInputValue(nextValue);
+        setQuery(nextQuery);
+        setQueryChanged(true);
       }
     },
   );
@@ -66,18 +77,18 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
       }
 
       setOpen(nextOpen);
-      setInputFocusVisible(nextOpen && isKeyboardOpen(details));
+      setInputFocusVisible(nextOpen && isKeyboardOpen(details.reason, details.event));
     },
   );
 
   const renderVirtualFocusChildren = (navigationProps: HTMLProps) => (
     <SelectFilterDropdown
       openedByKeyboard={inputFocusVisible}
-      value={inputValue}
+      value={query}
       filter={filter}
       autoHighlight={autoHighlight}
       locale={locale}
-      onValueChange={handleInputValueChange}
+      onValueChange={handleQueryChange}
       navigationProps={navigationProps}
     >
       {children}
@@ -91,6 +102,7 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
       onOpenChange={handleOpenChange}
       virtualFocus
       virtualFocusInitialHighlight={inputFocusVisible}
+      virtualFocusSelectedIndex={query === '' && !queryChanged}
       virtualFocusRef={focusOwnerRef}
       allowEscape={!autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
@@ -99,29 +111,16 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
   );
 }
 
-/**
- * Determines whether an item matches the current filter query.
- *
- * @param text The item's `label`, or its rendered text when the prop is not set.
- * @param query The trimmed filter query.
- */
-export type SelectFilterFunction = (text: string, query: string) => boolean;
-
-export type SelectFilterRootProps<
+export interface SelectFilterRootProps<
   Value,
   Multiple extends boolean | undefined = false,
-> = SelectRoot.Props<Value, Multiple> & SelectFilterRootFilterProps;
-
-export type SelectFilterRootInputValueChangeEventReason =
-  FilterDropdownRootNamespace.ChangeEventReason;
-export type SelectFilterRootInputValueChangeEventDetails =
-  FilterDropdownRootNamespace.ChangeEventDetails;
+> extends SelectRoot.Props<Value, Multiple> {
+  filterOptions: SelectFilterProviderOptions;
+}
 
 export namespace SelectFilterRoot {
   export type Props<Value, Multiple extends boolean | undefined = false> = SelectFilterRootProps<
     Value,
     Multiple
   >;
-  export type InputValueChangeEventReason = SelectFilterRootInputValueChangeEventReason;
-  export type InputValueChangeEventDetails = SelectFilterRootInputValueChangeEventDetails;
 }

@@ -64,6 +64,12 @@ interface SelectRootInternalProps<
   virtualFocusInitialHighlight?: boolean | undefined;
   /**
    * @ignore
+   * Whether list navigation can start from the selected option. Filtering leaves `selectedIndex`
+   * pointing at a stale position, so a filter root turns this off once the query changes.
+   */
+  virtualFocusSelectedIndex?: boolean | undefined;
+  /**
+   * @ignore
    * The element that retains real focus while virtual list navigation is active.
    */
   virtualFocusRef?: React.RefObject<HTMLElement | null> | undefined;
@@ -114,6 +120,7 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     children,
     virtualFocus = false,
     virtualFocusInitialHighlight = false,
+    virtualFocusSelectedIndex = false,
     virtualFocusRef,
     allowEscape = true,
     resetOnPointerLeave,
@@ -409,19 +416,21 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
 
   const dismiss = useDismiss(floatingContext);
 
+  const navigationSelectedIndex = virtualFocus && !virtualFocusSelectedIndex ? null : selectedIndex;
+
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !disabled,
     listRef,
     activeIndex,
-    // Filtering leaves `selectedIndex` stale while the popup is open, and the hook seeds its
-    // cursor from it, so a filterable select navigates from the first visible option instead.
-    selectedIndex: virtualFocus ? null : selectedIndex,
+    selectedIndex: navigationSelectedIndex,
     disabledIndices: EMPTY_ARRAY,
     virtual: virtualFocus,
-    // A filterable select keeps DOM focus on its input, while keyboard and virtual opens
-    // initially highlight an option as an ordinary select does. The input remains part of the
-    // arrow-key loop.
-    focusItemOnOpen: virtualFocus ? virtualFocusInitialHighlight : undefined,
+    // A filterable select keeps DOM focus on its input. Like an ordinary select, it opens on the
+    // selected option; without one, keyboard and virtual opens highlight the first option. The
+    // input remains part of the arrow-key loop.
+    focusItemOnOpen: virtualFocus
+      ? virtualFocusInitialHighlight || navigationSelectedIndex !== null
+      : undefined,
     loopFocus: virtualFocus,
     allowEscape: virtualFocus && allowEscape,
     resetOnPointerLeave,
@@ -674,7 +683,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   return (
     // The root consumes its provider so a plain select nested inside doesn't inherit it.
     <SelectFilterProviderContext.Provider value={null}>
-      <FilterRoot {...filter.options} {...props} />
+      {/* Kept apart from the root's props, where the query's `value` would clash. */}
+      <FilterRoot {...props} filterOptions={filter.options} />
     </SelectFilterProviderContext.Provider>
   );
 }

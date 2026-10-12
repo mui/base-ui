@@ -17,7 +17,7 @@ describe('Select filter parts conformance', () => {
           <Select.Portal>
             <Select.Positioner>
               <Select.Popup>
-                {withInput && <Select.FilterInput aria-label="Filter" />}
+                {withInput && <Select.Input aria-label="Filter" />}
                 {node}
               </Select.Popup>
             </Select.Positioner>
@@ -42,25 +42,25 @@ describe('Select filter parts conformance', () => {
       ),
   }));
 
-  describeConformance(<Select.FilterInput />, () => ({
+  describeConformance(<Select.Input />, () => ({
     refInstanceof: window.HTMLInputElement,
     render: (node) => renderInPopup(node, undefined, false),
   }));
 
-  describeConformance(<Select.FilterClear />, () => ({
+  describeConformance(<Select.Clear />, () => ({
     refInstanceof: window.HTMLButtonElement,
     button: true,
-    render: (node) => renderInPopup(node, { defaultInputValue: 'query' }),
+    render: (node) => renderInPopup(node, { defaultValue: 'query' }),
   }));
 
-  describeConformance(<Select.FilterEmpty />, () => ({
+  describeConformance(<Select.Empty />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => renderInPopup(node),
   }));
 
   describeConformance(
     <Select.Popup>
-      <Select.FilterInput aria-label="Filter" />
+      <Select.Input aria-label="Filter" />
     </Select.Popup>,
     () => ({
       refInstanceof: window.HTMLDivElement,
@@ -93,12 +93,16 @@ describe('Select filter parts conformance', () => {
     render: (node) => renderInList(node),
   }));
 
-  it('throws when a filter part renders without any root', async () => {
+  it.each([
+    ['Input', <Select.Input />],
+    ['Clear', <Select.Clear />],
+    ['Empty', <Select.Empty />],
+  ])('throws when <Select.%s> is rendered without a filter provider', async (part, element) => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     try {
-      await expect(render(<Select.FilterEmpty />)).rejects.toThrow(
-        'Base UI: Filter parts are missing their filter context',
+      await expect(render(element)).rejects.toThrow(
+        `Base UI: <Select.${part}> must be placed in a select wrapped in <Select.FilterProvider>.`,
       );
     } finally {
       errorSpy.mockRestore();
@@ -115,13 +119,15 @@ describe('Select filter parts conformance', () => {
             <Select.Portal>
               <Select.Positioner>
                 <Select.Popup>
-                  <Select.FilterInput aria-label="Filter" />
+                  <Select.Input aria-label="Filter" />
                 </Select.Popup>
               </Select.Positioner>
             </Select.Portal>
           </Select.Root>,
         ),
-      ).rejects.toThrow('Base UI: Filter parts are missing their filter context');
+      ).rejects.toThrow(
+        'Base UI: <Select.Input> must be placed in a select wrapped in <Select.FilterProvider>.',
+      );
     } finally {
       errorSpy.mockRestore();
     }

@@ -253,6 +253,42 @@ type SelectValueState = {
 };
 ```
 
+### Input
+
+A search field that filters the select items.
+Requires the select to be wrapped in `Select.FilterProvider`.
+Renders an `<input>` element.
+
+**Input Props:**
+
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Input.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Select.Input.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Input.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Input Data Attributes:**
+
+| Attribute        | Type | Description                                                                                            |
+| :--------------- | :--- | :----------------------------------------------------------------------------------------------------- |
+| data-highlighted | -    | Present while the input shows its focus ring.&#xA;Cleared when keyboard navigation highlights an item. |
+
+### Input.Props
+
+Re-export of [Input](#input) props.
+
+### Input.State
+
+```typescript
+type SelectInputState = {
+  /**
+   * Whether the input shows its focus ring.
+   * Cleared when keyboard navigation highlights an item.
+   */
+  highlighted: boolean;
+};
+```
+
 ### Icon
 
 An icon that indicates that the trigger button opens a select popup.
@@ -282,6 +318,41 @@ Re-export of [Icon](#icon) props.
 type SelectIconState = {
   /** Whether the select popup is currently open. */
   open: boolean;
+};
+```
+
+### Clear
+
+A button that clears the input text.
+Requires the select to be wrapped in `Select.FilterProvider`.
+Renders a `<button>` element when the input has text.
+
+**Clear Props:**
+
+| Prop         | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :----------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                  | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                  | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| className    | `string \| ((state: Select.Clear.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Select.Clear.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: Select.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Clear Data Attributes:**
+
+| Attribute     | Type | Description                          |
+| :------------ | :--- | :----------------------------------- |
+| data-disabled | -    | Present when the button is disabled. |
+
+### Clear.Props
+
+Re-export of [Clear](#clear) props.
+
+### Clear.State
+
+```typescript
+type SelectClearState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
 };
 ```
 
@@ -712,6 +783,30 @@ type SelectLabelState = {
 };
 ```
 
+### Empty
+
+A message shown when the select has no matching items.
+Requires the select to be wrapped in `Select.FilterProvider`.
+Renders a `<div>` element.
+
+**Empty Props:**
+
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Empty.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Select.Empty.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Empty.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Empty.Props
+
+Re-export of [Empty](#empty) props.
+
+### Empty.State
+
+```typescript
+type SelectEmptyState = {};
+```
+
 ### ItemText
 
 A text label of the select item.
@@ -840,121 +935,45 @@ Re-export of [ScrollDownArrow](#scrolldownarrow) props.
 type SelectScrollDownArrowState = {};
 ```
 
-### FilterClear
-
-A button that clears the filter query. Renders nothing while the query is empty.
-Requires the select to be wrapped in `Select.FilterProvider`.
-Renders a `<button>` element.
-
-**FilterClear Props:**
-
-| Prop         | Type                                                                                             | Default | Description                                                                                                                                                                                   |
-| :----------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                        | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
-| disabled     | `boolean`                                                                                        | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
-| className    | `string \| ((state: FilterDropdownClearState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: FilterDropdownClearState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render       | `ReactElement \| ((props: HTMLProps, state: FilterDropdownClearState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### FilterClear.Props
-
-Re-export of [FilterClear](#filterclear) props.
-
-### FilterClear.State
-
-```typescript
-type SelectFilterClearState = {
-  /** Whether the component should ignore user interaction. */
-  disabled: boolean;
-};
-```
-
-### FilterEmpty
-
-A message shown when no options match the filter query and announced politely to screen
-readers. Renders nothing while options match, so screen readers don't count an empty node
-among the popup's contents.
-Requires the select to be wrapped in `Select.FilterProvider`.
-Renders a `<div>` element.
-
-**FilterEmpty Props:**
-
-| Prop      | Type                                                                                             | Default | Description                                                                                                                                                                                   |
-| :-------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: FilterDropdownEmptyState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: FilterDropdownEmptyState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: FilterDropdownEmptyState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### FilterEmpty.Props
-
-Re-export of [FilterEmpty](#filterempty) props.
-
-### FilterEmpty.State
-
-```typescript
-type SelectFilterEmptyState = {};
-```
-
-### FilterInput
-
-A search field that filters the select options.
-Requires the select to be wrapped in `Select.FilterProvider`.
-Automatically receives focus whenever the popup opens, after the popup is positioned.
-The `autoFocus` prop is not needed and does not change this behavior.
-Renders an `<input>` element.
-
-**FilterInput Props:**
-
-| Prop      | Type                                                                                             | Default | Description                                                                                                                                                                                   |
-| :-------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: FilterDropdownInputState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: FilterDropdownInputState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: FilterDropdownInputState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### FilterInput.Props
-
-Re-export of [FilterInput](#filterinput) props.
-
-### FilterInput.State
-
-```typescript
-type SelectFilterInputState = {
-  /**
-   * Whether the input shows its focus ring.
-   * Cleared when keyboard navigation highlights an item.
-   */
-  highlighted: boolean;
-};
-```
-
 ### FilterProvider
 
-Makes the select directly inside it filterable: the popup can render `Select.FilterInput`,
-`Select.FilterClear`, and `Select.FilterEmpty`, and the items inside `Select.List` filter
-against the query.
-Wrap it around `Select.Root`. This is the only part that bundles the filter implementation.
+Enables filtering for the select it wraps. Add `Select.Input` to the popup and place its items
+in `Select.List`.
 Doesn't render its own HTML element.
 
 **FilterProvider Props:**
 
-| Prop               | Type                                                                                          | Default | Description                                                                                                                                                                                                                                                                                                                                            |
-| :----------------- | :-------------------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultInputValue  | `string`                                                                                      | -       | The uncontrolled filter query when the select is initially rendered.&#xA;To render a controlled query, use the `inputValue` prop instead.                                                                                                                                                                                                              |
-| inputValue         | `string`                                                                                      | -       | The filter query. Use when controlled.&#xA;When the popup closes, `onInputValueChange` is called with an empty query. The controlled&#xA;value changes only when the consumer updates this prop.                                                                                                                                                       |
-| onInputValueChange | `((value: string, eventDetails: Select.FilterProvider.InputValueChangeEventDetails) => void)` | -       | Event handler called when the filter query changes.                                                                                                                                                                                                                                                                                                    |
-| autoHighlight      | `boolean \| 'always'`                                                                         | `false` | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                                                                                                                                                       |
-| filter             | `SelectFilterFunction \| null`                                                                | -       | Replaces the default case-insensitive substring matching while the filter root controls which&#xA;registered items remain visible.&#xA;Receives an item's label or rendered text together with the trimmed query, and keeps the item&#xA;when it returns `true`.&#xA;Pass `null` when filtering the items yourself and deciding which items to render. |
-| locale             | `Intl.LocalesArgument`                                                                        | -       | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                                                                                                                                                    |
-| children           | `React.ReactNode`                                                                             | -       | -                                                                                                                                                                                                                                                                                                                                                      |
+| Prop          | Type                                                                                | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| :------------ | :---------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `string`                                                                            | -       | The uncontrolled filter query when the select is initially rendered.&#xA;To render a controlled query, use the `value` prop instead.                                                                                                                                                                                                                                                                                                                                               |
+| value         | `string`                                                                            | -       | The filter query. Use when controlled.&#xA;When the popup closes, `onValueChange` is called with an empty query. The controlled&#xA;value changes only when the consumer updates this prop.                                                                                                                                                                                                                                                                                        |
+| onValueChange | `((value: string, eventDetails: Select.FilterProvider.ChangeEventDetails) => void)` | -       | Event handler called when the filter query changes.                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| autoHighlight | `boolean \| 'always'`                                                               | `false` | Whether filtering highlights the first matching item automatically. `true`: highlight it while the query is not empty.`'always'`: highlight it even when the query is empty. Opening the select from the keyboard highlights the selected item, or the first item when&#xA;none is selected, either way. With either value, the arrow keys wrap within the list rather&#xA;than returning to the input, and with `'always'` a pointer highlight stays when the pointer&#xA;leaves. |
+| filter        | `((text: string, query: string) => boolean) \| null`                                | -       | SelectFilter function used to match items against the query. Receives each item's `label` (or its&#xA;rendered text) and the trimmed query, and keeps the item when it returns `true`.&#xA;By default, items match when they contain the query, ignoring case, accents, and punctuation.&#xA;Pass `null` when rendering filtered items yourself.                                                                                                                                   |
+| locale        | `Intl.LocalesArgument`                                                              | -       | The locale the default `filter` uses for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                             |
+| children      | `React.ReactNode`                                                                   | -       | The `<Select.Root>` to make filterable.                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 ### FilterProvider.Props
 
 Re-export of [FilterProvider](#filterprovider) props.
 
-### FilterProvider.InputValueChangeEventDetails
+### FilterProvider.State
 
 ```typescript
-type SelectFilterProviderInputValueChangeEventDetails = (
+type SelectFilterProviderState = {};
+```
+
+### FilterProvider.ChangeEventReason
+
+```typescript
+type SelectFilterProviderChangeEventReason =
+  'input-change' | 'input-clear' | 'clear-press' | 'popup-close';
+```
+
+### FilterProvider.ChangeEventDetails
+
+```typescript
+type SelectFilterProviderChangeEventDetails = (
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'input-change'; event: Event | InputEvent }
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
@@ -973,25 +992,18 @@ type SelectFilterProviderInputValueChangeEventDetails = (
 };
 ```
 
-### FilterProvider.InputValueChangeEventReason
-
-```typescript
-type SelectFilterProviderInputValueChangeEventReason =
-  'input-change' | 'input-clear' | 'clear-press' | 'popup-close';
-```
-
 ### useFilter
 
 **Parameters:**
 
 | Parameter | Type                  | Default | Description |
 | :-------- | :-------------------- | :------ | :---------- |
-| options?  | `GetFilterParameters` | `{}`    | -           |
+| options?  | `SelectFilterOptions` | `{}`    | -           |
 
 **Return Value:**
 
 ```tsx
-type ReturnValue = Filter;
+type ReturnValue = SelectFilter;
 ```
 
 ## Additional Types
@@ -1038,6 +1050,42 @@ declare namespace SelectBackdropDataAttributes {
 }
 ```
 
+### SelectClearDataAttributes
+
+Data attributes of [Clear](#clear).
+
+```typescript
+declare namespace SelectClearDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### SelectFilter
+
+```typescript
+type SelectFilter = {
+  /** Returns whether the item matches the query anywhere. */
+  contains: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item starts with the query. */
+  startsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item ends with the query. */
+  endsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+};
+```
+
+### SelectFilterOptions
+
+```typescript
+type SelectFilterOptions = {
+  /**
+   * The locale to use for string comparison.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+};
+```
+
 ### SelectIconDataAttributes
 
 Data attributes of [Icon](#icon).
@@ -1046,6 +1094,20 @@ Data attributes of [Icon](#icon).
 declare namespace SelectIconDataAttributes {
   /** Present when the corresponding popup is open. */
   const popupOpen: 'data-popup-open';
+}
+```
+
+### SelectInputDataAttributes
+
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace SelectInputDataAttributes {
+  /**
+   * Present while the input shows its focus ring.
+   * Cleared when keyboard navigation highlights an item.
+   */
+  const highlighted: 'data-highlighted';
 }
 ```
 
@@ -1313,12 +1375,6 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 type Orientation = 'horizontal' | 'vertical';
 ```
 
-### SelectFilterFunction
-
-```typescript
-type SelectFilterFunction = (text: string, query: string) => boolean;
-```
-
 ## Export Groups
 
 - `Select.Root`: `Select.Root`, `Select.Root.Props`, `Select.Root.State`, `Select.Root.Actions`, `Select.Root.ChangeEventReason`, `Select.Root.ChangeEventDetails`, `Select.Root.OpenChangeEventDetails`
@@ -1340,12 +1396,12 @@ type SelectFilterFunction = (text: string, query: string) => boolean;
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Select.FilterProvider`: `Select.FilterProvider`, `Select.FilterProvider.Props`, `Select.FilterProvider.InputValueChangeEventReason`, `Select.FilterProvider.InputValueChangeEventDetails`
-- `Select.FilterInput`: `Select.FilterInput`, `Select.FilterInput.State`, `Select.FilterInput.Props`
-- `Select.FilterClear`: `Select.FilterClear`, `Select.FilterClear.State`, `Select.FilterClear.Props`
-- `Select.FilterEmpty`: `Select.FilterEmpty`, `Select.FilterEmpty.State`, `Select.FilterEmpty.Props`
+- `Select.FilterProvider`: `Select.FilterProvider`, `Select.FilterProvider.State`, `Select.FilterProvider.Props`, `Select.FilterProvider.ChangeEventReason`, `Select.FilterProvider.ChangeEventDetails`
+- `Select.Input`: `Select.Input`, `Select.Input.State`, `Select.Input.Props`
+- `Select.Clear`: `Select.Clear`, `Select.Clear.State`, `Select.Clear.Props`
+- `Select.Empty`: `Select.Empty`, `Select.Empty.State`, `Select.Empty.Props`
 - `Select.useFilter`
-- `Default`: `SelectTriggerDataAttributes`, `SelectValueDataAttributes`, `SelectIconDataAttributes`, `SelectBackdropDataAttributes`, `SelectPositionerCssVariables`, `SelectPositionerDataAttributes`, `SelectPopupDataAttributes`, `SelectItemDataAttributes`, `SelectItemIndicatorDataAttributes`, `SelectArrowDataAttributes`, `SelectScrollDownArrowDataAttributes`, `SelectScrollUpArrowDataAttributes`, `SelectSeparatorDataAttributes`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootOpenChangeEventDetails`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
+- `Default`: `SelectFilter`, `SelectFilterOptions`, `SelectTriggerDataAttributes`, `SelectValueDataAttributes`, `SelectIconDataAttributes`, `SelectBackdropDataAttributes`, `SelectPositionerCssVariables`, `SelectPositionerDataAttributes`, `SelectPopupDataAttributes`, `SelectItemDataAttributes`, `SelectItemIndicatorDataAttributes`, `SelectArrowDataAttributes`, `SelectScrollDownArrowDataAttributes`, `SelectScrollUpArrowDataAttributes`, `SelectInputDataAttributes`, `SelectClearDataAttributes`, `SelectSeparatorDataAttributes`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootOpenChangeEventDetails`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`, `SelectFilterProviderState`, `SelectFilterProviderProps`, `SelectFilterProviderChangeEventReason`, `SelectFilterProviderChangeEventDetails`, `SelectInputState`, `SelectInputProps`, `SelectClearState`, `SelectClearProps`, `SelectEmptyState`, `SelectEmptyProps`
 
 ## Canonical Types
 
@@ -1393,3 +1449,13 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Select.GroupLabel.Props`: `SelectGroupLabelProps`
 - `Select.Separator.Props`: `SelectSeparatorProps`
 - `Select.Separator.State`: `SelectSeparatorState`
+- `Select.FilterProvider.State`: `SelectFilterProviderState`
+- `Select.FilterProvider.Props`: `SelectFilterProviderProps`
+- `Select.FilterProvider.ChangeEventReason`: `SelectFilterProviderChangeEventReason`
+- `Select.FilterProvider.ChangeEventDetails`: `SelectFilterProviderChangeEventDetails`
+- `Select.Input.State`: `SelectInputState`
+- `Select.Input.Props`: `SelectInputProps`
+- `Select.Clear.State`: `SelectClearState`
+- `Select.Clear.Props`: `SelectClearProps`
+- `Select.Empty.State`: `SelectEmptyState`
+- `Select.Empty.Props`: `SelectEmptyProps`

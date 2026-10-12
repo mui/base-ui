@@ -14,7 +14,7 @@ function Test() {
         <Select.Portal>
           <Select.Positioner>
             <Select.Popup data-testid="popup">
-              <Select.FilterInput aria-label="Filter countries" />
+              <Select.Input aria-label="Filter countries" />
               <Select.List>
                 <Select.Item value="au">Australia</Select.Item>
                 <Select.Item value="fr">France</Select.Item>

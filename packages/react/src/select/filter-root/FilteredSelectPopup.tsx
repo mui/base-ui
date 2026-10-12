@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useMenuFilterPopup } from '../../menu/filter-root/useMenuFilterPopup';
+import { useFilterDropdownPopup } from '../../filter-dropdown/popup/useFilterDropdownPopup';
 import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { SelectPopupPlain } from '../popup/SelectPopup';
 import type { SelectPopupProps } from '../popup/SelectPopup';
@@ -8,7 +8,6 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { mergeProps } from '../../merge-props';
-import { useSelectFilterTrapsFocus } from './useSelectFilterTrapsFocus';
 
 /**
  * A container for the filter input and the option list.
@@ -22,8 +21,7 @@ export const FilteredSelectPopup = React.forwardRef(function FilteredSelectPopup
   const { focusOwnerRef } = useFilterDropdownRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
   // A select's list is always vertical.
-  const interactionProps = useMenuFilterPopup('vertical');
-  const trapsFocus = useSelectFilterTrapsFocus();
+  const interactionProps = useFilterDropdownPopup('vertical', 'Select');
 
   const id = store.useState('id');
   const labelId = store.useState('labelId');
@@ -49,7 +47,6 @@ export const FilteredSelectPopup = React.forwardRef(function FilteredSelectPopup
       {...popupProps}
       role="dialog"
       initialFocus={initialFocus}
-      modal={trapsFocus}
       ref={forwardedRef}
     />
   );

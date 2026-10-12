@@ -24,34 +24,39 @@ Import the component and assemble its parts:
 ```jsx title="Anatomy"
 import { Select } from '@base-ui/react/select';
 
-<Select.Root>
-  <Select.Label />
-  <Select.Trigger>
-    <Select.Value />
-    <Select.Icon />
-  </Select.Trigger>
+<Select.FilterProvider>
+  <Select.Root>
+    <Select.Label />
+    <Select.Trigger>
+      <Select.Value />
+      <Select.Icon />
+    </Select.Trigger>
 
-  <Select.Portal>
-    <Select.Backdrop />
-    <Select.Positioner>
-      <Select.Popup>
-        <Select.ScrollUpArrow />
-        <Select.Arrow />
-        <Select.List>
-          <Select.Item>
-            <Select.ItemText />
-            <Select.ItemIndicator />
-          </Select.Item>
-          <Select.Separator />
-          <Select.Group>
-            <Select.GroupLabel />
-          </Select.Group>
-        </Select.List>
-        <Select.ScrollDownArrow />
-      </Select.Popup>
-    </Select.Positioner>
-  </Select.Portal>
-</Select.Root>;
+    <Select.Portal>
+      <Select.Backdrop />
+      <Select.Positioner>
+        <Select.Popup>
+          <Select.ScrollUpArrow />
+          <Select.Arrow />
+          <Select.Input />
+          <Select.Clear />
+          <Select.Empty />
+          <Select.List>
+            <Select.Item>
+              <Select.ItemText />
+              <Select.ItemIndicator />
+            </Select.Item>
+            <Select.Separator />
+            <Select.Group>
+              <Select.GroupLabel />
+            </Select.Group>
+          </Select.List>
+          <Select.ScrollDownArrow />
+        </Select.Popup>
+      </Select.Positioner>
+    </Select.Portal>
+  </Select.Root>
+</Select.FilterProvider>;
 ```
 
 ## Positioning
@@ -225,14 +230,13 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 <DemoSelectGrouped />
 
-### Filtering
+### Filtering [Preview]
 
-Wrap `<Select.Root>` in `<Select.FilterProvider>`, add `<Select.FilterInput>` to the popup, and put the options inside `<Select.List>`.
-The popup uses a dialog role to contain both the input and the listbox.
+Wrap `<Select.Root>` in `<Select.FilterProvider>`, add `<Select.Input>` to the popup, and put the items inside `<Select.List>`.
 
 ```jsx title="Filterable select"
 <Select.FilterProvider>
-  <Select.Root items={[{ value: 'fr', label: 'France' }]}>
+  <Select.Root items={countries}>
     <Select.Label>Country</Select.Label>
     <Select.Trigger>
       <Select.Value placeholder="Select country" />
@@ -240,13 +244,15 @@ The popup uses a dialog role to contain both the input and the listbox.
     <Select.Portal>
       <Select.Positioner>
         <Select.Popup>
-          <Select.FilterInput aria-label="Filter countries" />
-          <Select.FilterClear>Clear</Select.FilterClear>
-          <Select.FilterEmpty>No results.</Select.FilterEmpty>
+          <Select.Input aria-label="Filter countries" />
+          <Select.Clear>Clear</Select.Clear>
+          <Select.Empty>No results.</Select.Empty>
           <Select.List>
-            <Select.Item value="fr">
-              <Select.ItemText>France</Select.ItemText>
-            </Select.Item>
+            {countries.map((country) => (
+              <Select.Item key={country.value} value={country.value}>
+                <Select.ItemText>{country.label}</Select.ItemText>
+              </Select.Item>
+            ))}
           </Select.List>
         </Select.Popup>
       </Select.Positioner>
@@ -256,21 +262,15 @@ The popup uses a dialog role to contain both the input and the listbox.
 ```
 
 Label the input with `aria-label`, `aria-labelledby`, or a visible `<label>`.
-Keyboard and screen reader activation highlight an option while keeping focus on the input; pointer activation leaves the input highlighted.
-By default, arrow keys move between the input and options.
-
-The query resets on close. Multiple selects stay open after selection and keep the query.
-Filtering or unmounting an option does not clear its selected value.
-Use `items` or `itemToStringLabel` when option values need display labels.
-`alignItemWithTrigger` is disabled for filterable selects.
+Type to narrow the items, then use the arrow keys to move through matching items.
 
 import { DemoSelectFilter } from './demos/filter';
 
 <DemoSelectFilter />
 
-#### Matching options
+#### Matching items
 
-Options match their text by default. Use `label` to override it.
+Items match their text by default. Use `label` to override it.
 
 ```jsx title="Labels"
 <Select.Item value="nl" label="Netherlands">
@@ -278,28 +278,76 @@ Options match their text by default. Use `label` to override it.
 </Select.Item>
 ```
 
-Empty groups are hidden. `<Select.FilterEmpty>` appears when no options match.
+Groups with no matching items get the `hidden` attribute and stay mounted. If your styles set `display` on a group, add a `[hidden]` rule so it still hides.
 
-Use `filter` to replace the default case-insensitive substring matching.
-It receives each option's text and the trimmed query, and keeps the option when it returns `true`.
+```css title="Hiding styled groups"
+.Group {
+  display: flex;
+}
+
+.Group[hidden] {
+  display: none;
+}
+```
+
+`<Select.Empty>` appears when no items match.
+
+By default, an item matches when its text contains the query, ignoring case, accents, and punctuation.
+Use `filter` to replace the matching. It receives each item's text and the trimmed query, and keeps the item when it returns `true`.
+`Select.useFilter` provides the same locale-aware comparisons.
 
 ```jsx title="Custom matching"
-<Select.FilterProvider filter={(text, query) => text.startsWith(query)}>
+const { startsWith } = Select.useFilter();
+
+<Select.FilterProvider filter={startsWith}>
   <Select.Root>{/* select parts */}</Select.Root>
-</Select.FilterProvider>
+</Select.FilterProvider>;
 ```
 
 For external filtering, pass `filter={null}` and render the results yourself, omitting empty groups.
-`Select.useFilter` provides locale-aware string matching.
 
-#### When to use Combobox
+```jsx title="External filtering"
+const { contains } = Select.useFilter();
+const [query, setQuery] = React.useState('');
+const results = countries.filter((country) => contains(country.label, query));
 
-Use filterable Select for a short list of options.
-Use [Combobox](/react/components/combobox) for large or async lists, virtualization, or an input outside the popup.
+<Select.FilterProvider filter={null} value={query} onValueChange={setQuery}>
+  <Select.Root items={countries}>{/* render `results` */}</Select.Root>
+</Select.FilterProvider>;
+```
+
+#### Selected values
+
+Filtering an item out does not clear its selection, and the form still submits it.
+Pass `items` or `itemToStringLabel` to `<Select.Root>` so `<Select.Value>` can show the label of a selected item that is filtered out.
+A single select closes when an item is selected. A multiple select stays open and keeps the query.
+
+#### Controlling the query
+
+`value` and `onValueChange` on `<Select.FilterProvider>` control the query.
+It resets to an empty string when the select closes, reported with the `'popup-close'` reason. Cancel that change to keep the query.
+
+#### Highlighting
+
+The popup opens on the selected item: it is highlighted and scrolled into view.
+Without a selection, opening the select from the keyboard highlights the first item.
+Use `autoHighlight` to highlight the first match while filtering, or `autoHighlight="always"` to highlight it even when the query is empty.
+The highlighted item has the `data-highlighted` attribute.
+
+#### Focus and keyboard
+
+Opening the select with a click or the keyboard focuses the input. Opening it with touch or a pen does not, so the on-screen keyboard stays hidden.
+The arrow keys move the highlight while the input keeps focus. <kbd>Tab</kbd> closes the select, and <kbd>Shift</kbd>+<kbd>Tab</kbd> returns focus to the trigger.
+The popup is a `dialog` that holds the `searchbox` input and the `listbox` list.
+`alignItemWithTrigger` is disabled for filterable selects.
 
 ## API reference
 
 import { TypesSelect } from './types';
+
+### FilterProvider [Preview]
+
+<TypesSelect.FilterProvider />
 
 ### Root
 
@@ -357,21 +405,17 @@ import { TypesSelect } from './types';
 
 <TypesSelect.ItemIndicator />
 
-### FilterProvider
+### Input
 
-<TypesSelect.FilterProvider />
+<TypesSelect.Input />
 
-### FilterInput
+### Clear
 
-<TypesSelect.FilterInput />
+<TypesSelect.Clear />
 
-### FilterClear
+### Empty
 
-<TypesSelect.FilterClear />
-
-### FilterEmpty
-
-<TypesSelect.FilterEmpty />
+<TypesSelect.Empty />
 
 ### Group
 
@@ -395,8 +439,7 @@ import { TypesSelect } from './types';
 
 ## useFilter
 
-Matches options against a query using `Intl.Collator` for robust string matching.
-Use it when filtering options yourself with `filter={null}` on `<Select.FilterProvider>`.
+When filtering items yourself, `Select.useFilter` matches text according to the user's locale.
 
 <TypesSelect.useFilter hideDescription />
 

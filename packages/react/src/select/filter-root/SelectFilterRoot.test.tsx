@@ -29,9 +29,9 @@ function Test(
         <Select.Portal>
           <Select.Positioner {...props.positioner}>
             <Select.Popup data-testid="popup">
-              <Select.FilterInput aria-label="Filter countries" />
-              <Select.FilterClear aria-label="Clear filter" />
-              <Select.FilterEmpty>No matches</Select.FilterEmpty>
+              <Select.Input aria-label="Filter countries" />
+              <Select.Clear aria-label="Clear filter" />
+              <Select.Empty>No matches</Select.Empty>
               <Select.List data-testid="list">
                 {countries.map((country) => (
                   <Select.Item key={country.value} value={country.value}>
@@ -176,7 +176,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
             <Select.Portal>
               <Select.Positioner>
                 <Select.Popup>
-                  <Select.FilterInput aria-label="Filter" />
+                  <Select.Input aria-label="Filter" />
                   <Select.List>
                     <Select.Item value="de" label="Deutschland">
                       Germany
@@ -210,7 +210,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
             <Select.Portal>
               <Select.Positioner>
                 <Select.Popup>
-                  <Select.FilterInput aria-label="Filter" />
+                  <Select.Input aria-label="Filter" />
                   <Select.List>
                     <Select.Group data-testid="europe">
                       <Select.GroupLabel>Europe</Select.GroupLabel>
@@ -329,7 +329,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       expect(screen.getByRole('option', { name: 'Australia' })).toHaveAttribute('data-highlighted');
     });
 
-    it('highlights the first option, not the selected one, when opened with the keyboard', async () => {
+    it('highlights the selected option when opened with the keyboard', async () => {
       const { user } = await render(<Test root={{ defaultValue: 'de' }} />);
       await act(async () => screen.getByTestId('trigger').focus());
       await user.keyboard('[ArrowDown]');
@@ -338,14 +338,76 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Germany' }).id,
+        );
+      });
+
+      await user.keyboard('[ArrowDown]');
       expect(input).toHaveAttribute(
         'aria-activedescendant',
-        screen.getByRole('option', { name: 'Australia' }).id,
+        screen.getByRole('option', { name: 'Japan' }).id,
       );
-      expect(screen.getByRole('option', { name: 'Germany' })).toHaveAttribute(
-        'aria-selected',
-        'true',
+    });
+
+    it('highlights the selected option when opened with a pointer', async () => {
+      const { user } = await render(<Test root={{ defaultValue: 'de' }} />);
+      await user.click(screen.getByTestId('trigger'));
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Germany' })).toHaveAttribute('data-highlighted');
+      });
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Germany' }).id,
       );
+    });
+
+    it.skipIf(isJSDOM)('scrolls the selected option into view on open', async () => {
+      const manyCountries = Array.from({ length: 60 }, (_, index) => ({
+        value: `c${index}`,
+        label: `Country ${index}`,
+      }));
+      const { user } = await render(
+        <Select.FilterProvider>
+          <Select.Root items={manyCountries} defaultValue="c50">
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Input aria-label="Filter countries" />
+                  <Select.List data-testid="list" style={{ maxHeight: 100, overflow: 'auto' }}>
+                    {manyCountries.map((country) => (
+                      <Select.Item key={country.value} value={country.value} style={{ height: 20 }}>
+                        <Select.ItemText>{country.label}</Select.ItemText>
+                      </Select.Item>
+                    ))}
+                  </Select.List>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Select.FilterProvider>,
+      );
+      await user.click(screen.getByTestId('trigger'));
+
+      const list = await screen.findByTestId('list');
+      const selected = screen.getByRole('option', { name: 'Country 50' });
+      await waitFor(() => {
+        expect(list.scrollTop).toBeGreaterThan(0);
+      });
+      const listRect = list.getBoundingClientRect();
+      const selectedRect = selected.getBoundingClientRect();
+      expect(selectedRect.top).toBeGreaterThanOrEqual(listRect.top);
+      expect(selectedRect.bottom).toBeLessThanOrEqual(listRect.bottom);
     });
 
     it('navigates from the first visible option after typing when a value is selected', async () => {
@@ -531,7 +593,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
 
     it('disables the filter controls when the root is disabled', async () => {
       await render(
-        <Test root={{ defaultOpen: true, disabled: true }} provider={{ defaultInputValue: 'a' }} />,
+        <Test root={{ defaultOpen: true, disabled: true }} provider={{ defaultValue: 'a' }} />,
       );
       expect(screen.getByRole('searchbox', { name: 'Filter countries' })).toBeDisabled();
       expect(screen.getByLabelText('Clear filter')).toBeDisabled();
@@ -539,10 +601,13 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
   });
 
   describe('focus', () => {
-    it('traps focus in a modal popup opened with the keyboard', async () => {
+    it.each([
+      { name: 'modal', modal: true },
+      { name: 'non-modal', modal: false },
+    ])('closes and moves focus past the popup on Tab from a $name select', async ({ modal }) => {
       const { user } = await render(
         <div>
-          <Test provider={{ defaultInputValue: 'a' }} />
+          <Test root={{ modal }} provider={{ defaultValue: 'a' }} />
           <input data-testid="after" />
         </div>,
       );
@@ -550,28 +615,6 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await user.keyboard('[Enter]');
 
       const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
-      await waitFor(() => {
-        expect(input).toHaveFocus();
-      });
-
-      // The clear button stays out of the tab order, so Tab wraps straight back to the input.
-      // Wrapping goes through the focus guards, which redirect focus after the key lands.
-      await user.tab();
-      await waitFor(() => {
-        expect(input).toHaveFocus();
-      });
-      expect(screen.getByRole('dialog')).not.toBe(null);
-    });
-
-    it('moves focus past the popup when tabbing from a non-modal input', async () => {
-      const { user } = await render(
-        <div>
-          <Test root={{ defaultOpen: true, modal: false }} />
-          <input data-testid="after" />
-        </div>,
-      );
-
-      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -585,8 +628,8 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       });
     });
 
-    it('closes and returns focus to the trigger on Shift+Tab from a non-modal input', async () => {
-      const { user } = await render(<Test root={{ defaultOpen: true, modal: false }} />);
+    it('closes and returns focus to the trigger on Shift+Tab from the input', async () => {
+      const { user } = await render(<Test root={{ defaultOpen: true }} />);
 
       const input = screen.getByRole('searchbox', { name: 'Filter countries' });
       await waitFor(() => {
@@ -620,8 +663,8 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
 
   describe('query lifecycle', () => {
     it('clears the query when the popup closes', async () => {
-      const onInputValueChange = vi.fn();
-      const { user } = await render(<Test provider={{ onInputValueChange }} />);
+      const onQueryChange = vi.fn();
+      const { user } = await render(<Test provider={{ onValueChange: onQueryChange }} />);
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
@@ -630,15 +673,15 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         expect(input).toHaveFocus();
       });
       await user.keyboard('jap');
-      onInputValueChange.mockClear();
+      onQueryChange.mockClear();
 
       await user.keyboard('[Escape]');
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).toBe(null);
       });
-      expect(onInputValueChange).toHaveBeenCalledTimes(1);
-      expect(onInputValueChange.mock.calls[0][0]).toBe('');
-      expect(onInputValueChange.mock.calls[0][1].reason).toBe('popup-close');
+      expect(onQueryChange).toHaveBeenCalledTimes(1);
+      expect(onQueryChange.mock.calls[0][0]).toBe('');
+      expect(onQueryChange.mock.calls[0][1].reason).toBe('popup-close');
 
       await user.click(trigger);
       const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter countries' });
@@ -648,14 +691,14 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
 
     it('keeps a controlled query across a close', async () => {
       function Controlled() {
-        const [inputValue, setInputValue] = React.useState('jap');
+        const [query, setQuery] = React.useState('jap');
         return (
           <Test
             provider={{
-              inputValue,
-              onInputValueChange(value, details) {
+              value: query,
+              onValueChange(nextQuery, details) {
                 if (details.reason !== 'popup-close') {
-                  setInputValue(value);
+                  setQuery(nextQuery);
                 }
               },
             }}
@@ -702,7 +745,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
             <Select.Portal>
               <Select.Positioner>
                 <Select.Popup>
-                  <Select.FilterInput aria-label="Filter" />
+                  <Select.Input aria-label="Filter" />
                   <Select.List>
                     {items.map((item) => (
                       <Select.Item key={item.code} value={item}>
@@ -747,7 +790,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
               <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>
-                    <Select.FilterInput aria-label="Filter" />
+                    <Select.Input aria-label="Filter" />
                     <Select.List>
                       <Select.Item value="eu">Europe</Select.Item>
                     </Select.List>
@@ -775,7 +818,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
             <Select.Portal>
               <Select.Positioner>
                 <Select.Popup>
-                  <Select.FilterInput aria-label="Filter" />
+                  <Select.Input aria-label="Filter" />
                   <Select.ScrollUpArrow data-testid="up" />
                   <Select.List style={{ maxHeight: 40, overflowY: 'auto' }}>
                     {countries.map((country) => (

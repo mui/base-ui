@@ -1,62 +1,57 @@
 'use client';
 import * as React from 'react';
 import { SelectFilterRoot } from '../filter-root/SelectFilterRoot';
-import type { SelectFilterRootFilterProps } from '../filter-root/SelectFilterRootFilterProps';
+import type { SelectFilterProviderOptions } from './SelectFilterProviderOptions';
 import { SelectFilterProviderContext } from './SelectFilterProviderContext';
 import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
 /**
- * Makes the select directly inside it filterable: the popup can render `Select.FilterInput`,
- * `Select.FilterClear`, and `Select.FilterEmpty`, and the items inside `Select.List` filter
- * against the query.
- * Wrap it around `Select.Root`. This is the only part that bundles the filter implementation.
+ * Enables filtering for the select it wraps. Add `Select.Input` to the popup and place its items
+ * in `Select.List`.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export function SelectFilterProvider(props: SelectFilterProvider.Props): React.JSX.Element {
-  const {
-    children,
-    filter,
-    inputValue,
-    defaultInputValue,
-    onInputValueChange,
-    autoHighlight,
-    locale,
-  } = props;
+  const { children, filter, value, defaultValue, onValueChange, autoHighlight, locale } = props;
 
-  const value = React.useMemo(
+  const contextValue = React.useMemo(
     () => ({
       Root: SelectFilterRoot,
       options: {
         filter,
-        inputValue,
-        defaultInputValue,
-        onInputValueChange,
+        value,
+        defaultValue,
+        onValueChange,
         autoHighlight,
         locale,
       },
     }),
-    [filter, inputValue, defaultInputValue, onInputValueChange, autoHighlight, locale],
+    [filter, value, defaultValue, onValueChange, autoHighlight, locale],
   );
 
   return (
-    <SelectFilterProviderContext.Provider value={value}>
+    <SelectFilterProviderContext.Provider value={contextValue}>
       {children}
     </SelectFilterProviderContext.Provider>
   );
 }
 
-export interface SelectFilterProviderProps extends SelectFilterRootFilterProps {
+export interface SelectFilterProviderState {}
+
+export interface SelectFilterProviderProps extends SelectFilterProviderOptions {
+  /**
+   * The `<Select.Root>` to make filterable.
+   */
   children?: React.ReactNode;
 }
 
-export type SelectFilterProviderInputValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
-export type SelectFilterProviderInputValueChangeEventDetails =
-  FilterDropdownRoot.ChangeEventDetails;
+export type SelectFilterProviderChangeEventReason = FilterDropdownRoot.ChangeEventReason;
+export type SelectFilterProviderChangeEventDetails = FilterDropdownRoot.ChangeEventDetails;
 
 export namespace SelectFilterProvider {
+  export type State = SelectFilterProviderState;
   export type Props = SelectFilterProviderProps;
-  export type InputValueChangeEventReason = SelectFilterProviderInputValueChangeEventReason;
-  export type InputValueChangeEventDetails = SelectFilterProviderInputValueChangeEventDetails;
+  export type ChangeEventReason = SelectFilterProviderChangeEventReason;
+  export type ChangeEventDetails = SelectFilterProviderChangeEventDetails;
 }
