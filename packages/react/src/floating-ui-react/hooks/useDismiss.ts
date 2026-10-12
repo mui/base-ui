@@ -205,11 +205,13 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       }
 
       const native = isReactEvent(event) ? event.nativeEvent : event;
+      // Key code 229 indicates that an IME is processing the key event.
+      const isImeKey = native.keyCode === 229;
 
       // Wait until IME is settled. Pressing `Escape` while composing should
       // close the compose menu, but not the floating element. The ref covers Safari, which fires
       // `compositionend` before `keydown`; the native event identifies an active composition.
-      if (compositionEndPendingRef.current || native.isComposing || native.keyCode === 229) {
+      if (compositionEndPendingRef.current || native.isComposing || isImeKey) {
         return;
       }
 
