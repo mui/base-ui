@@ -1,16 +1,9 @@
 import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
-import {
-  act,
-  createRenderer,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Field.Control />', () => {
   const { render, renderToString } = createRenderer();
@@ -26,7 +19,8 @@ describe('<Field.Control />', () => {
   it('avoids rerendering for uncontrolled input changes', async () => {
     const renderCountRef = { current: 0 };
 
-    renderNonStrict(
+    // Count renders of Field.Control itself: the render function runs every time it renders.
+    await renderNonStrict(
       <Field.Root>
         <Field.Control
           data-testid="control"
@@ -71,7 +65,7 @@ describe('<Field.Control />', () => {
       );
     }
 
-    renderNonStrict(<App />);
+    await renderNonStrict(<App />);
 
     const control = screen.getByTestId('control');
 
@@ -436,8 +430,8 @@ describe('<Field.Control />', () => {
   });
 
   it.skipIf(isJSDOM)('validates once when Enter implicitly submits a form', async () => {
-    const { userEvent } = await import('vitest/browser');
-    const user = userEvent.setup();
+    // Real browser input is needed: implicit form submission on Enter is browser behavior.
+    const { userEvent: user } = await import('vitest/browser');
     const validate = vi.fn(() => null);
     const handleSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
 
@@ -459,8 +453,8 @@ describe('<Field.Control />', () => {
   });
 
   it.skipIf(isJSDOM)('validates when Enter does not implicitly submit the form', async () => {
-    const { userEvent } = await import('vitest/browser');
-    const user = userEvent.setup();
+    // Real browser input is needed: implicit form submission on Enter is browser behavior.
+    const { userEvent: user } = await import('vitest/browser');
     const validate = vi.fn(() => null);
     const handleSubmit = vi.fn();
 
@@ -484,8 +478,8 @@ describe('<Field.Control />', () => {
   it.skipIf(isJSDOM)(
     'validates when a disabled submit button blocks implicit submission',
     async () => {
-      const { userEvent } = await import('vitest/browser');
-      const user = userEvent.setup();
+      // Real browser input is needed: implicit form submission on Enter is browser behavior.
+      const { userEvent: user } = await import('vitest/browser');
       const validate = vi.fn(() => null);
       const handleSubmit = vi.fn();
 

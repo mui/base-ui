@@ -39,6 +39,10 @@ const selectors = {
   disableHoverablePopup: (state: State<unknown>) => state.disableHoverablePopup,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
   closeOnClick: (state: State<unknown>) => state.closeOnClick,
+  // Active and inactive trigger props are the same object, so a constant for triggers that discard
+  // them keeps those triggers from re-rendering when the props change.
+  appliedTriggerProps: (state: State<unknown>, apply: boolean) =>
+    apply ? state.activeTriggerProps : undefined,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
     state.adaptiveOrigin,

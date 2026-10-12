@@ -117,11 +117,22 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
               ref={(node) => {
                 refs.setReference(node);
                 triggerElementRef.current = node;
+                if (node) {
+                  context.rootStore.context.triggerElements.add('trigger', node);
+                }
               }}
             >
               <span data-testid="child" />
             </button>
           </div>
+          <button
+            data-testid="other-trigger"
+            ref={(node) => {
+              if (node) {
+                context.rootStore.context.triggerElements.add('other-trigger', node);
+              }
+            }}
+          />
           {open && <div role="tooltip" ref={refs.setFloating} />}
         </React.Fragment>
       );
@@ -130,16 +141,21 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
     render(<App />);
 
     const wrapper = screen.getByTestId('wrapper');
+    const trigger = screen.getByTestId('trigger');
+    const otherTrigger = screen.getByTestId('other-trigger');
     const child = screen.getByTestId('child');
 
     fireEvent.pointerEnter(wrapper, { pointerType: 'mouse' });
-    fireEvent.mouseEnter(wrapper);
+    // Entering the active trigger clears `blockMouseMove`, so a misclassified move would reopen.
+    fireEvent.mouseEnter(trigger);
 
     const event = new MouseEvent('mousemove', { bubbles: true });
     Object.defineProperties(event, {
+      // Deliberately skew the native path so `getTarget(nativeEvent)` resolves to another
+      // registered trigger while React's synthetic `event.target` remains `child`.
       composedPath: {
         configurable: true,
-        value: () => [document.body, child, wrapper],
+        value: () => [otherTrigger, wrapper],
       },
       movementX: {
         configurable: true,
@@ -156,7 +172,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
     await flushMicrotasks();
 
     expect(onOpenChange).toHaveBeenCalledTimes(0);
-    expect(screen.queryByRole('tooltip')).not.toBe(null);
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
   });
 
   it('treats disabled child trigger as inactive in wrapper fallback mode', async () => {

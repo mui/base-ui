@@ -29,7 +29,6 @@ import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissB
 import {
   clickHighlightedItem,
   getChipNavigationKeys,
-  getIndexAfterChipRemoval,
   useListEmpty,
   usePopupSide,
 } from '../utils/parts';
@@ -154,35 +153,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
     let nextIndex: number | undefined;
 
-    const { highlightedChipIndex } = comboboxChipsContext;
     const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
-    const [previousChipKey, nextChipKey] = getChipNavigationKeys(direction);
+    const [previousChipKey] = getChipNavigationKeys(direction);
 
-    if (highlightedChipIndex !== undefined) {
-      if (event.key === previousChipKey) {
-        event.preventDefault();
-        if (highlightedChipIndex > 0) {
-          nextIndex = highlightedChipIndex - 1;
-        } else {
-          nextIndex = undefined;
-        }
-      } else if (event.key === nextChipKey) {
-        event.preventDefault();
-        if (highlightedChipIndex < renderedChipsCount - 1) {
-          nextIndex = highlightedChipIndex + 1;
-        } else {
-          nextIndex = undefined;
-        }
-      } else if (event.key === 'Backspace' || event.key === 'Delete') {
-        event.preventDefault();
-        // Move highlight appropriately after removal.
-        nextIndex = getIndexAfterChipRemoval(highlightedChipIndex, selectedValue.length);
-        clearHighlight(event.nativeEvent);
-      }
-      return nextIndex;
-    }
-
-    // Handle navigation when no chip is highlighted
     if (
       event.key === previousChipKey &&
       (event.currentTarget.selectionStart ?? 0) === 0 &&
@@ -393,12 +366,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
-          // Handle deletion when no chip is highlighted and the input is empty.
+          // Handle deletion when the input is empty.
           if (
             comboboxChipsContext &&
             event.key === 'Backspace' &&
             input.value === '' &&
-            comboboxChipsContext.highlightedChipIndex === undefined &&
             Array.isArray(selectedValue) &&
             selectedValue.length > 0
           ) {
@@ -418,15 +390,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
-          const hadHighlightedChip = comboboxChipsContext?.highlightedChipIndex !== undefined;
           const nextIndex = handleKeyDown(event);
-
-          comboboxChipsContext?.setHighlightedChipIndex(nextIndex);
 
           if (nextIndex !== undefined) {
             comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
-          } else if (hadHighlightedChip) {
-            store.context.inputRef.current?.focus();
           }
 
           // event.isComposing

@@ -63,10 +63,12 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   const isScrubbingRef = React.useRef(false);
   const didMoveRef = React.useRef(false);
   const pointerDownTargetRef = React.useRef<EventTarget | null>(null);
+  const nativeClickReceivedRef = React.useRef(false);
   const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
 
   const exitPointerLockTimeout = useTimeout();
+  const syntheticClickTimeout = useTimeout();
 
   const [isTouchInput, setIsTouchInput] = React.useState(false);
   const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
@@ -168,17 +170,26 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
               createGenericEventDetails(REASONS.scrub, event),
             );
 
-            // Manually dispatch a click event if no movement happened, since
-            // preventDefault on pointerdown prevents the browser click event.
+            // Dispatch a click if no movement happened. While the pointer is locked, the
+            // browser targets its click at the lock element instead of the scrub area.
+            // Without a lock (WebKit, or a denied request) the native click still arrives,
+            // and it is dispatched after pointerup in the same task, so wait one task and
+            // only synthesize the click if the native one didn't reach the scrub area.
             const pointerDownTarget = pointerDownTargetRef.current;
             const input = inputRef.current;
             if (!didMoveRef.current && pointerDownTarget != null && input) {
-              pointerDownTarget.dispatchEvent(
-                new (ownerWindow(input).MouseEvent)('click', {
-                  bubbles: true,
-                  cancelable: true,
-                }),
-              );
+              const MouseEventConstructor = ownerWindow(input).MouseEvent;
+              syntheticClickTimeout.start(0, () => {
+                if (nativeClickReceivedRef.current) {
+                  return;
+                }
+                pointerDownTarget.dispatchEvent(
+                  new MouseEventConstructor('click', {
+                    bubbles: true,
+                    cancelable: true,
+                  }),
+                );
+              });
             }
 
             didMoveRef.current = false;
@@ -257,6 +268,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       onValueCommitted,
       valueRef,
       exitPointerLockTimeout,
+      syntheticClickTimeout,
     ],
   );
 
@@ -299,6 +311,9 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   const defaultProps: HTMLProps = {
     role: 'presentation',
     style: SCRUB_AREA_STYLE,
+    onClickCapture() {
+      nativeClickReceivedRef.current = true;
+    },
     async onPointerDown(event) {
       if (event.defaultPrevented || readOnly || event.button || disabled) {
         return;
@@ -314,6 +329,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
       isScrubbingRef.current = true;
       didMoveRef.current = false;
+      nativeClickReceivedRef.current = false;
+      syntheticClickTimeout.clear();
       pointerDownTargetRef.current = getTarget(event.nativeEvent);
       onScrubbingChange(true, event.nativeEvent);
 

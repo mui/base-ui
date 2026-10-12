@@ -15,7 +15,6 @@ import {
   useTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
-import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import type { MenubarContext } from '../../menubar/MenubarContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
@@ -54,6 +53,9 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
 import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
 
+/**
+ * @internal
+ */
 export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>(
   props: MenuRootInternalProps<Payload>,
 ) {
@@ -79,7 +81,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     virtualFocusRef,
     allowEscape = true,
     resetOnPointerLeave = true,
-    webkitItemSelected = false,
   } = props;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -90,7 +91,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   // invalidation doesn't cascade into every descendant root's context.
   const enclosingMenuStore = parentMenuRootContext?.store;
   const parentVirtualFocus = parentMenuRootContext?.virtualFocus ?? false;
-  const parentWebkitItemSelected = parentMenuRootContext?.webkitItemSelected ?? false;
 
   const parentFromContext: MenuParent = React.useMemo(() => {
     if (isSubmenu && enclosingMenuStore) {
@@ -480,6 +480,12 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }, [store]);
 
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
+    [forceUnmount, handleImperativeClose],
+  );
+
   let ctx: ContextMenuRootContext | undefined;
   if (parent.type === 'context-menu') {
     ctx = parent.context;
@@ -527,12 +533,8 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     triggerOrientation: virtualFocus ? 'vertical' : orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex, event, source) {
-      store.setActiveIndex(
-        nextActiveIndex,
-        source === 'imperative' ? REASONS.imperativeAction : getHighlightReason(event),
-        event?.nativeEvent,
-      );
+    onNavigate(nextActiveIndex, event) {
+      store.setActiveIndex(nextActiveIndex, getHighlightReason(event), event?.nativeEvent);
     },
     // A virtual-focus submenu's keyboard opening is orchestrated by its navigation wrapper based
     // on both menus' orientations; the generic arrow-key opening would also react to the parent's
@@ -543,16 +545,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave,
   });
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({
-      unmount: forceUnmount,
-      close: handleImperativeClose,
-      highlightItem: listNavigation.highlightItem,
-    }),
-    [forceUnmount, handleImperativeClose, listNavigation.highlightItem],
-  );
 
   const onTyping = React.useCallback(
     (nextTyping: boolean) => {
@@ -736,8 +728,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       setRenderedFloatingId,
       virtualFocus,
       parentVirtualFocus,
-      parentWebkitItemSelected,
-      webkitItemSelected,
       syncHighlightedItem,
     }),
     [
@@ -749,8 +739,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       defaultFloatingId,
       virtualFocus,
       parentVirtualFocus,
-      parentWebkitItemSelected,
-      webkitItemSelected,
       syncHighlightedItem,
     ],
   );
@@ -819,10 +807,6 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
    * Whether pointer leave should clear the active item.
    */
   resetOnPointerLeave?: boolean | undefined;
-  /**
-   * Whether virtual-focus items need WebKit's `aria-selected` compatibility state.
-   */
-  webkitItemSelected?: boolean | undefined;
 }
 
 export interface MenuRootProps<Payload = unknown> {
@@ -872,7 +856,6 @@ export interface MenuRootProps<Payload = unknown> {
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
    *   rather than a `PointerEvent`.
-   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
    * - `'none'`: the highlight changed for another reason, such as automatic highlighting while
    *   filtering, the item list changing, or the popup opening or closing.
    */
@@ -909,14 +892,6 @@ export interface MenuRootProps<Payload = unknown> {
    *   Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.
    *   Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the menu imperatively when called.
-   * - `highlightItem`: Moves or clears the highlight while the menu is open.
-   *   `'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`
-   *   is disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the
-   *   highlight and hands focus back to the popup.
-   *   Calling this action does not open the menu. To highlight an item after opening it, call
-   *   the action from `onOpenChangeComplete` when `open` is `true`.
-   *   Highlight changes requested through this action report the reason `'imperative-action'`
-   *   to `onItemHighlighted`.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**
@@ -942,20 +917,9 @@ export interface MenuRootProps<Payload = unknown> {
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
 }
 
-/**
- * The item `highlightItem` moves the highlight to.
- * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
- *   the matching end when nothing is highlighted. They wrap around unless `loopFocus` is
- *   disabled and never leave the list.
- * - `'first'` and `'last'` jump to either end of the list.
- * - `'none'` clears the highlight and hands focus back to the popup.
- */
-export type MenuRootHighlightItemTarget = HighlightItemTarget;
-
 export interface MenuRootActions {
   unmount: () => void;
   close: () => void;
-  highlightItem: (target: MenuRootHighlightItemTarget) => void;
 }
 
 export type MenuRootChangeEventReason =
@@ -979,10 +943,7 @@ export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.Chang
 };
 
 export type MenuRootHighlightEventReason =
-  | typeof REASONS.keyboard
-  | typeof REASONS.pointer
-  | typeof REASONS.imperativeAction
-  | typeof REASONS.none;
+  typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
 
 export type MenuRootHighlightEventDetails = BaseUIHighlightEventDetails<
   MenuRoot.HighlightEventReason,
@@ -1022,7 +983,6 @@ export namespace MenuRoot {
   export type State = MenuRootState;
   export type Props<Payload = unknown> = MenuRootProps<Payload>;
   export type Actions = MenuRootActions;
-  export type HighlightItemTarget = MenuRootHighlightItemTarget;
   export type ChangeEventReason = MenuRootChangeEventReason;
   export type ChangeEventDetails = MenuRootChangeEventDetails;
   export type HighlightEventReason = MenuRootHighlightEventReason;

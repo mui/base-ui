@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { randomStringValue, screen } from '@mui/internal-test-utils';
 import type {
   ConformantComponentProps,
@@ -51,9 +51,7 @@ export function testRenderProp(
         }),
       );
 
-      if (wrappingAllowed) {
-        expect(screen.queryByTestId('base-ui-wrapper')).not.toBe(null);
-      }
+      expect(screen.queryAllByTestId('base-ui-wrapper')).toHaveLength(wrappingAllowed ? 1 : 0);
       expect(screen.queryByTestId('wrapped')).not.toBe(null);
       expect(screen.queryByTestId('wrapped')).toHaveAttribute('data-test-value', testValue);
     });
@@ -68,26 +66,9 @@ export function testRenderProp(
         }),
       );
 
-      if (wrappingAllowed) {
-        expect(screen.queryByTestId('base-ui-wrapper')).not.toBe(null);
-      }
+      expect(screen.queryAllByTestId('base-ui-wrapper')).toHaveLength(wrappingAllowed ? 1 : 0);
       expect(screen.queryByTestId('wrapped')).not.toBe(null);
       expect(screen.queryByTestId('wrapped')).toHaveAttribute('data-test-value', testValue);
-    });
-
-    it('renders a customized root element with an element', async () => {
-      await render(
-        React.cloneElement(element, {
-          render: <Wrapper />,
-          ...(button && { nativeButton: Element === 'button' }),
-        }),
-      );
-
-      if (wrappingAllowed) {
-        expect(screen.queryByTestId('base-ui-wrapper')).not.toBe(null);
-      } else {
-        expect(screen.queryByTestId('wrapped')).not.toBe(null);
-      }
     });
 
     it('should pass the ref to the custom component', async () => {

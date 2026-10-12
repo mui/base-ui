@@ -8,7 +8,7 @@ import {
   createRenderer,
   describeConformance,
   isJSDOM,
-  waitForPositioned,
+  positionerConformanceTests,
   waitSingleFrame,
 } from '#test-utils';
 
@@ -50,8 +50,6 @@ describe('<Popover.Positioner />', () => {
     }
   });
 
-  const baselineX = 10;
-  const baselineY = 36;
   const popupWidth = 52;
   const popupHeight = 24;
   const anchorWidth = 72;
@@ -59,311 +57,21 @@ describe('<Popover.Positioner />', () => {
   const triggerStyle = { width: anchorWidth, height: anchorHeight };
   const popupStyle = { width: popupWidth, height: popupHeight };
 
-  describe.skipIf(isJSDOM)('prop: sideOffset', () => {
-    it('offsets the side when a number is specified', async () => {
-      const sideOffset = 7;
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner data-testid="positioner" sideOffset={sideOffset}>
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX,
-        y: baselineY + sideOffset,
-      });
-    });
-
-    it('offsets the side when a function is specified', async () => {
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner
-              data-testid="positioner"
-              sideOffset={(data) => data.positioner.width + data.anchor.width}
-            >
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX,
-        y: baselineY + popupWidth + anchorWidth,
-      });
-    });
-
-    it('can read the latest side inside sideOffset', async () => {
-      let side = 'none';
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner
-              side="left"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('right');
-    });
-
-    it('can read the latest align inside sideOffset', async () => {
-      let align = 'none';
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner
-              side="right"
-              align="start"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                align = data.align;
-                return 0;
-              }}
-            >
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      // correctly flips the align in the browser
-      expect(align).toBe('end');
-    });
-
-    it('reads logical side inside sideOffset', async () => {
-      let side = 'none';
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner
-              side="inline-start"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('inline-end');
-    });
-
-    it('reads logical side inside sideOffset in RTL mode', async () => {
-      let side = 'none';
-      await render(
-        <DirectionProvider direction="rtl">
-          <Popover.Root open>
-            <Trigger style={triggerStyle}>Trigger</Trigger>
-            <Popover.Portal>
-              <Popover.Positioner
-                side="inline-start"
-                data-testid="positioner"
-                sideOffset={(data) => {
-                  side = data.side;
-                  return 0;
-                }}
-              >
-                <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        </DirectionProvider>,
-      );
-
-      expect(side).toBe('inline-start');
-    });
-  });
-
-  describe.skipIf(isJSDOM)('prop: alignOffset', () => {
-    it('offsets the align when a number is specified', async () => {
-      const alignOffset = 7;
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner data-testid="positioner" alignOffset={alignOffset}>
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX + alignOffset,
-        y: baselineY,
-      });
-    });
-
-    it('offsets the align when a function is specified', async () => {
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner
-              data-testid="positioner"
-              alignOffset={(data) => data.positioner.width}
-            >
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX + popupWidth,
-        y: baselineY,
-      });
-    });
-
-    it('can read the latest side inside alignOffset', async () => {
-      let side = 'none';
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner
-              side="left"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('right');
-    });
-
-    it('can read the latest align inside alignOffset', async () => {
-      let align = 'none';
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner
-              side="right"
-              align="start"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                align = data.align;
-                return 0;
-              }}
-            >
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      // correctly flips the align in the browser
-      expect(align).toBe('end');
-    });
-
-    it('reads logical side inside alignOffset', async () => {
-      let side = 'none';
-      await render(
-        <Popover.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner
-              side="inline-start"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      // correctly flips the side in the browser
-      expect(side).toBe('inline-end');
-    });
-  });
-
-  // https://github.com/mui/base-ui/issues/5131
-  it.skipIf(isJSDOM)('rests exactly at collisionPadding from the colliding edge', async () => {
-    const collisionPadding = 12;
-    let setOpen!: React.Dispatch<React.SetStateAction<boolean>>;
-
-    function App() {
-      const [open, setOpenState] = React.useState(false);
-      setOpen = setOpenState;
-
-      return (
-        // Anchor pinned near the bottom so the bottom-side popup flips to the top and
-        // collides with the top viewport edge.
-        <div style={{ position: 'fixed', bottom: 8, left: 16 }}>
-          <Popover.Root open={open}>
-            <Trigger style={triggerStyle}>Trigger</Trigger>
-            <Popover.Portal>
-              <Popover.Positioner
-                data-testid="positioner"
-                side="bottom"
-                sideOffset={8}
-                collisionPadding={collisionPadding}
-                collisionAvoidance={{ fallbackAxisSide: 'none' }}
-              >
-                <Popover.Popup
-                  style={{ width: 200, height: 1000, maxHeight: 'var(--available-height)' }}
-                >
-                  Popup
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        </div>
-      );
-    }
-
-    const { unmount } = await render(<App />);
-    await act(async () => setOpen(true));
-
-    const positioner = screen.getByTestId('positioner');
-    await waitFor(() => {
-      expect(positioner).toHaveAttribute('data-side', 'top');
-    });
-
-    // The preferred-side bias used by flip() must not leak into the resting position:
-    // the popup should sit exactly `collisionPadding` away from the top edge, not +1px.
-    await waitFor(() => {
-      expect(Math.round(positioner.getBoundingClientRect().top)).toBe(collisionPadding);
-    });
-
-    unmount();
+  positionerConformanceTests({
+    render,
+    viewport: true,
+    createComponent: ({ root, trigger, positioner, popup, viewport }) => (
+      <Popover.Root {...root}>
+        <Trigger {...trigger}>Trigger</Trigger>
+        <Popover.Portal>
+          <Popover.Positioner {...positioner}>
+            <Popover.Popup {...popup}>
+              {viewport ? <Popover.Viewport>Popup</Popover.Viewport> : 'Popup'}
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>
+    ),
   });
 
   it.skipIf(isJSDOM)('remains anchored if keepMounted=false', async () => {
@@ -583,45 +291,6 @@ describe('<Popover.Positioner />', () => {
       expect(Math.abs(closingRect.y - initialRect.y)).toBeLessThanOrEqual(1);
     },
   );
-
-  it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    const { unmount } = await render(
-      <Popover.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
-        <Popover.Portal>
-          <Popover.Positioner data-testid="positioner">
-            <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
-          </Popover.Positioner>
-        </Popover.Portal>
-      </Popover.Root>,
-    );
-
-    const positioner = screen.getByTestId('positioner');
-    await waitFor(() => {
-      expect(positioner.style.transform).not.toBe('');
-    });
-    unmount();
-  });
-
-  it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    const { unmount } = await render(
-      <Popover.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
-        <Popover.Portal>
-          <Popover.Positioner data-testid="positioner">
-            <Popover.Popup style={popupStyle}>
-              <Popover.Viewport>Popup</Popover.Viewport>
-            </Popover.Popup>
-          </Popover.Positioner>
-        </Popover.Portal>
-      </Popover.Root>,
-    );
-
-    const positioner = screen.getByTestId('positioner');
-    await waitForPositioned(positioner);
-    expect(positioner.style.transform).toBe('');
-    unmount();
-  });
 
   describe.skipIf(isJSDOM)('transform origin', () => {
     function getTransformOrigin() {
