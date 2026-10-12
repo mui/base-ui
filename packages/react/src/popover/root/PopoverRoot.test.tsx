@@ -12,7 +12,14 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, isScrollLocked, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  holdEnter,
+  isJSDOM,
+  isScrollLocked,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
@@ -2246,6 +2253,29 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByTestId('child-popup')).toBe(null);
       });
     });
+  });
+
+  it('does not activate the focused button while Enter auto-repeats from the trigger', async () => {
+    const { user } = await render(
+      <Popover.Root>
+        <Popover.Trigger>Open</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              <button type="button">Delete</button>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await act(async () => trigger.focus());
+    const allowed = await holdEnter(user);
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toHaveFocus();
+    expect(allowed).toEqual([false, false, false]);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
   });
 
   describe('preventUnmountOnClose()', () => {

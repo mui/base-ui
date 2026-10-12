@@ -466,6 +466,21 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
         await expectFocusOnItem(0);
       });
 
+      it.skipIf(!enterSpaceOpen)(
+        'opens without activating an item while Enter auto-repeats on the trigger',
+        async () => {
+          const spies = createSpies();
+          const { user } = await renderList(spies.options);
+          await focusTrigger();
+
+          await user.keyboard('{Enter>5}');
+          await waitForOpen();
+
+          expect(spies.activated).toEqual([]);
+          expect(spies.onValueChange).not.toHaveBeenCalled();
+        },
+      );
+
       it('opens on the last item with ArrowUp', async () => {
         const { user } = await renderList();
         await focusTrigger();
@@ -615,6 +630,19 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           });
         },
       );
+
+      it('activates the highlighted item once while Enter auto-repeats', async () => {
+        const spies = createSpies();
+        const { user } = await renderList(spies.options);
+        const start = await openWithKeyboard(user);
+
+        await user.keyboard('{Enter>5}');
+        await settle();
+
+        expect(getTrigger()).toHaveAttribute('aria-expanded', 'false');
+        expect(spies.activated).toEqual([ITEMS[start]]);
+        expect(spies.onValueChange).toHaveBeenCalledTimes(selectable ? 1 : 0);
+      });
 
       it('does not submit a surrounding form', async () => {
         const onSubmit = vi.fn();
