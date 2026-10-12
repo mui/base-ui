@@ -2366,11 +2366,13 @@ describe('<Popover.Root />', () => {
   });
 
   describe('controlled open request during the exit animation', () => {
-    type Response = 'commit after the exit' | 'ignore' | 'cancel';
+    type Response = 'commit after the exit' | 'commit in a transition' | 'ignore' | 'cancel';
 
     // Presses the trigger while a controlled close is animating out, then answers the open request.
     // 'commit after the exit' queues the reopen only after the exit animation's completion callback
     // has run, the way React 18 can commit a parent's response after it.
+    // 'commit in a transition' queues the reopen in a transition that is still pending when the
+    // exit completes, so React 18 renders it together with the close check.
     async function requestOpenDuringExit(
       response: Response,
       rootProps: Partial<Popover.Root.Props> = {},
@@ -2440,8 +2442,12 @@ describe('<Popover.Root />', () => {
 
       const positioner = screen.getByTestId('positioner');
       await act(async () => {
+        if (response === 'commit in a transition') {
+          React.startTransition(() => setOpenExternal(true));
+        }
         finishExit();
-        // Let the exit complete and unmount the popup before the parent's response is queued.
+        // Let the exit complete and unmount the popup before the parent's response is queued
+        // (or, for a transition, rendered).
         while (!positioner.hasAttribute('hidden')) {
           // eslint-disable-next-line no-await-in-loop
           await new Promise((resolve) => {
@@ -2480,6 +2486,15 @@ describe('<Popover.Root />', () => {
       const reopenIndex = calls.lastIndexOf('change:true');
       expect(reopenIndex).toBeGreaterThan(-1);
       expect(calls.slice(reopenIndex)).not.toContain('complete:false');
+    });
+
+    it('keeps the reopen when the parent commits it in a transition', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      const trigger = await requestOpenDuringExit('commit in a transition', rootProps);
+
+      expect(trigger).toHaveAttribute('data-pressed');
+      expect(calls.slice(calls.lastIndexOf('change:true'))).not.toContain('complete:false');
     });
 
     it('reports the completed close when the open request is canceled', async () => {

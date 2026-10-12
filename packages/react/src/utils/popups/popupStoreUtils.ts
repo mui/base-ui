@@ -622,8 +622,9 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       if (store.state.open) {
         store.update({ mounted: false, preventUnmountingOnClose: false });
         // The request may also have been ignored. A parent's response is already queued when
-        // `onOpenChange` returns, and a transition renders after it, so finish the close in that
-        // render unless the reopen has committed by then.
+        // `onOpenChange` returns, and a transition renders after it or, when the response is a
+        // transition too, with it (React 18), so finish the close in that render unless the
+        // reopen has committed by then.
         const check = {};
         pendingCloseCheckRef.current = check;
         startTransition(() => setCloseCheck(check));
@@ -644,7 +645,9 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     if (pendingCloseCheck === null) {
       return;
     }
-    if (open) {
+    // Read the prop: the store, and so `open`, only receives it in a layout effect, which is a
+    // render too late when the reopen commits in the same render as the check.
+    if (openProp ?? open) {
       // The reopen superseded the close, the same as one that commits before the exit completes:
       // keep the state the request wrote and skip the host's close cleanup and completion.
       pendingCloseCheckRef.current = null;
