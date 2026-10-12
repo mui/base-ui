@@ -4697,7 +4697,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     async function openAndType(user: ReturnType<typeof userEvent.setup>, text: string) {
       await user.click(screen.getByRole('button', { name: 'Fruit' }));
       const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
-      await user.type(input, text);
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      fireEvent.change(input, { target: { value: text } });
       await waitFor(() => {
         expect(getItemNames()).toEqual(['Apple', 'Apricot', `Create "${text}"`]);
       });
