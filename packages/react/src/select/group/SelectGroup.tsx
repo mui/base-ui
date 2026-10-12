@@ -3,14 +3,9 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { SelectGroupContext } from './SelectGroupContext';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useSelectFilterImpl } from '../filter-root/SelectFilterContext';
 
-/**
- * Groups related select items with the corresponding label.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export const SelectGroup = React.forwardRef(function SelectGroup(
+export const SelectGroupPlain = React.forwardRef(function SelectGroup(
   componentProps: SelectGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -38,6 +33,20 @@ export const SelectGroup = React.forwardRef(function SelectGroup(
   });
 
   return <SelectGroupContext.Provider value={contextValue}>{element}</SelectGroupContext.Provider>;
+});
+
+/**
+ * Groups related select items with the corresponding label.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export const SelectGroup = React.forwardRef(function SelectGroup(
+  props: SelectGroup.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const Group = useSelectFilterImpl()?.Group ?? SelectGroupPlain;
+  return <Group {...props} ref={forwardedRef} />;
 });
 
 export interface SelectGroupState {}
