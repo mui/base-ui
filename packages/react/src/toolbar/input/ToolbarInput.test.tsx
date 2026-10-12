@@ -2,7 +2,7 @@ import { expect, vi, describe, it } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { NumberField } from '@base-ui/react/number-field';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { screen } from '@mui/internal-test-utils';
+import { act, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
@@ -168,6 +168,55 @@ describe('<Toolbar.Input />', () => {
       input.setSelectionRange(4, 4);
       await user.keyboard(`[${ARROW_RIGHT}]`);
       expect(before).toHaveFocus();
+    });
+
+    it.each([
+      {
+        name: 'a textarea with paragraphs in different directions',
+        direction: 'rtl',
+        input: <Toolbar.Input render={<textarea dir="auto" defaultValue={'abcd\nאבגד'} />} />,
+        boundary: 9,
+        nextPosition: 8,
+        outwardKey: ARROW_LEFT,
+        adjacentItem: 'after',
+      },
+      {
+        name: 'an input with plaintext direction different from its CSS direction',
+        direction: 'ltr',
+        input: <Toolbar.Input dir="rtl" style={{ unicodeBidi: 'plaintext' }} defaultValue="abcd" />,
+        boundary: 0,
+        nextPosition: 1,
+        outwardKey: ARROW_LEFT,
+        adjacentItem: 'before',
+      },
+    ] as const)('preserves caret editing and boundary navigation for $name', async (testCase) => {
+      // Testing Library does not emulate native plaintext caret direction.
+      const { userEvent: nativeUser } = await import('vitest/browser');
+      const { user } = await render(
+        <DirectionProvider direction={testCase.direction}>
+          <div dir={testCase.direction}>
+            <Toolbar.Root orientation="horizontal">
+              <Toolbar.Button data-testid="before" />
+              {testCase.input}
+              <Toolbar.Button data-testid="after" />
+            </Toolbar.Root>
+          </div>
+        </DirectionProvider>,
+      );
+      const input = screen.getByRole<HTMLInputElement | HTMLTextAreaElement>('textbox');
+
+      await user.keyboard('[Tab]');
+      await user.keyboard(`[${testCase.direction === 'rtl' ? ARROW_LEFT : ARROW_RIGHT}]`);
+      expect(input).toHaveFocus();
+
+      input.setSelectionRange(testCase.boundary, testCase.boundary);
+      await act(async () => nativeUser.keyboard(`[${ARROW_RIGHT}]`));
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(testCase.nextPosition);
+
+      input.setSelectionRange(testCase.boundary, testCase.boundary);
+      await act(async () => nativeUser.keyboard(`[${testCase.outwardKey}]`));
+      expect(screen.getByTestId(testCase.adjacentItem)).toHaveFocus();
     });
 
     // when navigating through RTL text in real browsers the arrow keys for

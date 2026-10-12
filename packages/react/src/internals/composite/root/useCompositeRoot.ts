@@ -231,25 +231,39 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       const selectionStart = target.selectionStart;
       const selectionEnd = target.selectionEnd;
       const textContent = target.value;
-      // The caret follows the input's own text direction, which can differ from the
-      // composite's, such as an email field with `dir="ltr"` in a right-to-left toolbar.
-      let caretForwardKey = forwardKey;
-      let caretBackwardKey = backwardKey;
-      if (orientation !== 'vertical') {
-        const isInputRtl = ownerWindow(target).getComputedStyle(target).direction === 'rtl';
-        caretForwardKey = isInputRtl ? ARROW_LEFT : ARROW_RIGHT;
-        caretBackwardKey = isInputRtl ? ARROW_RIGHT : ARROW_LEFT;
-      }
-      // return to native textbox behavior when
-      // 1 - Shift is held to make a text selection, or if there already is a text selection
-      if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
+      // Return to native textbox behavior for selections or a caret inside the text,
+      // where neither input direction can move focus to another item.
+      if (
+        selectionStart == null ||
+        event.shiftKey ||
+        selectionStart !== selectionEnd ||
+        (selectionStart > 0 && selectionStart < textContent.length)
+      ) {
         return;
       }
-      // 2 - arrow-ing forward and not in the last position of the text
+      // The caret follows the input's own text direction, which can differ from the
+      // composite's, such as a text field with `dir="ltr"` in a right-to-left toolbar.
+      let caretForwardKey = forwardKey;
+      let caretBackwardKey = backwardKey;
+      if (
+        orientation !== 'vertical' &&
+        textContent.length > 0 &&
+        (event.key === ARROW_LEFT || event.key === ARROW_RIGHT)
+      ) {
+        const inputStyles = ownerWindow(target).getComputedStyle(target);
+        // Plaintext paragraphs resolve their own direction, so the element's computed
+        // direction may describe a different paragraph. Keep the existing caret keys.
+        if (inputStyles.unicodeBidi !== 'plaintext') {
+          const isInputRtl = inputStyles.direction === 'rtl';
+          caretForwardKey = isInputRtl ? ARROW_LEFT : ARROW_RIGHT;
+          caretBackwardKey = isInputRtl ? ARROW_RIGHT : ARROW_LEFT;
+        }
+      }
+      // Arrow-ing forward and not in the last position of the text.
       if (event.key !== caretBackwardKey && selectionStart < textContent.length) {
         return;
       }
-      // 3 -arrow-ing backward and not in the first position of the text
+      // Arrow-ing backward and not in the first position of the text.
       if (event.key !== caretForwardKey && selectionStart > 0) {
         return;
       }
