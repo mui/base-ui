@@ -22,10 +22,10 @@ export function useCheckboxGroupParent(
   // change was made from. The parent's cycle only holds while `value` still matches it.
   const lastValueRef = React.useRef(value);
   // Whether the hook's last change has yet to land. Only its first landing is read back, so a
-  // value the group corrects in a later commit is taken for an outside change. A change that
-  // leaves the value as is, or that the group ignores without canceling, never lands, so the
-  // next value from outside is taken for it. Only one change is tracked, so a second one made
-  // before the first lands is taken for an outside change.
+  // value the group corrects in a later commit is taken for an outside change. A change the
+  // group ignores without canceling never lands, so the next value from outside is taken for it.
+  // Only one change is tracked, so a second one made before the first lands is taken for an
+  // outside change.
   const ownChangeRef = React.useRef(false);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
@@ -62,7 +62,8 @@ export function useCheckboxGroupParent(
       // The change is read back against the value it was made from, which an outside change
       // may have moved on. Before the change, which the group may land synchronously.
       lastValueRef.current = value;
-      ownChangeRef.current = true;
+      // A change that leaves the value as is never lands.
+      ownChangeRef.current = !hasSameValues(nextValue, value);
       onValueChangeProp?.(nextValue, eventDetails);
 
       if (eventDetails.isCanceled) {

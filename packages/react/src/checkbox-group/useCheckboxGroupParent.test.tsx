@@ -903,6 +903,29 @@ describe('useCheckboxGroupParent', () => {
       expect(getCheckedValues()).toEqual(allValues);
     });
 
+    it('returns to a mixed value set from outside after a parent click that changed nothing', async () => {
+      const { user } = await render(<App outsideValue={['b']} disabledValues={allValues} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      await user.click(screen.getByRole('button', { name: 'enable all' }));
+      expect(getCheckedValues()).toEqual(['b']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+      expect(getCheckedValues()).toEqual(['b']);
+    });
+
     describe('with a canceled change', () => {
       it('keeps the mixed value to return to when the change after an outside value is canceled', async () => {
         const { user } = await render(<App outsideValue={['b']} />);
