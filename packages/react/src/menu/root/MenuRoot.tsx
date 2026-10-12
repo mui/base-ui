@@ -45,7 +45,6 @@ import {
   createPopupOpenState,
   PopupHandleAttachment,
   useImplicitActiveTrigger,
-  useOpenProp,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -176,7 +175,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     return menuStore;
   }).current;
 
-  useOpenProp(store, openProp);
+  store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
@@ -227,6 +226,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(
     open,
     store,
+    openProp,
     () => {
       store.set('allowMouseEnter', false);
     },

@@ -8,7 +8,6 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import {
   useImplicitActiveTrigger,
-  useOpenProp,
   useOpenStateTransitions,
   PopupHandleAttachment,
   usePopupRootStore,
@@ -63,7 +62,7 @@ export function useRenderDialogRoot<Payload>(
     true,
   );
 
-  useOpenProp(store, openProp);
+  store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useSyncedValues(rootState);
@@ -76,7 +75,7 @@ export function useRenderDialogRoot<Payload>(
 
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store);
+  const { forceUnmount } = useOpenStateTransitions(open, store, openProp);
 
   React.useImperativeHandle(
     actionsRef,

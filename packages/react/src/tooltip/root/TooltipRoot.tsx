@@ -11,7 +11,6 @@ import {
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
-  useOpenProp,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -60,7 +59,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
       ),
   );
 
-  useOpenProp(store, openProp);
+  store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useContextCallback('onOpenChange', onOpenChange);
@@ -80,7 +79,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   });
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store, openProp);
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');

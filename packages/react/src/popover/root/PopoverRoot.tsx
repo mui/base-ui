@@ -13,7 +13,6 @@ import {
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
-  useOpenProp,
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
@@ -45,7 +44,7 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
     triggerIdProp,
   });
 
-  useOpenProp(store, openProp);
+  store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   const open = store.useState('open');
@@ -57,7 +56,7 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
 
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+  const { forceUnmount } = useOpenStateTransitions(open, store, openProp, () => {
     store.context.stickIfOpen = true;
     store.set('openChangeReason', null);
   });

@@ -13,7 +13,6 @@ import {
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
-  useOpenProp,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -46,7 +45,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
       ),
   );
 
-  useOpenProp(store, openProp);
+  store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useContextCallback('onOpenChange', onOpenChange);
@@ -58,7 +57,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   const payload = store.useState('payload') as Payload | undefined;
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+  const { forceUnmount } = useOpenStateTransitions(open, store, openProp, () => {
     store.context.inlineRectCoordsRef.current = undefined;
   });
 
