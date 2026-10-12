@@ -419,7 +419,15 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   restoreFocusToPrevElement() {
-    this.state.prevFocusElement?.focus({ preventScroll: true });
+    const prevFocusElement = this.state.prevFocusElement;
+    // `body` can't be focused, so return focus to it by blurring whatever has it.
+    if (prevFocusElement === ownerDocument(prevFocusElement).body) {
+      (activeElement(ownerDocument(prevFocusElement)) as HTMLElement | null)?.blur();
+    } else {
+      prevFocusElement?.focus({ preventScroll: true });
+    }
+    // Focus has left the viewport, so a later visit that didn't start with F6 has nowhere to return to.
+    this.set('prevFocusElement', null);
   }
 
   handleDocumentPointerDown = (event: PointerEvent) => {
@@ -519,16 +527,17 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const toasts = selectors.toasts(this.state);
     const currentIndex = selectors.toastIndex(this.state, toastId);
 
+    // A toast that was `limited` stays `inert` until React commits, so it can't take focus yet.
     const scan = (from: number, step: number) => {
       for (let index = from; index >= 0 && index < toasts.length; index += step) {
-        if (toasts[index].transitionStatus !== 'ending') {
+        if (toasts[index].transitionStatus !== 'ending' && !toasts[index].ref?.current?.inert) {
           return toasts[index];
         }
       }
       return null;
     };
 
-    // Try to find the next toast that isn't animating out, then fall back to the previous one.
+    // Try to find the next toast that can hold focus, then fall back to the previous one.
     const nextToast = scan(currentIndex + 1, 1) ?? scan(currentIndex - 1, -1);
 
     if (nextToast) {
