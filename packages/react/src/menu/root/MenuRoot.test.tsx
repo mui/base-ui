@@ -12,6 +12,7 @@ import {
 } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
@@ -3036,6 +3037,45 @@ describe('<Menu.Root />', () => {
 
       expect(submenuTrigger).not.toHaveAttribute('data-highlighted');
       expect(submenuTrigger).not.toHaveFocus();
+    });
+  });
+
+  describe('prop: onOpenChangeComplete', () => {
+    it('completes initial opening once when a later update replaces the container ref', async () => {
+      const completed = vi.fn();
+
+      function TestMenu() {
+        const container = React.useRef<HTMLDivElement>(null);
+        const [step, setStep] = React.useState(0);
+
+        useIsoLayoutEffect(() => {
+          if (step < 2) {
+            setStep(step + 1);
+          }
+        }, [step]);
+
+        const containerId = step < 2 ? 'first' : 'second';
+        return (
+          <React.Fragment>
+            <Menu.Root defaultOpen onOpenChangeComplete={completed}>
+              <Menu.Trigger>Toggle</Menu.Trigger>
+              <Menu.Portal container={container}>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <div key={containerId} ref={container} data-testid={containerId} />
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestMenu />, { strict: false });
+
+      expect(screen.getByTestId('second')).toContainElement(screen.getByRole('menu'));
+      expect(completed).toHaveBeenCalledExactlyOnceWith(true);
     });
   });
 

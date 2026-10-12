@@ -23,6 +23,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { UseRenderElementComponentProps } from '../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
+import { createFlushBeforePaint } from '../../internals/createFlushBeforePaint';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -47,6 +48,7 @@ const PortalContext = React.createContext<null | {
 export const usePortalContext = () => React.useContext(PortalContext);
 
 const attr = createAttribute('portal');
+const flushContainerUpdates = createFlushBeforePaint();
 
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
@@ -89,13 +91,8 @@ export function useFloatingPortalNode(
   });
 
   const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
-  const [refCheck, setRefCheck] = React.useState<object | null>(null);
-  const pendingRefCheckRef = React.useRef<object | null>(null);
 
   useIsoLayoutEffect(() => {
-    const isRefCheck = refCheck !== null && pendingRefCheckRef.current === refCheck;
-    pendingRefCheckRef.current = null;
-
     // Wait for the container to be resolved if explicitly `null`.
     if (containerProp === null) {
       if (containerRef.current) {
@@ -133,28 +130,18 @@ export function useFloatingPortalNode(
       }
     }
 
-    const isEmptyRef = containerProp && !isNode(containerProp) && !containerProp.current;
-    if (isEmptyRef && !isRefCheck) {
-      // Ancestor and later sibling refs attach after this layout effect. A state update re-runs it
-      // synchronously after the commit, before paint, so the portal never mounts elsewhere.
-      const token = {};
-      pendingRefCheckRef.current = token;
-      setRefCheck(token);
-      return undefined;
-    }
-
-    if (!isEmptyRef) {
+    if (containerProp && !isNode(containerProp) && !containerProp.current) {
+      // Wait for ancestor and later sibling refs, including refs replaced by layout updates.
+      // Flush before paint without extending React's synchronous nested-update cascade.
+      flushContainerUpdates(resolveContainer);
+    } else {
       resolveContainer();
-    }
-    if (isRefCheck) {
-      // Later updates in this task can still attach, move, or clear the ref.
-      queueMicrotask(resolveContainer);
     }
 
     return () => {
       cancelled = true;
     };
-  }, [containerProp, parentPortalNode, refCheck]);
+  }, [containerProp, parentPortalNode]);
 
   const portalElement = useRenderElement('div', componentProps, {
     ref: [ref, setPortalNodeRef],

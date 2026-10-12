@@ -223,9 +223,21 @@ describe.each([
     },
   );
 
-  test('mounts inside an ancestor ref during a synchronous render', () => {
+  test('mounts inside an ancestor ref before later commit microtasks run', async () => {
+    const mountedAtCheckpoint: boolean[] = [];
+
     function Test() {
       const container = React.useRef<HTMLDivElement>(null);
+
+      useIsoLayoutEffect(() => {
+        // The portal's layout effect queues its container check before this parent effect.
+        // Its children must already be committed by this point, before the browser can paint.
+        queueMicrotask(() => {
+          const content = container.current?.querySelector('[data-testid="content"]');
+          mountedAtCheckpoint.push(content?.isConnected ?? false);
+        });
+      }, []);
+
       return (
         <div ref={container} data-testid="container">
           <Portal container={container}>
@@ -235,12 +247,23 @@ describe.each([
       );
     }
 
-    render(<Test />);
+    await renderPortal(<Test />, { strict: false });
 
     expect(screen.getByTestId('container')).toContainElement(screen.getByTestId('content'));
+    expect(mountedAtCheckpoint).toEqual([true]);
   });
 
-  test('uses a container that a later update in the same task replaces', async () => {
+  test('mounts children once in a connected container when a later update replaces its ref', async () => {
+    const mounts: boolean[] = [];
+
+    function Child() {
+      const node = React.useRef<HTMLDivElement>(null);
+      useIsoLayoutEffect(() => {
+        mounts.push(node.current?.isConnected ?? false);
+      }, []);
+      return <div ref={node} data-testid="content" />;
+    }
+
     function Test() {
       const container = React.useRef<HTMLDivElement>(null);
       const [step, setStep] = React.useState(0);
@@ -255,7 +278,7 @@ describe.each([
       return (
         <React.Fragment>
           <Portal container={container} data-testid="portal">
-            <div data-testid="content" />
+            <Child />
           </Portal>
           <div key={containerId} ref={container} data-testid={containerId} />
         </React.Fragment>
@@ -265,6 +288,72 @@ describe.each([
     await renderPortal(<Test />, { strict: false });
 
     expect(screen.getByTestId('portal').parentElement).toBe(screen.getByTestId('second'));
+    expect(mounts).toEqual([true]);
+  });
+
+  test('mounts deeply nested portals inside their ancestor refs', async () => {
+    function Nested({ remaining }: { remaining: number }) {
+      const container = React.useRef<HTMLDivElement>(null);
+      return (
+        <div ref={container} data-testid="nested-container">
+          <Portal container={container} data-testid="nested-portal">
+            {remaining > 1 ? <Nested remaining={remaining - 1} /> : <div data-testid="leaf" />}
+          </Portal>
+        </div>
+      );
+    }
+
+    await renderPortal(<Nested remaining={18} />, { strict: false });
+
+    expect(screen.getByTestId('leaf')).toBeInTheDocument();
+    expect(screen.getAllByTestId('nested-portal').map((node) => node.parentElement)).toEqual(
+      screen.getAllByTestId('nested-container'),
+    );
+  });
+
+  test('batches sibling portals without adding commits for each container ref', async () => {
+    let commitCount = 0;
+
+    function Item() {
+      const container = React.useRef<HTMLDivElement>(null);
+      return (
+        <div ref={container} data-testid="container">
+          <Portal container={container}>
+            <div data-testid="content" />
+          </Portal>
+        </div>
+      );
+    }
+
+    function Test({ count }: { count: number }) {
+      return (
+        <React.Profiler
+          id="portals"
+          onRender={() => {
+            commitCount += 1;
+          }}
+        >
+          {Array.from({ length: count }, (_, index) => (
+            <Item key={index} />
+          ))}
+        </React.Profiler>
+      );
+    }
+
+    const { unmount } = await renderPortal(<Test count={1} />, { strict: false });
+    expect(screen.getByTestId('container')).toContainElement(screen.getByTestId('content'));
+    const singlePortalCommitCount = commitCount;
+    expect(singlePortalCommitCount).toBeGreaterThan(0);
+    unmount();
+    commitCount = 0;
+
+    await renderPortal(<Test count={20} />, { strict: false });
+
+    expect(screen.getAllByTestId('content')).toHaveLength(20);
+    expect(
+      screen.getAllByTestId('content').map((node) => node.parentElement?.parentElement),
+    ).toEqual(screen.getAllByTestId('container'));
+    expect(commitCount).toBe(singlePortalCommitCount);
   });
 
   test.each([{ nested: false }, { nested: true }])(
@@ -288,25 +377,26 @@ describe.each([
   );
 
   test.each([{ clear: false }, { clear: true }])(
-    'uses the latest container when it changes before the ref resolves (clear=$clear)',
+    'cancels a queued container check when the container prop changes (clear=$clear)',
     async ({ clear }) => {
       function Test() {
         const firstContainer = React.useRef<HTMLDivElement>(null);
         const secondContainer = React.useRef<HTMLDivElement>(null);
-        const [container, setContainer] =
-          React.useState<UseFloatingPortalNodeProps['container']>(firstContainer);
+        const [step, setStep] = React.useState(0);
 
         useIsoLayoutEffect(() => {
-          setContainer(clear ? null : secondContainer.current);
-        }, []);
+          if (step < 2) {
+            setStep(step + 1);
+          }
+        }, [step]);
 
+        const nextContainer = clear ? null : secondContainer.current;
         return (
           <React.Fragment>
-            <div ref={firstContainer} data-testid="first">
-              <Portal container={container} data-testid="portal">
-                <div data-testid="content" />
-              </Portal>
-            </div>
+            <Portal container={step < 2 ? firstContainer : nextContainer} data-testid="portal">
+              <div data-testid="content" />
+            </Portal>
+            <div ref={firstContainer} data-testid="first" />
             <div ref={secondContainer} data-testid="second" />
           </React.Fragment>
         );
