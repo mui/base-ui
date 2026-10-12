@@ -51,6 +51,9 @@ export const SliderValue = React.forwardRef(function SliderValue(
         children:
           typeof children === 'function' ? children(formattedValues, values) : defaultDisplayValue,
         htmlFor: outputFor,
+        // If the server's locale does not match the client's locale, the formatting may not match,
+        // causing a hydration mismatch.
+        suppressHydrationWarning: true,
       },
       elementProps,
     ],

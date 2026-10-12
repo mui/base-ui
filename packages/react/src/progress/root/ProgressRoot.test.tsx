@@ -21,7 +21,7 @@ function TestProgress(props: ProgressRoot.Props) {
 }
 
 describe('<Progress.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Progress.Root value={50} />, () => ({
     render,
@@ -350,6 +350,29 @@ describe('<Progress.Root />', () => {
       );
 
       expect(screen.getByTestId('value')).toHaveTextContent(expectedValue);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('does not warn when hydrating markup formatted by a different locale', async () => {
+      const { hydrate } = await renderToString(
+        <Progress.Root value={30}>
+          <Progress.Value data-testid="value" />
+        </Progress.Root>,
+      );
+
+      // Simulate a server whose default locale formats percents differently than the client's,
+      // for example `fr-FR` inserting a space before the percent sign.
+      const progressbar = screen.getByRole('progressbar');
+      const value = screen.getByTestId('value');
+      progressbar.setAttribute('aria-valuetext', `${progressbar.getAttribute('aria-valuetext')} `);
+      value.textContent = `${value.textContent} `;
+
+      await hydrate();
+
+      // A mismatch makes React discard the server markup and render new nodes on the client.
+      expect(screen.getByRole('progressbar')).toBe(progressbar);
+      expect(screen.getByTestId('value')).toBe(value);
     });
   });
 });

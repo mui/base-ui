@@ -70,6 +70,9 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
       ? getAriaValueText(formattedValue, value)
       : defaultAriaValueText,
     role: 'progressbar',
+    // If the server's locale does not match the client's locale, the formatting may not match,
+    // causing a hydration mismatch.
+    suppressHydrationWarning: true,
     children: (
       <React.Fragment>
         {children}

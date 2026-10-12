@@ -57,6 +57,9 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     'aria-valuenow': clampedValue,
     'aria-valuetext': ariaValuetext,
     role: 'meter',
+    // If the server's locale does not match the client's locale, the formatting may not match,
+    // causing a hydration mismatch.
+    suppressHydrationWarning: true,
     children: (
       <React.Fragment>
         {children}

@@ -4,7 +4,7 @@ import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Slider.Value />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Slider.Value />, () => ({
     render: (node) => {
@@ -105,6 +105,26 @@ describe('<Slider.Value />', () => {
 
       expect(renderSpy.mock.lastCall?.[0]).toEqual([formatValue(40), formatValue(60)]);
       expect(renderSpy.mock.lastCall?.[1]).toEqual([40, 60]);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('does not warn when hydrating markup formatted by a different locale', async () => {
+      const { hydrate } = await renderToString(
+        <Slider.Root defaultValue={1000} max={2000}>
+          <Slider.Value data-testid="output" />
+        </Slider.Root>,
+      );
+
+      // Simulate a server whose default locale formats numbers differently than the client's,
+      // for example `de-DE` grouping thousands with a period.
+      const output = screen.getByTestId('output');
+      output.textContent = `${output.textContent} `;
+
+      await hydrate();
+
+      // A mismatch makes React discard the server markup and render new nodes on the client.
+      expect(screen.getByTestId('output')).toBe(output);
     });
   });
 });

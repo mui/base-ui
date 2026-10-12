@@ -4,7 +4,7 @@ import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Meter.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   function formatPercent(value: number) {
     return value.toLocaleString(undefined, { style: 'percent' });
@@ -295,6 +295,29 @@ describe('<Meter.Root />', () => {
       );
 
       expect(screen.getByTestId('value').textContent).toBe(expectedValue);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('does not warn when hydrating markup formatted by a different locale', async () => {
+      const { hydrate } = await renderToString(
+        <Meter.Root value={30}>
+          <Meter.Value data-testid="value" />
+        </Meter.Root>,
+      );
+
+      // Simulate a server whose default locale formats percents differently than the client's,
+      // for example `fr-FR` inserting a space before the percent sign.
+      const meter = screen.getByRole('meter');
+      const value = screen.getByTestId('value');
+      meter.setAttribute('aria-valuetext', `${meter.getAttribute('aria-valuetext')} `);
+      value.textContent = `${value.textContent} `;
+
+      await hydrate();
+
+      // A mismatch makes React discard the server markup and render new nodes on the client.
+      expect(screen.getByRole('meter')).toBe(meter);
+      expect(screen.getByTestId('value')).toBe(value);
     });
   });
 });

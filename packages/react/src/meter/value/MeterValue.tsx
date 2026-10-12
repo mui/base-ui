@@ -25,6 +25,9 @@ export const MeterValue = React.forwardRef(function MeterValue(
       {
         'aria-hidden': true,
         children: typeof children === 'function' ? children(formattedValue, value) : formattedValue,
+        // If the server's locale does not match the client's locale, the formatting may not match,
+        // causing a hydration mismatch.
+        suppressHydrationWarning: true,
       },
       elementProps,
     ],

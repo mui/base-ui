@@ -35,6 +35,9 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
           typeof children === 'function'
             ? children(formattedValueArg, value)
             : formattedValueDisplay,
+        // If the server's locale does not match the client's locale, the formatting may not match,
+        // causing a hydration mismatch.
+        suppressHydrationWarning: true,
       },
       elementProps,
     ],
