@@ -16,6 +16,13 @@ export interface UseUnmountAfterCloseParameters {
    */
   ref: React.RefObject<HTMLElement | null>;
   /**
+   * Reads the latest open state when it can run ahead of the rendered `open`, such as a store
+   * that syncs a controlled `open` prop in a layout effect declared before this hook. An
+   * `unmount` batched with a controlled close then takes effect in the commit that still renders
+   * the popup open instead of being dropped.
+   */
+  getOpen?: (() => boolean) | undefined;
+  /**
    * Whether the current close cycle asked to keep the popup mounted until the `unmount` action
    * is called. Ignored while `open`.
    */
@@ -48,6 +55,7 @@ export interface UseUnmountAfterCloseParameters {
 export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters) {
   const {
     open,
+    getOpen,
     ref,
     preventUnmountOnClose,
     setPreventUnmountOnClose: setPreventUnmountOnCloseParam,
@@ -76,24 +84,35 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   }, [open, setPreventUnmountOnClose]);
 
   // Mirrors `mounted` synchronously so repeated `forceUnmount()` calls in one batch complete
-  // closing once. Resynced on every commit: `setMounted(false)` while open re-mounts on the next
-  // render without changing the committed `mounted`, so a `[mounted]` dependency would leave the
-  // mirror stale and block every later unmount.
+  // closing once. Resynced on every commit unless `unmount` already ran in it (see below):
+  // `setMounted(false)` while open re-mounts on the next render without changing the committed
+  // `mounted`, so a `[mounted]` dependency would leave the mirror stale and block every later
+  // unmount.
   const mountedRef = React.useRef(mounted);
   const pendingUnmountRef = React.useRef(false);
   const rerender = useForcedRerendering();
 
+  // Set when `unmount` runs during this render's commit before the effect below, for example from
+  // a descendant's layout effect. The committed `mounted` is stale then, and resyncing the mirror
+  // to it would let the close completion unmount a second time.
+  let unmountedInCommit = false;
+
   const unmount = () => {
+    unmountedInCommit = true;
     mountedRef.current = false;
     setMounted(false);
     onUnmount();
   };
 
   useIsoLayoutEffect(() => {
-    mountedRef.current = mounted;
+    if (!unmountedInCommit) {
+      mountedRef.current = mounted;
+    }
     if (pendingUnmountRef.current) {
       pendingUnmountRef.current = false;
-      if (!open && mounted) {
+      // The mirror, not the committed `mounted`, so an `unmount` a descendant already ran in this
+      // commit isn't repeated. `getOpen` catches a controlled close this commit doesn't render yet.
+      if (mountedRef.current && (!open || getOpen?.() === false)) {
         unmount();
       }
     }

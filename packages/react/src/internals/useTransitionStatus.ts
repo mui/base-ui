@@ -37,7 +37,10 @@ export function useTransitionStatus(
     setTransitionStatus('ending');
   }
 
-  if (!open && !mounted && transitionStatus === 'ending') {
+  // Not only `'ending'`: an unmount that commits while still open (such as a forced unmount batched
+  // with a controlled close) skips the ending phase, and the frame that clears `'starting'` is
+  // cancelled once closed.
+  if (!open && !mounted && transitionStatus !== undefined) {
     setTransitionStatus(undefined);
   }
 
