@@ -33,6 +33,8 @@ export interface SelectFilterImpl {
   Group: typeof FilteredSelectGroup;
   /** Registers an item with the filter and reports whether it matches the query. */
   useItem: (params: SelectFilterItemParams) => SelectFilterItemResult;
+  /** The props the filter adds to the trigger. */
+  useTriggerProps: () => HTMLProps;
 }
 
 /** Static below a filter root: the implementation never changes, so subscribers never re-render. */
@@ -62,6 +64,11 @@ export function useUnfilteredItem(): SelectFilterItemResult {
   return UNFILTERED;
 }
 
+/** The hook a plain select's trigger calls in place of the injected one. */
+export function useUnfilteredTriggerProps(): HTMLProps {
+  return EMPTY_OBJECT;
+}
+
 export interface SelectFilterNavigationContext {
   /** The select's list navigation props for the input, which holds real focus. */
   navigationProps: HTMLProps;
@@ -75,6 +82,8 @@ export interface SelectFilterNavigationContext {
   registerVirtualItem: (index: number, element: HTMLElement | null) => () => void;
   /** Rewrites the navigable list of a virtualized list from its mounted options. */
   syncVirtualList: () => void;
+  /** Whether the trigger was last pressed by a screen reader. */
+  virtualPressRef: React.RefObject<boolean>;
 }
 
 // The engine's own context check fires first when a part renders outside the provider.
@@ -85,6 +94,7 @@ export const SelectFilterNavigationContext = React.createContext<SelectFilterNav
   virtualizedCount: null,
   registerVirtualItem: () => NOOP,
   syncVirtualList: NOOP,
+  virtualPressRef: { current: false },
 });
 
 export function useSelectFilterNavigationContext(): SelectFilterNavigationContext {

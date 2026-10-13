@@ -21,6 +21,7 @@ import {
 import type { CompositeListContextValue } from '../../internals/composite/list/CompositeListContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
+import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -138,7 +139,11 @@ export const FilteredSelectList = React.forwardRef(function FilteredSelectList(
       'aria-readonly': readOnly || undefined,
       // The trigger is a plain button here, which can't carry these; the listbox can.
       'aria-required': required || undefined,
-      'aria-labelledby': resolveAriaLabelledBy(fieldLabelId, labelId),
+      'aria-labelledby': resolvePopupLabel(
+        componentProps,
+        null,
+        resolveAriaLabelledBy(fieldLabelId, labelId) ?? null,
+      ),
       onKeyDown: handleKeyDown,
       onScroll(event: React.UIEvent<HTMLDivElement>) {
         store.context.scrollHandlerRef.current?.(event.currentTarget);

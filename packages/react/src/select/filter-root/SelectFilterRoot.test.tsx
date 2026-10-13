@@ -3,7 +3,12 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Select } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
-import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
+import {
+  createRenderer,
+  filterablePopupConformanceTests,
+  isJSDOM,
+  resetBrowserPointer,
+} from '#test-utils';
 
 const countries = [
   { value: 'au', label: 'Australia' },
@@ -54,6 +59,33 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
   });
 
   const { render } = createRenderer();
+
+  filterablePopupConformanceTests({
+    render,
+    itemRole: 'option',
+    createComponent: (props) => (
+      <Select.FilterProvider>
+        <Select.Root {...props.rootProps}>
+          <Select.Label>Letter</Select.Label>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup {...props.popupProps}>
+                <Select.Input aria-label="Filter" onFocus={props.onInputFocus} />
+                <Select.List {...props.listProps}>
+                  <Select.Item value="alpha">Alpha</Select.Item>
+                  <Select.Item value="beta">Beta</Select.Item>
+                  <Select.Item value="gamma">Gamma</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </Select.FilterProvider>
+    ),
+  });
 
   describe('semantics', () => {
     it('renders a dialog with a searchbox and a listbox, and no combobox', async () => {

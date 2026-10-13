@@ -341,7 +341,7 @@ It resets to an empty string when the select closes, reported with the `'popup-c
 The popup opens on the selected item: it is highlighted and scrolled into view.
 Without a selection, opening the select from the keyboard highlights the first item.
 Use `autoHighlight` to highlight the first match while filtering, or `autoHighlight="always"` to highlight it even when the query is empty.
-The highlighted item has the `data-highlighted` attribute.
+The highlighted item has the `data-highlighted` attribute, and `onItemHighlighted` on `<Select.Root>` reports each change with the item's value.
 
 #### Focus and keyboard
 

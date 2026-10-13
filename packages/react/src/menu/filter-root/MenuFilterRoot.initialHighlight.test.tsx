@@ -93,25 +93,6 @@ describe('filterable menu initial highlight', () => {
     expect(input).toHaveFocus();
   });
 
-  it.each(['mouse', 'touch', 'pen'])('handles opening with %s', async (pointerType) => {
-    const onInputFocus = vi.fn();
-    await render(<Test onInputFocus={onInputFocus} />);
-    const trigger = screen.getByRole('button', { name: 'Actions' });
-    await act(async () => trigger.focus());
-    firePointer.down(trigger, { pointerType, timeStamp: 10 });
-    fireEvent.mouseDown(trigger, { detail: 1 });
-    firePointer.up(trigger, { pointerType, timeStamp: 20 });
-    fireEvent.mouseUp(trigger, { detail: 1 });
-    fireEvent.click(trigger, { detail: 1 });
-
-    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
-    await act(() => waitSingleFrame());
-    const shouldFocus = pointerType === 'mouse';
-    await waitFor(() => expect(input.matches(':focus')).toBe(shouldFocus));
-    expect(onInputFocus.mock.calls.length > 0).toBe(shouldFocus);
-    expect(input).not.toHaveAttribute('aria-activedescendant');
-  });
-
   // iOS VoiceOver presses with a touch whose contact is under a pixel and carries no pressure.
   function pressLikeIOSVoiceOver(element: HTMLElement) {
     const init = { pointerType: 'touch', width: 0.333, height: 0.333, pressure: 0 };
@@ -121,17 +102,6 @@ describe('filterable menu initial highlight', () => {
     fireEvent.mouseUp(element, { detail: 1 });
     fireEvent.click(element, { detail: 1 });
   }
-
-  it.skipIf(isJSDOM)('focuses the input when a screen reader press opens the menu', async () => {
-    await render(<Test />);
-    const trigger = screen.getByRole('button', { name: 'Actions' });
-    await act(async () => trigger.focus());
-
-    pressLikeIOSVoiceOver(trigger);
-
-    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
-    await waitFor(() => expect(input).toHaveFocus());
-  });
 
   it.skipIf(isJSDOM)(
     'focuses a submenu input when a screen reader press opens the submenu',
@@ -227,51 +197,5 @@ describe('filterable menu initial highlight', () => {
       'aria-activedescendant',
       screen.getByRole('menuitem', { name: 'Rename' }).id,
     );
-  });
-
-  it('does not highlight an item when a controlled open follows a keyboard open', async () => {
-    function ControlledTest(props: { open: boolean | undefined }) {
-      const [open, setOpen] = React.useState(false);
-
-      return (
-        <Menu.FilterProvider>
-          <Menu.Root open={props.open ?? open} onOpenChange={setOpen}>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Input aria-label="Filter actions" />
-                  <Menu.List>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </Menu.FilterProvider>
-      );
-    }
-
-    const { user, setProps } = await render(<ControlledTest open={undefined} />);
-    await act(async () => screen.getByRole('button', { name: 'Actions' }).focus());
-    await user.keyboard('[ArrowDown]');
-    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
-    await waitFor(() => {
-      expect(input).toHaveAttribute(
-        'aria-activedescendant',
-        screen.getByRole('menuitem', { name: 'Rename' }).id,
-      );
-    });
-
-    await setProps({ open: false });
-    await waitFor(() => {
-      expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
-    });
-    await setProps({ open: true });
-
-    const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter actions' });
-    await act(() => waitSingleFrame());
-    expect(reopenedInput).not.toHaveAttribute('aria-activedescendant');
   });
 });

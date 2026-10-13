@@ -23,6 +23,7 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../internals/useAnchorPositioning';
 import * as SelectTriggerDataAttributes from './SelectTriggerDataAttributes';
+import { useSelectFilterImpl, useUnfilteredTriggerProps } from '../filter-root/SelectFilterContext';
 
 const SELECTED_DELAY = 400;
 
@@ -132,6 +133,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   // plain button: no element carries the combobox role.
   const { virtualFocus } = store.context;
 
+  const useFilterTriggerProps = useSelectFilterImpl()?.useTriggerProps ?? useUnfilteredTriggerProps;
+  const filterTriggerProps = useFilterTriggerProps();
+
   const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
@@ -214,6 +218,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         });
       },
     },
+    filterTriggerProps,
     elementProps,
     getButtonProps,
   );

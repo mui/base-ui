@@ -114,6 +114,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
   // filtered item and the mounted options at their indexes. The positioner's item list resets
   // that array as the popup mounts, so it is rewritten from this registry.
   const virtualItemsRef = React.useRef(new Map<number, HTMLElement | null>());
+  const virtualPressRef = React.useRef(false);
 
   const syncVirtualList = useStableCallback(() => {
     const list = store.context.listRef.current;
@@ -161,6 +162,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
       virtualizedCount,
       registerVirtualItem,
       syncVirtualList,
+      virtualPressRef,
     }),
     [
       navigationProps,

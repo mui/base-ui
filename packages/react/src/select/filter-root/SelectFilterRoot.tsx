@@ -56,6 +56,11 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
   if (open !== previousOpen) {
     setPreviousOpen(open);
     setQueryChanged(false);
+    // A controlled close bypasses `onOpenChange`, so a later programmatic open must not inherit
+    // the keyboard opening.
+    if (!open) {
+      setInputFocusVisible(false);
+    }
   }
 
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
