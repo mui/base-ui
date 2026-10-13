@@ -16,35 +16,39 @@ const baseDir = path.dirname(url.fileURLToPath(import.meta.url));
  */
 const localPlugin = (relativePath) => path.join(baseDir, relativePath);
 
+/** @type {NonNullable<import('@next/mdx').NextMDXOptions['options']>['remarkPlugins']} */
+export const remarkPlugins = [
+  'remark-gfm',
+  [
+    '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
+    {
+      titleSuffix: ' · Base UI',
+      extractToIndex: {
+        include: ['src/app/react'],
+        exclude: [
+          'src/app/careers',
+          'src/app/production-error',
+          'src/app/test',
+          'src/app/experiments',
+          'src/app/playground',
+        ],
+        baseDir,
+        useVisibleDescription: true,
+      },
+    },
+  ],
+  // After transformMarkdownMetadata so the page index keeps `[Preview]`/`[New]`, matching
+  // `docs-infra validate`, which doesn't run local plugins.
+  localPlugin('src/mdx/remarkHeadingTags.mjs'),
+  'remark-typography',
+  localPlugin('src/components/QuickNav/remarkQuickNavExcludeHeading.mjs'),
+  '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths',
+  '@mui/internal-docs-infra/pipeline/transformMarkdownCode',
+];
+
 const withMdx = nextMdx({
   options: {
-    remarkPlugins: [
-      // Before transformMarkdownMetadata, so a stripped badge stays out of outline text too.
-      localPlugin('src/mdx/remarkHeadingTags.mjs'),
-      'remark-gfm',
-      [
-        '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
-        {
-          titleSuffix: ' · Base UI',
-          extractToIndex: {
-            include: ['src/app/react'],
-            exclude: [
-              'src/app/careers',
-              'src/app/production-error',
-              'src/app/test',
-              'src/app/experiments',
-              'src/app/playground',
-            ],
-            baseDir,
-            useVisibleDescription: true,
-          },
-        },
-      ],
-      'remark-typography',
-      localPlugin('src/components/QuickNav/remarkQuickNavExcludeHeading.mjs'),
-      '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths',
-      '@mui/internal-docs-infra/pipeline/transformMarkdownCode',
-    ],
+    remarkPlugins,
     rehypePlugins: [
       '@mui/internal-docs-infra/pipeline/transformHtmlCodeBlock',
       localPlugin('src/components/CodeBlock/rehypeEagerCodeBlocks.mjs'),
