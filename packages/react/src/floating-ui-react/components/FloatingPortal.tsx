@@ -109,9 +109,16 @@ export function useFloatingPortalNode(
     }
 
     let cancelled = false;
+    let commitPending = false;
+    let waitingForCommit = false;
     let cancelContainerUpdate: (() => void) | undefined;
     function resolveContainer() {
       if (cancelled) {
+        return;
+      }
+
+      if (commitPending) {
+        waitingForCommit = true;
         return;
       }
 
@@ -140,11 +147,16 @@ export function useFloatingPortalNode(
       // Wait for ancestor and later sibling refs, including refs replaced by layout updates.
       // Only force the queued update after React has committed its own layout-effect retry.
       // React can defer that retry while preparing a ViewTransition; flushSync would cancel it.
-      let committed = false;
+      commitPending = true;
       setCommitContainerCheck(() => () => {
-        committed = true;
+        commitPending = false;
+        if (waitingForCommit && !cancelled) {
+          waitingForCommit = false;
+          // Read the ref after the deferred commit and its cascading layout updates finish.
+          cancelContainerUpdate = flushContainerUpdates(resolveContainer);
+        }
       });
-      cancelContainerUpdate = flushContainerUpdates(resolveContainer, () => committed);
+      cancelContainerUpdate = flushContainerUpdates(resolveContainer, () => !commitPending);
     } else {
       resolveContainer();
     }

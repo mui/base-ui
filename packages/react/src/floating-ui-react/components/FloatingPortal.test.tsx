@@ -265,9 +265,18 @@ describe.each([
     },
   );
 
-  test.skipIf(
-    isJSDOM || !React.ViewTransition || typeof document.startViewTransition !== 'function',
-  )('mounts once inside an ancestor ref without canceling a view transition', async () => {
+  test
+    .skipIf(isJSDOM || !React.ViewTransition || typeof document.startViewTransition !== 'function')
+    .each([
+      { name: 'mounts once inside an ancestor ref', ancestor: true, action: 'none' },
+      { name: 'mounts once inside a later sibling ref', ancestor: false, action: 'none' },
+      {
+        name: 'mounts once inside a ref replaced by cascading layout updates',
+        ancestor: false,
+        action: 'replace',
+      },
+      { name: 'skips mounting when the container is cleared', ancestor: false, action: 'clear' },
+    ])('$name without canceling a view transition', async ({ ancestor, action }) => {
     ignoreActWarnings();
     const mounts: boolean[] = [];
     const startViewTransition = document.startViewTransition.bind(document);
@@ -294,12 +303,29 @@ describe.each([
 
     function PortalContent() {
       const container = React.useRef<HTMLDivElement>(null);
-      return (
-        <div ref={container} data-testid="container">
-          <Portal container={container}>
-            <Child />
-          </Portal>
+      const [step, setStep] = React.useState(0);
+
+      useIsoLayoutEffect(() => {
+        if (action !== 'none' && step < 2) {
+          setStep(step + 1);
+        }
+      }, [step]);
+
+      const containerId = action === 'replace' && step === 2 ? 'second' : 'first';
+      const content = (
+        <Portal container={action === 'clear' && step === 2 ? null : container}>
+          <Child />
+        </Portal>
+      );
+      return ancestor ? (
+        <div ref={container} data-testid={containerId}>
+          {content}
         </div>
+      ) : (
+        <React.Fragment>
+          {content}
+          <div key={containerId} ref={container} data-testid={containerId} />
+        </React.Fragment>
       );
     }
 
@@ -328,8 +354,12 @@ describe.each([
       );
       await transition.finished;
 
-      expect(screen.getByTestId('container')).toContainElement(screen.getByTestId('content'));
-      expect(mounts).toEqual([true]);
+      const canceled = action === 'clear';
+      const container = screen.getByTestId(action === 'replace' ? 'second' : 'first');
+      expect(screen.queryByTestId('content')?.parentElement?.parentElement ?? null).toBe(
+        canceled ? null : container,
+      );
+      expect(mounts).toEqual(canceled ? [] : [true]);
       expect(readiness).toBe('ready');
     } finally {
       startViewTransitionSpy.mockRestore();
