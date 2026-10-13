@@ -161,9 +161,10 @@ export function parseNumber(
 
   let isNegative = false;
 
-  // Strips a matched sign (leading "-12" / trailing "1234-") while recording negativity.
+  // Strips a matched sign (leading "-12" / trailing "1234-") or the opening parenthesis of an
+  // accounting negative ("(12)") while recording negativity.
   const takeSign = (match: string, sign: string) => {
-    if (sign === '-') {
+    if (sign !== '+') {
       isNegative = true;
     }
     return '';
@@ -206,12 +207,10 @@ export function parseNumber(
   // unfinished exponent (`1.3e-`).
   input = input.replace(/(?<![\p{L}\p{M}])([+-])\s*$/u, takeSign);
 
-  // Accounting formats show negatives in parentheses, such as `($1.00)`
+  // Accounting formats show negatives in parentheses, such as `($1.00)`. The opening one is enough,
+  // so deleting the closing one while editing still reads as negative.
   if (options?.currencySign === 'accounting') {
-    input = input.replace(/^\s*\((.*)\)\s*$/, (match, inner: string) => {
-      isNegative = true;
-      return inner;
-    });
+    input = input.replace(/^\s*(\()/, takeSign);
   }
 
   if (group) {

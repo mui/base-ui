@@ -1686,11 +1686,61 @@ describe('<NumberField.Input />', () => {
       value: 1.01,
       edited: 12.01,
     },
+    {
+      name: 'bs GBP',
+      locale: 'bs',
+      format: { style: 'currency', currency: 'GBP', currencyDisplay: 'name' },
+      value: 0.02,
+      edited: 2.02,
+    },
+    {
+      name: 'fil USD',
+      locale: 'fil',
+      format: { style: 'currency', currency: 'USD', currencyDisplay: 'name' },
+      value: 1.49,
+      edited: 12.49,
+    },
+    {
+      name: 'cy foot',
+      locale: 'cy',
+      format: { style: 'unit', unit: 'foot', unitDisplay: 'long' },
+      value: 6,
+      edited: 62,
+    },
+    {
+      name: 'cy millisecond',
+      locale: 'cy',
+      format: { style: 'unit', unit: 'millisecond' },
+      value: 0,
+      edited: 2,
+    },
+    {
+      name: 'br foot',
+      locale: 'br',
+      format: { style: 'unit', unit: 'foot', unitDisplay: 'long' },
+      value: 3,
+      edited: 32,
+    },
+    {
+      name: 'br acre',
+      locale: 'br',
+      format: { style: 'unit', unit: 'acre', unitDisplay: 'long' },
+      value: 1e6,
+      edited: 12000000,
+    },
+    {
+      name: 'mt megabyte',
+      locale: 'mt',
+      format: { style: 'unit', unit: 'megabyte', unitDisplay: 'long' },
+      value: 11,
+      edited: 121,
+    },
   ] as const)(
     'accepts edits to a label that changes with the plural form ($name)',
     async ({ locale, format, value, edited }) => {
       // Labels such as `1 foot`, `1 день`, `7 n-acra` and `1,01 euro` have letters the other plural
-      // forms lack
+      // forms lack. Each value is the only one of the formatter's plural samples that renders some
+      // letter of its label.
       const formatter = new Intl.NumberFormat(locale, format);
       const onValueChange = vi.fn();
 
@@ -1796,6 +1846,40 @@ describe('<NumberField.Input />', () => {
 
     expect(onValueCommitted.mock.lastCall?.[0]).toBe(-14);
     expect(input).toHaveValue(formatter.format(-14));
+  });
+
+  it('reads an accounting negative as negative after its closing parenthesis is deleted', async () => {
+    const format = { style: 'currency', currency: 'USD', currencySign: 'accounting' } as const;
+    const formatter = new Intl.NumberFormat('en-US', format);
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="en-US"
+        format={format}
+        defaultValue={-1234.5}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(-1234.5));
+
+    // Backspace over the `)` and the last `0` of `($1,234.50)`, then type `7`
+    input.setSelectionRange(input.value.length, input.value.length);
+    await user.keyboard('{Backspace}{Backspace}7');
+    expect(input).toHaveValue(formatter.format(-1234.57).slice(0, -1));
+    expect(onValueChange.mock.lastCall?.[0]).toBe(-1234.57);
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(-1234.57);
+    expect(input).toHaveValue(formatter.format(-1234.57));
   });
 
   it('warns in development when clipboard text cannot be read during paste handling', async () => {

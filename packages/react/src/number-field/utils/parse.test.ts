@@ -390,9 +390,15 @@ describe('NumberField parse', () => {
       const format = { style: 'currency', currency: 'USD', currencySign: 'accounting' } as const;
       expect(parseNumber('($14.00)', 'en-US', format)).toBe(-14);
       expect(parseNumber('(14)', 'en-US', format)).toBe(-14);
-      expect(parseNumber('($14.00', 'en-US', format)).toBe(null);
       // A sign typed after the closing parenthesis keeps the value negative
       expect(parseNumber('($14.00)-', 'en-US', format)).toBe(-14);
+    });
+
+    it('reads an accounting negative without its closing parenthesis as negative', () => {
+      const format = { style: 'currency', currency: 'USD', currencySign: 'accounting' } as const;
+      expect(parseNumber('($14.00', 'en-US', format)).toBe(-14);
+      expect(parseNumber('(14', 'en-US', format)).toBe(-14);
+      expect(parseNumber('(', 'en-US', format)).toBe(null);
     });
 
     it('does not read parentheses as a negative without the accounting format', () => {
@@ -420,6 +426,18 @@ describe('NumberField parse', () => {
         expect([0, 1, -1, 5].map((value) => parseNumber(akGram.format(value), 'ak', gram))).toEqual(
           [0, 1, -1, 5],
         );
+      },
+    );
+
+    // Sinhala puts the currency name before the number, and the AMD name contains a zero-width
+    // joiner. Chromium's locale data uses English names.
+    const siAmd = { style: 'currency', currency: 'AMD', currencyDisplay: 'name' } as const;
+    const siFormatted = new Intl.NumberFormat('si', siAmd).format(12.5);
+
+    it.skipIf(!/\p{Cf}/u.test(siFormatted))(
+      'strips a label that contains a format control character',
+      () => {
+        expect(parseNumber(siFormatted, 'si', siAmd)).toBe(12.5);
       },
     );
 
