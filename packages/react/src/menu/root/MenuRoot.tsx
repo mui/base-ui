@@ -30,7 +30,7 @@ import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { MenuStore } from '../store/MenuStore';
 import type { MenuHandle } from '../store/MenuHandle';
 import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
-import { usePopupRootWithFloatingId, renderPopupRootChildren } from '../../utils/popups/popupRoot';
+import { usePopupRootWithPopupId, renderPopupRootChildren } from '../../utils/popups/popupRoot';
 import {
   FOCUSABLE_POPUP_PROPS,
   usePopupInteractionProps,
@@ -105,15 +105,15 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const rootId = useBaseUiId();
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
   // in a state initializer.
-  const defaultFloatingId = useBaseUiId();
+  const generatedPopupId = useBaseUiId();
 
-  const [renderedFloatingId, setRenderedFloatingId] = React.useState<string | undefined>(undefined);
+  const [renderedPopupId, setRenderedPopupId] = React.useState<string | undefined>(undefined);
 
   // A registered `''` means the popup rendered with an explicitly empty id, so nothing may point
   // at the generated fallback.
-  const defaultPopupId = (renderedFloatingId ?? defaultFloatingId) || undefined;
+  const defaultPopupId = (renderedPopupId ?? generatedPopupId) || undefined;
 
-  const floatingParentNodeIdFromContext = usePopupParentNodeId();
+  const popupParentNodeIdFromContext = usePopupParentNodeId();
 
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
   // An initially open submenu should animate in only when the user watches it appear, i.e. when
@@ -134,9 +134,9 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     animateInitialOpen ? parentMenuStore?.state.instantType : undefined,
   ).current;
 
-  const { store, open, payload, transitionStatus } = usePopupRootWithFloatingId(
+  const { store, open, payload, transitionStatus } = usePopupRootWithPopupId(
     props,
-    (initialState, initialFloatingId) => {
+    (initialState, initialPopupId) => {
       const menuStore = new MenuStore<Payload>(
         {
           ...initialState,
@@ -147,7 +147,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
           rootId,
           instantType: seededInstantType,
         },
-        initialFloatingId,
+        initialPopupId,
       );
       // A stable ref object, so descendants can read it during render from the first commit.
       menuStore.context.virtualFocusRef = virtualFocusRef;
@@ -157,9 +157,9 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     { animateInitialOpen },
   );
 
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const popupTreeRoot = store.useState('popupTreeRoot');
 
-  const floatingNodeIdFromContext = usePopupNodeId(floatingTreeRoot);
+  const popupNodeIdFromContext = usePopupNodeId(popupTreeRoot);
 
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
@@ -168,12 +168,12 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   const parent = store.useState('parent');
   const activeIndex = store.useState('activeIndex');
   const keyboardOpen = store.useState('keyboardOpen');
-  const floatingParentNodeId = store.useState('floatingParentNodeId');
+  const popupParentNodeId = store.useState('popupParentNodeId');
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
 
-  const nested = floatingParentNodeId != null;
+  const nested = popupParentNodeId != null;
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalProp !== undefined) {
@@ -250,22 +250,22 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
           type: 'context-menu',
           context: contextMenuContext,
         },
-        floatingNodeId: floatingNodeIdFromContext,
-        floatingParentNodeId: floatingParentNodeIdFromContext,
+        popupNodeId: popupNodeIdFromContext,
+        popupParentNodeId: popupParentNodeIdFromContext,
       });
     } else if (parentMenuRootContext || !store.select('activeTriggerElement')) {
       // Without an active trigger, the root must supply its own tree IDs.
       // Read the store here: a trigger can register after render, before this effect.
       store.update({
-        floatingNodeId: floatingNodeIdFromContext,
-        floatingParentNodeId: floatingParentNodeIdFromContext,
+        popupNodeId: popupNodeIdFromContext,
+        popupParentNodeId: popupParentNodeIdFromContext,
       });
     }
   }, [
     contextMenuContext,
     parentMenuRootContext,
-    floatingNodeIdFromContext,
-    floatingParentNodeIdFromContext,
+    popupNodeIdFromContext,
+    popupParentNodeIdFromContext,
     activeTriggerElement,
     store,
   ]);
@@ -343,7 +343,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
       return allowOutsidePressDismissalRef.current;
     },
-    externalTree: nested ? floatingTreeRoot : undefined,
+    externalTree: nested ? popupTreeRoot : undefined,
   });
 
   const direction = useDirection();
@@ -374,7 +374,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     // on both menus' orientations; the generic arrow-key opening would also react to the parent's
     // forwarded cross-axis keys while closed.
     openOnArrowKeyDown: parent.type !== 'context-menu' && !(virtualFocus && isSubmenu),
-    externalTree: !virtualFocus && nested ? floatingTreeRoot : undefined,
+    externalTree: !virtualFocus && nested ? popupTreeRoot : undefined,
     nestedReturnFocusRef: parentMenuStore?.context.virtualFocusRef,
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave,
@@ -557,8 +557,8 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       orientation,
       loopFocus,
       allowEscape,
-      defaultFloatingId,
-      setRenderedFloatingId,
+      generatedPopupId,
+      setRenderedPopupId,
       virtualFocus,
       parentVirtualFocus,
       syncHighlightedItem,
@@ -569,7 +569,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       orientation,
       loopFocus,
       allowEscape,
-      defaultFloatingId,
+      generatedPopupId,
       virtualFocus,
       parentVirtualFocus,
       syncHighlightedItem,
@@ -584,7 +584,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
   if (parent.type === undefined || parent.type === 'context-menu') {
     // set up a PopupTree to provide the context to nested menus
-    content = <PopupTree externalTree={floatingTreeRoot}>{content}</PopupTree>;
+    content = <PopupTree externalTree={popupTreeRoot}>{content}</PopupTree>;
   }
 
   return content;

@@ -119,8 +119,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
   const interactionsEnabled = (positionerElement != null || value == null) && !disabled;
-  const hoverFloatingElement = positionerElement || viewportElement;
-  const hoverInteractionsEnabled = (hoverFloatingElement != null || value == null) && !disabled;
+  const hoverPopupElement = positionerElement || viewportElement;
+  const hoverInteractionsEnabled = (hoverPopupElement != null || value == null) && !disabled;
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
@@ -471,7 +471,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     onOpenChange: handleOpenChange,
     elements: {
       anchor: triggerElement,
-      outerPopupElement: hoverFloatingElement,
+      outerPopupElement: hoverPopupElement,
     },
   });
 
@@ -489,11 +489,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   }, [context, hoverIntent, open]);
 
   const getInlineHandleCloseContext = useStableCallback(() => {
-    if (!nested || positionerElement || !triggerElementRef.current || !hoverFloatingElement) {
+    if (!nested || positionerElement || !triggerElementRef.current || !hoverPopupElement) {
       return null;
     }
 
-    return getHandleCloseContext(triggerElementRef.current, hoverFloatingElement, nodeId);
+    return getHandleCloseContext(triggerElementRef.current, hoverPopupElement, nodeId);
   });
 
   function getScope() {
@@ -583,7 +583,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         event.type === 'mouseenter' &&
         shouldBlockSafePolygonPointerEvents &&
         (!nested || !positionerElement) &&
-        hoverFloatingElement
+        hoverPopupElement
       ) {
         const applyPointerEventsMutation = () => {
           const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
@@ -591,7 +591,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           hoverIntent.blockOutsidePointerEvents({
             scopeElement,
             triggerElement: currentTarget,
-            outerPopupElement: hoverFloatingElement,
+            outerPopupElement: hoverPopupElement,
           });
         };
 
@@ -702,7 +702,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     native: nativeButton,
   });
 
-  const referenceElement = hoverFloatingElement;
+  const referenceElement = hoverPopupElement;
 
   return (
     <React.Fragment>

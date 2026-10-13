@@ -39,7 +39,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const contextMenuContext = useContextMenuRootContext(true);
 
   const parent = store.useState('parent');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const popupTreeRoot = store.useState('popupTreeRoot');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const modal = store.useState('modal');
@@ -47,8 +47,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const triggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const floatingNodeId = store.useState('floatingNodeId');
-  const floatingParentNodeId = store.useState('floatingParentNodeId');
+  const popupNodeId = store.useState('popupNodeId');
+  const popupParentNodeId = store.useState('popupParentNodeId');
   const domReference = store.useState('anchorElement');
 
   const { side } = componentProps;
@@ -94,14 +94,14 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       align: computedAlign,
       alignOffset,
       arrowPadding: contextMenu ? 0 : componentProps.arrowPadding,
-      nodeId: floatingNodeId,
+      nodeId: popupNodeId,
       shift: contextMenu
         ? {
             crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
             rootBoundary: 'layoutViewport',
           }
         : undefined,
-      externalTree: floatingTreeRoot,
+      externalTree: popupTreeRoot,
       lazyFlip: virtualFocus ? 'placement' : false,
     },
     state: { nested: parent.type === 'menu' },
@@ -110,32 +110,32 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   React.useEffect(() => {
     function onMenuOpenChange(details: MenuOpenEventDetails) {
       if (details.open) {
-        if (details.parentNodeId === floatingNodeId) {
+        if (details.parentNodeId === popupNodeId) {
           store.set('hoverEnabled', false);
         }
         if (
-          details.nodeId !== floatingNodeId &&
-          details.parentNodeId === store.select('floatingParentNodeId')
+          details.nodeId !== popupNodeId &&
+          details.parentNodeId === store.select('popupParentNodeId')
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
       }
     }
 
-    floatingTreeRoot.events.on('menuopenchange', onMenuOpenChange);
+    popupTreeRoot.events.on('menuopenchange', onMenuOpenChange);
 
     return () => {
-      floatingTreeRoot.events.off('menuopenchange', onMenuOpenChange);
+      popupTreeRoot.events.off('menuopenchange', onMenuOpenChange);
     };
-  }, [store, floatingTreeRoot.events, floatingNodeId]);
+  }, [store, popupTreeRoot.events, popupNodeId]);
 
   React.useEffect(() => {
-    if (store.select('floatingParentNodeId') == null) {
+    if (store.select('popupParentNodeId') == null) {
       return undefined;
     }
 
     function onParentClose(details: MenuOpenEventDetails) {
-      if (details.open || details.nodeId !== store.select('floatingParentNodeId')) {
+      if (details.open || details.nodeId !== store.select('popupParentNodeId')) {
         return;
       }
 
@@ -143,12 +143,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       store.setOpen(false, createChangeEventDetails(reason));
     }
 
-    floatingTreeRoot.events.on('menuopenchange', onParentClose);
+    popupTreeRoot.events.on('menuopenchange', onParentClose);
 
     return () => {
-      floatingTreeRoot.events.off('menuopenchange', onParentClose);
+      popupTreeRoot.events.off('menuopenchange', onParentClose);
     };
-  }, [floatingTreeRoot.events, store]);
+  }, [popupTreeRoot.events, store]);
 
   const closeTimeout = useTimeout();
 
@@ -164,7 +164,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
       // If an item within our parent menu is hovered, and this menu's trigger is not that item,
       // close this submenu. This ensures hovering a different item in the parent closes other branches.
-      if (!open || event.nodeId !== store.select('floatingParentNodeId')) {
+      if (!open || event.nodeId !== store.select('popupParentNodeId')) {
         return;
       }
 
@@ -185,22 +185,22 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    floatingTreeRoot.events.on('itemhover', onItemHover);
+    popupTreeRoot.events.on('itemhover', onItemHover);
     return () => {
-      floatingTreeRoot.events.off('itemhover', onItemHover);
+      popupTreeRoot.events.off('itemhover', onItemHover);
     };
-  }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
+  }, [popupTreeRoot.events, open, triggerElement, store, closeTimeout]);
 
   React.useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
       open,
-      nodeId: floatingNodeId,
-      parentNodeId: floatingParentNodeId,
+      nodeId: popupNodeId,
+      parentNodeId: popupParentNodeId,
       reason: store.select('lastOpenChangeReason'),
     };
 
-    floatingTreeRoot.events.emit('menuopenchange', eventDetails);
-  }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
+    popupTreeRoot.events.emit('menuopenchange', eventDetails);
+  }, [popupTreeRoot.events, open, store, popupNodeId, popupParentNodeId]);
 
   useTriggerSwitchTransition({
     store,
@@ -246,7 +246,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           cutout={backdropCutout}
         />
       )}
-      <PopupTreeNode id={floatingNodeId}>
+      <PopupTreeNode id={popupNodeId}>
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
