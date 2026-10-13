@@ -57,8 +57,12 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
   Selectors,
   PreviewCardRoot.ChangeEventDetails
 > {
-  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
-    super(createInitialState<Payload>(initialState, floatingId), createInitialContext(), selectors);
+  constructor(initialState: Partial<State<Payload>>, defaultPopupId: string | undefined) {
+    super(
+      createInitialState<Payload>(initialState, defaultPopupId),
+      createInitialContext(),
+      selectors,
+    );
   }
 
   protected prepareOpenChange(nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) {
@@ -108,10 +112,10 @@ export function createNullPreviewCardStore<Payload>(): PreviewCardHandleStore<Pa
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     instantType: undefined,
     adaptiveOrigin: undefined,
     closeDelay: CLOSE_DELAY,

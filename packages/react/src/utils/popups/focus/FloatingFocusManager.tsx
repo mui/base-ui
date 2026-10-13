@@ -273,8 +273,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   } = props;
 
   const open = store.useState('open');
-  const domReference = store.useState('domReferenceElement');
-  const floating = store.useState('floatingElement');
+  const domReference = store.useState('anchorElement');
+  const floating = store.useState('outerPopupElement');
 
   const { events, dataRef } = store.context;
 
@@ -571,15 +571,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       });
     }
 
-    const domReferenceElement = isHTMLElement(domReference) ? domReference : null;
-    if (!floating && !domReferenceElement) {
+    const anchorElement = isHTMLElement(domReference) ? domReference : null;
+    if (!floating && !anchorElement) {
       return undefined;
     }
 
     return mergeCleanups(
-      domReferenceElement && addEventListener(domReferenceElement, 'focusout', handleFocusOutside),
-      domReferenceElement &&
-        addEventListener(domReferenceElement, 'pointerdown', handlePointerDown),
+      anchorElement && addEventListener(anchorElement, 'focusout', handleFocusOutside),
+      anchorElement && addEventListener(anchorElement, 'pointerdown', handlePointerDown),
       floating && addEventListener(floating, 'focusin', handleFocusIn),
       floating && addEventListener(floating, 'focusout', handleFocusOutside),
       floating &&

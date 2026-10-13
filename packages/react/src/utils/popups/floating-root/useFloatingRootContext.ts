@@ -15,8 +15,8 @@ export interface UseFloatingRootContextOptions {
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements?:
     | {
-        reference?: ReferenceType | null | undefined;
-        floating?: HTMLElement | null | undefined;
+        anchor?: ReferenceType | null | undefined;
+        outerPopupElement?: HTMLElement | null | undefined;
       }
     | undefined;
 }
@@ -24,16 +24,15 @@ export interface UseFloatingRootContextOptions {
 export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
   const { open = false, onOpenChange, elements = {} } = options;
 
-  const floatingId = useId();
+  const defaultPopupId = useId();
   const nested = useFloatingParentNodeId() != null;
 
   if (process.env.NODE_ENV !== 'production') {
-    const optionDomReference = elements.reference;
-    if (optionDomReference && !isElement(optionDomReference)) {
+    const optionAnchor = elements.anchor;
+    if (optionAnchor && !isElement(optionAnchor)) {
       console.error(
-        'Cannot pass a virtual element to the `elements.reference` option,',
-        'as it must be a real DOM element. Use `context.setPositionReference()`',
-        'instead.',
+        'Cannot pass a virtual element to the `elements.anchor` option,',
+        'as it must be a real DOM element. Set the `anchorOverride` instead.',
       );
     }
   }
@@ -44,31 +43,31 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
         open,
         transitionStatus: undefined,
         onOpenChange,
-        referenceElement: elements.reference ?? null,
-        floatingElement: elements.floating ?? null,
+        baseAnchor: elements.anchor ?? null,
+        outerPopupElement: elements.outerPopupElement ?? null,
         triggerElements: new PopupTriggerMap(),
-        floatingId,
+        defaultPopupId,
         nested,
       }),
   ).current;
 
   useIsoLayoutEffect(() => {
-    const valuesToSync = { open, floatingId } as Pick<
+    const valuesToSync = { open, defaultPopupId } as Pick<
       State,
-      'open' | 'floatingId' | 'referenceElement' | 'domReferenceElement' | 'floatingElement'
+      'open' | 'defaultPopupId' | 'baseAnchor' | 'anchorElement' | 'outerPopupElement'
     >;
 
-    if (elements.reference !== undefined) {
-      valuesToSync.referenceElement = elements.reference;
-      valuesToSync.domReferenceElement = isElement(elements.reference) ? elements.reference : null;
+    if (elements.anchor !== undefined) {
+      valuesToSync.baseAnchor = elements.anchor;
+      valuesToSync.anchorElement = isElement(elements.anchor) ? elements.anchor : null;
     }
 
-    if (elements.floating !== undefined) {
-      valuesToSync.floatingElement = elements.floating;
+    if (elements.outerPopupElement !== undefined) {
+      valuesToSync.outerPopupElement = elements.outerPopupElement;
     }
 
     store.update(valuesToSync);
-  }, [open, floatingId, elements.reference, elements.floating, store]);
+  }, [open, defaultPopupId, elements.anchor, elements.outerPopupElement, store]);
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;

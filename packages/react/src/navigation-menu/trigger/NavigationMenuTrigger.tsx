@@ -470,8 +470,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     open,
     onOpenChange: handleOpenChange,
     elements: {
-      reference: triggerElement,
-      floating: hoverFloatingElement,
+      anchor: triggerElement,
+      outerPopupElement: hoverFloatingElement,
     },
   });
 
@@ -590,8 +590,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
           hoverIntent.blockOutsidePointerEvents({
             scopeElement,
-            referenceElement: currentTarget,
-            floatingElement: hoverFloatingElement,
+            triggerElement: currentTarget,
+            outerPopupElement: hoverFloatingElement,
           });
         };
 
@@ -798,11 +798,11 @@ export namespace NavigationMenuTrigger {
 }
 
 function getPlacementFromElements(
-  domReferenceElement: Element,
-  floatingElement: HTMLElement,
+  anchorElement: Element,
+  outerPopupElement: HTMLElement,
 ): HandleCloseContextBase['placement'] {
-  const referenceRect = domReferenceElement.getBoundingClientRect();
-  const floatingRect = floatingElement.getBoundingClientRect();
+  const referenceRect = anchorElement.getBoundingClientRect();
+  const floatingRect = outerPopupElement.getBoundingClientRect();
   const referenceCenterX = referenceRect.left + referenceRect.width / 2;
   const referenceCenterY = referenceRect.top + referenceRect.height / 2;
   const floatingCenterX = floatingRect.left + floatingRect.width / 2;
@@ -818,15 +818,15 @@ function getPlacementFromElements(
 }
 
 function getHandleCloseContext(
-  domReferenceElement: Element,
-  floatingElement: HTMLElement,
+  anchorElement: Element,
+  outerPopupElement: HTMLElement,
   nodeId: string | undefined,
 ): HandleCloseContextBase {
   return {
-    placement: getPlacementFromElements(domReferenceElement, floatingElement),
+    placement: getPlacementFromElements(anchorElement, outerPopupElement),
     elements: {
-      domReference: domReferenceElement,
-      floating: floatingElement,
+      domReference: anchorElement,
+      floating: outerPopupElement,
     },
     nodeId,
   };

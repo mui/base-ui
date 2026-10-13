@@ -194,8 +194,8 @@ export class MenuStore<Payload> extends BasePopupStore<
   Selectors,
   MenuRoot.ChangeEventDetails
 > {
-  constructor(initialState?: Partial<State<Payload>>, floatingId?: string | undefined) {
-    const state = createInitialState<Payload>(floatingId, initialState);
+  constructor(initialState?: Partial<State<Payload>>, defaultPopupId?: string | undefined) {
+    const state = createInitialState<Payload>(defaultPopupId, initialState);
 
     super(state, createInitialContext(), selectors);
 
@@ -403,11 +403,11 @@ function createInitialContext(): Context {
 }
 
 function createInitialState<Payload>(
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
   initialState?: Partial<State<Payload>>,
 ): State<Payload> {
   return {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     modal: true,
     openMethod: null,

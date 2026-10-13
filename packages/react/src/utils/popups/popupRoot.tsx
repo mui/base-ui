@@ -93,22 +93,22 @@ type PopupRootStore = ReactStore<
  */
 export function usePopupRoot<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
-  createStore: (initialState: PopupRootInitialState, floatingId: string | undefined) => Store,
+  createStore: (initialState: PopupRootInitialState, defaultPopupId: string | undefined) => Store,
   options: UsePopupRootOptions = {},
 ) {
-  const floatingId = useId();
-  return usePopupRootWithFloatingId(props, createStore, floatingId, options);
+  const defaultPopupId = useId();
+  return usePopupRootWithFloatingId(props, createStore, defaultPopupId, options);
 }
 
 /**
  * `usePopupRoot` for a Root that supplies its own floating id instead of a generated one.
  *
- * @param floatingId The floating id, or `undefined` to leave the popup without one.
+ * @param defaultPopupId The floating id, or `undefined` to leave the popup without one.
  */
 export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
-  createStore: (initialState: PopupRootInitialState, floatingId: string | undefined) => Store,
-  floatingId: string | undefined,
+  createStore: (initialState: PopupRootInitialState, defaultPopupId: string | undefined) => Store,
+  defaultPopupId: string | undefined,
   options: UsePopupRootOptions = {},
 ) {
   const {
@@ -132,7 +132,7 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
         { open: defaultOpen, openProp, activeTriggerId: defaultTriggerId, triggerIdProp },
         initialFloatingId,
       ),
-    floatingId,
+    defaultPopupId,
   );
 
   store.useControlledProp('openProp', openProp);
@@ -213,17 +213,17 @@ interface PopupRootStoreHandle<Store> {
  *
  * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
  * resolved on the first render.
- * @param floatingId The floating id, or `undefined` to leave the popup without one.
+ * @param defaultPopupId The floating id, or `undefined` to leave the popup without one.
  */
 function usePopupRootStore<Store extends PopupRootStore>(
-  createStore: (floatingId: string | undefined) => Store,
-  floatingId: string | undefined,
+  createStore: (defaultPopupId: string | undefined) => Store,
+  defaultPopupId: string | undefined,
 ): Store {
   const nested = useFloatingParentNodeId() != null;
 
-  const store = useRefWithInit(() => createStore(floatingId)).current;
+  const store = useRefWithInit(() => createStore(defaultPopupId)).current;
 
-  store.useSyncedValue('floatingId', floatingId);
+  store.useSyncedValue('defaultPopupId', defaultPopupId);
   store.context.nested = nested;
 
   return store;

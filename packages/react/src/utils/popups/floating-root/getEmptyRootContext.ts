@@ -5,10 +5,10 @@ export function getEmptyRootContext(): FloatingRootStore {
   return new FloatingRootStore({
     open: false,
     transitionStatus: undefined,
-    floatingElement: null,
-    referenceElement: null,
+    outerPopupElement: null,
+    baseAnchor: null,
     triggerElements: new PopupTriggerMap(),
-    floatingId: undefined,
+    defaultPopupId: undefined,
     nested: false,
     onOpenChange: undefined,
   });

@@ -237,7 +237,7 @@ describe('popupId selector', () => {
   it('uses the floating id as the popup id', () => {
     const store = createTestPopupStore();
 
-    store.set('floatingId', 'popup-id');
+    store.set('defaultPopupId', 'popup-id');
 
     expect(store.select('popupId')).toBe('popup-id');
   });
@@ -245,7 +245,7 @@ describe('popupId selector', () => {
   it('omits popup id when the floating id is empty', () => {
     const store = createTestPopupStore();
 
-    store.set('floatingId', '');
+    store.set('defaultPopupId', '');
 
     expect(store.select('popupId')).toBeUndefined();
   });
@@ -258,7 +258,7 @@ describe('popupId selector', () => {
     store.update({
       open: true,
       activeTriggerId: 'trigger',
-      floatingId: 'generated-popup-id',
+      defaultPopupId: 'generated-popup-id',
       popupElement,
     });
 
@@ -268,7 +268,7 @@ describe('popupId selector', () => {
   it('associates a lone trigger with the popup id unless the popup opened without a trigger', () => {
     const store = createTestPopupStore();
 
-    store.update({ open: true, floatingId: 'popup-id', triggerCount: 1 });
+    store.update({ open: true, defaultPopupId: 'popup-id', triggerCount: 1 });
     expect(store.select('triggerPopupId', 'trigger')).toBe('popup-id');
 
     store.set('openedWithoutTrigger', true);

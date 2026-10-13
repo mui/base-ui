@@ -74,8 +74,12 @@ export class TooltipStore<Payload> extends BasePopupStore<
   Selectors,
   TooltipRoot.ChangeEventDetails
 > {
-  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
-    super(createInitialState<Payload>(initialState, floatingId), createInitialContext(), selectors);
+  constructor(initialState: Partial<State<Payload>>, defaultPopupId: string | undefined) {
+    super(
+      createInitialState<Payload>(initialState, defaultPopupId),
+      createInitialContext(),
+      selectors,
+    );
   }
 
   protected prepareOpenChange(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
@@ -111,10 +115,10 @@ export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     instantType: undefined,
     isInstantPhase: false,

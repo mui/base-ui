@@ -42,7 +42,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
   const role = store.useState('role');
-  const floatingId = store.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
   useDialogPortalContext();
 
@@ -75,7 +75,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     props: [
       rootPopupProps,
       {
-        id: floatingId,
+        id: defaultPopupId,
         'aria-labelledby': titleElementId,
         'aria-describedby': descriptionElementId,
         role,

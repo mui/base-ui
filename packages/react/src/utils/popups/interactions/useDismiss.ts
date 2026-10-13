@@ -126,7 +126,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
   } = props;
 
   const open = store.useState('open');
-  const floatingElement = store.useState('floatingElement');
+  const outerPopupElement = store.useState('outerPopupElement');
   const { dataRef, events } = store.context;
 
   const tree = useFloatingTree(externalTree);
@@ -180,8 +180,8 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
     return (
-      isEventTargetWithin(event, store.select('floatingElement')) ||
-      isEventTargetWithin(event, store.select('domReferenceElement'))
+      isEventTargetWithin(event, store.select('outerPopupElement')) ||
+      isEventTargetWithin(event, store.select('anchorElement'))
     );
   });
 
@@ -247,7 +247,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
       // Only treat presses that start within the floating DOM subtree as inside.
       // This avoids suppressing parent dismissal when interacting with nested portals.
-      if (!contains(store.select('floatingElement'), target)) {
+      if (!contains(store.select('outerPopupElement'), target)) {
         return;
       }
 
@@ -312,7 +312,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     dataRef.current.__outsidePressBubbles = outsidePressBubbles;
 
     const preventedPressSuppressionTimeout = new Timeout();
-    const doc = ownerDocument(floatingElement);
+    const doc = ownerDocument(outerPopupElement);
 
     function handleCompositionStart() {
       compositionTimeout.clear();
@@ -408,7 +408,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       const markers = Array.from(
         (isShadowRoot(targetRoot)
           ? targetRoot
-          : ownerDocument(store.select('floatingElement'))
+          : ownerDocument(store.select('outerPopupElement'))
         ).querySelectorAll(inertSelector),
       );
 
@@ -440,7 +440,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         isElement(target) &&
         !isRootElement(target) &&
         // Clicked on a direct ancestor (e.g. FloatingOverlay).
-        !contains(target, store.select('floatingElement')) &&
+        !contains(target, store.select('outerPopupElement')) &&
         // If the target root element contains none of the markers, then the
         // element was injected after the floating element rendered.
         markers.every((marker) => !contains(targetRootAncestor, marker))
@@ -754,7 +754,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     };
   }, [
     dataRef,
-    floatingElement,
+    outerPopupElement,
     escapeKey,
     outsidePressEnabled,
     outsidePress,

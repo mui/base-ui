@@ -142,7 +142,7 @@ export function useDelayGroup(
 ): UseDelayGroupReturn {
   const { open } = options;
 
-  const floatingId = store.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
   const {
@@ -175,11 +175,11 @@ export function useDelayGroup(
       return undefined;
     }
 
-    if (!open && currentIdRef.current === floatingId) {
+    if (!open && currentIdRef.current === defaultPopupId) {
       setIsInstantPhase(false);
 
       if (timeoutMs) {
-        const closingId = floatingId;
+        const closingId = defaultPopupId;
         timeout.start(timeoutMs, () => {
           // If another tooltip has taken over the group, skip resetting.
           if (
@@ -203,7 +203,7 @@ export function useDelayGroup(
     return undefined;
   }, [
     open,
-    floatingId,
+    defaultPopupId,
     currentIdRef,
     delayRef,
     timeoutMs,
@@ -225,13 +225,13 @@ export function useDelayGroup(
     // the group's delay back to the initial value.
     timeout.clear();
     currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
-    currentIdRef.current = floatingId;
+    currentIdRef.current = defaultPopupId;
     delayRef.current = {
       open: 0,
       close: getDelay(initialDelayRef.current, 'close'),
     };
 
-    if (prevId !== null && prevId !== floatingId) {
+    if (prevId !== null && prevId !== defaultPopupId) {
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
       prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));
@@ -241,7 +241,7 @@ export function useDelayGroup(
     }
   }, [
     open,
-    floatingId,
+    defaultPopupId,
     store,
     currentIdRef,
     delayRef,
@@ -252,7 +252,7 @@ export function useDelayGroup(
 
   useIsoLayoutEffect(() => {
     return () => {
-      if (currentIdRef.current === floatingId) {
+      if (currentIdRef.current === defaultPopupId) {
         currentContextRef.current = null;
 
         if (!openRef.current) {
@@ -264,7 +264,7 @@ export function useDelayGroup(
         timeout.clear();
       }
     };
-  }, [currentContextRef, currentIdRef, delayRef, floatingId, initialDelayRef, timeout]);
+  }, [currentContextRef, currentIdRef, delayRef, defaultPopupId, initialDelayRef, timeout]);
 
   return React.useMemo(
     () => ({
