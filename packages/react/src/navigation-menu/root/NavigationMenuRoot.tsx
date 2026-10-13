@@ -12,7 +12,7 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../../utils/popups/tree/FloatingTree';
-import type { FloatingRootContext } from '../../utils/popups/floating-root/types';
+import type { FloatingRootContext } from '../../utils/popups/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,

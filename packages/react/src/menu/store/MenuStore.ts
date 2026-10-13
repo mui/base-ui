@@ -8,12 +8,13 @@ import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import type { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
-import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
-import {
-  createInitialPopupStoreState,
-  popupStoreSelectors,
-  PopupTriggerMap,
-} from '../../utils/popups';
+import type {
+  PopupStoreContext,
+  PopupStoreState,
+  PopupTriggerStoreKeys,
+} from '../../utils/popups/store';
+import { createInitialPopupStoreState, popupStoreSelectors } from '../../utils/popups/store';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;

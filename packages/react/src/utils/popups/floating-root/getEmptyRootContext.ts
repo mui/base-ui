@@ -1,6 +1,6 @@
 import { PopupTriggerMap } from '../popupTriggerMap';
 import { FloatingRootStore } from './FloatingRootStore';
-import type { FloatingRootContext } from './types';
+import type { FloatingRootContext } from '../types';
 
 export function getEmptyRootContext(): FloatingRootContext {
   return new FloatingRootStore({

@@ -28,7 +28,7 @@ import type {
   UseFloatingReturn,
   FloatingRootContext,
   FloatingContext,
-} from '../utils/popups/floating-root/types';
+} from '../utils/popups/types';
 import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
 import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';

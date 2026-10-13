@@ -5,7 +5,7 @@ import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import type { DialogStore } from '../store/DialogStore';
-import { usePopupInteractionProps } from '../../utils/popups';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
 
 export function DialogInteractions({
   store,

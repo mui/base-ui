@@ -4,7 +4,7 @@ import { flushMicrotasks, render } from '@mui/internal-test-utils';
 import type { VirtualElement } from '@floating-ui/react-dom';
 import { PopupTriggerMap } from '../popupTriggerMap';
 import { FloatingRootStore } from '../floating-root/FloatingRootStore';
-import type { UseFloatingReturn } from '../floating-root/types';
+import type { UseFloatingReturn } from '../types';
 import { useBaseUIFloating } from './useFloating';
 
 function Test({

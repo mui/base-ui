@@ -12,7 +12,7 @@ import type {
   ReferenceType,
   UseFloatingOptions,
   UseFloatingReturn,
-} from '../floating-root/types';
+} from '../types';
 
 /**
  * Provides data to position a floating element and context to add interactions.

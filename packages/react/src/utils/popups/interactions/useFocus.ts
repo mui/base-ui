@@ -7,7 +7,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import type { ElementProps, FloatingRootContext } from '../floating-root/types';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { createAttribute } from '../createAttribute';
 import { isTargetInsideEnabledTrigger, isTypeableElement, matchesFocusVisible } from '../element';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';

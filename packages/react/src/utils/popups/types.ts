@@ -4,10 +4,10 @@ import type {
   VirtualElement,
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
-import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
-import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
-import type { FloatingRootStore } from './FloatingRootStore';
+import type { FloatingTreeStore } from './tree/FloatingTreeStore';
+import type { FloatingRootStore } from './floating-root/FloatingRootStore';
 
 type Prettify<T> = {
   [K in keyof T]: T[K];

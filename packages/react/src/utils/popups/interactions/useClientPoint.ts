@@ -4,7 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { getWindow } from '@floating-ui/utils/dom';
-import type { ContextData, ElementProps, FloatingRootContext } from '../floating-root/types';
+import type { ContextData, ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType } from '../event';
 
 function createVirtualElement(

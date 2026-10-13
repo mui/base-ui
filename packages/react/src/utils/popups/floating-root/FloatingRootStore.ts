@@ -1,8 +1,8 @@
 import type * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
-import type { FloatingEvents, ContextData, ReferenceType } from './types';
+import type { FloatingEvents, ContextData, ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { createEventEmitter } from './createEventEmitter';
+import { createEventEmitter } from '../createEventEmitter';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import type { PopupTriggerMap } from '../popupTriggerMap';
 import { isClickLikeEvent } from '../event';

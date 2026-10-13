@@ -1,4 +1,4 @@
-import type { FloatingNodeType } from '../floating-root/types';
+import type { FloatingNodeType } from '../types';
 
 /* eslint-disable @typescript-eslint/no-loop-func */
 

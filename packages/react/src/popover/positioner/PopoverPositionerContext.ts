@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
-import type { FloatingContext } from '../../utils/popups/floating-root/types';
+import type { FloatingContext } from '../../utils/popups/types';
 
 export interface PopoverPositionerContext {
   side: Side;

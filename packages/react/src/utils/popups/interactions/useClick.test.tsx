@@ -6,7 +6,7 @@ import { useClick } from './useClick';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 import { useHover } from '../../../../test/floating-ui-tests/useHover';
 import { REASONS } from '../../../internals/reasons';
-import type { UseFloatingOptions } from '../floating-root/types';
+import type { UseFloatingOptions } from '../types';
 import type { UseClickProps } from './useClick';
 
 function App({

@@ -4,7 +4,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { getTarget } from '@base-ui/utils/shadowDom';
-import type { ElementProps, FloatingRootContext } from '../floating-root/types';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { isTypeableElement } from '../element';
 import { isMouseLikePointerType, isVirtualPointerEvent } from '../event';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
