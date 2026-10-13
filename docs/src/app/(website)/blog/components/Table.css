@@ -6,6 +6,7 @@
     margin-block: 1.25rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-12);
+    background-color: var(--color-content);
   }
 
   .BlogTable {

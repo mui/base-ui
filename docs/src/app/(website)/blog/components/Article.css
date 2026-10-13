@@ -2,11 +2,11 @@
 @layer all, base, theme, components, utilities;
 
 @layer components {
-  .BlogMdArticle > *:first-child {
+  .BlogArticle > *:first-child {
     margin-top: 0;
   }
 
-  .BlogMdArticleBreakout {
+  .BlogArticleBreakout {
     @media (min-width: 48rem) {
       margin-inline: -0.75rem;
     }

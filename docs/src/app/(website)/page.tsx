@@ -11,7 +11,7 @@ import { Interfere } from './logos/Interfere';
 import { PlusIcon } from './icons/PlusIcon';
 import { MinusIcon } from './icons/MinusIcon';
 
-export default async function Homepage() {
+export default function Homepage() {
   return (
     <React.Fragment>
       {/* Set the Site name for Google results. https://developers.google.com/search/docs/appearance/site-names */}

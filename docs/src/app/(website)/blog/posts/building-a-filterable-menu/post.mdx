@@ -59,7 +59,7 @@ In this post, we'll look at some of those details and how they shaped the API we
 
 ## Choosing a pattern
 
-Before choosing a pattern, we needed to think through the interaction carefully. Imagine an "Edit actions" menu containing Rename, Duplicate, and Delete. A user can browse the actions normally, or type "dup" to narrow the menu to Duplicate. They can then activate it with the keyboard, mouse, or assistive technology.
+Before choosing a pattern, we needed to think through the interaction carefully. Imagine an "Actions" menu containing Rename, Duplicate, and Delete. A user can browse the actions normally, or type "dup" to narrow the menu to Duplicate. They can then activate it with the keyboard, mouse, or assistive technology.
 
 We started with the keyboard. How should it work? From the input, a user should be able to press <kbd>↓</kbd> to highlight a match, use the arrow keys to explore the others, and press <kbd>Enter</kbd> to run an action. If an item opens a submenu, they should be able to enter it and return with the arrow keys, without the input swallowing those keys. After highlighting an action, they should still be able to keep typing, edit their query, or clear it and browse again, without first moving focus back to the input.
 
@@ -96,7 +96,7 @@ So, `aria-autocomplete` was off the table too. We're filtering commands, and we 
 
 ### Settling on a dialog
 
-We decided to use a dialog containing a search field and a menu. The search field filters the actions, and each action keeps its menu semantics. We put `aria-haspopup="dialog"` on the menu trigger so it announces the type of popup it actually opens. This affordance implies ahead of time that there is more than just the "Edit actions" to explore.
+We decided to use a dialog containing a search field and a menu. The search field filters the actions, and each action keeps its menu semantics. We put `aria-haspopup="dialog"` on the menu trigger so it announces the type of popup it actually opens. This affordance implies ahead of time that there is more than just the "Actions" to explore.
 
 Inside, the dialog affordance helps communicate to screen reader users that they've entered a context they can explore with their usual navigation keys. If you haven't used a screen reader before, here are the defaults for three common desktop screen readers:
 
@@ -129,7 +129,7 @@ Once there though, hearing "search box" doesn't make them aware of the arrow-key
 
 Those who do discover the arrow-key behavior need a way to and from the input. As they arrow through the actions, their virtual cursor moves with the highlighted item, and a highlighted menu item doesn't communicate that they can continue typing. For this reason, we decided that pressing <kbd>↓</kbd> on the last item or <kbd>↑</kbd> on the first should return the highlight to the field, so they can refine their query.
 
-Sighted keyboard users never leave the field, but that arrow-key behavior of looping back to the input could feel invisible to them. Pressing Down Arrow on the last menu item might seem to do nothing, especially if the user expects navigation to loop back to the first item. So, we added `data-highlighted` to `Menu.Input` so applications can show where that step actually took them. Moving the visual highlight to the input shows that the user is back at the field and can continue filtering.
+Sighted keyboard users never leave the field, but that arrow-key behavior of looping back to the input could feel invisible to them. Pressing <kbd>↓</kbd> on the last menu item might seem to do nothing, especially if the user expects navigation to loop back to the first item. So, we added `data-highlighted` to `Menu.Input` so applications can show where that step actually took them. Moving the visual highlight to the input shows that the user is back at the field and can continue filtering.
 
 ### Same key, different meaning
 

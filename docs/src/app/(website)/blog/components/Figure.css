@@ -4,12 +4,12 @@
 @layer components {
   .BlogFigure {
     margin-block: var(--space-20) var(--space-24);
-    margin-inline: 0;
   }
 
   .BlogFigureFrame {
     border: 1px solid var(--color-border);
     border-radius: var(--radius-12);
+    background-color: var(--color-content);
   }
 
   .BlogFigureCaption {

@@ -41,7 +41,7 @@ function Heading({
   return (
     <Tag className={className} id={id} {...otherProps}>
       {link ? (
-        <HeadingLink id={id}>
+        <HeadingLink href={`#${id}`}>
           {children}
           {badge}
         </HeadingLink>

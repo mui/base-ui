@@ -126,7 +126,7 @@ export default function DemoKeyControl() {
         {visibleActions.length === 0 && <div className={styles.Empty}>No actions found.</div>}
       </div>
       <div className={styles.Readout}>
-        <div aria-live="polite">
+        <div>
           <dl className={styles.Values}>
             <dt>Context</dt>
             <dd>
@@ -137,7 +137,9 @@ export default function DemoKeyControl() {
             <dt>Last key</dt>
             <dd>{lastKey}</dd>
           </dl>
-          <div className={styles.Log}>{lastAction && `Ran "${lastAction}"`}</div>
+          <div className={styles.Log} role="status">
+            {lastAction && `Ran "${lastAction}"`}
+          </div>
         </div>
         <div className={styles.Hint}>
           <p>Type in the field to filter the menu.</p>

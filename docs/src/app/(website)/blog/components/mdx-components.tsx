@@ -5,7 +5,7 @@ import { CodeBlockPreComputed } from 'docs/src/components/CodeBlock/CodeBlockPre
 import * as Figure from './Figure';
 import * as Table from './Table';
 import { Video } from './Video';
-import './mdx-components.css';
+import './Article.css';
 
 export const mdxComponents = {
   ...mdxComponentsCommon,
@@ -15,14 +15,14 @@ export const mdxComponents = {
     ...props
   }: React.ComponentProps<'pre'> & React.ComponentProps<typeof CodeBlockPreComputed>) =>
     'data-precompute' in props ? (
-      <CodeBlock.Root className="MdFigure BlogMdArticleBreakout" showCopy={false}>
+      <CodeBlock.Root className="MdFigure BlogArticleBreakout" showCopy={false}>
         <CodeBlockPreComputed {...props} />
       </CodeBlock.Root>
     ) : (
       <CodeBlock.Pre {...props} />
     ),
   table: (props: React.ComponentProps<'table'>) => (
-    <Table.Root {...props} className="BlogMdArticleBreakout" />
+    <Table.Root {...props} className="BlogArticleBreakout" />
   ),
   thead: Table.Head,
   tbody: Table.Body,
@@ -32,7 +32,7 @@ export const mdxComponents = {
   td: Table.Cell,
   // Custom components
   Figure: (props: React.ComponentProps<'figure'>) => (
-    <Figure.Root {...props} className="BlogMdArticleBreakout" />
+    <Figure.Root {...props} className="BlogArticleBreakout" />
   ),
   FigureFrame: Figure.Frame,
   Figcaption: Figure.Caption,

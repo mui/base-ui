@@ -8,12 +8,12 @@ export const authors = {
   james: {
     name: 'James Nelson',
     url: 'https://x.com/atomiksdev',
-    image: '/static/authors/james-nelson.png',
+    image: '/static/authors/james-nelson.webp',
   },
   jenna: {
     name: 'Jenna Smith',
     url: 'https://x.com/jjenzz',
-    image: '/static/authors/jenna-smith.png',
+    image: '/static/authors/jenna-smith.webp',
   },
 } satisfies Record<string, Author>;
 

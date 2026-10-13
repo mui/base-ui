@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import * as AuthorList from '../components/AuthorList';
 import { mdxComponents } from '../components/mdx-components';
 import { getPostBySlug, getPosts } from '../posts';
+import '../components/Article.css';
 
 export const dynamicParams = false;
 
@@ -23,7 +24,7 @@ export async function generateMetadata(
   }
 
   return {
-    title: post.metadata.title,
+    title: post.title,
     description: post.metadata.description,
     keywords: post.metadata.keywords,
     robots: post.metadata.robots,
@@ -77,7 +78,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         </AuthorList.Root>
       </div>
 
-      <article className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3 bp3:bui-gce-8 bp4:bui-gce-7 BlogMdArticle">
+      <article className="BlogArticle bui-gcs-1 bui-gce-9 bp3:bui-gcs-3 bp3:bui-gce-8 bp4:bui-gce-7">
         <Content components={mdxComponents} />
       </article>
     </React.Fragment>
