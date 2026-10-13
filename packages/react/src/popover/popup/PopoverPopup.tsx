@@ -2,8 +2,8 @@
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
-import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
+import { PopupFocusManager } from '../../utils/popups/focus/PopupFocusManager';
+import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
@@ -63,7 +63,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
   });
 
-  useHoverFloatingInteraction(store, { enabled: openOnHover && !disabled, closeDelay });
+  useHoverPopupInteraction(store, { enabled: openOnHover && !disabled, closeDelay });
 
   const resolvedInitialFocus =
     initialFocus === undefined ? createDefaultInitialFocus(store.context.popupRef) : initialFocus;
@@ -105,7 +105,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   });
 
   return (
-    <FloatingFocusManager
+    <PopupFocusManager
       context={store}
       openInteractionType={openMethod}
       modal={focusManagerModal}
@@ -121,7 +121,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
       <ClosePartContext.Provider value={closePartContext}>{element}</ClosePartContext.Provider>
-    </FloatingFocusManager>
+    </PopupFocusManager>
   );
 });
 

@@ -6,7 +6,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './';
 import {
-  createFloatingRootContextValues,
+  createPopupInteractionContext,
   createInitialPopupStoreState,
   createPopupOpenState,
   PopupTriggerMap,
@@ -38,7 +38,7 @@ function createStore() {
       triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
-      ...createFloatingRootContextValues(),
+      ...createPopupInteractionContext(),
     },
     popupStoreSelectors,
   ) as TestStore;

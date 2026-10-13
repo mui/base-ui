@@ -27,15 +27,15 @@ import {
 import type { FocusableElement } from './tabbable';
 import { getNodeAncestors, getNodeChildren } from '../tree/nodes';
 import { isElementVisible } from '../../../internals/composite/listIndex';
-import type { FloatingRootContext } from '../floating-root/types';
+import type { PopupInteractionStore } from '../interaction-store/types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 import { createAttribute } from '../createAttribute';
 import { enqueueFocus } from './enqueueFocus';
 import { markOthers } from './markOthers';
-import { usePortalContext } from '../portal/FloatingPortal';
-import { useFloatingTree } from '../tree/FloatingTree';
-import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
+import { usePortalContext } from '../portal/PopupPortal';
+import { usePopupTree } from '../tree/PopupTree';
+import type { PopupTreeStore } from '../tree/PopupTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../../internals/constants';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { resolveRef } from '../../resolveRef';
@@ -143,12 +143,12 @@ function handleTabIndex(floatingFocusElement: HTMLElement) {
   }
 }
 
-export interface FloatingFocusManagerProps {
+export interface PopupFocusManagerProps {
   children: React.JSX.Element;
   /**
-   * The floating context returned from `useFloatingRootContext`.
+   * The floating context returned from `useStandaloneInteractionStore`.
    */
-  context: FloatingRootContext;
+  context: PopupInteractionStore;
   /**
    * The interaction type used to open the floating element.
    */
@@ -238,9 +238,9 @@ export interface FloatingFocusManagerProps {
    */
   beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null> | undefined;
   /**
-   * External FloatingTree to use when the one provided by context can't be used.
+   * External PopupTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore | undefined;
+  externalTree?: PopupTreeStore | undefined;
   /**
    * Additional elements that should be treated as part of the floating subtree
    * even if they are rendered outside the floating element itself.
@@ -250,10 +250,10 @@ export interface FloatingFocusManagerProps {
 
 /**
  * Provides focus management for the floating element.
- * @see https://floating-ui.com/docs/FloatingFocusManager
+ * @see https://floating-ui.com/docs/PopupFocusManager
  * @internal
  */
-export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JSX.Element {
+export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Element {
   const {
     context: store,
     children,
@@ -295,7 +295,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
   const openRef = useValueAsRef(open);
 
-  const tree = useFloatingTree(externalTree);
+  const tree = usePopupTree(externalTree);
   const portalContext = usePortalContext();
 
   const preventReturnFocusRef = React.useRef(false);
@@ -503,7 +503,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           !isElementVisible(target) &&
           activeElement(doc) === doc.body
         ) {
-          // Let `FloatingPortal` effect knows that focus is still inside the
+          // Let `PopupPortal` effect knows that focus is still inside the
           // floating tree.
           if (isHTMLElement(floatingFocusElement)) {
             floatingFocusElement.focus();
@@ -962,7 +962,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   }, [open, floating]);
 
   // Synchronize the focus manager state (modal, closeOnFocusOut, open, etc.) to the
-  // FloatingPortal context, which uses it to decide whether to render its own guards.
+  // PopupPortal context, which uses it to decide whether to render its own guards.
   useIsoLayoutEffect(() => {
     if (disabled || !portalContext) {
       return undefined;

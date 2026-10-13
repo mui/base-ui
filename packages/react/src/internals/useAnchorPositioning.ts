@@ -26,11 +26,11 @@ import type {
 import type {
   UseFloatingOptions,
   UseFloatingReturn,
-  FloatingRootContext,
-  FloatingContext,
-} from '../utils/popups/floating-root/types';
-import { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
-import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
+  PopupInteractionStore,
+  PopupPositioningContext,
+} from '../utils/popups/interaction-store/types';
+import { StandaloneInteractionStore } from '../utils/popups/interaction-store/StandaloneInteractionStore';
+import type { PopupTreeStore } from '../utils/popups/tree/PopupTreeStore';
 import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../utils/popups/positioning/arrow';
@@ -131,7 +131,10 @@ export type CollisionAvoidance = SideFlipMode | SideShiftMode;
  */
 export function useAnchorPositioning(
   params: UseAnchorPositioningParameters &
-    ({ floatingRootContext: FloatingRootContext } | { fallbackRootContext: FloatingRootContext }),
+    (
+      | { floatingRootContext: PopupInteractionStore }
+      | { fallbackRootContext: PopupInteractionStore }
+    ),
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -455,9 +458,9 @@ export function useAnchorPositioning(
   useIsoLayoutEffect(() => {
     // Ensure positioning doesn't run initially for `keepMounted` elements that
     // aren't initially open. Popup stores derive the anchor and floating elements from their
-    // own state, so only a `FloatingRootStore` keeps copies of them to clear.
+    // own state, so only a `StandaloneInteractionStore` keeps copies of them to clear.
     if (!mounted && floatingRootContext) {
-      if (floatingRootContext instanceof FloatingRootStore) {
+      if (floatingRootContext instanceof StandaloneInteractionStore) {
         floatingRootContext.update({
           baseAnchor: null,
           outerPopupElement: null,
@@ -493,7 +496,7 @@ export function useAnchorPositioning(
     floatingStyles: originalFloatingStyles,
   } = useBaseUIFloating({
     // The parameter type guarantees one of them.
-    rootContext: (floatingRootContext ?? fallbackRootContext) as FloatingRootContext,
+    rootContext: (floatingRootContext ?? fallbackRootContext) as PopupInteractionStore,
     open: keepMounted ? mounted : undefined,
     placement,
     middleware,
@@ -815,12 +818,12 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: FloatingRootContext | undefined;
+  floatingRootContext?: PopupInteractionStore | undefined;
   /**
    * Positions against this store while `floatingRootContext` is missing. Unlike
    * `floatingRootContext`, it isn't cleared while the positioner is unmounted.
    */
-  fallbackRootContext?: FloatingRootContext | undefined;
+  fallbackRootContext?: PopupInteractionStore | undefined;
   mounted: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
@@ -836,7 +839,7 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    * popup. `true` locks the side only; `'placement'` also locks the alignment.
    */
   lazyFlip?: boolean | 'placement' | undefined;
-  externalTree?: FloatingTreeStore | undefined;
+  externalTree?: PopupTreeStore | undefined;
   /**
    * Optional middleware that can replace the measured reference rect before offsets and collision
    * middleware run. Used by Preview Card to position against a specific inline line box.
@@ -854,7 +857,7 @@ export interface UseAnchorPositioningReturnValue {
   physicalSide: PhysicalSide;
   anchorHidden: boolean;
   refs: UseFloatingReturn['refs'];
-  context: FloatingContext;
+  context: PopupPositioningContext;
   isPositioned: boolean;
   update: () => void;
 }

@@ -12,9 +12,9 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { closest, contains } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
-import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useStandaloneInteractionStore } from '../../utils/popups/interaction-store/useStandaloneInteractionStore';
+import { usePopupTree } from '../../utils/popups/tree/PopupTree';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { useHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import {
   getTabbableNearElement,
@@ -99,7 +99,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   } = useNavigationMenuRootContext();
   const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
-  const tree = useFloatingTree();
+  const tree = usePopupTree();
   const dismissProps = useNavigationMenuDismissContext();
   const direction = useDirection();
 
@@ -466,7 +466,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }
 
-  const context = useFloatingRootContext({
+  const context = useStandaloneInteractionStore({
     open,
     onOpenChange: handleOpenChange,
     elements: {
@@ -504,7 +504,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return closest(triggerElementRef.current, 'ul');
   }
 
-  const hoverProps = useHoverReferenceInteraction(context, {
+  const hoverProps = useHoverTriggerInteraction(context, {
     enabled: hoverInteractionsEnabled,
     move: false,
     handleClose: safePolygon({

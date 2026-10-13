@@ -7,7 +7,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import type { ElementProps, FloatingRootContext } from '../floating-root/types';
+import type { ElementProps, PopupInteractionStore } from '../interaction-store/types';
 import { createAttribute } from '../createAttribute';
 import { isTargetInsideEnabledTrigger, isTypeableElement, matchesFocusVisible } from '../element';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
@@ -35,7 +35,7 @@ export interface UseFocusProps {
  * `:focus`.
  * @see https://floating-ui.com/docs/useFocus
  */
-export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}): ElementProps {
+export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}): ElementProps {
   const { enabled = true, delay } = props;
 
   const { events, dataRef } = store.context;

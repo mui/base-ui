@@ -4,7 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { getWindow } from '@floating-ui/utils/dom';
-import type { ContextData, ElementProps, FloatingRootContext } from '../floating-root/types';
+import type { ContextData, ElementProps, PopupInteractionStore } from '../interaction-store/types';
 import { isMouseLikePointerType } from '../event';
 
 function createVirtualElement(
@@ -100,7 +100,7 @@ export interface UseClientPointProps {
  * @see https://floating-ui.com/docs/useClientPoint
  */
 export function useClientPoint(
-  store: FloatingRootContext,
+  store: PopupInteractionStore,
   props: UseClientPointProps = {},
 ): ElementProps {
   const { enabled = true, axis = 'both' } = props;

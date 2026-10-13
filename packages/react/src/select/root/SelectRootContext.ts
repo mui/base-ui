@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
+import type { StandaloneInteractionStore } from '../../utils/popups/interaction-store/StandaloneInteractionStore';
 import type { SelectStore } from '../store';
 
 export const SelectRootContext = React.createContext<SelectStore | undefined>(undefined);
-export const SelectFloatingContext = React.createContext<FloatingRootStore | undefined>(undefined);
+export const SelectFloatingContext = React.createContext<StandaloneInteractionStore | undefined>(
+  undefined,
+);
 
 export function useSelectRootContext() {
   const store = React.useContext(SelectRootContext);

@@ -1,10 +1,10 @@
 import { vi, expect, describe, beforeEach, afterEach, it } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { FloatingTreeStore } from '../tree/FloatingTreeStore';
+import { PopupTreeStore } from '../tree/PopupTreeStore';
 import type { HandleCloseContext } from './useHoverShared';
-import type { FloatingContext } from '../floating-root/types';
+import type { PopupPositioningContext } from '../interaction-store/types';
 import { safePolygon } from './safePolygon';
-import { getEmptyRootContext } from '../floating-root/getEmptyRootContext';
+import { getEmptyInteractionStore } from '../interaction-store/getEmptyInteractionStore';
 
 function createRect(left: number, top: number, width: number, height: number) {
   return {
@@ -48,7 +48,7 @@ function createHandleCloseContext({
   domReference: Element;
   floating: HTMLElement;
   onClose: () => void;
-  tree: FloatingTreeStore;
+  tree: PopupTreeStore;
   placement?: 'top' | 'bottom' | 'left' | 'right';
   x?: number;
   y?: number;
@@ -72,8 +72,8 @@ function createFloatingContext({
   domReference: Element;
   floating: HTMLElement;
   open: boolean;
-}): FloatingContext {
-  const refs: FloatingContext['refs'] = {
+}): PopupPositioningContext {
+  const refs: PopupPositioningContext['refs'] = {
     reference: { current: domReference },
     floating: { current: floating },
     domReference: { current: domReference },
@@ -82,7 +82,7 @@ function createFloatingContext({
     setPositionReference() {},
   };
 
-  const events: FloatingContext['events'] = {
+  const events: PopupPositioningContext['events'] = {
     emit() {},
     on() {},
     off() {},
@@ -105,7 +105,7 @@ function createFloatingContext({
     defaultPopupId: 'floating-id',
     refs,
     elements: { reference: domReference, domReference, floating },
-    rootStore: getEmptyRootContext(),
+    rootStore: getEmptyInteractionStore(),
   };
 }
 
@@ -171,7 +171,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
     floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
 
-    const tree = new FloatingTreeStore();
+    const tree = new PopupTreeStore();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,
@@ -199,7 +199,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
     floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
 
-    const tree = new FloatingTreeStore();
+    const tree = new PopupTreeStore();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,
@@ -228,7 +228,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
     floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
 
-    const tree = new FloatingTreeStore();
+    const tree = new PopupTreeStore();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,
@@ -260,7 +260,7 @@ describe('safePolygon', () => {
       domReference.getBoundingClientRect = () => scenario.referenceRect;
       floating.getBoundingClientRect = () => scenario.floatingRect;
 
-      const tree = new FloatingTreeStore();
+      const tree = new PopupTreeStore();
       const onClose = vi.fn();
       const context = createHandleCloseContext({
         domReference,
@@ -289,7 +289,7 @@ describe('safePolygon', () => {
       domReference.getBoundingClientRect = () => scenario.referenceRect;
       floating.getBoundingClientRect = () => scenario.floatingRect;
 
-      const tree = new FloatingTreeStore();
+      const tree = new PopupTreeStore();
       const onClose = vi.fn();
       const context = createHandleCloseContext({
         domReference,
@@ -316,7 +316,7 @@ describe('safePolygon', () => {
     domReference.getBoundingClientRect = () => scenario.referenceRect;
     floating.getBoundingClientRect = () => scenario.floatingRect;
 
-    const tree = new FloatingTreeStore();
+    const tree = new PopupTreeStore();
     const onClose = vi.fn();
     const context = createHandleCloseContext({
       domReference,

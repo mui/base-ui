@@ -14,7 +14,7 @@ import type {
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { AdaptiveOriginMiddleware } from './positioning/adaptiveOriginConstants';
 import { usePositioner } from './positioning/usePositioner';
-import type { FloatingRootContext } from './floating-root/types';
+import type { PopupInteractionStore } from './interaction-store/types';
 import type { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from './store';
 
 /**
@@ -41,7 +41,7 @@ type PopupPositionerStore = ReactStore<
     adaptiveOrigin: (state: PopupPositionerStoreState) => AdaptiveOriginMiddleware | undefined;
   }
 > &
-  FloatingRootContext;
+  PopupInteractionStore;
 
 export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
   forwardedRef: React.ForwardedRef<HTMLDivElement>;

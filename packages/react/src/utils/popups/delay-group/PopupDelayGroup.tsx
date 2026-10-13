@@ -4,7 +4,7 @@ import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../interactions/useHoverShared';
-import type { FloatingRootContext, Delay } from '../floating-root/types';
+import type { PopupInteractionStore, Delay } from '../interaction-store/types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
@@ -22,7 +22,7 @@ interface ContextValue {
   } | null>;
 }
 
-const FloatingDelayGroupContext = React.createContext<ContextValue>({
+const PopupDelayGroupContext = React.createContext<ContextValue>({
   hasProvider: false,
   timeoutMs: 0,
   delayRef: { current: 0 },
@@ -36,7 +36,7 @@ function resetDelayRef(delayRef: React.RefObject<Delay>, initialDelayRef: React.
   delayRef.current = initialDelayRef.current;
 }
 
-export interface FloatingDelayGroupProps {
+export interface PopupDelayGroupProps {
   children?: React.ReactNode;
   /**
    * The delay to use for the group when it's not in the instant phase.
@@ -58,10 +58,10 @@ export interface FloatingDelayGroupProps {
  * Consumers read the delay through refs, so changing it doesn't re-render
  * unrelated consumers of the context.
  * Based on `NextFloatingDelayGroup` from `@floating-ui/react`.
- * @see https://floating-ui.com/docs/FloatingDelayGroup
+ * @see https://floating-ui.com/docs/PopupDelayGroup
  * @internal
  */
-export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.Element {
+export function PopupDelayGroup(props: PopupDelayGroupProps): React.JSX.Element {
   const { children, delay, timeoutMs = 0 } = props;
 
   const delayRef = React.useRef(delay);
@@ -85,7 +85,7 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
   }, [delay, currentIdRef, delayRef, initialDelayRef]);
 
   return (
-    <FloatingDelayGroupContext.Provider
+    <PopupDelayGroupContext.Provider
       value={React.useMemo(
         () => ({
           hasProvider: true,
@@ -100,7 +100,7 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
       )}
     >
       {children}
-    </FloatingDelayGroupContext.Provider>
+    </PopupDelayGroupContext.Provider>
   );
 }
 
@@ -125,26 +125,26 @@ interface UseDelayGroupReturn {
    */
   isInstantPhase: boolean;
   /**
-   * Whether a `<FloatingDelayGroup>` provider is present.
+   * Whether a `<PopupDelayGroup>` provider is present.
    */
   hasProvider: boolean;
 }
 
 /**
  * Enables grouping when called inside a component that's a child of a
- * `FloatingDelayGroup`.
- * @see https://floating-ui.com/docs/FloatingDelayGroup
+ * `PopupDelayGroup`.
+ * @see https://floating-ui.com/docs/PopupDelayGroup
  * @internal
  */
 export function useDelayGroup(
-  store: FloatingRootContext,
+  store: PopupInteractionStore,
   options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
   const { open } = options;
 
   const defaultPopupId = store.useState('defaultPopupId');
 
-  const groupContext = React.useContext(FloatingDelayGroupContext);
+  const groupContext = React.useContext(PopupDelayGroupContext);
   const {
     currentIdRef,
     delayRef,

@@ -15,7 +15,7 @@ import {
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 
 /**
  * A link that opens the preview card.
@@ -68,7 +68,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
     },
   );
 
-  const hoverProps = useHoverReferenceInteraction(store, {
+  const hoverProps = useHoverTriggerInteraction(store, {
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),

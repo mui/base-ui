@@ -1,14 +1,14 @@
 import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { createEventEmitter } from './floating-root/createEventEmitter';
-import { dispatchOpenChange } from './floating-root/dispatchOpenChange';
+import { createEventEmitter } from './interaction-store/createEventEmitter';
+import { dispatchOpenChange } from './interaction-store/dispatchOpenChange';
 import type {
   ContextData,
-  FloatingEvents,
-  FloatingRootContextValues,
+  PopupEvents,
+  PopupInteractionContext,
   ReferenceType,
-} from './floating-root/types';
+} from './interaction-store/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
@@ -166,7 +166,7 @@ export type PopupStoreContext<ChangeEventDetails> = {
   /**
    * Internal events for the interaction hooks, such as `openchange`.
    */
-  readonly events: FloatingEvents;
+  readonly events: PopupEvents;
   /**
    * Whether the popup has a parent in the floating tree.
    */
@@ -176,9 +176,9 @@ export type PopupStoreContext<ChangeEventDetails> = {
 /**
  * Creates the context values a popup store needs to serve as the interaction hooks' store.
  */
-export function createFloatingRootContextValues(
+export function createPopupInteractionContext(
   nested = false,
-): Omit<FloatingRootContextValues, 'triggerElements'> {
+): Omit<PopupInteractionContext, 'triggerElements'> {
   return {
     dataRef: { current: {} },
     events: createEventEmitter(),
@@ -261,7 +261,7 @@ export const popupStoreSelectors = {
   popupElement: (state: S) => state.popupElement,
   positionerElement: (state: S) => state.positionerElement,
 
-  // Reads of the interaction hooks' store (`FloatingRootContext`).
+  // Reads of the interaction hooks' store (`PopupInteractionStore`).
   defaultPopupId: (state: S) => state.defaultPopupId,
   anchorElement: (state: S) => state.anchorElement,
   anchor: (state: S) => state.anchorOverride ?? activeTriggerElementSelector(state),

@@ -6,7 +6,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
+import { PopupFocusManager } from '../../utils/popups/focus/PopupFocusManager';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -393,7 +393,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   });
 
   return (
-    <FloatingFocusManager
+    <PopupFocusManager
       context={store}
       openInteractionType={openMethod}
       disabled={!mounted}
@@ -404,7 +404,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       restoreFocus="popup"
     >
       {element}
-    </FloatingFocusManager>
+    </PopupFocusManager>
   );
 });
 

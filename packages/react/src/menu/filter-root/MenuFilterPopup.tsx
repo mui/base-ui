@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMenuFilterPopup } from './useMenuFilterPopup';
-import type { FloatingFocusManagerProps } from '../../utils/popups/focus/FloatingFocusManager';
+import type { PopupFocusManagerProps } from '../../utils/popups/focus/PopupFocusManager';
 import { MenuPopupPlain } from '../popup/MenuPopup';
 import type { MenuPopupProps } from '../popup/MenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -35,7 +35,7 @@ export const MenuFilterPopup = React.forwardRef(function MenuFilterPopup(
         lastOpenChangeReason === REASONS.triggerPress));
 
   // The input holds real focus; the popup is never the focus target.
-  let initialFocus: FloatingFocusManagerProps['initialFocus'] = false;
+  let initialFocus: PopupFocusManagerProps['initialFocus'] = false;
   if (mayFocusInput) {
     initialFocus = () => {
       // A tap would raise the on-screen keyboard, but a screen reader press (such as an iOS

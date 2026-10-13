@@ -8,7 +8,7 @@ import type {
 } from '../../utils/popups';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
+  createPopupInteractionContext,
   createInitialPopupStoreState,
   getHoverPopupInstantType,
   popupStoreSelectors,
@@ -140,6 +140,6 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
     onOpenChangeComplete: undefined,
     triggerElements,
     inlineRectCoordsRef: { current: undefined },
-    ...createFloatingRootContextValues(nested),
+    ...createPopupInteractionContext(nested),
   };
 }

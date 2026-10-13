@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
+  createPopupInteractionContext,
   createInitialPopupStoreState,
   getHoverPopupInstantType,
   popupStoreSelectors,
@@ -187,7 +187,7 @@ class TestPopupStore extends BasePopupStore<
         popupRef: React.createRef<HTMLElement>(),
         onOpenChange,
         onOpenChangeComplete: undefined,
-        ...createFloatingRootContextValues(),
+        ...createPopupInteractionContext(),
       },
       popupStoreSelectors,
     );

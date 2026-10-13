@@ -10,7 +10,7 @@ import {
   enableFocusInside,
   isOutsideEvent,
 } from '../../utils/popups/focus/tabbable';
-import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyInteractionStore } from '../../utils/popups/interaction-store/getEmptyInteractionStore';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
@@ -23,13 +23,13 @@ import type {
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useStandaloneInteractionStore } from '../../utils/popups/interaction-store/useStandaloneInteractionStore';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { adaptiveOrigin } from '../../utils/popups/positioning/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/popups/positioning/usePositioner';
 
-const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
+const EMPTY_ROOT_CONTEXT = getEmptyInteractionStore();
 
 /**
  * Positions the navigation menu against the currently active trigger.
@@ -109,7 +109,9 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('anchorElement');
 
   // The active trigger supplies the root store after the positioner has already rendered.
-  const fallbackRootContext = useFloatingRootContext({ open: keepMounted ? mounted : undefined });
+  const fallbackRootContext = useStandaloneInteractionStore({
+    open: keepMounted ? mounted : undefined,
+  });
 
   const positioning = useAnchorPositioning({
     anchor: anchor ?? domReference,

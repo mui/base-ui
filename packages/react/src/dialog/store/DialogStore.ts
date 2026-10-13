@@ -6,7 +6,7 @@ import { NullStore } from '../../utils/popups/NullStore';
 import type { PopupStoreContext, PopupTriggerDataStore, PopupStoreState } from '../../utils/popups';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
+  createPopupInteractionContext,
   createInitialPopupStoreState,
   popupStoreSelectors,
   PopupTriggerMap,
@@ -138,6 +138,6 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
     triggerElements,
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
-    ...createFloatingRootContextValues(nested),
+    ...createPopupInteractionContext(nested),
   };
 }

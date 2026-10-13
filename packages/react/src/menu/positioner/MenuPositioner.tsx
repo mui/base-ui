@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
+import { PopupTreeNode } from '../../utils/popups/tree/PopupTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -246,7 +246,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           cutout={backdropCutout}
         />
       )}
-      <FloatingNode id={floatingNodeId}>
+      <PopupTreeNode id={floatingNodeId}>
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
@@ -254,7 +254,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         >
           {element}
         </CompositeList>
-      </FloatingNode>
+      </PopupTreeNode>
     </MenuPositionerContext.Provider>
   );
 });

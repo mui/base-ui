@@ -1,7 +1,7 @@
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { isClickLikeEvent } from '../event';
-import type { FloatingRootContextValues } from './types';
+import type { PopupInteractionContext } from './types';
 
 /**
  * Tells a popup's interaction hooks about an accepted open change: records the event that opened
@@ -13,7 +13,7 @@ import type { FloatingRootContextValues } from './types';
  * @param eventDetails Details about the event that caused the change.
  */
 export function dispatchOpenChange(
-  context: Pick<FloatingRootContextValues, 'dataRef' | 'events' | 'nested'>,
+  context: Pick<PopupInteractionContext, 'dataRef' | 'events' | 'nested'>,
   open: boolean,
   newOpen: boolean,
   eventDetails: BaseUIChangeEventDetails<string>,

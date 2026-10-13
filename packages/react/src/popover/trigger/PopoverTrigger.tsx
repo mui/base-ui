@@ -14,7 +14,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -80,7 +80,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   const isTouchPressOpen = store.useState('isTouchPressOpen', openOnHover);
   const hasFocusGuards = store.useState('hasTriggerFocusGuards', thisTriggerId);
 
-  const hoverProps = useHoverReferenceInteraction(store, {
+  const hoverProps = useHoverTriggerInteraction(store, {
     enabled: !disabled && openOnHover && !isTouchPressOpen,
     mouseOnly: true,
     move: false,

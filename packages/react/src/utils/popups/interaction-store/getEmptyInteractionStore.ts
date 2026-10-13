@@ -1,8 +1,8 @@
 import { PopupTriggerMap } from '../popupTriggerMap';
-import { FloatingRootStore } from './FloatingRootStore';
+import { StandaloneInteractionStore } from './StandaloneInteractionStore';
 
-export function getEmptyRootContext(): FloatingRootStore {
-  return new FloatingRootStore({
+export function getEmptyInteractionStore(): StandaloneInteractionStore {
+  return new StandaloneInteractionStore({
     open: false,
     transitionStatus: undefined,
     outerPopupElement: null,

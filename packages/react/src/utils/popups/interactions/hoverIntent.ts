@@ -10,11 +10,11 @@ import { createChangeEventDetails } from '../../../internals/createBaseUIEventDe
 import { REASONS } from '../../../internals/reasons';
 import type {
   Delay,
-  FloatingContext,
-  FloatingRootContext,
-  FloatingRootContextValues,
-  FloatingTreeType,
-} from '../floating-root/types';
+  PopupPositioningContext,
+  PopupInteractionStore,
+  PopupInteractionContext,
+  PopupTreeType,
+} from '../interaction-store/types';
 import { isInteractiveElement } from '../element';
 import { isMouseLikePointerType } from '../event';
 import { getNodeChildren } from '../tree/nodes';
@@ -45,7 +45,7 @@ export interface HoverIntentTriggerOptions {
   isHoverCloseActive: Latest<boolean>;
   triggerElementRef: Latest<Element | null>;
   mouseOnly: boolean;
-  tree: FloatingTreeType | null;
+  tree: PopupTreeType | null;
   shouldOpen: () => boolean;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
 }
@@ -90,7 +90,7 @@ export class HoverIntent {
 
   private activeHandleCloseOptions: HandleCloseOptions | undefined = undefined;
 
-  constructor(private readonly store: FloatingRootContext) {}
+  constructor(private readonly store: PopupInteractionStore) {}
 
   /**
    * The safe polygon options of the active trigger.
@@ -445,7 +445,7 @@ export class HoverIntent {
   blockOutsidePointerEventsForPopup(
     triggerElement: HTMLElement | SVGSVGElement,
     outerPopupElement: HTMLElement,
-    tree: FloatingTreeType | null,
+    tree: PopupTreeType | null,
     parentId: string | null,
   ): boolean {
     if (!this.activeHandleCloseOptions?.blockPointerEvents || !this.isHoverOpen()) {
@@ -489,7 +489,7 @@ export class HoverIntent {
     event: MouseEvent,
     options: {
       closeDelay: number | (() => number);
-      tree: FloatingTreeType | null;
+      tree: PopupTreeType | null;
       nodeId: string | undefined;
     },
   ) {
@@ -541,7 +541,7 @@ export class HoverIntent {
   private closeWithDelay(
     event: MouseEvent,
     delay: Delay | (() => Delay) | undefined,
-    tree: FloatingTreeType | null,
+    tree: PopupTreeType | null,
   ) {
     const close = () => {
       this.store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
@@ -585,17 +585,17 @@ export class HoverIntent {
    * The safe polygon reads the popup's placement and tree node id from the positioning context.
    * `useFloating()` keeps it up to date in a layout effect.
    */
-  private getFloatingContext(): FloatingContext | undefined {
+  private getFloatingContext(): PopupPositioningContext | undefined {
     return this.store.context.dataRef.current.floatingContext;
   }
 }
 
-const hoverIntents = new WeakMap<FloatingRootContextValues, HoverIntent>();
+const hoverIntents = new WeakMap<PopupInteractionContext, HoverIntent>();
 
 /**
  * Returns the popup's `HoverIntent`, creating it on first use.
  */
-export function getHoverIntent(store: FloatingRootContext): HoverIntent {
+export function getHoverIntent(store: PopupInteractionStore): HoverIntent {
   let intent = hoverIntents.get(store.context);
   if (!intent) {
     intent = new HoverIntent(store);
@@ -607,7 +607,7 @@ export function getHoverIntent(store: FloatingRootContext): HoverIntent {
 /**
  * Returns the popup's `HoverIntent` and clears its timers when the calling component unmounts.
  */
-export function useHoverIntent(store: FloatingRootContext): HoverIntent {
+export function useHoverIntent(store: PopupInteractionStore): HoverIntent {
   const intent = getHoverIntent(store);
   useOnMount(intent.disposeEffect);
   return intent;

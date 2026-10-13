@@ -5,11 +5,11 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/popups/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
-import { dispatchOpenChange } from '../../utils/popups/floating-root/dispatchOpenChange';
+import { dispatchOpenChange } from '../../utils/popups/interaction-store/dispatchOpenChange';
 import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
+  createPopupInteractionContext,
   createInitialPopupStoreState,
   getHoverPopupInstantType,
   popupStoreSelectors,
@@ -144,6 +144,6 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
-    ...createFloatingRootContextValues(nested),
+    ...createPopupInteractionContext(nested),
   };
 }

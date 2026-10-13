@@ -2,7 +2,7 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { useFloatingRootContext } from '../utils/popups/floating-root/useFloatingRootContext';
+import { useStandaloneInteractionStore } from '../utils/popups/interaction-store/useStandaloneInteractionStore';
 import { useAnchorPositioning } from './useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
 
@@ -24,7 +24,7 @@ vi.mock('@floating-ui/react-dom', async () => {
 function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameters['shift'] }) {
   const anchorRef = React.useRef<HTMLDivElement>(null);
 
-  const rootContext = useFloatingRootContext({});
+  const rootContext = useStandaloneInteractionStore({});
   const positioning = useAnchorPositioning({
     anchor: anchorRef,
     mounted: true,
@@ -62,7 +62,7 @@ function TestLazyFlip(props: {
   const [shrunk, setShrunk] = React.useState(false);
   const height = shrunk ? 10 : 100;
 
-  const rootContext = useFloatingRootContext({});
+  const rootContext = useStandaloneInteractionStore({});
   const positioning = useAnchorPositioning({
     anchor: anchorRef,
     mounted: true,

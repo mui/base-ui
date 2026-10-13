@@ -4,7 +4,7 @@ import { platform } from '@base-ui/utils/platform';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
-import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
+import { PopupTreeStore } from '../../utils/popups/tree/PopupTreeStore';
 import type { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/popups/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
@@ -12,7 +12,7 @@ import { REASONS } from '../../internals/reasons';
 import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
+  createPopupInteractionContext,
   createInitialPopupStoreState,
   popupStoreSelectors,
   PopupTriggerMap,
@@ -46,7 +46,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
-  floatingTreeRoot: FloatingTreeStore;
+  floatingTreeRoot: PopupTreeStore;
   floatingNodeId: string | undefined;
   floatingParentNodeId: string | null;
   itemProps: HTMLProps;
@@ -152,7 +152,7 @@ const selectors = {
       ? undefined
       : state.instantType,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
-  floatingTreeRoot: (state: State<unknown>): FloatingTreeStore => {
+  floatingTreeRoot: (state: State<unknown>): PopupTreeStore => {
     if (state.parent.type === 'menu') {
       return state.parent.store.select('floatingTreeRoot');
     }
@@ -410,7 +410,7 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
-    ...createFloatingRootContextValues(nested),
+    ...createPopupInteractionContext(nested),
   };
 }
 
@@ -439,7 +439,7 @@ function createInitialState<Payload>(
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
-    floatingTreeRoot: new FloatingTreeStore(),
+    floatingTreeRoot: new PopupTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT,
