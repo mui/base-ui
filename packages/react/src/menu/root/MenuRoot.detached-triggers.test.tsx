@@ -599,7 +599,7 @@ describe('<MenuRoot />', () => {
     );
   });
 
-  describe('controlled open and triggerId fed from the change details, with the store inspected', () => {
+  describe('controlled open and triggerId fed from the change details, while StoreInspector serializes the store', () => {
     const handle = Menu.createHandle<string>();
 
     function App() {

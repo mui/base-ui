@@ -339,20 +339,15 @@ function getStringifyReplacer() {
 
     ancestors.push(value);
 
-    let serialized: unknown = value;
-    if (value instanceof Map) {
-      serialized = Array.from(value.entries());
-    } else if (value instanceof Set) {
-      serialized = Array.from(value);
+    if (value instanceof Map || value instanceof Set) {
+      // The entries are visited with the replacement array as their parent, so it has to be on the
+      // stack too for the ancestors above it to be kept.
+      const entries = Array.from(value);
+      ancestors.push(entries);
+      return entries;
     }
 
-    // The entries of a Map or Set are visited with the replacement array as their parent, so it
-    // has to be on the stack too for the ancestors above it to be kept.
-    if (serialized !== value) {
-      ancestors.push(serialized);
-    }
-
-    return serialized;
+    return value;
   };
 }
 

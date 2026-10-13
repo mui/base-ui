@@ -3800,6 +3800,39 @@ describe('<Menu.Root />', () => {
       expect(screen.queryByRole('menu')).toBe(null);
     });
 
+    it('accepts a request made after the root has mounted in the same commit', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+
+      function OpenOnMount() {
+        React.useLayoutEffect(() => {
+          handle.open('trigger');
+        }, []);
+        return null;
+      }
+
+      await render(
+        <React.Fragment>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <OpenOnMount />
+        </React.Fragment>,
+      );
+
+      expect(onOpenChange.mock.calls[0][0]).toBe(true);
+      expect(screen.queryByRole('menu')).not.toBe(null);
+    });
+
     it('ignores a request identical to the open state the root committed', async () => {
       const handle = Menu.createHandle();
       const onOpenChange = vi.fn();
@@ -4046,6 +4079,126 @@ describe('<Menu.Root />', () => {
       });
       expect(menuPresentDuringEvent).toEqual([false]);
     });
+
+    it.skipIf(isJSDOM)(
+      'reopens immediately when re-hovering the trigger during its close transition',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        // Long enough that a slow run can't finish the close before the re-enter.
+        const closeTransitionMs = 10_000;
+        const style = `
+          @keyframes menu-reopen-during-close {
+            from {
+              opacity: 1;
+            }
+            to {
+              opacity: 0.01;
+            }
+          }
+
+          [data-testid="popup"][data-ending-style] {
+            animation: menu-reopen-during-close ${closeTransitionMs}ms linear forwards;
+          }
+        `;
+
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Menu.Root>
+              <Menu.Trigger openOnHover delay={500}>
+                Trigger
+              </Menu.Trigger>
+              <Menu.Portal keepMounted>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup">
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        await user.hover(trigger);
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+        });
+
+        await user.unhover(trigger);
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+
+        await user.hover(trigger);
+
+        // Well under the open delay, so only the close-transition fast path can reopen it.
+        await waitFor(
+          () => {
+            expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+          },
+          { timeout: 200 },
+        );
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-closed');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'leaves focus outside the menu when a keepMounted submenu reopens on hover',
+      async () => {
+        await render(
+          <React.Fragment>
+            <button type="button">Outside</button>
+            <Menu.Root open modal={false} highlightItemOnHover={false}>
+              <Menu.Trigger>Trigger</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>More</Menu.SubmenuTrigger>
+                      <Menu.Portal keepMounted>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Item>Submenu item</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>,
+        );
+
+        const outside = screen.getByRole('button', { name: 'Outside' });
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'More' });
+
+        // Open and close the submenu by pressing its trigger, then move focus out of the menu.
+        fireEvent.mouseDown(submenuTrigger);
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+        });
+        fireEvent.mouseDown(submenuTrigger);
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveAttribute('aria-expanded', 'false');
+        });
+        await act(async () => {
+          outside.focus();
+        });
+
+        enterWithMouse(submenuTrigger);
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        expect(outside).toHaveFocus();
+      },
+    );
   });
 });
 

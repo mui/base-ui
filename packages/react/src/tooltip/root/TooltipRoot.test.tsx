@@ -1611,6 +1611,100 @@ describe('<Tooltip.Root />', () => {
       expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
     });
   });
+
+  describe('hover changes', () => {
+    it('commits a hover open while the hover event is dispatched', async () => {
+      const popupPresentDuringEvent: boolean[] = [];
+      await render(
+        <Tooltip.Root>
+          <Tooltip.Trigger delay={0}>Trigger</Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      function recordPopup() {
+        popupPresentDuringEvent.push(screen.queryByText('Content') !== null);
+      }
+
+      // A listener added after the trigger's own runs once the tooltip has handled the event.
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      trigger.addEventListener('mouseenter', recordPopup);
+      try {
+        fireEvent.mouseEnter(trigger);
+      } finally {
+        trigger.removeEventListener('mouseenter', recordPopup);
+      }
+
+      expect(popupPresentDuringEvent).toEqual([true]);
+    });
+
+    it.skipIf(isJSDOM)(
+      'reopens immediately when re-hovering the trigger during its close transition',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        // Long enough that a slow run can't finish the close before the re-enter.
+        const closeTransitionMs = 10_000;
+        const style = `
+          @keyframes tooltip-reopen-during-close {
+            from {
+              opacity: 1;
+            }
+            to {
+              opacity: 0.01;
+            }
+          }
+
+          [data-testid="popup"][data-ending-style] {
+            animation: tooltip-reopen-during-close ${closeTransitionMs}ms linear forwards;
+          }
+        `;
+
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Tooltip.Root>
+              <Tooltip.Trigger delay={OPEN_DELAY}>Trigger</Tooltip.Trigger>
+              <Tooltip.Portal keepMounted>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="popup">Content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </React.Fragment>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        await user.hover(trigger);
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+        });
+
+        await user.unhover(trigger);
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+
+        await user.hover(trigger);
+
+        // Well under the open delay, so only the close-transition fast path can reopen it.
+        await waitFor(
+          () => {
+            expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+          },
+          { timeout: 200 },
+        );
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-closed');
+      },
+    );
+  });
 });
 
 describe('nested tooltips', () => {

@@ -8,11 +8,10 @@ import type {
   PopupTriggerDataStore,
   PopupStoreState,
 } from '../../utils/popups/store';
-import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
   createInitialPopupStoreState,
+  createPopupStoreContext,
   popupStoreSelectors,
 } from '../../utils/popups/store';
 
@@ -68,10 +67,9 @@ export class DialogStore<Payload> extends BasePopupStore<
   DialogRoot.ChangeEventDetails
 > {
   constructor(initialState: Partial<State<Payload>> | undefined, floatingId: string | undefined) {
-    const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState, floatingId);
 
-    super(state, createInitialContext(triggerElements), selectors);
+    super(state, createInitialContext(), selectors);
   }
 
   protected getCloseTrigger() {
@@ -97,11 +95,9 @@ export class DialogStore<Payload> extends BasePopupStore<
  * detached triggers can register before migrating to the live root store.
  */
 export function createNullDialogStore<Payload>(): DialogHandleStore<Payload> {
-  const triggerElements = new PopupTriggerMap();
-
   const store = new NullStore<Readonly<State<Payload>>, Context, typeof selectors>(
     Object.freeze(createInitialState<Payload>(undefined)),
-    Object.freeze(createInitialContext(triggerElements)),
+    Object.freeze(createInitialContext()),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
@@ -129,15 +125,11 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(): Context {
   return {
-    popupRef: React.createRef<HTMLElement>(),
+    ...createPopupStoreContext(),
     backdropRef: React.createRef<HTMLDivElement>(),
     internalBackdropRef: React.createRef<HTMLDivElement>(),
     outsidePressEnabledRef: { current: true },
-    triggerElements,
-    onOpenChange: undefined,
-    onOpenChangeComplete: undefined,
-    ...createFloatingRootContextValues(),
   };
 }
