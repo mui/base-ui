@@ -423,14 +423,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     openMethod: renderedOpenMethod,
   });
 
-  const hiddenInputRef = React.useRef<HTMLInputElement>(null);
-  const ref = useMergedRefs(inputRef, validation.inputRef, hiddenInputRef);
-
-  useFormReset(hiddenInputRef, (eventDetails) => {
+  const resetRef = useFormReset((eventDetails) => {
     if (isSelectedValueDirty(value, initialValueRef.current, isItemEqualToValue)) {
       setValue(initialValueRef.current, eventDetails);
     }
   });
+  const ref = useMergedRefs(inputRef, validation.inputRef, resetRef);
 
   const hiddenInputName = multiple ? undefined : name;
 

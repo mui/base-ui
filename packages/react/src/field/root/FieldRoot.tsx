@@ -157,7 +157,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   // Parent layout effects run after the control's, so this also discards the validation the
   // control starts when its value is restored.
   useValueChanged(resetCount, () => {
-    validation.reset();
+    validation.change(undefined, true);
     if (dirtyProp === undefined) {
       markedDirtyRef.current = false;
     }

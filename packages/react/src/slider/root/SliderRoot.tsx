@@ -376,19 +376,17 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const [initialValue] = React.useState(valueUnwrapped);
 
-  useFormReset(sliderRef, (eventDetails) => {
+  const resetRef = useFormReset((eventDetails) => {
     // No thumb is active during a form reset.
-    const details = createChangeEventDetails(REASONS.formReset, eventDetails.event, undefined, {
-      activeThumbIndex: -1,
-    });
-    if (!setValue(initialValue as number | number[], details) && details.isCanceled) {
-      eventDetails.cancel();
-    }
+    setValue(
+      initialValue as number | number[],
+      Object.assign(eventDetails, { activeThumbIndex: -1 }),
+    );
   });
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, sliderRef],
+    ref: [forwardedRef, sliderRef, resetRef],
     props: [
       {
         'aria-labelledby': ariaLabelledby,

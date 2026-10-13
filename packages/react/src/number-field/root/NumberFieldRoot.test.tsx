@@ -10,6 +10,7 @@ import {
   hiddenInputSizeTests,
   isJSDOM,
   pasteText,
+  resetForm,
 } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
@@ -3076,6 +3077,146 @@ describe('<NumberField />', () => {
 
       const newExpectedValue = new Intl.NumberFormat('pl').format(12346.5);
       expect(input).toHaveValue(newExpectedValue);
+    });
+  });
+
+  describe('form reset', () => {
+    it('restores the default value, reports form-reset and clears field state', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <NumberFieldBase.Root
+              name="n"
+              defaultValue={1}
+              onValueChange={(v, d) => onValueChange(v, d.reason)}
+            >
+              <NumberFieldBase.Input data-testid="input" />
+              <NumberFieldBase.Increment data-testid="increment" />
+            </NumberFieldBase.Root>
+          </Field.Root>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('increment'));
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('2');
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith(1, 'form-reset');
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('1');
+      expect(document.querySelector<HTMLInputElement>('input[name="n"]')!.value).toBe('1');
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
+    });
+
+    it('does not commit the restored value on a later blur', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <form data-testid="form">
+          <NumberFieldBase.Root defaultValue={1} onValueCommitted={onValueCommitted}>
+            <NumberFieldBase.Input data-testid="input" />
+            <NumberFieldBase.Increment data-testid="increment" />
+          </NumberFieldBase.Root>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('increment'));
+      await resetForm();
+      onValueCommitted.mockClear();
+
+      const input = screen.getByTestId('input');
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
+
+    it('restores an out-of-range initial value when out-of-range values are allowed', async () => {
+      await render(
+        <form data-testid="form">
+          <NumberFieldBase.Root defaultValue={150} max={100} allowOutOfRange>
+            <NumberFieldBase.Input data-testid="input" />
+            <NumberFieldBase.Decrement data-testid="decrement" />
+          </NumberFieldBase.Root>
+        </form>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      fireEvent.click(screen.getByTestId('decrement'));
+      expect(input.value).not.toBe('150');
+
+      await resetForm();
+
+      expect(input.value).toBe('150');
+    });
+
+    it('restores an initial value below min without clamping it', async () => {
+      await render(
+        <form data-testid="form">
+          <NumberFieldBase.Root defaultValue={0} min={1}>
+            <NumberFieldBase.Input data-testid="input" />
+            <NumberFieldBase.Increment data-testid="increment" />
+          </NumberFieldBase.Root>
+        </form>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      fireEvent.click(screen.getByTestId('increment'));
+      expect(input.value).not.toBe('0');
+
+      await resetForm();
+
+      expect(input.value).toBe('0');
+    });
+
+    it('replaces typed text with the initial value', async () => {
+      await render(
+        <form data-testid="form">
+          <NumberFieldBase.Root defaultValue={5}>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </form>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      await act(async () => {
+        input.focus();
+      });
+      fireEvent.change(input, { target: { value: '-' } });
+      expect(input.value).toBe('-');
+
+      await resetForm();
+
+      expect(input.value).toBe('5');
+    });
+
+    it('keeps the value and field state when the reset change is canceled', async () => {
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <NumberFieldBase.Root
+              defaultValue={1}
+              onValueChange={(_, details) => {
+                if (details.reason === 'form-reset') {
+                  details.cancel();
+                }
+              }}
+            >
+              <NumberFieldBase.Input data-testid="input" />
+              <NumberFieldBase.Increment data-testid="increment" />
+            </NumberFieldBase.Root>
+          </Field.Root>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('increment'));
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('2');
+
+      await resetForm();
+
+      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('2');
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
     });
   });
 });

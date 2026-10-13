@@ -287,8 +287,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   // The hidden input carries the `form` attribute, unlike the slot inputs.
   const [initialValue] = React.useState(value);
-
-  useFormReset(hiddenInputElementRef, (eventDetails) => {
+  const resetRef = useFormReset((eventDetails) => {
     setValue(initialValue, eventDetails);
   });
 
@@ -419,7 +418,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     stateAttributesMapping: rootStateAttributesMapping,
   });
 
-  const hiddenInputRef = useMergedRefs(validation.inputRef, hiddenInputElementRef);
+  const hiddenInputRef = useMergedRefs(validation.inputRef, hiddenInputElementRef, resetRef);
 
   return (
     <CompositeList

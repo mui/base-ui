@@ -29,7 +29,6 @@ import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLab
 import { resolveRenderedAriaLabel } from '../../internals/resolveRenderedAriaLabel';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
-import type { UseCheckboxGroupParentReturnValue } from '../../checkbox-group/useCheckboxGroupParent';
 import { CheckboxRootContext } from './CheckboxRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -109,10 +108,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const rootId = nativeButton ? controlId : id;
 
-  let groupProps: Partial<
-    Omit<CheckboxRoot.Props, 'className' | 'onCheckedChange'> &
-      Pick<ReturnType<UseCheckboxGroupParentReturnValue['getChildProps']>, 'onCheckedChange'>
-  > = {};
+  let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
     if (parent) {
       groupProps = parentContext.getParentProps();
@@ -167,7 +163,43 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       registerFieldInput(element, { controlRef, value: registeredInputValue }),
     [registerFieldInput, registeredInputValue],
   );
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, parent ? undefined : registerInput);
+  function setChecked(nextChecked: boolean, details: CheckboxRoot.ChangeEventDetails) {
+    onCheckedChange?.(nextChecked, details);
+
+    if (details.isCanceled) {
+      return;
+    }
+
+    groupOnChange?.(nextChecked, details);
+
+    if (details.isCanceled) {
+      return;
+    }
+
+    setCheckedState(nextChecked);
+
+    if (value !== undefined && groupContext !== undefined && !parent && !isGroupedWithParent) {
+      const nextGroupValue = nextChecked
+        ? [...groupContext.value, value]
+        : groupContext.value.filter((item) => item !== value);
+
+      groupContext.setValue(nextGroupValue, details);
+    }
+  }
+
+  const [initialChecked] = React.useState(checked);
+  const resetRef = useFormReset((eventDetails) => {
+    if (checked !== initialChecked) {
+      setChecked(initialChecked, eventDetails);
+    }
+  });
+  const mergedInputRef = useMergedRefs(
+    inputRefProp,
+    inputRef,
+    parent ? undefined : registerInput,
+    // A group owns the value of its checkboxes that have a `value`, so it resets them.
+    parent || (groupContext && value !== undefined) ? undefined : resetRef,
+  );
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
     labelId,
@@ -190,22 +222,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       setFilled(checked);
     }
   }, [checked, computedIndeterminate, groupContext, setFilled]);
-
-  const [initialChecked] = React.useState(checked);
-
-  // A group owns the value of its checkboxes that have a `value`, so it resets them.
-  useFormReset(
-    inputRef,
-    (eventDetails) => {
-      if (checked !== initialChecked) {
-        onCheckedChange?.(initialChecked, eventDetails);
-        if (!eventDetails.isCanceled) {
-          setCheckedState(initialChecked);
-        }
-      }
-    },
-    !parent && !(groupContext && value !== undefined),
-  );
 
   useValueChanged(checked, () => {
     if (groupContext) {
@@ -246,30 +262,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           return;
         }
 
-        const nextChecked = event.currentTarget.checked;
-        const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
-
-        onCheckedChange?.(nextChecked, details);
-
-        if (details.isCanceled) {
-          return;
-        }
-
-        groupOnChange?.(nextChecked, details);
-
-        if (details.isCanceled) {
-          return;
-        }
-
-        setCheckedState(nextChecked);
-
-        if (value !== undefined && groupContext !== undefined && !parent && !isGroupedWithParent) {
-          const nextGroupValue = nextChecked
-            ? [...groupContext.value, value]
-            : groupContext.value.filter((item) => item !== value);
-
-          groupContext.setValue(nextGroupValue, details);
-        }
+        setChecked(
+          event.currentTarget.checked,
+          createChangeEventDetails(REASONS.none, event.nativeEvent),
+        );
       },
       onClick(event) {
         // The click dispatched from the root's `onClick` is an implementation detail

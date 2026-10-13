@@ -10,7 +10,7 @@ export interface CheckboxGroupContext {
   value: string[];
   setValue: (
     value: string[],
-    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none' | 'formReset']>,
   ) => void;
   allValues: string[] | undefined;
   parent: UseCheckboxGroupParentReturnValue;

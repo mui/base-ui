@@ -6,7 +6,7 @@ import type { TextDirection } from '@base-ui/react/direction-provider';
 import { Field } from '@base-ui/react/field';
 import { Slider } from '@base-ui/react/slider';
 import { Form } from '@base-ui/react/form';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, resetForm } from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -3942,6 +3942,100 @@ describe('<Slider.Root />', () => {
         'aria-describedby',
         `external-description ${screen.getByTestId('description').id}`,
       );
+    });
+  });
+
+  describe('form reset', () => {
+    it('restores the default value with no active thumb and clears field state', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <Slider.Root
+              name="sl"
+              defaultValue={10}
+              onValueChange={(v, d) => onValueChange(v, d.reason, d.activeThumbIndex)}
+            >
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>
+        </form>,
+      );
+
+      const thumbInput = screen.getByRole<HTMLInputElement>('slider');
+      await act(async () => {
+        thumbInput.focus();
+      });
+      fireEvent.keyDown(thumbInput, { key: 'ArrowRight' });
+      expect(thumbInput.value).toBe('11');
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith(10, 'form-reset', -1);
+      expect(thumbInput.value).toBe('10');
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
+    });
+
+    it('restores every thumb of a range slider', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Slider.Root defaultValue={[10, 20]} onValueChange={onValueChange}>
+            <Slider.Control>
+              <Slider.Thumb index={0} />
+              <Slider.Thumb index={1} />
+            </Slider.Control>
+          </Slider.Root>
+        </form>,
+      );
+
+      const [, endThumb] = screen.getAllByRole<HTMLInputElement>('slider');
+      await act(async () => {
+        endThumb.focus();
+      });
+      fireEvent.keyDown(endThumb, { key: 'ArrowRight' });
+      expect(endThumb.value).toBe('21');
+
+      await resetForm();
+
+      expect(onValueChange.mock.lastCall?.[0]).toEqual([10, 20]);
+      expect(endThumb.value).toBe('20');
+    });
+
+    it('keeps the value and field state when the reset change is canceled', async () => {
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <Slider.Root
+              defaultValue={10}
+              onValueChange={(_, details) => {
+                if (details.reason === 'form-reset') {
+                  details.cancel();
+                }
+              }}
+            >
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>
+        </form>,
+      );
+
+      const thumbInput = screen.getByRole<HTMLInputElement>('slider');
+      await act(async () => {
+        thumbInput.focus();
+      });
+      fireEvent.keyDown(thumbInput, { key: 'ArrowRight' });
+      expect(thumbInput.value).toBe('11');
+
+      await resetForm();
+
+      expect(thumbInput.value).toBe('11');
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
     });
   });
 });

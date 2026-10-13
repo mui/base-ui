@@ -1,9 +1,10 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { expect, vi, describe, it } from 'vitest';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, resetForm } from '#test-utils';
 
 describe('<Field.Control />', () => {
   const { render, renderToString } = createRenderer();
@@ -757,9 +758,7 @@ describe('<Field.Control />', () => {
       fireEvent.change(input, { target: { value: 'abc' } });
       expect(input).toHaveAttribute('data-filled');
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
       expect(input.value).toBe('');
       expect(input).not.toHaveAttribute('data-filled');
@@ -817,9 +816,7 @@ describe('<Field.Control />', () => {
       fireEvent.change(input, { target: { value: '' } });
       expect(input).not.toHaveAttribute('data-filled');
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
       expect(onValueChange).toHaveBeenLastCalledWith('initial', 'form-reset');
       expect(input.value).toBe('initial');
@@ -839,9 +836,7 @@ describe('<Field.Control />', () => {
       const input = screen.getByRole<HTMLInputElement>('textbox');
       fireEvent.change(input, { target: { value: 'abc' } });
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
       expect(input.value).toBe('abc');
       expect(input).toHaveAttribute('data-filled');
@@ -863,9 +858,7 @@ describe('<Field.Control />', () => {
       fireEvent.change(inputA, { target: { value: 'changed' } });
       onValueChangeA.mockClear();
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
       expect(onValueChangeA).toHaveBeenCalledTimes(1);
       expect(onValueChangeA.mock.calls[0][0]).toBe('a');
@@ -873,26 +866,89 @@ describe('<Field.Control />', () => {
       expect(onValueChangeB).not.toHaveBeenCalled();
     });
 
-    it('clears the custom validity message it installed', async () => {
+    it('ignores resets of other forms', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <div>
+          <form data-testid="form" />
+          <form>
+            <Field.Root data-testid="root">
+              <Field.Control defaultValue="a" onValueChange={onValueChange} />
+            </Field.Root>
+          </form>
+        </div>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      fireEvent.change(input, { target: { value: 'b' } });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-dirty');
+      onValueChange.mockClear();
+
+      await resetForm();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(input.value).toBe('b');
+      expect(screen.getByTestId('root')).toHaveAttribute('data-dirty');
+    });
+
+    it('returns to pristine when an uncontrolled change is canceled', async () => {
       await render(
         <form data-testid="form">
-          <Field.Root validationMode="onBlur" validate={() => 'error'}>
-            <Field.Control defaultValue="" />
+          <Field.Root data-testid="root">
+            <Field.Control
+              defaultValue="a"
+              onValueChange={(_, details) => {
+                if (details.reason === 'form-reset') {
+                  details.cancel();
+                }
+              }}
+            />
           </Field.Root>
         </form>,
       );
 
       const input = screen.getByRole<HTMLInputElement>('textbox');
-      fireEvent.change(input, { target: { value: 'bad' } });
-      fireEvent.blur(input);
-      expect(input.validationMessage).toBe('error');
+      fireEvent.change(input, { target: { value: 'b' } });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-dirty');
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
-      expect(input.validationMessage).toBe('');
-      expect(input).not.toHaveAttribute('data-invalid');
+      // The browser restores an uncontrolled input regardless of the canceled change.
+      expect(input.value).toBe('a');
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-dirty');
+    });
+
+    it('resets a control inside a shadow root', async () => {
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+
+      try {
+        await render(
+          <React.Fragment>
+            {ReactDOM.createPortal(
+              <form>
+                <Field.Root>
+                  <Field.Control defaultValue="a" />
+                </Field.Root>
+              </form>,
+              shadowRoot,
+            )}
+          </React.Fragment>,
+        );
+
+        const form = shadowRoot.querySelector('form')!;
+        const input = shadowRoot.querySelector('input')!;
+        fireEvent.change(input, { target: { value: '' } });
+        expect(input).not.toHaveAttribute('data-filled');
+
+        await resetForm(form);
+
+        expect(input.value).toBe('a');
+        expect(input).toHaveAttribute('data-filled');
+      } finally {
+        host.remove();
+      }
     });
 
     it('resets a control associated through the form attribute', async () => {
@@ -909,59 +965,9 @@ describe('<Field.Control />', () => {
       fireEvent.change(input, { target: { value: 'abc' } });
       expect(input).toHaveAttribute('data-filled');
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
       expect(input).not.toHaveAttribute('data-filled');
-    });
-
-    it('clears validation errors without revalidating the restored value', async () => {
-      await render(
-        <Form data-testid="form" validationMode="onChange">
-          <Field.Root validate={(value) => (value === 'ok' ? null : 'error')}>
-            <Field.Control defaultValue="" />
-            <Field.Error data-testid="error" />
-          </Field.Root>
-        </Form>,
-      );
-
-      const input = screen.getByRole<HTMLInputElement>('textbox');
-      fireEvent.change(input, { target: { value: 'bad' } });
-
-      expect(input).toHaveAttribute('data-invalid');
-      expect(screen.getByTestId('error')).toHaveTextContent('error');
-
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
-
-      expect(input).not.toHaveAttribute('data-invalid');
-      expect(input).not.toHaveAttribute('data-valid');
-      expect(screen.queryByTestId('error')).toBe(null);
-    });
-
-    it('stops revalidating on change after a submitted form is reset', async () => {
-      await render(
-        <Form data-testid="form">
-          <Field.Root validate={() => 'error'}>
-            <Field.Control defaultValue="a" />
-          </Field.Root>
-          <button type="submit">Submit</button>
-        </Form>,
-      );
-
-      const input = screen.getByRole<HTMLInputElement>('textbox');
-      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
-      expect(input).toHaveAttribute('data-invalid');
-
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
-      expect(input).not.toHaveAttribute('data-invalid');
-
-      fireEvent.change(input, { target: { value: 'b' } });
-      expect(input).not.toHaveAttribute('data-invalid');
     });
   });
 });

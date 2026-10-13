@@ -7,16 +7,8 @@ import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { NumberField } from '@base-ui/react/number-field';
 import { Switch } from '@base-ui/react/switch';
-import { CheckboxGroup } from '@base-ui/react/checkbox-group';
-import { RadioGroup } from '@base-ui/react/radio-group';
-import { Radio } from '@base-ui/react/radio';
-import { Select } from '@base-ui/react/select';
-import { Combobox } from '@base-ui/react/combobox';
-import { Autocomplete } from '@base-ui/react/autocomplete';
-import { Slider } from '@base-ui/react/slider';
-import { OTPField } from '@base-ui/react/otp-field';
-import { act, fireEvent, flushMicrotasks, screen, waitFor, within } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor, within } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, resetForm } from '#test-utils';
 
 describe('<Form />', () => {
   const { render } = createRenderer();
@@ -1182,446 +1174,48 @@ describe('<Form />', () => {
     });
   });
   describe('native reset', () => {
-    async function resetForm() {
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
-    }
-
-    function getHiddenInput(name: string) {
-      return document.querySelector<HTMLInputElement>(`input[name="${name}"]`)!;
-    }
-
-    // A trusted click lets React commit between the `reset` event and the browser restoring values.
-    it.skipIf(isJSDOM)('keeps hidden checked inputs in sync on a reset button click', async () => {
-      const { userEvent } = await import('vitest/browser');
-      // Canceling keeps the changed state, which the browser's restore must not overwrite.
-      const cancelReset = (_: unknown, details: { reason: string; cancel: () => void }) => {
-        if (details.reason === 'form-reset') {
-          details.cancel();
-        }
-      };
+    it('stops revalidating on change after a submitted form is reset', async () => {
       await render(
-        <form>
-          <Switch.Root name="s" defaultChecked onCheckedChange={cancelReset} />
-          <RadioGroup name="r" defaultValue="a" onValueChange={cancelReset}>
-            <Radio.Root value="a" />
-            <Radio.Root value="b" data-testid="b" />
-          </RadioGroup>
-          <CheckboxGroup defaultValue={['a']} onValueChange={cancelReset}>
-            <Checkbox.Root value="a" name="ga" />
-            <Checkbox.Root value="b" name="gb" data-testid="gb" />
-          </CheckboxGroup>
-          <button type="reset">Reset</button>
-        </form>,
-      );
-
-      fireEvent.click(screen.getByRole('switch'));
-      fireEvent.click(screen.getByTestId('b'));
-      fireEvent.click(screen.getByTestId('gb'));
-
-      // `act()` would defer React's flush past the reset, hiding the ordering under test.
-      const reactGlobals = globalThis as typeof globalThis & {
-        IS_REACT_ACT_ENVIRONMENT?: boolean;
-      };
-      const actEnvironment = reactGlobals.IS_REACT_ACT_ENVIRONMENT;
-      reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
-      try {
-        await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
-      } finally {
-        reactGlobals.IS_REACT_ACT_ENVIRONMENT = actEnvironment;
-      }
-
-      const radios = document.querySelectorAll<HTMLInputElement>('input[name="r"]');
-      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'false');
-      expect(getHiddenInput('s').checked).toBe(false);
-      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
-      expect(radios[0].checked).toBe(false);
-      expect(radios[1].checked).toBe(true);
-      expect(screen.getByTestId('gb')).toHaveAttribute('aria-checked', 'true');
-      expect(getHiddenInput('gb').checked).toBe(true);
-    });
-
-    it('Switch', async () => {
-      const onCheckedChange = vi.fn();
-      await render(
-        <form data-testid="form">
-          <Field.Root data-testid="field">
-            <Switch.Root name="s" onCheckedChange={(v, d) => onCheckedChange(v, d.reason)} />
+        <Form data-testid="form">
+          <Field.Root validate={() => 'error'}>
+            <Field.Control defaultValue="a" />
           </Field.Root>
-        </form>,
+          <button type="submit">Submit</button>
+        </Form>,
       );
 
-      fireEvent.click(screen.getByRole('switch'));
-      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+      expect(input).toHaveAttribute('data-invalid');
 
       await resetForm();
+      expect(input).not.toHaveAttribute('data-invalid');
 
-      expect(onCheckedChange).toHaveBeenLastCalledWith(false, 'form-reset');
-      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'false');
-      expect(getHiddenInput('s').checked).toBe(false);
-      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
+      fireEvent.change(input, { target: { value: 'b' } });
+      expect(input).not.toHaveAttribute('data-invalid');
     });
 
-    it('CheckboxGroup', async () => {
-      const onValueChange = vi.fn();
+    it('keeps revalidating on change after a prevented reset', async () => {
       await render(
-        <form data-testid="form">
-          <Field.Root data-testid="field">
-            <CheckboxGroup
-              defaultValue={['a']}
-              onValueChange={(v, d) => onValueChange(v, d.reason)}
-            >
-              <Checkbox.Root value="a" name="a" />
-              <Checkbox.Root value="b" name="b" data-testid="b" />
-            </CheckboxGroup>
+        <Form data-testid="form" onReset={(event) => event.preventDefault()}>
+          <Field.Root validate={(value) => (value === 'ok' ? null : 'error')}>
+            <Field.Control defaultValue="ok" />
           </Field.Root>
-        </form>,
+          <button type="submit">Submit</button>
+        </Form>,
       );
 
-      fireEvent.click(screen.getByTestId('b'));
-      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      fireEvent.change(input, { target: { value: 'bad' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+      expect(input).toHaveAttribute('data-invalid');
 
       await resetForm();
+      fireEvent.change(input, { target: { value: 'ok' } });
+      expect(input).not.toHaveAttribute('data-invalid');
 
-      expect(onValueChange).toHaveBeenLastCalledWith(['a'], 'form-reset');
-      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
-      expect(getHiddenInput('a').checked).toBe(true);
-      expect(getHiddenInput('b').checked).toBe(false);
-      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
-    });
-
-    it('RadioGroup', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <form data-testid="form">
-          <Field.Root data-testid="field">
-            <RadioGroup
-              name="r"
-              defaultValue="a"
-              onValueChange={(v, d) => onValueChange(v, d.reason)}
-            >
-              <Radio.Root value="a" data-testid="a" />
-              <Radio.Root value="b" data-testid="b" />
-            </RadioGroup>
-          </Field.Root>
-        </form>,
-      );
-
-      fireEvent.click(screen.getByTestId('b'));
-      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
-
-      await resetForm();
-
-      const [inputA, inputB] = Array.from(
-        document.querySelectorAll<HTMLInputElement>('input[name="r"]'),
-      );
-      expect(onValueChange).toHaveBeenLastCalledWith('a', 'form-reset');
-      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'true');
-      expect(inputA.checked).toBe(true);
-      expect(inputB.checked).toBe(false);
-      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
-    });
-
-    it('Select', async () => {
-      const onValueChange = vi.fn();
-      function App() {
-        const [value, setValue] = React.useState('a');
-        return (
-          <form data-testid="form">
-            <Field.Root data-testid="field">
-              <Select.Root
-                name="s"
-                value={value}
-                onValueChange={(v, d) => {
-                  onValueChange(v, d.reason);
-                  setValue(v as string);
-                }}
-              >
-                <Select.Trigger />
-              </Select.Root>
-            </Field.Root>
-            <button type="button" onClick={() => setValue('b')}>
-              Change
-            </button>
-          </form>
-        );
-      }
-      await render(<App />);
-
-      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
-      expect(getHiddenInput('s').value).toBe('b');
-
-      await resetForm();
-
-      expect(onValueChange).toHaveBeenLastCalledWith('a', 'form-reset');
-      expect(getHiddenInput('s').value).toBe('a');
-    });
-
-    it('Combobox', async () => {
-      const onValueChange = vi.fn();
-      function App() {
-        const [value, setValue] = React.useState<string | null>('a');
-        return (
-          <form data-testid="form">
-            <Combobox.Root
-              name="c"
-              items={['a', 'b']}
-              value={value}
-              onValueChange={(v, d) => {
-                onValueChange(v, d.reason);
-                setValue(v);
-              }}
-            >
-              <Combobox.Input data-testid="input" />
-            </Combobox.Root>
-            <button type="button" onClick={() => setValue('b')}>
-              Change
-            </button>
-          </form>
-        );
-      }
-      await render(<App />);
-
-      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
-      expect(getHiddenInput('c').value).toBe('b');
-
-      await resetForm();
-
-      expect(onValueChange).toHaveBeenLastCalledWith('a', 'form-reset');
-      expect(getHiddenInput('c').value).toBe('a');
-    });
-
-    it('Autocomplete', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <form data-testid="form">
-          <Autocomplete.Root
-            items={['apple']}
-            defaultValue="ap"
-            onValueChange={(v, d) => onValueChange(v, d.reason)}
-          >
-            <Autocomplete.Input data-testid="input" />
-          </Autocomplete.Root>
-        </form>,
-      );
-
-      const input = screen.getByTestId<HTMLInputElement>('input');
-      fireEvent.change(input, { target: { value: 'apple' } });
-      expect(input.value).toBe('apple');
-
-      await resetForm();
-
-      expect(onValueChange).toHaveBeenLastCalledWith('ap', 'form-reset');
-      expect(input.value).toBe('ap');
-    });
-
-    it('Autocomplete restores a controlled value to its mount value', async () => {
-      const onValueChange = vi.fn();
-      function App() {
-        const [value, setValue] = React.useState('ap');
-        return (
-          <form data-testid="form">
-            <Autocomplete.Root
-              items={['apple']}
-              value={value}
-              onValueChange={(v, d) => {
-                onValueChange(v, d.reason);
-                setValue(v);
-              }}
-            >
-              <Autocomplete.Input data-testid="input" />
-            </Autocomplete.Root>
-          </form>
-        );
-      }
-      await render(<App />);
-
-      const input = screen.getByTestId<HTMLInputElement>('input');
-      fireEvent.change(input, { target: { value: 'apple' } });
-
-      await resetForm();
-
-      expect(onValueChange).toHaveBeenLastCalledWith('ap', 'form-reset');
-      expect(input.value).toBe('ap');
-    });
-
-    it('Select does not report a reset when the value is unchanged', async () => {
-      const onValueChange = vi.fn();
-      function App() {
-        const [value, setValue] = React.useState(['a']);
-        return (
-          <form data-testid="form">
-            <Select.Root multiple value={value} onValueChange={onValueChange}>
-              <Select.Trigger />
-            </Select.Root>
-            <button type="button" onClick={() => setValue(['a'])}>
-              Change
-            </button>
-          </form>
-        );
-      }
-      await render(<App />);
-
-      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
-      await resetForm();
-
-      expect(onValueChange).not.toHaveBeenCalled();
-    });
-
-    it('resets a checkbox without a value inside a CheckboxGroup', async () => {
-      await render(
-        <form data-testid="form">
-          <CheckboxGroup defaultValue={[]}>
-            <Checkbox.Root data-testid="agree" />
-          </CheckboxGroup>
-        </form>,
-      );
-
-      fireEvent.click(screen.getByTestId('agree'));
-      expect(screen.getByTestId('agree')).toHaveAttribute('aria-checked', 'true');
-
-      await resetForm();
-
-      expect(screen.getByTestId('agree')).toHaveAttribute('aria-checked', 'false');
-    });
-
-    it('NumberField does not commit the restored value on a later blur', async () => {
-      const onValueCommitted = vi.fn();
-      await render(
-        <form data-testid="form">
-          <NumberField.Root defaultValue={1} onValueCommitted={onValueCommitted}>
-            <NumberField.Input data-testid="input" />
-            <NumberField.Increment data-testid="increment" />
-          </NumberField.Root>
-        </form>,
-      );
-
-      fireEvent.click(screen.getByTestId('increment'));
-      await resetForm();
-      onValueCommitted.mockClear();
-
-      const input = screen.getByTestId('input');
-      fireEvent.focus(input);
-      fireEvent.blur(input);
-
-      expect(onValueCommitted).not.toHaveBeenCalled();
-    });
-
-    it('NumberField restores an out-of-range initial value', async () => {
-      await render(
-        <form data-testid="form">
-          <NumberField.Root defaultValue={150} max={100} allowOutOfRange>
-            <NumberField.Input data-testid="input" />
-            <NumberField.Decrement data-testid="decrement" />
-          </NumberField.Root>
-        </form>,
-      );
-
-      const input = screen.getByTestId<HTMLInputElement>('input');
-      fireEvent.click(screen.getByTestId('decrement'));
-      expect(input.value).not.toBe('150');
-
-      await resetForm();
-
-      expect(input.value).toBe('150');
-    });
-
-    it('NumberField', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <form data-testid="form">
-          <Field.Root data-testid="field">
-            <NumberField.Root
-              name="n"
-              defaultValue={1}
-              onValueChange={(v, d) => onValueChange(v, d.reason)}
-            >
-              <NumberField.Input data-testid="input" />
-              <NumberField.Increment data-testid="increment" />
-            </NumberField.Root>
-          </Field.Root>
-        </form>,
-      );
-
-      fireEvent.click(screen.getByTestId('increment'));
-      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('2');
-
-      await resetForm();
-
-      expect(onValueChange).toHaveBeenLastCalledWith(1, 'form-reset');
-      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('1');
-      expect(getHiddenInput('n').value).toBe('1');
-      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
-    });
-
-    it('Slider', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <form data-testid="form">
-          <Field.Root data-testid="field">
-            <Slider.Root
-              name="sl"
-              defaultValue={10}
-              onValueChange={(v, d) => onValueChange(v, d.reason, d.activeThumbIndex)}
-            >
-              <Slider.Control>
-                <Slider.Thumb />
-              </Slider.Control>
-            </Slider.Root>
-          </Field.Root>
-        </form>,
-      );
-
-      const thumbInput = screen.getByRole<HTMLInputElement>('slider');
-      await act(async () => {
-        thumbInput.focus();
-      });
-      fireEvent.keyDown(thumbInput, { key: 'ArrowRight' });
-      expect(thumbInput.value).toBe('11');
-
-      await resetForm();
-
-      expect(onValueChange).toHaveBeenLastCalledWith(10, 'form-reset', -1);
-      expect(thumbInput.value).toBe('10');
-      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
-    });
-
-    it('OTPField', async () => {
-      const onValueChange = vi.fn();
-      function App() {
-        const [value, setValue] = React.useState('12');
-        return (
-          <form data-testid="form">
-            <OTPField.Root
-              name="otp"
-              length={4}
-              value={value}
-              onValueChange={(v, d) => {
-                onValueChange(v, d.reason);
-                setValue(v);
-              }}
-            >
-              <OTPField.Input />
-              <OTPField.Input />
-              <OTPField.Input />
-              <OTPField.Input />
-            </OTPField.Root>
-            <button type="button" onClick={() => setValue('1234')}>
-              Change
-            </button>
-          </form>
-        );
-      }
-      await render(<App />);
-
-      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
-      expect(getHiddenInput('otp').value).toBe('1234');
-
-      await resetForm();
-
-      expect(onValueChange).toHaveBeenLastCalledWith('12', 'form-reset');
-      expect(getHiddenInput('otp').value).toBe('12');
+      fireEvent.change(input, { target: { value: 'still bad' } });
+      expect(input).toHaveAttribute('data-invalid');
     });
   });
 });

@@ -183,10 +183,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
   });
 
-  const groupRef = React.useRef<HTMLDivElement>(null);
   const [initialValue] = React.useState(checkedValue);
 
-  useFormReset(groupRef, (eventDetails) => {
+  const resetRef = useFormReset<HTMLElement>((eventDetails) => {
     if (checkedValue !== initialValue) {
       setCheckedValue(initialValue as Value, eventDetails);
     }
@@ -267,7 +266,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
           elementProps,
           (props: HTMLProps) => validation.getValidationProps(disabled ?? false, props),
         ]}
-        refs={[forwardedRef, groupRef]}
+        refs={[forwardedRef, resetRef]}
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}

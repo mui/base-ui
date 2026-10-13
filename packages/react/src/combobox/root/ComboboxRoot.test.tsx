@@ -19,6 +19,7 @@ import {
   isScrollLocked,
   popupConformanceTests,
   popupListConformanceTests,
+  resetForm,
 } from '#test-utils';
 import { Combobox, ComboboxSeparatorDataAttributes } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
@@ -14505,6 +14506,148 @@ describe('<Combobox.Root />', () => {
 
       await user.keyboard('{ArrowRight}');
       expect(input).toHaveFocus();
+    });
+  });
+
+  describe('form reset', () => {
+    it('restores a controlled selection and its label', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState<string | null>('a');
+        return (
+          <form data-testid="form">
+            <Combobox.Root
+              name="c"
+              items={['a', 'b']}
+              value={value}
+              onValueChange={(v, d) => {
+                onValueChange(v, d.reason);
+                setValue(v);
+              }}
+            >
+              <Combobox.Input data-testid="input" />
+            </Combobox.Root>
+            <button type="button" onClick={() => setValue('b')}>
+              Change
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="c"]')!;
+      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+      expect(hiddenInput.value).toBe('b');
+      expect(screen.getByTestId('input')).toHaveValue('b');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith('a', 'form-reset');
+      expect(hiddenInput.value).toBe('a');
+      expect(screen.getByTestId('input')).toHaveValue('a');
+    });
+
+    it('restores the initial selection and clears the query when multiple', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState(['a']);
+        return (
+          <form data-testid="form">
+            <Combobox.Root
+              multiple
+              items={['a', 'b']}
+              value={value}
+              onValueChange={(v, d) => {
+                onValueChange(v, d.reason);
+                setValue(v);
+              }}
+            >
+              <Combobox.Input data-testid="input" />
+            </Combobox.Root>
+            <button type="button" onClick={() => setValue(['a', 'b'])}>
+              Change
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+      fireEvent.change(screen.getByTestId('input'), { target: { value: 'x' } });
+      expect(screen.getByTestId('input')).toHaveValue('x');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith(['a'], 'form-reset');
+      expect(screen.getByTestId('input')).toHaveValue('');
+    });
+
+    it('clears the query of an input inside the popup when restoring a selection', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <form data-testid="form">
+            <Combobox.Root
+              items={['apple', 'banana']}
+              value={value}
+              onValueChange={setValue}
+              defaultOpen
+            >
+              <Combobox.Trigger>Open</Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.Input data-testid="input" />
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+            <button type="button" onClick={() => setValue('apple')}>
+              Change
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+      fireEvent.change(screen.getByTestId('input'), { target: { value: 'ban' } });
+      expect(screen.getByTestId('input')).toHaveValue('ban');
+
+      await resetForm();
+
+      expect(screen.getByTestId('input')).toHaveValue('');
+    });
+
+    it('restores the current label of an unchanged selection', async () => {
+      function App() {
+        const [labelled, setLabelled] = React.useState(false);
+        return (
+          <form data-testid="form">
+            <Combobox.Root
+              defaultValue="us"
+              items={['us']}
+              itemToStringLabel={labelled ? () => 'United States' : undefined}
+            >
+              <Combobox.Input data-testid="input" />
+            </Combobox.Root>
+            <button type="button" onClick={() => setLabelled(true)}>
+              Label
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Label' }));
+      expect(screen.getByTestId('input')).toHaveValue('United States');
+      fireEvent.change(screen.getByTestId('input'), { target: { value: 'Uni' } });
+
+      await resetForm();
+
+      expect(screen.getByTestId('input')).toHaveValue('United States');
     });
   });
 });

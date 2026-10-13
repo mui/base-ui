@@ -127,12 +127,14 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     setFilled(value.length > 0);
   }, [value, setFilled]);
 
-  const groupRef = React.useRef<HTMLDivElement>(null);
   const [initialValue] = React.useState(value);
 
-  useFormReset(groupRef, (eventDetails) => {
+  const resetRef = useFormReset((eventDetails) => {
     if (!areArraysEqual(value, initialValue)) {
       setValue(initialValue, eventDetails);
+      if (!eventDetails.isCanceled) {
+        parent.setCycleValue(initialValue);
+      }
     }
   });
 
@@ -170,7 +172,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, groupRef],
+    ref: [forwardedRef, resetRef],
     props: [
       {
         id: idProp,

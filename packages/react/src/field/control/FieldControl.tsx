@@ -79,11 +79,17 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [initialValue] = React.useState(serializedValue);
 
-  useFormReset(inputRef, (eventDetails, input) => {
+  const resetRef = useFormReset<HTMLInputElement>((eventDetails, input) => {
     // React keeps a controlled input's `value` attribute in sync, so the browser won't restore it.
     const nextValue = isControlled ? (initialValue ?? '') : input.defaultValue;
     if (nextValue !== input.value) {
-      onValueChange?.(nextValue, eventDetails);
+      onValueChange?.(
+        nextValue,
+        // The browser restores an uncontrolled input anyway, so canceling can't keep its value.
+        isControlled
+          ? eventDetails
+          : createChangeEventDetails(REASONS.formReset, eventDetails.event),
+      );
     }
     if (!isControlled) {
       setFilled(nextValue !== '');
@@ -123,7 +129,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const enterValidationTimeout = useTimeout();
 
   const element = useRenderElement('input', componentProps, {
-    ref: [forwardedRef, inputRef],
+    ref: [forwardedRef, inputRef, resetRef],
     state,
     props: [
       {

@@ -6,11 +6,13 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import {
+  clickResetButton,
   createFormDataSpy,
   createRenderer,
   describeConformance,
   hiddenInputSizeTests,
   isJSDOM,
+  resetForm,
 } from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
@@ -1998,9 +2000,7 @@ describe('<Checkbox.Root />', () => {
       fireEvent.click(checkbox);
       expect(input.checked).toBe(false);
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
       expect(input.checked).toBe(true);
@@ -2024,9 +2024,7 @@ describe('<Checkbox.Root />', () => {
       const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
       fireEvent.click(screen.getByRole('button', { name: 'Check' }));
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
       expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'true');
       expect(input.checked).toBe(true);
@@ -2062,9 +2060,7 @@ describe('<Checkbox.Root />', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Check' }));
       expect(input.checked).toBe(true);
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
       expect(onCheckedChange).toHaveBeenLastCalledWith(false, 'form-reset');
       expect(checkbox).toHaveAttribute('aria-checked', 'false');
@@ -2073,11 +2069,6 @@ describe('<Checkbox.Root />', () => {
 
     // A trusted click flushes React between the `reset` event and the browser restoring values.
     it.skipIf(isJSDOM)('stays in sync when the reset button is clicked', async () => {
-      const { userEvent } = await import('vitest/browser');
-      const reactGlobals = globalThis as typeof globalThis & {
-        IS_REACT_ACT_ENVIRONMENT?: boolean;
-      };
-
       function App() {
         const [checked, setChecked] = React.useState(false);
         return (
@@ -2103,14 +2094,7 @@ describe('<Checkbox.Root />', () => {
       expect(uncontrolledInput.checked).toBe(false);
       expect(controlledInput.checked).toBe(true);
 
-      // `act()` would defer React's flush past the reset, hiding the ordering under test.
-      const actEnvironment = reactGlobals.IS_REACT_ACT_ENVIRONMENT;
-      reactGlobals.IS_REACT_ACT_ENVIRONMENT = false;
-      try {
-        await userEvent.click(screen.getByRole('button', { name: 'Reset' }));
-      } finally {
-        reactGlobals.IS_REACT_ACT_ENVIRONMENT = actEnvironment;
-      }
+      await clickResetButton();
 
       expect(screen.getByTestId('uncontrolled')).toHaveAttribute('aria-checked', 'true');
       expect(uncontrolledInput.checked).toBe(true);
@@ -2139,13 +2123,50 @@ describe('<Checkbox.Root />', () => {
 
       fireEvent.click(checkbox);
 
-      await act(async () => {
-        screen.getByTestId<HTMLFormElement>('form').reset();
-      });
+      await resetForm();
 
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
       expect(input.checked).toBe(true);
       expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+    });
+
+    it('resets itself inside a CheckboxGroup when it has no value', async () => {
+      await render(
+        <form data-testid="form">
+          <CheckboxGroup defaultValue={[]}>
+            <Checkbox.Root data-testid="agree" />
+          </CheckboxGroup>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('agree'));
+      expect(screen.getByTestId('agree')).toHaveAttribute('aria-checked', 'true');
+
+      await resetForm();
+
+      expect(screen.getByTestId('agree')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('leaves the reset to its CheckboxGroup when it has a value', async () => {
+      const onCheckedChange = vi.fn();
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <CheckboxGroup defaultValue={[]} onValueChange={onValueChange}>
+            <Checkbox.Root value="a" data-testid="a" onCheckedChange={onCheckedChange} />
+          </CheckboxGroup>
+        </form>,
+      );
+
+      fireEvent.click(screen.getByTestId('a'));
+      onCheckedChange.mockClear();
+      onValueChange.mockClear();
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onCheckedChange).not.toHaveBeenCalled();
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'false');
     });
   });
 });

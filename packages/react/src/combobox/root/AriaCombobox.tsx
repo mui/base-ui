@@ -1535,25 +1535,41 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, ...Object.values(syncedValues)]);
 
-  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef, hiddenInputElementRef);
   const [initialSelectedValue] = React.useState(selectedValue);
   const [initialInputValue] = React.useState(inputValue);
 
-  useFormReset(hiddenInputElementRef, (eventDetails) => {
+  const resetRef = useFormReset((eventDetails) => {
+    // An input outside the popup shows the label of a single selection.
+    const showsLabel = single && !inputInsidePopup;
     if (
       selectionMode !== 'none' &&
       isSelectedValueDirty(selectedValue, initialSelectedValue, isItemEqualToValue)
     ) {
       setSelectedValue(initialSelectedValue, eventDetails);
-      // Restoring a single selection also restores the input's label.
-      if (single || eventDetails.isCanceled) {
+      // Restoring the selection already restores its label.
+      if (showsLabel || eventDetails.isCanceled) {
         return;
       }
     }
-    if (inputValue !== initialInputValue) {
-      setInputValue(String(initialInputValue), eventDetails);
+    // Labels can resolve after mount, so read the current one instead of the initial input value.
+    const nextInputValue =
+      showsLabel && !hasInputValue ? selectedLabelString : String(initialInputValue);
+    if (inputValue !== nextInputValue) {
+      setInputValue(
+        nextInputValue,
+        // Unless the input holds the value, canceling the query reset keeps the field resetting.
+        selectionMode === 'none'
+          ? eventDetails
+          : createChangeEventDetails(REASONS.formReset, eventDetails.event),
+      );
     }
   });
+  const hiddenInputRef = useMergedRefs(
+    inputRefProp,
+    validation.inputRef,
+    hiddenInputElementRef,
+    resetRef,
+  );
 
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({

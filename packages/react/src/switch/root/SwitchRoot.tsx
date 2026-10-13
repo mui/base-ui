@@ -77,7 +77,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const name = fieldName ?? nameProp;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
   const setFocused = useSetFieldFocused(disabled, switchRef);
@@ -98,22 +97,26 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   useIsoLayoutEffect(() => {
     setFilled(checked);
-    if (inputRef.current) {
-      // See `useFormReset`.
-      inputRef.current.defaultChecked = checked;
-    }
+    // See `useFormReset`.
+    inputRef.current!.defaultChecked = checked;
   }, [checked, setFilled]);
+
+  function setChecked(nextChecked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) {
+    onCheckedChange?.(nextChecked, eventDetails);
+    if (!eventDetails.isCanceled) {
+      setCheckedState(nextChecked);
+    }
+  }
 
   const [initialChecked] = React.useState(checked);
 
-  useFormReset(inputRef, (eventDetails) => {
+  const resetRef = useFormReset((eventDetails) => {
     if (checked !== initialChecked) {
-      onCheckedChange?.(initialChecked, eventDetails);
-      if (!eventDetails.isCanceled) {
-        setCheckedState(initialChecked);
-      }
+      setChecked(initialChecked, eventDetails);
     }
   });
+
+  const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef, resetRef);
 
   useValueChanged(checked, () => {
     clearErrors(name);
@@ -199,16 +202,10 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         return;
       }
 
-      const nextChecked = event.currentTarget.checked;
-      const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
-
-      onCheckedChange?.(nextChecked, eventDetails);
-
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      setCheckedState(nextChecked);
+      setChecked(
+        event.currentTarget.checked,
+        createChangeEventDetails(REASONS.none, event.nativeEvent),
+      );
     },
     onClick(event) {
       // The click dispatched from the root's `onClick` is an implementation detail

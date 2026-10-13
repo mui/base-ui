@@ -18,7 +18,7 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, resetForm } from '#test-utils';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 
 type ActivityProps = {
@@ -3090,6 +3090,68 @@ describe('<Field.Root />', () => {
       await user.click(screen.getByText('validate'));
 
       expect(validate.mock.lastCall?.[0]).toBe('valid');
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+  });
+
+  describe('form reset', () => {
+    it('clears the custom validity message it installed', async () => {
+      await render(
+        <form data-testid="form">
+          <Field.Root validationMode="onBlur" validate={() => 'error'}>
+            <Field.Control defaultValue="" />
+          </Field.Root>
+        </form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      fireEvent.change(input, { target: { value: 'bad' } });
+      fireEvent.blur(input);
+      expect(input.validationMessage).toBe('error');
+
+      await resetForm();
+
+      expect(input.validationMessage).toBe('');
+      expect(input).not.toHaveAttribute('data-invalid');
+    });
+
+    it('clears validation errors without revalidating the restored value', async () => {
+      await render(
+        <Form data-testid="form" validationMode="onChange">
+          <Field.Root validate={(value) => (value === 'ok' ? null : 'error')}>
+            <Field.Control defaultValue="" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      fireEvent.change(input, { target: { value: 'bad' } });
+
+      expect(input).toHaveAttribute('data-invalid');
+      expect(screen.getByTestId('error')).toHaveTextContent('error');
+
+      await resetForm();
+
+      expect(input).not.toHaveAttribute('data-invalid');
+      expect(input).not.toHaveAttribute('data-valid');
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
+    it('clears errors from the Form errors prop', async () => {
+      await render(
+        <Form data-testid="form" errors={{ email: 'Server error' }}>
+          <Field.Root name="email">
+            <Field.Control defaultValue="" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
+
+      expect(screen.getByTestId('error')).toHaveTextContent('Server error');
+
+      await resetForm();
+
       expect(screen.queryByTestId('error')).toBe(null);
     });
   });

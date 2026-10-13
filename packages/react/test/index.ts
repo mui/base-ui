@@ -2,6 +2,7 @@ export * from '@base-ui/utils/testUtils';
 export { advanceReactClock } from './advanceReactClock';
 export { pasteText } from './clipboard';
 export { createFormDataSpy } from './formData';
+export { clickResetButton, resetForm } from './formReset';
 export { createRenderer } from './createRenderer';
 export { mergeRefs } from './mergeRefs';
 export { mockRuntimeLocale } from './mockRuntimeLocale';

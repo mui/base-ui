@@ -350,6 +350,7 @@ export function useFieldValidation(
     timeout.clear();
     validationCommitIdRef.current += 1;
     if (cancelPending) {
+      clearCustomValidity();
       return;
     }
 
@@ -362,13 +363,6 @@ export function useFieldValidation(
     } else {
       commit(value, !validateOnChange);
     }
-  });
-
-  // Drops pending validation and the custom error Base UI installed, so a reset form's native
-  // constraints match its pristine field state.
-  const reset = useStableCallback(() => {
-    change(undefined, true);
-    clearCustomValidity();
   });
 
   const getValidationProps = React.useCallback(
@@ -391,9 +385,8 @@ export function useFieldValidation(
       getInputControl,
       commit,
       change,
-      reset,
     }),
-    [getValidationProps, registeredInputs, registerInput, getInputControl, commit, change, reset],
+    [getValidationProps, registeredInputs, registerInput, getInputControl, commit, change],
   );
 }
 
@@ -421,5 +414,4 @@ export interface UseFieldValidationReturnValue {
   getInputControl: () => HTMLElement | null;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown, cancelPending?: boolean) => void;
-  reset: () => void;
 }

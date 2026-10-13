@@ -1,7 +1,7 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createFormDataSpy, createRenderer, isJSDOM } from '#test-utils';
+import { createFormDataSpy, createRenderer, isJSDOM, resetForm } from '#test-utils';
 import { Autocomplete, AutocompleteSeparatorDataAttributes } from '@base-ui/react/autocomplete';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -3330,6 +3330,62 @@ describe('<Autocomplete.Root />', () => {
         'aria-describedby',
         screen.getByTestId('description').id,
       );
+    });
+  });
+
+  describe('form reset', () => {
+    it('restores the default value and reports form-reset', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Autocomplete.Root
+            items={['apple']}
+            defaultValue="ap"
+            onValueChange={(v, d) => onValueChange(v, d.reason)}
+          >
+            <Autocomplete.Input data-testid="input" />
+          </Autocomplete.Root>
+        </form>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      fireEvent.change(input, { target: { value: 'apple' } });
+      expect(input.value).toBe('apple');
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith('ap', 'form-reset');
+      expect(input.value).toBe('ap');
+    });
+
+    it('restores a controlled value to its value on mount', async () => {
+      const onValueChange = vi.fn();
+      function App() {
+        const [value, setValue] = React.useState('ap');
+        return (
+          <form data-testid="form">
+            <Autocomplete.Root
+              items={['apple']}
+              value={value}
+              onValueChange={(v, d) => {
+                onValueChange(v, d.reason);
+                setValue(v);
+              }}
+            >
+              <Autocomplete.Input data-testid="input" />
+            </Autocomplete.Root>
+          </form>
+        );
+      }
+      await render(<App />);
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      fireEvent.change(input, { target: { value: 'apple' } });
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenLastCalledWith('ap', 'form-reset');
+      expect(input.value).toBe('ap');
     });
   });
 });

@@ -3,11 +3,13 @@ import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
 import {
+  clickResetButton,
   createFormDataSpy,
   createRenderer,
   describeConformance,
   hiddenInputSizeTests,
   isJSDOM,
+  resetForm,
 } from '#test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -1359,5 +1361,92 @@ describe('<Switch.Root />', () => {
 
     await user.click(switchEl);
     expect(switchEl).toHaveAttribute('aria-checked', 'true');
+  });
+
+  describe('form reset', () => {
+    it('restores the initial state, reports form-reset and clears field state', async () => {
+      const onCheckedChange = vi.fn();
+      await render(
+        <form data-testid="form">
+          <Field.Root data-testid="field">
+            <Switch.Root name="s" onCheckedChange={(v, d) => onCheckedChange(v, d.reason)} />
+          </Field.Root>
+        </form>,
+      );
+
+      const input = document.querySelector<HTMLInputElement>('input[name="s"]')!;
+      fireEvent.click(screen.getByRole('switch'));
+      expect(input.checked).toBe(true);
+      expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+
+      await resetForm();
+
+      expect(onCheckedChange).toHaveBeenLastCalledWith(false, 'form-reset');
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty');
+    });
+
+    it('calls onCheckedChange with the initial state when controlled', async () => {
+      const onCheckedChange = vi.fn();
+
+      function App() {
+        const [checked, setChecked] = React.useState(true);
+        return (
+          <form data-testid="form">
+            <Switch.Root
+              checked={checked}
+              onCheckedChange={(nextChecked, details) => {
+                onCheckedChange(nextChecked, details.reason);
+                setChecked(nextChecked);
+              }}
+            />
+            <button type="button" onClick={() => setChecked(false)}>
+              Uncheck
+            </button>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'Uncheck' }));
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+
+      await resetForm();
+
+      expect(onCheckedChange).toHaveBeenLastCalledWith(true, 'form-reset');
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it.skipIf(isJSDOM)(
+      'keeps the hidden input in sync when a reset button click is canceled',
+      async () => {
+        await render(
+          <form>
+            <Field.Root data-testid="field">
+              <Switch.Root
+                name="s"
+                defaultChecked
+                onCheckedChange={(_, details) => {
+                  if (details.reason === 'form-reset') {
+                    details.cancel();
+                  }
+                }}
+              />
+            </Field.Root>
+            <button type="reset">Reset</button>
+          </form>,
+        );
+
+        fireEvent.click(screen.getByRole('switch'));
+        expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+
+        await clickResetButton();
+
+        expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+        expect(document.querySelector<HTMLInputElement>('input[name="s"]')!.checked).toBe(false);
+        expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
+      },
+    );
   });
 });

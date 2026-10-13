@@ -112,8 +112,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const formatStyle = format?.style;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const formInputRef = React.useRef<HTMLInputElement>(null);
-  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef, formInputRef);
 
   const id = useLabelableId({ id: idProp });
 
@@ -238,8 +236,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       const isInputReason = details.reason.startsWith('input-') || details.reason === REASONS.none;
 
       // Only allow out-of-range values for direct text entry. Step-based interactions still clamp.
-      const shouldClampValue =
-        !allowOutOfRange || (!isInputReason && details.reason !== REASONS.formReset);
+      const shouldClampValue = !allowOutOfRange || !isInputReason;
 
       const validatedValue = toValidatedNumber(
         unvalidatedValue,
@@ -292,15 +289,22 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const [initialValue] = React.useState(value);
 
-  useFormReset(formInputRef, (eventDetails) => {
+  const resetRef = useFormReset((eventDetails) => {
+    // The initial value is restored as is, without clamping or rounding it again. A native reset
+    // fires no `change` event, so it isn't a commit.
     if (value !== initialValue) {
-      // Show the restored value even if the user was typing, and don't report it as a commit:
-      // a native reset fires no `change` event.
-      allowInputSyncRef.current = true;
-      setValue(initialValue, eventDetails);
+      onValueChangeProp?.(initialValue, eventDetails);
+      if (eventDetails.isCanceled) {
+        return;
+      }
+      setValueUnwrapped(initialValue);
       hasPendingCommitRef.current = false;
     }
+    // Replace any text the user was typing.
+    allowInputSyncRef.current = true;
+    setInputValue(formatNumber(initialValue, locale, format));
   });
+  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef, resetRef);
 
   const incrementValue = useStableCallback(
     (amount: number, { direction, currentValue, event, reason }: IncrementValueParameters) => {
