@@ -49,7 +49,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
-  const domReference = store.useState('domReferenceElement');
+  const domReference = store.useState('anchorElement');
 
   const { side } = componentProps;
   let anchor = componentProps.anchor;

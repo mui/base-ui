@@ -145,9 +145,9 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
-  const floatingId = store.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
-  const popupId = elementProps.id ?? floatingId;
+  const popupId = elementProps.id ?? defaultPopupId;
 
   const swipe = useDrawerViewportContext();
   useDialogPortalContext();

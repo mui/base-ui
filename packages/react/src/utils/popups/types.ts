@@ -51,10 +51,22 @@ export interface ContextData {
 export interface FloatingRootContextReader {
   (key: 'open'): boolean;
   (key: 'transitionStatus'): TransitionStatus | undefined;
-  (key: 'domReferenceElement'): Element | null;
-  (key: 'referenceElement'): ReferenceType | null;
-  (key: 'floatingElement'): HTMLElement | null;
-  (key: 'floatingId'): string | undefined;
+  /**
+   * The DOM element the popup is anchored to.
+   */
+  (key: 'anchorElement'): Element | null;
+  /**
+   * What the popup is positioned against: an anchor set explicitly, or else the active trigger.
+   */
+  (key: 'anchor'): ReferenceType | null;
+  /**
+   * The popup's outermost element: its positioner, or the popup itself when it has none.
+   */
+  (key: 'outerPopupElement'): HTMLElement | null;
+  /**
+   * The popup's id unless its element sets one.
+   */
+  (key: 'defaultPopupId'): string | undefined;
 }
 
 /**
@@ -74,8 +86,8 @@ export interface FloatingRootContextValues {
 export interface FloatingRootContext {
   select: FloatingRootContextReader;
   useState: FloatingRootContextReader;
-  set(key: 'positionReference', value: ReferenceType | null): void;
-  set(key: 'domReferenceElement', value: Element | null): void;
+  set(key: 'anchorOverride', value: ReferenceType | null): void;
+  set(key: 'anchorElement', value: Element | null): void;
   setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   readonly context: FloatingRootContextValues;
 }
@@ -101,7 +113,7 @@ export type FloatingContext = Omit<
   events: FloatingEvents;
   dataRef: React.RefObject<ContextData>;
   nodeId: string | undefined;
-  floatingId: string | undefined;
+  defaultPopupId: string | undefined;
   refs: ExtendedRefs;
   elements: ExtendedElements;
   rootStore: FloatingRootContext;

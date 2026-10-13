@@ -66,8 +66,8 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     open: true,
     onOpenChange: NOOP,
     elements: {
-      floating: positionerElement,
-      reference: anchor,
+      outerPopupElement: positionerElement,
+      anchor,
     },
   });
 

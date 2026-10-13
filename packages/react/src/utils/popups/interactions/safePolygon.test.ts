@@ -102,7 +102,7 @@ function createFloatingContext({
     events,
     dataRef: { current: {} },
     nodeId: 'root',
-    floatingId: 'floating-id',
+    defaultPopupId: 'floating-id',
     refs,
     elements: { reference: domReference, domReference, floating },
     rootStore: getEmptyRootContext(),

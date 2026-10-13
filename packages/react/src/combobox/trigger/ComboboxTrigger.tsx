@@ -197,7 +197,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           if (!inputInsidePopup) {
-            floatingRootContext.set('domReferenceElement', event.currentTarget);
+            floatingRootContext.set('anchorElement', event.currentTarget);
           }
 
           // Ensure items are registered for initial selection highlight.

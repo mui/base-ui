@@ -46,10 +46,10 @@ export default function AnchorPositioning() {
   const floatingRootContext = new FloatingRootStore({
     open: true,
     transitionStatus: undefined,
-    referenceElement: anchorEl,
-    floatingElement: null,
+    baseAnchor: anchorEl,
+    outerPopupElement: null,
     triggerElements: new PopupTriggerMap(),
-    floatingId: '',
+    defaultPopupId: '',
     nested: false,
     onOpenChange: undefined,
   });

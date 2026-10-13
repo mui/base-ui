@@ -10,14 +10,26 @@ import type { TransitionStatus } from '../../../internals/useTransitionStatus';
 export interface FloatingRootState {
   open: boolean;
   transitionStatus: TransitionStatus | undefined;
-  domReferenceElement: Element | null;
-  referenceElement: ReferenceType | null;
-  floatingElement: HTMLElement | null;
-  positionReference: ReferenceType | null;
   /**
-   * The ID of the floating element.
+   * The DOM element the popup is anchored to.
    */
-  floatingId: string | undefined;
+  anchorElement: Element | null;
+  /**
+   * The anchor the component passes, which `anchorOverride` takes precedence over.
+   */
+  baseAnchor: ReferenceType | null;
+  /**
+   * The popup's outermost element, usually its positioner.
+   */
+  outerPopupElement: HTMLElement | null;
+  /**
+   * An anchor set explicitly, such as the cursor position of a popup that follows it.
+   */
+  anchorOverride: ReferenceType | null;
+  /**
+   * The popup's id unless its element sets one.
+   */
+  defaultPopupId: string | undefined;
 }
 
 export interface FloatingRootStoreContext {
@@ -32,19 +44,19 @@ export interface FloatingRootStoreContext {
 const selectors = {
   open: (state: FloatingRootState) => state.open,
   transitionStatus: (state: FloatingRootState) => state.transitionStatus,
-  domReferenceElement: (state: FloatingRootState) => state.domReferenceElement,
-  referenceElement: (state: FloatingRootState) => state.positionReference ?? state.referenceElement,
-  floatingElement: (state: FloatingRootState) => state.floatingElement,
-  floatingId: (state: FloatingRootState) => state.floatingId,
+  anchorElement: (state: FloatingRootState) => state.anchorElement,
+  anchor: (state: FloatingRootState) => state.anchorOverride ?? state.baseAnchor,
+  outerPopupElement: (state: FloatingRootState) => state.outerPopupElement,
+  defaultPopupId: (state: FloatingRootState) => state.defaultPopupId,
 };
 
 interface FloatingRootStoreOptions {
   open: boolean;
   transitionStatus: TransitionStatus | undefined;
-  referenceElement: ReferenceType | null;
-  floatingElement: HTMLElement | null;
+  baseAnchor: ReferenceType | null;
+  outerPopupElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
-  floatingId: string | undefined;
+  defaultPopupId: string | undefined;
   nested: boolean;
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
@@ -60,8 +72,8 @@ export class FloatingRootStore
     super(
       {
         ...initialState,
-        positionReference: initialState.referenceElement,
-        domReferenceElement: initialState.referenceElement as Element | null,
+        anchorOverride: initialState.baseAnchor,
+        anchorElement: initialState.baseAnchor as Element | null,
       },
       {
         onOpenChange,
@@ -87,10 +99,10 @@ export class FloatingRootStore
 
   clearPositioning() {
     this.update({
-      referenceElement: null,
-      floatingElement: null,
-      domReferenceElement: null,
-      positionReference: null,
+      baseAnchor: null,
+      outerPopupElement: null,
+      anchorElement: null,
+      anchorOverride: null,
     });
   }
 }

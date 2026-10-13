@@ -216,7 +216,7 @@ export const MenuComponent = React.forwardRef<
         id={triggerId}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-controls={isOpen ? context.floatingId : undefined}
+        aria-controls={isOpen ? context.defaultPopupId : undefined}
         data-open={isOpen ? '' : undefined}
         // eslint-disable-next-line no-nested-ternary
         tabIndex={!isNested ? props.tabIndex : parent.activeIndex === item.index ? 0 : -1}
@@ -274,7 +274,7 @@ export const MenuComponent = React.forwardRef<
               >
                 <div
                   ref={refs.setFloating}
-                  id={context.floatingId}
+                  id={context.defaultPopupId}
                   role="menu"
                   aria-labelledby={triggerId}
                   className={c(

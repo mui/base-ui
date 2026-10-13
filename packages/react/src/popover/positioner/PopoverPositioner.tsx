@@ -46,7 +46,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
-  const domReference = store.useState('domReferenceElement');
+  const domReference = store.useState('anchorElement');
 
   useTriggerSwitchTransition({
     store,

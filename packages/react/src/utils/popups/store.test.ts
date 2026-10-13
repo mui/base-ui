@@ -159,11 +159,11 @@ describe('popupStoreSelectors', () => {
 });
 
 describe('popupStoreSelectors elements', () => {
-  describe('floatingElement', () => {
+  describe('outerPopupElement', () => {
     it('reports the positioner while the popup is mounted', () => {
       const positioner = document.createElement('div');
       expect(
-        popupStoreSelectors.floatingElement(
+        popupStoreSelectors.outerPopupElement(
           createState({ open: true, mounted: true, positionerElement: positioner }),
         ),
       ).toBe(positioner);
@@ -172,7 +172,7 @@ describe('popupStoreSelectors elements', () => {
     it('withholds the positioner while an opening popup is not mounted yet', () => {
       const positioner = document.createElement('div');
       expect(
-        popupStoreSelectors.floatingElement(
+        popupStoreSelectors.outerPopupElement(
           createState({ open: true, mounted: false, positionerElement: positioner }),
         ),
       ).toBe(null);
@@ -181,20 +181,20 @@ describe('popupStoreSelectors elements', () => {
     it('reports a keepMounted positioner while the popup is closed', () => {
       const positioner = document.createElement('div');
       expect(
-        popupStoreSelectors.floatingElement(
+        popupStoreSelectors.outerPopupElement(
           createState({ open: false, mounted: false, positionerElement: positioner }),
         ),
       ).toBe(positioner);
     });
   });
 
-  describe('referenceElement', () => {
+  describe('anchor', () => {
     it('returns the position reference when one is set', () => {
       const trigger = document.createElement('button');
       const cursor = { getBoundingClientRect: () => new DOMRect() };
       expect(
-        popupStoreSelectors.referenceElement(
-          createState({ mounted: true, activeTriggerElement: trigger, positionReference: cursor }),
+        popupStoreSelectors.anchor(
+          createState({ mounted: true, activeTriggerElement: trigger, anchorOverride: cursor }),
         ),
       ).toBe(cursor);
     });
@@ -202,18 +202,14 @@ describe('popupStoreSelectors elements', () => {
     it('falls back to the active trigger while the popup is mounted', () => {
       const trigger = document.createElement('button');
       expect(
-        popupStoreSelectors.referenceElement(
-          createState({ mounted: true, activeTriggerElement: trigger }),
-        ),
+        popupStoreSelectors.anchor(createState({ mounted: true, activeTriggerElement: trigger })),
       ).toBe(trigger);
     });
 
     it('is null without a position reference while the popup is unmounted', () => {
       const trigger = document.createElement('button');
       expect(
-        popupStoreSelectors.referenceElement(
-          createState({ mounted: false, activeTriggerElement: trigger }),
-        ),
+        popupStoreSelectors.anchor(createState({ mounted: false, activeTriggerElement: trigger })),
       ).toBe(null);
     });
   });
@@ -476,13 +472,13 @@ describe('BasePopupStore', () => {
       const store = new TestPopupStore(() => {}, {
         mounted: true,
         activeTriggerElement: trigger,
-        domReferenceElement: trigger,
+        anchorElement: trigger,
       });
 
       store.set('mounted', false);
 
-      expect(store.select('referenceElement')).toBe(null);
-      expect(store.state.domReferenceElement).toBe(trigger);
+      expect(store.select('anchor')).toBe(null);
+      expect(store.state.anchorElement).toBe(trigger);
     });
 
     it('moves a position reference that followed the previous trigger to the new one', () => {
@@ -491,14 +487,14 @@ describe('BasePopupStore', () => {
       const store = new TestPopupStore(() => {}, {
         mounted: true,
         activeTriggerElement: triggerA,
-        domReferenceElement: triggerA,
-        positionReference: triggerA,
+        anchorElement: triggerA,
+        anchorOverride: triggerA,
       });
 
       store.set('activeTriggerElement', triggerB);
 
-      expect(store.state.positionReference).toBe(triggerB);
-      expect(store.state.domReferenceElement).toBe(triggerB);
+      expect(store.state.anchorOverride).toBe(triggerB);
+      expect(store.state.anchorElement).toBe(triggerB);
     });
 
     it('keeps a virtual position reference when the trigger switches', () => {
@@ -508,14 +504,14 @@ describe('BasePopupStore', () => {
       const store = new TestPopupStore(() => {}, {
         mounted: true,
         activeTriggerElement: triggerA,
-        domReferenceElement: triggerA,
-        positionReference: cursor,
+        anchorElement: triggerA,
+        anchorOverride: cursor,
       });
 
       store.set('activeTriggerElement', triggerB);
 
-      expect(store.state.positionReference).toBe(cursor);
-      expect(store.state.domReferenceElement).toBe(triggerB);
+      expect(store.state.anchorOverride).toBe(cursor);
+      expect(store.state.anchorElement).toBe(triggerB);
     });
   });
 
@@ -564,8 +560,8 @@ describe('BasePopupStore', () => {
       const anchor = document.createElement('button');
       const positioner = document.createElement('div');
       const store = new TestPopupStore(() => {}, {
-        domReferenceElement: anchor,
-        positionReference: anchor,
+        anchorElement: anchor,
+        anchorOverride: anchor,
         positionerElement: positioner,
       });
       const listener = vi.fn();
@@ -573,8 +569,8 @@ describe('BasePopupStore', () => {
 
       store.clearPositioning();
 
-      expect(store.state.domReferenceElement).toBe(null);
-      expect(store.state.positionReference).toBe(null);
+      expect(store.state.anchorElement).toBe(null);
+      expect(store.state.anchorOverride).toBe(null);
       expect(store.state.positionerElement).toBe(positioner);
       expect(listener).toHaveBeenCalledTimes(1);
     });

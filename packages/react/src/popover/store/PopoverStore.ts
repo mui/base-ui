@@ -100,8 +100,12 @@ export class PopoverStore<Payload> extends BasePopupStore<
   Selectors,
   PopoverRoot.ChangeEventDetails
 > {
-  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
-    super(createInitialState<Payload>(initialState, floatingId), createInitialContext(), selectors);
+  constructor(initialState: Partial<State<Payload>>, defaultPopupId: string | undefined) {
+    super(
+      createInitialState<Payload>(initialState, defaultPopupId),
+      createInitialContext(),
+      selectors,
+    );
   }
 
   protected getCloseTrigger(eventDetails: PopoverRoot.ChangeEventDetails) {
@@ -171,10 +175,10 @@ export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     modal: false,
     focusManagerModal: false,

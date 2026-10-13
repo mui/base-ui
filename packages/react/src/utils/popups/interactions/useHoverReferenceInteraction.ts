@@ -129,7 +129,7 @@ export function useHoverReferenceInteraction(
 
     const trigger =
       (triggerElementRef.current as HTMLElement | null) ??
-      (isActiveTrigger ? (store.select('domReferenceElement') as HTMLElement | null) : null);
+      (isActiveTrigger ? (store.select('anchorElement') as HTMLElement | null) : null);
 
     if (!isElement(trigger)) {
       return undefined;

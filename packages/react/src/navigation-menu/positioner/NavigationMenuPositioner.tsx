@@ -106,7 +106,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     );
   }, [positionerElement]);
 
-  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
+  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('anchorElement');
 
   // The active trigger supplies the root store after the positioner has already rendered.
   const fallbackRootContext = useFloatingRootContext({ open: keepMounted ? mounted : undefined });
