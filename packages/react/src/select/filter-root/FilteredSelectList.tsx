@@ -51,7 +51,8 @@ export const FilteredSelectList = React.forwardRef(function FilteredSelectList(
   const { labelId: fieldLabelId } = useLabelableContext();
   const { onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
-  const { syncActiveItem, virtualizedCount, syncVirtualList } = useSelectFilterNavigationContext();
+  const { syncActiveItem, virtualizedCount, syncVirtualList, restoreToggledItem } =
+    useSelectFilterNavigationContext();
   const { subscribeMapChange } = useCompositeListContext();
 
   const id = store.useState('id');
@@ -109,6 +110,7 @@ export const FilteredSelectList = React.forwardRef(function FilteredSelectList(
       // A positional highlight must not silently move to another option when live items are
       // inserted, removed, or reordered.
       onItemsChange(previousItems);
+      restoreToggledItem();
       // The list's scroll range changed with its content.
       const listElement = store.state.listElement;
       if (listElement) {

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Select } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
@@ -336,10 +336,120 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await user.click(screen.getByRole('option', { name: 'Japan' }));
       expect(onValueChange).toHaveBeenCalledTimes(1);
       expect(onValueChange.mock.calls[0][0]).toEqual(['au', 'fr', 'jp']);
-      // Multiple selection keeps the popup open and the query in place.
       expect(screen.getByRole('dialog')).not.toBe(null);
-      expect(input).toHaveValue('jap');
       expect(input).toHaveFocus();
+    });
+  });
+
+  describe('closing', () => {
+    it.skipIf(isJSDOM)(
+      'does not highlight the selected option during the exit after the query was cleared',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const style = document.createElement('style');
+        style.textContent =
+          '[role="dialog"]{transition:opacity 200ms}[role="dialog"][data-ending-style]{opacity:0}';
+        document.head.appendChild(style);
+        onTestFinished(() => style.remove());
+
+        const { user } = await render(<Test root={{ defaultValue: 'de' }} />);
+        await user.click(screen.getByTestId('trigger'));
+        const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+        await user.keyboard('a[Backspace]');
+        expect(input).toHaveValue('');
+        expect(screen.getByRole('option', { name: 'Germany' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+
+        const highlightedWhileClosing: string[] = [];
+        const observer = new MutationObserver(() => {
+          const option = document.querySelector('[role="option"][data-highlighted]');
+          if (option) {
+            highlightedWhileClosing.push(option.textContent ?? '');
+          }
+        });
+        observer.observe(document.body, { subtree: true, attributes: true, childList: true });
+        onTestFinished(() => observer.disconnect());
+
+        await user.keyboard('[Escape]');
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+        expect(highlightedWhileClosing).toEqual([]);
+      },
+    );
+  });
+
+  describe('multiple selection', () => {
+    async function selectJapanWhileFiltering(provider?: Partial<Select.FilterProvider.Props>) {
+      const { user } = await render(
+        <Test root={{ defaultOpen: true, multiple: true }} provider={provider} />,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('jap');
+      expect(screen.getAllByRole('option')).toHaveLength(1);
+      await user.click(screen.getByRole('option', { name: 'Japan' }));
+      return input;
+    }
+
+    it('clears the query after an item press and reports it as an item press', async () => {
+      const onValueChange = vi.fn();
+      const input = await selectJapanWhileFiltering({ onValueChange });
+
+      expect(input).toHaveValue('');
+      expect(screen.getAllByRole('option')).toHaveLength(4);
+      const lastCall = onValueChange.mock.calls[onValueChange.mock.calls.length - 1];
+      expect(lastCall[0]).toBe('');
+      expect(lastCall[1].reason).toBe('input-clear');
+      expect(lastCall[1].isItemPress).toBe(true);
+    });
+
+    it('keeps the query when the item press clear is canceled', async () => {
+      const input = await selectJapanWhileFiltering({
+        onValueChange(value, eventDetails) {
+          if (eventDetails.isItemPress) {
+            eventDetails.cancel();
+          }
+        },
+      });
+
+      expect(input).toHaveValue('jap');
+      expect(screen.getAllByRole('option')).toHaveLength(1);
+      expect(screen.getByRole('option', { name: 'Japan' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+
+    it('keeps the toggled item highlighted after the query clears', async () => {
+      const { user } = await render(<Test root={{ defaultOpen: true, multiple: true }} />);
+      const input = screen.getByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('ger');
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Germany' }).id,
+      );
+
+      await user.keyboard('[Enter]');
+      expect(input).toHaveValue('');
+      expect(screen.getAllByRole('option')).toHaveLength(4);
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Germany' }).id,
+        );
+      });
     });
   });
 
@@ -621,7 +731,10 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     }
 
     // Mounts five options around the highlighted one, as a virtualizer scrolled to it would.
-    function Virtualized(props: { root?: Partial<Select.Root.Props<string>>; mounted?: boolean }) {
+    function Virtualized(props: {
+      root?: Partial<Select.Root.Props<string, boolean>>;
+      mounted?: boolean;
+    }) {
       const [start, setStart] = React.useState(0);
       return (
         <Select.FilterProvider virtualized>
@@ -751,6 +864,33 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
         'aria-activedescendant',
         screen.getByRole('option', { name: 'Item 50' }).id,
       );
+    });
+
+    it('keeps the toggled item highlighted after a multiple select clears the query', async () => {
+      const { user } = await render(<Virtualized root={{ multiple: true }} />);
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter items' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('Item 5');
+      await user.keyboard('[ArrowDown][ArrowDown]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Item 50' }).id,
+        );
+      });
+
+      await user.keyboard('[Enter]');
+      expect(input).toHaveValue('');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Item 50' }).id,
+        );
+      });
     });
 
     it('throws when useFilteredItems is called without a filter provider', async () => {

@@ -329,7 +329,20 @@ import { DemoSelectVirtualized } from './demos/virtualized';
 
 Filtering an item out does not clear its selection, and the form still submits it.
 Pass `items` or `itemToStringLabel` to `<Select.Root>` so `<Select.Value>` can show the label of a selected item that is filtered out.
-A single select closes when an item is selected. A multiple select stays open and keeps the query.
+A single select closes when an item is selected. A multiple select stays open and clears the query.
+To keep the query, cancel the clear, marked with `eventDetails.isItemPress`:
+
+```jsx title="Keeping the query after selection"
+<Select.FilterProvider
+  onValueChange={(value, eventDetails) => {
+    if (eventDetails.isItemPress) {
+      eventDetails.cancel();
+    }
+  }}
+>
+  <Select.Root multiple>{/* select parts */}</Select.Root>
+</Select.FilterProvider>
+```
 
 #### Controlling the query
 

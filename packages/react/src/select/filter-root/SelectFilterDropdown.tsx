@@ -8,12 +8,13 @@ import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDrop
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { HTMLProps } from '../../internals/types';
 import type { SelectFilterProvider } from '../filter-provider/SelectFilterProvider';
+import type { ToggledItem } from './SelectFilterRoot';
 import { SelectFilterImplContext, SelectFilterNavigationContext } from './SelectFilterContext';
 import { SELECT_FILTER_IMPL } from './SelectFilterImpl';
 import { SelectFilteredItemsContext } from './SelectFilteredItemsContext';
 import { getFilter } from '../../internals/filter';
 import { isGroupedItems, stringifyAsLabel } from '../../internals/resolveValueLabel';
-import { findSelectionIndex } from '../../internals/itemEquality';
+import { findItemIndex, findSelectionIndex } from '../../internals/itemEquality';
 
 export interface SelectFilterDropdownProps {
   openedByKeyboard: boolean;
@@ -22,6 +23,7 @@ export interface SelectFilterDropdownProps {
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
   virtualized: boolean;
+  toggledItemRef: React.RefObject<ToggledItem | null>;
   navigationProps: HTMLProps;
   onValueChange: (value: string, details: SelectFilterProvider.ChangeEventDetails) => void;
   children?: React.ReactNode;
@@ -32,7 +34,7 @@ export interface SelectFilterDropdownProps {
  * engine the list the select navigates plus the props for the input that holds real focus.
  */
 export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
-  const { navigationProps, virtualized, ...dropdownProps } = props;
+  const { navigationProps, virtualized, toggledItemRef, ...dropdownProps } = props;
   const { filter, locale } = dropdownProps;
 
   const store = useSelectRootContext();
@@ -110,6 +112,27 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
 
   useIsoLayoutEffect(syncActiveItem, [activeIndex, syncActiveItem]);
 
+  // An item a multiple select toggled while filtering stays highlighted once the query clears.
+  // The full list returning resets positional highlights, so this runs after each list change.
+  const restoreToggledItem = useStableCallback(() => {
+    const toggled = toggledItemRef.current;
+    if (toggled === null) {
+      return;
+    }
+    if (query !== '' || !open) {
+      toggledItemRef.current = null;
+      return;
+    }
+    const index = virtualized
+      ? findItemIndex(filteredValues, toggled.value, isItemEqualToValue)
+      : store.context.listRef.current.indexOf(toggled.element as HTMLElement);
+    if (index !== -1) {
+      store.set('activeIndex', index);
+    }
+  });
+
+  useIsoLayoutEffect(restoreToggledItem, [query, filteredValues, restoreToggledItem]);
+
   // A virtualized list mounts only some options. Its navigable list holds a position for every
   // filtered item and the mounted options at their indexes. The positioner's item list resets
   // that array as the popup mounts, so it is rewritten from this registry.
@@ -163,6 +186,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
       registerVirtualItem,
       syncVirtualList,
       virtualPressRef,
+      restoreToggledItem,
     }),
     [
       navigationProps,
@@ -171,6 +195,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
       virtualizedCount,
       registerVirtualItem,
       syncVirtualList,
+      restoreToggledItem,
     ],
   );
 

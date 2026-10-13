@@ -57,7 +57,13 @@ export interface SelectFilterProviderProps extends SelectFilterProviderOptions {
 }
 
 export type SelectFilterProviderChangeEventReason = FilterDropdownRoot.ChangeEventReason;
-export type SelectFilterProviderChangeEventDetails = FilterDropdownRoot.ChangeEventDetails;
+export type SelectFilterProviderChangeEventDetails = FilterDropdownRoot.ChangeEventDetails & {
+  /**
+   * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
+   * clear.
+   */
+  isItemPress?: boolean | undefined;
+};
 
 export namespace SelectFilterProvider {
   export type State = SelectFilterProviderState;

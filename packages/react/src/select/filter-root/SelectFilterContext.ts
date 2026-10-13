@@ -84,6 +84,8 @@ export interface SelectFilterNavigationContext {
   syncVirtualList: () => void;
   /** Whether the trigger was last pressed by a screen reader. */
   virtualPressRef: React.RefObject<boolean>;
+  /** Highlights the item a multiple select toggled while filtering, once the query clears. */
+  restoreToggledItem: () => void;
 }
 
 // The engine's own context check fires first when a part renders outside the provider.
@@ -95,6 +97,7 @@ export const SelectFilterNavigationContext = React.createContext<SelectFilterNav
   registerVirtualItem: () => NOOP,
   syncVirtualList: NOOP,
   virtualPressRef: { current: false },
+  restoreToggledItem: NOOP,
 });
 
 export function useSelectFilterNavigationContext(): SelectFilterNavigationContext {

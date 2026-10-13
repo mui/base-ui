@@ -1007,6 +1007,11 @@ type SelectFilterProviderChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
+  /**
+   * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
+   * clear.
+   */
+  isItemPress?: boolean;
 };
 ```
 
