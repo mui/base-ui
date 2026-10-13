@@ -244,47 +244,6 @@ jobs:
     executor:
       name: code-infra/mui-node-browser
       playwright-img-version: v1.63.0-noble
-    steps:
-      - checkout
-      - code-infra/install-deps
-      - run:
-          name: Build packages
-          command: pnpm release:build
-      - run:
-          name: Run baseline benchmarks at merge-base
-          environment:
-            PLAYWRIGHT_BROWSERS_PATH: /tmp/base-playwright-browsers
-          command: |
-            set -e
-            if [ "$CIRCLE_BRANCH" = "master" ]; then
-              echo "On master branch; no baseline to compare against. Skipping baseline."
-              exit 0
-            fi
-            git fetch --no-tags origin master:refs/remotes/origin/master
-            BASE_SHA=$(git merge-base HEAD origin/master)
-            echo "Baseline commit: $BASE_SHA"
-            git worktree add /tmp/base-worktree "$BASE_SHA"
-            cd /tmp/base-worktree
-            pnpm install --frozen-lockfile
-            pnpm exec playwright install chromium
-            pnpm release:build
-            BENCHMARK_BRANCH=master pnpm test:benchmark
-            echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
-      - run:
-          name: Run head benchmarks
-          # TEMPORARY: not uploaded while `Benchmark CLI` uploads instead, since both write the
-          # commit's `benchmark.json` and the PR comment. Restore before merging.
-          command: pnpm test:benchmark:vitest
-      # TEMPORARY: kept to compare the benchmark setups on repeated runs.
-      - store_artifacts:
-          path: test/performance/benchmarks/results.json
-          destination: vitest-head.json
-
-  test_benchmark_cli:
-    <<: *default-job
-    executor:
-      name: code-infra/mui-node-browser
-      playwright-img-version: v1.63.0-noble
     # Building both sides is most of the setup time, and more logical CPUs leave the browser less to
     # contend with while sampling. The `benchmark` CLI warns below 3.
     resource_class: large
@@ -359,9 +318,6 @@ workflows:
       - test_benchmark:
           <<: *default-context
           name: 'Benchmark tests'
-      - test_benchmark_cli:
-          <<: *default-context
-          name: 'Benchmark CLI'
   # On master merges rather than every push: in September 2026 these jobs used 26% of the repo's
   # credits, and every failure they had that the regular JSDOM/browser jobs didn't was a flake or an
   # infra error.

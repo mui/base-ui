@@ -64,7 +64,6 @@
     "types:check": "pnpm --filter @base-ui/react build && pnpm --filter @base-ui/react types:check",
     "inline-scripts": "tsx ./scripts/inlineScripts.mts",
     "test:benchmark": "pnpm -F ./test/benchmark benchmark",
-    "test:benchmark:vitest": "pnpm -F ./test/performance benchmark",
     "use-react-18": "code-infra set-version-overrides --pkg react@18"
   },
   "devDependencies": {

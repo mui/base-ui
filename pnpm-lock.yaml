@@ -778,34 +778,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils/build
 
-  test/performance:
-    dependencies:
-      '@base-ui/react':
-        specifier: workspace:*
-        version: link:../../packages/react/build
-      react:
-        specifier: 19.3.0
-        version: 19.3.0
-      react-dom:
-        specifier: 19.3.0
-        version: 19.3.0(react@19.3.0)
-    devDependencies:
-      '@mui/internal-benchmark':
-        specifier: 0.1.1-canary.2
-        version: 0.1.1-canary.2(@vitest/browser-playwright@5.0.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.0.2)
-      '@types/react':
-        specifier: 19.3.0
-        version: 19.3.0
-      '@vitest/browser-playwright':
-        specifier: 5.0.2
-        version: 5.0.2(playwright@1.63.0)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.0.2)
-      vite:
-        specifier: 8.3.1
-        version: 8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
-      vitest:
-        specifier: 5.0.2
-        version: 5.0.2(@types/node@22.20.4)(@vitest/browser-playwright@5.0.2)(@vitest/coverage-istanbul@5.0.2)(@vitest/ui@5.0.2)(jsdom@27.4.0(supports-color@10.2.2))(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
-
   test/public-types:
     dependencies:
       '@base-ui/react':
@@ -2420,14 +2392,6 @@ packages:
     engines: {node: '>=22.12.0'}
     peerDependencies:
       '@babel/core': ^8.0.0
-
-  '@mui/internal-benchmark@0.1.1-canary.2':
-    resolution: {integrity: sha512-ix6bn2ICogsj1/y865yaEPyx7XO+BLpWAcEQLYgRTLJBCnjFqdxjaTGcE0cSE0zQQgYWc7GRarsE6buTptJUfg==}
-    peerDependencies:
-      '@vitest/browser-playwright': '>=4.1'
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
-      vitest: '>=4.1'
 
   '@mui/internal-benchmark@https://pkg.pr.new/mui/mui-public/@mui/internal-benchmark@c231ea9':
     resolution: {integrity: sha512-jmlr5JYK6+S0yC/M3fYoYVpO2Fflkn9kh7oIjgxf0POgjo9KcRDfAoDYPVya3zwJ7Vy7skJsQYHVFbO54OlAcA==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-benchmark@c231ea9}
@@ -11582,25 +11546,6 @@ snapshots:
       '@babel/core': 8.0.6
       resolve: 1.22.12
 
-  '@mui/internal-benchmark@0.1.1-canary.2(@vitest/browser-playwright@5.0.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.0.2)':
-    dependencies:
-      '@babel/runtime': 8.0.5
-      '@vitejs/plugin-react': 6.1.1(babel-plugin-react-compiler@1.0.0)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
-      '@vitest/browser-playwright': 5.0.2(playwright@1.63.0)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.0.2)
-      chalk: 5.6.2
-      env-ci: 11.2.0
-      es-toolkit: 1.52.0
-      execa: 10.0.1
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
-      vitest: 5.0.2(@types/node@22.20.4)(@vitest/browser-playwright@5.0.2)(@vitest/coverage-istanbul@5.0.2)(@vitest/ui@5.0.2)(jsdom@27.4.0(supports-color@10.2.2))(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
-      zod: 4.6.5
-    transitivePeerDependencies:
-      - '@rolldown/plugin-babel'
-      - babel-plugin-react-compiler
-      - oxc-transform-react
-      - vite
-
   '@mui/internal-benchmark@https://pkg.pr.new/mui/mui-public/@mui/internal-benchmark@c231ea9(@playwright/test@1.63.0)(@vitest/browser-playwright@5.0.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.0.2)':
     dependencies:
       '@babel/runtime': 8.0.5
@@ -11614,7 +11559,7 @@ snapshots:
       globby: 16.2.4
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
-      vitest: 5.0.2(@types/node@22.20.4)(@vitest/browser-playwright@5.0.2)(@vitest/coverage-istanbul@5.0.2)(@vitest/ui@5.0.2)(jsdom@27.4.0(supports-color@7.2.0))(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      vitest: 5.0.2(@types/node@22.20.4)(@vitest/browser-playwright@5.0.2)(@vitest/coverage-istanbul@5.0.2)(@vitest/ui@5.0.2)(jsdom@27.4.0(supports-color@10.2.2))(vite@8.3.1(@types/node@22.20.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
       yaml: 2.9.1
       yargs: 18.2.0
       zod: 4.6.5
