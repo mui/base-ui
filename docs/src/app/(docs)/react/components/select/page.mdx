@@ -318,8 +318,8 @@ const results = countries.filter((country) => contains(country.label, query));
 
 #### Virtualization
 
-For large lists, pass `virtualized` to `<Select.FilterProvider>` and render the items with a virtualization library like `@tanstack/react-virtual`.
-The select then filters the `items` passed to `<Select.Root>`: render the matches from `Select.useFilteredItems()`, pass each `<Select.Item>` its `index`, and use `onItemHighlighted` to scroll the highlighted item into view.
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+Pass `virtualized` to `<Select.FilterProvider>` and render the items from `Select.useFilteredItems()`.
 
 import { DemoSelectVirtualized } from './demos/virtualized';
 
@@ -454,7 +454,7 @@ When filtering items yourself, `Select.useFilter` matches text according to the 
 
 ## useFilteredItems
 
-Returns the `items` that match the filter query when called inside a select wrapped in `<Select.FilterProvider>`.
+Returns the filtered items when called inside `<Select.FilterProvider>`.
 
 <TypesSelect.useFilteredItems hideDescription />
 

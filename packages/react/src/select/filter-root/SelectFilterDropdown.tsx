@@ -192,6 +192,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
             getActiveIndex={getActiveIndex}
             setActiveIndex={setActiveIndex}
             focusOwnerRef={store.context.virtualFocusRef}
+            itemCount={virtualizedCount}
           />
         </SelectFilteredItemsContext.Provider>
       </SelectFilterNavigationContext.Provider>

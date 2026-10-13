@@ -113,9 +113,6 @@ function FilterablePopup(props: FilterablePopupProps) {
         </Select.Clear>
       </div>
       <Select.Empty className={styles.Empty}>{props.emptyText}</Select.Empty>
-      <Select.ScrollUpArrow className={styles.ScrollArrow}>
-        <CaretUpIcon />
-      </Select.ScrollUpArrow>
       <Select.List className={styles.List}>
         {props.items.map(({ label, value }) => (
           <Select.Item key={value} value={value} className={styles.Item}>
@@ -126,9 +123,6 @@ function FilterablePopup(props: FilterablePopupProps) {
           </Select.Item>
         ))}
       </Select.List>
-      <Select.ScrollDownArrow className={styles.ScrollArrow}>
-        <CaretDownIcon />
-      </Select.ScrollDownArrow>
     </Select.Popup>
   );
 }
@@ -176,36 +170,6 @@ function ClearIcon(props: React.ComponentProps<'svg'>) {
       style={{ display: 'block', ...props.style }}
     >
       <path d="m3.5 3.5 9 9m0-9-9 9" />
-    </svg>
-  );
-}
-
-function CaretUpIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M12 10H4l4-4.5z" />
-    </svg>
-  );
-}
-
-function CaretDownIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }

@@ -222,7 +222,7 @@
   padding-block: 0.25rem;
   overflow-y: auto;
   max-height: min(16rem, calc(var(--available-height) - 2.0625rem));
-  scroll-padding-block: 1.5rem;
+  scroll-padding-block: 0.25rem;
 
   &:empty {
     padding-block: 0;
@@ -262,37 +262,4 @@
 
 .ItemText {
   grid-column-start: 2;
-}
-
-.ScrollArrow {
-  width: 100%;
-  background-color: white;
-  z-index: 1;
-  text-align: center;
-  cursor: default;
-  height: 1rem;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  @media (prefers-color-scheme: dark) {
-    background-color: oklch(14.5% 0 0deg);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
-  }
-
-  &[data-direction='up'] {
-    top: 0;
-  }
-
-  &[data-direction='down'] {
-    bottom: 0;
-  }
 }

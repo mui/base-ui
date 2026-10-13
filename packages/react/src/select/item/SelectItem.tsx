@@ -325,8 +325,7 @@ export interface SelectItemProps
    */
   label?: string | undefined;
   /**
-   * The index of the item in the list of filtered items.
-   * Only needed when the list is virtualized.
+   * The index of the item in the filtered items. Required when the list is virtualized.
    */
   index?: number | undefined;
 }

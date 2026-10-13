@@ -112,9 +112,6 @@ function FilterablePopup(props: FilterablePopupProps) {
         </Select.Clear>
       </div>
       <Select.Empty className={emptyClass}>{props.emptyText}</Select.Empty>
-      <Select.ScrollUpArrow className={`${scrollArrowClass} top-0`}>
-        <CaretUpIcon />
-      </Select.ScrollUpArrow>
       <Select.List className={listClass}>
         {props.items.map(({ label, value }) => (
           <Select.Item key={value} value={value} className={itemClass}>
@@ -125,9 +122,6 @@ function FilterablePopup(props: FilterablePopupProps) {
           </Select.Item>
         ))}
       </Select.List>
-      <Select.ScrollDownArrow className={`${scrollArrowClass} bottom-0`}>
-        <CaretDownIcon />
-      </Select.ScrollDownArrow>
     </Select.Popup>
   );
 }
@@ -146,11 +140,9 @@ const clearClass =
   'flex size-8 items-center justify-center bg-transparent outline-hidden focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 const emptyClass = 'p-3 text-sm text-neutral-500 dark:text-neutral-400';
 const listClass =
-  'relative max-h-[min(16rem,calc(var(--available-height)-2.0625rem))] overflow-y-auto py-1 scroll-py-6 empty:py-0';
+  'relative max-h-[min(16rem,calc(var(--available-height)-2.0625rem))] overflow-y-auto py-1 scroll-py-1 empty:py-0';
 const itemClass =
   'grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 py-1.5 pr-4 pl-2.5 text-sm outline-hidden select-none data-highlighted:bg-neutral-950 data-highlighted:text-white dark:data-highlighted:bg-white dark:data-highlighted:text-neutral-950';
-const scrollArrowClass =
-  "z-[1] flex h-4 w-full cursor-default items-center justify-center bg-white text-center text-xs before:absolute before:left-0 before:h-full before:w-full before:content-[''] dark:bg-neutral-950";
 
 function CaretUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
@@ -195,36 +187,6 @@ function ClearIcon(props: React.ComponentProps<'svg'>) {
       style={{ display: 'block', ...props.style }}
     >
       <path d="m3.5 3.5 9 9m0-9-9 9" />
-    </svg>
-  );
-}
-
-function CaretUpIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M12 10H4l4-4.5z" />
-    </svg>
-  );
-}
-
-function CaretDownIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      {...props}
-      style={{ display: 'block', ...props.style }}
-    >
-      <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }

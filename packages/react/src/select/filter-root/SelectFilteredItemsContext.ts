@@ -5,9 +5,7 @@ import * as React from 'react';
 export const SelectFilteredItemsContext = React.createContext<readonly any[] | null>(null);
 
 /**
- * Returns the `items` passed to `Select.Root` that match the filter query, in the same shape:
- * groups keep only their matching items, and groups without matches are left out.
- * Requires the select to be wrapped in `Select.FilterProvider`.
+ * Returns the filtered items when called inside `Select.FilterProvider`.
  */
 export function useFilteredItems<Item>(): Item[] {
   const items = React.useContext(SelectFilteredItemsContext);

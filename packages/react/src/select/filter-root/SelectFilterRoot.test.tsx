@@ -608,8 +608,11 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       label: `Item ${index}`,
     }));
 
-    function WindowedList(props: { start: number }) {
+    function WindowedList(props: { start: number; mounted: boolean }) {
       const items = Select.useFilteredItems<{ value: string; label: string }>();
+      if (!props.mounted) {
+        return null;
+      }
       return items.slice(props.start, props.start + 5).map((item, offset) => (
         <Select.Item key={item.value} index={props.start + offset} value={item.value}>
           <Select.ItemText>{item.label}</Select.ItemText>
@@ -618,7 +621,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     }
 
     // Mounts five options around the highlighted one, as a virtualizer scrolled to it would.
-    function Virtualized(props: { root?: Partial<Select.Root.Props<string>> }) {
+    function Virtualized(props: { root?: Partial<Select.Root.Props<string>>; mounted?: boolean }) {
       const [start, setStart] = React.useState(0);
       return (
         <Select.FilterProvider virtualized>
@@ -640,7 +643,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
                   <Select.Input aria-label="Filter items" />
                   <Select.Empty>No matches</Select.Empty>
                   <Select.List>
-                    <WindowedList start={start} />
+                    <WindowedList start={start} mounted={props.mounted ?? true} />
                   </Select.List>
                 </Select.Popup>
               </Select.Positioner>
@@ -680,6 +683,22 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       await user.keyboard('zz');
       expect(screen.queryAllByRole('option')).toHaveLength(0);
       expect(await screen.findByText('No matches')).toBeVisible();
+    });
+
+    // A virtualizer stops rendering rows as the popup closes, while the items still match.
+    it('does not show the empty message while matching items are not mounted', async () => {
+      const { user, setProps } = await render(<Virtualized mounted />);
+      await user.click(screen.getByTestId('trigger'));
+      await screen.findByRole('option', { name: 'Item 0' });
+
+      await setProps({ mounted: false });
+      expect(screen.queryAllByRole('option')).toHaveLength(0);
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 50);
+        });
+      });
+      expect(screen.queryByText(/No matches/)).toBe(null);
     });
 
     it('navigates to and selects items beyond the mounted options', async () => {
