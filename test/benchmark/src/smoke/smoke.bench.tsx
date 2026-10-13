@@ -54,6 +54,41 @@ const SCROLL_AREA_STYLE: React.CSSProperties = {
   position: 'relative',
 };
 const options = createRows(5, 'Option');
+const accordionRows = createRows(20, 'Accordion');
+const alertDialogRows = createRows(40, 'Alert dialog');
+const autocompleteRows = createRows(30, 'Autocomplete');
+const avatarRows = createRows(60, 'Avatar');
+const buttonRows = createRows(100, 'Button');
+const checkboxRows = createRows(100, 'Checkbox');
+const checkboxGroupRows = createRows(20, 'Checkbox group');
+const collapsibleRows = createRows(60, 'Collapsible');
+const comboboxRows = createRows(30, 'Combobox');
+const contextMenuRows = createRows(40, 'Context menu');
+const dialogRows = createRows(60, 'Dialog');
+const drawerRows = createRows(40, 'Drawer');
+const fieldRows = createRows(40, 'Field');
+const fieldsetRows = createRows(20, 'Fieldset');
+const formRows = createRows(20, 'Form');
+const inputRows = createRows(100, 'Input');
+const menuRows = createRows(60, 'Menu');
+const menubarRows = createRows(20, 'Menubar');
+const meterRows = createRows(60, 'Meter');
+const navigationMenuRows = createRows(20, 'Navigation menu');
+const numberFieldRows = createRows(40, 'Number field');
+const oTPFieldRows = createRows(20, 'OTP field');
+const popoverRows = createRows(60, 'Popover');
+const previewCardRows = createRows(40, 'Preview card');
+const progressRows = createRows(60, 'Progress');
+const radioGroupRows = createRows(20, 'Radio group');
+const scrollAreaRows = createRows(60, 'Scroll area');
+const selectRows = createRows(40, 'Select');
+const separatorRows = createRows(100, 'Separator');
+const sliderRows = createRows(60, 'Slider');
+const switchRows = createRows(60, 'Switch');
+const tabsRows = createRows(40, 'Tabs');
+const toggleGroupRows = createRows(20, 'Toggle group');
+const toolbarRows = createRows(20, 'Toolbar');
+const tooltipRows = createRows(60, 'Tooltip');
 const optionLabels = options.map((option) => option.label);
 const tabValues = ['overview', 'details', 'activity'] as const;
 
@@ -84,7 +119,7 @@ function Toasts(props: { count: number }) {
 
 reactBenchmark('Smoke · Accordion', () => (
   <React.Fragment>
-    {createRows(20, 'Accordion').map((row) => (
+    {accordionRows.map((row) => (
       <Accordion.Root key={row.id}>
         {options.map((option) => (
           <Accordion.Item key={option.id} value={option.value}>
@@ -101,7 +136,7 @@ reactBenchmark('Smoke · Accordion', () => (
 
 reactBenchmark('Smoke · AlertDialog', () => (
   <React.Fragment>
-    {createRows(40, 'Alert dialog').map((row) => (
+    {alertDialogRows.map((row) => (
       <AlertDialog.Root key={row.id}>
         <AlertDialog.Trigger>{row.label}</AlertDialog.Trigger>
         <AlertDialog.Portal>
@@ -119,7 +154,7 @@ reactBenchmark('Smoke · AlertDialog', () => (
 
 reactBenchmark('Smoke · Autocomplete', () => (
   <React.Fragment>
-    {createRows(30, 'Autocomplete').map((row) => (
+    {autocompleteRows.map((row) => (
       <Autocomplete.Root key={row.id} items={optionLabels}>
         <Autocomplete.Input aria-label={row.label} />
         <Autocomplete.Portal>
@@ -142,7 +177,7 @@ reactBenchmark('Smoke · Autocomplete', () => (
 
 reactBenchmark('Smoke · Avatar', () => (
   <React.Fragment>
-    {createRows(60, 'Avatar').map((row) => (
+    {avatarRows.map((row) => (
       <Avatar.Root key={row.id}>
         <Avatar.Image alt={row.label} />
         <Avatar.Fallback>{row.label.slice(0, 2)}</Avatar.Fallback>
@@ -153,7 +188,7 @@ reactBenchmark('Smoke · Avatar', () => (
 
 reactBenchmark('Smoke · Button', () => (
   <React.Fragment>
-    {createRows(100, 'Button').map((row) => (
+    {buttonRows.map((row) => (
       <Button key={row.id}>{row.label}</Button>
     ))}
   </React.Fragment>
@@ -161,7 +196,7 @@ reactBenchmark('Smoke · Button', () => (
 
 reactBenchmark('Smoke · Checkbox', () => (
   <React.Fragment>
-    {createRows(100, 'Checkbox').map((row) => (
+    {checkboxRows.map((row) => (
       <Checkbox.Root key={row.id} aria-label={row.label}>
         <Checkbox.Indicator />
       </Checkbox.Root>
@@ -171,7 +206,7 @@ reactBenchmark('Smoke · Checkbox', () => (
 
 reactBenchmark('Smoke · CheckboxGroup', () => (
   <React.Fragment>
-    {createRows(20, 'Checkbox group').map((row) => (
+    {checkboxGroupRows.map((row) => (
       <CheckboxGroup key={row.id} aria-label={row.label} defaultValue={[options[0].value]}>
         {options.map((option) => (
           <Checkbox.Root key={option.id} value={option.value} aria-label={option.label}>
@@ -185,7 +220,7 @@ reactBenchmark('Smoke · CheckboxGroup', () => (
 
 reactBenchmark('Smoke · Collapsible', () => (
   <React.Fragment>
-    {createRows(60, 'Collapsible').map((row) => (
+    {collapsibleRows.map((row) => (
       <Collapsible.Root key={row.id}>
         <Collapsible.Trigger>{row.label}</Collapsible.Trigger>
         <Collapsible.Panel>Collapsible content</Collapsible.Panel>
@@ -196,7 +231,7 @@ reactBenchmark('Smoke · Collapsible', () => (
 
 reactBenchmark('Smoke · Combobox', () => (
   <React.Fragment>
-    {createRows(30, 'Combobox').map((row) => (
+    {comboboxRows.map((row) => (
       <Combobox.Root key={row.id} items={options}>
         <Combobox.Input aria-label={row.label} />
         <Combobox.Portal>
@@ -219,7 +254,7 @@ reactBenchmark('Smoke · Combobox', () => (
 
 reactBenchmark('Smoke · ContextMenu', () => (
   <React.Fragment>
-    {createRows(40, 'Context menu').map((row) => (
+    {contextMenuRows.map((row) => (
       <ContextMenu.Root key={row.id}>
         <ContextMenu.Trigger>{row.label}</ContextMenu.Trigger>
         <ContextMenu.Portal>
@@ -238,7 +273,7 @@ reactBenchmark('Smoke · ContextMenu', () => (
 
 reactBenchmark('Smoke · Dialog', () => (
   <React.Fragment>
-    {createRows(60, 'Dialog').map((row) => (
+    {dialogRows.map((row) => (
       <Dialog.Root key={row.id}>
         <Dialog.Trigger>{row.label}</Dialog.Trigger>
         <Dialog.Portal>
@@ -256,7 +291,7 @@ reactBenchmark('Smoke · Dialog', () => (
 
 reactBenchmark('Smoke · Drawer', () => (
   <React.Fragment>
-    {createRows(40, 'Drawer').map((row) => (
+    {drawerRows.map((row) => (
       <Drawer.Root key={row.id}>
         <Drawer.Trigger>{row.label}</Drawer.Trigger>
         <Drawer.Portal>
@@ -278,7 +313,7 @@ reactBenchmark('Smoke · Drawer', () => (
 
 reactBenchmark('Smoke · Field', () => (
   <React.Fragment>
-    {createRows(40, 'Field').map((row) => (
+    {fieldRows.map((row) => (
       <Field.Root key={row.id}>
         <Field.Label>{row.label}</Field.Label>
         <Field.Control />
@@ -291,7 +326,7 @@ reactBenchmark('Smoke · Field', () => (
 
 reactBenchmark('Smoke · Fieldset', () => (
   <React.Fragment>
-    {createRows(20, 'Fieldset').map((row) => (
+    {fieldsetRows.map((row) => (
       <Fieldset.Root key={row.id}>
         <Fieldset.Legend>{row.label}</Fieldset.Legend>
         <Field.Root>
@@ -309,7 +344,7 @@ reactBenchmark('Smoke · Fieldset', () => (
 
 reactBenchmark('Smoke · Form', () => (
   <React.Fragment>
-    {createRows(20, 'Form').map((row) => (
+    {formRows.map((row) => (
       <Form key={row.id}>
         <Field.Root name="name">
           <Field.Label>{row.label}</Field.Label>
@@ -324,7 +359,7 @@ reactBenchmark('Smoke · Form', () => (
 
 reactBenchmark('Smoke · Input', () => (
   <React.Fragment>
-    {createRows(100, 'Input').map((row) => (
+    {inputRows.map((row) => (
       <Input key={row.id} aria-label={row.label} />
     ))}
   </React.Fragment>
@@ -332,7 +367,7 @@ reactBenchmark('Smoke · Input', () => (
 
 reactBenchmark('Smoke · Menu', () => (
   <React.Fragment>
-    {createRows(60, 'Menu').map((row) => (
+    {menuRows.map((row) => (
       <Menu.Root key={row.id}>
         <Menu.Trigger>{row.label}</Menu.Trigger>
         <Menu.Portal>
@@ -351,7 +386,7 @@ reactBenchmark('Smoke · Menu', () => (
 
 reactBenchmark('Smoke · Menubar', () => (
   <React.Fragment>
-    {createRows(20, 'Menubar').map((row) => (
+    {menubarRows.map((row) => (
       <Menubar key={row.id}>
         {['File', 'Edit', 'View'].map((menu) => (
           <Menu.Root key={menu}>
@@ -374,7 +409,7 @@ reactBenchmark('Smoke · Menubar', () => (
 
 reactBenchmark('Smoke · Meter', () => (
   <React.Fragment>
-    {createRows(60, 'Meter').map((row) => (
+    {meterRows.map((row) => (
       <Meter.Root key={row.id} value={40}>
         <Meter.Label>{row.label}</Meter.Label>
         <Meter.Value />
@@ -388,7 +423,7 @@ reactBenchmark('Smoke · Meter', () => (
 
 reactBenchmark('Smoke · NavigationMenu', () => (
   <React.Fragment>
-    {createRows(20, 'Navigation menu').map((row) => (
+    {navigationMenuRows.map((row) => (
       <NavigationMenu.Root key={row.id} aria-label={row.label}>
         <NavigationMenu.List>
           {['Overview', 'Handbook'].map((item) => (
@@ -421,7 +456,7 @@ reactBenchmark('Smoke · NavigationMenu', () => (
 
 reactBenchmark('Smoke · NumberField', () => (
   <React.Fragment>
-    {createRows(40, 'Number field').map((row) => (
+    {numberFieldRows.map((row) => (
       <NumberField.Root key={row.id} defaultValue={row.id}>
         <NumberField.Group>
           <NumberField.Decrement>-</NumberField.Decrement>
@@ -435,7 +470,7 @@ reactBenchmark('Smoke · NumberField', () => (
 
 reactBenchmark('Smoke · OTPField', () => (
   <React.Fragment>
-    {createRows(20, 'OTP field').map((row) => (
+    {oTPFieldRows.map((row) => (
       <OTPField.Root key={row.id} length={6} aria-label={row.label}>
         {Array.from({ length: 6 }, (_, index) => (
           <OTPField.Input key={index} aria-label={`Character ${index + 1} of 6`} />
@@ -447,7 +482,7 @@ reactBenchmark('Smoke · OTPField', () => (
 
 reactBenchmark('Smoke · Popover', () => (
   <React.Fragment>
-    {createRows(60, 'Popover').map((row) => (
+    {popoverRows.map((row) => (
       <Popover.Root key={row.id}>
         <Popover.Trigger>{row.label}</Popover.Trigger>
         <Popover.Portal>
@@ -465,7 +500,7 @@ reactBenchmark('Smoke · Popover', () => (
 
 reactBenchmark('Smoke · PreviewCard', () => (
   <React.Fragment>
-    {createRows(40, 'Preview card').map((row) => (
+    {previewCardRows.map((row) => (
       <PreviewCard.Root key={row.id}>
         <PreviewCard.Trigger href={`#${row.value}`}>{row.label}</PreviewCard.Trigger>
         <PreviewCard.Portal>
@@ -480,7 +515,7 @@ reactBenchmark('Smoke · PreviewCard', () => (
 
 reactBenchmark('Smoke · Progress', () => (
   <React.Fragment>
-    {createRows(60, 'Progress').map((row) => (
+    {progressRows.map((row) => (
       <Progress.Root key={row.id} value={40}>
         <Progress.Label>{row.label}</Progress.Label>
         <Progress.Value />
@@ -494,7 +529,7 @@ reactBenchmark('Smoke · Progress', () => (
 
 reactBenchmark('Smoke · RadioGroup', () => (
   <React.Fragment>
-    {createRows(20, 'Radio group').map((row) => (
+    {radioGroupRows.map((row) => (
       <RadioGroup key={row.id} aria-label={row.label} defaultValue={options[0].value}>
         {options.map((option) => (
           <Radio.Root key={option.id} value={option.value} aria-label={option.label}>
@@ -508,7 +543,7 @@ reactBenchmark('Smoke · RadioGroup', () => (
 
 reactBenchmark('Smoke · ScrollArea', () => (
   <React.Fragment>
-    {createRows(60, 'Scroll area').map((row) => (
+    {scrollAreaRows.map((row) => (
       <ScrollArea.Root key={row.id} style={SCROLL_AREA_STYLE}>
         <ScrollArea.Viewport>
           <ScrollArea.Content>
@@ -529,7 +564,7 @@ reactBenchmark('Smoke · ScrollArea', () => (
 
 reactBenchmark('Smoke · Select', () => (
   <React.Fragment>
-    {createRows(40, 'Select').map((row) => (
+    {selectRows.map((row) => (
       <Select.Root key={row.id} items={options}>
         <Select.Trigger aria-label={row.label}>
           <Select.Value placeholder={row.label} />
@@ -556,7 +591,7 @@ reactBenchmark('Smoke · Select', () => (
 
 reactBenchmark('Smoke · Separator', () => (
   <React.Fragment>
-    {createRows(100, 'Separator').map((row) => (
+    {separatorRows.map((row) => (
       <Separator key={row.id} />
     ))}
   </React.Fragment>
@@ -564,7 +599,7 @@ reactBenchmark('Smoke · Separator', () => (
 
 reactBenchmark('Smoke · Slider', () => (
   <React.Fragment>
-    {createRows(60, 'Slider').map((row) => (
+    {sliderRows.map((row) => (
       <Slider.Root key={row.id} defaultValue={50}>
         <Slider.Value />
         <Slider.Control aria-label={row.label}>
@@ -580,7 +615,7 @@ reactBenchmark('Smoke · Slider', () => (
 
 reactBenchmark('Smoke · Switch', () => (
   <React.Fragment>
-    {createRows(60, 'Switch').map((row) => (
+    {switchRows.map((row) => (
       <Switch.Root key={row.id} aria-label={row.label}>
         <Switch.Thumb />
       </Switch.Root>
@@ -590,7 +625,7 @@ reactBenchmark('Smoke · Switch', () => (
 
 reactBenchmark('Smoke · Tabs', () => (
   <React.Fragment>
-    {createRows(40, 'Tabs').map((row) => (
+    {tabsRows.map((row) => (
       <Tabs.Root key={row.id} defaultValue={tabValues[0]}>
         <Tabs.List aria-label={row.label}>
           {tabValues.map((value) => (
@@ -622,7 +657,7 @@ reactBenchmark('Smoke · Toast', () => (
 
 reactBenchmark('Smoke · ToggleGroup', () => (
   <React.Fragment>
-    {createRows(20, 'Toggle group').map((row) => (
+    {toggleGroupRows.map((row) => (
       <ToggleGroup key={row.id} aria-label={row.label} defaultValue={[options[0].value]}>
         {options.map((option) => (
           <Toggle key={option.id} value={option.value}>
@@ -636,7 +671,7 @@ reactBenchmark('Smoke · ToggleGroup', () => (
 
 reactBenchmark('Smoke · Toolbar', () => (
   <React.Fragment>
-    {createRows(20, 'Toolbar').map((row) => (
+    {toolbarRows.map((row) => (
       <Toolbar.Root key={row.id} aria-label={row.label}>
         <Toolbar.Button>Bold</Toolbar.Button>
         <Toolbar.Button>Italic</Toolbar.Button>
@@ -654,7 +689,7 @@ reactBenchmark('Smoke · Toolbar', () => (
 
 reactBenchmark('Smoke · Tooltip', () => (
   <div style={INERT_TO_POINTER}>
-    {createRows(60, 'Tooltip').map((row) => (
+    {tooltipRows.map((row) => (
       <Tooltip.Root key={row.id}>
         <Tooltip.Trigger aria-label={`Show ${row.label}`}>{row.label}</Tooltip.Trigger>
         <Tooltip.Portal>
