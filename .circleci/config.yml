@@ -266,15 +266,14 @@ jobs:
           name: Run benchmarks
           no_output_timeout: 30m
           environment:
-            # TEMPORARY: A/A runs against HEAD~1, which has the same library code; not uploaded.
-            BENCHMARK_UPLOAD: 'false'
+            BENCHMARK_UPLOAD: 'true'
             # TEMPORARY: the dashboard preview of mui/mui-public#1898, since production does not read
             # version 2 benchmark reports yet. Remove before merging.
             CI_REPORT_API_URL: https://code-infra-dashboard-pr-1898.onrender.com
           # Only the smoke benchmarks, which mount every component, to keep a pull request's check
           # short; they sample 30 rounds and stop within their own time limit. The other benchmark
           # files are left to a fuller run.
-          command: pnpm test:benchmark smoke --sample-size 30 --baseline "$(git rev-parse HEAD~1)"
+          command: pnpm test:benchmark smoke --sample-size 30 --baseline "$(cat .benchmark-baseline-sha)"
       - save_cache:
           name: Save the packed-baseline cache
           key: benchmark-packed-v1-{{ checksum ".benchmark-baseline-sha" }}
