@@ -1,4 +1,4 @@
-import * as React from 'react';
+import type * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
 import type { TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -6,7 +6,6 @@ import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import { dispatchOpenChange } from '../../utils/popups/floating-root/dispatchOpenChange';
-import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import type {
   PopupStoreContext,
   PopupStoreState,
@@ -14,8 +13,8 @@ import type {
 } from '../../utils/popups/store';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
   createInitialPopupStoreState,
+  createPopupStoreContext,
   getHoverPopupInstantType,
   popupStoreSelectors,
 } from '../../utils/popups/store';
@@ -76,12 +75,7 @@ export class TooltipStore<Payload> extends BasePopupStore<
   TooltipRoot.ChangeEventDetails
 > {
   constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
-    const triggerElements = new PopupTriggerMap();
-    super(
-      createInitialState<Payload>(initialState, floatingId),
-      createInitialContext(triggerElements),
-      selectors,
-    );
+    super(createInitialState<Payload>(initialState, floatingId), createInitialContext(), selectors);
   }
 
   protected prepareOpenChange(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
@@ -107,11 +101,9 @@ export class TooltipStore<Payload> extends BasePopupStore<
  * handlers while detached without any effect.
  */
 export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
-  const triggerElements = new PopupTriggerMap();
-
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
     Object.freeze(createInitialState<Payload>(undefined)),
-    Object.freeze(createInitialContext(triggerElements)),
+    Object.freeze(createInitialContext()),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP, cancelPendingOpen: NOOP });
@@ -138,12 +130,8 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(): Context {
   return {
-    popupRef: React.createRef<HTMLElement | null>(),
-    onOpenChange: undefined,
-    onOpenChangeComplete: undefined,
-    triggerElements,
-    ...createFloatingRootContextValues(),
+    ...createPopupStoreContext(),
   };
 }

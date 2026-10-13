@@ -14,11 +14,10 @@ import type {
   PopupStoreState,
   PopupTriggerStoreKeys,
 } from '../../utils/popups/store';
-import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
   createInitialPopupStoreState,
+  createPopupStoreContext,
   popupStoreSelectors,
 } from '../../utils/popups/store';
 import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
@@ -196,10 +195,9 @@ export class MenuStore<Payload> extends BasePopupStore<
   MenuRoot.ChangeEventDetails
 > {
   constructor(initialState?: Partial<State<Payload>>, floatingId?: string | undefined) {
-    const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(floatingId, initialState);
 
-    super(state, createInitialContext(triggerElements), selectors);
+    super(state, createInitialContext(), selectors);
 
     // Share the mouse-up trigger ref of the parent menu, if any. This observes the store's own
     // state, so the subscription lives exactly as long as the store and needs no cleanup.
@@ -271,7 +269,7 @@ export class MenuStore<Payload> extends BasePopupStore<
 
   protected getCloseTrigger() {
     // Keep the previous trigger so exit animations play and focus is returned correctly.
-    return this.context.getCommittedOpenState?.().activeTriggerElement ?? undefined;
+    return this.context.getCommittedOpenState!().activeTriggerElement ?? undefined;
   }
 
   protected isOpenChangeDropped(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
@@ -374,19 +372,18 @@ export class MenuStore<Payload> extends BasePopupStore<
  * `setOpen` without it ever taking effect while detached.
  */
 export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
-  const triggerElements = new PopupTriggerMap();
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
     Object.freeze(createInitialState<Payload>()),
-    Object.freeze(createInitialContext(triggerElements)),
+    Object.freeze(createInitialContext()),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(): Context {
   return {
+    ...createPopupStoreContext(),
     positionerRef: React.createRef<HTMLElement | null>(),
-    popupRef: React.createRef<HTMLElement | null>(),
     typingRef: { current: false },
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
@@ -402,10 +399,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     allowTouchToClose: true,
     allowTouchToCloseTimeout: new Timeout(),
     getCommittedOpenState: undefined,
-    onOpenChange: undefined,
-    onOpenChangeComplete: undefined,
-    triggerElements,
-    ...createFloatingRootContextValues(),
   };
 }
 

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import type * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
 import type {
   PopupStoreContext,
@@ -7,11 +7,10 @@ import type {
 } from '../../utils/popups/store';
 import { updateInlineRectCoords } from '../../utils/popups/inlineRect';
 import type { InlineRectCoords } from '../../utils/popups/inlineRect';
-import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
   createInitialPopupStoreState,
+  createPopupStoreContext,
   getHoverPopupInstantType,
   popupStoreSelectors,
 } from '../../utils/popups/store';
@@ -59,12 +58,7 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
   PreviewCardRoot.ChangeEventDetails
 > {
   constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
-    const triggerElements = new PopupTriggerMap();
-    super(
-      createInitialState<Payload>(initialState, floatingId),
-      createInitialContext(triggerElements),
-      selectors,
-    );
+    super(createInitialState<Payload>(initialState, floatingId), createInitialContext(), selectors);
   }
 
   protected prepareOpenChange(nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) {
@@ -104,11 +98,9 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
  * so detached triggers can register before migrating to the live root store.
  */
 export function createNullPreviewCardStore<Payload>(): PreviewCardHandleStore<Payload> {
-  const triggerElements = new PopupTriggerMap();
-
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
     Object.freeze(createInitialState<Payload>(undefined)),
-    Object.freeze(createInitialContext(triggerElements)),
+    Object.freeze(createInitialContext()),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
@@ -129,13 +121,9 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(): Context {
   return {
-    popupRef: React.createRef<HTMLElement | null>(),
-    onOpenChange: undefined,
-    onOpenChangeComplete: undefined,
-    triggerElements,
+    ...createPopupStoreContext(),
     inlineRectCoordsRef: { current: undefined },
-    ...createFloatingRootContextValues(),
   };
 }

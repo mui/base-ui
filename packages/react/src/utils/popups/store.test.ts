@@ -1,14 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
-import * as React from 'react';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
   createInitialPopupStoreState,
+  createPopupOpenState,
+  createPopupStoreContext,
   getHoverPopupInstantType,
   popupStoreSelectors,
 } from './store';
 import type { PopupOpenChangeEventDetails, PopupStoreContext, PopupStoreState } from './store';
-import { PopupTriggerMap } from './popupTriggerMap';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
@@ -240,16 +239,9 @@ class TestPopupStore extends BasePopupStore<
     onOpenChange: (open: boolean, eventDetails: PopupOpenChangeEventDetails) => void,
     state: Partial<TestState> = {},
   ) {
-    const triggerElements = new PopupTriggerMap();
     super(
       { ...createInitialPopupStoreState(), extra: 0, ...state },
-      {
-        triggerElements,
-        popupRef: React.createRef<HTMLElement>(),
-        onOpenChange,
-        onOpenChangeComplete: undefined,
-        ...createFloatingRootContextValues(),
-      },
+      { ...createPopupStoreContext(), onOpenChange },
       popupStoreSelectors,
     );
 
@@ -418,6 +410,66 @@ describe('BasePopupStore', () => {
     });
   });
 
+  describe('interaction notification', () => {
+    it('reports the change, the trigger named for the close and whether the popup is nested', () => {
+      const store = new TestPopupStore(() => {}, { open: true });
+      store.context.nested = true;
+      store.closeTrigger = document.createElement('button');
+      const onOpenChangeEvent = vi.fn();
+      store.context.events.on('openchange', onOpenChangeEvent);
+      const event = new KeyboardEvent('keydown');
+
+      store.setOpen(false, createChangeEventDetails(REASONS.escapeKey, event));
+
+      expect(onOpenChangeEvent).toHaveBeenCalledTimes(1);
+      expect(onOpenChangeEvent.mock.calls[0][0]).toEqual({
+        open: false,
+        reason: REASONS.escapeKey,
+        nativeEvent: event,
+        nested: true,
+        triggerElement: store.closeTrigger,
+      });
+    });
+
+    it('keeps the event of a click open when a hover open follows', () => {
+      const store = new TestPopupStore(() => {});
+      const click = new MouseEvent('click');
+
+      store.setOpen(true, createChangeEventDetails(REASONS.triggerPress, click));
+      store.setOpen(
+        true,
+        createChangeEventDetails(REASONS.triggerHover, new MouseEvent('mouseenter')),
+      );
+
+      expect(store.context.dataRef.current.openEvent).toBe(click);
+    });
+
+    it('replaces the event of a hover open with a click that follows', () => {
+      const store = new TestPopupStore(() => {});
+      const click = new MouseEvent('click');
+
+      store.setOpen(
+        true,
+        createChangeEventDetails(REASONS.triggerHover, new MouseEvent('mouseenter')),
+      );
+      store.setOpen(true, createChangeEventDetails(REASONS.triggerPress, click));
+
+      expect(store.context.dataRef.current.openEvent).toBe(click);
+    });
+
+    it('clears the open event on close', () => {
+      const store = new TestPopupStore(() => {});
+
+      store.setOpen(true, createChangeEventDetails(REASONS.triggerPress, new MouseEvent('click')));
+      store.setOpen(
+        false,
+        createChangeEventDetails(REASONS.escapeKey, new KeyboardEvent('keydown')),
+      );
+
+      expect(store.context.dataRef.current.openEvent).toBe(undefined);
+    });
+  });
+
   describe('anchor sync', () => {
     it('keeps the DOM reference once the popup unmounts and the active trigger is gone', () => {
       const trigger = document.createElement('button');
@@ -558,5 +610,55 @@ describe('getHoverPopupInstantType', () => {
     { name: 'any other change', open: true, reason: REASONS.none, expected: {} },
   ])('maps $name', ({ open, reason, expected }) => {
     expect(getHoverPopupInstantType(open, reason)).toStrictEqual(expected);
+  });
+});
+
+describe('createPopupOpenState', () => {
+  it('clears a previous unmount-prevention request when opening', () => {
+    const state = createInitialPopupStoreState();
+    state.preventUnmountingOnClose = true;
+
+    const nextState = createPopupOpenState(state, true, undefined);
+
+    expect(nextState.preventUnmountingOnClose).toBe(false);
+    expect(state.preventUnmountingOnClose).toBe(true);
+  });
+
+  it('sets the unmount-prevention request when closing', () => {
+    const state = createInitialPopupStoreState();
+
+    const nextState = createPopupOpenState(state, false, undefined, true);
+
+    expect(nextState.preventUnmountingOnClose).toBe(true);
+  });
+
+  it('preserves the active trigger when closing without a trigger', () => {
+    const state = createInitialPopupStoreState();
+    const trigger = document.createElement('button');
+    state.activeTriggerId = 'trigger-id';
+    state.activeTriggerElement = trigger;
+
+    const nextState = createPopupOpenState(state, false, undefined);
+
+    expect(nextState.activeTriggerId).toBe('trigger-id');
+    expect(nextState.activeTriggerElement).toBe(trigger);
+  });
+
+  it('records whether an open request carried a trigger', () => {
+    const state = createInitialPopupStoreState();
+    const trigger = document.createElement('button');
+    trigger.id = 'trigger-id';
+
+    expect(createPopupOpenState(state, true, undefined).openedWithoutTrigger).toBe(true);
+    expect(createPopupOpenState(state, true, trigger).openedWithoutTrigger).toBe(false);
+  });
+
+  it('keeps the trigger-less open flag through a close request', () => {
+    // A controlled root may decline the close and stay open; the Root resets the flag itself once
+    // the popup is effectively closed.
+    const state = createInitialPopupStoreState();
+    state.openedWithoutTrigger = true;
+
+    expect(createPopupOpenState(state, false, undefined).openedWithoutTrigger).toBe(true);
   });
 });

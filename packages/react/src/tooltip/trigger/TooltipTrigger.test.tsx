@@ -180,7 +180,7 @@ describe('<Tooltip.Trigger />', () => {
       expect(screen.queryByTestId('popup')).toBe(null);
     });
 
-    it('does not claim a tooltip opened without a trigger when its last trigger is hovered', async () => {
+    it('does not request an open when its previously active trigger is hovered while the tooltip is open without a trigger', async () => {
       const onOpenChange = vi.fn();
 
       function App() {

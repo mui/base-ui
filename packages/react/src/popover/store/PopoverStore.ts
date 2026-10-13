@@ -11,11 +11,10 @@ import type {
   PopupStoreState,
   PopupTriggerStoreKeys,
 } from '../../utils/popups/store';
-import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import {
   BasePopupStore,
-  createFloatingRootContextValues,
   createInitialPopupStoreState,
+  createPopupStoreContext,
   popupStoreSelectors,
 } from '../../utils/popups/store';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
@@ -102,12 +101,7 @@ export class PopoverStore<Payload> extends BasePopupStore<
   PopoverRoot.ChangeEventDetails
 > {
   constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
-    const triggerElements = new PopupTriggerMap();
-    super(
-      createInitialState<Payload>(initialState, floatingId),
-      createInitialContext(triggerElements),
-      selectors,
-    );
+    super(createInitialState<Payload>(initialState, floatingId), createInitialContext(), selectors);
   }
 
   protected getCloseTrigger(eventDetails: PopoverRoot.ChangeEventDetails) {
@@ -167,11 +161,9 @@ export class PopoverStore<Payload> extends BasePopupStore<
  * helpers that expect `setOpen` without it ever taking effect while detached.
  */
 export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
-  const triggerElements = new PopupTriggerMap();
-
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
     Object.freeze(createInitialState<Payload>(undefined)),
-    Object.freeze(createInitialContext(triggerElements)),
+    Object.freeze(createInitialContext()),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
@@ -204,17 +196,13 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(): Context {
   return {
-    popupRef: React.createRef<HTMLElement>(),
-    onOpenChange: undefined,
-    onOpenChangeComplete: undefined,
+    ...createPopupStoreContext(),
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     stickIfOpenTimeout: new Timeout(),
     stickIfOpen: true,
-    triggerElements,
-    ...createFloatingRootContextValues(),
   };
 }

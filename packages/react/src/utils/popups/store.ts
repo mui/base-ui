@@ -1,16 +1,12 @@
+import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { createEventEmitter } from './createEventEmitter';
 import { dispatchOpenChange } from './floating-root/dispatchOpenChange';
-import type {
-  ContextData,
-  FloatingEvents,
-  FloatingRootContextValues,
-  ReferenceType,
-} from './types';
+import type { ContextData, FloatingEvents, ReferenceType } from './types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import type { PopupTriggerMap } from './popupTriggerMap';
+import { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -172,14 +168,15 @@ export type PopupStoreContext<ChangeEventDetails> = {
 };
 
 /**
- * Creates the context values a popup store needs to serve as the interaction hooks' store.
+ * Creates the context every popup store starts with, including what the interaction hooks share.
  */
-export function createFloatingRootContextValues(): Omit<
-  FloatingRootContextValues,
-  'triggerElements'
-> {
+export function createPopupStoreContext() {
   return {
-    dataRef: { current: {} },
+    popupRef: React.createRef<HTMLElement>(),
+    triggerElements: new PopupTriggerMap(),
+    onOpenChange: undefined,
+    onOpenChangeComplete: undefined,
+    dataRef: { current: {} } as React.RefObject<ContextData>,
     events: createEventEmitter(),
     nested: false,
   };
@@ -522,14 +519,14 @@ export abstract class BasePopupStore<
     // between). `state.open` is reset when the prop closes the popup (see
     // `useOpenStateTransitions`), so `true` here means a request made since then: keep its trigger
     // instead of clearing it.
-    const unmountState: Partial<Pick<PopupStoreState<unknown>, PopupUnmountKey>> = this.state.open
-      ? { mounted: false, preventUnmountingOnClose: false }
-      : {
-          activeTriggerId: null,
-          activeTriggerElement: null,
-          mounted: false,
-          preventUnmountingOnClose: false,
-        };
+    const unmountState: Partial<Pick<PopupStoreState<unknown>, PopupUnmountKey>> = {
+      mounted: false,
+      preventUnmountingOnClose: false,
+    };
+    if (!this.state.open) {
+      unmountState.activeTriggerId = null;
+      unmountState.activeTriggerElement = null;
+    }
     this.update({ ...this.prepareUnmount(), ...unmountState } as Pick<State, keyof State>);
   }
 
