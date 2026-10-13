@@ -79,7 +79,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [initialValue] = React.useState(serializedValue);
 
-  const resetRef = useFormReset<HTMLInputElement>((eventDetails, input) => {
+  const resetRef = useFormReset((eventDetails, input) => {
     // React keeps a controlled input's `value` attribute in sync, so the browser won't restore it.
     const nextValue = isControlled ? (initialValue ?? '') : input.defaultValue;
     if (nextValue !== input.value) {

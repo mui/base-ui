@@ -298,9 +298,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         return;
       }
       setValueUnwrapped(initialValue);
-      hasPendingCommitRef.current = false;
     }
-    // Replace any text the user was typing.
+    // Drop any typed text and its pending commit, even when the value is back at its initial one.
+    hasPendingCommitRef.current = false;
     allowInputSyncRef.current = true;
     setInputValue(formatNumber(initialValue, locale, format));
   });

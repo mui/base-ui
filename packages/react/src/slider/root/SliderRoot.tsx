@@ -299,6 +299,16 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
+  const [initialValue] = React.useState(valueUnwrapped);
+
+  const resetRef = useFormReset((eventDetails) => {
+    // No thumb is active during a form reset.
+    setValue(
+      initialValue as number | number[],
+      Object.assign(eventDetails, { activeThumbIndex: -1 }),
+    );
+  });
+
   const contextValue: SliderRootContext = React.useMemo(
     () => ({
       active,
@@ -329,6 +339,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       pressedValuesRef,
       registerFieldControlRef,
       renderBeforeHydration: thumbAlignment === 'edge',
+      resetRef,
       setActive,
       setDragging,
       setIndicatorPosition,
@@ -363,6 +374,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       orientation,
       range,
       registerFieldControlRef,
+      resetRef,
       setActive,
       setValue,
       state,
@@ -374,19 +386,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
-  const [initialValue] = React.useState(valueUnwrapped);
-
-  const resetRef = useFormReset((eventDetails) => {
-    // No thumb is active during a form reset.
-    setValue(
-      initialValue as number | number[],
-      Object.assign(eventDetails, { activeThumbIndex: -1 }),
-    );
-  });
-
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, sliderRef, resetRef],
+    ref: [forwardedRef, sliderRef],
     props: [
       {
         'aria-labelledby': ariaLabelledby,

@@ -2318,5 +2318,34 @@ describe('<CheckboxGroup />', () => {
         expect(document.querySelector<HTMLInputElement>('input[name="b"]')!.checked).toBe(true);
       },
     );
+
+    it('resets checkboxes rendered outside the group once', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <div>
+          <form id="external-form" data-testid="form" />
+          <CheckboxGroup defaultValue={[]} onValueChange={onValueChange}>
+            {ReactDOM.createPortal(
+              <React.Fragment>
+                <Checkbox.Root value="a" name="a" form="external-form" data-testid="a" />
+                <Checkbox.Root value="b" name="b" form="external-form" data-testid="b" />
+              </React.Fragment>,
+              document.body,
+            )}
+          </CheckboxGroup>
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('a'));
+      fireEvent.click(screen.getByTestId('b'));
+      onValueChange.mockClear();
+
+      await resetForm();
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toEqual([]);
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'false');
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'false');
+    });
   });
 });

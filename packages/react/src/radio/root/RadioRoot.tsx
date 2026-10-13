@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -67,6 +67,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     setCheckedValue = NOOP,
     setTouched = NOOP,
     registerInputRef = NOOP,
+    resetRef,
   } = groupContext ?? {};
 
   const {
@@ -95,7 +96,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       registerFieldInput?.(element, { controlRef: radioRef, value: undefined }),
     [registerFieldInput],
   );
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, registerInputRef, registerInput);
+  const mergedInputRef = useMergedRefsN([
+    inputRefProp,
+    inputRef,
+    registerInputRef,
+    registerInput,
+    resetRef,
+  ]);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {

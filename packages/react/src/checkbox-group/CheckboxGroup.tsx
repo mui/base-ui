@@ -166,13 +166,14 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       disabled,
       validation,
       registerControlId,
+      resetRef,
     }),
-    [allValues, value, setValue, parent, disabled, validation, registerControlId],
+    [allValues, value, setValue, parent, disabled, validation, registerControlId, resetRef],
   );
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, resetRef],
+    ref: forwardedRef,
     props: [
       {
         id: idProp,

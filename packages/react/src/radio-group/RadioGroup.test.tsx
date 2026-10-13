@@ -2524,5 +2524,29 @@ describe('<RadioGroup />', () => {
         expect(inputB.checked).toBe(true);
       },
     );
+
+    it('resets radios rendered outside the group', async () => {
+      await render(
+        <div>
+          <form id="external-form" data-testid="form" />
+          <RadioGroup name="r" form="external-form" defaultValue="a">
+            {ReactDOM.createPortal(
+              <React.Fragment>
+                <Radio.Root value="a" data-testid="a" />
+                <Radio.Root value="b" data-testid="b" />
+              </React.Fragment>,
+              document.body,
+            )}
+          </RadioGroup>
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('b'));
+      expect(screen.getByTestId('b')).toHaveAttribute('aria-checked', 'true');
+
+      await resetForm();
+
+      expect(screen.getByTestId('a')).toHaveAttribute('aria-checked', 'true');
+    });
   });
 });

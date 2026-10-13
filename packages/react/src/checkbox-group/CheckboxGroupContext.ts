@@ -21,6 +21,10 @@ export interface CheckboxGroupContext {
    * function shares that scope, so the group, not the checkbox, is the field's control.
    */
   registerControlId: LabelableContext['registerControlId'];
+  /**
+   * Restores the group's value when the form is reset. Attached to each checkbox's input.
+   */
+  resetRef: (input: HTMLInputElement) => () => void;
 }
 
 export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | undefined>(

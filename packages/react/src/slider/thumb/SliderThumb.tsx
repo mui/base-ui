@@ -138,6 +138,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
     renderBeforeHydration,
+    resetRef,
     setActive,
     setIndicatorPosition,
     state,
@@ -499,7 +500,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     { onFocus: handleFocusProp, onBlur: handleBlurProp, onKeyDown: onKeyDownProp },
   );
 
-  const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);
+  const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp, resetRef);
 
   const element = useRenderElement('div', componentProps, {
     state: { ...state, disabled },

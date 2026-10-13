@@ -198,7 +198,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     inputRef,
     parent ? undefined : registerInput,
     // A group owns the value of its checkboxes that have a `value`, so it resets them.
-    parent || (groupContext && value !== undefined) ? undefined : resetRef,
+    (groupContext && value !== undefined && groupContext.resetRef) ||
+      (parent ? undefined : resetRef),
   );
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,

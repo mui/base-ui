@@ -3218,5 +3218,28 @@ describe('<NumberField />', () => {
       expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('2');
       expect(screen.getByTestId('field')).toHaveAttribute('data-dirty');
     });
+
+    it('drops a pending commit when the typed value is back at its initial value', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <form data-testid="form">
+          <NumberFieldBase.Root defaultValue={1} onValueCommitted={onValueCommitted}>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </form>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      await act(async () => {
+        input.focus();
+      });
+      fireEvent.change(input, { target: { value: '2' } });
+      fireEvent.change(input, { target: { value: '1' } });
+
+      await resetForm();
+      fireEvent.blur(input);
+
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
   });
 });

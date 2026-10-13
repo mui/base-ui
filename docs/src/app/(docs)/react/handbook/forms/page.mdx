@@ -233,7 +233,7 @@ import { Form } from '@base-ui/react/form';
 
 ## Resetting forms
 
-A reset button (`<button type="reset">`) or a call to `form.reset()` restores every control in the form to its initial value and returns its field to a pristine state, clearing its dirty, touched, and validity state. Each control reports the change through its change callback with the `'form-reset'` reason. Calling `event.preventDefault()` in the form's `onReset` handler cancels the whole reset.
+A reset button (`<button type="reset">`) or a call to `form.reset()` restores every control in the form to its initial value and returns its field to a pristine state, clearing its dirty, touched, and validity state. Each control reports the change through its change callback with the `'form-reset'` reason. Calling `event.preventDefault()` in the form's `onReset` handler cancels the whole reset. Don't call `event.stopPropagation()` there: controls listen for the reset on the document, so they would keep their values while the browser still resets their native inputs.
 
 Controlled components reset to the value they had when they first rendered. To reset to a different value, remount the form with a new `key`. To keep a control's current value, cancel its change:
 
