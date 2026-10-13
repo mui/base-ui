@@ -14,7 +14,7 @@ import type {
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { AdaptiveOriginMiddleware } from './positioning/adaptiveOriginConstants';
 import { usePositioner } from './positioning/usePositioner';
-import type { PopupInteractionStore, PositioningInteractionStore } from './types';
+import type { PositioningInteractionStore } from './types';
 import type { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from './store';
 
 /**
