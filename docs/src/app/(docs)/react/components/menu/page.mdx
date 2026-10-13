@@ -429,8 +429,7 @@ const results = actions.filter((action) => contains(action.label, query));
 #### Controlling the query
 
 `value` and `onValueChange` on `<Menu.FilterProvider>` control the query.
-It resets to an empty string once the menu has finished closing, reported with the `'popup-close'` reason. Cancel that change to keep the query.
-Items rendered from the query stay in place while the menu animates out.
+It resets to an empty string when the menu closes, reported with the `'popup-close'` reason. Cancel that change to keep the query.
 
 #### Highlighting
 
