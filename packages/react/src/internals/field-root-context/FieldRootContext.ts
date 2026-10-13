@@ -32,6 +32,10 @@ export interface FieldRootContext {
     registration: FieldControlRegistration | undefined,
   ) => void;
   validation: UseFieldValidationReturnValue;
+  /**
+   * Returns the field to its pristine state after its form is reset.
+   */
+  reset: () => void;
 }
 
 export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
@@ -63,7 +67,9 @@ export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
     getInputControl: () => null,
     commit: async () => {},
     change: NOOP,
+    reset: NOOP,
   },
+  reset: NOOP,
 };
 
 export const FieldRootContext = React.createContext<FieldRootContext>(DEFAULT_FIELD_ROOT_CONTEXT);

@@ -14,6 +14,7 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { useFormReset } from '../../internals/useFormReset';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -75,6 +76,20 @@ export const FieldControl = React.forwardRef(function FieldControl(
   // The DOM value is always a string, so dirty comparisons must serialize the controlled value.
   const serializedValue = value == null ? undefined : String(value);
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [initialValue] = React.useState(serializedValue);
+
+  useFormReset(inputRef, (eventDetails, input) => {
+    // React keeps a controlled input's `value` attribute in sync, so the browser won't restore it.
+    const nextValue = isControlled ? (initialValue ?? '') : input.defaultValue;
+    if (nextValue !== input.value) {
+      onValueChange?.(nextValue, eventDetails);
+    }
+    if (!isControlled) {
+      setFilled(nextValue !== '');
+    }
+  });
+
   const getValueFromInput = useStableCallback(() => validation.inputRef.current?.value);
 
   useRegisterFieldControl(
@@ -104,7 +119,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
     validation.change(serializedValue);
   });
 
-  const inputRef = React.useRef<HTMLElement>(null);
   const setFocused = useSetFieldFocused(disabled, inputRef);
   const enterValidationTimeout = useTimeout();
 
@@ -210,7 +224,7 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
   defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }
 
-export type FieldControlChangeEventReason = typeof REASONS.none;
+export type FieldControlChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
 
 export type FieldControlChangeEventDetails =
   BaseUIChangeEventDetails<FieldControl.ChangeEventReason>;

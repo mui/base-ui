@@ -135,6 +135,12 @@ export const Form = React.forwardRef(function Form<
             onFormSubmit(formValues, createGenericEventDetails(REASONS.none, event.nativeEvent));
           }
         },
+        onReset(event) {
+          // A reset form is pristine again, so fields stop revalidating on change until the next submit.
+          if (!event.defaultPrevented) {
+            submitCountRef.current = 0;
+          }
+        },
       },
       elementProps,
     ],

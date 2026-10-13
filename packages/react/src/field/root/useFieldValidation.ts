@@ -120,6 +120,15 @@ export function useFieldValidation(
     return (element && registeredInputs.get(element)?.controlRef.current) || null;
   });
 
+  function clearCustomValidity() {
+    const record = customValidityRef.current;
+    customValidityRef.current = null;
+    // Replacement transfers ownership; barred controls hide `validationMessage`.
+    if (record && (!record[0].willValidate || record[0].validationMessage === record[1])) {
+      record[0].setCustomValidity(record[2]);
+    }
+  }
+
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
     validationCommitIdRef.current += 1;
     const validationCommitId = validationCommitIdRef.current;
@@ -170,15 +179,6 @@ export function useFieldValidation(
       const ownedMessage = message.replace(/\r\n?/g, '\n');
       element.setCustomValidity(ownedMessage);
       customValidityRef.current = [element, ownedMessage, displaced];
-    }
-
-    function clearCustomValidity() {
-      const record = customValidityRef.current;
-      customValidityRef.current = null;
-      // Replacement transfers ownership; barred controls hide `validationMessage`.
-      if (record && (!record[0].willValidate || record[0].validationMessage === record[1])) {
-        record[0].setCustomValidity(record[2]);
-      }
     }
 
     function publish(
@@ -364,6 +364,13 @@ export function useFieldValidation(
     }
   });
 
+  // Drops pending validation and the custom error Base UI installed, so a reset form's native
+  // constraints match its pristine field state.
+  const reset = useStableCallback(() => {
+    change(undefined, true);
+    clearCustomValidity();
+  });
+
   const getValidationProps = React.useCallback(
     (disabled: boolean, externalProps: HTMLProps = {}) =>
       mergeProps<any>(
@@ -384,8 +391,9 @@ export function useFieldValidation(
       getInputControl,
       commit,
       change,
+      reset,
     }),
-    [getValidationProps, registeredInputs, registerInput, getInputControl, commit, change],
+    [getValidationProps, registeredInputs, registerInput, getInputControl, commit, change, reset],
   );
 }
 
@@ -413,4 +421,5 @@ export interface UseFieldValidationReturnValue {
   getInputControl: () => HTMLElement | null;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown, cancelPending?: boolean) => void;
+  reset: () => void;
 }

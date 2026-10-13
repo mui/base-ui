@@ -13,6 +13,7 @@ import { useFormContext } from '../../internals/form-context/FormContext';
 import { LabelableProvider } from '../../internals/labelable-provider';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useValueChanged } from '../../internals/useValueChanged';
 import { useFieldValidation } from './useFieldValidation';
 import { useFieldControlRegistration } from '../../internals/field-register-control/useFieldControlRegistration';
 
@@ -23,7 +24,12 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { errors, validationMode: formValidationMode, submitCountRef } = useFormContext();
+  const {
+    errors,
+    validationMode: formValidationMode,
+    submitCountRef,
+    clearErrors,
+  } = useFormContext();
 
   const {
     render,
@@ -146,6 +152,26 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     validityData,
   });
 
+  const [resetCount, reset] = React.useReducer((count: number) => count + 1, 0);
+
+  // Parent layout effects run after the control's, so this also discards the validation the
+  // control starts when its value is restored.
+  useValueChanged(resetCount, () => {
+    validation.reset();
+    if (dirtyProp === undefined) {
+      markedDirtyRef.current = false;
+    }
+    setDirty(false);
+    setTouched(false);
+    setValidityData((prev) => ({
+      ...prev,
+      state: DEFAULT_VALIDITY_STATE,
+      error: '',
+      errors: [],
+    }));
+    clearErrors(effectiveName);
+  });
+
   React.useImperativeHandle(actionsRef, () => ({ validate: validateFieldControl }), [
     validateFieldControl,
   ]);
@@ -167,6 +193,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       state,
       registerFieldControl,
       validation,
+      reset,
     }),
     [
       invalid,
@@ -182,6 +209,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       state,
       registerFieldControl,
       validation,
+      reset,
     ],
   );
 

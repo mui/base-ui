@@ -221,15 +221,13 @@ type FieldControlState = {
 ### Control.ChangeEventReason
 
 ```typescript
-type FieldControlChangeEventReason = 'none';
+type FieldControlChangeEventReason = 'none' | 'form-reset';
 ```
 
 ### Control.ChangeEventDetails
 
 ```typescript
-type FieldControlChangeEventDetails = {
-  /** The reason for the event. */
-  reason: 'none';
+type FieldControlChangeEventDetails = ({ reason: 'none' } | { reason: 'form-reset' }) & {
   /** The native event associated with the custom event. */
   event: Event;
   /** Cancels Base UI from handling the event. */
