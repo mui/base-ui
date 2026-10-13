@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '@base-ui/utils/formatNumber';
+import { useStore } from '@base-ui/utils/store';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
+import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
@@ -26,12 +29,9 @@ export const SliderValue = React.forwardRef(function SliderValue(
     ...elementProps
   } = componentProps;
 
-  const { thumbMap, state, values, format, locale } = useSliderRootContext();
+  const { thumbMapStore, state, values, format, locale } = useSliderRootContext();
 
-  const outputFor =
-    Array.from(thumbMap.values(), ({ inputId }) => inputId)
-      .join(' ')
-      .trim() || undefined;
+  const outputFor = useStore(thumbMapStore, selectOutputFor);
 
   const formattedValues = React.useMemo(
     () => values.map((v) => formatNumber(v, locale, format)),
@@ -59,6 +59,14 @@ export const SliderValue = React.forwardRef(function SliderValue(
 
   return element;
 });
+
+function selectOutputFor(thumbMap: Map<Node, CompositeMetadata<ThumbMetadata>>) {
+  return (
+    Array.from(thumbMap.values(), ({ inputId }) => inputId)
+      .join(' ')
+      .trim() || undefined
+  );
+}
 
 export interface SliderValueState extends SliderRootState {}
 
