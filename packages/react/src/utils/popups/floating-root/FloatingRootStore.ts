@@ -1,6 +1,6 @@
 import type * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
-import type { FloatingEvents, ContextData, FloatingRootContext, ReferenceType } from '../types';
+import type { FloatingEvents, ContextData, PositioningRootContext, ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../createEventEmitter';
 import type { PopupTriggerMap } from '../popupTriggerMap';
@@ -52,7 +52,7 @@ interface FloatingRootStoreOptions {
 
 export class FloatingRootStore
   extends ReactStore<Readonly<FloatingRootState>, FloatingRootStoreContext, typeof selectors>
-  implements FloatingRootContext
+  implements PositioningRootContext
 {
   constructor(options: FloatingRootStoreOptions) {
     const { nested, onOpenChange, triggerElements, ...initialState } = options;
@@ -84,4 +84,13 @@ export class FloatingRootStore
     dispatchOpenChange(this.context, this.state.open, newOpen, eventDetails);
     this.context.onOpenChange?.(newOpen, eventDetails);
   };
+
+  clearPositioning() {
+    this.update({
+      referenceElement: null,
+      floatingElement: null,
+      domReferenceElement: null,
+      positionReference: null,
+    });
+  }
 }

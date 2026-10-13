@@ -399,6 +399,14 @@ export abstract class BasePopupStore<
     super.setState(syncAnchorState(this.state, newState));
   }
 
+  /**
+   * Clears the anchor element and the anchor override. The trigger and positioner elements come
+   * from the popup's own state, so they stay.
+   */
+  clearPositioning() {
+    this.update({ domReferenceElement: null, positionReference: null });
+  }
+
   setOpen = (
     nextOpen: boolean,
     eventDetails: Omit<ChangeEventDetails, 'preventUnmountOnClose'>,

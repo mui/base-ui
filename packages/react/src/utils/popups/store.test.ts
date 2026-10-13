@@ -352,6 +352,27 @@ describe('BasePopupStore', () => {
       expect(store.state.preventUnmountingOnClose).toBe(false);
     });
   });
+
+  describe('clearPositioning', () => {
+    it('clears the anchor element and the anchor override in one update, keeping the positioner', () => {
+      const anchor = document.createElement('button');
+      const positioner = document.createElement('div');
+      const store = new TestPopupStore(() => {}, {
+        domReferenceElement: anchor,
+        positionReference: anchor,
+        positionerElement: positioner,
+      });
+      const listener = vi.fn();
+      store.subscribe(listener);
+
+      store.clearPositioning();
+
+      expect(store.state.domReferenceElement).toBe(null);
+      expect(store.state.positionReference).toBe(null);
+      expect(store.state.positionerElement).toBe(positioner);
+      expect(listener).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 
 describe('getHoverPopupInstantType', () => {

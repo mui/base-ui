@@ -80,6 +80,18 @@ export interface FloatingRootContext {
   readonly context: FloatingRootContextValues;
 }
 
+/**
+ * The store anchor positioning reads and clears. Popup stores and `FloatingRootStore` implement it;
+ * the narrower handle stores that triggers use don't need to.
+ */
+export interface PositioningRootContext extends FloatingRootContext {
+  /**
+   * Forgets the elements positioning reads, so it doesn't run for a `keepMounted` popup whose
+   * positioner is unmounted.
+   */
+  clearPositioning(): void;
+}
+
 export type FloatingContext = Omit<
   UsePositionFloatingReturn<ReferenceType>,
   'refs' | 'elements'
