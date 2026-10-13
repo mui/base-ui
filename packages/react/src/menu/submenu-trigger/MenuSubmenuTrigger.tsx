@@ -63,7 +63,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const open = store.useState('open');
   const focusReturnedThroughGuardRef = React.useRef(false);
   const positionerElement = store.useState('positionerElement');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const popupTreeRoot = store.useState('popupTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
@@ -183,7 +183,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     delay: { open: delay, close: closeDelay },
     shouldOpen: delay > 0 ? () => parentMenuStore.select('allowMouseEnter') : undefined,
     triggerElementRef,
-    externalTree: floatingTreeRoot,
+    externalTree: popupTreeRoot,
     // Chrome can drop the trigger's `mouseleave` during a fast pointer sweep,
     // leaving a stale submenu open (see #5152) — cancel from `mouseout` too.
     guardStaleOpen: true,

@@ -40,7 +40,7 @@ const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItemPlain(
 
   const rootDisabled = store.useState('disabled');
   const highlighted = store.useState('isActive', listItem.index);
-  const nodeId = store.useState('floatingNodeId');
+  const nodeId = store.useState('popupNodeId');
   const itemProps = store.useState('itemProps');
 
   const disabled = disabledProp || rootDisabled;

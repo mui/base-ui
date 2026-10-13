@@ -21,7 +21,7 @@ import {
 } from '../../../internals/composite/listIndex';
 import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../constants';
-import { getFloatingFocusElement, isTypeableCombobox, isTypeableElement } from '../element';
+import { getPopupFocusElement, isTypeableCombobox, isTypeableElement } from '../element';
 import { enqueueFocus } from '../focus/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../event';
 
@@ -287,10 +287,10 @@ export function useListNavigation(
 
   const dataRef = store.context.dataRef;
 
-  const floatingFocusElement = getFloatingFocusElement(outerPopupElement);
+  const popupFocusElement = getPopupFocusElement(outerPopupElement);
   const typeableComboboxReference = isTypeableCombobox(anchorElement);
 
-  const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
+  const popupFocusElementRef = useValueAsRef(popupFocusElement);
 
   const parentId = usePopupParentNodeId();
   const tree = usePopupTree(externalTree);
@@ -562,7 +562,7 @@ export function useListNavigation(
     // If the floating element is animating out, ignore navigation. Otherwise,
     // the `activeIndex` gets set to 0 despite not being open so the next time
     // the user ArrowDowns, the first item won't be focused.
-    if (!latestOpenRef.current && event.currentTarget === floatingFocusElementRef.current) {
+    if (!latestOpenRef.current && event.currentTarget === popupFocusElementRef.current) {
       return;
     }
 
@@ -727,10 +727,10 @@ export function useListNavigation(
         onNavigate(event);
 
         if (!virtual) {
-          const floatingFocusEl = floatingFocusElementRef.current;
-          const activeEl = activeElement(ownerDocument(floatingFocusEl));
-          if (floatingFocusEl && contains(floatingFocusEl, activeEl)) {
-            floatingFocusEl.focus({ preventScroll: true });
+          const popupFocusEl = popupFocusElementRef.current;
+          const activeEl = activeElement(ownerDocument(popupFocusEl));
+          if (popupFocusEl && contains(popupFocusEl, activeEl)) {
+            popupFocusEl.focus({ preventScroll: true });
           }
         }
       },
@@ -740,7 +740,7 @@ export function useListNavigation(
   }, [
     syncCurrentTarget,
     latestOpenRef,
-    floatingFocusElementRef,
+    popupFocusElementRef,
     focusItemOnHover,
     listRef,
     onNavigate,
@@ -768,7 +768,7 @@ export function useListNavigation(
           // within the menu), don't close the menu. The nested element has its own focus
           // management and should handle the Tab key.
           const target = getTarget(event.nativeEvent) as Element | null;
-          if (target && !contains(floatingFocusElementRef.current, target)) {
+          if (target && !contains(popupFocusElementRef.current, target)) {
             return;
           }
 
@@ -796,7 +796,7 @@ export function useListNavigation(
   }, [
     ariaActiveDescendantProp,
     commonOnKeyDown,
-    floatingFocusElementRef,
+    popupFocusElementRef,
     typeableComboboxReference,
     store,
     open,
@@ -875,7 +875,7 @@ export function useListNavigation(
               indexRef.current = getMinEnabledIndex();
               onNavigate(event);
               if (virtual) {
-                floatingFocusElementRef.current?.focus();
+                popupFocusElementRef.current?.focus();
               }
             } else {
               openOnNavigationKeyDown(event);
@@ -934,7 +934,7 @@ export function useListNavigation(
     rtl,
     selectedIndexRef,
     virtual,
-    floatingFocusElementRef,
+    popupFocusElementRef,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {

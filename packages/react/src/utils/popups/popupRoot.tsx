@@ -97,7 +97,7 @@ export function usePopupRoot<Store extends PopupRootStore>(
   options: UsePopupRootOptions = {},
 ) {
   const defaultPopupId = useId();
-  return usePopupRootWithFloatingId(props, createStore, defaultPopupId, options);
+  return usePopupRootWithPopupId(props, createStore, defaultPopupId, options);
 }
 
 /**
@@ -105,7 +105,7 @@ export function usePopupRoot<Store extends PopupRootStore>(
  *
  * @param defaultPopupId The floating id, or `undefined` to leave the popup without one.
  */
-export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
+export function usePopupRootWithPopupId<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
   createStore: (initialState: PopupRootInitialState, defaultPopupId: string | undefined) => Store,
   defaultPopupId: string | undefined,
@@ -127,10 +127,10 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
   } = options;
 
   const store = usePopupRootStore(
-    (initialFloatingId) =>
+    (initialPopupId) =>
       createStore(
         { open: defaultOpen, openProp, activeTriggerId: defaultTriggerId, triggerIdProp },
-        initialFloatingId,
+        initialPopupId,
       ),
     defaultPopupId,
   );
