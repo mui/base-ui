@@ -2,7 +2,6 @@ import * as React from 'react';
 import { mdxComponentsCommon } from 'docs/src/mdx-components';
 import * as CodeBlock from 'docs/src/components/CodeBlock';
 import { CodeBlockPreComputed } from 'docs/src/components/CodeBlock/CodeBlockPreComputed';
-import { Diagram } from './Diagram';
 import * as Figure from './Figure';
 import * as Table from './Table';
 import { Video } from './Video';
@@ -32,7 +31,6 @@ export const mdxComponents = {
     props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
   // Custom components
-  Diagram,
   Figure: (props: React.ComponentProps<'figure'>) => (
     <Figure.Root {...props} className="BlogMdArticleBreakout" />
   ),
