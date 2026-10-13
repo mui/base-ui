@@ -152,7 +152,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const cornerEl = cornerRef.current;
 
     if (!viewportEl) {
-      return;
+      return undefined;
     }
 
     const scrollableContentHeight = viewportEl.scrollHeight;
