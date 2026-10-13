@@ -707,10 +707,7 @@ describe('NumberField parse', () => {
 
           inputs.forEach(([input, number]) => {
             const parsed = parseNumber(input, locale, format);
-            if (
-              parsed === null ||
-              Math.abs(parsed - number) > 1e-9 * Math.max(1, Math.abs(number))
-            ) {
+            if (parsed !== number) {
               failures.push(
                 `${JSON.stringify(format)} ${JSON.stringify(input)}: ${parsed} (expected ${number})`,
               );
