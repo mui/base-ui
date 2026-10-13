@@ -67,7 +67,7 @@ export function useAnimationsFinished(
           return;
         }
 
-        flushBeforePaint(() => {
+        void flushBeforePaint(() => {
           // Re-check at flush time: the signal may abort between queueing and the flush.
           if (!signal?.aborted) {
             fnToExecute();
