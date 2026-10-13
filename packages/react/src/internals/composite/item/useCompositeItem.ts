@@ -14,7 +14,7 @@ export interface UseCompositeItemParameters<Metadata> extends Pick<
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
   const { highlightItemOnHover, highlightedIndex, onHighlightedIndexChange } =
     useCompositeRootContext();
-  const { ref, index } = useCompositeListItem(params);
+  const { ref, index } = useCompositeListItem({ ...params, guess: true });
 
   const isHighlighted = highlightedIndex === index;
 
