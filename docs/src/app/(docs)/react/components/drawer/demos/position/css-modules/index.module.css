@@ -95,6 +95,9 @@
 .Viewport {
   position: fixed;
   inset: 0;
+  /* Anchor from the top: Chrome on iOS can retain the toolbar's bottom inset when it hides. */
+  bottom: auto;
+  height: 100dvh;
   display: flex;
   align-items: flex-end;
   justify-content: center;
