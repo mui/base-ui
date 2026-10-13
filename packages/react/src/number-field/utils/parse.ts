@@ -58,36 +58,43 @@ export const ANY_PLUS_RE = /[+＋﹢]/gu;
 export const ANY_MINUS_DETECT_RE = /[-−－‒–—﹣]/;
 export const ANY_PLUS_DETECT_RE = /[+＋﹢]/;
 
-// A representative value with a grouping separator and a fractional part, so that the formatter
+// Representative values with a grouping separator and a fractional part, so that the formatter
 // emits every locale-specific part (group, decimal, currency, unit, literal, exponent, …). Shared
-// so the locale-detail and allowed-character derivations enumerate the same parts. It has 7
-// integer digits because some locales only group from 6 (`11111.1` but `123,456.7` in ee).
-const SAMPLE_FORMAT_NUMBER = 1111111.1;
+// so the locale-detail and allowed-character derivations enumerate the same parts. Some locales
+// only group from 6 digits (`11111.1` but `123,456.7` in ee), while compact notation abbreviates
+// 7 digits but can still group 5 (`1,1 Mio.` but `11.111` in de), so both sizes are needed.
+const SAMPLE_FORMAT_NUMBERS = [1111111.1, 11111.1];
 
 // Labels change with the plural form (`1 foot` but `2 feet`, `1 день`, `2 дня` and `5 дней`), so
 // these values cover each form.
 const PLURAL_FORM_NUMBERS = [0, 1, 2, 3, 5, 6, 11, 21, 100, 1.5, 1.49, 1e6];
 
-/**
- * Returns the `Intl.NumberFormat` parts of a representative number, which surface every
- * non-numeric symbol a given locale/format renders.
- */
-export function getFormatParts(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
-  return getFormatter(locale, options).formatToParts(SAMPLE_FORMAT_NUMBER);
+function formatPartsOf(
+  values: number[],
+  locale?: Intl.LocalesArgument,
+  options?: Intl.NumberFormatOptions,
+) {
+  const formatter = getFormatter(locale, options);
+  return values.flatMap((value) => formatter.formatToParts(value));
 }
 
 /**
- * Returns the parts of the representative number and of every plural form, so each currency and
+ * Returns the `Intl.NumberFormat` parts of representative numbers, which surface every
+ * non-numeric symbol a given locale/format renders.
+ */
+export function getFormatParts(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
+  return formatPartsOf(SAMPLE_FORMAT_NUMBERS, locale, options);
+}
+
+/**
+ * Returns the parts of the representative numbers and of every plural form, so each currency and
  * unit label the format can render is included.
  */
 export function getAllFormatParts(
   locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
 ) {
-  const formatter = getFormatter(locale, options);
-  return [SAMPLE_FORMAT_NUMBER, ...PLURAL_FORM_NUMBERS].flatMap((value) =>
-    formatter.formatToParts(value),
-  );
+  return formatPartsOf([...SAMPLE_FORMAT_NUMBERS, ...PLURAL_FORM_NUMBERS], locale, options);
 }
 
 export function getNumberLocaleDetails(
@@ -161,20 +168,10 @@ export function parseNumber(
     return '';
   };
 
-  // A trailing hyphen after a letter is part of a partly deleted label (`US-` from `US-Dollar`)
-  input = input.replace(/(?<![\p{L}\p{M}])([+-])\s*$/u, takeSign).replace(/^\s*([+-])/, takeSign);
-
-  // Accounting formats show negatives in parentheses, such as `($1.00)`
-  if (options?.currencySign === 'accounting') {
-    input = input.replace(/^\s*\((.*)\)\s*$/, (match, inner: string) => {
-      isNegative = true;
-      return inner;
-    });
-  }
+  input = input.replace(/^\s*([+-])/, takeSign);
 
   // Remove the formatter's own labels while they still match exactly, so a `.` inside a label
-  // (`st. C`) can't be read as a separator. Signs are taken first, so a hyphen left behind by a
-  // label that only partly matches (`7 n-acra`) isn't read as one.
+  // (`st. C`) can't be read as a separator.
   getAllFormatParts(computedLocale, options)
     .filter((part) => part.type === 'currency' || part.type === 'unit')
     .map((part) => part.value.replace(FORMAT_CONTROL_GLOBAL_RE, ''))
@@ -203,6 +200,19 @@ export function parseNumber(
   if (exponentSeparator) {
     input = input.replaceAll(toAsciiDigits(exponentSeparator), 'e');
   }
+  // Read a trailing sign once labels, digits and exponents are resolved (`12 kg-`, `一二-`). A
+  // hyphen right after a letter belongs to a partly deleted label (`US-` from `US-Dollar`) or an
+  // unfinished exponent (`1.3e-`).
+  input = input.replace(/(?<![\p{L}\p{M}])([+-])\s*$/u, takeSign);
+
+  // Accounting formats show negatives in parentheses, such as `($1.00)`
+  if (options?.currencySign === 'accounting') {
+    input = input.replace(/^\s*\((.*)\)\s*$/, (match, inner: string) => {
+      isNegative = true;
+      return inner;
+    });
+  }
+
   if (group) {
     let groupPattern: string | RegExp = group;
     if (/\p{Zs}/u.test(group)) {

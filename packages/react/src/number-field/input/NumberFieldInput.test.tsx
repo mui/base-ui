@@ -1598,6 +1598,35 @@ describe('<NumberField.Input />', () => {
     },
   );
 
+  it('commits an edited grouped compact value (de-DE)', async () => {
+    const format = { notation: 'compact' } as const;
+    const formatter = new Intl.NumberFormat('de-DE', format);
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="de-DE"
+        format={format}
+        defaultValue={10000}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(10000));
+
+    // Replace the last digit of `10.000`
+    input.setSelectionRange(input.value.length - 1, input.value.length);
+    await user.keyboard('1');
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(10001);
+    expect(input).toHaveValue(formatter.format(10001));
+  });
+
   it('keeps the stored value on blur after a rejected edit to compact text', async () => {
     const format = { notation: 'compact' } as const;
     const onValueChange = vi.fn();

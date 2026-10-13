@@ -391,6 +391,8 @@ describe('NumberField parse', () => {
       expect(parseNumber('($14.00)', 'en-US', format)).toBe(-14);
       expect(parseNumber('(14)', 'en-US', format)).toBe(-14);
       expect(parseNumber('($14.00', 'en-US', format)).toBe(null);
+      // A sign typed after the closing parenthesis keeps the value negative
+      expect(parseNumber('($14.00)-', 'en-US', format)).toBe(-14);
     });
 
     it('does not read parentheses as a negative without the accounting format', () => {
@@ -439,6 +441,33 @@ describe('NumberField parse', () => {
       expect(parseNumber(formatted, 'ur', format)).toBe(1.5);
       // The locale's usual separator still reads as the decimal
       expect(parseNumber('21,7', 'de-DE', format)).toBe(21.7);
+    });
+
+    it.each([
+      { name: 'de-DE', locale: 'de-DE' },
+      { name: 'de-CH', locale: 'de-CH' },
+    ])('reads group separators of compact values below the abbreviation ($name)', ({ locale }) => {
+      // `10.001` is grouped while `1,1 Mio.` is abbreviated
+      const format = { notation: 'compact' } as const;
+      const formatted = new Intl.NumberFormat(locale, format).format(10001);
+
+      expect(parseNumber(formatted, locale, format)).toBe(10001);
+    });
+
+    it('reads a trailing minus after a complete label or Han numerals', () => {
+      expect(parseNumber('12 kg-', 'en-US', { style: 'unit', unit: 'kilogram' })).toBe(-12);
+      expect(
+        parseNumber('12,00 USD-', 'de-DE', {
+          style: 'currency',
+          currency: 'USD',
+          currencyDisplay: 'code',
+        }),
+      ).toBe(-12);
+      expect(parseNumber('一二-', 'zh')).toBe(-12);
+    });
+
+    it('does not read the hyphen of an unfinished exponent as a minus sign', () => {
+      expect(parseNumber('1.3E-', 'en-US', { notation: 'scientific' })).toBe(1.3);
     });
 
     it('does not read a hyphen left by a partly deleted label as a minus sign', () => {
@@ -527,6 +556,170 @@ describe('NumberField parse', () => {
     it('maps both Han zero forms to 0', () => {
       expect(parseNumber('零')).toBe(0);
       expect(parseNumber('〇')).toBe(0);
+    });
+  });
+
+  // Every format must read back as the number it shows, also with a minus sign typed before or
+  // after it. Expected numbers come from the engine's own `formatToParts`, not from the parser, so
+  // the check follows each engine's locale data.
+  describe('formatter round trip', () => {
+    const FORMATS: Intl.NumberFormatOptions[] = [
+      {},
+      { maximumFractionDigits: 2 },
+      { maximumFractionDigits: 0 },
+      { maximumSignificantDigits: 3 },
+      { useGrouping: false },
+      { style: 'percent' },
+      { style: 'percent', maximumFractionDigits: 1 },
+      { notation: 'scientific' },
+      { notation: 'engineering' },
+      { notation: 'compact' },
+      { signDisplay: 'exceptZero' },
+      { numberingSystem: 'arab' },
+      { numberingSystem: 'deva' },
+      { style: 'currency', currency: 'USD' },
+      { style: 'currency', currency: 'EUR' },
+      { style: 'currency', currency: 'JPY' },
+      { style: 'currency', currency: 'BRL' },
+      { style: 'currency', currency: 'CHF', currencyDisplay: 'code' },
+      { style: 'currency', currency: 'USD', currencyDisplay: 'name' },
+      { style: 'currency', currency: 'USD', currencySign: 'accounting' },
+      { style: 'currency', currency: 'EUR', currencySign: 'accounting' },
+      { style: 'unit', unit: 'kilogram' },
+      { style: 'unit', unit: 'celsius' },
+      { style: 'unit', unit: 'kilometer-per-hour', unitDisplay: 'long' },
+      { style: 'unit', unit: 'foot', unitDisplay: 'long' },
+      { style: 'unit', unit: 'day', unitDisplay: 'long' },
+      { style: 'unit', unit: 'liter', unitDisplay: 'narrow' },
+    ];
+    // Grouping and compact thresholds, plural forms, and negatives
+    const VALUES = [
+      0, 1, 2, 5, 1.5, 21.7, 1234.5, 10001, 123456.7, 1234567.891, 0.05, -1, -21.7, -1234.5,
+      -123456.7,
+    ];
+
+    // The number the text shows, or `undefined` for text that can't be read back by design: a
+    // compact suffix (`1.2K`) or a number written as words
+    function getDisplayedNumber(formatter: Intl.NumberFormat, value: number) {
+      const parts = formatter.formatToParts(value);
+      if (
+        parts.some((part) => part.type === 'compact') ||
+        !parts.some((part) => part.type === 'integer')
+      ) {
+        return undefined;
+      }
+
+      const { numberingSystem, style } = formatter.resolvedOptions();
+      const digitFormatter = new Intl.NumberFormat('en', { numberingSystem, useGrouping: false });
+      const digits = new Map(
+        Array.from({ length: 10 }, (_, digit) => [digitFormatter.format(digit), String(digit)]),
+      );
+
+      let isNegative = false;
+      let text = '';
+      parts.forEach((part) => {
+        if (
+          part.type === 'integer' ||
+          part.type === 'fraction' ||
+          part.type === 'exponentInteger'
+        ) {
+          text += Array.from(part.value, (char) => digits.get(char) ?? char).join('');
+        } else if (part.type === 'decimal') {
+          text += '.';
+        } else if (part.type === 'exponentSeparator') {
+          text += 'e';
+        } else if (part.type === 'exponentMinusSign') {
+          text += '-';
+        } else if (
+          part.type === 'minusSign' ||
+          (part.type === 'literal' && part.value.includes('('))
+        ) {
+          isNegative = true;
+        }
+      });
+
+      const number = Number(text) * (isNegative ? -1 : 1);
+      return style === 'percent' ? Number(`${number}e-2`) : number;
+    }
+
+    it.each(
+      [
+        'en-US',
+        'en-IN',
+        'de-DE',
+        'de-CH',
+        'fr-FR',
+        'fr-CH',
+        'es-ES',
+        'pt-BR',
+        'it-IT',
+        'nl-NL',
+        'pl-PL',
+        'ru-RU',
+        'uk-UA',
+        'cs-CZ',
+        'sv-SE',
+        'nb-NO',
+        'fi-FI',
+        'tr-TR',
+        'el-GR',
+        'he-IL',
+        'ar-EG',
+        'ar-SA',
+        'fa-IR',
+        'ur-PK',
+        'hi-IN',
+        'bn-BD-u-nu-beng',
+        'mr-IN-u-nu-deva',
+        'th-TH-u-nu-thai',
+        'my-MM-u-nu-mymr',
+        'zh-CN',
+        'zh-CN-u-nu-hanidec',
+        'ja-JP',
+        'ko-KR',
+        'vi-VN',
+        'id-ID',
+        'sw-KE',
+        'eu-ES',
+        'ee',
+        'fy',
+        'ga',
+      ].map((locale) => ({ name: locale, locale })),
+    )('reads back formatted values with and without a typed minus sign ($name)', ({ locale }) => {
+      const failures: string[] = [];
+
+      FORMATS.forEach((format) => {
+        const formatter = new Intl.NumberFormat(locale, format);
+
+        VALUES.forEach((value) => {
+          const expected = getDisplayedNumber(formatter, value);
+          if (expected === undefined) {
+            return;
+          }
+
+          const text = formatter.format(value);
+          const inputs: Array<[string, number]> = [[text, expected]];
+          // A typed minus sign negates a positive value, unless the text already shows a sign
+          const hasSign = formatter.formatToParts(value).some((part) => part.type === 'plusSign');
+          if (value > 0 && !hasSign) {
+            inputs.push([`-${text}`, -expected], [`${text}-`, -expected]);
+          }
+
+          inputs.forEach(([input, number]) => {
+            const parsed = parseNumber(input, locale, format);
+            if (
+              parsed === null ||
+              Math.abs(parsed - number) > 1e-9 * Math.max(1, Math.abs(number))
+            ) {
+              failures.push(
+                `${JSON.stringify(format)} ${JSON.stringify(input)}: ${parsed} (expected ${number})`,
+              );
+            }
+          });
+        });
+      });
+
+      expect(failures).toEqual([]);
     });
   });
 
