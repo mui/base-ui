@@ -21,6 +21,7 @@ import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDet
 import type { REASONS } from '../internals/reasons';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useValueChanged } from '../internals/useValueChanged';
+import { useFormReset } from '../internals/useFormReset';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -126,6 +127,15 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     setFilled(value.length > 0);
   }, [value, setFilled]);
 
+  const groupRef = React.useRef<HTMLDivElement>(null);
+  const [initialValue] = React.useState(value);
+
+  useFormReset(groupRef, (eventDetails) => {
+    if (!areArraysEqual(value, initialValue)) {
+      setValue(initialValue, eventDetails);
+    }
+  });
+
   useValueChanged(value, () => {
     if (fieldName) {
       clearErrors(fieldName);
@@ -160,7 +170,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [forwardedRef, groupRef],
     props: [
       {
         id: idProp,
@@ -215,7 +225,7 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
   disabled?: boolean | undefined;
 }
 
-export type CheckboxGroupChangeEventReason = typeof REASONS.none;
+export type CheckboxGroupChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
 export type CheckboxGroupChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxGroup.ChangeEventReason>;
 

@@ -99,6 +99,7 @@ type NumberFieldRootChangeEventReason =
   | 'decrement-press'
   | 'wheel'
   | 'scrub'
+  | 'form-reset'
   | 'none';
 ```
 
@@ -115,6 +116,7 @@ type NumberFieldRootChangeEventDetails = (
   | { reason: 'decrement-press'; event: PointerEvent | MouseEvent | TouchEvent }
   | { reason: 'wheel'; event: WheelEvent }
   | { reason: 'scrub'; event: PointerEvent }
+  | { reason: 'form-reset'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */

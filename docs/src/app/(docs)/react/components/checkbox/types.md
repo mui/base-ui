@@ -83,15 +83,13 @@ type CheckboxRootState = {
 ### Root.ChangeEventReason
 
 ```typescript
-type CheckboxRootChangeEventReason = 'none';
+type CheckboxRootChangeEventReason = 'none' | 'form-reset';
 ```
 
 ### Root.ChangeEventDetails
 
 ```typescript
-type CheckboxRootChangeEventDetails = {
-  /** The reason for the event. */
-  reason: 'none';
+type CheckboxRootChangeEventDetails = ({ reason: 'none' } | { reason: 'form-reset' }) & {
   /** The native event associated with the custom event. */
   event: Event;
   /** Cancels Base UI from handling the event. */

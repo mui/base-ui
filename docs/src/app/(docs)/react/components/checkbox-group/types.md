@@ -53,15 +53,13 @@ type CheckboxGroupState = {
 ### CheckboxGroup.ChangeEventReason
 
 ```typescript
-type CheckboxGroupChangeEventReason = 'none';
+type CheckboxGroupChangeEventReason = 'none' | 'form-reset';
 ```
 
 ### CheckboxGroup.ChangeEventDetails
 
 ```typescript
-type CheckboxGroupChangeEventDetails = {
-  /** The reason for the event. */
-  reason: 'none';
+type CheckboxGroupChangeEventDetails = ({ reason: 'none' } | { reason: 'form-reset' }) & {
   /** The native event associated with the custom event. */
   event: Event;
   /** Cancels Base UI from handling the event. */

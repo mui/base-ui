@@ -29,12 +29,14 @@ import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLab
 import { resolveRenderedAriaLabel } from '../../internals/resolveRenderedAriaLabel';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
+import type { UseCheckboxGroupParentReturnValue } from '../../checkbox-group/useCheckboxGroupParent';
 import { CheckboxRootContext } from './CheckboxRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
+import { useFormReset } from '../../internals/useFormReset';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -107,7 +109,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const rootId = nativeButton ? controlId : id;
 
-  let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
+  let groupProps: Partial<
+    Omit<CheckboxRoot.Props, 'className' | 'onCheckedChange'> &
+      Pick<ReturnType<UseCheckboxGroupParentReturnValue['getChildProps']>, 'onCheckedChange'>
+  > = {};
   if (isGroupedWithParent) {
     if (parent) {
       groupProps = parentContext.getParentProps();
@@ -176,12 +181,31 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     if (inputRef.current) {
       // Re-assert on `checked` changes too: clicking the input natively resets `indeterminate`.
       inputRef.current.indeterminate = computedIndeterminate;
+      // Keep the `checked` attribute in sync so a native form reset leaves the input matching
+      // `checked`.
+      inputRef.current.defaultChecked = checked;
     }
     // Inside a group, the group derives the filled state from its value.
     if (!groupContext) {
       setFilled(checked);
     }
   }, [checked, computedIndeterminate, groupContext, setFilled]);
+
+  const [initialChecked] = React.useState(checked);
+
+  // A group owns the value of its checkboxes that have a `value`, so it resets them.
+  useFormReset(
+    inputRef,
+    (eventDetails) => {
+      if (checked !== initialChecked) {
+        onCheckedChange?.(initialChecked, eventDetails);
+        if (!eventDetails.isCanceled) {
+          setCheckedState(initialChecked);
+        }
+      }
+    },
+    !parent && !(groupContext && value !== undefined),
+  );
 
   useValueChanged(checked, () => {
     if (groupContext) {
@@ -511,7 +535,7 @@ export interface CheckboxRootProps
   value?: string | undefined;
 }
 
-export type CheckboxRootChangeEventReason = typeof REASONS.none;
+export type CheckboxRootChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
 export type CheckboxRootChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxRoot.ChangeEventReason>;
 

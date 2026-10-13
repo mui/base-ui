@@ -49,6 +49,7 @@ import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenI
 import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { useFormReset } from '../../internals/useFormReset';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { mergeProps } from '../../merge-props';
@@ -1535,6 +1536,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [store, ...Object.values(syncedValues)]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef, hiddenInputElementRef);
+  const [initialSelectedValue] = React.useState(selectedValue);
+  const [initialInputValue] = React.useState(inputValue);
+
+  useFormReset(hiddenInputElementRef, (eventDetails) => {
+    if (
+      selectionMode !== 'none' &&
+      isSelectedValueDirty(selectedValue, initialSelectedValue, isItemEqualToValue)
+    ) {
+      setSelectedValue(initialSelectedValue, eventDetails);
+      // Restoring a single selection also restores the input's label.
+      if (single || eventDetails.isCanceled) {
+        return;
+      }
+    }
+    if (inputValue !== initialInputValue) {
+      setInputValue(String(initialInputValue), eventDetails);
+    }
+  });
 
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
@@ -2004,6 +2023,7 @@ export namespace AriaCombobox {
     | typeof REASONS.chipRemovePress
     | typeof REASONS.cancelOpen
     | typeof REASONS.imperativeAction
+    | typeof REASONS.formReset
     | typeof REASONS.none;
   export type OpenChangeEventDetails = ChangeEventDetails & {
     /** Prevents the popup from unmounting until the `unmount` action is called. */

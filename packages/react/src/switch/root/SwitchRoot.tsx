@@ -26,6 +26,7 @@ import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
+import { useFormReset } from '../../internals/useFormReset';
 
 /**
  * Represents the switch itself.
@@ -97,7 +98,22 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   useIsoLayoutEffect(() => {
     setFilled(checked);
+    if (inputRef.current) {
+      // See `useFormReset`.
+      inputRef.current.defaultChecked = checked;
+    }
   }, [checked, setFilled]);
+
+  const [initialChecked] = React.useState(checked);
+
+  useFormReset(inputRef, (eventDetails) => {
+    if (checked !== initialChecked) {
+      onCheckedChange?.(initialChecked, eventDetails);
+      if (!eventDetails.isCanceled) {
+        setCheckedState(initialChecked);
+      }
+    }
+  });
 
   useValueChanged(checked, () => {
     clearErrors(name);
@@ -326,7 +342,7 @@ export interface SwitchRootProps
   uncheckedValue?: string | undefined;
 }
 
-export type SwitchRootChangeEventReason = typeof REASONS.none;
+export type SwitchRootChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
 export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;
 
 export namespace SwitchRoot {

@@ -90,6 +90,7 @@ type ComboboxRootChangeEventReason =
   | 'chip-remove-press'
   | 'cancel-open'
   | 'imperative-action'
+  | 'form-reset'
   | 'none';
 ```
 
@@ -111,6 +112,7 @@ type ComboboxRootChangeEventDetails = (
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
   | { reason: 'imperative-action'; event: Event }
+  | { reason: 'form-reset'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -169,6 +171,7 @@ type ComboboxRootOpenChangeEventDetails = (
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
   | { reason: 'imperative-action'; event: Event }
+  | { reason: 'form-reset'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */

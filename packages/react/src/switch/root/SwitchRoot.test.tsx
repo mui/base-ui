@@ -616,8 +616,8 @@ describe('<Switch.Root />', () => {
         expect(submitSpy).toHaveBeenCalledTimes(1);
 
         await user.click(screen.getByRole('button', { name: 'Reset' }));
-        // Switch state is React-managed, so a native form reset does not change it.
-        expect(switchElement).toHaveAttribute('aria-checked', 'true');
+        // A native form reset restores the initial state.
+        expect(switchElement).toHaveAttribute('aria-checked', 'false');
         expect(switchElement).not.toHaveAttribute('aria-invalid');
         expect(switchElement).toHaveAttribute(
           'aria-describedby',

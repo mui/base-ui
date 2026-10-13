@@ -108,6 +108,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       return;
     }
 
+    // See `useFormReset`.
+    inputRef.current.defaultChecked = checked;
+
     if (disabled && checked) {
       registerInputRef(null);
       return;

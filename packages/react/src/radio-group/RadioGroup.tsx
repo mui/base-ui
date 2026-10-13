@@ -18,6 +18,7 @@ import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
 import { useValueChanged } from '../internals/useValueChanged';
+import { useFormReset } from '../internals/useFormReset';
 import { RadioGroupContext } from './RadioGroupContext';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { REASONS } from '../internals/reasons';
@@ -182,6 +183,15 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
   });
 
+  const groupRef = React.useRef<HTMLDivElement>(null);
+  const [initialValue] = React.useState(checkedValue);
+
+  useFormReset(groupRef, (eventDetails) => {
+    if (checkedValue !== initialValue) {
+      setCheckedValue(initialValue as Value, eventDetails);
+    }
+  });
+
   const ariaLabelledby = labelId ?? fieldsetContext?.legendId;
 
   const state: RadioGroupState = {
@@ -257,7 +267,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
           elementProps,
           (props: HTMLProps) => validation.getValidationProps(disabled ?? false, props),
         ]}
-        refs={[forwardedRef]}
+        refs={[forwardedRef, groupRef]}
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
@@ -329,7 +339,7 @@ export interface RadioGroupProps<Value = any> extends Omit<
   inputRef?: React.Ref<HTMLInputElement> | undefined;
 }
 
-export type RadioGroupChangeEventReason = typeof REASONS.none;
+export type RadioGroupChangeEventReason = typeof REASONS.none | typeof REASONS.formReset;
 
 export type RadioGroupChangeEventDetails = BaseUIChangeEventDetails<RadioGroup.ChangeEventReason>;
 

@@ -40,6 +40,7 @@ import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
+import { useFormReset } from '../../internals/useFormReset';
 
 /**
  * Groups all parts of the select.
@@ -422,7 +423,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     openMethod: renderedOpenMethod,
   });
 
-  const ref = useMergedRefs(inputRef, validation.inputRef);
+  const hiddenInputRef = React.useRef<HTMLInputElement>(null);
+  const ref = useMergedRefs(inputRef, validation.inputRef, hiddenInputRef);
+
+  useFormReset(hiddenInputRef, (eventDetails) => {
+    if (isSelectedValueDirty(value, initialValueRef.current, isItemEqualToValue)) {
+      setValue(initialValueRef.current, eventDetails);
+    }
+  });
 
   const hiddenInputName = multiple ? undefined : name;
 
@@ -695,6 +703,7 @@ export type SelectRootChangeEventReason =
   | typeof REASONS.listNavigation
   | typeof REASONS.cancelOpen
   | typeof REASONS.imperativeAction
+  | typeof REASONS.formReset
   | typeof REASONS.none;
 
 export type SelectRootOpenChangeEventDetails = SelectRootChangeEventDetails & {

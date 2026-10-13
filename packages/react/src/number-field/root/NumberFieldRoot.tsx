@@ -49,6 +49,7 @@ import type {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
+import { useFormReset } from '../../internals/useFormReset';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -111,7 +112,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const formatStyle = format?.style;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
+  const formInputRef = React.useRef<HTMLInputElement>(null);
+  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef, formInputRef);
 
   const id = useLabelableId({ id: idProp });
 
@@ -236,7 +238,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       const isInputReason = details.reason.startsWith('input-') || details.reason === REASONS.none;
 
       // Only allow out-of-range values for direct text entry. Step-based interactions still clamp.
-      const shouldClampValue = !allowOutOfRange || !isInputReason;
+      const shouldClampValue =
+        !allowOutOfRange || (!isInputReason && details.reason !== REASONS.formReset);
 
       const validatedValue = toValidatedNumber(
         unvalidatedValue,
@@ -286,6 +289,18 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       return shouldFireChange;
     },
   );
+
+  const [initialValue] = React.useState(value);
+
+  useFormReset(formInputRef, (eventDetails) => {
+    if (value !== initialValue) {
+      // Show the restored value even if the user was typing, and don't report it as a commit:
+      // a native reset fires no `change` event.
+      allowInputSyncRef.current = true;
+      setValue(initialValue, eventDetails);
+      hasPendingCommitRef.current = false;
+    }
+  });
 
   const incrementValue = useStableCallback(
     (amount: number, { direction, currentValue, event, reason }: IncrementValueParameters) => {
@@ -721,6 +736,7 @@ export type NumberFieldRootChangeEventReason =
   | typeof REASONS.decrementPress
   | typeof REASONS.wheel
   | typeof REASONS.scrub
+  | typeof REASONS.formReset
   | typeof REASONS.none;
 export type NumberFieldRootChangeEventDetails = BaseUIChangeEventDetails<
   NumberFieldRootChangeEventReason,
