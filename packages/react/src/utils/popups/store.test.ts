@@ -437,7 +437,7 @@ describe('BasePopupStore', () => {
         createChangeEventDetails(REASONS.triggerHover, new MouseEvent('mouseenter')),
       );
 
-      expect(store.context.dataRef.current.openEvent).toBe(click);
+      expect(store.context.openEvent).toBe(click);
     });
 
     it('replaces the event of a hover open with a click that follows', () => {
@@ -450,7 +450,7 @@ describe('BasePopupStore', () => {
       );
       store.setOpen(true, createChangeEventDetails(REASONS.triggerPress, click));
 
-      expect(store.context.dataRef.current.openEvent).toBe(click);
+      expect(store.context.openEvent).toBe(click);
     });
 
     it('clears the open event on close', () => {
@@ -462,7 +462,7 @@ describe('BasePopupStore', () => {
         createChangeEventDetails(REASONS.escapeKey, new KeyboardEvent('keydown')),
       );
 
-      expect(store.context.dataRef.current.openEvent).toBe(undefined);
+      expect(store.context.openEvent).toBe(undefined);
     });
   });
 

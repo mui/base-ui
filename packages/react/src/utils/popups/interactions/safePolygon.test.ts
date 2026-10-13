@@ -100,7 +100,6 @@ function createFloatingContext({
     open,
     onOpenChange() {},
     events,
-    dataRef: { current: {} },
     nodeId: 'root',
     defaultPopupId: 'floating-id',
     refs,

@@ -68,7 +68,7 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
     reason = REASONS.triggerPress,
   } = props;
 
-  const dataRef = store.context.dataRef;
+  const storeContext = store.context;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch' | 'virtual'>(undefined);
   const frame = useAnimationFrame();
@@ -97,7 +97,7 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
       currentTarget: EventTarget | null,
       isClickLikeOpenEvent: (eventType: string | undefined) => boolean,
     ) {
-      const openEvent = dataRef.current.openEvent;
+      const openEvent = storeContext.openEvent;
       const hasClickedOnInactiveTrigger = store.select('anchorElement') !== currentTarget;
 
       if (open && hasClickedOnInactiveTrigger) {
@@ -223,7 +223,7 @@ export function useClick(store: PopupInteractionStore, props: UseClickProps = {}
       },
     };
   }, [
-    dataRef,
+    storeContext,
     eventOption,
     ignoreMouse,
     reason,

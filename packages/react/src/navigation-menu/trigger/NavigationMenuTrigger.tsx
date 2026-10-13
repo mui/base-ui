@@ -480,7 +480,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   React.useEffect(() => {
     if (!open) {
-      context.context.dataRef.current.openEvent = undefined;
+      context.context.openEvent = undefined;
       hoverIntent.reset();
       hoverIntent.cancelPendingOpen();
     }
@@ -560,7 +560,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
       // cause the popup to remain stuck open when leaving the old trigger.
       if (event.type !== 'click' && value != null) {
-        context.context.dataRef.current.openEvent = undefined;
+        context.context.openEvent = undefined;
       }
 
       if (pointerType === 'touch' && event.type !== 'click') {

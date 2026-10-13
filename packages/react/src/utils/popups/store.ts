@@ -4,7 +4,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { createEventEmitter } from './createEventEmitter';
 import { dispatchOpenChange } from './interaction-store/dispatchOpenChange';
-import type { ContextData, PopupEvents, ReferenceType } from './types';
+import type { PopupEvents, PopupInteractionContext, ReferenceType } from './types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
@@ -138,7 +138,7 @@ export function createInitialPopupStoreState<Payload>(
   };
 }
 
-export type PopupStoreContext<ChangeEventDetails> = {
+export type PopupStoreContext<ChangeEventDetails> = PopupInteractionContext & {
   /**
    * Map of registered trigger elements.
    */
@@ -155,10 +155,6 @@ export type PopupStoreContext<ChangeEventDetails> = {
    * Callback fired when the open state change animation completes.
    */
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
-  /**
-   * Data the interaction hooks share, such as the event that opened the popup.
-   */
-  readonly dataRef: React.RefObject<ContextData>;
   /**
    * Internal events for the interaction hooks, such as `openchange`.
    */
@@ -178,7 +174,6 @@ export function createPopupStoreContext() {
     triggerElements: new PopupTriggerMap(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
-    dataRef: { current: {} } as React.RefObject<ContextData>,
     events: createEventEmitter(),
     nested: false,
   };

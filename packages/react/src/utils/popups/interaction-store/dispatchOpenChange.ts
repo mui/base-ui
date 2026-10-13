@@ -13,7 +13,7 @@ import type { PopupInteractionContext } from '../types';
  * @param eventDetails Details about the event that caused the change.
  */
 export function dispatchOpenChange(
-  context: Pick<PopupInteractionContext, 'dataRef' | 'events' | 'nested'>,
+  context: Pick<PopupInteractionContext, 'openEvent' | 'events' | 'nested'>,
   open: boolean,
   newOpen: boolean,
   eventDetails: BaseUIChangeEventDetails<string>,
@@ -28,7 +28,7 @@ export function dispatchOpenChange(
     // click events to upgrade a hover-open.
     (event != null && isClickLikeEvent(event))
   ) {
-    context.dataRef.current.openEvent = newOpen ? event : undefined;
+    context.openEvent = newOpen ? event : undefined;
   }
 
   const details: FloatingUIOpenChangeDetails = {

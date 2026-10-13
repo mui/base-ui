@@ -90,7 +90,6 @@ export function useBaseUIFloating(
   const context = React.useMemo<PopupPositioningContext>(
     () => ({
       ...position,
-      dataRef: store.context.dataRef,
       open,
       onOpenChange: store.setOpen,
       events: store.context.events,
@@ -110,7 +109,7 @@ export function useBaseUIFloating(
   }, [anchorElement]);
 
   useIsoLayoutEffect(() => {
-    store.context.dataRef.current.floatingContext = context;
+    store.context.positioning = context;
 
     const node = tree?.nodesRef.current.find((n) => n.id === nodeId);
     if (node) {

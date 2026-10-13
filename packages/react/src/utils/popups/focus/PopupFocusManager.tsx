@@ -283,9 +283,10 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
   const domReference = store.useState('anchorElement');
   const floating = store.useState('outerPopupElement');
 
-  const { events, dataRef } = store.context;
+  const storeContext = store.context;
+  const { events } = storeContext;
 
-  const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
+  const getNodeId = useStableCallback(() => storeContext.positioning?.nodeId);
 
   const ignoreInitialFocus = initialFocus === false;
   // A typeable combobox reference (e.g. input/textarea) with `initialFocus={false}`
@@ -539,8 +540,8 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
         }
 
         // https://github.com/floating-ui/floating-ui/issues/3060
-        if (dataRef.current.insideReactTree) {
-          dataRef.current.insideReactTree = false;
+        if (storeContext.insideReactTree) {
+          storeContext.insideReactTree = false;
           return;
         }
 
@@ -570,9 +571,9 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
       if (pointerDownOutsideRef.current) {
         return;
       }
-      dataRef.current.insideReactTree = true;
+      storeContext.insideReactTree = true;
       blurTimeout.start(0, () => {
-        dataRef.current.insideReactTree = false;
+        storeContext.insideReactTree = false;
       });
     }
 
@@ -604,7 +605,7 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
     getTabbableContent,
     isUntrappedTypeableCombobox,
     getNodeId,
-    dataRef,
+    storeContext,
     blurTimeout,
     pointerDownTimeout,
     restoreFocusFrame,
@@ -725,7 +726,7 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
 
       // Screen readers re-sync focus to their cursor right after a synthesized press. A focus
       // that lands a frame later reads as a stray move and gets pulled back to the reference.
-      const openEvent = dataRef.current.openEvent;
+      const openEvent = storeContext.openEvent;
       const openedByVirtualPress =
         openEvent?.type === 'mousedown' && isVirtualClick(openEvent as MouseEvent);
 
@@ -761,7 +762,7 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
     initialFocusRef,
     openInteractionTypeRef,
     openRef,
-    dataRef,
+    storeContext,
   ]);
 
   // A return-focus queued by the effect cleanup. If the effect re-arms in the same commit, a

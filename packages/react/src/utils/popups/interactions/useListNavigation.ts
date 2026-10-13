@@ -285,7 +285,7 @@ export function useListNavigation(
   const outerPopupElement = store.useState('outerPopupElement');
   const anchorElement = store.useState('anchorElement');
 
-  const dataRef = store.context.dataRef;
+  const storeContext = store.context;
 
   const popupFocusElement = getPopupFocusElement(outerPopupElement);
   const typeableComboboxReference = isTypeableCombobox(anchorElement);
@@ -366,8 +366,8 @@ export function useListNavigation(
   });
 
   useIsoLayoutEffect(() => {
-    dataRef.current.orientation = orientation;
-  }, [dataRef, orientation]);
+    storeContext.orientation = orientation;
+  }, [storeContext, orientation]);
 
   // Reset on its own: an explicit `focusItemOnOpen` can change one render before `open` does,
   // which must not discard the key the trigger just recorded.
@@ -538,8 +538,8 @@ export function useListNavigation(
   const getParentOrientation = useStableCallback(() => {
     return (
       parentOrientation ??
-      (tree?.nodesRef.current.find((node) => node.id === parentId)?.context?.dataRef?.current
-        .orientation as UseListNavigationProps['orientation'])
+      tree?.nodesRef.current.find((node) => node.id === parentId)?.context?.rootStore.context
+        .orientation
     );
   });
 

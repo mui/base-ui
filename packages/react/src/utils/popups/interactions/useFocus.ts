@@ -38,7 +38,8 @@ export interface UseFocusProps {
 export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}): ElementProps {
   const { enabled = true, delay } = props;
 
-  const { events, dataRef } = store.context;
+  const storeContext = store.context;
+  const { events } = storeContext;
 
   const blockFocusRef = React.useRef(false);
   // Track which reference should be blocked from re-opening after Escape/press dismissal.
@@ -207,7 +208,7 @@ export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}
           // and not the element that actually has received focus if it is located
           // inside a shadow root.
           if (
-            contains(dataRef.current.floatingContext?.refs.floating.current, activeEl) ||
+            contains(storeContext.positioning?.refs.floating.current, activeEl) ||
             contains(domReference, activeEl) ||
             movedToFocusGuard
           ) {
@@ -226,7 +227,7 @@ export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}
         });
       },
     };
-  }, [dataRef, delay, store, timeout]);
+  }, [storeContext, delay, store, timeout]);
 
   return React.useMemo(
     () => (enabled ? { reference, trigger: reference } : {}),

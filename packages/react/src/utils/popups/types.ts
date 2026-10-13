@@ -39,12 +39,6 @@ export interface PopupEvents {
   off(event: string, handler: (data: any) => void): void;
 }
 
-export interface ContextData {
-  openEvent?: Event | undefined;
-  floatingContext?: PopupPositioningContext | undefined;
-  [key: string]: any;
-}
-
 /**
  * Reads the interaction state of a popup by key.
  */
@@ -73,10 +67,38 @@ export interface PopupInteractionReader {
  * Non-reactive values shared by the interaction hooks of one popup.
  */
 export interface PopupInteractionContext {
-  readonly dataRef: React.RefObject<ContextData>;
   readonly events: PopupEvents;
   nested: boolean;
   readonly triggerElements: PopupTriggerMap;
+  /**
+   * The event that opened the popup. Written by `dispatchOpenChange`; NavigationMenu clears it.
+   */
+  openEvent?: Event | undefined;
+  /**
+   * The popup's positioning. Written by `useFloating()`.
+   */
+  positioning?: PopupPositioningContext | undefined;
+  /**
+   * The popup's list navigation orientation, which nested lists read from their parent. Written by
+   * `useListNavigation`.
+   */
+  orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
+  /**
+   * Whether the current event passed through the popup's React tree, such as from a portaled
+   * child, so native listeners that see it as outside ignore it. Set by `useDismiss` and the focus
+   * manager, and cleared on the next tick.
+   */
+  insideReactTree?: boolean | undefined;
+  /**
+   * Whether an Escape key press bubbles to the parent popup. Written by `useDismiss` and never
+   * cleared.
+   */
+  escapeKeyBubbles?: boolean | undefined;
+  /**
+   * Whether an outside press bubbles to the parent popup. Written by `useDismiss` and never
+   * cleared.
+   */
+  outsidePressBubbles?: boolean | undefined;
 }
 
 /**
@@ -111,7 +133,6 @@ export type PopupPositioningContext = Omit<
   open: boolean;
   onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   events: PopupEvents;
-  dataRef: React.RefObject<ContextData>;
   nodeId: string | undefined;
   defaultPopupId: string | undefined;
   refs: ExtendedRefs;

@@ -1,11 +1,5 @@
-import type * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
-import type {
-  PopupEvents,
-  ContextData,
-  PositioningInteractionStore,
-  ReferenceType,
-} from '../types';
+import type { PopupInteractionContext, PositioningInteractionStore, ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../createEventEmitter';
 import type { PopupTriggerMap } from '../popupTriggerMap';
@@ -37,13 +31,9 @@ export interface StandaloneInteractionState {
   defaultPopupId: string | undefined;
 }
 
-export interface StandaloneInteractionStoreContext {
+export interface StandaloneInteractionStoreContext extends PopupInteractionContext {
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
-  readonly dataRef: React.RefObject<ContextData>;
-  readonly events: PopupEvents;
-  nested: boolean;
-  readonly triggerElements: PopupTriggerMap;
 }
 
 const selectors = {
@@ -86,7 +76,6 @@ export class StandaloneInteractionStore
       },
       {
         onOpenChange,
-        dataRef: { current: {} },
         events: createEventEmitter(),
         nested,
         triggerElements,

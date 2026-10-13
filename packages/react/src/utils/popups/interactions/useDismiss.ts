@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
@@ -130,7 +129,8 @@ export function useDismiss(
 
   const open = store.useState('open');
   const outerPopupElement = store.useState('outerPopupElement');
-  const { dataRef, events } = store.context;
+  const storeContext = store.context;
+  const { events } = storeContext;
 
   const tree = usePopupTree(externalTree);
   const outsidePressFn = useStableCallback(
@@ -167,16 +167,16 @@ export function useDismiss(
 
   const clearInsideReactTree = useStableCallback(() => {
     clearInsideReactTreeTimeout.clear();
-    dataRef.current.insideReactTree = false;
+    storeContext.insideReactTree = false;
   });
 
   const hasBlockingChild = useStableCallback(
-    (bubbleKey: '__escapeKeyBubbles' | '__outsidePressBubbles') => {
-      const nodeId = dataRef.current.floatingContext?.nodeId;
+    (bubbleKey: 'escapeKeyBubbles' | 'outsidePressBubbles') => {
+      const nodeId = storeContext.positioning?.nodeId;
       const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
 
       return children.some(
-        (child) => child.context?.open && !child.context.dataRef.current[bubbleKey],
+        (child) => child.context?.open && !child.context.rootStore.context[bubbleKey],
       );
     },
   );
@@ -217,7 +217,7 @@ export function useDismiss(
         return;
       }
 
-      if (!escapeKeyBubbles && hasBlockingChild('__escapeKeyBubbles')) {
+      if (!escapeKeyBubbles && hasBlockingChild('escapeKeyBubbles')) {
         return;
       }
 
@@ -236,7 +236,7 @@ export function useDismiss(
   );
 
   const markInsideReactTree = useStableCallback(() => {
-    dataRef.current.insideReactTree = true;
+    storeContext.insideReactTree = true;
     clearInsideReactTreeTimeout.start(0, clearInsideReactTree);
   });
 
@@ -311,8 +311,8 @@ export function useDismiss(
       return clearInsideReactTree;
     }
 
-    dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
-    dataRef.current.__outsidePressBubbles = outsidePressBubbles;
+    storeContext.escapeKeyBubbles = escapeKeyBubbles;
+    storeContext.outsidePressBubbles = outsidePressBubbles;
 
     const preventedPressSuppressionTimeout = new Timeout();
     const doc = ownerDocument(outerPopupElement);
@@ -378,7 +378,7 @@ export function useDismiss(
     }
 
     function isEventWithinPopupTree(event: Event) {
-      const nodeId = dataRef.current.floatingContext?.nodeId;
+      const nodeId = storeContext.positioning?.nodeId;
       const targetIsInsideChildren =
         tree &&
         getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
@@ -400,7 +400,7 @@ export function useDismiss(
         return;
       }
 
-      if (dataRef.current.insideReactTree) {
+      if (storeContext.insideReactTree) {
         clearInsideReactTree();
         return;
       }
@@ -515,7 +515,7 @@ export function useDismiss(
         return;
       }
 
-      if (hasBlockingChild('__outsidePressBubbles')) {
+      if (hasBlockingChild('outsidePressBubbles')) {
         return;
       }
 
@@ -756,7 +756,7 @@ export function useDismiss(
       suppressNextOutsideClickRef.current = false;
     };
   }, [
-    dataRef,
+    storeContext,
     outerPopupElement,
     escapeKey,
     outsidePressEnabled,

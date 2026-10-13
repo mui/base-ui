@@ -108,14 +108,11 @@ export class HoverIntent {
   }
 
   private isClickLikeOpen() {
-    return isClickLikeOpenEvent(
-      this.store.context.dataRef.current.openEvent?.type,
-      this.interactedInside,
-    );
+    return isClickLikeOpenEvent(this.store.context.openEvent?.type, this.interactedInside);
   }
 
   private isHoverOpen() {
-    return isHoverOpenEvent(this.store.context.dataRef.current.openEvent?.type);
+    return isHoverOpenEvent(this.store.context.openEvent?.type);
   }
 
   /**
@@ -586,7 +583,7 @@ export class HoverIntent {
    * `useFloating()` keeps it up to date in a layout effect.
    */
   private getFloatingContext(): PopupPositioningContext | undefined {
-    return this.store.context.dataRef.current.floatingContext;
+    return this.store.context.positioning;
   }
 }
 
