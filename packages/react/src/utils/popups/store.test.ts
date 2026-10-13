@@ -159,6 +159,67 @@ describe('popupStoreSelectors', () => {
   });
 });
 
+describe('popupStoreSelectors elements', () => {
+  describe('floatingElement', () => {
+    it('reports the positioner while the popup is mounted', () => {
+      const positioner = document.createElement('div');
+      expect(
+        popupStoreSelectors.floatingElement(
+          createState({ open: true, mounted: true, positionerElement: positioner }),
+        ),
+      ).toBe(positioner);
+    });
+
+    it('withholds the positioner while an opening popup is not mounted yet', () => {
+      const positioner = document.createElement('div');
+      expect(
+        popupStoreSelectors.floatingElement(
+          createState({ open: true, mounted: false, positionerElement: positioner }),
+        ),
+      ).toBe(null);
+    });
+
+    it('reports a keepMounted positioner while the popup is closed', () => {
+      const positioner = document.createElement('div');
+      expect(
+        popupStoreSelectors.floatingElement(
+          createState({ open: false, mounted: false, positionerElement: positioner }),
+        ),
+      ).toBe(positioner);
+    });
+  });
+
+  describe('referenceElement', () => {
+    it('returns the position reference when one is set', () => {
+      const trigger = document.createElement('button');
+      const cursor = { getBoundingClientRect: () => new DOMRect() };
+      expect(
+        popupStoreSelectors.referenceElement(
+          createState({ mounted: true, activeTriggerElement: trigger, positionReference: cursor }),
+        ),
+      ).toBe(cursor);
+    });
+
+    it('falls back to the active trigger while the popup is mounted', () => {
+      const trigger = document.createElement('button');
+      expect(
+        popupStoreSelectors.referenceElement(
+          createState({ mounted: true, activeTriggerElement: trigger }),
+        ),
+      ).toBe(trigger);
+    });
+
+    it('is null without a position reference while the popup is unmounted', () => {
+      const trigger = document.createElement('button');
+      expect(
+        popupStoreSelectors.referenceElement(
+          createState({ mounted: false, activeTriggerElement: trigger }),
+        ),
+      ).toBe(null);
+    });
+  });
+});
+
 type TestState = PopupStoreState<unknown> & { extra: number };
 
 class TestPopupStore extends BasePopupStore<
@@ -219,6 +280,10 @@ class TestPopupStore extends BasePopupStore<
 
   protected completeOpenChange() {
     this.steps.push('complete');
+  }
+
+  protected prepareUnmount() {
+    return { extra: -1 };
   }
 }
 
@@ -350,6 +415,95 @@ describe('BasePopupStore', () => {
 
       expect(store.state.open).toBe(true);
       expect(store.state.preventUnmountingOnClose).toBe(false);
+    });
+  });
+
+  describe('anchor sync', () => {
+    it('keeps the DOM reference once the popup unmounts and the active trigger is gone', () => {
+      const trigger = document.createElement('button');
+      const store = new TestPopupStore(() => {}, {
+        mounted: true,
+        activeTriggerElement: trigger,
+        domReferenceElement: trigger,
+      });
+
+      store.set('mounted', false);
+
+      expect(store.select('referenceElement')).toBe(null);
+      expect(store.state.domReferenceElement).toBe(trigger);
+    });
+
+    it('moves a position reference that followed the previous trigger to the new one', () => {
+      const triggerA = document.createElement('button');
+      const triggerB = document.createElement('button');
+      const store = new TestPopupStore(() => {}, {
+        mounted: true,
+        activeTriggerElement: triggerA,
+        domReferenceElement: triggerA,
+        positionReference: triggerA,
+      });
+
+      store.set('activeTriggerElement', triggerB);
+
+      expect(store.state.positionReference).toBe(triggerB);
+      expect(store.state.domReferenceElement).toBe(triggerB);
+    });
+
+    it('keeps a virtual position reference when the trigger switches', () => {
+      const triggerA = document.createElement('button');
+      const triggerB = document.createElement('button');
+      const cursor = { getBoundingClientRect: () => new DOMRect() };
+      const store = new TestPopupStore(() => {}, {
+        mounted: true,
+        activeTriggerElement: triggerA,
+        domReferenceElement: triggerA,
+        positionReference: cursor,
+      });
+
+      store.set('activeTriggerElement', triggerB);
+
+      expect(store.state.positionReference).toBe(cursor);
+      expect(store.state.domReferenceElement).toBe(triggerB);
+    });
+  });
+
+  describe('resetOnUnmount', () => {
+    it("clears the trigger and applies the store's own unmount state once closed", () => {
+      const trigger = document.createElement('button');
+      const store = new TestPopupStore(() => {}, {
+        open: false,
+        mounted: true,
+        activeTriggerId: 'trigger',
+        activeTriggerElement: trigger,
+        preventUnmountingOnClose: true,
+        extra: 1,
+      });
+
+      store.resetOnUnmount();
+
+      expect(store.state.mounted).toBe(false);
+      expect(store.state.preventUnmountingOnClose).toBe(false);
+      expect(store.state.activeTriggerId).toBe(null);
+      expect(store.state.activeTriggerElement).toBe(null);
+      expect(store.state.extra).toBe(-1);
+    });
+
+    it('keeps the trigger of a request made after the close while open is true', () => {
+      const trigger = document.createElement('button');
+      const store = new TestPopupStore(() => {}, {
+        open: true,
+        mounted: true,
+        activeTriggerId: 'trigger',
+        activeTriggerElement: trigger,
+        extra: 1,
+      });
+
+      store.resetOnUnmount();
+
+      expect(store.state.mounted).toBe(false);
+      expect(store.state.activeTriggerId).toBe('trigger');
+      expect(store.state.activeTriggerElement).toBe(trigger);
+      expect(store.state.extra).toBe(-1);
     });
   });
 

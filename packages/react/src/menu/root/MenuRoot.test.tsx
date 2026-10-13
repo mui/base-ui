@@ -3800,6 +3800,179 @@ describe('<Menu.Root />', () => {
       expect(screen.queryByRole('menu')).toBe(null);
     });
 
+    it('ignores a request identical to the open state the root committed', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await act(async () => {
+        handle.open('trigger');
+      });
+      expect(screen.queryByRole('menu')).not.toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        handle.open('trigger');
+      });
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores a close request while the menu is already closed', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+      expect(screen.queryByRole('menu')).toBe(null);
+
+      await act(async () => {
+        handle.close();
+      });
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('drops a request made after the root unmounts', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+
+      function Fixture({ showRoot }: { showRoot: boolean }) {
+        return (
+          <React.Fragment>
+            {showRoot && (
+              <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            )}
+            <Menu.Trigger handle={handle} id="trigger">
+              Trigger
+            </Menu.Trigger>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<Fixture showRoot />);
+      const store = handle.store;
+      await setProps({ showRoot: false });
+
+      await act(async () => {
+        store.setOpen(true, createChangeEventDetails(REASONS.imperativeAction));
+      });
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('reports the committed active trigger for a close that carries no trigger', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <React.Fragment>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger-a">
+            Trigger A
+          </Menu.Trigger>
+          <Menu.Trigger handle={handle} id="trigger-b">
+            Trigger B
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger B' }));
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+      onOpenChange.mockClear();
+
+      await act(async () => {
+        handle.close();
+      });
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(
+        screen.getByRole('button', { name: 'Trigger B' }),
+      );
+    });
+
+    it('resets allowMouseEnter once the menu unmounts after closing', async () => {
+      const handle = Menu.createHandle();
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await act(async () => {
+        handle.open('trigger');
+      });
+      await act(async () => {
+        handle.store.set('allowMouseEnter', true);
+      });
+      expect(handle.store.state.allowMouseEnter).toBe(true);
+
+      await act(async () => {
+        handle.close();
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      expect(handle.store.state.allowMouseEnter).toBe(false);
+    });
+
     it('marks a close without a reason as a dismissal', async () => {
       const handle = Menu.createHandle();
       await render(
