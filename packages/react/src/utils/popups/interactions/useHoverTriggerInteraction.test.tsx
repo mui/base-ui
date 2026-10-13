@@ -4,21 +4,21 @@ import * as React from 'react';
 import { isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 import { safePolygon } from './safePolygon';
-import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
+import { useHoverPopupInteraction } from './useHoverPopupInteraction';
 import { useHoverIntent } from './hoverIntent';
-import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
-import type { UseHoverReferenceInteractionProps } from './useHoverReferenceInteraction';
-import type { FloatingRootStore } from '../floating-root/FloatingRootStore';
+import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
+import type { UseHoverReferenceInteractionProps } from './useHoverTriggerInteraction';
+import type { StandaloneInteractionStore } from '../interaction-store/StandaloneInteractionStore';
 import { REASONS } from '../../../internals/reasons';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 
-describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
+describe.skipIf(!isJSDOM)('useHoverTriggerInteraction', () => {
   it('updates the handleClose options during render', () => {
     let blockPointerEvents: boolean | undefined;
 
     function App({ block }: { block: boolean }) {
       const { context } = useFloating();
-      useHoverReferenceInteraction(context.rootStore, {
+      useHoverTriggerInteraction(context.rootStore, {
         handleClose: safePolygon({ blockPointerEvents: block }),
       });
       const hoverIntent = useHoverIntent(context.rootStore);
@@ -48,7 +48,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         },
       });
 
-      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
+      const hoverProps = useHoverTriggerInteraction(context.rootStore, {
         mouseOnly: true,
         restMs: 100,
         delay: { close: 0 },
@@ -102,7 +102,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         },
       });
 
-      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
+      const hoverProps = useHoverTriggerInteraction(context.rootStore, {
         mouseOnly: true,
         restMs: 100,
         delay: { close: 0 },
@@ -190,7 +190,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
         },
       });
 
-      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
+      const hoverProps = useHoverTriggerInteraction(context.rootStore, {
         mouseOnly: true,
         restMs: 100,
         delay: { close: 0 },
@@ -264,12 +264,12 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
 
       // Simulate active close transition lifecycle while closed.
       (
-        (context.rootStore as FloatingRootStore).state as {
+        (context.rootStore as StandaloneInteractionStore).state as {
           transitionStatus?: 'ending' | undefined;
         }
       ).transitionStatus = open ? undefined : 'ending';
 
-      const hoverProps = useHoverReferenceInteraction(context.rootStore, {
+      const hoverProps = useHoverTriggerInteraction(context.rootStore, {
         mouseOnly: true,
         move: false,
         delay: { open: 500, close: 0 },
@@ -333,11 +333,11 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
       const [open, setOpen] = React.useState(false);
       const triggerElementRef = React.useRef<Element | null>(null);
       const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-      const referenceProps = useHoverReferenceInteraction(context.rootStore, {
+      const referenceProps = useHoverTriggerInteraction(context.rootStore, {
         triggerElementRef,
         ...props,
       });
-      useHoverFloatingInteraction(context.rootStore);
+      useHoverPopupInteraction(context.rootStore);
 
       return (
         <React.Fragment>
@@ -551,7 +551,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
             setOpen(nextOpen);
           },
         });
-        const referenceProps = useHoverReferenceInteraction(context.rootStore, {
+        const referenceProps = useHoverTriggerInteraction(context.rootStore, {
           triggerElementRef,
         });
 

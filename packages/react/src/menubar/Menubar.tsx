@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import {
-  FloatingNode,
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingTree,
-} from '../utils/popups/tree/FloatingTree';
+  PopupTreeNode,
+  PopupTree,
+  usePopupNodeId,
+  usePopupTree,
+} from '../utils/popups/tree/PopupTree';
 import type { MenuRoot } from '../menu/root/MenuRoot';
 import type { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
@@ -73,7 +73,7 @@ export const Menubar = React.forwardRef(function Menubar(
 
   return (
     <MenubarContext.Provider value={context}>
-      <FloatingTree>
+      <PopupTree>
         <MenubarContent>
           <CompositeRoot
             render={render}
@@ -89,14 +89,14 @@ export const Menubar = React.forwardRef(function Menubar(
             highlightItemOnHover={hasSubmenuOpen}
           />
         </MenubarContent>
-      </FloatingTree>
+      </PopupTree>
     </MenubarContext.Provider>
   );
 });
 
 function MenubarContent(props: React.PropsWithChildren<{}>) {
-  const nodeId = useFloatingNodeId();
-  const { events: menuEvents } = useFloatingTree()!;
+  const nodeId = usePopupNodeId();
+  const { events: menuEvents } = usePopupTree()!;
   const rootContext = useMenubarContext();
 
   React.useEffect(() => {
@@ -124,7 +124,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
     };
   }, [menuEvents, nodeId, rootContext]);
 
-  return <FloatingNode id={nodeId}>{props.children}</FloatingNode>;
+  return <PopupTreeNode id={nodeId}>{props.children}</PopupTreeNode>;
 }
 
 export interface MenubarState {

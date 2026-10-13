@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { ComboboxStore } from '../store';
-import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
+import type { StandaloneInteractionStore } from '../../utils/popups/interaction-store/StandaloneInteractionStore';
 
 export interface ComboboxDerivedItemsContext {
   query: string;
@@ -15,7 +15,7 @@ export interface ComboboxDerivedItemsContext {
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);
-export const ComboboxFloatingContext = React.createContext<FloatingRootStore | undefined>(
+export const ComboboxFloatingContext = React.createContext<StandaloneInteractionStore | undefined>(
   undefined,
 );
 export const ComboboxDerivedItemsContext = React.createContext<

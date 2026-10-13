@@ -1,6 +1,6 @@
 import type { Placement } from '@floating-ui/react-dom';
 import { isMouseLikePointerType } from '../event';
-import type { ExtendedElements, FloatingTreeType } from '../types';
+import type { ExtendedElements, PopupTreeType } from '../types';
 
 export { isTargetInsideEnabledTrigger as isInsideEnabledTrigger } from '../element';
 
@@ -16,7 +16,7 @@ export interface HandleCloseContext {
   elements: Pick<ExtendedElements, 'domReference' | 'floating'>;
   onClose: () => void;
   nodeId?: string | undefined;
-  tree?: FloatingTreeType | null | undefined;
+  tree?: PopupTreeType | null | undefined;
   leave?: boolean | undefined;
 }
 

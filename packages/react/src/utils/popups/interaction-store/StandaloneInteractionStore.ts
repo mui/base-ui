@@ -1,13 +1,18 @@
 import type * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
-import type { FloatingEvents, ContextData, PositioningRootContext, ReferenceType } from '../types';
+import type {
+  PopupEvents,
+  ContextData,
+  PositioningInteractionStore,
+  ReferenceType,
+} from '../types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../createEventEmitter';
 import type { PopupTriggerMap } from '../popupTriggerMap';
 import { dispatchOpenChange } from './dispatchOpenChange';
 import type { TransitionStatus } from '../../../internals/useTransitionStatus';
 
-export interface FloatingRootState {
+export interface StandaloneInteractionState {
   open: boolean;
   transitionStatus: TransitionStatus | undefined;
   /**
@@ -32,25 +37,25 @@ export interface FloatingRootState {
   defaultPopupId: string | undefined;
 }
 
-export interface FloatingRootStoreContext {
+export interface StandaloneInteractionStoreContext {
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
   readonly dataRef: React.RefObject<ContextData>;
-  readonly events: FloatingEvents;
+  readonly events: PopupEvents;
   nested: boolean;
   readonly triggerElements: PopupTriggerMap;
 }
 
 const selectors = {
-  open: (state: FloatingRootState) => state.open,
-  transitionStatus: (state: FloatingRootState) => state.transitionStatus,
-  anchorElement: (state: FloatingRootState) => state.anchorElement,
-  anchor: (state: FloatingRootState) => state.anchorOverride ?? state.baseAnchor,
-  outerPopupElement: (state: FloatingRootState) => state.outerPopupElement,
-  defaultPopupId: (state: FloatingRootState) => state.defaultPopupId,
+  open: (state: StandaloneInteractionState) => state.open,
+  transitionStatus: (state: StandaloneInteractionState) => state.transitionStatus,
+  anchorElement: (state: StandaloneInteractionState) => state.anchorElement,
+  anchor: (state: StandaloneInteractionState) => state.anchorOverride ?? state.baseAnchor,
+  outerPopupElement: (state: StandaloneInteractionState) => state.outerPopupElement,
+  defaultPopupId: (state: StandaloneInteractionState) => state.defaultPopupId,
 };
 
-interface FloatingRootStoreOptions {
+interface StandaloneInteractionStoreOptions {
   open: boolean;
   transitionStatus: TransitionStatus | undefined;
   baseAnchor: ReferenceType | null;
@@ -62,11 +67,15 @@ interface FloatingRootStoreOptions {
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
-export class FloatingRootStore
-  extends ReactStore<Readonly<FloatingRootState>, FloatingRootStoreContext, typeof selectors>
-  implements PositioningRootContext
+export class StandaloneInteractionStore
+  extends ReactStore<
+    Readonly<StandaloneInteractionState>,
+    StandaloneInteractionStoreContext,
+    typeof selectors
+  >
+  implements PositioningInteractionStore
 {
-  constructor(options: FloatingRootStoreOptions) {
+  constructor(options: StandaloneInteractionStoreOptions) {
     const { nested, onOpenChange, triggerElements, ...initialState } = options;
 
     super(

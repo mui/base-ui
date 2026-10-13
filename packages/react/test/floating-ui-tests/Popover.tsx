@@ -3,19 +3,19 @@ import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
 import type { Placement } from '@floating-ui/react-dom';
 import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
-import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
-import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
+import { getEmptyInteractionStore } from '../../src/utils/popups/interaction-store/getEmptyInteractionStore';
+import { PopupFocusManager } from '../../src/utils/popups/focus/PopupFocusManager';
 import {
-  FloatingNode,
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../../src/utils/popups/tree/FloatingTree';
-import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+  PopupTreeNode,
+  PopupTree,
+  usePopupNodeId,
+  usePopupParentNodeId,
+} from '../../src/utils/popups/tree/PopupTree';
+import { PopupPortal } from '../../src/utils/popups/portal/PopupPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
-import { useHoverFloatingInteraction } from '../../src/utils/popups/interactions/useHoverFloatingInteraction';
-import { useHoverReferenceInteraction } from '../../src/utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from '../../src/utils/popups/interactions/useHoverTriggerInteraction';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useFloating } from './useFloating';
 import styles from './Popover.module.css';
@@ -107,7 +107,7 @@ function PopoverComponent({
 }: Props) {
   const [open, setOpen] = React.useState(false);
 
-  const nodeId = useFloatingNodeId();
+  const nodeId = usePopupNodeId();
   const { floatingStyles, refs, context } = useFloating({
     nodeId,
     open,
@@ -121,14 +121,14 @@ function PopoverComponent({
   const labelId = `${id}-label`;
   const descriptionId = `${id}-description`;
   const triggerId = `${id}-trigger`;
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
+  const fallbackContext = React.useMemo(() => getEmptyInteractionStore(), []);
   const hoverStore = hover ? context.rootStore : fallbackContext;
 
-  const hoverReferenceProps = useHoverReferenceInteraction(hoverStore, {
+  const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {
     handleClose: safePolygon({ blockPointerEvents: true }),
     triggerElementRef: hover ? refs.domReference : undefined,
   });
-  useHoverFloatingInteraction(hoverStore);
+  useHoverPopupInteraction(hoverStore);
 
   const { getReferenceProps, getFloatingProps } = useTestInteractions([
     { reference: hoverReferenceProps },
@@ -139,7 +139,7 @@ function PopoverComponent({
   ]);
 
   return (
-    <FloatingNode id={nodeId}>
+    <PopupTreeNode id={nodeId}>
       {React.isValidElement(children) &&
         React.cloneElement(
           children,
@@ -152,9 +152,9 @@ function PopoverComponent({
             'data-open': open ? '' : undefined,
           } as React.HTMLProps<Element>),
         )}
-      <FloatingPortal>
+      <PopupPortal>
         {open && (
-          <FloatingFocusManager context={context.rootStore} modal={modal}>
+          <PopupFocusManager context={context.rootStore} modal={modal}>
             <div
               className={styles.Floating}
               ref={refs.setFloating}
@@ -171,23 +171,23 @@ function PopoverComponent({
                 close: () => setOpen(false),
               })}
             </div>
-          </FloatingFocusManager>
+          </PopupFocusManager>
         )}
-      </FloatingPortal>
-    </FloatingNode>
+      </PopupPortal>
+    </PopupTreeNode>
   );
 }
 
 /** @internal */
 export function Popover(props: Props) {
-  const parentId = useFloatingParentNodeId();
+  const parentId = usePopupParentNodeId();
 
   // This is a root, so we wrap it with the tree
   if (parentId === null) {
     return (
-      <FloatingTree>
+      <PopupTree>
         <PopoverComponent {...props} />
-      </FloatingTree>
+      </PopupTree>
     );
   }
 

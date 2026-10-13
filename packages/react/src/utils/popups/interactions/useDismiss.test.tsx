@@ -5,14 +5,9 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
 import { createRenderer, isJSDOM, useTestInteractions } from '#test-utils';
-import { FloatingFocusManager } from '../focus/FloatingFocusManager';
-import {
-  FloatingNode,
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../tree/FloatingTree';
-import { FloatingPortal } from '../portal/FloatingPortal';
+import { PopupFocusManager } from '../focus/PopupFocusManager';
+import { PopupTreeNode, PopupTree, usePopupNodeId, usePopupParentNodeId } from '../tree/PopupTree';
+import { PopupPortal } from '../portal/PopupPortal';
 import { useDismiss, normalizeProp } from './useDismiss';
 import { useFocus } from './useFocus';
 import { useClick } from './useClick';
@@ -439,9 +434,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           <React.Fragment>
             <button {...getReferenceProps({ ref: refs.setReference })} />
             {isOpen && (
-              <FloatingFocusManager context={context.rootStore}>
+              <PopupFocusManager context={context.rootStore}>
                 <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
-              </FloatingFocusManager>
+              </PopupFocusManager>
             )}
           </React.Fragment>
         );
@@ -474,9 +469,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           <React.Fragment>
             <button {...getReferenceProps({ ref: refs.setReference })} />
             {isOpen && (
-              <FloatingPortal container={shadowRoot}>
+              <PopupPortal container={shadowRoot}>
                 <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
-              </FloatingPortal>
+              </PopupPortal>
             )}
           </React.Fragment>
         );
@@ -514,11 +509,11 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           <React.Fragment>
             <button {...getReferenceProps({ ref: refs.setReference })} />
             {isOpen && (
-              <FloatingPortal container={shadowRoot}>
-                <FloatingFocusManager context={context.rootStore}>
+              <PopupPortal container={shadowRoot}>
+                <PopupFocusManager context={context.rootStore}>
                   <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
-                </FloatingFocusManager>
-              </FloatingPortal>
+                </PopupFocusManager>
+              </PopupPortal>
             )}
           </React.Fragment>
         );
@@ -576,9 +571,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
                 {modal == null ? (
                   dialogJsx
                 ) : (
-                  <FloatingFocusManager context={context.rootStore} modal={modal}>
+                  <PopupFocusManager context={context.rootStore} modal={modal}>
                     {dialogJsx}
-                  </FloatingFocusManager>
+                  </PopupFocusManager>
                 )}
               </React.Fragment>
             )}
@@ -686,9 +681,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             <button ref={refs.setReference} {...getReferenceProps()} />
             {open && (
               <div ref={refs.setFloating} {...getFloatingProps()}>
-                <FloatingPortal>
+                <PopupPortal>
                   <button data-testid="portaled-button" />
-                </FloatingPortal>
+                </PopupPortal>
               </div>
             )}
           </React.Fragment>
@@ -719,7 +714,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       ...props
     }: UseDismissProps & { testId: string; children: React.ReactNode }) {
       const [open, setOpen] = React.useState(true);
-      const nodeId = useFloatingNodeId();
+      const nodeId = usePopupNodeId();
 
       const { refs, context } = useFloating({
         open,
@@ -732,27 +727,27 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       ]);
 
       return (
-        <FloatingNode id={nodeId}>
+        <PopupTreeNode id={nodeId}>
           <button {...getReferenceProps({ ref: refs.setReference })} />
           {open && (
-            <FloatingFocusManager context={context.rootStore}>
+            <PopupFocusManager context={context.rootStore}>
               <div {...getFloatingProps({ ref: refs.setFloating })} data-testid={testId}>
                 {children}
               </div>
-            </FloatingFocusManager>
+            </PopupFocusManager>
           )}
-        </FloatingNode>
+        </PopupTreeNode>
       );
     }
 
     function NestedDialog(props: UseDismissProps & { testId: string; children: React.ReactNode }) {
-      const parentId = useFloatingParentNodeId();
+      const parentId = usePopupParentNodeId();
 
       if (parentId == null) {
         return (
-          <FloatingTree>
+          <PopupTree>
             <Dialog {...props} />
-          </FloatingTree>
+          </PopupTree>
         );
       }
 
@@ -870,7 +865,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     describe('prop: bubbles.escapeKey', () => {
-      test('without FloatingTree', async () => {
+      test('without PopupTree', async () => {
         function App() {
           const [popoverOpen, setPopoverOpen] = React.useState(true);
           const [tooltipOpen, setTooltipOpen] = React.useState(false);
@@ -1083,7 +1078,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       ...props
     }: UseDismissProps & { id: string; children: React.ReactNode }) {
       const [open, setOpen] = React.useState(true);
-      const nodeId = useFloatingNodeId();
+      const nodeId = usePopupNodeId();
 
       const { refs, context } = useFloating({
         open,
@@ -1096,30 +1091,30 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       ]);
 
       return (
-        <FloatingNode id={nodeId}>
+        <PopupTreeNode id={nodeId}>
           <button {...getReferenceProps({ ref: refs.setReference })} />
           {open && (
-            <FloatingPortal>
-              <FloatingFocusManager context={context.rootStore}>
+            <PopupPortal>
+              <PopupFocusManager context={context.rootStore}>
                 <div {...getFloatingProps({ ref: refs.setFloating })}>
                   <span>{id}</span>
                   {children}
                 </div>
-              </FloatingFocusManager>
-            </FloatingPortal>
+              </PopupFocusManager>
+            </PopupPortal>
           )}
-        </FloatingNode>
+        </PopupTreeNode>
       );
     }
 
     function NestedDialog(props: UseDismissProps & { id: string; children: React.ReactNode }) {
-      const parentId = useFloatingParentNodeId();
+      const parentId = usePopupParentNodeId();
 
       if (parentId == null) {
         return (
-          <FloatingTree>
+          <PopupTree>
             <Dialog {...props} />
-          </FloatingTree>
+          </PopupTree>
         );
       }
 
@@ -1688,13 +1683,13 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             {triggerText}
           </button>
           {open && (
-            <FloatingPortal container={portalContainer}>
-              <FloatingFocusManager context={context.rootStore} modal={false}>
+            <PopupPortal container={portalContainer}>
+              <PopupFocusManager context={context.rootStore} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   {children}
                 </div>
-              </FloatingFocusManager>
-            </FloatingPortal>
+              </PopupFocusManager>
+            </PopupPortal>
           )}
         </React.Fragment>
       );

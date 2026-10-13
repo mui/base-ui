@@ -3,7 +3,7 @@ import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { closest, getTarget } from '@base-ui/utils/shadowDom';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
+import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import {
@@ -12,7 +12,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
-import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyInteractionStore } from '../../utils/popups/interaction-store/getEmptyInteractionStore';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -40,13 +40,13 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     nested,
   } = useNavigationMenuRootContext();
 
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
+  const fallbackContext = React.useMemo(() => getEmptyInteractionStore(), []);
   const context = floatingRootContext || fallbackContext;
   const interactionsEnabled = positionerElement != null || value == null;
   const hoverInteractionsEnabled =
     positionerElement != null || viewportElement != null || value == null;
 
-  useHoverFloatingInteraction(context, {
+  useHoverPopupInteraction(context, {
     enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,
     closeDelay,
     nodeId,

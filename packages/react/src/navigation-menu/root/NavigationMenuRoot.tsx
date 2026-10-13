@@ -7,12 +7,12 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import {
-  FloatingNode,
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingParentNodeId,
-} from '../../utils/popups/tree/FloatingTree';
-import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
+  PopupTreeNode,
+  PopupTree,
+  usePopupNodeId,
+  usePopupParentNodeId,
+} from '../../utils/popups/tree/PopupTree';
+import type { StandaloneInteractionStore } from '../../utils/popups/interaction-store/StandaloneInteractionStore';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,
@@ -77,7 +77,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     onOpenChangeComplete,
   } = componentProps;
 
-  const nested = useFloatingParentNodeId() != null;
+  const nested = usePopupParentNodeId() != null;
   const parentRootContext = useNavigationMenuRootContext(true);
 
   const [value, setValueUnwrapped] = useControlled({
@@ -102,7 +102,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const [activationDirection, setActivationDirection] =
     React.useState<NavigationMenuRootContext['activationDirection']>(null);
   const [floatingRootContext, setFloatingRootContext] = React.useState<
-    FloatingRootStore | undefined
+    StandaloneInteractionStore | undefined
   >(undefined);
   const [viewportInert, setViewportInert] = React.useState(false);
 
@@ -316,8 +316,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   );
 
   if (!nested) {
-    // FloatingTree provides context to nested menus
-    return <FloatingTree>{jsx}</FloatingTree>;
+    // PopupTree provides context to nested menus
+    return <PopupTree>{jsx}</PopupTree>;
   }
 
   return jsx;
@@ -345,7 +345,7 @@ function TreeContext<Value>(props: {
     ...elementProps
   } = props.componentProps;
 
-  const nodeId = useFloatingNodeId();
+  const nodeId = usePopupNodeId();
   const { rootRef, nested, open } = useNavigationMenuRootContext();
 
   const state: NavigationMenuRootState = {
@@ -361,7 +361,7 @@ function TreeContext<Value>(props: {
 
   return (
     <NavigationMenuTreeContext.Provider value={nodeId}>
-      <FloatingNode id={nodeId}>{element}</FloatingNode>
+      <PopupTreeNode id={nodeId}>{element}</PopupTreeNode>
     </NavigationMenuTreeContext.Provider>
   );
 }

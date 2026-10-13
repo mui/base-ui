@@ -5,12 +5,12 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../popupTriggerMap';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { useFloatingParentNodeId } from '../tree/FloatingTree';
-import { FloatingRootStore } from './FloatingRootStore';
-import type { FloatingRootState as State } from './FloatingRootStore';
+import { usePopupParentNodeId } from '../tree/PopupTree';
+import { StandaloneInteractionStore } from './StandaloneInteractionStore';
+import type { StandaloneInteractionState as State } from './StandaloneInteractionStore';
 import type { ReferenceType } from '../types';
 
-export interface UseFloatingRootContextOptions {
+export interface UseStandaloneInteractionStoreOptions {
   open?: boolean | undefined;
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements?:
@@ -21,11 +21,13 @@ export interface UseFloatingRootContextOptions {
     | undefined;
 }
 
-export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
+export function useStandaloneInteractionStore(
+  options: UseStandaloneInteractionStoreOptions,
+): StandaloneInteractionStore {
   const { open = false, onOpenChange, elements = {} } = options;
 
   const defaultPopupId = useId();
-  const nested = useFloatingParentNodeId() != null;
+  const nested = usePopupParentNodeId() != null;
 
   if (process.env.NODE_ENV !== 'production') {
     const optionAnchor = elements.anchor;
@@ -39,7 +41,7 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
 
   const store = useRefWithInit(
     () =>
-      new FloatingRootStore({
+      new StandaloneInteractionStore({
         open,
         transitionStatus: undefined,
         onOpenChange,
