@@ -39,6 +39,32 @@ describe('<Tooltip.Root />', () => {
     triggerMouseAction: 'hover',
   });
 
+  it('marks the popup data-instant dismiss when Escape closes it', async () => {
+    await render(
+      <Tooltip.Root>
+        <Tooltip.Trigger delay={0}>Toggle</Tooltip.Trigger>
+        <Tooltip.Portal keepMounted>
+          <Tooltip.Positioner>
+            <Tooltip.Popup data-testid="popup">Content</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+    await act(async () => trigger.focus());
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+    });
+
+    fireEvent.keyDown(trigger, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+    });
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+  });
+
   describe('trigger unmount during the open delay', () => {
     clock.withFakeTimers();
 
