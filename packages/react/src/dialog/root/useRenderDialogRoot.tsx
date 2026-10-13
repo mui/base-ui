@@ -29,8 +29,8 @@ export function useRenderDialogRoot<Payload>(
 
   const { store, open, mounted, payload } = usePopupRoot(
     props,
-    (initialState, floatingId, floatingNested) =>
-      new DialogStore<Payload>({ ...initialState, ...rootState }, floatingId, floatingNested),
+    (initialState, defaultPopupId, floatingNested) =>
+      new DialogStore<Payload>({ ...initialState, ...rootState }, defaultPopupId, floatingNested),
   );
 
   store.useSyncedValues(rootState);

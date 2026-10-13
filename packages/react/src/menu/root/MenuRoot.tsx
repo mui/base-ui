@@ -116,7 +116,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
   // A registered `''` means the popup rendered with an explicitly empty id, so nothing may point
   // at the generated fallback.
-  const floatingId = (renderedFloatingId ?? defaultFloatingId) || undefined;
+  const defaultPopupId = (renderedFloatingId ?? defaultFloatingId) || undefined;
 
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
@@ -159,7 +159,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
       menuStore.context.virtualFocusRef = virtualFocusRef;
       return menuStore;
     },
-    floatingId,
+    defaultPopupId,
     { animateInitialOpen },
   );
 

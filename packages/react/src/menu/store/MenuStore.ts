@@ -197,11 +197,11 @@ export class MenuStore<Payload> extends BasePopupStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
+    defaultPopupId?: string | undefined,
     nested = false,
   ) {
     const triggerElements = new PopupTriggerMap();
-    const state = createInitialState<Payload>(floatingId, initialState);
+    const state = createInitialState<Payload>(defaultPopupId, initialState);
 
     super(state, createInitialContext(triggerElements, nested), selectors);
 
@@ -415,11 +415,11 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
 }
 
 function createInitialState<Payload>(
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
   initialState?: Partial<State<Payload>>,
 ): State<Payload> {
   return {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     modal: true,
     openMethod: null,

@@ -95,12 +95,12 @@ export class PopoverStore<Payload> extends BasePopupStore<
 > {
   constructor(
     initialState: Partial<State<Payload>>,
-    floatingId: string | undefined,
+    defaultPopupId: string | undefined,
     nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
-      createInitialState<Payload>(initialState, floatingId),
+      createInitialState<Payload>(initialState, defaultPopupId),
       createInitialContext(triggerElements, nested),
       selectors,
     );
@@ -175,10 +175,10 @@ export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     modal: false,
     focusManagerModal: false,

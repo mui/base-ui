@@ -459,14 +459,14 @@ export function useAnchorPositioning(
     if (!mounted && floatingRootContext) {
       if (floatingRootContext instanceof FloatingRootStore) {
         floatingRootContext.update({
-          referenceElement: null,
-          floatingElement: null,
-          domReferenceElement: null,
-          positionReference: null,
+          baseAnchor: null,
+          outerPopupElement: null,
+          anchorElement: null,
+          anchorOverride: null,
         });
       } else {
-        floatingRootContext.set('domReferenceElement', null);
-        floatingRootContext.set('positionReference', null);
+        floatingRootContext.set('anchorElement', null);
+        floatingRootContext.set('anchorOverride', null);
       }
     }
   }, [mounted, floatingRootContext]);

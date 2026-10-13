@@ -24,13 +24,13 @@ export function useBaseUIFloating(
 ): UseFloatingReturn {
   const { nodeId, externalTree, rootContext: store } = options;
 
-  const referenceElement = store.useState('referenceElement');
-  const floatingElement = store.useState('floatingElement');
-  const domReferenceElement = store.useState('domReferenceElement');
+  const anchor = store.useState('anchor');
+  const outerPopupElement = store.useState('outerPopupElement');
+  const anchorElement = store.useState('anchorElement');
   const open = store.useState('open');
-  const floatingId = store.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
-  const [positionReference, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
+  const [anchorOverride, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
 
   const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
 
@@ -38,18 +38,18 @@ export function useBaseUIFloating(
 
   const storeElements = React.useMemo(
     () => ({
-      reference: referenceElement,
-      floating: floatingElement,
-      domReference: domReferenceElement,
+      reference: anchor,
+      floating: outerPopupElement,
+      domReference: anchorElement,
     }),
-    [referenceElement, floatingElement, domReferenceElement],
+    [anchor, outerPopupElement, anchorElement],
   );
 
   const position = usePosition({
     ...options,
     elements: {
       ...storeElements,
-      ...(positionReference && { reference: positionReference }),
+      ...(anchorOverride && { reference: anchorOverride }),
     },
   });
 
@@ -62,8 +62,8 @@ export function useBaseUIFloating(
             contextElement: node,
           } satisfies VirtualElement)
         : node;
-      // Store the positionReference in state if the DOM reference is specified externally via the
-      // `elements.reference` option. This ensures that it won't be overridden on future renders.
+      // Keep the override in state when the anchor element comes from the store, so it isn't
+      // overridden on future renders.
       setPositionReferenceRaw(computedPositionReference);
       position.refs.setReference(computedPositionReference);
     },
@@ -82,9 +82,9 @@ export function useBaseUIFloating(
   const elements = React.useMemo(
     () => ({
       ...position.elements,
-      domReference: domReferenceElement,
+      domReference: anchorElement,
     }),
-    [position.elements, domReferenceElement],
+    [position.elements, anchorElement],
   );
 
   const context = React.useMemo<FloatingContext>(
@@ -94,20 +94,20 @@ export function useBaseUIFloating(
       open,
       onOpenChange: store.setOpen,
       events: store.context.events,
-      floatingId,
+      defaultPopupId,
       refs,
       elements,
       nodeId,
       rootStore: store,
     }),
-    [position, refs, elements, nodeId, store, open, floatingId],
+    [position, refs, elements, nodeId, store, open, defaultPopupId],
   );
 
   useIsoLayoutEffect(() => {
-    if (domReferenceElement) {
-      domReferenceRef.current = domReferenceElement as NarrowedElement<ReferenceType> | null;
+    if (anchorElement) {
+      domReferenceRef.current = anchorElement as NarrowedElement<ReferenceType> | null;
     }
-  }, [domReferenceElement]);
+  }, [anchorElement]);
 
   useIsoLayoutEffect(() => {
     store.context.dataRef.current.floatingContext = context;

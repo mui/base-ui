@@ -25,8 +25,8 @@ const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload
 
   const { store, open, mounted, payload } = usePopupRoot(
     props,
-    (initialState, floatingId, nested) =>
-      new PopoverStore<Payload>({ ...initialState, modal }, floatingId, nested),
+    (initialState, defaultPopupId, nested) =>
+      new PopoverStore<Payload>({ ...initialState, modal }, defaultPopupId, nested),
   );
 
   // Dispose the patient-click timeout held in the store's context on unmount.

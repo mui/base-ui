@@ -60,12 +60,12 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
 > {
   constructor(
     initialState: Partial<State<Payload>>,
-    floatingId: string | undefined,
+    defaultPopupId: string | undefined,
     nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
-      createInitialState<Payload>(initialState, floatingId),
+      createInitialState<Payload>(initialState, defaultPopupId),
       createInitialContext(triggerElements, nested),
       selectors,
     );
@@ -120,10 +120,10 @@ export function createNullPreviewCardStore<Payload>(): PreviewCardHandleStore<Pa
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     instantType: undefined,
     adaptiveOrigin: undefined,
     closeDelay: CLOSE_DELAY,

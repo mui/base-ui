@@ -88,7 +88,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
 
   const positioning = useNavigationMenuPositionerContext(true);
   const hasPositioner = Boolean(positioning);
-  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
+  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('anchorElement');
 
   useIsoLayoutEffect(() => {
     if (domReference) {

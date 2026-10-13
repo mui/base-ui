@@ -106,8 +106,8 @@ export function useClientPoint(
   const { enabled = true, axis = 'both' } = props;
 
   const open = store.useState('open');
-  const floating = store.useState('floatingElement');
-  const domReference = store.useState('domReferenceElement');
+  const floating = store.useState('outerPopupElement');
+  const domReference = store.useState('anchorElement');
 
   const dataRef = store.context.dataRef;
 
@@ -118,7 +118,7 @@ export function useClientPoint(
   const [reactive, setReactive] = React.useState([]);
 
   const resetReference = useStableCallback((reference: Element | null) => {
-    store.set('positionReference', reference);
+    store.set('anchorOverride', reference);
   });
 
   const setReference = useStableCallback(
@@ -135,7 +135,7 @@ export function useClientPoint(
       }
 
       store.set(
-        'positionReference',
+        'anchorOverride',
         createVirtualElement(referenceElement ?? domReference, {
           x: newX,
           y: newY,
@@ -214,7 +214,7 @@ export function useClientPoint(
   // Clear virtual cursor references when the hook unmounts. Enabled flips are handled above.
   React.useEffect(
     () => () => {
-      store.set('positionReference', null);
+      store.set('anchorOverride', null);
     },
     [store],
   );

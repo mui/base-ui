@@ -351,8 +351,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     open,
     onOpenChange: setOpen,
     elements: {
-      reference: triggerElement,
-      floating: positionerElement,
+      anchor: triggerElement,
+      outerPopupElement: positionerElement,
     },
   });
 

@@ -134,14 +134,14 @@ export function Main() {
       reference: {
         'aria-haspopup': 'menu' as const,
         'aria-expanded': open,
-        'aria-controls': open ? context.floatingId : undefined,
+        'aria-controls': open ? context.defaultPopupId : undefined,
       },
       floating: {
-        id: context.floatingId,
+        id: context.defaultPopupId,
         role: 'menu' as const,
       },
     }),
-    [context.floatingId, open],
+    [context.defaultPopupId, open],
   );
 
   const { getReferenceProps, getFloatingProps } = useTestInteractions([

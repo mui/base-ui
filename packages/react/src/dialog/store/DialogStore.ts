@@ -46,7 +46,7 @@ const selectors = {
   viewportElement: (state: State<unknown>) => state.viewportElement,
   role: (state: State<unknown>) => state.role,
   // Dialogs have no positioner, so the interaction hooks treat the popup as the floating element.
-  floatingElement: (state: State<unknown>) => state.popupElement,
+  outerPopupElement: (state: State<unknown>) => state.popupElement,
 };
 
 /**
@@ -65,11 +65,11 @@ export class DialogStore<Payload> extends BasePopupStore<
 > {
   constructor(
     initialState: Partial<State<Payload>> | undefined,
-    floatingId: string | undefined,
+    defaultPopupId: string | undefined,
     nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
-    const state = createInitialState<Payload>(initialState, floatingId);
+    const state = createInitialState<Payload>(initialState, defaultPopupId);
 
     super(state, createInitialContext(triggerElements, nested), selectors);
   }
@@ -109,10 +109,10 @@ export function createNullDialogStore<Payload>(): DialogHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     modal: true,
     disablePointerDismissal: false,
     viewportElement: null,

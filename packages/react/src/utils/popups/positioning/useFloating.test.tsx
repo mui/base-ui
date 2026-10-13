@@ -20,17 +20,17 @@ function Test({
 
 test('uses the supplied root store while preserving DOM and position references', async () => {
   const referenceElement = document.createElement('button');
-  const floatingElement = document.createElement('div');
-  document.body.append(referenceElement, floatingElement);
+  const outerPopupElement = document.createElement('div');
+  document.body.append(referenceElement, outerPopupElement);
 
   try {
     const store = new FloatingRootStore({
       open: true,
       transitionStatus: undefined,
-      referenceElement,
-      floatingElement,
+      baseAnchor: referenceElement,
+      outerPopupElement,
       triggerElements: new PopupTriggerMap(),
-      floatingId: undefined,
+      defaultPopupId: undefined,
       nested: false,
       onOpenChange: vi.fn(),
     });
@@ -49,23 +49,23 @@ test('uses the supplied root store while preserving DOM and position references'
     expect(floating?.context.rootStore).toBe(store);
     expect(floating?.context.dataRef).toBe(store.context.dataRef);
     expect(floating?.context.events).toBe(store.context.events);
-    expect(floating?.refs.floating.current).toBe(floatingElement);
+    expect(floating?.refs.floating.current).toBe(outerPopupElement);
     expect(floating?.refs.domReference.current).toBe(referenceElement);
 
-    const positionReference: VirtualElement = {
+    const anchorOverride: VirtualElement = {
       getBoundingClientRect: () => new DOMRect(1, 2, 3, 4),
     };
 
     await React.act(async () => {
-      floating?.refs.setPositionReference(positionReference);
+      floating?.refs.setPositionReference(anchorOverride);
     });
 
-    expect(floating?.refs.reference.current).toBe(positionReference);
-    expect(floating?.elements.reference).toBe(positionReference);
-    expect(store.state.domReferenceElement).toBe(referenceElement);
+    expect(floating?.refs.reference.current).toBe(anchorOverride);
+    expect(floating?.elements.reference).toBe(anchorOverride);
+    expect(store.state.anchorElement).toBe(referenceElement);
     expect(floating?.refs.domReference.current).toBe(referenceElement);
   } finally {
     referenceElement.remove();
-    floatingElement.remove();
+    outerPopupElement.remove();
   }
 });

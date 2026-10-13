@@ -48,7 +48,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
   const timeout = useTimeout();
 
   React.useEffect(() => {
-    const domReference = store.select('domReferenceElement');
+    const domReference = store.select('anchorElement');
 
     if (!enabled) {
       return undefined;
@@ -60,7 +60,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
     // floating element was not open, the focus should be blocked when they
     // return to the tab/window.
     function onBlur() {
-      const currentDomReference = store.select('domReferenceElement');
+      const currentDomReference = store.select('anchorElement');
       if (
         !store.select('open') &&
         isHTMLElement(currentDomReference) &&
@@ -93,7 +93,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (details.reason === REASONS.triggerPress || details.reason === REASONS.escapeKey) {
-        const referenceElement = store.select('domReferenceElement');
+        const referenceElement = store.select('anchorElement');
         if (isElement(referenceElement)) {
           blockedReferenceRef.current = referenceElement;
           blockFocusRef.current = true;
@@ -191,7 +191,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
 
         // Wait for the window blur listener to fire.
         timeout.start(0, () => {
-          const domReference = store.select('domReferenceElement');
+          const domReference = store.select('anchorElement');
           const activeEl = activeElement(ownerDocument(domReference));
 
           // Focus left the page, keep it open.

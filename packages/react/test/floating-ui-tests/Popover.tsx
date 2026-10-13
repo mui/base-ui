@@ -148,7 +148,7 @@ function PopoverComponent({
             id: triggerId,
             'aria-haspopup': 'dialog',
             'aria-expanded': open,
-            'aria-controls': open ? context.floatingId : undefined,
+            'aria-controls': open ? context.defaultPopupId : undefined,
             'data-open': open ? '' : undefined,
           } as React.HTMLProps<Element>),
         )}
@@ -159,7 +159,7 @@ function PopoverComponent({
               className={styles.Floating}
               ref={refs.setFloating}
               style={floatingStyles}
-              id={context.floatingId}
+              id={context.defaultPopupId}
               role="dialog"
               aria-labelledby={labelId}
               aria-describedby={descriptionId}

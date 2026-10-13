@@ -42,8 +42,8 @@ export function useHoverFloatingInteraction(
   const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
 
   const open = store.useState('open');
-  const floatingElement = store.useState('floatingElement');
-  const domReferenceElement = store.useState('domReferenceElement');
+  const outerPopupElement = store.useState('outerPopupElement');
+  const anchorElement = store.useState('anchorElement');
 
   const tree = useFloatingTree();
   const parentId = useFloatingParentNodeId();
@@ -68,11 +68,11 @@ export function useHoverFloatingInteraction(
 
     if (
       open &&
-      isElement(domReferenceElement) &&
-      floatingElement &&
+      isElement(anchorElement) &&
+      outerPopupElement &&
       intent.blockOutsidePointerEventsForPopup(
-        domReferenceElement as HTMLElement | SVGSVGElement,
-        floatingElement,
+        anchorElement as HTMLElement | SVGSVGElement,
+        outerPopupElement,
         tree,
         parentId,
       )
@@ -81,7 +81,7 @@ export function useHoverFloatingInteraction(
     }
 
     return undefined;
-  }, [enabled, open, domReferenceElement, floatingElement, intent, tree, parentId]);
+  }, [enabled, open, anchorElement, outerPopupElement, intent, tree, parentId]);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -123,7 +123,7 @@ export function useHoverFloatingInteraction(
       });
     }
 
-    const floating = floatingElement;
+    const floating = outerPopupElement;
     return mergeCleanups(
       floating && addEventListener(floating, 'mouseenter', onFloatingMouseEnter),
       floating && addEventListener(floating, 'mouseleave', onFloatingMouseLeave),
@@ -134,7 +134,7 @@ export function useHoverFloatingInteraction(
     );
   }, [
     enabled,
-    floatingElement,
+    outerPopupElement,
     store,
     closeDelayProp,
     nodeIdProp,

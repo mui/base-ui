@@ -205,8 +205,8 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
 
   const onBlur = useStableCallback((event: React.FocusEvent) => {
     const next = event.relatedTarget as Element | null;
-    const currentDomReferenceElement = store.select('domReferenceElement');
-    const currentFloatingElement = store.select('floatingElement');
+    const currentDomReferenceElement = store.select('anchorElement');
+    const currentFloatingElement = store.select('outerPopupElement');
     const withinComposite =
       contains(currentDomReferenceElement, next) || contains(currentFloatingElement, next);
 
