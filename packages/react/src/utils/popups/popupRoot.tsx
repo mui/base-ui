@@ -84,8 +84,8 @@ type PopupRootStore = ReactStore<
  * close transitions, and exposes the `actionsRef` actions.
  *
  * @param props The props every popup Root shares.
- * @param createStore Builds the store exactly once, from the state the props describe, the floating
- *   id and whether the popup is nested inside another floating element. The store belongs to the
+ * @param createStore Builds the store exactly once, from the state the props describe and the
+ *   floating id. The store belongs to the
  *   Root, not to its handle: the handle attaches to it, so swapping the handle re-attaches rather
  *   than recreating state. The props only seed it; controlled props are synced after creation.
  * @param options What differs between popup Roots.
@@ -93,11 +93,7 @@ type PopupRootStore = ReactStore<
  */
 export function usePopupRoot<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
-  createStore: (
-    initialState: PopupRootInitialState,
-    floatingId: string | undefined,
-    nested: boolean,
-  ) => Store,
+  createStore: (initialState: PopupRootInitialState, floatingId: string | undefined) => Store,
   options: UsePopupRootOptions = {},
 ) {
   const floatingId = useId();
@@ -111,11 +107,7 @@ export function usePopupRoot<Store extends PopupRootStore>(
  */
 export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
-  createStore: (
-    initialState: PopupRootInitialState,
-    floatingId: string | undefined,
-    nested: boolean,
-  ) => Store,
+  createStore: (initialState: PopupRootInitialState, floatingId: string | undefined) => Store,
   floatingId: string | undefined,
   options: UsePopupRootOptions = {},
 ) {
@@ -135,11 +127,10 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
   } = options;
 
   const store = usePopupRootStore(
-    (initialFloatingId, nested) =>
+    (initialFloatingId) =>
       createStore(
         { open: defaultOpen, openProp, activeTriggerId: defaultTriggerId, triggerIdProp },
         initialFloatingId,
-        nested,
       ),
     floatingId,
   );
@@ -221,16 +212,16 @@ interface PopupRootStoreHandle<Store> {
  * whether the popup is nested current, and returns the store.
  *
  * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
- * and whether the popup is nested inside another floating element, both resolved on the first render.
- * @param floatingIdOverride Replaces the generated floating id. `null` leaves the popup without one.
+ * resolved on the first render.
+ * @param floatingId The floating id, or `undefined` to leave the popup without one.
  */
 function usePopupRootStore<Store extends PopupRootStore>(
-  createStore: (floatingId: string | undefined, nested: boolean) => Store,
+  createStore: (floatingId: string | undefined) => Store,
   floatingId: string | undefined,
 ): Store {
   const nested = useFloatingParentNodeId() != null;
 
-  const store = useRefWithInit(() => createStore(floatingId, nested)).current;
+  const store = useRefWithInit(() => createStore(floatingId)).current;
 
   store.useSyncedValue('floatingId', floatingId);
   store.context.nested = nested;

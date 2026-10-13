@@ -97,15 +97,11 @@ export class PopoverStore<Payload> extends BasePopupStore<
   Selectors,
   PopoverRoot.ChangeEventDetails
 > {
-  constructor(
-    initialState: Partial<State<Payload>>,
-    floatingId: string | undefined,
-    nested: boolean,
-  ) {
+  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
     const triggerElements = new PopupTriggerMap();
     super(
       createInitialState<Payload>(initialState, floatingId),
-      createInitialContext(triggerElements, nested),
+      createInitialContext(triggerElements),
       selectors,
     );
   }
@@ -204,7 +200,7 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     popupRef: React.createRef<HTMLElement>(),
     onOpenChange: undefined,
@@ -215,6 +211,6 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
     stickIfOpenTimeout: new Timeout(),
     stickIfOpen: true,
     triggerElements,
-    ...createFloatingRootContextValues(nested),
+    ...createFloatingRootContextValues(),
   };
 }

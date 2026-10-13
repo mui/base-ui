@@ -18,8 +18,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 
   const { store, open, mounted, payload } = usePopupRoot(
     props,
-    (initialState, floatingId, nested) =>
-      new PreviewCardStore<Payload>(initialState, floatingId, nested),
+    (initialState, floatingId) => new PreviewCardStore<Payload>(initialState, floatingId),
     { closeOnActiveTriggerUnmount: true },
   );
 

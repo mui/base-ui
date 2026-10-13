@@ -185,9 +185,8 @@ describe('<Dialog.Root />', () => {
         disablePointerDismissal: false,
       },
       undefined,
-      true,
     );
-    const parentStore = new DialogStore(undefined, undefined, false);
+    const parentStore = new DialogStore(undefined, undefined);
     let mountPassiveEffectFlushed = false;
     let teardownPassiveEffectFlushed = false;
     let mountedBeforePassiveEffect: boolean | null = null;

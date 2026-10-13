@@ -67,15 +67,11 @@ export class DialogStore<Payload> extends BasePopupStore<
   typeof selectors,
   DialogRoot.ChangeEventDetails
 > {
-  constructor(
-    initialState: Partial<State<Payload>> | undefined,
-    floatingId: string | undefined,
-    nested: boolean,
-  ) {
+  constructor(initialState: Partial<State<Payload>> | undefined, floatingId: string | undefined) {
     const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState, floatingId);
 
-    super(state, createInitialContext(triggerElements, nested), selectors);
+    super(state, createInitialContext(triggerElements), selectors);
   }
 
   protected getCloseTrigger() {
@@ -133,7 +129,7 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     popupRef: React.createRef<HTMLElement>(),
     backdropRef: React.createRef<HTMLDivElement>(),
@@ -142,6 +138,6 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
     triggerElements,
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
-    ...createFloatingRootContextValues(nested),
+    ...createFloatingRootContextValues(),
   };
 }

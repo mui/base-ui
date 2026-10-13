@@ -88,12 +88,8 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   allowTouchToClose: boolean;
   readonly allowTouchToCloseTimeout: Timeout;
   /**
-   * Whether the `Menu.Root` that owns the store is mounted. Open changes requested while it isn't
-   * are dropped.
-   */
-  rootMounted: boolean;
-  /**
    * Returns the open state the `Menu.Root` last committed, which tells a repeated request apart.
+   * Set only while the Root is mounted, so open changes requested while it isn't are dropped.
    */
   getCommittedOpenState: (() => MenuCommittedOpenState) | undefined;
 };
@@ -199,15 +195,11 @@ export class MenuStore<Payload> extends BasePopupStore<
   Selectors,
   MenuRoot.ChangeEventDetails
 > {
-  constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
-  ) {
+  constructor(initialState?: Partial<State<Payload>>, floatingId?: string | undefined) {
     const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(floatingId, initialState);
 
-    super(state, createInitialContext(triggerElements, nested), selectors);
+    super(state, createInitialContext(triggerElements), selectors);
 
     // Share the mouse-up trigger ref of the parent menu, if any. This observes the store's own
     // state, so the subscription lives exactly as long as the store and needs no cleanup.
@@ -258,7 +250,7 @@ export class MenuStore<Payload> extends BasePopupStore<
 
   protected isOpenChangeIgnored(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
     const getCommittedOpenState = this.context.getCommittedOpenState;
-    if (!this.context.rootMounted || !getCommittedOpenState) {
+    if (!getCommittedOpenState) {
       return true;
     }
 
@@ -391,7 +383,7 @@ export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
   return Object.assign(store, { setOpen: NOOP });
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     positionerRef: React.createRef<HTMLElement | null>(),
     popupRef: React.createRef<HTMLElement | null>(),
@@ -409,12 +401,11 @@ function createInitialContext(triggerElements: PopupTriggerMap, nested = false):
     openEvent: undefined,
     allowTouchToClose: true,
     allowTouchToCloseTimeout: new Timeout(),
-    rootMounted: false,
     getCommittedOpenState: undefined,
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
-    ...createFloatingRootContextValues(nested),
+    ...createFloatingRootContextValues(),
   };
 }
 

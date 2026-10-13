@@ -140,7 +140,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
   const { store, open, payload, transitionStatus } = usePopupRootWithFloatingId(
     props,
-    (initialState, initialFloatingId, nested) => {
+    (initialState, initialFloatingId) => {
       const menuStore = new MenuStore<Payload>(
         {
           ...initialState,
@@ -152,7 +152,6 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
           instantType: seededInstantType,
         },
         initialFloatingId,
-        nested,
       );
       // A stable ref object, so descendants can read it during render from the first commit.
       menuStore.context.virtualFocusRef = virtualFocusRef;
@@ -310,7 +309,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   // Repeated open requests are compared against what this Root last committed.
-  store.context.getCommittedOpenState = useStableCallback(() => ({
+  const getCommittedOpenState = useStableCallback(() => ({
     open,
     activeTriggerElement,
     openChangeReason: lastOpenChangeReason,
@@ -319,11 +318,11 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
   // Open changes are run only while this Root is mounted. A request made before it mounts, such as
   // `handle.open()` from a child's first layout effect, or after it unmounts, is dropped.
   useIsoLayoutEffect(() => {
-    store.context.rootMounted = true;
+    store.context.getCommittedOpenState = getCommittedOpenState;
     return () => {
-      store.context.rootMounted = false;
+      store.context.getCommittedOpenState = undefined;
     };
-  }, [store]);
+  }, [store, getCommittedOpenState]);
 
   let ctx: ContextMenuRootContext | undefined;
   if (parent.type === 'context-menu') {

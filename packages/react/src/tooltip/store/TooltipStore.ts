@@ -75,15 +75,11 @@ export class TooltipStore<Payload> extends BasePopupStore<
   Selectors,
   TooltipRoot.ChangeEventDetails
 > {
-  constructor(
-    initialState: Partial<State<Payload>>,
-    floatingId: string | undefined,
-    nested: boolean,
-  ) {
+  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
     const triggerElements = new PopupTriggerMap();
     super(
       createInitialState<Payload>(initialState, floatingId),
-      createInitialContext(triggerElements, nested),
+      createInitialContext(triggerElements),
       selectors,
     );
   }
@@ -142,12 +138,12 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     popupRef: React.createRef<HTMLElement | null>(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
-    ...createFloatingRootContextValues(nested),
+    ...createFloatingRootContextValues(),
   };
 }

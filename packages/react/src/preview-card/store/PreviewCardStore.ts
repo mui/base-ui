@@ -44,8 +44,8 @@ type Selectors = typeof selectors;
 /**
  * The store view that detached handle-backed triggers read from. Both the real `PreviewCardStore`
  * and the inert fallback store satisfy it, so a trigger can read from whichever store the handle
- * currently exposes. Narrowed to the trigger-data members a trigger uses; it exposes no popup-open
- * mutator, so the inert fallback can be a plain `NullStore`.
+ * currently exposes. Narrowed to the trigger-data members a trigger uses, plus `setOpen`, which
+ * the inert fallback provides as a no-op.
  */
 export type PreviewCardHandleStore<Payload> = Pick<
   PreviewCardStore<Payload>,
@@ -58,15 +58,11 @@ export class PreviewCardStore<Payload> extends BasePopupStore<
   Selectors,
   PreviewCardRoot.ChangeEventDetails
 > {
-  constructor(
-    initialState: Partial<State<Payload>>,
-    floatingId: string | undefined,
-    nested: boolean,
-  ) {
+  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
     const triggerElements = new PopupTriggerMap();
     super(
       createInitialState<Payload>(initialState, floatingId),
-      createInitialContext(triggerElements, nested),
+      createInitialContext(triggerElements),
       selectors,
     );
   }
@@ -133,13 +129,13 @@ function createInitialState<Payload>(
   return state;
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap, nested = false): Context {
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     popupRef: React.createRef<HTMLElement | null>(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerElements,
     inlineRectCoordsRef: { current: undefined },
-    ...createFloatingRootContextValues(nested),
+    ...createFloatingRootContextValues(),
   };
 }
