@@ -478,10 +478,13 @@ describe('NumberField parse', () => {
       expect(parseNumber('12,00-', 'de-DE', format)).toBe(-12);
     });
 
-    it('keeps a dot typed before a group separator as the decimal', () => {
+    it('keeps a dot typed before a separator or percent sign as the decimal', () => {
       expect(parseNumber('0.,25', 'en-US')).toBe(0.25);
       expect(parseNumber('$5.,00', 'en-US', { style: 'currency', currency: 'USD' })).toBe(5);
       expect(parseNumber("0.'25", 'de-CH')).toBe(0.25);
+      expect(parseNumber('0.，25', 'en-US')).toBe(0.25);
+      expect(parseNumber('0.٬25', 'en-US')).toBe(0.25);
+      expect(parseNumber('0.%25', 'en-US', { style: 'percent' })).toBe(0.0025);
     });
 
     it('does not rescale a unit whose label contains a percent sign', () => {

@@ -66,8 +66,9 @@ export const ANY_PLUS_DETECT_RE = /[+＋﹢]/;
 const SAMPLE_FORMAT_NUMBERS = [1111111.1, 11111.1];
 
 // Labels change with the plural form (`1 foot` but `2 feet`, `1 день`, `2 дня` and `5 дней`), so
-// these values cover each form.
-const PLURAL_FORM_NUMBERS = [0, 1, 2, 3, 5, 6, 11, 21, 100, 1.5, 1.49, 1e6];
+// these values cover each form, including ones for 7–10 (`7 n-acra` in ga) and for the last
+// fraction digit (`1,01 euro` but `1,02 eura` in bs).
+const PLURAL_FORM_NUMBERS = [0, 1, 2, 3, 5, 6, 7, 11, 21, 100, 0.02, 1.01, 1.5, 1.49, 1e6];
 
 function formatPartsOf(
   values: number[],
@@ -224,8 +225,9 @@ export function parseNumber(
     input = input.replaceAll(groupPattern, '');
   }
   // Once groups are gone, a decimal always comes before a digit, so drop dots that don't, such
-  // as the one left by a partially deleted unit label (`21,5 st.`)
-  input = input.replace(/\.(?!\d)/g, '');
+  // as the one left by a partially deleted unit label (`21,5 st.`). Symbols removed below don't
+  // count (`0.，25`, `0.%25`).
+  input = input.replace(/\.(?![，٬%٪％﹪‰؉]*\d)/g, '');
 
   let unformatted = input
     .replaceAll(decimal, '.')

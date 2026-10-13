@@ -1658,13 +1658,39 @@ describe('<NumberField.Input />', () => {
   });
 
   it.each([
-    { name: 'en-US foot', locale: 'en-US', unit: 'foot' },
-    { name: 'ru-RU day', locale: 'ru-RU', unit: 'day' },
+    {
+      name: 'en-US foot',
+      locale: 'en-US',
+      format: { style: 'unit', unit: 'foot', unitDisplay: 'long' },
+      value: 1,
+      edited: 12,
+    },
+    {
+      name: 'ru-RU day',
+      locale: 'ru-RU',
+      format: { style: 'unit', unit: 'day', unitDisplay: 'long' },
+      value: 1,
+      edited: 12,
+    },
+    {
+      name: 'ga acre',
+      locale: 'ga',
+      format: { style: 'unit', unit: 'acre', unitDisplay: 'long' },
+      value: 7,
+      edited: 72,
+    },
+    {
+      name: 'bs EUR',
+      locale: 'bs',
+      format: { style: 'currency', currency: 'EUR', currencyDisplay: 'name' },
+      value: 1.01,
+      edited: 12.01,
+    },
   ] as const)(
     'accepts edits to a label that changes with the plural form ($name)',
-    async ({ locale, unit }) => {
-      // The label for 1 (`foot`, `день`) has letters the other forms (`feet`, `дня`) lack
-      const format = { style: 'unit', unit, unitDisplay: 'long' } as const;
+    async ({ locale, format, value, edited }) => {
+      // Labels such as `1 foot`, `1 день`, `7 n-acra` and `1,01 euro` have letters the other plural
+      // forms lack
       const formatter = new Intl.NumberFormat(locale, format);
       const onValueChange = vi.fn();
 
@@ -1672,7 +1698,7 @@ describe('<NumberField.Input />', () => {
         <NumberField.Root
           locale={locale}
           format={format}
-          defaultValue={1}
+          defaultValue={value}
           onValueChange={onValueChange}
         >
           <NumberField.Input />
@@ -1681,15 +1707,16 @@ describe('<NumberField.Input />', () => {
 
       const input = screen.getByRole<HTMLInputElement>('textbox');
       await act(async () => input.focus());
-      expect(input).toHaveValue(formatter.format(1));
+      expect(input).toHaveValue(formatter.format(value));
 
+      // Insert a `2` after the first digit
       input.setSelectionRange(1, 1);
       await user.keyboard('2');
-      expect(onValueChange.mock.lastCall?.[0]).toBe(12);
+      expect(onValueChange.mock.lastCall?.[0]).toBe(edited);
 
       fireEvent.blur(input);
 
-      expect(input).toHaveValue(formatter.format(12));
+      expect(input).toHaveValue(formatter.format(edited));
     },
   );
 
