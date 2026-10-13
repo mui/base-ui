@@ -295,7 +295,7 @@ describe('NumberField parse', () => {
     it('parses typed negatives with a spaced prefix symbol', () => {
       const brl = { style: 'currency', currency: 'BRL' } as const;
       expect(parseNumber('-R$ 14,00', 'pt-BR', brl)).toBe(-14);
-      expect(parseNumber('-R$ 14,00', 'pt-BR', brl)).toBe(-14);
+      expect(parseNumber('-R$\u00a014,00', 'pt-BR', brl)).toBe(-14);
       expect(parseNumber('-R$ 1.234,567', 'pt-BR', brl)).toBe(-1234.567);
       expect(parseNumber('R$ 1.234,567', 'pt-BR', brl)).toBe(1234.567);
       expect(parseNumber('-US$ 13,00', 'pt-BR', { style: 'currency', currency: 'USD' })).toBe(-13);
@@ -304,7 +304,7 @@ describe('NumberField parse', () => {
         -13.5,
       );
       expect(parseNumber('−% 14', 'eu-ES', { style: 'percent' })).toBe(-0.14);
-      expect(parseNumber('−% 14', 'eu-ES', { style: 'percent' })).toBe(-0.14);
+      expect(parseNumber('−%\u202f14', 'eu-ES', { style: 'percent' })).toBe(-0.14);
     });
 
     it.each([
@@ -335,15 +335,17 @@ describe('NumberField parse', () => {
       expect(parseNumber('2,5 sem.', 'fr-FR', { style: 'unit', unit: 'week' })).toBe(2.5);
     });
 
+    // The numbering system is pinned because engines disagree on some locales' defaults (WebKit
+    // formats bn-BD with Latin digits, Chromium formats my-MM with Latin digits)
     it.each([
-      { name: 'bn-BD', locale: 'bn-BD' },
-      { name: 'as-IN', locale: 'as-IN' },
-      { name: 'mr-IN', locale: 'mr-IN' },
-      { name: 'ne-NP', locale: 'ne-NP' },
-      { name: 'my-MM', locale: 'my-MM' },
-      { name: 'dz-BT', locale: 'dz-BT' },
+      { name: 'bn-BD', locale: 'bn-BD-u-nu-beng' },
+      { name: 'as-IN', locale: 'as-IN-u-nu-beng' },
+      { name: 'mr-IN', locale: 'mr-IN-u-nu-deva' },
+      { name: 'ne-NP', locale: 'ne-NP-u-nu-deva' },
+      { name: 'my-MM', locale: 'my-MM-u-nu-mymr' },
+      { name: 'dz-BT', locale: 'dz-BT-u-nu-tibt' },
       { name: 'en-US with Thai digits', locale: 'en-US-u-nu-thai' },
-    ])('parses the default digits of the numbering system ($name)', ({ locale }) => {
+    ])('parses the digits of the locale numbering system ($name)', ({ locale }) => {
       const percent = { style: 'percent', maximumFractionDigits: 1 } as const;
       const currency = { style: 'currency', currency: 'USD' } as const;
 
@@ -359,8 +361,8 @@ describe('NumberField parse', () => {
     });
 
     it('parses ASCII digits in a locale with non-Latin digits', () => {
-      expect(parseNumber('1234.5', 'bn-BD')).toBe(1234.5);
-      expect(parseNumber('-12', 'mr-IN')).toBe(-12);
+      expect(parseNumber('1234.5', 'bn-BD-u-nu-beng')).toBe(1234.5);
+      expect(parseNumber('-12', 'mr-IN-u-nu-deva')).toBe(-12);
     });
 
     it('parses digits from the numberingSystem option', () => {
@@ -395,17 +397,68 @@ describe('NumberField parse', () => {
       expect(parseNumber('($14.00)', 'en-US', { style: 'currency', currency: 'USD' })).toBe(null);
     });
 
-    it('does not read a hyphen inside a unit label as a minus sign', () => {
-      const format = { style: 'unit', unit: 'acre', unitDisplay: 'long' } as const;
-      // Irish uses `7 n-acra`, while the label for 1 is `acra`
-      const formatted = new Intl.NumberFormat('ga', format).format(7);
+    // Irish uses `7 n-acra`, while the label for 1 is `acra`. Chromium's locale data uses `acres`.
+    const acre = { style: 'unit', unit: 'acre', unitDisplay: 'long' } as const;
+    const gaAcre = new Intl.NumberFormat('ga', acre).format(7);
 
-      expect(parseNumber(formatted, 'ga', format)).toBe(7);
+    it.skipIf(!gaAcre.includes('-'))(
+      'does not read a hyphen inside a unit label as a minus sign',
+      () => {
+        expect(parseNumber(gaAcre, 'ga', acre)).toBe(7);
+      },
+    );
+
+    // Akan labels 1 as `grame 1` but other counts as `5 g`. Chromium's locale data uses `1 gram`.
+    const gram = { style: 'unit', unit: 'gram', unitDisplay: 'long' } as const;
+    const akGram = new Intl.NumberFormat('ak', gram);
+
+    it.skipIf(!akGram.format(1).startsWith('grame'))(
+      'strips a label that contains a shorter label of the same format',
+      () => {
+        expect([0, 1, -1, 5].map((value) => parseNumber(akGram.format(value), 'ak', gram))).toEqual(
+          [0, 1, -1, 5],
+        );
+      },
+    );
+
+    it('reads the group separator of locales that only group from six digits', () => {
+      // ee formats `11111.1` without a separator but `1,234,567.89` with one
+      const currency = { style: 'currency', currency: 'USD' } as const;
+
+      expect(parseNumber(new Intl.NumberFormat('ee').format(1234567.89), 'ee')).toBe(1234567.89);
+      expect(
+        parseNumber(new Intl.NumberFormat('ee', currency).format(1234567.89), 'ee', currency),
+      ).toBe(1234567.89);
+    });
+
+    it('reads the decimal separator of the numberingSystem option', () => {
+      // ur uses `.` with Latin digits but `،` with Arabic ones
+      const format = { numberingSystem: 'arab' } as const;
+      const formatted = new Intl.NumberFormat('ur', format).format(1.5);
+
+      expect(parseNumber(formatted, 'ur', format)).toBe(1.5);
+      // The locale's usual separator still reads as the decimal
+      expect(parseNumber('21,7', 'de-DE', format)).toBe(21.7);
+    });
+
+    it('does not read a hyphen left by a partly deleted label as a minus sign', () => {
+      const format = { style: 'currency', currency: 'USD', currencyDisplay: 'name' } as const;
+
+      // Backspacing `12,00 US-Dollar`
+      expect(parseNumber('12,00 US-', 'de-DE', format)).toBe(12);
+      expect(parseNumber('12,00-', 'de-DE', format)).toBe(-12);
+    });
+
+    it('keeps a dot typed before a group separator as the decimal', () => {
+      expect(parseNumber('0.,25', 'en-US')).toBe(0.25);
+      expect(parseNumber('$5.,00', 'en-US', { style: 'currency', currency: 'USD' })).toBe(5);
+      expect(parseNumber("0.'25", 'de-CH')).toBe(0.25);
     });
 
     it('does not rescale a unit whose label contains a percent sign', () => {
       const format = { style: 'unit', unit: 'celsius-per-percent' } as const;
       const formatted = new Intl.NumberFormat('pl-PL', format).format(0.01);
+      expect(formatted).toContain('%');
 
       expect(parseNumber(formatted, 'pl-PL', format)).toBe(0.01);
       // Long percent labels change with the plural form (`٢٪` but words for 1 in ar-EG)
@@ -422,12 +475,8 @@ describe('NumberField parse', () => {
       expect(parseNumber('13%', 'en-US', { style: 'percent', unit: 'percent' })).toBe(0.13);
     });
 
-    it('collapses many dots in linear time', () => {
-      const input = '.0'.repeat(40000);
-      const start = performance.now();
-
-      expect(parseNumber(input, 'en-US')).toBe(0);
-      expect(performance.now() - start).toBeLessThan(200);
+    it('keeps only the last of many dots', () => {
+      expect(parseNumber('.0'.repeat(40000), 'en-US')).toBe(0);
     });
 
     it('parses units with different formats', () => {

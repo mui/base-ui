@@ -172,26 +172,25 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       }
 
       const formatOptions = formatOptionsRef.current;
-      const parsedValue = parseNumber(inputValue, locale, formatOptions);
-      if (hadManualInput && parsedValue === null) {
-        return;
-      }
-
-      // Avoid applying Intl's default precision unless the format opts into rounding.
-      const hasRoundingOptions = hasNumberFormatRoundingOptions(formatOptions);
 
       // Without a manual edit, the visible text is purely formatted display, so keep the
       // authoritative numeric value rather than re-parsing it: rounded text discards precision,
       // and compact text (`1.2K`) can't be reversed (e.g. focus/blur with no edits, or blur after
       // a programmatic change).
-      let committed = hadManualInput ? parsedValue : value;
-      if (hasRoundingOptions && committed !== null) {
-        // Explicit rounding options apply to the committed value, whether typed or external.
+      let committed = hadManualInput ? parseNumber(inputValue, locale, formatOptions) : value;
+      if (hadManualInput && committed === null) {
+        return;
+      }
+
+      // Explicit rounding options apply to the committed value, whether typed or external. Avoid
+      // applying Intl's default precision unless the format opts into rounding.
+      if (committed !== null && hasNumberFormatRoundingOptions(formatOptions)) {
         committed = removeFloatingPointErrors(committed, formatOptions);
       }
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event.nativeEvent);
-      const shouldUpdateValue = value !== committed;
+      // A `NaN` value never equals itself, so don't treat it as changed on every blur
+      const shouldUpdateValue = value !== committed && !Number.isNaN(committed);
       const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
 
       // Use the stored value after `setValue` clamps it.
@@ -230,10 +229,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      allowInputSyncRef.current = false;
       const targetValue = event.currentTarget.value;
 
       if (targetValue.trim() === '') {
+        allowInputSyncRef.current = false;
         setInputValue(targetValue);
         setValue(null, createChangeEventDetails(REASONS.inputClear, event.nativeEvent));
         return;
@@ -253,10 +252,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           FORMAT_CONTROL_DETECT_RE.test(ch),
       );
 
+      // A rejected change leaves the synced text in place, so it doesn't count as a manual edit
       if (!isValidCharacterString) {
         return;
       }
 
+      allowInputSyncRef.current = false;
       const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
       setInputValue(targetValue);

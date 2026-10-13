@@ -22,7 +22,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
-  getFormatParts,
+  getAllFormatParts,
   getLocaleDigits,
   getNumberLocaleDetails,
   PERMILLE,
@@ -151,7 +151,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useStableCallback(() => {
-    const parts = getFormatParts(locale, format);
+    const parts = getAllFormatParts(locale, format);
 
     const keys = new Set<string>(BASE_NON_NUMERIC_SYMBOLS);
     const addAll = (chars: readonly string[]) => chars.forEach((char) => keys.add(char));

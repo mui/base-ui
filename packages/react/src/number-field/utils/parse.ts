@@ -60,8 +60,13 @@ export const ANY_PLUS_DETECT_RE = /[+＋﹢]/;
 
 // A representative value with a grouping separator and a fractional part, so that the formatter
 // emits every locale-specific part (group, decimal, currency, unit, literal, exponent, …). Shared
-// so the locale-detail and allowed-character derivations enumerate the same parts.
-const SAMPLE_FORMAT_NUMBER = 11111.1;
+// so the locale-detail and allowed-character derivations enumerate the same parts. It has 7
+// integer digits because some locales only group from 6 (`11111.1` but `123,456.7` in ee).
+const SAMPLE_FORMAT_NUMBER = 1111111.1;
+
+// Labels change with the plural form (`1 foot` but `2 feet`, `1 день`, `2 дня` and `5 дней`), so
+// these values cover each form.
+const PLURAL_FORM_NUMBERS = [0, 1, 2, 3, 5, 6, 11, 21, 100, 1.5, 1.49, 1e6];
 
 /**
  * Returns the `Intl.NumberFormat` parts of a representative number, which surface every
@@ -69,6 +74,20 @@ const SAMPLE_FORMAT_NUMBER = 11111.1;
  */
 export function getFormatParts(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
   return getFormatter(locale, options).formatToParts(SAMPLE_FORMAT_NUMBER);
+}
+
+/**
+ * Returns the parts of the representative number and of every plural form, so each currency and
+ * unit label the format can render is included.
+ */
+export function getAllFormatParts(
+  locale?: Intl.LocalesArgument,
+  options?: Intl.NumberFormatOptions,
+) {
+  const formatter = getFormatter(locale, options);
+  return [SAMPLE_FORMAT_NUMBER, ...PLURAL_FORM_NUMBERS].flatMap((value) =>
+    formatter.formatToParts(value),
+  );
 }
 
 export function getNumberLocaleDetails(
@@ -83,27 +102,28 @@ export function getNumberLocaleDetails(
   });
 
   // The formatting options may omit the decimal separator (e.g. integer formats), so resolve it
-  // from the plain locale formatter, which renders one for every locale and numbering system. This
-  // overrides any options-derived decimal too, which is safe because the separator is
-  // locale-determined and identical across format styles. The ASCII seed is a formality to keep
-  // the separator non-optional for callers; it is always replaced below.
-  let decimal = '.';
-  getFormatter(locale)
-    .formatToParts(0.1)
-    .forEach((part) => {
-      if (part.type === 'decimal') {
-        decimal = part.value;
-      }
-    });
+  // separately. This overrides any options-derived decimal too, which is safe because the separator
+  // doesn't depend on the format style.
+  return { ...result, decimal: getDecimalSeparator(locale, options?.numberingSystem) };
+}
 
-  return { ...result, decimal };
+// The decimal separator depends on the locale and its numbering system (ur uses `.` with Latin
+// digits but `،` with Arabic ones). Every formatter renders one for 0.1.
+function getDecimalSeparator(locale?: Intl.LocalesArgument, numberingSystem?: string) {
+  return (
+    getFormatter(locale, { numberingSystem, useGrouping: false })
+      .formatToParts(0.1)
+      .find((part) => part.type === 'decimal')?.value ?? '.'
+  );
 }
 
 // The digits 0–9 of the formatter's numbering system, such as `০`–`৯` for bn-BD.
 export function getLocaleDigits(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
-  const { numberingSystem } = getFormatter(locale, options).resolvedOptions();
   return Array.from(
-    getFormatter(locale, { numberingSystem, useGrouping: false }).format(9876543210),
+    getFormatter(locale, {
+      numberingSystem: options?.numberingSystem,
+      useGrouping: false,
+    }).format(9876543210),
   ).reverse();
 }
 
@@ -141,7 +161,8 @@ export function parseNumber(
     return '';
   };
 
-  input = input.replace(/([+-])\s*$/, takeSign).replace(/^\s*([+-])/, takeSign);
+  // A trailing hyphen after a letter is part of a partly deleted label (`US-` from `US-Dollar`)
+  input = input.replace(/(?<![\p{L}\p{M}])([+-])\s*$/u, takeSign).replace(/^\s*([+-])/, takeSign);
 
   // Accounting formats show negatives in parentheses, such as `($1.00)`
   if (options?.currencySign === 'accounting') {
@@ -154,14 +175,14 @@ export function parseNumber(
   // Remove the formatter's own labels while they still match exactly, so a `.` inside a label
   // (`st. C`) can't be read as a separator. Signs are taken first, so a hyphen left behind by a
   // label that only partly matches (`7 n-acra`) isn't read as one.
-  const formatter = getFormatter(computedLocale, options);
-  [SAMPLE_FORMAT_NUMBER, 1].forEach((value) => {
-    formatter.formatToParts(value).forEach((part) => {
-      if (part.type === 'currency' || part.type === 'unit') {
-        input = input.replaceAll(part.value.replace(FORMAT_CONTROL_GLOBAL_RE, ''), '');
-      }
+  getAllFormatParts(computedLocale, options)
+    .filter((part) => part.type === 'currency' || part.type === 'unit')
+    .map((part) => part.value.replace(FORMAT_CONTROL_GLOBAL_RE, ''))
+    // Longest first, so a short label (`g`) can't cut into a longer one (`grame` in ak)
+    .sort((a, b) => b.length - a.length)
+    .forEach((label) => {
+      input = input.replaceAll(label, '');
     });
-  });
 
   // Numeral systems to ASCII digits
   const toAsciiDigits = (text: string) =>
@@ -182,10 +203,6 @@ export function parseNumber(
   if (exponentSeparator) {
     input = input.replaceAll(toAsciiDigits(exponentSeparator), 'e');
   }
-  // A separator always comes before a digit, so drop dots that don't, such as the one left by a
-  // partially deleted unit label (`21,5 st.`)
-  input = input.replace(/\.(?!\d)/g, '');
-
   if (group) {
     let groupPattern: string | RegExp = group;
     if (/\p{Zs}/u.test(group)) {
@@ -196,9 +213,15 @@ export function parseNumber(
     }
     input = input.replaceAll(groupPattern, '');
   }
+  // Once groups are gone, a decimal always comes before a digit, so drop dots that don't, such
+  // as the one left by a partially deleted unit label (`21,5 st.`)
+  input = input.replace(/\.(?!\d)/g, '');
 
   let unformatted = input
     .replaceAll(decimal, '.')
+    // A `numberingSystem` option changes the separator, but users may still type the locale's
+    // usual one (`21,7` in de with Arabic digits)
+    .replaceAll(getDecimalSeparator(computedLocale), '.')
     .replace(/[．٫]/g, '.') // FULLWIDTH_DECIMAL, ARABIC DECIMAL SEPARATOR (U+066B)
     .replace(/[，٬%٪％﹪‰؉]/g, '') // FULLWIDTH_GROUP, ARABIC THOUSANDS SEPARATOR, percent, permille
     // Remove the space a prefix label leaves behind (`R$ 13,00` → ` 13.00`), which would otherwise
@@ -206,9 +229,7 @@ export function parseNumber(
     .trim();
 
   // Mixed-locale safety: keep only the last '.' as decimal
-  const integerParts = unformatted.split('.');
-  const fraction = integerParts.pop() ?? '';
-  unformatted = integerParts.length ? `${integerParts.join('')}.${fraction}` : fraction;
+  unformatted = unformatted.replace(/\.(?=[^.]*\.)/g, '');
 
   // Guard against Infinity inputs (ASCII and symbol)
   if (/^[-+]?Infinity$/i.test(input) || input.includes('∞')) {
