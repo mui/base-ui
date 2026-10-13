@@ -55,8 +55,10 @@ const SCROLL_AREA_STYLE: React.CSSProperties = {
   position: 'relative',
 };
 const SCROLL_AREA_CONTENT_STYLE: React.CSSProperties = { width: 240, height: 240 };
-// A round of the whole file is long, so a minute fits few rounds; sampling longer buys precision.
-const SMOKE_SAMPLING = { timeout: 3 };
+// A round of the whole file is long, so the smoke benchmarks get about 50 rounds in 3 minutes, and
+// a precision of about ±10% in CI. They alarm on regressions past 10% to match: they are there to
+// catch big regressions, without flagging what their precision can't tell from noise.
+const SMOKE_OPTIONS = { timeout: 3, alarm: { error: 0.1 } };
 const options = createRows(5, 'Option');
 const tooltipRows = createRows(60, 'Tooltip');
 const optionLabels = options.map((option) => option.label);
@@ -75,7 +77,7 @@ function smokeBenchmark(
   reactBenchmark(
     `Smoke · ${name}`,
     () => <React.Fragment>{rows.map(renderRow)}</React.Fragment>,
-    SMOKE_SAMPLING,
+    SMOKE_OPTIONS,
   );
 }
 
@@ -509,7 +511,7 @@ reactBenchmark(
       </Toast.Portal>
     </Toast.Provider>
   ),
-  SMOKE_SAMPLING,
+  SMOKE_OPTIONS,
 );
 
 smokeBenchmark('ToggleGroup', 20, (row) => (
@@ -552,5 +554,5 @@ reactBenchmark(
       ))}
     </div>
   ),
-  SMOKE_SAMPLING,
+  SMOKE_OPTIONS,
 );
