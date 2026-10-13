@@ -1,6 +1,12 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  render,
+  screen,
+} from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager, FloatingPortal } from '../index';
@@ -223,34 +229,111 @@ describe.each([
     },
   );
 
-  test('mounts inside an ancestor ref before later commit microtasks run', async () => {
-    const mountedAtCheckpoint: boolean[] = [];
+  test.each([
+    { name: 'without StrictMode', strict: false },
+    { name: 'with StrictMode', strict: true },
+  ])(
+    'mounts inside an ancestor ref before later commit microtasks run $name',
+    async ({ strict }) => {
+      const mountedAtCheckpoint: boolean[] = [];
 
-    function Test() {
-      const container = React.useRef<HTMLDivElement>(null);
+      function Test() {
+        const container = React.useRef<HTMLDivElement>(null);
 
+        useIsoLayoutEffect(() => {
+          // The portal's layout effect queues its container check before this parent effect.
+          // Its children must already be committed by this point, before the browser can paint.
+          queueMicrotask(() => {
+            const content = container.current?.querySelector('[data-testid="content"]');
+            mountedAtCheckpoint.push(content?.isConnected ?? false);
+          });
+        }, []);
+
+        return (
+          <div ref={container} data-testid="container">
+            <Portal container={container}>
+              <div data-testid="content" />
+            </Portal>
+          </div>
+        );
+      }
+
+      await renderPortal(<Test />, { strict });
+
+      expect(screen.getByTestId('container')).toContainElement(screen.getByTestId('content'));
+      expect(mountedAtCheckpoint).toEqual(strict ? [true, true] : [true]);
+    },
+  );
+
+  test.skipIf(
+    isJSDOM || !React.ViewTransition || typeof document.startViewTransition !== 'function',
+  )('mounts once inside an ancestor ref without canceling a view transition', async () => {
+    ignoreActWarnings();
+    const mounts: boolean[] = [];
+    const startViewTransition = document.startViewTransition.bind(document);
+    const startViewTransitionSpy = vi.spyOn(document, 'startViewTransition');
+    const started = new Promise<ViewTransition>((resolve) => {
+      startViewTransitionSpy.mockImplementation((...args) => {
+        const transition = startViewTransition(...args);
+        resolve(transition);
+        return transition;
+      });
+    });
+
+    function Child() {
+      const node = React.useRef<HTMLDivElement>(null);
       useIsoLayoutEffect(() => {
-        // The portal's layout effect queues its container check before this parent effect.
-        // Its children must already be committed by this point, before the browser can paint.
-        queueMicrotask(() => {
-          const content = container.current?.querySelector('[data-testid="content"]');
-          mountedAtCheckpoint.push(content?.isConnected ?? false);
-        });
+        mounts.push(node.current?.isConnected ?? false);
       }, []);
+      return (
+        <div ref={node} data-testid="content">
+          Content
+        </div>
+      );
+    }
 
+    function PortalContent() {
+      const container = React.useRef<HTMLDivElement>(null);
       return (
         <div ref={container} data-testid="container">
           <Portal container={container}>
-            <div data-testid="content" />
+            <Child />
           </Portal>
         </div>
       );
     }
 
-    await renderPortal(<Test />, { strict: false });
+    function Test() {
+      const [show, setShow] = React.useState(false);
+      return (
+        <React.Fragment>
+          <button onClick={() => React.startTransition(() => setShow(true))}>Show</button>
+          <React.ViewTransition>
+            <div>{show ? <PortalContent /> : 'Before'}</div>
+          </React.ViewTransition>
+        </React.Fragment>
+      );
+    }
 
-    expect(screen.getByTestId('container')).toContainElement(screen.getByTestId('content'));
-    expect(mountedAtCheckpoint).toEqual([true]);
+    try {
+      await renderPortal(<Test />, { strict: false });
+      expect(screen.queryByTestId('content')).toBe(null);
+
+      // act() flushes pending React effects and can cancel the native transition itself.
+      screen.getByRole('button', { name: 'Show' }).click();
+      const transition = await started;
+      const readiness = await transition.ready.then(
+        () => 'ready',
+        (error: Error) => error.name,
+      );
+      await transition.finished;
+
+      expect(screen.getByTestId('container')).toContainElement(screen.getByTestId('content'));
+      expect(mounts).toEqual([true]);
+      expect(readiness).toBe('ready');
+    } finally {
+      startViewTransitionSpy.mockRestore();
+    }
   });
 
   test('mounts children once in a connected container when a later update replaces its ref', async () => {

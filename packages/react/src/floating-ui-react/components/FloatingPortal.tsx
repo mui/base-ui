@@ -91,6 +91,11 @@ export function useFloatingPortalNode(
   });
 
   const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
+  const [commitContainerCheck, setCommitContainerCheck] = React.useState<(() => void) | null>(null);
+
+  useIsoLayoutEffect(() => {
+    commitContainerCheck?.();
+  }, [commitContainerCheck]);
 
   useIsoLayoutEffect(() => {
     // Wait for the container to be resolved if explicitly `null`.
@@ -104,6 +109,7 @@ export function useFloatingPortalNode(
     }
 
     let cancelled = false;
+    let cancelContainerUpdate: (() => void) | undefined;
     function resolveContainer() {
       if (cancelled) {
         return;
@@ -132,14 +138,20 @@ export function useFloatingPortalNode(
 
     if (containerProp && !isNode(containerProp) && !containerProp.current) {
       // Wait for ancestor and later sibling refs, including refs replaced by layout updates.
-      // Flush before paint without extending React's synchronous nested-update cascade.
-      flushContainerUpdates(resolveContainer);
+      // Only force the queued update after React has committed its own layout-effect retry.
+      // React can defer that retry while preparing a ViewTransition; flushSync would cancel it.
+      let committed = false;
+      setCommitContainerCheck(() => () => {
+        committed = true;
+      });
+      cancelContainerUpdate = flushContainerUpdates(resolveContainer, () => committed);
     } else {
       resolveContainer();
     }
 
     return () => {
       cancelled = true;
+      cancelContainerUpdate?.();
     };
   }, [containerProp, parentPortalNode]);
 
