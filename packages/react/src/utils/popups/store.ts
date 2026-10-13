@@ -174,13 +174,14 @@ export type PopupStoreContext<ChangeEventDetails> = {
 /**
  * Creates the context values a popup store needs to serve as the interaction hooks' store.
  */
-export function createFloatingRootContextValues(
-  nested = false,
-): Omit<FloatingRootContextValues, 'triggerElements'> {
+export function createFloatingRootContextValues(): Omit<
+  FloatingRootContextValues,
+  'triggerElements'
+> {
   return {
     dataRef: { current: {} },
     events: createEventEmitter(),
-    nested,
+    nested: false,
   };
 }
 
