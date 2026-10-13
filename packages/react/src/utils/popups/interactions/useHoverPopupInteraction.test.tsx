@@ -3,10 +3,10 @@ import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-t
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
-import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
+import { useHoverPopupInteraction } from './useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
 
-describe.skipIf(!isJSDOM)('useHoverFloatingInteraction', () => {
+describe.skipIf(!isJSDOM)('useHoverPopupInteraction', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -19,11 +19,11 @@ describe.skipIf(!isJSDOM)('useHoverFloatingInteraction', () => {
     const [open, setOpen] = React.useState(false);
     const triggerElementRef = React.useRef<Element | null>(null);
     const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-    const referenceProps = useHoverReferenceInteraction(context.rootStore, {
+    const referenceProps = useHoverTriggerInteraction(context.rootStore, {
       triggerElementRef,
       delay: { close: props.closeDelay },
     });
-    useHoverFloatingInteraction(context.rootStore, { closeDelay: props.closeDelay });
+    useHoverPopupInteraction(context.rootStore, { closeDelay: props.closeDelay });
 
     return (
       <React.Fragment>

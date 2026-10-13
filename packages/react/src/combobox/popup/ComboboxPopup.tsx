@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
+import { PopupFocusManager } from '../../utils/popups/focus/PopupFocusManager';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -125,7 +125,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const focusManagerModal = !inputInsidePopup || modal;
 
   return (
-    <FloatingFocusManager
+    <PopupFocusManager
       context={floatingRootContext}
       disabled={!mounted}
       modal={focusManagerModal}
@@ -141,7 +141,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
         {element}
         {focusManagerModal && <ComboboxInternalDismissButton ref={store.context.endDismissRef} />}
       </React.Fragment>
-    </FloatingFocusManager>
+    </PopupFocusManager>
   );
 });
 

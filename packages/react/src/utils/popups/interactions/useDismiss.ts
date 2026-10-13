@@ -16,9 +16,9 @@ import {
 } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { useFloatingTree } from '../tree/FloatingTree';
-import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
-import type { ElementProps, FloatingRootContext } from '../types';
+import { usePopupTree } from '../tree/PopupTree';
+import type { PopupTreeStore } from '../tree/PopupTreeStore';
+import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
@@ -104,9 +104,9 @@ export interface UseDismissProps {
   bubbles?:
     boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
   /**
-   * External FloatingTree to use when the one provided by context can't be used.
+   * External PopupTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore | undefined;
+  externalTree?: PopupTreeStore | undefined;
 }
 
 /**
@@ -114,7 +114,10 @@ export interface UseDismissProps {
  * the user presses the `escape` key or outside of the floating element.
  * @see https://floating-ui.com/docs/useDismiss
  */
-export function useDismiss(store: FloatingRootContext, props: UseDismissProps = {}): ElementProps {
+export function useDismiss(
+  store: PopupInteractionStore,
+  props: UseDismissProps = {},
+): ElementProps {
   const {
     enabled = true,
     escapeKey = true,
@@ -129,7 +132,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
   const outerPopupElement = store.useState('outerPopupElement');
   const { dataRef, events } = store.context;
 
-  const tree = useFloatingTree(externalTree);
+  const tree = usePopupTree(externalTree);
   const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );

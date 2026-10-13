@@ -5,7 +5,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useFloatingParentNodeId } from './tree/FloatingTree';
+import { usePopupParentNodeId } from './tree/PopupTree';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -219,7 +219,7 @@ function usePopupRootStore<Store extends PopupRootStore>(
   createStore: (defaultPopupId: string | undefined) => Store,
   defaultPopupId: string | undefined,
 ): Store {
-  const nested = useFloatingParentNodeId() != null;
+  const nested = usePopupParentNodeId() != null;
 
   const store = useRefWithInit(() => createStore(defaultPopupId)).current;
 

@@ -4,8 +4,8 @@ import * as React from 'react';
 import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useClick } from './useClick';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
-import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
+import { useHoverPopupInteraction } from './useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
 import { REASONS } from '../../../internals/reasons';
 import type { UseFloatingOptions } from '../types';
 import type { UseClickProps } from './useClick';
@@ -248,10 +248,10 @@ describe.skipIf(!isJSDOM)('useClick', () => {
         open,
         onOpenChange: setOpen,
       });
-      const hoverReferenceProps = useHoverReferenceInteraction(context.rootStore, {
+      const hoverReferenceProps = useHoverTriggerInteraction(context.rootStore, {
         triggerElementRef: refs.domReference,
       });
-      useHoverFloatingInteraction(context.rootStore);
+      useHoverPopupInteraction(context.rootStore);
       const { getReferenceProps, getFloatingProps } = useTestInteractions([
         { reference: hoverReferenceProps },
         useClick(context.rootStore, { stickIfOpen: true }),
@@ -282,10 +282,10 @@ describe.skipIf(!isJSDOM)('useClick', () => {
         open,
         onOpenChange: setOpen,
       });
-      const hoverReferenceProps = useHoverReferenceInteraction(context.rootStore, {
+      const hoverReferenceProps = useHoverTriggerInteraction(context.rootStore, {
         triggerElementRef: refs.domReference,
       });
-      useHoverFloatingInteraction(context.rootStore);
+      useHoverPopupInteraction(context.rootStore);
       const { getReferenceProps, getFloatingProps } = useTestInteractions([
         { reference: hoverReferenceProps },
         useClick(context.rootStore, { stickIfOpen: false }),

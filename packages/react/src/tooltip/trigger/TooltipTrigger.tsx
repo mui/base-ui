@@ -15,9 +15,9 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
-import { useDelayGroup } from '../../utils/popups/delay-group/FloatingDelayGroup';
+import { useDelayGroup } from '../../utils/popups/delay-group/PopupDelayGroup';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { isMouseLikePointerType } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -136,7 +136,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     return nestedTriggerHovered;
   }
 
-  const hoverProps = useHoverReferenceInteraction(store, {
+  const hoverProps = useHoverTriggerInteraction(store, {
     enabled: !disabled,
     mouseOnly: true,
     move: false,

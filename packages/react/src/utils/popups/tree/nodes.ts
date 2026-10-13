@@ -1,12 +1,12 @@
-import type { FloatingNodeType } from '../types';
+import type { PopupTreeNodeType } from '../types';
 
 /* eslint-disable @typescript-eslint/no-loop-func */
 
 export function getNodeChildren(
-  nodes: Array<FloatingNodeType>,
+  nodes: Array<PopupTreeNodeType>,
   id: string | undefined,
   onlyOpenChildren = true,
-): Array<FloatingNodeType> {
+): Array<PopupTreeNodeType> {
   const directChildren = nodes.filter((node) => node.parentId === id);
 
   return directChildren.flatMap((child) => [
@@ -15,8 +15,8 @@ export function getNodeChildren(
   ]);
 }
 
-export function getNodeAncestors(nodes: Array<FloatingNodeType>, id: string | undefined) {
-  let allAncestors: Array<FloatingNodeType> = [];
+export function getNodeAncestors(nodes: Array<PopupTreeNodeType>, id: string | undefined) {
+  let allAncestors: Array<PopupTreeNodeType> = [];
   let currentParentId = nodes.find((node) => node.id === id)?.parentId;
 
   while (currentParentId) {

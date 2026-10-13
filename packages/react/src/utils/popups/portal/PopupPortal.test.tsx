@@ -2,11 +2,11 @@ import { expect, test } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
-import { FloatingFocusManager } from '../focus/FloatingFocusManager';
-import { FloatingPortal } from './FloatingPortal';
+import { PopupFocusManager } from '../focus/PopupFocusManager';
+import { PopupPortal } from './PopupPortal';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { FloatingPortalLite } from './FloatingPortalLite';
-import type { UseFloatingPortalNodeProps } from './FloatingPortal';
+import { PopupPortalLite } from './PopupPortalLite';
+import type { UseFloatingPortalNodeProps } from './PopupPortal';
 
 interface AppProps {
   container?: UseFloatingPortalNodeProps['container'];
@@ -22,14 +22,14 @@ function App(props: AppProps) {
   return (
     <React.Fragment>
       <button data-testid="reference" ref={refs.setReference} onClick={() => setOpen(!open)} />
-      <FloatingPortal {...props}>
+      <PopupPortal {...props}>
         {open && <div ref={refs.setFloating} data-testid="floating" />}
-      </FloatingPortal>
+      </PopupPortal>
     </React.Fragment>
   );
 }
 
-describe.skipIf(!isJSDOM)('FloatingPortal', () => {
+describe.skipIf(!isJSDOM)('PopupPortal', () => {
   test('allows custom containers', async () => {
     const customRoot = document.createElement('div');
     customRoot.id = 'custom-root';
@@ -127,9 +127,9 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
 
   test('forwards HTML props to the portal element', async () => {
     render(
-      <FloatingPortal data-testid="portal-element" className="closed">
+      <PopupPortal data-testid="portal-element" className="closed">
         <div />
-      </FloatingPortal>,
+      </PopupPortal>,
     );
 
     await flushMicrotasks();
@@ -145,11 +145,11 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
       const { context, refs } = useFloating({ open: true });
 
       return (
-        <FloatingPortal id="custom-portal">
-          <FloatingFocusManager context={context.rootStore} modal={false}>
+        <PopupPortal id="custom-portal">
+          <PopupFocusManager context={context.rootStore} modal={false}>
             <div ref={refs.setFloating} />
-          </FloatingFocusManager>
-        </FloatingPortal>
+          </PopupFocusManager>
+        </PopupPortal>
       );
     }
 
@@ -159,11 +159,11 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
     expect(document.querySelector('[aria-owns]')).toHaveAttribute('aria-owns', 'custom-portal');
   });
 
-  test('FloatingPortalLite forwards HTML props to the portal element', async () => {
+  test('PopupPortalLite forwards HTML props to the portal element', async () => {
     render(
-      <FloatingPortalLite data-testid="lite-portal">
+      <PopupPortalLite data-testid="lite-portal">
         <div />
-      </FloatingPortalLite>,
+      </PopupPortalLite>,
     );
 
     await flushMicrotasks();

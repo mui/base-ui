@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useBaseUIFloating } from '../../src/utils/popups/positioning/useFloating';
-import { useFloatingRootContext } from '../../src/utils/popups/floating-root/useFloatingRootContext';
-import type { FloatingRootStore } from '../../src/utils/popups/floating-root/FloatingRootStore';
+import { useStandaloneInteractionStore } from '../../src/utils/popups/interaction-store/useStandaloneInteractionStore';
+import type { StandaloneInteractionStore } from '../../src/utils/popups/interaction-store/StandaloneInteractionStore';
 import type {
   NarrowedElement,
   ReferenceType,
@@ -17,15 +17,15 @@ import type {
  * only the ported Floating UI tests use this.
  */
 export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
-  const internalStore = useFloatingRootContext({
+  const internalStore = useStandaloneInteractionStore({
     ...options,
     elements: {
       anchor: options.elements?.reference,
       outerPopupElement: options.elements?.floating,
     },
   });
-  // The ported Floating UI tests only pass stores created by `useFloatingRootContext`.
-  const store = (options.rootContext as FloatingRootStore | undefined) || internalStore;
+  // The ported Floating UI tests only pass stores created by `useStandaloneInteractionStore`.
+  const store = (options.rootContext as StandaloneInteractionStore | undefined) || internalStore;
   const anchorElement = store.useState('anchorElement');
 
   const [localDomReference, setLocalDomReference] = React.useState<

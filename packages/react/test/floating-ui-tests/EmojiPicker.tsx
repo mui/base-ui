@@ -5,8 +5,8 @@ import { useId } from '@base-ui/utils/useId';
 import { useTestInteractions } from '#test-utils';
 import type { Placement } from '@floating-ui/react-dom';
 import { arrow, autoUpdate, flip, offset } from '@floating-ui/react-dom';
-import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
-import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { PopupFocusManager } from '../../src/utils/popups/focus/PopupFocusManager';
+import { PopupPortal } from '../../src/utils/popups/portal/PopupPortal';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
@@ -230,9 +230,9 @@ export function Main() {
               selected
             </span>
           )}
-          <FloatingPortal>
+          <PopupPortal>
             {open && (
-              <FloatingFocusManager context={context.rootStore} modal={false}>
+              <PopupFocusManager context={context.rootStore} modal={false}>
                 <div
                   ref={refs.setFloating}
                   className={styles.Floating}
@@ -287,9 +287,9 @@ export function Main() {
                     style={{ display: 'none' }}
                   />
                 </div>
-              </FloatingFocusManager>
+              </PopupFocusManager>
             )}
-          </FloatingPortal>
+          </PopupPortal>
         </div>
       </div>
     </React.Fragment>

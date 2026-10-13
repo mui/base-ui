@@ -7,8 +7,8 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
-import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
-import type { FloatingRootContext } from '../types';
+import { usePopupParentNodeId, usePopupTree } from '../tree/PopupTree';
+import type { PopupInteractionStore } from '../types';
 import { getNodeChildren } from '../tree/nodes';
 import { useHoverIntent } from './hoverIntent';
 
@@ -27,7 +27,7 @@ export type UseHoverFloatingInteractionProps = {
   closeDelay?: number | (() => number) | undefined;
   /**
    * Tree node id override for floating elements that participate in the tree
-   * without a `FloatingContext`, such as inline nested navigation menus.
+   * without a `PopupPositioningContext`, such as inline nested navigation menus.
    */
   nodeId?: string | undefined;
 };
@@ -35,8 +35,8 @@ export type UseHoverFloatingInteractionProps = {
 /**
  * Provides hover interactions that should be attached to the floating element.
  */
-export function useHoverFloatingInteraction(
-  store: FloatingRootContext,
+export function useHoverPopupInteraction(
+  store: PopupInteractionStore,
   parameters: UseHoverFloatingInteractionProps = {},
 ): void {
   const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
@@ -45,8 +45,8 @@ export function useHoverFloatingInteraction(
   const outerPopupElement = store.useState('outerPopupElement');
   const anchorElement = store.useState('anchorElement');
 
-  const tree = useFloatingTree();
-  const parentId = useFloatingParentNodeId();
+  const tree = usePopupTree();
+  const parentId = usePopupParentNodeId();
   const intent = useHoverIntent(store);
 
   const childClosedTimeout = useTimeout();
