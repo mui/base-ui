@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { ElementProps } from '../src/utils/popups/floating-root/types';
+import type { ElementProps } from '../src/utils/popups/types';
 import { ACTIVE_KEY, FOCUSABLE_ATTRIBUTE, SELECTED_KEY } from '../src/utils/popups/constants';
 
 export type ExtendedUserProps = {

@@ -18,7 +18,7 @@ import type {
   ElementProps,
   FloatingContext,
   FloatingRootContext,
-} from '../../src/utils/popups/floating-root/types';
+} from '../../src/utils/popups/types';
 import { isInteractiveElement } from '../../src/utils/popups/element';
 import type { HandleClose } from '../../src/utils/popups/interactions/useHoverShared';
 import {

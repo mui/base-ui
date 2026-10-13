@@ -14,7 +14,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { usePositioner } from '../../utils/usePositioner';
-import { createInlineMiddleware } from '../../utils/popups';
+import { createInlineMiddleware } from '../../utils/popups/inlineRect';
 
 /**
  * Positions the popup against the trigger.

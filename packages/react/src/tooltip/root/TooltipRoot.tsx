@@ -14,8 +14,8 @@ import {
   usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
-} from '../../utils/popups';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 import { mergeProps } from '../../merge-props';
 import { TooltipStore } from '../store/TooltipStore';
 import type { State as TooltipStoreState } from '../store/TooltipStore';

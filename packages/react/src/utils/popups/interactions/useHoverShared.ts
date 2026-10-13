@@ -1,6 +1,6 @@
 import type { Placement } from '@floating-ui/react-dom';
 import { isMouseLikePointerType } from '../event';
-import type { ExtendedElements, FloatingTreeType } from '../floating-root/types';
+import type { ExtendedElements, FloatingTreeType } from '../types';
 
 export { isTargetInsideEnabledTrigger as isInsideEnabledTrigger } from '../element';
 

@@ -13,7 +13,7 @@ import { REASONS } from '../../../internals/reasons';
 import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../../internals/types';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
-import type { Delay, FloatingRootContext } from '../floating-root/types';
+import type { Delay, FloatingRootContext } from '../types';
 import { isMouseLikePointerType } from '../event';
 import {
   applySafePolygonPointerEventsMutation,

@@ -8,7 +8,7 @@ import type {
   ReferenceType,
   UseFloatingOptions,
   UseFloatingReturn,
-} from '../../src/utils/popups/floating-root/types';
+} from '../../src/utils/popups/types';
 
 /**
  * Floating UI's public `useFloating`: `refs.setReference` and `refs.setFloating` also register the

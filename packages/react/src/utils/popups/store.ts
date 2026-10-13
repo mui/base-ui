@@ -1,6 +1,6 @@
 import type { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import type { FloatingRootContext } from './floating-root/types';
+import type { FloatingRootContext } from './types';
 import { FloatingRootStore } from './floating-root/FloatingRootStore';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';

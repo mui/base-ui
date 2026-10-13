@@ -17,8 +17,8 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
-} from '../../utils/popups';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 
 const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload>({
   props,

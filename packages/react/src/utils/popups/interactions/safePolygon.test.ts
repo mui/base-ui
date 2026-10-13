@@ -2,7 +2,7 @@ import { vi, expect, describe, beforeEach, afterEach, it } from 'vitest';
 import { act } from '@mui/internal-test-utils';
 import { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { HandleCloseContext } from './useHoverShared';
-import type { FloatingContext } from '../floating-root/types';
+import type { FloatingContext } from '../types';
 import { safePolygon } from './safePolygon';
 import { getEmptyRootContext } from '../floating-root/getEmptyRootContext';
 

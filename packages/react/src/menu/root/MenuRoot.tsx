@@ -38,7 +38,7 @@ import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { MenuStore } from '../store/MenuStore';
 import type { State as MenuStoreState } from '../store/MenuStore';
 import type { MenuHandle } from '../store/MenuHandle';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 import {
   attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
@@ -47,7 +47,7 @@ import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
-} from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
 import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';

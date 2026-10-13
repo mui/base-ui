@@ -1,5 +1,5 @@
-import type { FloatingNodeType, FloatingEvents } from '../floating-root/types';
-import { createEventEmitter } from '../floating-root/createEventEmitter';
+import type { FloatingNodeType, FloatingEvents } from '../types';
+import { createEventEmitter } from '../createEventEmitter';
 
 /**
  * Stores and manages floating elements in a tree structure.

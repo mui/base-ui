@@ -3,7 +3,7 @@ import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
 
-import type { ContextData, FloatingRootContext } from '../floating-root/types';
+import type { ContextData, FloatingRootContext } from '../types';
 import type { SafePolygonOptions } from './safePolygon';
 import { isInteractiveElement } from '../element';
 

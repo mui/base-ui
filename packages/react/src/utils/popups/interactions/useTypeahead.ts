@@ -7,7 +7,7 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { contains } from '@base-ui/utils/shadowDom';
 import { isElementVisible, isListIndexDisabled } from '../../../internals/composite/listIndex';
 import type { DisabledIndices } from '../../../internals/composite/listIndex';
-import type { ElementProps, FloatingRootContext } from '../floating-root/types';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { stopEvent } from '../event';
 
 export interface UseTypeaheadProps {

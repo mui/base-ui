@@ -11,7 +11,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
-import type { FloatingRootContext } from '../floating-root/types';
+import type { FloatingRootContext } from '../types';
 import { getNodeChildren } from '../tree/nodes';
 import {
   applySafePolygonPointerEventsMutation,

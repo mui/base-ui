@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import type { FloatingNodeType, FloatingTreeType } from '../floating-root/types';
+import type { FloatingNodeType, FloatingTreeType } from '../types';
 import { FloatingTreeStore } from './FloatingTreeStore';
 
 const FloatingNodeContext = React.createContext<FloatingNodeType | null>(null);

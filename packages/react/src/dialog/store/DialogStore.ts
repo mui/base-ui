@@ -3,13 +3,14 @@ import { ReactStore } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
 import { NullStore } from '../../utils/NullStore';
-import type { PopupStoreContext, PopupTriggerDataStore, PopupStoreState } from '../../utils/popups';
-import {
-  createInitialPopupStoreState,
-  popupStoreSelectors,
-  PopupTriggerMap,
-  createPopupOpenState,
-} from '../../utils/popups';
+import type {
+  PopupStoreContext,
+  PopupTriggerDataStore,
+  PopupStoreState,
+} from '../../utils/popups/store';
+import { createInitialPopupStoreState, popupStoreSelectors } from '../../utils/popups/store';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import { createPopupOpenState } from '../../utils/popups/popupStoreUtils';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   modal: boolean | 'trap-focus';

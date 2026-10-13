@@ -8,7 +8,7 @@ import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEv
 import { useFloatingParentNodeId } from '../tree/FloatingTree';
 import { FloatingRootStore } from './FloatingRootStore';
 import type { FloatingRootState as State } from './FloatingRootStore';
-import type { ReferenceType } from './types';
+import type { ReferenceType } from '../types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean | undefined;

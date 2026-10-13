@@ -4,18 +4,17 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './';
+import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './store';
 import {
   applyPopupOpenChange,
-  createInitialPopupStoreState,
   createPopupOpenState,
-  PopupTriggerMap,
-  popupStoreSelectors,
   useImplicitActiveTrigger,
   usePopupInteractionProps,
   useTriggerDataForwarding,
   useTriggerRegistration,
-} from './';
+} from './popupStoreUtils';
+import { createInitialPopupStoreState, popupStoreSelectors } from './store';
+import { PopupTriggerMap } from './popupTriggerMap';
 import { useSyncedFloatingRootContext } from './floating-root/useSyncedFloatingRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';

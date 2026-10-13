@@ -1,7 +1,7 @@
 'use client';
 import { useBaseUIFloating } from '../../utils/popups/positioning/useFloating';
 import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
-import type { UseFloatingOptions } from '../../utils/popups/floating-root/types';
+import type { UseFloatingOptions } from '../../utils/popups/types';
 import { useAnchorPositioningWithHook } from '../../internals/useAnchorPositioning';
 import type {
   UseAnchorPositioningParameters,

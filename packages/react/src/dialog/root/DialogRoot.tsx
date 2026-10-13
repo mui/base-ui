@@ -4,7 +4,7 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
 import type { DialogHandle } from '../store/DialogHandle';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 import { useRenderDialogRoot } from './useRenderDialogRoot';
 
 /**

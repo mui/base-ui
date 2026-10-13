@@ -12,7 +12,7 @@ import { createChangeEventDetails } from '../../../internals/createBaseUIEventDe
 import { REASONS } from '../../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
-import type { ElementProps, FloatingRootContext } from '../floating-root/types';
+import type { ElementProps, FloatingRootContext } from '../types';
 import {
   getMaxListIndex,
   getMinListIndex,
