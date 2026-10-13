@@ -46,7 +46,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
     ...elementProps
   } = componentProps;
 
-  const { store, defaultFloatingId, setRenderedFloatingId, virtualFocus, orientation } =
+  const { store, generatedPopupId, setRenderedPopupId, virtualFocus, orientation } =
     useMenuRootContext();
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
@@ -61,7 +61,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const popupTreeRoot = store.useState('popupTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
@@ -69,11 +69,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const activeTriggerId = store.useState('activeTriggerId');
   const listElement = store.useState('listElement');
 
-  const [id, registerIdRef] = useRenderedId(
-    componentProps,
-    defaultFloatingId,
-    setRenderedFloatingId,
-  );
+  const [id, registerIdRef] = useRenderedId(componentProps, generatedPopupId, setRenderedPopupId);
 
   const ariaLabelledBy = resolvePopupLabel(componentProps, activeTriggerElement, activeTriggerId);
 
@@ -113,12 +109,12 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       store.setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
     }
 
-    floatingTreeRoot.events.on('close', handleClose);
+    popupTreeRoot.events.on('close', handleClose);
 
     return () => {
-      floatingTreeRoot.events.off('close', handleClose);
+      popupTreeRoot.events.off('close', handleClose);
     };
-  }, [floatingTreeRoot.events, store]);
+  }, [popupTreeRoot.events, store]);
 
   useHoverPopupInteraction(store, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
@@ -205,7 +201,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
           ? () => [store.context.beforeTriggerFocusGuardRef.current]
           : undefined
       }
-      externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
+      externalTree={parent.type !== 'menubar' ? popupTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
       nextFocusableElement={
         parent.type === undefined ? store.context.triggerFocusTargetRef : undefined

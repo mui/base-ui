@@ -4,7 +4,7 @@ export {
   renderPopupRootChildren,
   usePopupRoot,
   usePopupRootSync,
-  usePopupRootWithFloatingId,
+  usePopupRootWithPopupId,
 } from './popupRoot';
 export type { PayloadChildRenderFunction } from './popupRoot';
 export * from './popupStoreUtils';

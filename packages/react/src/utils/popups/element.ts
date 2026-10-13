@@ -79,7 +79,7 @@ export function matchesFocusVisible(element: Element | null) {
   }
 }
 
-export function getFloatingFocusElement(
+export function getPopupFocusElement(
   outerPopupElement: HTMLElement | null | undefined,
 ): HTMLElement | null {
   if (!outerPopupElement) {

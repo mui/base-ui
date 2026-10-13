@@ -82,14 +82,14 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
-  const floatingTreeRootFromContext = usePopupTree();
+  const popupTreeRootFromContext = usePopupTree();
 
-  const floatingTreeRoot: PopupTreeStore = React.useMemo(() => {
-    return floatingTreeRootFromContext ?? new PopupTreeStore();
-  }, [floatingTreeRootFromContext]);
+  const popupTreeRoot: PopupTreeStore = React.useMemo(() => {
+    return popupTreeRootFromContext ?? new PopupTreeStore();
+  }, [popupTreeRootFromContext]);
 
-  const floatingNodeId = usePopupNodeId(floatingTreeRoot);
-  const floatingParentNodeId = usePopupParentNodeId();
+  const popupNodeId = usePopupNodeId(popupTreeRoot);
+  const popupParentNodeId = usePopupParentNodeId();
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
@@ -99,9 +99,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       payload,
       closeDelay,
       parent,
-      floatingTreeRoot,
-      floatingNodeId,
-      floatingParentNodeId,
+      popupTreeRoot,
+      popupNodeId,
+      popupParentNodeId,
       keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
     },
   );
@@ -152,7 +152,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       return;
     }
 
-    floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
+    popupTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
   React.useEffect(() => {
@@ -183,7 +183,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     restMs: parent.type === undefined ? delay : undefined,
     delay: { close: closeDelay },
     triggerElementRef,
-    externalTree: floatingTreeRoot,
+    externalTree: popupTreeRoot,
     isActiveTrigger: isTriggerActive,
   });
 

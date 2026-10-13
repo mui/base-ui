@@ -33,7 +33,7 @@ const MenuLinkItemPlain = React.forwardRef(function MenuLinkItemPlain(
   const id = useBaseUiId(idProp);
 
   const highlighted = store.useState('isActive', listItem.index);
-  const nodeId = store.useState('floatingNodeId');
+  const nodeId = store.useState('popupNodeId');
   const itemProps = store.useState('itemProps');
 
   const typingRef = store.context.typingRef;

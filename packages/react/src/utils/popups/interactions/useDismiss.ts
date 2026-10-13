@@ -377,7 +377,7 @@ export function useDismiss(
       );
     }
 
-    function isEventWithinFloatingTree(event: Event) {
+    function isEventWithinPopupTree(event: Event) {
       const nodeId = dataRef.current.floatingContext?.nodeId;
       const targetIsInsideChildren =
         tree &&
@@ -485,7 +485,7 @@ export function useDismiss(
         }
       }
 
-      if (isEventWithinFloatingTree(event)) {
+      if (isEventWithinPopupTree(event)) {
         return;
       }
 
@@ -642,7 +642,7 @@ export function useDismiss(
         return;
       }
 
-      if (isEventWithinFloatingTree(event)) {
+      if (isEventWithinPopupTree(event)) {
         return;
       }
 

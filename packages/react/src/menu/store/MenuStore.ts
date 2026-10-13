@@ -46,9 +46,9 @@ export type State<Payload> = PopupStoreState<Payload> & {
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
-  floatingTreeRoot: PopupTreeStore;
-  floatingNodeId: string | undefined;
-  floatingParentNodeId: string | null;
+  popupTreeRoot: PopupTreeStore;
+  popupNodeId: string | undefined;
+  popupParentNodeId: string | null;
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
@@ -152,15 +152,15 @@ const selectors = {
       ? undefined
       : state.instantType,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
-  floatingTreeRoot: (state: State<unknown>): PopupTreeStore => {
+  popupTreeRoot: (state: State<unknown>): PopupTreeStore => {
     if (state.parent.type === 'menu') {
-      return state.parent.store.select('floatingTreeRoot');
+      return state.parent.store.select('popupTreeRoot');
     }
 
-    return state.floatingTreeRoot;
+    return state.popupTreeRoot;
   },
-  floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
-  floatingParentNodeId: (state: State<unknown>) => state.floatingParentNodeId,
+  popupNodeId: (state: State<unknown>) => state.popupNodeId,
+  popupParentNodeId: (state: State<unknown>) => state.popupParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
@@ -229,24 +229,24 @@ export class MenuStore<Payload> extends BasePopupStore<
     }
 
     let rootId = parent.store.select('rootId');
-    let floatingTreeRoot = parent.store.select('floatingTreeRoot');
+    let popupTreeRoot = parent.store.select('popupTreeRoot');
     let keyboardEventRelay = parent.store.select('keyboardEventRelay');
 
     return parent.store.subscribe(() => {
       const nextRootId = parent.store.select('rootId');
-      const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
+      const nextPopupTreeRoot = parent.store.select('popupTreeRoot');
       const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
 
       if (
         rootId === nextRootId &&
-        floatingTreeRoot === nextFloatingTreeRoot &&
+        popupTreeRoot === nextPopupTreeRoot &&
         keyboardEventRelay === nextKeyboardEventRelay
       ) {
         return;
       }
 
       rootId = nextRootId;
-      floatingTreeRoot = nextFloatingTreeRoot;
+      popupTreeRoot = nextPopupTreeRoot;
       keyboardEventRelay = nextKeyboardEventRelay;
       this.notifyAll();
     });
@@ -439,9 +439,9 @@ function createInitialState<Payload>(
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
-    floatingTreeRoot: new PopupTreeStore(),
-    floatingNodeId: undefined,
-    floatingParentNodeId: null,
+    popupTreeRoot: new PopupTreeStore(),
+    popupNodeId: undefined,
+    popupParentNodeId: null,
     itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,
