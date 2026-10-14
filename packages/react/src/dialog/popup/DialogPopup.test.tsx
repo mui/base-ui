@@ -272,7 +272,13 @@ describe('<Dialog.Popup />', () => {
   describe('return focus when opened from a popup item', () => {
     type Source = 'select' | 'menu' | 'keepMounted menu';
 
-    function DialogFromItem({ source }: { source: Source }) {
+    function DialogFromItem({
+      source,
+      preventTriggerFocus,
+    }: {
+      source: Source;
+      preventTriggerFocus?: boolean;
+    }) {
       const [open, setOpen] = React.useState(false);
       return (
         <React.Fragment>
@@ -291,7 +297,12 @@ describe('<Dialog.Popup />', () => {
             </Select.Root>
           ) : (
             <Menu.Root>
-              <Menu.Trigger data-testid="source-trigger">Menu</Menu.Trigger>
+              <Menu.Trigger
+                data-testid="source-trigger"
+                onMouseDown={preventTriggerFocus ? (event) => event.preventDefault() : undefined}
+              >
+                Menu
+              </Menu.Trigger>
               <Menu.Portal keepMounted={source === 'keepMounted menu'}>
                 <Menu.Positioner>
                   <Menu.Popup>
@@ -346,6 +357,28 @@ describe('<Dialog.Popup />', () => {
         });
       },
     );
+
+    // Safari and Firefox on macOS don't focus a pressed button.
+    it('returns focus to a keepMounted menu trigger that pressing did not focus', async () => {
+      const { user } = await render(
+        <DialogFromItem source="keepMounted menu" preventTriggerFocus />,
+      );
+      const sourceTrigger = screen.getByTestId('source-trigger');
+
+      await user.click(sourceTrigger);
+      await user.click(await screen.findByRole('menuitem', { name: 'Custom' }));
+
+      const close = await screen.findByRole('button', { name: 'Close' });
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(sourceTrigger).toHaveFocus();
+      });
+    });
 
     it.each([{ closeWith: 'keyboard' }, { closeWith: 'mouse' }] as const)(
       'returns focus to the menu trigger when the dialog trigger is a keepMounted menu item and the dialog is closed with the $closeWith',
