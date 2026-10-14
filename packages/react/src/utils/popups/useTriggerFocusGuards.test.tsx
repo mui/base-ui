@@ -140,9 +140,9 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
       // A Menu closes once focus leaves it, so it can't stay open while focus is outside.
       it.skipIf(name === 'Menu').each([
         { tabIndex: 0, result: 'focuses the trigger', focusesTrigger: true },
-        { tabIndex: -1, result: 'closes the popup', focusesTrigger: false },
+        { tabIndex: -1, result: 'closes and moves focus past the trigger', focusesTrigger: false },
       ])(
-        '$result when tabbing onto the trigger of a hover-opened popup with tabIndex=$tabIndex',
+        '$result when tabbing toward the trigger of a hover-opened popup with tabIndex=$tabIndex',
         async ({ tabIndex, focusesTrigger }) => {
           await render(
             <div>
@@ -164,7 +164,11 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
 
           await user.tab({ shift: direction === 'backward' });
 
-          expect(trigger === document.activeElement).toBe(focusesTrigger);
+          expect(
+            focusesTrigger
+              ? trigger
+              : screen.getByTestId(direction === 'backward' ? 'before' : 'after'),
+          ).toHaveFocus();
           expect(trigger).toHaveAttribute('aria-expanded', String(focusesTrigger));
         },
       );

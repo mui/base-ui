@@ -33,29 +33,31 @@ interface TriggerFocusGuardStore {
  * Provides focus guard handlers for popup triggers (Popover, Menu).
  *
  * When the popup is open, invisible focus guard elements are placed before and after
- * the trigger. These handlers close the popup and move focus to the appropriate
- * tabbable element when the guards receive focus (i.e. when the user tabs out).
+ * the trigger. When a guard receives focus, these handlers move focus into the popup or onto the
+ * trigger, or close the popup and move focus past the trigger (i.e. when the user tabs out).
  */
 export function useTriggerFocusGuards(
   store: TriggerFocusGuardStore,
   triggerElementRef: React.RefObject<HTMLElement | null>,
 ) {
-  function closeAndFocus(
-    event: React.FocusEvent<HTMLElement>,
-    direction: 1 | -1,
-    positionerElement: HTMLElement | null,
-  ) {
+  function handleGuardFocus(event: React.FocusEvent<HTMLElement>, direction: 1 | -1) {
     const guard = event.currentTarget;
     const trigger = triggerElementRef.current;
+    const positionerElement = store.select('positionerElement');
+    const contentFocusGuard = store.context.beforeContentFocusGuardRef.current;
+    const fromOutside = !contains(trigger, event.relatedTarget);
 
-    // Without the content guard (a hover-opened popover), a guard reached from outside a tabbable
-    // trigger means Tab is moving onto the trigger.
-    if (
-      !store.context.beforeContentFocusGuardRef.current &&
-      isTabbable(trigger) &&
-      !contains(trigger, event.relatedTarget as Element | null)
-    ) {
-      trigger?.focus();
+    // The guard after the trigger leads into the popup through its content guard. Without one
+    // (a hover-opened popover), Tab from outside moves onto the trigger, or past it if untabbable.
+    const redirectTarget = contentFocusGuard
+      ? direction === 1 &&
+        positionerElement &&
+        isOutsideEvent(event, positionerElement) &&
+        contentFocusGuard
+      : fromOutside && isTabbable(trigger) && trigger;
+
+    if (redirectTarget) {
+      redirectTarget.focus();
       return;
     }
 
@@ -67,24 +69,13 @@ export function useTriggerFocusGuards(
     // the trigger as the anchor if the guard unmounted, even when its tabIndex is -1.
     getTabbableNearElement(
       guard.isConnected ? guard : triggerElementRef.current,
-      direction,
+      (contentFocusGuard || !fromOutside ? direction : -direction) as 1 | -1,
       positionerElement,
     )?.focus();
   }
 
-  function handlePreFocusGuardFocus(event: React.FocusEvent<HTMLElement>) {
-    closeAndFocus(event, -1, store.select('positionerElement'));
-  }
-
-  function handleFocusTargetFocus(event: React.FocusEvent<HTMLElement>) {
-    const positionerElement = store.select('positionerElement');
-    const contentFocusGuard = store.context.beforeContentFocusGuardRef.current;
-    if (positionerElement && contentFocusGuard && isOutsideEvent(event, positionerElement)) {
-      contentFocusGuard.focus();
-    } else {
-      closeAndFocus(event, 1, positionerElement);
-    }
-  }
-
-  return { handlePreFocusGuardFocus, handleFocusTargetFocus };
+  return {
+    handlePreFocusGuardFocus: (event: React.FocusEvent<HTMLElement>) => handleGuardFocus(event, -1),
+    handleFocusTargetFocus: (event: React.FocusEvent<HTMLElement>) => handleGuardFocus(event, 1),
+  };
 }
