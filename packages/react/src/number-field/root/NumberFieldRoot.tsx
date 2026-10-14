@@ -201,6 +201,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
     // Allow plus sign in all cases; minus sign when negatives are valid, or when out-of-range
     // entry is allowed so native underflow validation can be triggered from the keyboard.
+    // Exponent notations already allow it above for negative exponents (`2E-2`).
     addAll(PLUS_SIGNS_WITH_ASCII);
     if (minWithDefault < 0 || allowOutOfRange) {
       addAll(MINUS_SIGNS_WITH_ASCII);

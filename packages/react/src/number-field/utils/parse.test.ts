@@ -63,6 +63,10 @@ describe('NumberField parse', () => {
 
     it('handles percentages with style: "unit" and unit: "percent"', () => {
       expect(parseNumber('12%', 'en-US', { style: 'unit', unit: 'percent' })).toBe(12);
+      // The long label is a word, so the typed `%` is the only percent sign left
+      expect(
+        parseNumber('12%', 'en-US', { style: 'unit', unit: 'percent', unitDisplay: 'long' }),
+      ).toBe(12);
     });
 
     it('strips an interleaved percent sign (1%2)', () => {
@@ -526,7 +530,7 @@ describe('NumberField parse', () => {
     });
 
     it('keeps only the last of many dots', () => {
-      expect(parseNumber('.0'.repeat(40000), 'en-US')).toBe(0);
+      expect(parseNumber(`${'.0'.repeat(40000)}.5`, 'en-US')).toBe(0.5);
     });
 
     it('parses units with different formats', () => {

@@ -484,6 +484,36 @@ describe('<NumberField.Input />', () => {
     },
   );
 
+  it('accepts a typed negative exponent when negatives are not allowed', async () => {
+    const format = { notation: 'scientific' } as const;
+    const formatter = new Intl.NumberFormat('en-US', format);
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="en-US"
+        format={format}
+        min={0}
+        defaultValue={1500}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(1500));
+
+    // Replace the exponent of `1.5E3`
+    input.setSelectionRange(input.value.length - 1, input.value.length);
+    await user.keyboard('-3');
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(0.0015);
+    expect(input).toHaveValue(formatter.format(0.0015));
+  });
+
   it('applies locale-aware decimal/group gating (de-DE)', async () => {
     await render(
       <NumberField.Root locale="de-DE">
@@ -1523,16 +1553,19 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue(formatter.format(21.7));
   });
 
-  it('accepts typed digits of the locale numbering system (bn-BD)', async () => {
+  it.each([
     // Pinned because WebKit formats bn-BD with Latin digits
-    const locale = 'bn-BD-u-nu-beng';
-    const formatter = new Intl.NumberFormat(locale);
+    { name: 'locale tag (bn-BD)', locale: 'bn-BD-u-nu-beng', format: undefined },
+    { name: 'numberingSystem option', locale: 'en-US', format: { numberingSystem: 'deva' } },
+  ])('accepts typed digits of the numbering system ($name)', async ({ locale, format }) => {
+    const formatter = new Intl.NumberFormat(locale, format);
     const onValueChange = vi.fn();
     const onValueCommitted = vi.fn();
 
     const { user } = await render(
       <NumberField.Root
         locale={locale}
+        format={format}
         defaultValue={12}
         onValueChange={onValueChange}
         onValueCommitted={onValueCommitted}
@@ -1735,6 +1768,13 @@ describe('<NumberField.Input />', () => {
       value: 11,
       edited: 121,
     },
+    {
+      name: 'sl day',
+      locale: 'sl',
+      format: { style: 'unit', unit: 'day', unitDisplay: 'long' },
+      value: 2,
+      edited: 22,
+    },
   ] as const)(
     'accepts edits to a label that changes with the plural form ($name)',
     async ({ locale, format, value, edited }) => {
@@ -1794,27 +1834,33 @@ describe('<NumberField.Input />', () => {
     expect(onValueCommitted).not.toHaveBeenCalled();
   });
 
-  it('reformats text left unparsed by an earlier blur on the next blur', async () => {
-    const onValueChange = vi.fn();
+  it.each([
+    { name: 'with a value', defaultValue: 5, expected: new Intl.NumberFormat().format(5) },
+    { name: 'when empty', defaultValue: undefined, expected: '' },
+  ])(
+    'reformats text left unparsed by an earlier blur on the next blur ($name)',
+    async ({ defaultValue, expected }) => {
+      const onValueChange = vi.fn();
 
-    await render(
-      <NumberField.Root defaultValue={5} onValueChange={onValueChange}>
-        <NumberField.Input />
-      </NumberField.Root>,
-    );
+      await render(
+        <NumberField.Root defaultValue={defaultValue} onValueChange={onValueChange}>
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
 
-    const input = screen.getByRole<HTMLInputElement>('textbox');
-    await act(async () => input.focus());
-    fireEvent.change(input, { target: { value: '-' } });
-    fireEvent.blur(input);
-    expect(input).toHaveValue('-');
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      await act(async () => input.focus());
+      fireEvent.change(input, { target: { value: '-' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('-');
 
-    await act(async () => input.focus());
-    fireEvent.blur(input);
+      await act(async () => input.focus());
+      fireEvent.blur(input);
 
-    expect(input).toHaveValue(new Intl.NumberFormat().format(5));
-    expect(onValueChange).not.toHaveBeenCalled();
-  });
+      expect(input).toHaveValue(expected);
+      expect(onValueChange).not.toHaveBeenCalled();
+    },
+  );
 
   it('commits an edited accounting negative on blur', async () => {
     const format = { style: 'currency', currency: 'USD', currencySign: 'accounting' } as const;
