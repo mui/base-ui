@@ -414,7 +414,7 @@ describe('useAnimationsFinished', () => {
 
     interface WatchedElement {
       onFinished: () => void;
-      animate?: ((element: HTMLElement) => Animation) | undefined;
+      animate?: ((element: HTMLElement) => Animation | Animation[]) | undefined;
       signal?: AbortSignal | undefined;
     }
 
@@ -423,8 +423,8 @@ describe('useAnimationsFinished', () => {
       const runOnceAnimationsFinish = useAnimationsFinished(ref);
 
       useIsoLayoutEffect(() => {
-        const animation = animate?.(ref.current!);
-        return () => animation?.cancel();
+        const animations = [animate?.(ref.current!) ?? []].flat();
+        return () => animations.forEach((animation) => animation.cancel());
       }, [animate]);
 
       React.useEffect(() => {
@@ -535,6 +535,35 @@ describe('useAnimationsFinished', () => {
       expect(elements[0].onFinished).toHaveBeenCalledTimes(1);
       expect(elements[1].onFinished).toHaveBeenCalledTimes(1);
       expect(getDocumentAnimations).not.toHaveBeenCalled();
+    });
+
+    it('waits for every animation of an element served by the root lookup', async () => {
+      const { getDocumentAnimations } = spyOnLookups();
+      let firstAnimation: Animation;
+      let secondAnimation: Animation;
+      const { elements } = createWatchedElements([{ duration: 10_000 }, null]);
+      elements[1].animate = (element) => {
+        firstAnimation = element.animate(FADE, 10_000);
+        secondAnimation = element.animate(FADE, 10_000);
+        return [firstAnimation, secondAnimation];
+      };
+      await render(renderWatched(elements));
+
+      await waitFor(() => {
+        expect(getDocumentAnimations).toHaveBeenCalledTimes(1);
+      });
+
+      await act(async () => {
+        secondAnimation!.finish();
+        await flushMicrotasks();
+      });
+      expect(elements[1].onFinished).not.toHaveBeenCalled();
+
+      await act(async () => {
+        firstAnimation!.finish();
+        await flushMicrotasks();
+      });
+      expect(elements[1].onFinished).toHaveBeenCalledTimes(1);
     });
 
     it('looks up a single element on its own', async () => {
