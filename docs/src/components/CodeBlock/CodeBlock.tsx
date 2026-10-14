@@ -45,7 +45,7 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
     <div className={clsx('CodeBlockPanel', className)} {...other}>
       {title != null ? (
         <React.Fragment>
-          <span id={titleId} className="sr-only">
+          <span id={titleId} className="bui-sr-only">
             {title}
           </span>
           {children}
