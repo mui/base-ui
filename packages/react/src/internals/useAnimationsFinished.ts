@@ -5,10 +5,67 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { NOOP } from '@base-ui/utils/empty';
 import { resolveRef } from '../utils/resolveRef';
-import { getFiniteAnimations } from '../utils/getFiniteAnimations';
+import { isFiniteAnimation } from '../utils/getFiniteAnimations';
 import * as TransitionStatusDataAttributes from './TransitionStatusDataAttributes';
 
-let pendingCallbacks: Array<() => void> | null = null;
+/**
+ * Returns a function that queues items and flushes them together in a microtask.
+ */
+function createMicrotaskQueue<T>(flush: (items: T[]) => void) {
+  let pending: T[] | null = null;
+  return (item: T) => {
+    if (!pending) {
+      const items: T[] = [];
+      pending = items;
+      queueMicrotask(() => {
+        pending = null;
+        flush(items);
+      });
+    }
+    pending.push(item);
+  };
+}
+
+/**
+ * Passes each element's animations to its callback in a microtask.
+ * In Blink, `element.getAnimations()` returns early for an element without animations, but
+ * otherwise sorts every animation in the tree. Once an element with animations is found, the
+ * remaining elements of its tree are served by a single `getAnimations()` call on the tree's root.
+ */
+const getAnimationsBatched = createMicrotaskQueue<
+  [element: Element, callback: (animations: Animation[]) => void]
+>((lookups) => {
+  const animationsByElement = new Map<Element, Animation[]>();
+  let animatedRoot: (Node & Partial<DocumentOrShadowRoot>) | undefined;
+  let animationsByTarget: Map<Element | null, Animation[]> | undefined;
+
+  for (const [element, callback] of lookups) {
+    let animations = animationsByElement.get(element);
+    if (!animations) {
+      const root: Node & Partial<DocumentOrShadowRoot> = element.getRootNode();
+      if (root === animatedRoot && !animationsByTarget) {
+        animationsByTarget = new Map();
+        for (const animation of root.getAnimations!()) {
+          const effect = animation.effect as KeyframeEffect;
+          // `element.getAnimations()` excludes animations of the element's pseudo-elements.
+          if (!effect.pseudoElement) {
+            animationsByTarget.set(effect.target, [
+              ...(animationsByTarget.get(effect.target) ?? []),
+              animation,
+            ]);
+          }
+        }
+      }
+      animations =
+        root === animatedRoot ? (animationsByTarget!.get(element) ?? []) : element.getAnimations();
+      if (animations.length && element.isConnected && root.getAnimations) {
+        animatedRoot ??= root;
+      }
+      animationsByElement.set(element, animations);
+    }
+    callback(animations);
+  }
+});
 
 /**
  * Runs the callback in a synchronous flush before the browser paints, so that the
@@ -17,21 +74,13 @@ let pendingCallbacks: Array<() => void> | null = null;
  * whose animations finish together) are batched into a single commit:
  * https://github.com/mui/base-ui/issues/5481
  */
-function flushBeforePaint(fn: () => void) {
-  if (!pendingCallbacks) {
-    const callbacks: Array<() => void> = [];
-    pendingCallbacks = callbacks;
-    queueMicrotask(() => {
-      pendingCallbacks = null;
-      ReactDOM.flushSync(() => {
-        for (const callback of callbacks) {
-          callback();
-        }
-      });
-    });
-  }
-  pendingCallbacks.push(fn);
-}
+const flushBeforePaint = createMicrotaskQueue<() => void>((callbacks) => {
+  ReactDOM.flushSync(() => {
+    for (const callback of callbacks) {
+      callback();
+    }
+  });
+});
 
 /**
  * Executes a function once all animations have finished on the provided element.
@@ -99,9 +148,13 @@ export function useAnimationsFinished(
       }
 
       function exec() {
+        getAnimationsBatched([resolvedElement, waitForAnimations]);
+      }
+
+      function waitForAnimations(animations: Animation[]) {
         // Discard fulfilled Animation values so unfinished animations cannot retain their targets.
         Promise.all(
-          getFiniteAnimations(resolvedElement).map((animation) => animation.finished.then(NOOP)),
+          animations.filter(isFiniteAnimation).map((animation) => animation.finished.then(NOOP)),
         ).then(
           () => {
             if (!signal?.aborted) {
@@ -109,24 +162,12 @@ export function useAnimationsFinished(
             }
           },
           () => {
-            if (signal?.aborted) {
-              return;
-            }
-
-            const currentAnimations = getFiniteAnimations(resolvedElement);
-
-            if (
-              currentAnimations.some(
-                (animation) => animation.pending || animation.playState !== 'finished',
-              )
-            ) {
-              // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
-              // In such cases, we need to re-check if any new animations have started.
+            // Sometimes animations can be aborted because a property they depend on changes while
+            // the animation plays. Wait for the element's current animations, which include any
+            // replacement.
+            if (!signal?.aborted) {
               exec();
-              return;
             }
-
-            done();
           },
         );
       }
