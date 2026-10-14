@@ -50,7 +50,7 @@ export default function Homepage() {
       />
 
       <section className="bui-d-c">
-        <h1 className="Text sz-3 bp2:sz-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
+        <h1 className="Text sz-4 bp2:sz-5 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
           Unstyled UI components for building accessible user interfaces
         </h1>
         <div className="bui-gcs-1 bui-gce-9">

@@ -561,6 +561,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
+ * @param openProp The Root's `open` prop. Pass the prop itself, not the store's `openProp`: the
+ *   store only receives it in a layout effect, which is a commit too late for the reset below.
  * @param onUnmount Optional callback to be called when the popup is unmounted.
  * @param animateInitialOpen Whether a popup that mounts already open should still play its enter
  *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
@@ -573,9 +575,21 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  openProp: boolean | undefined,
   onUnmount?: () => void,
   animateInitialOpen?: boolean,
 ) {
+  // In controlled mode, `state.open` holds the last open-change request instead of the open state,
+  // and a close through the prop doesn't reset it. Clear it in the commit that receives a closing
+  // prop, so `true` on unmount means a request made since then. Parts read `open` through the store,
+  // where the prop is synced in a layout effect, so none of them sees the popup as closed before
+  // this runs.
+  useIsoLayoutEffect(() => {
+    if (openProp === false) {
+      store.set('open', false);
+    }
+  }, [openProp, store]);
+
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
     ref: store.context.popupRef,
@@ -584,12 +598,20 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       store.set('preventUnmountingOnClose', preventUnmountOnClose),
     animateInitialOpen,
     onUnmount() {
-      store.update({
-        activeTriggerId: null,
-        activeTriggerElement: null,
-        mounted: false,
-        preventUnmountingOnClose: false,
-      });
+      // A trigger press during the exit writes the pressed trigger and `open: true` to the store,
+      // but a controlled `open` prop may not have committed yet (React 18 can run the exit
+      // completion in between). `state.open` is reset when the prop closes the popup (see above),
+      // so `true` here means a request made since then: keep its trigger instead of clearing it.
+      if (store.state.open) {
+        store.update({ mounted: false, preventUnmountingOnClose: false });
+      } else {
+        store.update({
+          activeTriggerId: null,
+          activeTriggerElement: null,
+          mounted: false,
+          preventUnmountingOnClose: false,
+        });
+      }
       onUnmount?.();
       store.context.onOpenChangeComplete?.(false);
     },

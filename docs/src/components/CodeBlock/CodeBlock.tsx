@@ -13,12 +13,17 @@ import './CodeBlock.css';
 const CodeBlockContext = React.createContext<{
   codeId: string | undefined;
   titleId: string | undefined;
-}>({ codeId: undefined, titleId: undefined });
+  showCopy: boolean;
+}>({ codeId: undefined, titleId: undefined, showCopy: true });
 
-export function Root(props: React.ComponentPropsWithoutRef<'figure'>) {
+interface CodeBlockRootProps extends React.ComponentPropsWithoutRef<'figure'> {
+  showCopy?: boolean;
+}
+
+export function Root({ showCopy = true, ...props }: CodeBlockRootProps) {
   const titleId = React.useId();
   const codeId = React.useId();
-  const context = React.useMemo(() => ({ codeId, titleId }), [codeId, titleId]);
+  const context = React.useMemo(() => ({ codeId, titleId, showCopy }), [codeId, titleId, showCopy]);
   return (
     <CodeBlockContext.Provider value={context}>
       <figure
@@ -36,7 +41,7 @@ interface CodeBlockPanelProps extends React.ComponentPropsWithoutRef<'div'> {
 }
 
 export function Panel({ className, title, children, ...other }: CodeBlockPanelProps) {
-  const { codeId, titleId } = React.useContext(CodeBlockContext);
+  const { codeId, titleId, showCopy } = React.useContext(CodeBlockContext);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const ga = useGoogleAnalytics();
   const pathname = usePathname();
@@ -45,7 +50,7 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
     <div className={clsx('CodeBlockPanel', className)} {...other}>
       {title != null ? (
         <React.Fragment>
-          <span id={titleId} className="sr-only">
+          <span id={titleId} className="bui-sr-only">
             {title}
           </span>
           {children}
@@ -55,37 +60,39 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
           {children}
         </div>
       )}
-      <GhostButton
-        aria-label="Copy code"
-        layout="icon"
-        onClick={async () => {
-          const codeRoot = codeId ? document.getElementById(codeId) : null;
-          const code = codeRoot?.querySelector('pre code')?.textContent ?? codeRoot?.textContent;
+      {showCopy && (
+        <GhostButton
+          aria-label="Copy code"
+          layout="icon"
+          onClick={async () => {
+            const codeRoot = codeId ? document.getElementById(codeId) : null;
+            const code = codeRoot?.querySelector('pre code')?.textContent ?? codeRoot?.textContent;
 
-          if (code) {
-            await copy(code);
-            const titleText =
-              (titleId ? document.getElementById(titleId)?.textContent : undefined) ?? undefined;
-            const codeBlockId = titleText ? `${pathname}#${titleText}` : pathname;
-            ga?.trackEvent({
-              category: 'code_block',
-              action: 'copy',
-              label: codeBlockId,
-              params: { copy: codeBlockId, slug: titleText || '' },
-            });
-            /* eslint-disable no-restricted-syntax */
-            const newTimeout = window.setTimeout(() => {
-              window.clearTimeout(newTimeout);
-              setCopyTimeout(0);
-            }, 2000);
-            window.clearTimeout(copyTimeout);
-            setCopyTimeout(newTimeout);
-            /* eslint-enable no-restricted-syntax */
-          }
-        }}
-      >
-        <span className="CodeBlockCopyIcon">{copyTimeout ? <CheckIcon /> : <CopyIcon />}</span>
-      </GhostButton>
+            if (code) {
+              await copy(code);
+              const titleText =
+                (titleId ? document.getElementById(titleId)?.textContent : undefined) ?? undefined;
+              const codeBlockId = titleText ? `${pathname}#${titleText}` : pathname;
+              ga?.trackEvent({
+                category: 'code_block',
+                action: 'copy',
+                label: codeBlockId,
+                params: { copy: codeBlockId, slug: titleText || '' },
+              });
+              /* eslint-disable no-restricted-syntax */
+              const newTimeout = window.setTimeout(() => {
+                window.clearTimeout(newTimeout);
+                setCopyTimeout(0);
+              }, 2000);
+              window.clearTimeout(copyTimeout);
+              setCopyTimeout(newTimeout);
+              /* eslint-enable no-restricted-syntax */
+            }
+          }}
+        >
+          <span className="CodeBlockCopyIcon">{copyTimeout ? <CheckIcon /> : <CopyIcon />}</span>
+        </GhostButton>
+      )}
     </div>
   );
 }
