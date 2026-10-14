@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { getTabbableNearElement, isOutsideEvent } from '../../floating-ui-react/utils';
+import { contains, getTabbableNearElement, isOutsideEvent } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -55,17 +55,33 @@ export function useTriggerFocusGuards(
     )?.focus();
   }
 
+  // The content guard is absent when the popup's focus manager is disabled (hover-opened popover),
+  // so a guard reached from outside the trigger means Tab is moving onto the trigger.
+  function focusTriggerFromOutside(event: React.FocusEvent<HTMLElement>) {
+    const trigger = triggerElementRef.current;
+    if (
+      store.context.beforeContentFocusGuardRef.current ||
+      !trigger ||
+      contains(trigger, event.relatedTarget as Element | null)
+    ) {
+      return false;
+    }
+    trigger.focus();
+    return true;
+  }
+
   function handlePreFocusGuardFocus(event: React.FocusEvent<HTMLElement>) {
-    closeAndFocus(event, -1, store.select('positionerElement'));
+    if (!focusTriggerFromOutside(event)) {
+      closeAndFocus(event, -1, store.select('positionerElement'));
+    }
   }
 
   function handleFocusTargetFocus(event: React.FocusEvent<HTMLElement>) {
     const positionerElement = store.select('positionerElement');
-    // The content guard is absent when the popup's focus manager is disabled (hover-opened popover).
     const contentFocusGuard = store.context.beforeContentFocusGuardRef.current;
     if (positionerElement && contentFocusGuard && isOutsideEvent(event, positionerElement)) {
       contentFocusGuard.focus();
-    } else {
+    } else if (!focusTriggerFromOutside(event)) {
       closeAndFocus(event, 1, positionerElement);
     }
   }
