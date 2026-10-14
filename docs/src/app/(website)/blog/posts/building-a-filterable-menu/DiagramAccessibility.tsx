@@ -7,12 +7,12 @@ export default function DiagramAccessibility() {
     <div
       className={styles.Container}
       role="img"
-      aria-label="The “Edit actions” button opens a dialog containing a searchbox, clear button, and menu. The searchbox’s aria-activedescendant points to the highlighted menu item."
+      aria-label="The “Actions” button opens a dialog containing a searchbox, clear button, and menu. The searchbox’s aria-activedescendant points to the highlighted Rename menu item."
     >
       <div className={styles.Diagram}>
         <div className={styles.Trigger}>
           <div className={styles.Role}>button</div>
-          <div>“Edit actions”</div>
+          <div>“Actions”</div>
           <div className={styles.Note}>aria-haspopup="dialog"</div>
         </div>
 
@@ -21,8 +21,7 @@ export default function DiagramAccessibility() {
           width="40"
           height="24"
           viewBox="0 0 40 24"
-          role="img"
-          aria-label="Opens dialog"
+          aria-hidden="true"
           focusable="false"
         >
           <path
@@ -46,11 +45,7 @@ export default function DiagramAccessibility() {
             <div className={styles.Searchbox}>
               <div className={styles.Role}>searchbox</div>
               <div>“Filter actions”</div>
-              <div className={styles.Relationship}>
-                <span className="bui-sr-only">The searchbox’s </span>
-                aria-activedescendant
-                <span className="bui-sr-only"> points to the highlighted Rename menu item.</span>
-              </div>
+              <div className={styles.Relationship}>aria-activedescendant</div>
             </div>
             <div className={styles.Clear}>
               <div className={styles.Role}>button (clear)</div>
