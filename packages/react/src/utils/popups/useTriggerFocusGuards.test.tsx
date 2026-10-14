@@ -34,10 +34,16 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
       onOpenChange?: (open: boolean) => void;
       className?: string;
       finalFocus?: Popover.Popup.Props['finalFocus'];
+      triggerKey?: string;
     }) {
       return (
         <Component.Root modal={false} open={props.open} onOpenChange={props.onOpenChange}>
-          <Component.Trigger tabIndex={props.tabIndex} openOnHover={props.openOnHover} delay={0}>
+          <Component.Trigger
+            tabIndex={props.tabIndex}
+            openOnHover={props.openOnHover}
+            delay={0}
+            render={props.triggerKey === undefined ? undefined : <button key={props.triggerKey} />}
+          >
             Toggle
           </Component.Trigger>
           <Component.Portal>
@@ -263,6 +269,28 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
           expect(screen.getByTestId('target')).toHaveFocus();
         },
       );
+
+      it('moves focus past a trigger whose element is replaced during close', async () => {
+        function Fixture() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <div>
+              <button data-testid="before">Before</button>
+              <TestPopup open={open} onOpenChange={setOpen} triggerKey={open ? 'open' : 'closed'} />
+              <button data-testid="after">After</button>
+            </div>
+          );
+        }
+
+        await render(<Fixture />);
+        await openPopup();
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await focusTabOrigin(trigger);
+        await user.tab({ shift: direction === 'backward' });
+
+        expect(screen.getByTestId(direction === 'backward' ? 'before' : 'after')).toHaveFocus();
+        expect(trigger).not.toBeInTheDocument();
+      });
 
       it('preserves the surrounding modal dialog focus trap', async () => {
         await render(
