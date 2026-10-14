@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Kbd } from 'docs/src/components/Kbd/Kbd';
 import styles from './DiagramAccessibility.module.css';
 
 export default function DiagramAccessibility() {
@@ -92,8 +93,8 @@ export default function DiagramAccessibility() {
               </li>
             </ul>
             <div className={styles.Note}>
-              Keyboard users press Down Arrow from the field, while screen reader users start in the
-              menu and use their own commands to reach the field.
+              Keyboard users press <Kbd>↓</Kbd> from the field, while screen reader users start in
+              the menu and use their own commands to reach the field.
             </div>
           </div>
         </div>

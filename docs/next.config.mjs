@@ -37,9 +37,8 @@ export const remarkPlugins = [
       },
     },
   ],
-  // After transformMarkdownMetadata so the page index keeps `[Preview]`/`[New]`, matching
-  // `docs-infra validate`, which doesn't run local plugins.
-  [localPlugin('src/mdx/pipeline/remarkPreprocess.mjs'), { baseDir }],
+  // Extract metadata before rendering transforms modify the source content.
+  // For example, docs pipeline's remarkHeadingTags strips `[Preview]` / `[New]`, which must stay in the page index.
   [localPlugin('src/mdx/pipeline/remarkPipeline.mjs'), { baseDir }],
 ];
 

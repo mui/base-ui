@@ -13,9 +13,11 @@ import rehypeConcatHeadings from '../../components/QuickNav/rehypeConcatHeadings
 import rehypeQuickNav from '../../components/QuickNav/rehypeQuickNav.mjs';
 import rehypeSubtitle from '../../components/Subtitle/rehypeSubtitle.mjs';
 import rehypeKbd from '../../components/Kbd/rehypeKbd.mjs';
+import remarkHeadingTags from '../remarkHeadingTags.mjs';
 
 /** @type {import('unified').PluggableList} */
 export const remarkPlugins = [
+  remarkHeadingTags,
   remarkTypography,
   remarkQuickNavExcludeHeading,
   transformMarkdownRelativePaths,
