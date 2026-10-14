@@ -1,6 +1,11 @@
 import { expect, describe, it } from 'vitest';
 import { isJSDOM } from '#test-utils';
-import { getNumberLocaleDetails, isNumeralChar, parseNumber } from './parse';
+import {
+  getNumberLocaleDetails,
+  isNumeralChar,
+  isPlausibleNumberInput,
+  parseNumber,
+} from './parse';
 
 describe('NumberField parse', () => {
   describe('getNumberLocaleDetails', () => {
@@ -320,6 +325,43 @@ describe('NumberField parse', () => {
     it('maps both Han zero forms to 0', () => {
       expect(parseNumber('零')).toBe(0);
       expect(parseNumber('〇')).toBe(0);
+    });
+  });
+
+  describe('isPlausibleNumberInput', () => {
+    it('accepts plain and single-separator input', () => {
+      expect(isPlausibleNumberInput('1234')).toBe(true);
+      expect(isPlausibleNumberInput('1.5')).toBe(true);
+      expect(isPlausibleNumberInput('1,234.56')).toBe(true);
+      expect(isPlausibleNumberInput('12.')).toBe(true);
+      expect(isPlausibleNumberInput('.5')).toBe(true);
+      expect(isPlausibleNumberInput('12%')).toBe(true);
+    });
+
+    it('accepts partial input that does not parse yet', () => {
+      expect(isPlausibleNumberInput('')).toBe(true);
+      expect(isPlausibleNumberInput('-')).toBe(true);
+    });
+
+    it('accepts European-style dot grouping', () => {
+      expect(isPlausibleNumberInput('1.234.567.89')).toBe(true);
+      expect(isPlausibleNumberInput('1.234.567')).toBe(true);
+      expect(isPlausibleNumberInput('1.234.')).toBe(true);
+      expect(isPlausibleNumberInput('1.234.567,89', 'fr-FR')).toBe(true);
+    });
+
+    it('rejects multi-dot input that is not grouping-like', () => {
+      expect(isPlausibleNumberInput('1.2.3')).toBe(false);
+      expect(isPlausibleNumberInput('1..5')).toBe(false);
+      expect(isPlausibleNumberInput('....5')).toBe(false);
+      expect(isPlausibleNumberInput('1234.567.89')).toBe(false);
+    });
+
+    it('applies the locale decimal separator when checking', () => {
+      // de-DE: `.` is grouping (stripped) and `,` is the decimal, so repeated
+      // commas hit the same keep-last-dot collapse.
+      expect(isPlausibleNumberInput('1.234,56', 'de-DE')).toBe(true);
+      expect(isPlausibleNumberInput('1,2,3', 'de-DE')).toBe(false);
     });
   });
 
