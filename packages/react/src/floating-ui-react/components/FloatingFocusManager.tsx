@@ -857,8 +857,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     events.on('openchange', onOpenChangeLocal);
 
-    function getReturnElement(closeType: InteractionType) {
-      const returnFocusValueOrFn = returnFocusRef.current;
+    function getReturnElement(
+      closeType: InteractionType,
+      returnFocusValueOrFn: typeof returnFocusRef.current,
+    ) {
       let resolvedReturnFocusValue =
         typeof returnFocusValueOrFn === 'function'
           ? returnFocusValueOrFn(closeType)
@@ -918,8 +920,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (pendingReturnFocusRef.current === job) {
           pendingReturnFocusRef.current = null;
         }
-        // Resolved after the closing commit so the visibility checks see its DOM updates.
-        const returnElement = getReturnElement(closeType);
+        // Resolved after the closing commit so the visibility checks see its DOM updates, but
+        // with the pre-close `returnFocus`, which can change in the unmount render.
+        const returnElement = getReturnElement(closeType, returnFocusValueOrFn);
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);

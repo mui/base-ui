@@ -2337,8 +2337,8 @@ describe('FloatingFocusManager', () => {
     });
   });
 
-  describe('prop: returnFocus', () => {
-    test('true: returns focus to the first tabbable element inside a `display: contents` reference', async () => {
+  describe('return focus target', () => {
+    test('returns focus to the first tabbable element inside a `display: contents` reference', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
         const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
@@ -2377,7 +2377,7 @@ describe('FloatingFocusManager', () => {
       });
     });
 
-    test('true: returns focus to a reference revealed in the same commit that unmounts the floating element', async () => {
+    test('returns focus to a reference revealed in the same commit that unmounts the floating element', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
         const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
@@ -2413,6 +2413,56 @@ describe('FloatingFocusManager', () => {
 
       await waitFor(() => {
         expect(open).toHaveFocus();
+      });
+    });
+
+    test('skips a reference hidden by CSS', async () => {
+      function App() {
+        const [isOpen, setIsOpen] = React.useState(false);
+        const [referenceHidden, setReferenceHidden] = React.useState(false);
+        const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+        return (
+          <>
+            <button>previous</button>
+            <div style={{ visibility: referenceHidden ? 'hidden' : undefined }}>
+              <button ref={refs.setReference} onClick={() => setIsOpen(true)}>
+                open
+              </button>
+            </div>
+            {isOpen && (
+              <FloatingFocusManager context={context.rootStore}>
+                <div ref={refs.setFloating}>
+                  <button
+                    onClick={() => {
+                      setReferenceHidden(true);
+                      setIsOpen(false);
+                    }}
+                  >
+                    close
+                  </button>
+                </div>
+              </FloatingFocusManager>
+            )}
+          </>
+        );
+      }
+
+      render(<App />);
+
+      const previous = screen.getByRole('button', { name: 'previous' });
+      await act(async () => previous.focus());
+      fireEvent.click(screen.getByRole('button', { name: 'open' }));
+
+      const close = screen.getByRole('button', { name: 'close' });
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
+
+      fireEvent.click(close);
+
+      await waitFor(() => {
+        expect(previous).toHaveFocus();
       });
     });
   });

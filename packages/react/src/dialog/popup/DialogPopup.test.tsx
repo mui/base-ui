@@ -347,9 +347,9 @@ describe('<Dialog.Popup />', () => {
       },
     );
 
-    it.each(['keyboard', 'mouse'] as const)(
-      'returns focus to the menu trigger when the dialog trigger is a keepMounted menu item and the dialog is closed with the %s',
-      async (closeWith) => {
+    it.each([{ closeWith: 'keyboard' }, { closeWith: 'mouse' }] as const)(
+      'returns focus to the menu trigger when the dialog trigger is a keepMounted menu item and the dialog is closed with the $closeWith',
+      async ({ closeWith }) => {
         const handle = Dialog.createHandle();
         const { user } = await render(
           <React.Fragment>

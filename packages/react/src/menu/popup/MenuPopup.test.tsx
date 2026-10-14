@@ -196,6 +196,44 @@ describe('<Menu.Popup />', () => {
     await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
   });
 
+  it.each([{ keepMounted: false }, { keepMounted: true }])(
+    'returns focus to the submenu trigger when the submenu closes with Escape (keepMounted: $keepMounted)',
+    async ({ keepMounted }) => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                  <Menu.Portal keepMounted={keepMounted}>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>Nested</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await act(async () => screen.getByRole('button', { name: 'Open' }).focus());
+      await user.keyboard('[ArrowDown]');
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'More' });
+      await waitFor(() => expect(submenuTrigger).toHaveFocus());
+      await user.keyboard('[ArrowRight]');
+      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Nested' })).toHaveFocus());
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => expect(submenuTrigger).toHaveFocus());
+    },
+  );
+
   popupFocusPropsTests({
     render,
     initialFocus: false,
