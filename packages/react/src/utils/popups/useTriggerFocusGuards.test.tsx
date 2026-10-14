@@ -110,7 +110,10 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
           await waitFor(() => {
             expect(trigger).toHaveAttribute('aria-expanded', 'true');
           });
-          // Menu moves focus into the popup when opened by hover.
+          // Menu moves focus into the popup when opened by hover, so refocus the trigger after that.
+          await waitFor(() => {
+            expect(name === 'Menu' ? screen.getByTestId('popup') : trigger).toHaveFocus();
+          });
           await act(async () => trigger.focus());
           expect(trigger).toHaveFocus();
           expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -129,13 +132,16 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
       );
 
       // A Menu closes once focus leaves it, so it can't stay open while focus is outside.
-      it.skipIf(name === 'Menu')(
-        'focuses the trigger of a hover-opened popup when tabbing onto it',
-        async () => {
+      it.skipIf(name === 'Menu').each([
+        { tabIndex: 0, result: 'focuses the trigger', focusesTrigger: true },
+        { tabIndex: -1, result: 'closes the popup', focusesTrigger: false },
+      ])(
+        '$result when tabbing onto the trigger of a hover-opened popup with tabIndex=$tabIndex',
+        async ({ tabIndex, focusesTrigger }) => {
           await render(
             <div>
               <button data-testid="before">Before</button>
-              <TestPopup openOnHover />
+              <TestPopup openOnHover tabIndex={tabIndex} />
               <button data-testid="after">After</button>
             </div>,
           );
@@ -152,8 +158,8 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
 
           await user.tab({ shift: direction === 'backward' });
 
-          expect(trigger).toHaveFocus();
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+          expect(trigger === document.activeElement).toBe(focusesTrigger);
+          expect(trigger).toHaveAttribute('aria-expanded', String(focusesTrigger));
         },
       );
 

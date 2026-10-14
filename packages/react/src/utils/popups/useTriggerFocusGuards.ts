@@ -1,7 +1,12 @@
 'use client';
 import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { contains, getTabbableNearElement, isOutsideEvent } from '../../floating-ui-react/utils';
+import {
+  contains,
+  getTabbableNearElement,
+  isOutsideEvent,
+  isTabbable,
+} from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -41,6 +46,18 @@ export function useTriggerFocusGuards(
     positionerElement: HTMLElement | null,
   ) {
     const guard = event.currentTarget;
+    const trigger = triggerElementRef.current;
+
+    // Without the content guard (a hover-opened popover), a guard reached from outside a tabbable
+    // trigger means Tab is moving onto the trigger.
+    if (
+      !store.context.beforeContentFocusGuardRef.current &&
+      isTabbable(trigger) &&
+      !contains(trigger, event.relatedTarget as Element | null)
+    ) {
+      trigger?.focus();
+      return;
+    }
 
     ReactDOM.flushSync(() => {
       store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent, guard));
@@ -49,31 +66,14 @@ export function useTriggerFocusGuards(
     // The close callback may change the tab order. Resolve it after the flush, using
     // the trigger as the anchor if the guard unmounted, even when its tabIndex is -1.
     getTabbableNearElement(
-      guard.isConnected ? guard : triggerElementRef.current,
+      guard.isConnected ? guard : trigger,
       direction,
       positionerElement,
     )?.focus();
   }
 
-  // The content guard is absent when the popup's focus manager is disabled (hover-opened popover),
-  // so a guard reached from outside the trigger means Tab is moving onto the trigger.
-  function focusTriggerFromOutside(event: React.FocusEvent<HTMLElement>) {
-    const trigger = triggerElementRef.current;
-    if (
-      store.context.beforeContentFocusGuardRef.current ||
-      !trigger ||
-      contains(trigger, event.relatedTarget as Element | null)
-    ) {
-      return false;
-    }
-    trigger.focus();
-    return true;
-  }
-
   function handlePreFocusGuardFocus(event: React.FocusEvent<HTMLElement>) {
-    if (!focusTriggerFromOutside(event)) {
-      closeAndFocus(event, -1, store.select('positionerElement'));
-    }
+    closeAndFocus(event, -1, store.select('positionerElement'));
   }
 
   function handleFocusTargetFocus(event: React.FocusEvent<HTMLElement>) {
@@ -81,7 +81,7 @@ export function useTriggerFocusGuards(
     const contentFocusGuard = store.context.beforeContentFocusGuardRef.current;
     if (positionerElement && contentFocusGuard && isOutsideEvent(event, positionerElement)) {
       contentFocusGuard.focus();
-    } else if (!focusTriggerFromOutside(event)) {
+    } else {
       closeAndFocus(event, 1, positionerElement);
     }
   }
