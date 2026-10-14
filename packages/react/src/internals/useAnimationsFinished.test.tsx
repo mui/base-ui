@@ -666,6 +666,11 @@ describe('useAnimationsFinished', () => {
         expect(getRootAnimations).toHaveBeenCalledTimes(1);
       });
       expect(getDocumentAnimations).not.toHaveBeenCalled();
+      await act(async () => {
+        await flushMicrotasks();
+      });
+      expect(elements[0].onFinished).not.toHaveBeenCalled();
+      expect(elements[1].onFinished).not.toHaveBeenCalled();
 
       await act(async () => {
         animations[1].finish();
