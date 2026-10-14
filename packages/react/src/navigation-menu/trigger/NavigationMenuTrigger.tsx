@@ -9,28 +9,21 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { closest, contains } from '@base-ui/utils/shadowDom';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useStandaloneInteractionStore } from '../../utils/popups/interaction-store/useStandaloneInteractionStore';
+import { usePopupTree } from '../../utils/popups/tree/PopupTree';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
+import { useHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import {
-  safePolygon,
-  useClick,
-  useFloatingRootContext,
-  useFloatingTree,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-react';
-import {
-  applySafePolygonPointerEventsMutation,
-  clearSafePolygonPointerEventsMutation,
-  useHoverInteractionSharedState,
-} from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
-import {
-  closest,
-  contains,
   getTabbableNearElement,
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
-  stopEvent,
-} from '../../floating-ui-react/utils';
-import type { HandleCloseContextBase } from '../../floating-ui-react/hooks/useHoverShared';
+} from '../../utils/popups/focus/tabbable';
+import { stopEvent } from '../../utils/popups/event';
+import type { HandleCloseContextBase } from '../../utils/popups/interactions/useHoverShared';
 import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../internals/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
@@ -40,8 +33,8 @@ import {
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import { FocusGuard } from '../../utils/FocusGuard';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
@@ -106,7 +99,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   } = useNavigationMenuRootContext();
   const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
-  const tree = useFloatingTree();
+  const tree = usePopupTree();
   const dismissProps = useNavigationMenuDismissContext();
   const direction = useDirection();
 
@@ -126,8 +119,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
   const interactionsEnabled = (positionerElement != null || value == null) && !disabled;
-  const hoverFloatingElement = positionerElement || viewportElement;
-  const hoverInteractionsEnabled = (hoverFloatingElement != null || value == null) && !disabled;
+  const hoverPopupElement = positionerElement || viewportElement;
+  const hoverInteractionsEnabled = (hoverPopupElement != null || value == null) && !disabled;
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
@@ -473,39 +466,34 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }
 
-  const context = useFloatingRootContext({
+  const context = useStandaloneInteractionStore({
     open,
     onOpenChange: handleOpenChange,
     elements: {
-      reference: triggerElement,
-      floating: hoverFloatingElement,
+      anchor: triggerElement,
+      outerPopupElement: hoverPopupElement,
     },
   });
 
-  const hoverInteractionState = useHoverInteractionSharedState(context);
+  const hoverIntent = useHoverIntent(context);
   const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
 
   React.useEffect(() => {
     if (!open) {
       context.context.dataRef.current.openEvent = undefined;
-      hoverInteractionState.pointerType = undefined;
-      hoverInteractionState.interactedInside = false;
-      hoverInteractionState.restTimeoutPending = false;
-      hoverInteractionState.openChangeTimeout.clear();
-      hoverInteractionState.restTimeout.clear();
+      hoverIntent.reset();
+      hoverIntent.cancelPendingOpen();
     }
 
-    return () => {
-      clearSafePolygonPointerEventsMutation(hoverInteractionState);
-    };
-  }, [context, hoverInteractionState, open]);
+    return hoverIntent.restoreOutsidePointerEvents;
+  }, [context, hoverIntent, open]);
 
   const getInlineHandleCloseContext = useStableCallback(() => {
-    if (!nested || positionerElement || !triggerElementRef.current || !hoverFloatingElement) {
+    if (!nested || positionerElement || !triggerElementRef.current || !hoverPopupElement) {
       return null;
     }
 
-    return getHandleCloseContext(triggerElementRef.current, hoverFloatingElement, nodeId);
+    return getHandleCloseContext(triggerElementRef.current, hoverPopupElement, nodeId);
   });
 
   function getScope() {
@@ -516,7 +504,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return closest(triggerElementRef.current, 'ul');
   }
 
-  const hoverProps = useHoverReferenceInteraction(context, {
+  const hoverProps = useHoverTriggerInteraction(context, {
     enabled: hoverInteractionsEnabled,
     move: false,
     handleClose: safePolygon({
@@ -595,15 +583,15 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         event.type === 'mouseenter' &&
         shouldBlockSafePolygonPointerEvents &&
         (!nested || !positionerElement) &&
-        hoverFloatingElement
+        hoverPopupElement
       ) {
         const applyPointerEventsMutation = () => {
           const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
 
-          applySafePolygonPointerEventsMutation(hoverInteractionState, {
+          hoverIntent.blockOutsidePointerEvents({
             scopeElement,
-            referenceElement: currentTarget,
-            floatingElement: hoverFloatingElement,
+            triggerElement: currentTarget,
+            outerPopupElement: hoverPopupElement,
           });
         };
 
@@ -650,7 +638,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleTriggerPointerDown(event: React.PointerEvent) {
     handleSetPointerType(event);
-    clearSafePolygonPointerEventsMutation(hoverInteractionState);
+    hoverIntent.restoreOutsidePointerEvents();
   }
 
   const defaultProps: HTMLProps = {
@@ -670,7 +658,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
     onMouseLeave() {
       if (value == null) {
-        clearSafePolygonPointerEventsMutation(hoverInteractionState);
+        hoverIntent.restoreOutsidePointerEvents();
       }
     },
     onKeyDown(event) {
@@ -714,7 +702,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     native: nativeButton,
   });
 
-  const referenceElement = hoverFloatingElement;
+  const referenceElement = hoverPopupElement;
 
   return (
     <React.Fragment>
@@ -810,11 +798,11 @@ export namespace NavigationMenuTrigger {
 }
 
 function getPlacementFromElements(
-  domReferenceElement: Element,
-  floatingElement: HTMLElement,
+  anchorElement: Element,
+  outerPopupElement: HTMLElement,
 ): HandleCloseContextBase['placement'] {
-  const referenceRect = domReferenceElement.getBoundingClientRect();
-  const floatingRect = floatingElement.getBoundingClientRect();
+  const referenceRect = anchorElement.getBoundingClientRect();
+  const floatingRect = outerPopupElement.getBoundingClientRect();
   const referenceCenterX = referenceRect.left + referenceRect.width / 2;
   const referenceCenterY = referenceRect.top + referenceRect.height / 2;
   const floatingCenterX = floatingRect.left + floatingRect.width / 2;
@@ -830,15 +818,15 @@ function getPlacementFromElements(
 }
 
 function getHandleCloseContext(
-  domReferenceElement: Element,
-  floatingElement: HTMLElement,
+  anchorElement: Element,
+  outerPopupElement: HTMLElement,
   nodeId: string | undefined,
 ): HandleCloseContextBase {
   return {
-    placement: getPlacementFromElements(domReferenceElement, floatingElement),
+    placement: getPlacementFromElements(anchorElement, outerPopupElement),
     elements: {
-      domReference: domReferenceElement,
-      floating: floatingElement,
+      domReference: anchorElement,
+      floating: outerPopupElement,
     },
     nodeId,
   };

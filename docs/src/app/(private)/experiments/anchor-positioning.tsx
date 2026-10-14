@@ -4,8 +4,8 @@ import * as ReactDOM from 'react-dom';
 
 import { useAnchorPositioning } from '../../../../../packages/react/src/internals/useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from '../../../../../packages/react/src/internals/useAnchorPositioning';
-import { FloatingRootStore } from '../../../../../packages/react/src/floating-ui-react/components/FloatingRootStore';
-import { PopupTriggerMap } from '../../../../../packages/react/src/utils/popups';
+import { StandaloneInteractionStore } from '../../../../../packages/react/src/utils/popups/interaction-store/StandaloneInteractionStore';
+import { PopupTriggerMap } from '../../../../../packages/react/src/utils/popups/popupTriggerMap';
 import styles from './anchor-positioning.module.css';
 
 const oppositeSideMap = {
@@ -43,14 +43,13 @@ export default function AnchorPositioning() {
     fallbackAxisSide: 'end',
   });
 
-  const floatingRootContext = new FloatingRootStore({
+  const floatingRootContext = new StandaloneInteractionStore({
     open: true,
     transitionStatus: undefined,
-    referenceElement: anchorEl,
-    floatingElement: null,
+    baseAnchor: anchorEl,
+    outerPopupElement: null,
     triggerElements: new PopupTriggerMap(),
-    floatingId: '',
-    syncOnly: false,
+    defaultPopupId: '',
     nested: false,
     onOpenChange: undefined,
   });

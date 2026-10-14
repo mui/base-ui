@@ -11,11 +11,11 @@ import type {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
-import { useFloatingRootContext } from '../../floating-ui-react';
+import { useStandaloneInteractionStore } from '../../utils/popups/interaction-store/useStandaloneInteractionStore';
 import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { usePositioner } from '../../utils/usePositioner';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
 import * as ToastRootCssVars from '../root/ToastRootCssVars';
 
 /**
@@ -62,12 +62,12 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 
   const anchor = isElement(anchorProp) ? anchorProp : null;
 
-  const floatingRootContext = useFloatingRootContext({
+  const floatingRootContext = useStandaloneInteractionStore({
     open: true,
     onOpenChange: NOOP,
     elements: {
-      floating: positionerElement,
-      reference: anchor,
+      outerPopupElement: positionerElement,
+      anchor,
     },
   });
 

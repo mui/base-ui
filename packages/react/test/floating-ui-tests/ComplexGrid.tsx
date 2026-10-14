@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
-import {
-  FloatingFocusManager,
-  useClick,
-  useDismiss,
-  useListNavigation,
-} from '../../src/floating-ui-react';
+import { PopupFocusManager } from '../../src/utils/popups/focus/PopupFocusManager';
+import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
 import { useFloating } from './useFloating';
 import styles from './ComplexGrid.module.css';
 import { gridNavigationWithColumns } from './gridNavigationWithColumns';
@@ -63,7 +61,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
           Reference
         </button>
         {open && (
-          <FloatingFocusManager context={context.rootStore}>
+          <PopupFocusManager context={context.rootStore}>
             <div
               ref={refs.setFloating}
               data-testid="floating"
@@ -94,7 +92,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
                 </button>
               ))}
             </div>
-          </FloatingFocusManager>
+          </PopupFocusManager>
         )}
       </div>
     </React.Fragment>

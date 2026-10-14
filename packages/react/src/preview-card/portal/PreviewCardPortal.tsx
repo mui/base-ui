@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPortalContext } from './PreviewCardPortalContext';
-import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
+import { PopupPortalLite } from '../../utils/popups/portal/PopupPortalLite';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
@@ -28,7 +28,7 @@ export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
 
   return (
     <PreviewCardPortalContext.Provider value={keepMounted}>
-      <FloatingPortalLite ref={forwardedRef} {...portalProps} />
+      <PopupPortalLite ref={forwardedRef} {...portalProps} />
     </PreviewCardPortalContext.Provider>
   );
 });

@@ -2,11 +2,10 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { FloatingNode } from '../../floating-ui-react';
+import { PopupTreeNode, useFloatingNodeSnapshot } from '../../utils/popups/tree/PopupTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
-import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Align,
   Side,
@@ -14,7 +13,7 @@ import type {
 } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
@@ -22,8 +21,8 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { MenuOpenEventDetails } from '../utils/types';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
-import { usePositioner } from '../../utils/usePositioner';
-import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
+import { usePopupPositioner } from '../../utils/popups/popupPositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
 /**
  * Positions the menu popup against the trigger.
@@ -35,53 +34,30 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   componentProps: MenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    anchor: anchorProp,
-    positionMethod: positionMethodProp = 'absolute',
-    className,
-    render,
-    side,
-    align: alignProp,
-    sideOffset: sideOffsetProp = 0,
-    alignOffset: alignOffsetProp = 0,
-    collisionBoundary = 'clipping-ancestors',
-    collisionPadding = 5,
-    arrowPadding = 5,
-    sticky = false,
-    disableAnchorTracking = false,
-    collisionAvoidance: collisionAvoidanceProp = DROPDOWN_COLLISION_AVOIDANCE,
-    style,
-    ...elementProps
-  } = componentProps;
-
   const { store, virtualFocus, syncHighlightedItem } = useMenuRootContext();
   const keepMounted = useMenuPortalContext();
   const contextMenuContext = useContextMenuRootContext(true);
 
   const parent = store.useState('parent');
-  const floatingRootContext = store.useState('floatingRootContext');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const popupTreeRoot = store.useState('popupTreeRoot');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const triggerElement = store.useState('activeTriggerElement');
-  const transitionStatus = store.useState('transitionStatus');
   const positionerElement = store.useState('positionerElement');
-  const instantType = store.useState('instantType');
-  const adaptiveOrigin = store.useState('adaptiveOrigin');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const floatingNodeId = store.useState('floatingNodeId');
-  const floatingParentNodeId = store.useState('floatingParentNodeId');
-  const domReference = floatingRootContext.useState('domReferenceElement');
+  const popupNodeId = store.useState('popupNodeId');
+  const popupParentNodeId = store.useState('popupParentNodeId');
+  const domReference = store.useState('anchorElement');
 
-  let anchor = anchorProp;
-  let sideOffset = sideOffsetProp;
-  let alignOffset = alignOffsetProp;
-  let align = alignProp;
-  let collisionAvoidance = collisionAvoidanceProp;
+  const { side } = componentProps;
+  let anchor = componentProps.anchor;
+  let sideOffset = componentProps.sideOffset;
+  let alignOffset = componentProps.alignOffset;
+  let align = componentProps.align;
   if (parent.type === 'context-menu') {
-    anchor = anchorProp ?? parent.context?.anchor;
+    anchor = anchor ?? parent.context?.anchor;
     align = align ?? 'start';
     if (!side && align !== 'center') {
       alignOffset = componentProps.alignOffset ?? 2;
@@ -94,72 +70,73 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   if (parent.type === 'menu') {
     computedSide = computedSide ?? 'inline-end';
     computedAlign = computedAlign ?? 'start';
-    collisionAvoidance = componentProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE;
   } else if (parent.type === 'menubar') {
     computedSide =
       computedSide ?? (parent.context.orientation === 'vertical' ? 'inline-end' : 'bottom');
     computedAlign = computedAlign ?? 'start';
   }
 
+  const defaultCollisionAvoidance =
+    parent.type === 'menu' ? POPUP_COLLISION_AVOIDANCE : DROPDOWN_COLLISION_AVOIDANCE;
+  const collisionAvoidance = componentProps.collisionAvoidance ?? defaultCollisionAvoidance;
+
   const contextMenu = parent.type === 'context-menu';
 
-  const positioner = useAnchorPositioning({
-    anchor,
-    floatingRootContext,
-    positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
-    mounted,
-    side: computedSide,
-    sideOffset,
-    align: computedAlign,
-    alignOffset,
-    arrowPadding: contextMenu ? 0 : arrowPadding,
-    collisionBoundary,
-    collisionPadding,
-    sticky,
-    nodeId: floatingNodeId,
+  const { element, positioning: positioner } = usePopupPositioner(store, componentProps, {
+    forwardedRef,
     keepMounted,
-    disableAnchorTracking,
-    collisionAvoidance,
-    shift: contextMenu
-      ? {
-          crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
-          rootBoundary: 'layoutViewport',
-        }
-      : undefined,
-    externalTree: floatingTreeRoot,
-    adaptiveOrigin,
-    lazyFlip: virtualFocus ? 'placement' : false,
+    defaults: { collisionAvoidance: defaultCollisionAvoidance },
+    positioning: {
+      anchor,
+      positionMethod: contextMenuContext ? 'fixed' : componentProps.positionMethod,
+      side: computedSide,
+      sideOffset,
+      align: computedAlign,
+      alignOffset,
+      arrowPadding: contextMenu ? 0 : componentProps.arrowPadding,
+      nodeId: popupNodeId,
+      shift: contextMenu
+        ? {
+            crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
+            rootBoundary: 'layoutViewport',
+          }
+        : undefined,
+      externalTree: popupTreeRoot,
+      lazyFlip: virtualFocus ? 'placement' : false,
+    },
+    state: { nested: parent.type === 'menu' },
   });
+  useFloatingNodeSnapshot(popupNodeId, positioner.context, popupTreeRoot);
 
   React.useEffect(() => {
     function onMenuOpenChange(details: MenuOpenEventDetails) {
       if (details.open) {
-        if (details.parentNodeId === floatingNodeId) {
+        if (details.parentNodeId === popupNodeId) {
           store.set('hoverEnabled', false);
         }
         if (
-          details.nodeId !== floatingNodeId &&
-          details.parentNodeId === store.select('floatingParentNodeId')
+          details.nodeId !== popupNodeId &&
+          details.parentNodeId === store.select('popupParentNodeId')
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
       }
     }
 
-    floatingTreeRoot.events.on('menuopenchange', onMenuOpenChange);
+    popupTreeRoot.events.on('menuopenchange', onMenuOpenChange);
 
     return () => {
-      floatingTreeRoot.events.off('menuopenchange', onMenuOpenChange);
+      popupTreeRoot.events.off('menuopenchange', onMenuOpenChange);
     };
-  }, [store, floatingTreeRoot.events, floatingNodeId]);
+  }, [store, popupTreeRoot.events, popupNodeId]);
 
   React.useEffect(() => {
-    if (store.select('floatingParentNodeId') == null) {
+    if (store.select('popupParentNodeId') == null) {
       return undefined;
     }
 
     function onParentClose(details: MenuOpenEventDetails) {
-      if (details.open || details.nodeId !== store.select('floatingParentNodeId')) {
+      if (details.open || details.nodeId !== store.select('popupParentNodeId')) {
         return;
       }
 
@@ -167,12 +144,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       store.setOpen(false, createChangeEventDetails(reason));
     }
 
-    floatingTreeRoot.events.on('menuopenchange', onParentClose);
+    popupTreeRoot.events.on('menuopenchange', onParentClose);
 
     return () => {
-      floatingTreeRoot.events.off('menuopenchange', onParentClose);
+      popupTreeRoot.events.off('menuopenchange', onParentClose);
     };
-  }, [floatingTreeRoot.events, store]);
+  }, [popupTreeRoot.events, store]);
 
   const closeTimeout = useTimeout();
 
@@ -188,7 +165,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
       // If an item within our parent menu is hovered, and this menu's trigger is not that item,
       // close this submenu. This ensures hovering a different item in the parent closes other branches.
-      if (!open || event.nodeId !== store.select('floatingParentNodeId')) {
+      if (!open || event.nodeId !== store.select('popupParentNodeId')) {
         return;
       }
 
@@ -209,22 +186,22 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    floatingTreeRoot.events.on('itemhover', onItemHover);
+    popupTreeRoot.events.on('itemhover', onItemHover);
     return () => {
-      floatingTreeRoot.events.off('itemhover', onItemHover);
+      popupTreeRoot.events.off('itemhover', onItemHover);
     };
-  }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
+  }, [popupTreeRoot.events, open, triggerElement, store, closeTimeout]);
 
   React.useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
       open,
-      nodeId: floatingNodeId,
-      parentNodeId: floatingParentNodeId,
+      nodeId: popupNodeId,
+      parentNodeId: popupParentNodeId,
       reason: store.select('lastOpenChangeReason'),
     };
 
-    floatingTreeRoot.events.emit('menuopenchange', eventDetails);
-  }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
+    popupTreeRoot.events.emit('menuopenchange', eventDetails);
+  }, [popupTreeRoot.events, open, store, popupNodeId, popupParentNodeId]);
 
   useTriggerSwitchTransition({
     store,
@@ -232,15 +209,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionerElement,
     open,
   });
-
-  const state: MenuPositionerState = {
-    open,
-    side: positioner.side,
-    align: positioner.align,
-    anchorHidden: positioner.anchorHidden,
-    nested: parent.type === 'menu',
-    instant: instantType,
-  };
 
   const menubarModal = parent.type === 'menubar' && parent.context.modal;
   const popupModal = modal && lastOpenChangeReason !== REASONS.triggerHover;
@@ -251,15 +219,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     positionerElement,
     triggerElement,
   );
-
-  const element = usePositioner(componentProps, state, {
-    styles: positioner.positionerStyles,
-    transitionStatus,
-    props: elementProps,
-    refs: [forwardedRef, store.useStateSetter('positionerElement')],
-    hidden: !mounted,
-    inert: !open,
-  });
 
   const shouldRenderBackdrop =
     mounted &&
@@ -288,7 +247,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           cutout={backdropCutout}
         />
       )}
-      <FloatingNode id={floatingNodeId}>
+      <PopupTreeNode id={popupNodeId}>
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
@@ -296,7 +255,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         >
           {element}
         </CompositeList>
-      </FloatingNode>
+      </PopupTreeNode>
     </MenuPositionerContext.Provider>
   );
 });

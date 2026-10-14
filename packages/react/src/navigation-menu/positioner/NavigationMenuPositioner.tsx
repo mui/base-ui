@@ -9,8 +9,8 @@ import {
   disableFocusInside,
   enableFocusInside,
   isOutsideEvent,
-} from '../../floating-ui-react/utils';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+} from '../../utils/popups/focus/tabbable';
+import { getEmptyInteractionStore } from '../../utils/popups/interaction-store/getEmptyInteractionStore';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
@@ -22,13 +22,15 @@ import type {
   Side,
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import { useNavigationMenuAnchorPositioning } from '../utils/useNavigationMenuAnchorPositioning';
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import { useStandaloneInteractionStore } from '../../utils/popups/interaction-store/useStandaloneInteractionStore';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { usePositioner } from '../../utils/usePositioner';
+import { adaptiveOrigin } from '../../utils/popups/positioning/adaptiveOriginMiddleware';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
+import { useFloatingNodeSnapshot } from '../../utils/popups/tree/PopupTree';
 
-const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
+const EMPTY_ROOT_CONTEXT = getEmptyInteractionStore();
 
 /**
  * Positions the navigation menu against the currently active trigger.
@@ -105,9 +107,14 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     );
   }, [positionerElement]);
 
-  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
+  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('anchorElement');
 
-  const positioning = useNavigationMenuAnchorPositioning({
+  // The active trigger supplies the root store after the positioner has already rendered.
+  const fallbackRootContext = useStandaloneInteractionStore({
+    open: keepMounted ? mounted : undefined,
+  });
+
+  const positioning = useAnchorPositioning({
     anchor: anchor ?? domReference,
     positionMethod,
     mounted,
@@ -121,7 +128,8 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     sticky,
     disableAnchorTracking,
     keepMounted,
-    floatingRootContext,
+    floatingRootContext: floatingRootContext || undefined,
+    fallbackRootContext,
     collisionAvoidance,
     shift: { rootBoundary: 'layoutViewport' },
     nodeId,
@@ -129,6 +137,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     // and position transition simultaneously when side=top or side=left.
     adaptiveOrigin,
   });
+  useFloatingNodeSnapshot(nodeId, positioning.context);
 
   const state: NavigationMenuPositionerState = {
     open,

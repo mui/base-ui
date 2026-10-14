@@ -3,20 +3,20 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useId } from '@base-ui/utils/useId';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import {
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
-  contains,
-} from '../../floating-ui-react/utils';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+} from '../../utils/popups/focus/tabbable';
+import { getEmptyInteractionStore } from '../../utils/popups/interaction-store/getEmptyInteractionStore';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
-const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
+const EMPTY_ROOT_CONTEXT = getEmptyInteractionStore();
 
 function Guards({ children }: { children: React.ReactNode }) {
   const {
@@ -88,7 +88,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
 
   const positioning = useNavigationMenuPositionerContext(true);
   const hasPositioner = Boolean(positioning);
-  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
+  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('anchorElement');
 
   useIsoLayoutEffect(() => {
     if (domReference) {

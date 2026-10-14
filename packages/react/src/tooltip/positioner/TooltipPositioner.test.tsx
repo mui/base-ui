@@ -68,4 +68,34 @@ describe('<Tooltip.Positioner />', () => {
       </Tooltip.Root>
     ),
   });
+
+  it('passes the same state object while nothing it holds changes', async () => {
+    const states: Tooltip.Positioner.State[] = [];
+
+    function App({ label }: { label: string }) {
+      return (
+        <Tooltip.Root open>
+          <Trigger>Trigger</Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner
+              render={(props, state) => {
+                states.push(state);
+                return <div {...props} />;
+              }}
+            >
+              <Tooltip.Popup>{label}</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      );
+    }
+
+    const { setProps } = await render(<App label="first" />);
+    const stateBefore = states.at(-1);
+
+    await setProps({ label: 'second' });
+
+    expect(states.length).toBeGreaterThan(1);
+    expect(states.at(-1)).toBe(stateBefore);
+  });
 });

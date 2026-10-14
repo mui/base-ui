@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal } from '../../floating-ui-react';
+import { PopupPortal } from '../../utils/popups/portal/PopupPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
@@ -30,7 +30,7 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
 
   return (
     <ComboboxPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
+      <PopupPortal ref={forwardedRef} {...portalProps} />
     </ComboboxPortalContext.Provider>
   );
 });

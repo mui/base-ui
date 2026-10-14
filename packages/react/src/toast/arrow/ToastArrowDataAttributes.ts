@@ -1,4 +1,4 @@
-import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
+import { CommonPopupDataAttributes } from '../../utils/popups/popupStateMapping';
 
 /**
  * Indicates which side the toast is positioned relative to the anchor.

@@ -31,9 +31,9 @@ vi.mock('@base-ui/utils/useId', async () => {
   };
 });
 
-vi.mock('../../floating-ui-react/utils/event', async () => {
-  const actual = await vi.importActual<typeof import('../../floating-ui-react/utils/event')>(
-    '../../floating-ui-react/utils/event',
+vi.mock('../../utils/popups/event', async () => {
+  const actual = await vi.importActual<typeof import('../../utils/popups/event')>(
+    '../../utils/popups/event',
   );
   return {
     ...actual,
@@ -903,6 +903,34 @@ describe('<Drawer.SwipeArea />', () => {
     expect(storeRef.current!.context.triggerElements.getById('first')).toBeUndefined();
     expect(storeRef.current!.context.triggerElements.getById('second')).toBe(swipeArea);
     expect(storeRef.current!.context.triggerElements.size).toBe(1);
+  });
+
+  it.each([
+    { name: 'claims its lone trigger', withSwipeArea: false },
+    { name: 'does not claim a trigger that shares it with a swipe area', withSwipeArea: true },
+  ])('a drawer opened without a trigger $name', async ({ withSwipeArea }) => {
+    function App({ open }: { open: boolean }) {
+      return (
+        <Drawer.Root open={open}>
+          <Drawer.Trigger data-testid="trigger">Open</Drawer.Trigger>
+          {withSwipeArea && <Drawer.SwipeArea />}
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>Content</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<App open={false} />);
+    const trigger = screen.getByTestId('trigger');
+    expect(trigger).not.toHaveAttribute('data-popup-open');
+
+    await setProps({ open: true });
+
+    // The swipe area counts as a trigger, so the trigger is no longer the only one to claim.
+    expect(trigger.hasAttribute('data-popup-open')).toBe(!withSwipeArea);
   });
 
   it('opens the drawer when swiped with touch events', async () => {

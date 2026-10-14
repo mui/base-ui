@@ -12,13 +12,11 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  useClick,
-  useDismiss,
-  useFloatingRootContext,
-  useListNavigation,
-  useTypeahead,
-} from '../../floating-ui-react';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useStandaloneInteractionStore } from '../../utils/popups/interaction-store/useStandaloneInteractionStore';
+import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -29,7 +27,10 @@ import type { SelectStoreContext, State as StoreState } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
+import {
+  attachPreventUnmountOnClose,
+  FOCUSABLE_POPUP_PROPS,
+} from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import type { Group } from '../../internals/resolveValueLabel';
@@ -39,9 +40,8 @@ import {
   isSelectedValueDirty,
 } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
 
@@ -349,12 +349,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
-  const floatingContext = useFloatingRootContext({
+  const floatingContext = useStandaloneInteractionStore({
     open,
     onOpenChange: setOpen,
     elements: {
-      reference: triggerElement,
-      floating: positionerElement,
+      anchor: triggerElement,
+      outerPopupElement: positionerElement,
     },
   });
 

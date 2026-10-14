@@ -11,7 +11,7 @@ import {
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../utils/popups/event';
 import { clickHighlightedItem } from '../utils/parts';
 
 /**
@@ -64,7 +64,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     empty,
   };
 
-  const floatingId = floatingRootContext.useState('floatingId');
+  const defaultPopupId = floatingRootContext.useState('defaultPopupId');
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -74,7 +74,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       {
         children: resolvedChildren,
         tabIndex: -1,
-        id: floatingId,
+        id: defaultPopupId,
         role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         // On a grid the attribute describes cell editability, not selection, so it's left to the

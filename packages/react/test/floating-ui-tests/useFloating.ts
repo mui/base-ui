@@ -1,14 +1,16 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useBaseUIFloating } from '../../src/floating-ui-react/hooks/useFloating';
-import { useFloatingRootContext } from '../../src/floating-ui-react/hooks/useFloatingRootContext';
+import { useBaseUIFloating } from '../../src/utils/popups/positioning/useFloating';
+import { useFloatingNodeSnapshot } from '../../src/utils/popups/tree/PopupTree';
+import { useStandaloneInteractionStore } from '../../src/utils/popups/interaction-store/useStandaloneInteractionStore';
+import type { StandaloneInteractionStore } from '../../src/utils/popups/interaction-store/StandaloneInteractionStore';
 import type {
   NarrowedElement,
   ReferenceType,
   UseFloatingOptions,
   UseFloatingReturn,
-} from '../../src/floating-ui-react/types';
+} from '../../src/utils/popups/types';
 
 /**
  * Floating UI's public `useFloating`: `refs.setReference` and `refs.setFloating` also register the
@@ -16,9 +18,16 @@ import type {
  * only the ported Floating UI tests use this.
  */
 export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
-  const internalStore = useFloatingRootContext(options);
-  const store = options.rootContext || internalStore;
-  const domReferenceElement = store.useState('domReferenceElement');
+  const internalStore = useStandaloneInteractionStore({
+    ...options,
+    elements: {
+      anchor: options.elements?.reference,
+      outerPopupElement: options.elements?.floating,
+    },
+  });
+  // The ported Floating UI tests only pass stores created by `useStandaloneInteractionStore`.
+  const store = (options.rootContext as StandaloneInteractionStore | undefined) || internalStore;
+  const anchorElement = store.useState('anchorElement');
 
   const [localDomReference, setLocalDomReference] = React.useState<
     NarrowedElement<ReferenceType> | null | undefined
@@ -32,16 +41,18 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     : null;
 
   const syncedFloatingElement =
-    localFloatingElement === undefined ? store.state.floatingElement : localFloatingElement;
+    localFloatingElement === undefined ? store.state.outerPopupElement : localFloatingElement;
 
-  store.useSyncedValue('referenceElement', localDomReference ?? null);
+  store.useSyncedValue('baseAnchor', localDomReference ?? null);
   store.useSyncedValue(
-    'domReferenceElement',
-    localDomReference === undefined ? domReferenceElement : localDomReferenceElement,
+    'anchorElement',
+    localDomReference === undefined ? anchorElement : localDomReferenceElement,
   );
-  store.useSyncedValue('floatingElement', syncedFloatingElement);
+  store.useSyncedValue('outerPopupElement', syncedFloatingElement);
 
   const floating = useBaseUIFloating({ ...options, rootContext: store });
+  // Floating UI's `useFloating` also attaches the node's snapshot for the popup tree.
+  useFloatingNodeSnapshot(options.nodeId, floating.context, options.externalTree);
   const baseRefs = floating.refs;
 
   const setReference = React.useCallback(
@@ -57,7 +68,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
         isElement(baseRefs.reference.current) ||
         baseRefs.reference.current === null ||
         // Don't allow setting virtual elements using the old technique back to
-        // `null` to support `positionReference` + an unstable `reference`
+        // `null` to support `anchorOverride` + an unstable `reference`
         // callback ref.
         (node !== null && !isElement(node))
       ) {

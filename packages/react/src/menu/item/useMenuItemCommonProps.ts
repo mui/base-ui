@@ -67,7 +67,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       : rootContext.store;
   const ariaSelected = selectionStore.useState('webkitAriaSelected', highlighted);
 
-  const { events: menuEvents } = store.useState('floatingTreeRoot');
+  const { events: menuEvents } = store.useState('popupTreeRoot');
   const open = store.useState('open');
 
   const isContextMenu = contextMenuContext !== undefined;
@@ -133,7 +133,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
           // We trigger the click and override the `closeOnClick` preference to always close the menu.
           if (itemMetadata.type === 'regular-item') {
             // `detail: 1` and `pointerType: 'mouse'` mark this as a mouse-gesture click so
-            // MenuRoot and FloatingFocusManager don't treat it as a keyboard activation.
+            // MenuRoot and PopupFocusManager don't treat it as a keyboard activation.
             dispatchClickWithModifiers(itemRef.current, event, {
               detail: 1,
               pointerType: 'mouse',

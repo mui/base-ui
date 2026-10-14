@@ -2,18 +2,18 @@
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { PopupFocusManager } from '../../utils/popups/focus/PopupFocusManager';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { contains, getTarget } from '../../floating-ui-react/utils';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import { getComboboxPopupId } from '../root/utils';
@@ -125,7 +125,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const focusManagerModal = !inputInsidePopup || modal;
 
   return (
-    <FloatingFocusManager
+    <PopupFocusManager
       context={floatingRootContext}
       disabled={!mounted}
       modal={focusManagerModal}
@@ -141,7 +141,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
         {element}
         {focusManagerModal && <ComboboxInternalDismissButton ref={store.context.endDismissRef} />}
       </React.Fragment>
-    </FloatingFocusManager>
+    </PopupFocusManager>
   );
 });
 

@@ -8,6 +8,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { script as prehydrationScript } from '#prehydration/slider/thumb';
 import { clamp } from '@base-ui/utils/clamp';
 import { formatNumber } from '@base-ui/utils/formatNumber';
+import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -30,8 +31,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
-import { contains } from '../../floating-ui-react/utils';
-import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
+import { matchesFocusVisible } from '../../utils/popups/element';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';

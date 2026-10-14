@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
-import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
+import { PopupFocusManager } from '../../utils/popups/focus/PopupFocusManager';
+import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
+import type { PopupFocusManagerProps } from '../../utils/popups/focus/PopupFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -10,7 +11,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -22,10 +23,11 @@ import { useRenderedId } from '../../internals/resolveRenderedId';
 import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
 import { MenuFilterImplContext, useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import type { MenuFilterParentHandoff } from '../filter-root/MenuFilterContext';
+import { getPopupDismissal } from '../../utils/popups/interactions/popupDismissal';
 
 interface MenuPopupPlainProps extends MenuPopup.Props {
   /** A filter root's own initial focus target; the plain default focuses the popup or its list. */
-  initialFocus?: FloatingFocusManagerProps['initialFocus'] | undefined;
+  initialFocus?: PopupFocusManagerProps['initialFocus'] | undefined;
 }
 
 /**
@@ -45,8 +47,9 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
     ...elementProps
   } = componentProps;
 
-  const { store, defaultFloatingId, setRenderedFloatingId, virtualFocus, orientation } =
+  const { store, generatedPopupId, setRenderedPopupId, virtualFocus, orientation } =
     useMenuRootContext();
+  const dismissal = getPopupDismissal(store);
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -60,8 +63,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const floatingContext = store.useState('floatingRootContext');
-  const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const popupTreeRoot = store.useState('popupTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
@@ -69,11 +71,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const activeTriggerId = store.useState('activeTriggerId');
   const listElement = store.useState('listElement');
 
-  const [id, registerIdRef] = useRenderedId(
-    componentProps,
-    defaultFloatingId,
-    setRenderedFloatingId,
-  );
+  const [id, registerIdRef] = useRenderedId(componentProps, generatedPopupId, setRenderedPopupId);
 
   const ariaLabelledBy = resolvePopupLabel(componentProps, activeTriggerElement, activeTriggerId);
 
@@ -81,7 +79,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const submenuRootContext = parent.type === 'menu' ? inheritedSubmenuRootContext : undefined;
   const isContextMenu = parent.type === 'context-menu';
 
-  let initialFocus: FloatingFocusManagerProps['initialFocus'] =
+  let initialFocus: PopupFocusManagerProps['initialFocus'] =
     initialFocusProp ?? parent.type !== 'menu';
   if (initialFocusProp === undefined && listElement && parent.type !== 'menu') {
     initialFocus = () => {
@@ -113,14 +111,14 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       store.setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
     }
 
-    floatingTreeRoot.events.on('close', handleClose);
+    popupTreeRoot.events.on('close', handleClose);
 
     return () => {
-      floatingTreeRoot.events.off('close', handleClose);
+      popupTreeRoot.events.off('close', handleClose);
     };
-  }, [floatingTreeRoot.events, store]);
+  }, [popupTreeRoot.events, store]);
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverPopupInteraction(store, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
   });
@@ -191,8 +189,8 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const dynamicReturnFocus = submenuRootContext?.getReturnElement ?? parentVirtualFocusRef;
 
   return (
-    <FloatingFocusManager
-      context={floatingContext}
+    <PopupFocusManager
+      context={store}
       openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}
@@ -201,19 +199,15 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       initialFocus={initialFocus}
       restoreFocus
       getInsideElements={
-        parent.type === undefined
-          ? () => [store.context.beforeTriggerFocusGuardRef.current]
-          : undefined
+        parent.type === undefined ? () => [dismissal.beforeTriggerFocusGuardRef.current] : undefined
       }
-      externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
+      externalTree={parent.type !== 'menubar' ? popupTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
-      nextFocusableElement={
-        parent.type === undefined ? store.context.triggerFocusTargetRef : undefined
-      }
-      beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
+      nextFocusableElement={parent.type === undefined ? dismissal.triggerFocusTargetRef : undefined}
+      beforeContentFocusGuardRef={dismissal.beforeContentFocusGuardRef}
     >
       {element}
-    </FloatingFocusManager>
+    </PopupFocusManager>
   );
 });
 
