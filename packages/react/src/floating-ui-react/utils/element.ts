@@ -41,7 +41,7 @@ export function isEventTargetWithin(event: Event, node: Node | null | undefined)
 
   // TS thinks `event` is of type never as it assumes all browsers support composedPath, but browsers without shadow dom don't
   const eventAgain = event as Event;
-  return eventAgain.target != null && node.contains(eventAgain.target as Node);
+  return eventAgain.target != null && contains(node as Element, eventAgain.target as Element);
 }
 
 export function isRootElement(element: Element): boolean {
