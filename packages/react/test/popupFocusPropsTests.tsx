@@ -280,6 +280,27 @@ export function popupFocusPropsTests(config: PopupFocusPropsTestsConfig) {
       },
     );
 
+    it('calls a function while refs inside the popup are still attached', async () => {
+      const { user } = await render(
+        <Test
+          withPopupInputs
+          popupProps={{
+            finalFocus:
+              ({ inside, outside }) =>
+              () =>
+                inside.current ? outside.current : true,
+          }}
+        />,
+      );
+
+      await user.click(getTrigger());
+      await closeWithPointer(user);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('outside-target')).toHaveFocus();
+      });
+    });
+
     it('does not move focus when `false`', async () => {
       const { user } = await render(<Test popupProps={{ finalFocus: false }} />);
 

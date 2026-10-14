@@ -96,16 +96,13 @@ function addPreviouslyFocusedElement(element: Element | null | undefined) {
 
 function getPreviouslyFocusedElement(visibleOnly?: boolean) {
   clearDisconnectedPreviouslyFocusedElements();
-  for (let i = previouslyFocusedElements.length - 1; i >= 0; i -= 1) {
-    const element = previouslyFocusedElements[i].deref();
-    if (!visibleOnly || canReturnFocusTo(element)) {
-      return element;
-    }
-  }
-  return undefined;
+  return previouslyFocusedElements
+    .filter((entry) => !visibleOnly || canReturnFocusTo(entry.deref()))
+    .pop()
+    ?.deref();
 }
 
-function getFirstTabbableElement(container: Element | null) {
+function getFirstTabbableElement(container: Element | null | undefined) {
   if (!container) {
     return null;
   }
@@ -120,7 +117,7 @@ function getFirstTabbableElement(container: Element | null) {
 // Elements inside a closed `keepMounted` popup stay connected but hidden, so they can't take focus.
 // `[hidden]` covers browsers without `checkVisibility()`.
 function canReturnFocusTo(element: Element | null | undefined) {
-  const target = getFirstTabbableElement(element ?? null);
+  const target = getFirstTabbableElement(element);
   return isElementVisible(target) && !closest(target, '[hidden]');
 }
 
@@ -857,43 +854,15 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     events.on('openchange', onOpenChangeLocal);
 
-    function getReturnElement(
-      closeType: InteractionType,
-      returnFocusValueOrFn: typeof returnFocusRef.current,
-    ) {
-      let resolvedReturnFocusValue =
-        typeof returnFocusValueOrFn === 'function'
-          ? returnFocusValueOrFn(closeType)
-          : returnFocusValueOrFn;
-
-      // `null` should fallback to default behavior in case of an empty ref.
-      if (resolvedReturnFocusValue === undefined || resolvedReturnFocusValue === false) {
-        return null;
-      }
-
-      if (resolvedReturnFocusValue === null) {
-        resolvedReturnFocusValue = true;
-      }
-
-      const referenceReturnElement = canReturnFocusTo(domReference) ? domReference : null;
-      const previousReturnElement =
-        elementFocusedBeforeOpen !== doc.body && canReturnFocusTo(elementFocusedBeforeOpen)
-          ? elementFocusedBeforeOpen
-          : null;
-
-      let defaultReturnElement = preferPreviousFocus
-        ? previousReturnElement || referenceReturnElement
-        : referenceReturnElement || previousReturnElement;
-
-      if (!defaultReturnElement) {
-        defaultReturnElement = getPreviouslyFocusedElement(true) || null;
-      }
-
-      if (typeof resolvedReturnFocusValue === 'boolean') {
-        return defaultReturnElement;
-      }
-
-      return resolveRef(resolvedReturnFocusValue) || defaultReturnElement || null;
+    function getDefaultReturnElement() {
+      return (
+        (preferPreviousFocus
+          ? [elementFocusedBeforeOpen, domReference]
+          : [domReference, elementFocusedBeforeOpen]
+        ).find((element) => element !== doc.body && canReturnFocusTo(element)) ||
+        getPreviouslyFocusedElement(true) ||
+        null
+      );
     }
 
     return () => {
@@ -912,6 +881,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
       const closeType = closeTypeRef.current;
+      // Explicit targets resolve before the closing commit detaches popup refs.
+      const returnFocusValue =
+        typeof returnFocusValueOrFn === 'function'
+          ? returnFocusValueOrFn(closeType)
+          : returnFocusValueOrFn;
+      const explicitReturnElement =
+        typeof returnFocusValue === 'object' ? resolveRef(returnFocusValue) : null;
 
       const job = { cancelled: false };
       pendingReturnFocusRef.current = job;
@@ -920,9 +896,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (pendingReturnFocusRef.current === job) {
           pendingReturnFocusRef.current = null;
         }
-        // Resolved after the closing commit so the visibility checks see its DOM updates, but
-        // with the pre-close `returnFocus`, which can change in the unmount render.
-        const returnElement = getReturnElement(closeType, returnFocusValueOrFn);
+        // The default target is resolved after the closing commit so its visibility checks see
+        // that commit's DOM. `null` (an empty ref) also falls back to it.
+        const returnElement =
+          returnFocusValue === undefined || returnFocusValue === false
+            ? null
+            : explicitReturnElement || getDefaultReturnElement();
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
