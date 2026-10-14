@@ -196,6 +196,14 @@ describe('NumberField parse', () => {
       expect(parseNumber('1.234.567.89')).toBe(1234567.89);
     });
 
+    it('returns null when the extra dots are not in grouping positions', () => {
+      // Collapsing these would return a number the user never entered.
+      expect(parseNumber('1.2.3')).toBe(null);
+      expect(parseNumber('12.34.567')).toBe(null);
+      expect(parseNumber('1234.567.89')).toBe(null);
+      expect(parseNumber('.5.5')).toBe(null);
+    });
+
     it('parses number with mixed separators (FR)', () => {
       expect(parseNumber('1.234.567,89', 'fr-FR')).toBe(1234567.89);
     });
