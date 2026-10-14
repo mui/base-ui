@@ -55,10 +55,10 @@ const SCROLL_AREA_STYLE: React.CSSProperties = {
   position: 'relative',
 };
 const SCROLL_AREA_CONTENT_STYLE: React.CSSProperties = { width: 240, height: 240 };
-// A round of the whole file is long, so the smoke benchmarks get about 50 rounds in 3 minutes, and
-// a precision of about ±10% in CI. They alarm on regressions past 10% to match: they are there to
-// catch big regressions, without flagging what their precision can't tell from noise.
-const SMOKE_OPTIONS = { timeout: 3, alarm: { error: 0.1 } };
+// The smoke benchmarks are there to catch big regressions. A round of the whole file is long, so
+// they get few rounds: they alarm past 10%, which those rounds can settle, rather than the default
+// 5%, which they mostly can't.
+const SMOKE_OPTIONS = { sampleSize: 30, alarm: { error: 0.1 } };
 const options = createRows(5, 'Option');
 const tooltipRows = createRows(60, 'Tooltip');
 const optionLabels = options.map((option) => option.label);
