@@ -12,13 +12,12 @@ import * as TransitionStatusDataAttributes from './TransitionStatusDataAttribute
  * Returns a function that queues items and flushes them together in a microtask.
  */
 function createMicrotaskQueue<T>(flush: (items: T[]) => void) {
-  let pending: T[] | null = null;
+  let pending: T[] = [];
   return (item: T) => {
-    if (!pending) {
-      const items: T[] = [];
-      pending = items;
+    if (!pending.length) {
       queueMicrotask(() => {
-        pending = null;
+        const items = pending;
+        pending = [];
         flush(items);
       });
     }
