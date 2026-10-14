@@ -96,10 +96,13 @@ function addPreviouslyFocusedElement(element: Element | null | undefined) {
 
 function getPreviouslyFocusedElement(visibleOnly?: boolean) {
   clearDisconnectedPreviouslyFocusedElements();
-  return previouslyFocusedElements
-    .filter((entry) => !visibleOnly || canReturnFocusTo(entry.deref()))
-    .pop()
-    ?.deref();
+  for (let i = previouslyFocusedElements.length - 1; i >= 0; i -= 1) {
+    const element = previouslyFocusedElements[i].deref();
+    if (!visibleOnly || canReturnFocusTo(element)) {
+      return element;
+    }
+  }
+  return undefined;
 }
 
 function getFirstTabbableElement(container: Element | null | undefined) {
@@ -896,37 +899,36 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (pendingReturnFocusRef.current === job) {
           pendingReturnFocusRef.current = null;
         }
-        // The default target is resolved after the closing commit so its visibility checks see
-        // that commit's DOM. `null` (an empty ref) also falls back to it.
-        const returnElement =
-          returnFocusValue === undefined || returnFocusValue === false
-            ? null
-            : explicitReturnElement || getDefaultReturnElement();
-        // `returnElement` if it is tabbable, otherwise its first tabbable child,
-        // otherwise `returnElement` itself (which may not be tabbable at all).
-        const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        // Read in the cleanup on purpose: the latest `explicitReturnFocus` decides.
-        const hasExplicitReturnFocus =
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
+        if (!job.cancelled && returnFocusValueOrFn && !preventReturnFocusRef.current) {
+          // The default target is resolved after the closing commit so its visibility checks see
+          // that commit's DOM. `null` (an empty ref) also falls back to it.
+          const returnElement =
+            returnFocusValue === undefined || returnFocusValue === false
+              ? null
+              : explicitReturnElement || getDefaultReturnElement();
+          // `returnElement` if it is tabbable, otherwise its first tabbable child,
+          // otherwise `returnElement` itself (which may not be tabbable at all).
+          const tabbableReturnElement = getFirstTabbableElement(returnElement);
+          // Read in the cleanup on purpose: the latest `explicitReturnFocus` decides.
+          const hasExplicitReturnFocus =
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+            explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
 
-        if (
-          !job.cancelled &&
-          returnFocusValueOrFn &&
-          !preventReturnFocusRef.current &&
-          isHTMLElement(tabbableReturnElement) &&
-          // If the focus moved somewhere else after mount, avoid returning focus
-          // since it likely entered a different element which should be
-          // respected: https://github.com/floating-ui/floating-ui/issues/2607
-          (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
-            ? isFocusInsideFloatingTree
-            : true)
-        ) {
-          const focusOptions: FocusOptions = { preventScroll: true };
-          if (closeType === 'keyboard') {
-            focusOptions.focusVisible = true;
+          if (
+            isHTMLElement(tabbableReturnElement) &&
+            // If the focus moved somewhere else after mount, avoid returning focus
+            // since it likely entered a different element which should be
+            // respected: https://github.com/floating-ui/floating-ui/issues/2607
+            (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
+              ? isFocusInsideFloatingTree
+              : true)
+          ) {
+            const focusOptions: FocusOptions = { preventScroll: true };
+            if (closeType === 'keyboard') {
+              focusOptions.focusVisible = true;
+            }
+            tabbableReturnElement.focus(focusOptions);
           }
-          tabbableReturnElement.focus(focusOptions);
         }
 
         // A cancelled return must also clear suppression before the next close.
