@@ -3,6 +3,7 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkHeadingTags, { stripTrailingHeadingTag } from './remarkHeadingTags.mjs';
 import { remarkPlugins } from '../../next.config.mjs';
+import { remarkPlugins as docsRemarkPlugins } from './pipeline/docs.mjs';
 
 /**
  * @param {string} markdown
@@ -88,9 +89,10 @@ describe('docs MDX pipeline', () => {
     const metadataIndex = names.indexOf(
       '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
     );
-    const headingTagsIndex = names.findIndex((name) => name.endsWith('/remarkHeadingTags.mjs'));
+    const pipelineIndex = names.findIndex((name) => name.endsWith('/remarkPipeline.mjs'));
 
     expect(metadataIndex).not.toBe(-1);
-    expect(headingTagsIndex).toBeGreaterThan(metadataIndex);
+    expect(pipelineIndex).toBeGreaterThan(metadataIndex);
+    expect(docsRemarkPlugins).toContain(remarkHeadingTags);
   });
 });

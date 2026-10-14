@@ -37,30 +37,15 @@ export const remarkPlugins = [
       },
     },
   ],
-  // After transformMarkdownMetadata so the page index keeps `[Preview]`/`[New]`, matching
-  // `docs-infra validate`, which doesn't run local plugins.
-  localPlugin('src/mdx/remarkHeadingTags.mjs'),
-  'remark-typography',
-  localPlugin('src/components/QuickNav/remarkQuickNavExcludeHeading.mjs'),
-  '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths',
-  '@mui/internal-docs-infra/pipeline/transformMarkdownCode',
+  // Extract metadata before rendering transforms modify the source content.
+  // For example, docs pipeline's remarkHeadingTags strips `[Preview]` / `[New]`, which must stay in the page index.
+  [localPlugin('src/mdx/pipeline/remarkPipeline.mjs'), { baseDir }],
 ];
 
 const withMdx = nextMdx({
   options: {
     remarkPlugins,
-    rehypePlugins: [
-      '@mui/internal-docs-infra/pipeline/transformHtmlCodeBlock',
-      localPlugin('src/components/CodeBlock/rehypeEagerCodeBlocks.mjs'),
-      '@mui/internal-docs-infra/pipeline/transformHtmlCodeInline',
-      '@mui/internal-docs-infra/pipeline/enhanceCodeInline',
-      localPlugin('src/components/QuickNav/rehypeSlug.mjs'),
-      localPlugin('src/components/QuickNav/rehypeConcatHeadings.mjs'),
-      '@stefanprobst/rehype-extract-toc',
-      localPlugin('src/components/QuickNav/rehypeQuickNav.mjs'),
-      localPlugin('src/components/Subtitle/rehypeSubtitle.mjs'),
-      localPlugin('src/components/Kbd/rehypeKbd.mjs'),
-    ],
+    rehypePlugins: [[localPlugin('src/mdx/pipeline/rehypePipeline.mjs'), { baseDir }]],
   },
 });
 
@@ -93,6 +78,9 @@ const nextConfig = {
   pageExtensions: ['mdx', 'tsx'],
   turbopack: {
     rules: {
+      '*.mp4': {
+        type: 'asset',
+      },
       './src/app/**/types.ts': {
         as: '*.ts',
         loaders: [
@@ -121,8 +109,15 @@ const nextConfig = {
       },
     },
   },
-  webpack: (config, { defaultLoaders }) => {
+  webpack: (config, { defaultLoaders, dir, config: { distDir } }) => {
     // for production builds
+    config.module.rules.push({
+      test: /\.mp4$/i,
+      type: 'asset/resource',
+      generator: {
+        outputPath: () => path.relative(config.output.path, path.resolve(dir, distDir)),
+      },
+    });
     config.module.rules.push({
       test: /[/\\\\]src[/\\\\]app[/\\\\].*[/\\\\]types\.ts$/,
       use: [
