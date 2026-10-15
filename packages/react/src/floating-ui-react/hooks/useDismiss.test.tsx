@@ -1003,6 +1003,117 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
       });
+
+      describe('when Escape reaches the document', () => {
+        // Layers that share no FloatingTree, like a Dialog opened from a Popover.
+        function Layer({
+          testId,
+          defaultOpen = false,
+          children,
+          ...props
+        }: UseDismissProps & {
+          testId: string;
+          defaultOpen?: boolean;
+          children?: React.ReactNode;
+        }) {
+          const [open, setOpen] = React.useState(defaultOpen);
+          const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([
+            useClick(context.rootStore),
+            useDismiss(context.rootStore, props),
+          ]);
+
+          return (
+            <React.Fragment>
+              <button
+                data-testid={`${testId}-trigger`}
+                {...getReferenceProps({ ref: refs.setReference })}
+              />
+              {open && (
+                <div data-testid={testId} {...getFloatingProps({ ref: refs.setFloating })}>
+                  {children}
+                </div>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        async function openInnerAndBlur() {
+          await userEvent.click(screen.getByTestId('inner-trigger'));
+          expect(screen.getByTestId('inner')).toBeInTheDocument();
+
+          await act(async () => {
+            (document.activeElement as HTMLElement).blur();
+          });
+          expect(document.activeElement).toBe(document.body);
+        }
+
+        test('closes only the most recently opened layer', async () => {
+          render(
+            <Layer testId="outer" defaultOpen>
+              <Layer testId="inner" />
+            </Layer>,
+          );
+
+          await openInnerAndBlur();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.getByTestId('outer')).toBeInTheDocument();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
+        });
+
+        test('closes the layers below when the layers above bubble', async () => {
+          render(
+            <Layer testId="outer" defaultOpen>
+              <Layer testId="inner" bubbles={{ escapeKey: true }} />
+            </Layer>,
+          );
+
+          await openInnerAndBlur();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
+        });
+
+        test('handles the Escape again once the layer above closed', async () => {
+          render(
+            <React.Fragment>
+              <Layer testId="outer" defaultOpen outsidePress={false} />
+              <Layer testId="inner" />
+            </React.Fragment>,
+          );
+
+          await openInnerAndBlur();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.getByTestId('outer')).toBeInTheDocument();
+
+          await userEvent.click(screen.getByTestId('inner-trigger'));
+          expect(screen.getByTestId('inner')).toBeInTheDocument();
+
+          await act(async () => {
+            (document.activeElement as HTMLElement).blur();
+          });
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.getByTestId('outer')).toBeInTheDocument();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+
+          expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
+        });
+      });
     });
   });
 
