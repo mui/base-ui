@@ -420,14 +420,16 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
   restoreFocusToPrevElement() {
     const prevFocusElement = this.state.prevFocusElement;
+    const doc = ownerDocument(prevFocusElement);
     // `body` can't be focused, so return focus to it by blurring whatever has it.
-    if (prevFocusElement === ownerDocument(prevFocusElement).body) {
-      (activeElement(ownerDocument(prevFocusElement)) as HTMLElement | null)?.blur();
+    if (prevFocusElement === doc.body) {
+      (activeElement(doc) as HTMLElement | null)?.blur();
     } else {
       prevFocusElement?.focus({ preventScroll: true });
     }
-    // Focus has left the viewport, so a later visit that didn't start with F6 has nowhere to return to.
+    // Clear the F6 origin so later visits don't restore stale focus.
     this.set('prevFocusElement', null);
+    return !contains(this.state.viewport, activeElement(doc));
   }
 
   handleDocumentPointerDown = (event: PointerEvent) => {
@@ -530,18 +532,19 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     // A toast that was `limited` stays `inert` until React commits, so it can't take focus yet.
     const scan = (from: number, step: number) => {
       for (let index = from; index >= 0 && index < toasts.length; index += step) {
-        if (toasts[index].transitionStatus !== 'ending' && !toasts[index].ref?.current?.inert) {
-          return toasts[index];
+        const element = toasts[index].ref?.current;
+        if (toasts[index].transitionStatus !== 'ending' && element && !element.inert) {
+          return element;
         }
       }
       return null;
     };
 
     // Try to find the next toast that can hold focus, then fall back to the previous one.
-    const nextToast = scan(currentIndex + 1, 1) ?? scan(currentIndex - 1, -1);
+    const nextElement = scan(currentIndex + 1, 1) ?? scan(currentIndex - 1, -1);
 
-    if (nextToast) {
-      nextToast.ref?.current?.focus();
+    if (nextElement) {
+      nextElement.focus();
     } else {
       this.restoreFocusToPrevElement();
     }

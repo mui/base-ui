@@ -369,6 +369,25 @@ describe('<Toast.Viewport />', () => {
     expect(button).toHaveFocus();
   });
 
+  it('does not restore focus on an F6 press prevented by the consumer', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport" onKeyDown={(event) => event.preventDefault()}>
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+    await user.click(screen.getByRole('button', { name: 'add' }));
+    await user.keyboard('{F6}');
+    const viewport = screen.getByTestId('viewport');
+    expect(viewport).toHaveFocus();
+
+    await user.keyboard('{F6}');
+
+    expect(viewport).toHaveFocus();
+  });
+
   it('leaves F6 to the browser when the viewport was entered without F6', async () => {
     const { user } = await render(
       <Toast.Provider>
@@ -495,6 +514,51 @@ describe('<Toast.Viewport />', () => {
 
     expect(fireEvent.keyDown(button, { key: 'F6' })).toBe(true);
     expect(button).toHaveFocus();
+  });
+
+  it.each([
+    { name: 'with an F6 origin', enterWithF6: true },
+    { name: 'without an F6 origin', enterWithF6: false },
+  ])('handles F6 in the focused viewport $name before other providers', async ({ enterWithF6 }) => {
+    const firstManager = Toast.createToastManager();
+    const secondManager = Toast.createToastManager();
+    const { user } = await render(
+      <React.Fragment>
+        <button type="button">origin</button>
+        <Toast.Provider toastManager={firstManager}>
+          <Toast.Viewport data-testid="first-viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+        <Toast.Provider toastManager={secondManager}>
+          <Toast.Viewport data-testid="second-viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      </React.Fragment>,
+    );
+    const origin = screen.getByRole('button', { name: 'origin' });
+    await act(async () => {
+      firstManager.add({ title: 'first' });
+    });
+    await act(async () => {
+      secondManager.add({ title: 'second' });
+      origin.focus();
+    });
+    const firstViewport = screen.getByTestId('first-viewport');
+    const secondViewport = screen.getByTestId('second-viewport');
+    // Keep the first listener registered while F6 enters the second viewport.
+    firstViewport.setAttribute('inert', '');
+    if (enterWithF6) {
+      await user.keyboard('{F6}');
+    } else {
+      await act(async () => secondViewport.focus());
+    }
+    expect(secondViewport).toHaveFocus();
+    firstViewport.removeAttribute('inert');
+
+    expect(fireEvent.keyDown(secondViewport, { key: 'F6' })).toBe(!enterWithF6);
+    expect(enterWithF6 ? origin : secondViewport).toHaveFocus();
   });
 
   it('returns focus to the body on F6 when nothing had focus before entering', async () => {
@@ -885,6 +949,74 @@ describe('<Toast.Viewport />', () => {
       clock.tick(5001);
 
       expect(screen.queryByTestId('root')).not.toBe(null);
+    });
+
+    it('runs timers when onFocus redirects focus outside the viewport', async () => {
+      const manager = Toast.createToastManager();
+      const originRef = React.createRef<HTMLButtonElement>();
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager}>
+          <button ref={originRef} type="button">
+            origin
+          </button>
+          <Toast.Viewport data-testid="viewport" onFocus={() => originRef.current?.focus()}>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      await act(async () => {
+        manager.add({ title: 'title' });
+        originRef.current?.focus();
+      });
+      expect(originRef.current).toHaveFocus();
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      fireEvent.keyDown(screen.getByRole('button', { name: 'origin' }), { key: 'F6' });
+
+      expect(originRef.current).toHaveFocus();
+      expect(screen.getByTestId('viewport')).not.toHaveAttribute('data-expanded');
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).not.toBeInTheDocument();
+    });
+
+    it('runs new toast timers after onFocus closes the last toast', async () => {
+      const manager = Toast.createToastManager();
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager}>
+          <button type="button">origin</button>
+          <Toast.Viewport data-testid="viewport" onFocus={() => manager.close()}>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const origin = screen.getByRole('button', { name: 'origin' });
+      await act(async () => {
+        manager.add({ title: 'first' });
+        origin.focus();
+      });
+      expect(origin).toHaveFocus();
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      fireEvent.keyDown(screen.getByRole('button', { name: 'origin' }), { key: 'F6' });
+      clock.tick(100);
+      expect(origin).toHaveFocus();
+      expect(screen.queryByTestId('root')).not.toBeInTheDocument();
+
+      await act(async () => {
+        manager.add({ title: 'second' });
+      });
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).not.toHaveAttribute('data-expanded');
+      fireEvent.mouseEnter(viewport);
+      expect(viewport).toHaveAttribute('data-expanded');
+      clock.tick(5001);
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      fireEvent.mouseLeave(viewport);
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).not.toBeInTheDocument();
     });
 
     it.each(['hovering', 'focused'] as const)(
@@ -1587,6 +1719,82 @@ describe('<Toast.Viewport />', () => {
         </Toast.Root>
       ));
     }
+
+    it('returns focus to the origin when onClose adds an unmounted replacement toast', async () => {
+      const { userEvent } = await import('vitest/browser');
+      const manager = Toast.createToastManager();
+      await render(
+        <Toast.Provider toastManager={manager} timeout={0}>
+          <button type="button">origin</button>
+          <Toast.Viewport data-testid="viewport">
+            <TitleList />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+      const origin = screen.getByRole('button', { name: 'origin' });
+      await act(async () => {
+        manager.add({
+          id: 'first',
+          title: 'first',
+          onClose: () => manager.add({ id: 'replacement', title: 'replacement' }),
+        });
+        origin.focus();
+      });
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        await userEvent.keyboard('{F6}{Tab}');
+      });
+      expect(screen.getByTestId('first')).toHaveFocus();
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        await userEvent.keyboard('{Escape}');
+      });
+      expect(await screen.findByTestId('replacement')).toBeInTheDocument();
+      expect(screen.queryByTestId('first')).not.toBeInTheDocument();
+      expect(origin).toHaveFocus();
+    });
+
+    it.each([
+      {
+        name: 'hidden',
+        disable: (element: HTMLButtonElement) => {
+          element.hidden = true;
+        },
+      },
+      {
+        name: 'disabled',
+        disable: (element: HTMLButtonElement) => {
+          element.disabled = true;
+        },
+      },
+      {
+        name: 'inert',
+        disable: (element: HTMLButtonElement) => {
+          element.inert = true;
+        },
+      },
+    ])('leaves F6 to the browser when its origin becomes $name', async ({ disable }) => {
+      const manager = Toast.createToastManager();
+      const { user } = await render(
+        <Toast.Provider toastManager={manager}>
+          <button type="button">origin</button>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+      const origin = screen.getByRole<HTMLButtonElement>('button', { name: 'origin' });
+      await act(async () => {
+        manager.add({ title: 'title' });
+        origin.focus();
+      });
+      await user.keyboard('{F6}');
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).toHaveFocus();
+      disable(origin);
+
+      expect(fireEvent.keyDown(viewport, { key: 'F6' })).toBe(true);
+    });
 
     it('keeps timers paused when a hovered toast is clicked while nothing had focus', async ({
       onTestFinished,

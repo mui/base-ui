@@ -56,33 +56,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
     // Listen globally for F6 so we can force-focus the viewport.
     function handleGlobalKeyDown(event: KeyboardEvent) {
-      // A prevented press was already handled, e.g. by another viewport's listener.
-      if (event.key !== 'F6' || event.defaultPrevented) {
-        return;
-      }
-
-      // Holding F6 shouldn't move focus back and forth between the viewport and the page.
-      if (event.repeat) {
-        event.preventDefault();
-        return;
-      }
-
-      const activeEl = activeElement(doc) as HTMLElement | null;
-
-      // F6 from inside the region leaves it again. Recording an element inside the
-      // viewport as the restore target would trap focus in it. Without a restore target, e.g.
-      // when the viewport was entered by Tab, the press is left to the browser.
-      if (contains(viewport, activeEl)) {
-        if (store.state.prevFocusElement?.isConnected) {
-          event.preventDefault();
-          store.restoreFocusToPrevElement();
-        }
-        return;
-      }
-
-      // A viewport that can't take focus, e.g. a hidden or inert one, leaves the press to the next
-      // listener.
+      // Skip presses already handled and viewports that can't take focus.
       if (
+        event.key !== 'F6' ||
+        event.defaultPrevented ||
         viewport?.checkVisibility?.({ visibilityProperty: true }) === false ||
         closest(viewport, '[inert]')
       ) {
@@ -90,11 +67,12 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       }
 
       event.preventDefault();
-      // Set the restore target before focusing: consumer focus handlers may close the toasts.
-      store.set('prevFocusElement', activeEl);
-      viewport?.focus({ preventScroll: true });
-      store.pauseTimers();
-      store.set('focused', true);
+      // Holding F6 shouldn't move focus back and forth between the viewport and the page.
+      if (!event.repeat) {
+        // Set the restore target before focusing: consumer focus handlers may close the toasts.
+        store.set('prevFocusElement', activeElement(doc) as HTMLElement | null);
+        viewport?.focus({ preventScroll: true });
+      }
     }
 
     function handleWindowBlur(event: FocusEvent) {
@@ -147,16 +125,32 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    const isF6 = event.key === 'F6';
+    if (isF6) {
+      // Handle exits before other viewports' global listeners. Without a return target,
+      // leave the default action to the browser.
+      event.stopPropagation();
+      if (event.repeat) {
+        event.preventDefault();
+        return;
+      }
+    }
+
     if (
-      event.key === 'Tab' &&
-      event.shiftKey &&
-      getTarget(event.nativeEvent) === store.state.viewport &&
-      store.state.prevFocusElement
+      (isF6 ||
+        (event.key === 'Tab' &&
+          event.shiftKey &&
+          getTarget(event.nativeEvent) === store.state.viewport)) &&
+      store.state.prevFocusElement &&
+      store.restoreFocusToPrevElement()
     ) {
+      // Cancel only if focus moved: a hidden or disabled return target leaves the
+      // browser free to move focus. `handleBlur` resumes the timers.
       event.preventDefault();
-      // Restoring focus blurs the viewport, and `handleBlur` resumes the timers
-      // from there.
-      store.restoreFocusToPrevElement();
     }
   }
 
@@ -218,7 +212,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     // Only set focused when the active element is focus-visible.
     // This prevents the viewport from staying expanded when clicking inside without
     // keyboard navigation.
-    if (isFocusVisible(activeElement(ownerDocument(store.state.viewport)))) {
+    const activeEl = activeElement(ownerDocument(store.state.viewport));
+    if (contains(store.state.viewport, activeEl) && isFocusVisible(activeEl)) {
       store.set('focused', true);
       store.pauseTimers();
     }
