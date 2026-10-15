@@ -1196,6 +1196,39 @@ describe('<Toast.Viewport />', () => {
       expect(screen.queryByTestId('root')).toBe(null);
     });
 
+    it('runs the timer of a toast added by a window focus listener after the window blurred while empty', async ({
+      onTestFinished,
+    }) => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      await act(async () => {
+        dispatchWindowEvent('blur');
+      });
+      // Registered after the viewport's listener, so it runs before the deferred focus update.
+      const addToast = () => manager.add({ title: 'title' });
+      window.addEventListener('focus', addToast);
+      onTestFinished(() => window.removeEventListener('focus', addToast));
+
+      await act(async () => {
+        dispatchWindowEvent('focus');
+      });
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      await act(async () => {
+        clock.tick(5001);
+      });
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
     it.skipIf(!isJSDOM)('resumes timers when the viewport is blurred', async () => {
       await renderFakeTimers(
         <Toast.Provider>
@@ -1254,6 +1287,41 @@ describe('<Toast.Viewport />', () => {
       clock.tick(5001);
 
       expect(screen.queryByTestId('root')).not.toBe(null);
+    });
+
+    it('resumes timers after tabbing past the last toast when the F6 origin was disabled', async () => {
+      const manager = Toast.createToastManager();
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager}>
+          <button type="button">origin</button>
+          <button type="button">other</button>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+      await act(async () => {
+        manager.add({ title: 'title' });
+      });
+      const origin = screen.getByRole<HTMLButtonElement>('button', { name: 'origin' });
+      const viewport = screen.getByTestId('viewport');
+
+      await act(async () => origin.focus());
+      fireEvent.keyDown(origin, { key: 'F6' });
+      expect(viewport).toHaveAttribute('data-expanded');
+
+      await act(async () => screen.getByTestId('root').focus());
+      origin.disabled = true;
+      // Tabbing past the last toast lands on the trailing guard, which can't restore focus.
+      const trailingGuard = viewport.lastElementChild as HTMLElement;
+      await act(async () => trailingGuard.focus());
+
+      await act(async () => screen.getByRole('button', { name: 'other' }).focus());
+      expect(viewport).not.toHaveAttribute('data-expanded');
+
+      clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).toBe(null);
     });
 
     it.skipIf(!isJSDOM)('resumes timers when the window regains focus', async () => {

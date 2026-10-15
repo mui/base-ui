@@ -427,9 +427,14 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     } else {
       prevFocusElement?.focus({ preventScroll: true });
     }
-    // Clear the F6 origin so later visits don't restore stale focus.
-    this.set('prevFocusElement', null);
-    return !contains(this.state.viewport, activeElement(doc));
+    const restored = !contains(this.state.viewport, activeElement(doc));
+    // Clear the F6 origin so later visits don't restore stale focus. Keep it if focus couldn't
+    // leave: clearing it unmounts the focus guards, and a focused guard would drop focus without
+    // a blur, leaving the viewport `focused`.
+    if (restored) {
+      this.set('prevFocusElement', null);
+    }
+    return restored;
   }
 
   handleDocumentPointerDown = (event: PointerEvent) => {

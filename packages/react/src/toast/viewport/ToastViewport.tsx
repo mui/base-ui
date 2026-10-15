@@ -71,6 +71,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
         return;
       }
 
+      windowFocusTimeout.clear();
       store.set('isWindowFocused', false);
       store.pauseTimers();
     }
@@ -81,13 +82,14 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       }
 
       // This capture listener also sees element focus, e.g. a click on a toast while nothing
-      // had focus. Keyboard focus landing inside the viewport pauses again in `handleFocus`.
-      if (!store.select('expanded')) {
-        store.resumeTimers();
-      }
-
-      // Wait for the `handleFocus` event to fire.
-      windowFocusTimeout.start(0, () => store.set('isWindowFocused', true));
+      // had focus. Wait for `handleFocus` so keyboard focus inside the viewport keeps the pause,
+      // and resume after the flag flips so toasts added in between start running too.
+      windowFocusTimeout.start(0, () => {
+        store.set('isWindowFocused', true);
+        if (!store.select('expanded')) {
+          store.resumeTimers();
+        }
+      });
     }
 
     return mergeCleanups(
