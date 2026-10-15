@@ -9,6 +9,7 @@ import {
   screen,
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
+import { Checkbox } from '@base-ui/react/checkbox';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager, FloatingPortal } from '../index';
 import { useFloating } from '../../../test/floating-ui-tests/useFloating';
@@ -442,6 +443,62 @@ describe.each([
       startViewTransitionSpy.mockRestore();
     }
   });
+
+  test.skipIf(isJSDOM)(
+    'keeps content connected when an indicator exit removes the container in the same checkpoint',
+    async () => {
+      ignoreActWarnings();
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const content = React.createRef<HTMLDivElement>();
+      let showPortal = () => {};
+
+      function Test() {
+        const container = React.useRef<HTMLSpanElement>(null);
+        const [visible, setVisible] = React.useState(false);
+        showPortal = () => setVisible(true);
+        return (
+          <React.Fragment>
+            <style>{`
+              @keyframes indicator-exit { from { opacity: 1; } to { opacity: 0; } }
+              .indicator[data-ending-style] { animation: indicator-exit 100ms; }
+            `}</style>
+            {visible && (
+              <Portal container={container}>
+                <div ref={content} />
+              </Portal>
+            )}
+            <Checkbox.Root defaultChecked>
+              <Checkbox.Indicator className="indicator" data-testid="indicator">
+                {visible && <span ref={container} />}
+              </Checkbox.Indicator>
+            </Checkbox.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await renderPortal(<Test />, { strict: false });
+      await user.click(screen.getByRole('checkbox'));
+      // Wait until the indicator has registered its own completion handler.
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
+
+      const indicator = screen.getByTestId('indicator');
+      expect(indicator).toHaveAttribute('data-ending-style');
+      const [animation] = indicator.getAnimations();
+
+      // Mirror the indicator's completion chain, so this runs right after it queues its unmount.
+      await Promise.all([animation.finished.then(() => {})]).then(() => {
+        ReactDOM.flushSync(showPortal);
+      });
+      await new Promise((resolve) => {
+        requestAnimationFrame(resolve);
+      });
+
+      expect(screen.queryByTestId('indicator')).toBe(null);
+      expect(content.current?.isConnected).toBe(true);
+    },
+  );
 
   test('mounts children once in a connected container when a later update replaces its ref', async () => {
     const mounts: boolean[] = [];

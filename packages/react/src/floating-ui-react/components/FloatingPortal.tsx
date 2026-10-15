@@ -23,7 +23,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { UseRenderElementComponentProps } from '../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { flushBeforePaint } from '../../internals/useAnimationsFinished';
+import { createFlushBeforePaint } from '../../internals/createFlushBeforePaint';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -48,6 +48,9 @@ const PortalContext = React.createContext<null | {
 export const usePortalContext = () => React.useContext(PortalContext);
 
 const attr = createAttribute('portal');
+// A separate queue: a shared batch could run an animation completion that removes the container
+// before this read commits.
+const flushContainerUpdates = createFlushBeforePaint();
 
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
@@ -99,7 +102,7 @@ export function useFloatingPortalNode(
     if (resolve) {
       pendingResolveRef.current = null;
       // The retry committed, so refs are attached. Resolve after cascading layout updates.
-      flushBeforePaint(resolve);
+      flushContainerUpdates(resolve);
     }
   }, [containerCheck]);
 
