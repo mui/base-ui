@@ -94,12 +94,18 @@ function addPreviouslyFocusedElement(element: Element | null | undefined) {
   }
 }
 
-function getPreviouslyFocusedElement() {
+function getPreviouslyFocusedElement(skipHidden?: boolean) {
   clearDisconnectedPreviouslyFocusedElements();
-  return previouslyFocusedElements[previouslyFocusedElements.length - 1]?.deref();
+  for (let i = previouslyFocusedElements.length - 1; i >= 0; i -= 1) {
+    const element = previouslyFocusedElements[i].deref();
+    if (!skipHidden || !closest(element, '[hidden]')) {
+      return element;
+    }
+  }
+  return undefined;
 }
 
-function getFirstTabbableElement(container: Element | null | undefined) {
+function getFirstTabbableElement(container: Element | null) {
   if (!container) {
     return null;
   }
@@ -793,7 +799,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     // Safari and Firefox on macOS don't focus a pressed button, so record the reference instead.
     addPreviouslyFocusedElement(
-      elementFocusedBeforeOpen === doc.body ? domReference : elementFocusedBeforeOpen,
+      elementFocusedBeforeOpen === doc.body && !preferPreviousFocus
+        ? domReference
+        : elementFocusedBeforeOpen,
     );
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
@@ -847,23 +855,41 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     events.on('openchange', onOpenChangeLocal);
 
-    function getDefaultReturnTarget() {
-      clearDisconnectedPreviouslyFocusedElements();
-      for (const element of [
-        ...(preferPreviousFocus
-          ? [elementFocusedBeforeOpen, domReference]
-          : [domReference, elementFocusedBeforeOpen]
-        ).filter((candidate) => candidate !== doc.body),
-        ...previouslyFocusedElements.map((entry) => entry.deref()).reverse(),
-      ]) {
-        const target = getFirstTabbableElement(element);
-        // Elements inside a closed `keepMounted` popup stay connected but hidden, so they can't
-        // take focus. `[hidden]` covers browsers without `checkVisibility()`.
-        if (isElementVisible(target) && !closest(target, '[hidden]')) {
-          return target;
-        }
+    function getReturnElement(closeType: InteractionType) {
+      const returnFocusValueOrFn = returnFocusRef.current;
+      let resolvedReturnFocusValue =
+        typeof returnFocusValueOrFn === 'function'
+          ? returnFocusValueOrFn(closeType)
+          : returnFocusValueOrFn;
+
+      // `null` should fallback to default behavior in case of an empty ref.
+      if (resolvedReturnFocusValue === undefined || resolvedReturnFocusValue === false) {
+        return null;
       }
-      return null;
+
+      if (resolvedReturnFocusValue === null) {
+        resolvedReturnFocusValue = true;
+      }
+
+      const referenceReturnElement = domReference?.isConnected ? domReference : null;
+      const previousReturnElement =
+        elementFocusedBeforeOpen?.isConnected && getNodeName(elementFocusedBeforeOpen) !== 'body'
+          ? elementFocusedBeforeOpen
+          : null;
+
+      let defaultReturnElement = preferPreviousFocus
+        ? previousReturnElement || referenceReturnElement
+        : referenceReturnElement || previousReturnElement;
+
+      if (!defaultReturnElement) {
+        defaultReturnElement = getPreviouslyFocusedElement() || null;
+      }
+
+      if (typeof resolvedReturnFocusValue === 'boolean') {
+        return defaultReturnElement;
+      }
+
+      return resolveRef(resolvedReturnFocusValue) || defaultReturnElement || null;
     }
 
     return () => {
@@ -882,13 +908,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
       const closeType = closeTypeRef.current;
-      // Explicit targets resolve before the closing commit detaches popup refs.
-      const returnFocusValue =
-        typeof returnFocusValueOrFn === 'function'
-          ? returnFocusValueOrFn(closeType)
-          : returnFocusValueOrFn;
-      const explicitReturnElement =
-        typeof returnFocusValue === 'object' ? resolveRef(returnFocusValue) : null;
+      const returnElement = getReturnElement(closeType);
 
       const job = { cancelled: false };
       pendingReturnFocusRef.current = job;
@@ -897,33 +917,39 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (pendingReturnFocusRef.current === job) {
           pendingReturnFocusRef.current = null;
         }
-        if (!job.cancelled && returnFocusValueOrFn && !preventReturnFocusRef.current) {
-          // The default target is resolved after the closing commit so its visibility checks see
-          // that commit's DOM. `null` (an empty ref) also falls back to it.
-          const tabbableReturnElement =
-            returnFocusValue === undefined || returnFocusValue === false
-              ? null
-              : getFirstTabbableElement(explicitReturnElement) || getDefaultReturnTarget();
-          // Read in the cleanup on purpose: the latest `explicitReturnFocus` decides.
-          const hasExplicitReturnFocus =
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
+        // `returnElement` if it is tabbable, otherwise its first tabbable child,
+        // otherwise `returnElement` itself (which may not be tabbable at all).
+        let tabbableReturnElement = getFirstTabbableElement(returnElement);
+        // An element inside a closed `keepMounted` popup is hidden, so focusing it does nothing.
+        // Use the newest visible element focused before it instead, unless the closing commit
+        // already moved focus (e.g. `autoFocus`).
+        if (tabbableReturnElement?.isConnected && closest(tabbableReturnElement, '[hidden]')) {
+          tabbableReturnElement = [activeEl, doc.body].includes(activeElement(doc))
+            ? getPreviouslyFocusedElement(true) || null
+            : null;
+        }
+        // Read in the cleanup on purpose: the latest `explicitReturnFocus` decides.
+        const hasExplicitReturnFocus =
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
 
-          if (
-            isHTMLElement(tabbableReturnElement) &&
-            // If the focus moved somewhere else after mount, avoid returning focus
-            // since it likely entered a different element which should be
-            // respected: https://github.com/floating-ui/floating-ui/issues/2607
-            (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
-              ? isFocusInsideFloatingTree
-              : true)
-          ) {
-            const focusOptions: FocusOptions = { preventScroll: true };
-            if (closeType === 'keyboard') {
-              focusOptions.focusVisible = true;
-            }
-            tabbableReturnElement.focus(focusOptions);
+        if (
+          !job.cancelled &&
+          returnFocusValueOrFn &&
+          !preventReturnFocusRef.current &&
+          isHTMLElement(tabbableReturnElement) &&
+          // If the focus moved somewhere else after mount, avoid returning focus
+          // since it likely entered a different element which should be
+          // respected: https://github.com/floating-ui/floating-ui/issues/2607
+          (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
+            ? isFocusInsideFloatingTree
+            : true)
+        ) {
+          const focusOptions: FocusOptions = { preventScroll: true };
+          if (closeType === 'keyboard') {
+            focusOptions.focusVisible = true;
           }
+          tabbableReturnElement.focus(focusOptions);
         }
 
         // A cancelled return must also clear suppression before the next close.

@@ -3,8 +3,9 @@ import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Menu } from '@base-ui/react/menu';
+import { Popover } from '@base-ui/react/popover';
 import { Select } from '@base-ui/react/select';
-import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM, popupFocusPropsTests } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
@@ -270,7 +271,7 @@ describe('<Dialog.Popup />', () => {
   });
 
   describe('return focus when opened from a popup item', () => {
-    type Source = 'select' | 'menu' | 'keepMounted menu';
+    type Source = 'select' | 'keepMounted menu';
 
     function DialogFromItem({
       source,
@@ -303,7 +304,7 @@ describe('<Dialog.Popup />', () => {
               >
                 Menu
               </Menu.Trigger>
-              <Menu.Portal keepMounted={source === 'keepMounted menu'}>
+              <Menu.Portal keepMounted>
                 <Menu.Positioner>
                   <Menu.Popup>
                     <Menu.Item onClick={() => setOpen(true)}>Custom</Menu.Item>
@@ -324,49 +325,22 @@ describe('<Dialog.Popup />', () => {
     }
 
     it.each([
-      { source: 'select', closeWith: 'keyboard' },
-      { source: 'select', closeWith: 'mouse' },
-      { source: 'keepMounted menu', closeWith: 'keyboard' },
-      { source: 'keepMounted menu', closeWith: 'mouse' },
-      { source: 'menu', closeWith: 'keyboard' },
-      { source: 'menu', closeWith: 'mouse' },
-    ] as const)(
-      'returns focus to the $source trigger when closed with the $closeWith',
-      async ({ source, closeWith }) => {
-        const { user } = await render(<DialogFromItem source={source} />);
-        const sourceTrigger = screen.getByTestId('source-trigger');
-
-        await user.click(sourceTrigger);
-        await user.click(
-          await screen.findByRole(source === 'select' ? 'option' : 'menuitem', { name: 'Custom' }),
-        );
-
-        const close = await screen.findByRole('button', { name: 'Close' });
-        await waitFor(() => {
-          expect(close).toHaveFocus();
-        });
-
-        if (closeWith === 'keyboard') {
-          await user.keyboard('[Escape]');
-        } else {
-          await user.click(close);
-        }
-
-        await waitFor(() => {
-          expect(sourceTrigger).toHaveFocus();
-        });
+      { name: 'select', source: 'select' },
+      { name: 'keepMounted menu', source: 'keepMounted menu' },
+      // Safari and Firefox on macOS don't focus a pressed button.
+      {
+        name: 'keepMounted menu that pressing did not focus',
+        source: 'keepMounted menu',
+        preventTriggerFocus: true,
       },
-    );
-
-    // Safari and Firefox on macOS don't focus a pressed button.
-    it('returns focus to a keepMounted menu trigger that pressing did not focus', async () => {
-      const { user } = await render(
-        <DialogFromItem source="keepMounted menu" preventTriggerFocus />,
-      );
+    ] as const)('returns focus to the $name trigger', async ({ source, ...props }) => {
+      const { user } = await render(<DialogFromItem source={source} {...props} />);
       const sourceTrigger = screen.getByTestId('source-trigger');
 
       await user.click(sourceTrigger);
-      await user.click(await screen.findByRole('menuitem', { name: 'Custom' }));
+      await user.click(
+        await screen.findByRole(source === 'select' ? 'option' : 'menuitem', { name: 'Custom' }),
+      );
 
       const close = await screen.findByRole('button', { name: 'Close' });
       await waitFor(() => {
@@ -379,59 +353,55 @@ describe('<Dialog.Popup />', () => {
         expect(sourceTrigger).toHaveFocus();
       });
     });
+  });
 
-    it.each([{ closeWith: 'keyboard' }, { closeWith: 'mouse' }] as const)(
-      'returns focus to the menu trigger when the dialog trigger is a keepMounted menu item and the dialog is closed with the $closeWith',
-      async ({ closeWith }) => {
-        const handle = Dialog.createHandle();
-        const { user } = await render(
-          <React.Fragment>
-            <Menu.Root>
-              <Menu.Trigger data-testid="source-trigger">Menu</Menu.Trigger>
-              <Menu.Portal keepMounted>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Dialog.Trigger handle={handle} nativeButton={false} render={<Menu.Item />}>
-                      Custom
-                    </Dialog.Trigger>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-            <Dialog.Root handle={handle}>
-              <Dialog.Portal>
-                <Dialog.Popup>
-                  <Dialog.Close>Close</Dialog.Close>
-                </Dialog.Popup>
-              </Dialog.Portal>
-            </Dialog.Root>
-          </React.Fragment>,
-        );
-        const sourceTrigger = screen.getByTestId('source-trigger');
+  it('does not return focus to the trigger of a popover that opened by default', async () => {
+    let openDialog = () => {};
+    function App() {
+      const [open, setOpen] = React.useState(false);
+      openDialog = () => setOpen(true);
+      return (
+        <React.Fragment>
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Tip</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Close>Got it</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <Dialog.Root open={open} onOpenChange={setOpen}>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>
+      );
+    }
 
-        await user.click(sourceTrigger);
-        await user.keyboard('[ArrowDown]');
-        await waitFor(() => {
-          expect(screen.getByText('Custom')).toHaveFocus();
-        });
-        await user.keyboard('[Enter]');
+    const { user } = await render(<App />);
+    await user.click(await screen.findByRole('button', { name: 'Got it' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Got it' })).toBe(null);
+    });
+    await act(async () => (document.activeElement as HTMLElement).blur());
 
-        const close = await screen.findByRole('button', { name: 'Close' });
-        await waitFor(() => {
-          expect(close).toHaveFocus();
-        });
+    await act(async () => openDialog());
+    const close = await screen.findByRole('button', { name: 'Close' });
+    await waitFor(() => {
+      expect(close).toHaveFocus();
+    });
+    await user.keyboard('[Escape]');
 
-        if (closeWith === 'keyboard') {
-          await user.keyboard('[Escape]');
-        } else {
-          await user.click(close);
-        }
-
-        await waitFor(() => {
-          expect(sourceTrigger).toHaveFocus();
-        });
-      },
-    );
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+    await flushMicrotasks();
+    expect(screen.getByRole('button', { name: 'Tip' })).not.toHaveFocus();
   });
 
   describe.skipIf(isJSDOM)('nested dialog count', () => {

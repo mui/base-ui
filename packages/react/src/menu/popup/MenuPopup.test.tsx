@@ -1,8 +1,9 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
+import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, popupFocusPropsTests, wait } from '#test-utils';
-import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
 import { ToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 
 describe('<Menu.Popup />', () => {
@@ -196,43 +197,115 @@ describe('<Menu.Popup />', () => {
     await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
   });
 
-  it.each([{ keepMounted: false }, { keepMounted: true }])(
-    'returns focus to the submenu trigger when the submenu closes with Escape (keepMounted: $keepMounted)',
-    async ({ keepMounted }) => {
-      const { user } = await render(
-        <Menu.Root>
-          <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
-                  <Menu.Portal keepMounted={keepMounted}>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.Item>Nested</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
+  it('does not move focus behind a modal dialog when an item removes its own menu', async () => {
+    function App() {
+      const [rows, setRows] = React.useState([1, 2]);
+      return (
+        <Dialog.Root>
+          <Dialog.Trigger>Manage</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              {rows.map((row) => (
+                <div key={row}>
+                  <Menu.Root>
+                    <Menu.Trigger>Actions {row}</Menu.Trigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Item
+                            onClick={() => setRows((prev) => prev.filter((x) => x !== row))}
+                          >
+                            Remove {row}
+                          </Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.Root>
+                </div>
+              ))}
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
       );
+    }
 
-      await act(async () => screen.getByRole('button', { name: 'Open' }).focus());
-      await user.keyboard('[ArrowDown]');
-      const submenuTrigger = screen.getByRole('menuitem', { name: 'More' });
-      await waitFor(() => expect(submenuTrigger).toHaveFocus());
-      await user.keyboard('[ArrowRight]');
-      await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Nested' })).toHaveFocus());
+    const { user } = await render(<App />);
+    const dialogTrigger = screen.getByRole('button', { name: 'Manage' });
+    await user.click(dialogTrigger);
+    await user.click(await screen.findByRole('button', { name: 'Actions 2' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Remove 2' }));
 
-      await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Actions 2' })).toBe(null);
+    });
+    await flushMicrotasks();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(dialogTrigger).not.toHaveFocus();
+  });
 
-      await waitFor(() => expect(submenuTrigger).toHaveFocus());
-    },
-  );
+  it('keeps focus on an input that autofocuses when the trigger is hidden as the menu closes', async () => {
+    function App() {
+      const [renaming, setRenaming] = React.useState(false);
+      const renameRequested = React.useRef(false);
+      return (
+        <div>
+          <Menu.Root>
+            <Menu.Trigger>Other</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          {renaming && <input aria-label="Name" autoFocus />}
+          <Menu.Root
+            onOpenChangeComplete={(open) => {
+              if (!open && renameRequested.current) {
+                renameRequested.current = false;
+                setRenaming(true);
+              }
+            }}
+          >
+            <Menu.Trigger hidden={renaming}>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item
+                    onClick={() => {
+                      renameRequested.current = true;
+                    }}
+                  >
+                    Rename
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+    // Leaves the other trigger in the return-focus history.
+    await user.click(screen.getByRole('button', { name: 'Other' }));
+    await screen.findByRole('menuitem', { name: 'Item' });
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitem', { name: 'Item' })).toBe(null);
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Rename' }));
+
+    const input = await screen.findByRole('textbox', { name: 'Name' });
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+    });
+    await flushMicrotasks();
+    expect(input).toHaveFocus();
+  });
 
   popupFocusPropsTests({
     render,
