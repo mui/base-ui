@@ -5,7 +5,7 @@ import { expectType } from '#test-utils';
 <Menu.Root
   onItemHighlighted={(item, details) => {
     const element: HTMLElement | undefined = item;
-    const reason: 'keyboard' | 'pointer' | 'imperative-action' | 'none' = details.reason;
+    const reason: 'keyboard' | 'pointer' | 'none' = details.reason;
     const label: string | undefined = details.label;
 
     const event: Event = details.event;

@@ -792,7 +792,7 @@ describe('useTriggerRegistration', () => {
       <React.Fragment>
         <TestTrigger key="first" id="first" store={store} element={first} />
         <TestTrigger key="second" id="second" store={store} element={second} />
-        <ImplicitActiveTriggerTest store={store} />
+        <ImplicitActiveTriggerTest key="root" store={store} />
       </React.Fragment>,
     );
 
@@ -803,19 +803,20 @@ describe('useTriggerRegistration', () => {
     rerender(
       <React.Fragment>
         <TestTrigger key="second" id="second" store={store} element={second} />
-        <ImplicitActiveTriggerTest store={store} />
+        <ImplicitActiveTriggerTest key="root" store={store} />
       </React.Fragment>,
     );
 
-    await waitFor(() => {
-      expect(store.context.triggerElements.getById('first')).toBeUndefined();
-      expect(store.context.triggerElements.getById('second')).toBe(second);
-      expect(store.state.triggerCount).toBe(1);
-      expect(store.state.activeTriggerId).toBe('first');
-      expect(store.state.activeTriggerElement).toBe(first);
-      expect(store.state.open).toBe(true);
-      expect(store.setOpen).not.toHaveBeenCalled();
-    });
+    // The close is queued in a microtask, so flush before asserting it never happened.
+    await flushMicrotasks();
+
+    expect(store.setOpen).not.toHaveBeenCalled();
+    expect(store.state.open).toBe(true);
+    expect(store.context.triggerElements.getById('first')).toBeUndefined();
+    expect(store.context.triggerElements.getById('second')).toBe(second);
+    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.activeTriggerId).toBe('first');
+    expect(store.state.activeTriggerElement).toBe(first);
   });
 
   it('resets triggerCount when the popup closes', () => {

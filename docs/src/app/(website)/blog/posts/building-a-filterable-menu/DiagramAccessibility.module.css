@@ -1,0 +1,167 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
+@layer components {
+  .Container {
+    padding: var(--space-20);
+    container: accessibility-diagram / inline-size;
+  }
+
+  .Diagram {
+    display: grid;
+    gap: 0.5rem;
+    color: var(--gray-t2);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-13);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+
+    & * {
+      text-box: trim-both cap alphabetic;
+    }
+
+    @container accessibility-diagram (width >= 37rem) {
+      grid-template-columns: max-content max-content minmax(0, 1fr);
+      align-items: center;
+    }
+  }
+
+  .Trigger,
+  .Dialog,
+  .Searchbox,
+  .Clear,
+  .Menu,
+  .Item,
+  .ActiveItem {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--gray-c3);
+    border-radius: 0.25rem;
+  }
+
+  .Trigger,
+  .Searchbox,
+  .Clear,
+  .Item,
+  .ActiveItem {
+    display: grid;
+    align-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .Trigger {
+    justify-self: center;
+  }
+
+  .Connector {
+    display: block;
+    justify-self: center;
+    width: 2.5rem;
+    height: 1.5rem;
+    color: var(--gray-c3);
+    transform: rotate(90deg);
+
+    @container accessibility-diagram (width >= 37rem) {
+      /* Extend through both grid gaps without changing the space between the boxes. */
+      margin-inline: -0.5rem;
+      transform: none;
+    }
+  }
+
+  .Dialog {
+    container-type: inline-size;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .Header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1rem;
+  }
+
+  .Controls {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    gap: 0.5rem;
+  }
+
+  .Searchbox {
+    position: relative;
+    /* Give this field nearly all spare row space, while Clear can grow on a wrapped row. */
+    flex: 999 1 auto;
+    min-width: min(100%, 12rem);
+  }
+
+  .Clear {
+    flex: 1 1 auto;
+  }
+
+  .Searchbox,
+  .ActiveItem,
+  .Relationship {
+    border-color: var(--indigo-t1);
+    background-color: var(--indigo-s2);
+  }
+
+  .Role {
+    color: var(--indigo-t1);
+  }
+
+  .Note {
+    color: var(--gray-t1);
+  }
+
+  .Menu {
+    position: relative;
+
+    > .Note {
+      margin-block-start: 1rem;
+    }
+  }
+
+  .SearchboxConnector {
+    position: absolute;
+    inset-block-start: calc(-1rem - 1px);
+    inset-inline-start: clamp(2.5rem, 25%, 6rem);
+    width: 1.5rem;
+    height: 3rem;
+    color: var(--indigo-t1);
+    pointer-events: none;
+  }
+
+  .Relationship {
+    position: absolute;
+    z-index: 1;
+    inset-inline-end: 8px;
+    inset-block-end: 0;
+    width: max-content;
+    max-width: calc(100% + 2px);
+    transform: translateY(50%);
+    padding: 0.25em 0.5em;
+    border: 1px solid var(--indigo-t1);
+    border-radius: 0.25rem;
+    color: var(--gray-t1);
+  }
+
+  .Items {
+    container: menu-items / inline-size;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .Item,
+  .ActiveItem {
+    margin: 0;
+
+    @container menu-items (width < 18rem) {
+      grid-column: 1 / -1;
+    }
+  }
+}

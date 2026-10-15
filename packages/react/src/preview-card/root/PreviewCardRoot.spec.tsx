@@ -22,6 +22,6 @@ const triggerWithPayload = <PreviewCard.Trigger handle={numberPayloadHandle} pay
 const triggerWithoutPayload = <PreviewCard.Trigger handle={numberPayloadHandle} />;
 
 const triggerWithInvalidPayload = (
-  // @ts-expect-error
+  // @ts-expect-error The handle requires a number payload, not a string.
   <PreviewCard.Trigger handle={numberPayloadHandle} payload={'invalid'} />
 );

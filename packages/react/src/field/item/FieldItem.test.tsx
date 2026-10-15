@@ -5,8 +5,8 @@ import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
-import { createRenderer, screen } from '@mui/internal-test-utils';
-import { describeConformance } from '../../../test/describeConformance';
+import { screen } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Item />', () => {
   const { render } = createRenderer();

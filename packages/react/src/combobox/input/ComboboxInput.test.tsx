@@ -415,36 +415,38 @@ describe('<Combobox.Input />', () => {
     });
 
     it('should handle multiple selection with chips when readOnly', async () => {
+      const handleValueChange = vi.fn();
       const { user } = await render(
-        <Combobox.Root multiple readOnly defaultValue={['apple']}>
-          <Combobox.Input data-testid="input" />
+        <Combobox.Root
+          multiple
+          readOnly
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
+        >
           <Combobox.Chips>
-            <Combobox.Chip data-testid="chip">
-              apple
-              <Combobox.ChipRemove data-testid="remove" />
-            </Combobox.Chip>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  {value.map((item) => (
+                    <Combobox.Chip key={item}>{item}</Combobox.Chip>
+                  ))}
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
           </Combobox.Chips>
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value="apple">apple</Combobox.Item>
-                  <Combobox.Item value="banana">banana</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
         </Combobox.Root>,
       );
 
       const input = screen.getByTestId('input');
-      const chip = screen.getByTestId('chip');
 
       expect(input).toHaveAttribute('aria-readonly', 'true');
-      expect(chip).toHaveAttribute('aria-readonly', 'true');
 
-      await user.type(input, '{backspace}');
-      expect(screen.getByTestId('chip')).not.toBe(null);
+      await user.click(input);
+      await user.keyboard('{Backspace}');
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(screen.getByText('banana')).not.toBe(null);
     });
 
     it('should move focus to clear button when pressing Escape and popup is closed', async () => {
@@ -1159,14 +1161,20 @@ describe('<Combobox.Input />', () => {
       expect(input).not.toHaveAttribute('data-popup-side');
     });
 
-    it('toggles data-empty when the filtered list is empty', async () => {
+    it('toggles data-list-empty when the filtered list is empty', async () => {
       const { user } = await render(
-        <Combobox.Root items={[]}>
+        <Combobox.Root items={['apple', 'banana']}>
           <Combobox.Input />
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
-                <Combobox.List />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
           </Combobox.Portal>
@@ -1178,7 +1186,15 @@ describe('<Combobox.Input />', () => {
       await user.click(input);
 
       await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(input).not.toHaveAttribute('data-list-empty');
+
+      await user.type(input, 'zzz');
+
       expect(input).toHaveAttribute('data-list-empty');
+
+      await user.clear(input);
+
+      expect(input).not.toHaveAttribute('data-list-empty');
     });
   });
 });

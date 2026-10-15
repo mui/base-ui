@@ -1,7 +1,6 @@
 import { describe } from 'vitest';
 import { Input } from '@base-ui/react/input';
-import { createRenderer } from '@mui/internal-test-utils';
-import { describeConformance } from '../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Input />', () => {
   const { render } = createRenderer();

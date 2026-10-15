@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { DrawerProviderContext } from './DrawerProviderContext';
 import type { DrawerVisualState, DrawerVisualStateStore } from './DrawerProviderContext';
@@ -13,30 +14,31 @@ import type { DrawerVisualState, DrawerVisualStateStore } from './DrawerProvider
 export function DrawerProvider(props: DrawerProvider.Props) {
   const { children } = props;
 
-  const [openDrawers, setOpenDrawers] = React.useState(() => new Set<object>());
+  const openDrawersRef = useRefWithInit(() => new Set<object>());
+  const [active, setActive] = React.useState(false);
   const [visualStateStore] = React.useState(createVisualStateStore);
 
   const setDrawerOpen = useStableCallback((drawer: object, open: boolean) => {
-    setOpenDrawers((prev) => {
-      if (prev.has(drawer) === open) {
-        return prev;
-      }
+    const openDrawers = openDrawersRef.current;
+    if (openDrawers.has(drawer) === open) {
+      return;
+    }
 
-      const next = new Set(prev);
-      if (open) {
-        next.add(drawer);
-      } else {
-        next.delete(drawer);
-      }
-      return next;
-    });
+    const wasActive = openDrawers.size > 0;
+    if (open) {
+      openDrawers.add(drawer);
+    } else {
+      openDrawers.delete(drawer);
+    }
+    const isActive = openDrawers.size > 0;
+    if (isActive !== wasActive) {
+      setActive(isActive);
+    }
   });
 
   const removeDrawer = useStableCallback((drawer: object) => {
     setDrawerOpen(drawer, false);
   });
-
-  const active = openDrawers.size > 0;
 
   const contextValue = React.useMemo(
     () => ({

@@ -191,7 +191,7 @@ describe('<Select.Trigger />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(document.activeElement).not.toBe(trigger);
+      expect(trigger).not.toHaveFocus();
     });
 
     it('does not toggle the popup when disabled', async () => {
@@ -384,6 +384,8 @@ describe('<Select.Trigger />', () => {
 
         await waitFor(() => {
           expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
+        });
+        await waitFor(() => {
           expect(trigger).toHaveAttribute('data-popup-side', 'bottom');
         });
       },

@@ -2,7 +2,7 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { screen, act, fireEvent, ignoreActWarnings, reactMajor } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
-import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, wait, pasteText } from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
 
 const isWebKit = platform.engine.webkit;
@@ -37,28 +37,6 @@ function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
 
 describe('<NumberField.ScrubArea />', () => {
   const { render } = createRenderer();
-
-  function createClipboardData(text: string) {
-    return {
-      getData: (type: string) => (type === 'text/plain' ? text : ''),
-    };
-  }
-
-  function pasteText(target: HTMLElement, value: string) {
-    if (isJSDOM) {
-      fireEvent.paste(target, {
-        clipboardData: createClipboardData(value),
-      });
-      return;
-    }
-
-    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
-    Object.defineProperty(pasteEvent, 'clipboardData', {
-      value: createClipboardData(value),
-    });
-
-    fireEvent(target, pasteEvent);
-  }
 
   describeConformance(<NumberField.ScrubArea />, () => ({
     refInstanceof: window.HTMLSpanElement,

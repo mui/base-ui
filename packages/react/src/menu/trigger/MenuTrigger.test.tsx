@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
-import userEvent from '@testing-library/user-event';
 import {
   act,
   fireEvent,
@@ -16,11 +15,10 @@ import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
   const { render } = createRenderer();
-  const user = userEvent.setup();
 
   describeConformance(<Menu.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render: (node) => {
       return render(<Menu.Root open>{node}</Menu.Root>);
@@ -95,7 +93,7 @@ describe('<Menu.Trigger />', () => {
     });
 
     it('should not open the menu when clicked', async () => {
-      await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger disabled />
           <Menu.Portal>
@@ -111,26 +109,6 @@ describe('<Menu.Trigger />', () => {
 
       expect(screen.queryByRole('menu', { hidden: false })).toBe(null);
     });
-  });
-
-  it('toggles the menu state when clicked', async () => {
-    await render(
-      <Menu.Root>
-        <Menu.Trigger>Open</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup />
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>,
-    );
-
-    const button = screen.getByRole('button', { name: 'Open' });
-    await user.click(button);
-
-    const menuPopup = await screen.findByRole('menu', { hidden: false });
-    expect(menuPopup).not.toBe(null);
-    expect(menuPopup).toHaveAttribute('data-open', '');
   });
 
   it('removes the hover mouseup listener when unmounted before mouseup', async () => {
@@ -170,91 +148,48 @@ describe('<Menu.Trigger />', () => {
   });
 
   describe('keyboard navigation', () => {
-    [
-      <Menu.Trigger>Open</Menu.Trigger>,
-      <Menu.Trigger render={<span />} nativeButton={false}>
-        Open
-      </Menu.Trigger>,
-    ].forEach((buttonComponent) => {
-      const buttonType = buttonComponent.props.slots?.root ? 'non-native' : 'native';
-      ['ArrowUp', 'ArrowDown', 'Enter', ' '].forEach((key) => {
-        if (buttonType === 'native' && (key === ' ' || key === 'Enter')) {
-          return;
-        }
+    const cases = [
+      { buttonType: 'native', key: 'ArrowUp' },
+      { buttonType: 'native', key: 'ArrowDown' },
+      { buttonType: 'non-native', key: 'ArrowUp' },
+      { buttonType: 'non-native', key: 'ArrowDown' },
+      { buttonType: 'non-native', key: 'Enter' },
+      { buttonType: 'non-native', key: 'Space' },
+    ] as const;
 
-        it(`opens the menu when pressing "${key}" on a ${buttonType} button`, async () => {
-          await render(
-            <Menu.Root>
-              {buttonComponent}
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.Item>1</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>,
-          );
+    it.each(cases)(
+      'opens the menu when pressing $key on a $buttonType button',
+      async ({ buttonType, key }) => {
+        const { user } = await render(
+          <Menu.Root>
+            {buttonType === 'native' ? (
+              <Menu.Trigger>Open</Menu.Trigger>
+            ) : (
+              <Menu.Trigger render={<span />} nativeButton={false}>
+                Open
+              </Menu.Trigger>
+            )}
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>1</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
 
-          const button = screen.getByRole('button', { name: 'Open' });
-          await act(async () => {
-            button.focus();
-          });
-
-          await user.keyboard(`[${key}]`);
-
-          const menuPopup = screen.queryByRole('menu', { hidden: false });
-          expect(menuPopup).not.toBe(null);
+        const button = screen.getByRole('button', { name: 'Open' });
+        expect(button.tagName).toBe(buttonType === 'native' ? 'BUTTON' : 'SPAN');
+        await act(async () => {
+          button.focus();
         });
-      });
-    });
-  });
 
-  describe('accessibility attributes', () => {
-    it('has the aria-haspopup attribute', async () => {
-      await render(
-        <Menu.Root>
-          <Menu.Trigger />
-        </Menu.Root>,
-      );
+        await user.keyboard(`[${key}]`);
 
-      const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-haspopup');
-    });
-
-    it('has the aria-expanded=false attribute when closed', async () => {
-      await render(
-        <Menu.Root>
-          <Menu.Trigger />
-        </Menu.Root>,
-      );
-
-      const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-expanded', 'false');
-    });
-
-    it('has aria-expanded=true when the menu is opened', async () => {
-      await render(
-        <Menu.Root>
-          <Menu.Trigger>Toggle</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup />
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const button = screen.getByRole('button', { name: 'Toggle' });
-      expect(button).toHaveAttribute('aria-expanded', 'false');
-
-      await user.click(button);
-
-      const menuPopup = await screen.findByRole('menu', { hidden: false });
-      expect(menuPopup).not.toBe(null);
-      expect(button).toHaveAttribute('data-popup-open');
-      expect(button).toHaveAttribute('aria-expanded', 'true');
-    });
+        expect(screen.getByRole('menu', { hidden: false })).toBeInTheDocument();
+      },
+    );
   });
 
   describe('style hooks', () => {
@@ -306,7 +241,7 @@ describe('<Menu.Trigger />', () => {
         );
       }
 
-      await render(<TestCase />);
+      const { user } = await render(<TestCase />);
 
       const trigger = screen.getByRole('button', { name: 'Actions' });
       await user.click(trigger);
@@ -367,6 +302,11 @@ describe('<Menu.Trigger />', () => {
       fireEvent.click(trigger);
 
       expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      // Leaving the trigger afterwards doesn't reopen it.
+      fireEvent.mouseLeave(trigger);
+
+      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks if the user clicks impatiently', async () => {
@@ -390,30 +330,6 @@ describe('<Menu.Trigger />', () => {
       clock.tick(1);
 
       expect(trigger).toHaveAttribute('data-popup-open');
-    });
-
-    it('does not stick if the user clicks patiently', async () => {
-      await renderFakeTimers(
-        <Menu.Root>
-          <Menu.Trigger delay={0} openOnHover />
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup />
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-
-      clock.tick(PATIENT_CLICK_THRESHOLD);
-
-      fireEvent.click(trigger);
-      fireEvent.mouseLeave(trigger);
-
-      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks when clicked before the hover delay completes', async () => {
@@ -514,7 +430,7 @@ describe('<Menu.Trigger />', () => {
 
   describe('preventBaseUIHandler', () => {
     it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {
-      await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger onMouseDown={(event) => event.preventBaseUIHandler()} />
           <Menu.Portal>
@@ -532,7 +448,7 @@ describe('<Menu.Trigger />', () => {
     });
 
     it('prevents opening the menu with keyboard when `preventBaseUIHandler` is called in onClick', async () => {
-      await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger onClick={(event) => event.preventBaseUIHandler()} />
           <Menu.Portal>

@@ -277,9 +277,12 @@ describe('<Collapsible.Panel />', () => {
 
       await user.click(trigger);
 
+      // Both hold only mid-transition, so check them in one snapshot.
       await waitFor(() => {
-        expect(panel).toHaveAttribute('data-ending-style');
-        expect(panel.style.getPropertyValue('--collapsible-panel-height')).toMatch(/px$/);
+        expect({
+          endingStyle: panel.hasAttribute('data-ending-style'),
+          height: panel.style.getPropertyValue('--collapsible-panel-height'),
+        }).toEqual({ endingStyle: true, height: expect.stringMatching(/px$/) });
       });
     });
 
@@ -747,16 +750,22 @@ describe('<Collapsible.Panel />', () => {
 
       await user.click(trigger);
 
+      // The animation runs only while the panel is closing, so check both in one snapshot.
       await waitFor(() => {
-        expect(panel).toHaveAttribute('data-closed');
-        expect(panel.getAnimations().length).toBe(1);
+        expect({
+          closed: panel.hasAttribute('data-closed'),
+          animations: panel.getAnimations().length,
+        }).toEqual({ closed: true, animations: 1 });
       });
 
       await user.click(trigger);
 
+      // The animation runs only while the panel is opening, so check both in one snapshot.
       await waitFor(() => {
-        expect(panel).toHaveAttribute('data-open');
-        expect(panel.getAnimations().length).toBe(1);
+        expect({
+          open: panel.hasAttribute('data-open'),
+          animations: panel.getAnimations().length,
+        }).toEqual({ open: true, animations: 1 });
       });
     });
 
@@ -798,10 +807,13 @@ describe('<Collapsible.Panel />', () => {
 
       await user.click(trigger);
 
+      // All three hold only while the closing animation runs, so check them in one snapshot.
       await waitFor(() => {
-        expect(panel).toHaveAttribute('data-ending-style');
-        expect(panel.style.getPropertyValue('--collapsible-panel-height')).toMatch(/px$/);
-        expect(panel.getAnimations().length).toBe(1);
+        expect({
+          endingStyle: panel.hasAttribute('data-ending-style'),
+          height: panel.style.getPropertyValue('--collapsible-panel-height'),
+          animations: panel.getAnimations().length,
+        }).toEqual({ endingStyle: true, height: expect.stringMatching(/px$/), animations: 1 });
       });
     });
 
@@ -847,9 +859,12 @@ describe('<Collapsible.Panel />', () => {
 
       await user.click(trigger);
 
+      // The animation runs only while the panel is opening, so check both in one snapshot.
       await waitFor(() => {
-        expect(panel).toHaveAttribute('data-open');
-        expect(panel.getAnimations().length).toBe(1);
+        expect({
+          open: panel.hasAttribute('data-open'),
+          animations: panel.getAnimations().length,
+        }).toEqual({ open: true, animations: 1 });
       });
     });
   });
@@ -1044,12 +1059,11 @@ describe('<Collapsible.Panel />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => {
-        expect(panel).toHaveAttribute('data-open');
-      });
+      // The height switches to auto once the opening transition ends.
       await waitFor(() => {
         expect(panel.style.getPropertyValue('--collapsible-panel-height')).toBe('auto');
       });
+      expect(panel).toHaveAttribute('data-open');
 
       transitionRuns = 0;
 
@@ -1339,9 +1353,12 @@ describe('<Collapsible.Panel />', () => {
 
         await user.click(trigger);
 
+        // The animation runs only while the panel is closing, so check both in one snapshot.
         await waitFor(() => {
-          expect(panel).toHaveAttribute('data-closed');
-          expect(panel.getAnimations().length).toBe(1);
+          expect({
+            closed: panel.hasAttribute('data-closed'),
+            animations: panel.getAnimations().length,
+          }).toEqual({ closed: true, animations: 1 });
         });
 
         expect(getComputedStyle(panel).animationDuration).toBe('0.123s');
@@ -1402,10 +1419,13 @@ describe('<Collapsible.Panel />', () => {
 
         await user.click(trigger);
 
+        // All three hold only while the closing transition runs, so check them in one snapshot.
         await waitFor(() => {
-          expect(panel).toHaveAttribute('data-ending-style');
-          expect(panel.style.transitionDuration).toBe('123ms');
-          expect(panel.getAnimations().length).toBe(1);
+          expect({
+            endingStyle: panel.hasAttribute('data-ending-style'),
+            transitionDuration: panel.style.transitionDuration,
+            animations: panel.getAnimations().length,
+          }).toEqual({ endingStyle: true, transitionDuration: '123ms', animations: 1 });
         });
       });
 
@@ -1529,8 +1549,10 @@ describe('<Collapsible.Panel />', () => {
         fireEvent.click(toggle);
 
         await waitFor(() => {
-          expect(panel).toHaveAttribute('data-open');
-          expect(panel.style.transitionDuration).toBe('123ms');
+          expect({
+            open: panel.hasAttribute('data-open'),
+            transitionDuration: panel.style.transitionDuration,
+          }).toEqual({ open: true, transitionDuration: '123ms' });
         });
       });
 

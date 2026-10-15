@@ -1,8 +1,14 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
-import { randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
+import type { UserEvent } from '@testing-library/user-event';
+import { expect, vi, describe, it, afterEach, beforeEach } from 'vitest';
+import { flushMicrotasks, randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
 import type { createRenderer } from '#test-utils';
-import { isJSDOM } from '#test-utils';
+import { enterWithMouse, isJSDOM } from '#test-utils';
+import { REASONS } from '../src/internals/reasons';
+
+// StrictMode replays effects in development, which reports an instant open completion twice.
+// These tests render without it so they assert the real contract: one call per transition.
+const NON_STRICT = { strict: false };
 
 export function popupConformanceTests(config: PopupTestConfig) {
   const {
@@ -11,17 +17,19 @@ export function popupConformanceTests(config: PopupTestConfig) {
     render,
     expectedPopupRole,
     expectedAriaHasPopupValue = expectedPopupRole,
-    alwaysMounted: alwaysMountedParam = false,
+    alwaysMounted,
     combobox = false,
+    exitAnimation = true,
+    openReason = triggerMouseAction === 'click' ? REASONS.triggerPress : REASONS.triggerHover,
   } = config;
-
-  const alwaysMounted = alwaysMountedParam === 'only-after-open' ? false : alwaysMountedParam;
 
   const prepareComponent = (props: TestedComponentProps) => {
     return createComponent({
       ...props,
       trigger: {
         'data-testid': 'trigger',
+        // Hover-opened popups open right away, so the tests don't depend on timers.
+        ...(triggerMouseAction === 'hover' ? { delay: 0 } : {}),
         ...props.trigger,
       },
       popup: {
@@ -31,49 +39,130 @@ export function popupConformanceTests(config: PopupTestConfig) {
     });
   };
 
+  const openWithTrigger = async (user: UserEvent) => {
+    const trigger = getTrigger();
+    if (triggerMouseAction === 'click') {
+      await user.click(trigger);
+    } else {
+      enterWithMouse(trigger);
+      await flushMicrotasks();
+    }
+  };
+
+  // Popups that stay mounted after opening are hidden instead of removed when they close.
+  const expectPopupClosed = () => {
+    if (alwaysMounted) {
+      expect(getPopup()).toBeInaccessible();
+    } else {
+      expect(getPopup()).toBe(null);
+    }
+  };
+
   describe('Popup conformance', () => {
     describe('controlled mode', () => {
       it('opens the popup with the `open` prop', async () => {
         const { rerender } = await render(prepareComponent({ root: { open: false } }));
-        if (!alwaysMounted) {
-          expect(getPopup()).toBe(null);
-        } else {
-          expect(getPopup()).toBeInaccessible();
-        }
+        expect(getPopup()).toBe(null);
 
         await rerender(prepareComponent({ root: { open: true } }));
         expect(getPopup()).not.toBe(null);
       });
     });
 
-    if (triggerMouseAction === 'click') {
-      describe('uncontrolled mode', () => {
-        it('opens the popup when clicking on the trigger', async () => {
-          const { user } = await render(prepareComponent({}));
+    describe('prop: defaultOpen', () => {
+      it('opens initially and remains uncontrolled', async () => {
+        const { user } = await render(prepareComponent({ root: { defaultOpen: true } }));
+        expect(getPopup()).toBeVisible();
 
-          const trigger = getTrigger();
-          if (!alwaysMounted) {
-            expect(getPopup()).toBe(null);
-          } else {
-            expect(getPopup()).toBeInaccessible();
-          }
-
-          await user.click(trigger);
-          await waitFor(() => {
-            expect(getPopup()).not.toBe(null);
-          });
-        });
+        await user.keyboard('[Escape]');
+        await waitFor(expectPopupClosed);
       });
-    }
+
+      it('is ignored when `open={false}` is passed', async () => {
+        await render(prepareComponent({ root: { defaultOpen: true, open: false } }));
+        expect(getPopup()).toBe(null);
+      });
+
+      it('is ignored when `open={true}` is passed, so Escape cannot close', async () => {
+        const { user } = await render(
+          prepareComponent({ root: { defaultOpen: true, open: true } }),
+        );
+        expect(getPopup()).toBeVisible();
+
+        await user.keyboard('[Escape]');
+        await flushMicrotasks();
+        expect(getPopup()).toBeVisible();
+      });
+    });
+
+    describe('prop: onOpenChange', () => {
+      it('is called with the new open state and the change details', async () => {
+        const handleOpenChange = vi.fn();
+        const { user } = await render(
+          prepareComponent({ root: { onOpenChange: handleOpenChange } }),
+        );
+        expect(handleOpenChange).not.toHaveBeenCalled();
+
+        await openWithTrigger(user);
+        await waitFor(() => {
+          expect(handleOpenChange).toHaveBeenCalledTimes(1);
+        });
+        await waitFor(() => {
+          expect(getPopup()).toBeVisible();
+        });
+        expect(handleOpenChange).toHaveBeenCalledTimes(1);
+        expect(handleOpenChange).toHaveBeenNthCalledWith(
+          1,
+          true,
+          expect.objectContaining({ reason: openReason, trigger: getTrigger() }),
+        );
+
+        await user.keyboard('[Escape]');
+        await waitFor(expectPopupClosed);
+        expect(handleOpenChange).toHaveBeenCalledTimes(2);
+        expect(handleOpenChange).toHaveBeenNthCalledWith(
+          2,
+          false,
+          expect.objectContaining({ reason: REASONS.escapeKey }),
+        );
+      });
+
+      it('keeps the popup closed when the open change is canceled', async () => {
+        const handleOpenChange = vi.fn(
+          (nextOpen: boolean, eventDetails: OpenChangeEventDetails) => {
+            if (nextOpen) {
+              eventDetails.cancel();
+            }
+          },
+        );
+        const { user } = await render(
+          prepareComponent({ root: { onOpenChange: handleOpenChange } }),
+        );
+
+        await openWithTrigger(user);
+        await waitFor(() => {
+          expect(handleOpenChange).toHaveBeenCalledTimes(1);
+        });
+        await flushMicrotasks();
+
+        // The open request was made, so a missing popup proves `cancel()` prevented it.
+        expect(handleOpenChange).toHaveBeenCalledTimes(1);
+        expect(handleOpenChange).toHaveBeenNthCalledWith(
+          1,
+          true,
+          expect.objectContaining({ reason: openReason }),
+        );
+        expectPopupClosed();
+        expect(getTrigger()).not.toHaveAttribute('data-popup-open');
+      });
+    });
 
     if (expectedPopupRole || triggerMouseAction === 'click') {
       describe('ARIA attributes', () => {
         if (expectedPopupRole) {
           it(`has the ${expectedPopupRole} role on the popup`, async () => {
             await render(prepareComponent({ root: { open: true } }));
-            const popup = getPopup();
-            expect(popup).not.toBe(null);
-            expect(popup).toHaveAttribute('role', expectedPopupRole);
+            expect(getPopup()).toHaveAttribute('role', expectedPopupRole);
           });
         }
 
@@ -85,43 +174,172 @@ export function popupConformanceTests(config: PopupTestConfig) {
             expect(trigger).toHaveAttribute('aria-controls', popup?.id);
           });
 
-          it('has the `aria-expanded` attribute on the trigger when open', async () => {
+          it('opens on trigger click and sets `aria-expanded` on the trigger', async () => {
             const { user } = await render(prepareComponent({}));
             const trigger = getTrigger();
-            if (!alwaysMounted) {
-              expect(getPopup()).toBe(null);
-            } else {
-              expect(getPopup()).toBeInaccessible();
-            }
+            expect(getPopup()).toBe(null);
             expect(trigger).toHaveAttribute('aria-expanded', 'false');
             await user.click(trigger);
+            // A combobox popup is the listbox itself; other popups mark the open state.
+            const [openAttribute, openValue] = combobox ? ['role', 'listbox'] : ['data-open', ''];
             await waitFor(() => {
-              if (combobox) {
-                expect(getPopup()).toHaveAttribute('role', 'listbox');
-              } else {
-                expect(getPopup()).toHaveAttribute('data-open');
-              }
+              expect(getPopup()).toHaveAttribute(openAttribute, openValue);
             });
             expect(trigger).toHaveAttribute('aria-expanded', 'true');
           });
 
           if (expectedAriaHasPopupValue) {
             it('has the `aria-haspopup` attribute on the trigger', async () => {
-              await render(prepareComponent({ root: { open: true } }));
-              const trigger = getTrigger();
-              expect(trigger).toHaveAttribute('aria-haspopup', expectedAriaHasPopupValue);
+              const { rerender } = await render(prepareComponent({ root: { open: false } }));
+              expect(getTrigger()).toHaveAttribute('aria-haspopup', expectedAriaHasPopupValue);
+
+              await rerender(prepareComponent({ root: { open: true } }));
+              expect(getTrigger()).toHaveAttribute('aria-haspopup', expectedAriaHasPopupValue);
             });
           }
 
           it('allows a custom `id` prop', async () => {
             await render(prepareComponent({ root: { open: true }, popup: { id: 'TestId' } }));
-            const trigger = getTrigger();
-            const popup = getPopup();
-            expect(trigger.getAttribute('aria-controls')).toBe(popup?.getAttribute('id'));
+            expect(getPopup()).toHaveAttribute('id', 'TestId');
+            expect(getTrigger()).toHaveAttribute('aria-controls', 'TestId');
           });
         }
       });
     }
+
+    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+      afterEach(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      it('is not called on mount when closed', async () => {
+        const onOpenChangeComplete = vi.fn();
+        await render(prepareComponent({ root: { onOpenChangeComplete } }));
+
+        expect(onOpenChangeComplete).not.toHaveBeenCalled();
+      });
+
+      it('is called on open when there is no enter animation', async () => {
+        const onOpenChangeComplete = vi.fn();
+        const { rerender } = await render(
+          prepareComponent({ root: { open: false, onOpenChangeComplete } }),
+          NON_STRICT,
+        );
+
+        await rerender(prepareComponent({ root: { open: true, onOpenChangeComplete } }));
+        await waitFor(() => {
+          expect(onOpenChangeComplete).toHaveBeenCalled();
+        });
+        await flushMicrotasks();
+        expect(onOpenChangeComplete.mock.calls).toEqual([[true]]);
+      });
+
+      it('is called on close when there is no exit animation', async () => {
+        const onOpenChangeComplete = vi.fn();
+        const { rerender } = await render(
+          prepareComponent({ root: { open: true, onOpenChangeComplete } }),
+          NON_STRICT,
+        );
+
+        await rerender(prepareComponent({ root: { open: false, onOpenChangeComplete } }));
+        await waitFor(expectPopupClosed);
+        await waitFor(() => {
+          expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+        });
+        expect(onOpenChangeComplete.mock.calls).toEqual([[true], [false]]);
+      });
+
+      if (exitAnimation) {
+        const animationName = `anim-${randomStringValue()}`;
+        const className = `open-change-complete-${animationName}`;
+
+        function AnimatedPopup(props: { open: boolean; onOpenChangeComplete: () => void }) {
+          // Enter and exit use different keyframes: swapping the selector while keeping the
+          // same animation name doesn't restart the animation.
+          const style = `
+            @keyframes ${animationName}-enter {
+              from {
+                opacity: 0;
+              }
+            }
+
+            @keyframes ${animationName}-exit {
+              to {
+                opacity: 0;
+              }
+            }
+
+            .${className}[data-open] {
+              animation: ${animationName}-enter 200ms;
+            }
+
+            .${className}[data-ending-style] {
+              animation: ${animationName}-exit 200ms;
+            }
+          `;
+
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              {prepareComponent({
+                root: { open: props.open, onOpenChangeComplete: props.onOpenChangeComplete },
+                popup: { className },
+              })}
+            </div>
+          );
+        }
+
+        const isAnimating = () =>
+          getPopup()!
+            .getAnimations()
+            .some((animation) => animation.playState === 'running');
+
+        it('is called on open once the enter animation finishes', async () => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+          const onOpenChangeComplete = vi.fn();
+          const { setProps } = await render(
+            <AnimatedPopup open={false} onOpenChangeComplete={onOpenChangeComplete} />,
+          );
+
+          await setProps({ open: true });
+          await waitFor(() => {
+            expect(isAnimating()).toBe(true);
+          });
+          // Read synchronously after the check above: the animation is still running.
+          expect(onOpenChangeComplete).not.toHaveBeenCalled();
+
+          await waitFor(() => {
+            expect(onOpenChangeComplete).toHaveBeenCalled();
+          });
+          expect(onOpenChangeComplete.mock.calls).toEqual([[true]]);
+        });
+
+        it('is called on close once the exit animation finishes', async () => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+          const onOpenChangeComplete = vi.fn();
+          const { setProps } = await render(
+            <AnimatedPopup open onOpenChangeComplete={onOpenChangeComplete} />,
+          );
+          await waitFor(() => {
+            expect(onOpenChangeComplete).toHaveBeenCalled();
+          });
+          onOpenChangeComplete.mockClear();
+
+          await setProps({ open: false });
+          await waitFor(() => {
+            expect(getPopup()).toHaveAttribute('data-ending-style');
+          });
+          await waitFor(() => {
+            expect(isAnimating()).toBe(true);
+          });
+          expect(onOpenChangeComplete).not.toHaveBeenCalled();
+
+          await waitFor(expectPopupClosed);
+          expect(onOpenChangeComplete.mock.calls).toEqual([[false]]);
+        });
+      }
+    });
 
     describe('animations', () => {
       beforeEach(() => {
@@ -132,11 +350,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
       });
 
-      it('removes the popup when there is no exit animation defined', async ({ skip }) => {
-        if (isJSDOM) {
-          skip();
-        }
-
+      it.skipIf(isJSDOM)('removes the popup when there is no exit animation defined', async () => {
         const { rerender } = await render(prepareComponent({ root: { open: true } }));
 
         await waitFor(() => {
@@ -144,28 +358,16 @@ export function popupConformanceTests(config: PopupTestConfig) {
         });
 
         await rerender(prepareComponent({ root: { open: false } }));
-        await waitFor(() => {
-          if (!alwaysMounted && alwaysMountedParam !== 'only-after-open') {
-            expect(getPopup()).toBe(null);
-          } else {
-            expect(getPopup()).toBeInaccessible();
-          }
-        });
+        await waitFor(expectPopupClosed);
       });
 
-      it('removes the popup when the animation finishes', async ({ skip }) => {
-        // XXX: revisit after feedback from the team
-        skip();
+      it.skipIf(isJSDOM || !exitAnimation)(
+        'hides the kept-mounted popup once the exit animation finishes',
+        async () => {
+          const animationName = `anim-${randomStringValue()}`;
 
-        if (isJSDOM) {
-          skip();
-        }
-
-        const handleAnimationEnd = vi.fn();
-        const animationName = `anim-${randomStringValue()}`;
-
-        function Test(props: { open: boolean }) {
-          const style = `
+          function Test(props: { open: boolean }) {
+            const style = `
             @keyframes ${animationName} {
               to {
                 opacity: 0;
@@ -181,35 +383,38 @@ export function popupConformanceTests(config: PopupTestConfig) {
             }
           `;
 
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              {prepareComponent({
-                root: { open: props.open },
-                portal: { keepMounted: true },
-                popup: {
-                  className: `animation-test-popup-${animationName}`,
-                  onAnimationEnd: handleAnimationEnd,
-                },
-              })}
-            </div>
-          );
-        }
+            return (
+              <div>
+                {/* eslint-disable-next-line react/no-danger */}
+                <style dangerouslySetInnerHTML={{ __html: style }} />
+                {prepareComponent({
+                  root: { open: props.open },
+                  // Popups that stay mounted after opening don't accept `keepMounted`.
+                  portal: alwaysMounted ? {} : { keepMounted: true },
+                  popup: {
+                    className: `animation-test-popup-${animationName}`,
+                  },
+                })}
+              </div>
+            );
+          }
 
-        const { setProps } = await render(<Test open />);
-        await setProps({ open: false });
+          const { setProps } = await render(<Test open />);
+          await setProps({ open: false });
 
-        await waitFor(() => {
-          const popup = getPopup();
-          expect(popup).not.toBe(null);
-          expect(popup).toBeInaccessible();
-        });
+          // The popup stays visible while the exit animation runs...
+          await waitFor(() => {
+            expect(getPopup()).toHaveAttribute('data-ending-style');
+          });
+          expect(getPopup()!.getAnimations()).not.toHaveLength(0);
+          expect(getPopup()).not.toBeInaccessible();
 
-        await waitFor(() => {
-          expect(handleAnimationEnd).toHaveBeenCalledTimes(1);
-        });
-      });
+          // ...and is hidden once it finishes.
+          await waitFor(() => {
+            expect(getPopup()).toBeInaccessible();
+          });
+        },
+      );
     });
   });
 }
@@ -245,29 +450,46 @@ export interface PopupTestConfig {
    */
   expectedAriaHasPopupValue?: string;
   /**
-   * Whether the popup contents are always present in the DOM.
+   * Set to `'only-after-open'` when the popup stays mounted (inaccessible) after it first closes.
    */
-  alwaysMounted?: boolean | 'only-after-open';
+  alwaysMounted?: 'only-after-open';
   /**
    * Whether the popup is a combobox.
    */
   combobox?: boolean;
+  /**
+   * Whether the element receiving the `popup` props plays the enter and exit animations.
+   * @default true
+   */
+  exitAnimation?: boolean;
+  /**
+   * The `reason` passed to `onOpenChange` when the trigger opens the popup.
+   * @default 'trigger-press' for click triggers, 'trigger-hover' for hover triggers
+   */
+  openReason?: string;
+}
+
+interface OpenChangeEventDetails {
+  reason: string;
+  cancel: () => void;
 }
 
 interface RootProps {
   open?: boolean;
-  onOpenChange?: (open: boolean | null) => void;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean, eventDetails: OpenChangeEventDetails) => void;
+  onOpenChangeComplete?: (open: boolean) => void;
 }
 
 interface TriggerProps {
   'data-testid'?: string;
+  delay?: number;
 }
 
 interface PopupProps {
   className?: string;
   id?: string;
   'data-testid'?: string;
-  onAnimationEnd?: () => void;
 }
 
 interface PortalProps {
