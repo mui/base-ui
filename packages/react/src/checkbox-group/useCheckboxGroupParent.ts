@@ -15,10 +15,9 @@ export function useCheckboxGroupParent(
 ): UseCheckboxGroupParentReturnValue {
   const { allValues = EMPTY_ARRAY, value, onValueChange: onValueChangeProp } = params;
 
-  const uncontrolledStateRef = React.useRef(value);
-  // The parent's last proposed value and the `value` it was stored as, to tell when `value` was
-  // changed from outside. Until it's stored, `value` is the one it replaced, so a handler that
-  // stores a transformed selection still advances the cycle.
+  // The parent's last proposed value, the mixed selection it returns to, and the `value` it was
+  // stored as, to tell when `value` was changed from outside. Until it's stored, `value` is the
+  // one it replaced, so a handler that stores a transformed selection still advances the cycle.
   const parentChangeRef = React.useRef<ParentChange | null>(null);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
@@ -37,7 +36,8 @@ export function useCheckboxGroupParent(
   useIsoLayoutEffect(() => {
     const parentChange = parentChangeRef.current;
     if (parentChange?.pending && !hasSameValues(value, parentChange.value)) {
-      parentChangeRef.current = { proposed: parentChange.proposed, value, pending: false };
+      parentChange.value = value;
+      parentChange.pending = false;
     }
   }, [value]);
 
@@ -72,24 +72,25 @@ export function useCheckboxGroupParent(
         const none = allValues.filter((v) => disabledStates.get(v) && value.includes(v));
         const all = allValues.filter((v) => !disabledStates.get(v) || value.includes(v));
 
-        let parentChange = parentChangeRef.current;
-        // Restart the cycle from a value set from outside or by a child, or from a partial
-        // selection only the parent's `indeterminate` prop knows about, as with a nested group.
+        // Advance from what the parent proposed rather than what the handler stored. Restart the
+        // cycle from a value set from outside or by a child, or from a partial selection only the
+        // parent's `indeterminate` prop knows about, as with a nested group.
+        let proposed = value;
+        let mixed = value;
+        const parentChange = parentChangeRef.current;
         if (
-          (parentChange && !hasSameValues(value, parentChange.value)) ||
-          (indeterminateProp && !indeterminate)
+          parentChange &&
+          hasSameValues(value, parentChange.value) &&
+          !(indeterminateProp && !indeterminate)
         ) {
-          parentChange = null;
+          ({ proposed, mixed } = parentChange);
         }
-        // Advance from what the parent proposed rather than what the handler stored.
-        const current = parentChange ? parentChange.proposed : value;
-        const mixed = parentChange ? uncontrolledStateRef.current : value;
 
         let nextValue = all;
-        if (hasSameValues(current, all)) {
+        if (hasSameValues(proposed, all)) {
           nextValue = none;
         } else if (
-          hasSameValues(current, none) &&
+          hasSameValues(proposed, none) &&
           mixed.length > none.length &&
           mixed.length < all.length
         ) {
@@ -97,15 +98,12 @@ export function useCheckboxGroupParent(
         }
 
         // Set before the change so a value stored synchronously is read back.
-        const prevParentChange = parentChangeRef.current;
-        parentChangeRef.current = { proposed: nextValue, value, pending: true };
+        parentChangeRef.current = { proposed: nextValue, mixed, value, pending: true };
 
         onValueChange(nextValue, eventDetails);
 
         if (eventDetails.isCanceled) {
-          parentChangeRef.current = prevParentChange;
-        } else {
-          uncontrolledStateRef.current = mixed;
+          parentChangeRef.current = parentChange;
         }
       },
     }),
@@ -145,8 +143,9 @@ export function useCheckboxGroupParent(
 }
 
 interface ParentChange {
-  proposed: readonly string[];
-  value: readonly string[];
+  proposed: string[];
+  mixed: string[];
+  value: string[];
   pending: boolean;
 }
 

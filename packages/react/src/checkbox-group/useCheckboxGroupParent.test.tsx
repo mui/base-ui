@@ -667,6 +667,74 @@ describe('useCheckboxGroupParent', () => {
     expect(getCheckedValues()).toEqual(['a']);
   });
 
+  it('checks every child after a child is checked and unchecked following a full cycle', async () => {
+    const { user } = await render(
+      <CheckboxGroup defaultValue={['a']} allValues={allValues}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" data-testid="a" />
+        <Checkbox.Root value="b" data-testid="b" />
+        <Checkbox.Root value="c" data-testid="c" />
+      </CheckboxGroup>,
+    );
+
+    const parent = screen.getByTestId('parent');
+
+    await user.click(parent);
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(screen.getByTestId('b'));
+    await user.click(screen.getByTestId('b'));
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(allValues);
+  });
+
+  it('returns to the mixed value after a child change is canceled', async () => {
+    function App() {
+      const [value, setValue] = React.useState(['a']);
+      const [canceling, setCanceling] = React.useState(false);
+      return (
+        <div>
+          <button onClick={() => setCanceling((prev) => !prev)}>toggle canceling</button>
+          <CheckboxGroup
+            value={value}
+            onValueChange={(nextValue, eventDetails) => {
+              if (canceling) {
+                eventDetails.cancel();
+              } else {
+                setValue(nextValue);
+              }
+            }}
+            allValues={allValues}
+          >
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="a" data-testid="a" />
+            <Checkbox.Root value="b" data-testid="b" />
+            <Checkbox.Root value="c" data-testid="c" />
+          </CheckboxGroup>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const parent = screen.getByTestId('parent');
+
+    await user.click(parent);
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+    await user.click(screen.getByTestId('b'));
+    expect(getCheckedValues()).toEqual([]);
+
+    await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+    await user.click(parent);
+    expect(getCheckedValues()).toEqual(['a']);
+  });
+
   describe('value changed from outside', () => {
     function App(props: {
       outsideValue?: string[];
