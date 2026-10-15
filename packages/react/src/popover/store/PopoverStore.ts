@@ -64,8 +64,12 @@ const selectors = {
   // changes don't re-render every inactive trigger.
   isTouchPressOpen: (state: State<unknown>, openOnHover: boolean) =>
     openOnHover && state.openMethod === 'touch' && state.openChangeReason === REASONS.triggerPress,
+  // A hover-opened popover disables its focus manager, so there's nothing for the guards to
+  // forward focus to; native tab order applies instead.
   hasTriggerFocusGuards: (state: State<unknown>, triggerId: string | undefined) =>
-    popupStoreSelectors.isOpenedByTrigger(state, triggerId) && !state.focusManagerModal,
+    popupStoreSelectors.isOpenedByTrigger(state, triggerId) &&
+    !state.focusManagerModal &&
+    state.openChangeReason !== REASONS.triggerHover,
   modal: (state: State<unknown>) => state.modal,
   titleElementId: (state: State<unknown>) => state.titleElementId,
   descriptionElementId: (state: State<unknown>) => state.descriptionElementId,
