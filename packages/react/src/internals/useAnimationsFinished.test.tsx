@@ -507,6 +507,7 @@ describe('useAnimationsFinished', () => {
       const { elements } = createWatchedElements([
         { duration: 10_000 },
         { duration: 10_000, pseudoElement: '::after' },
+        null,
       ]);
       await render(renderWatched(elements));
 
@@ -541,7 +542,7 @@ describe('useAnimationsFinished', () => {
       const { getDocumentAnimations } = spyOnLookups();
       let firstAnimation: Animation;
       let secondAnimation: Animation;
-      const { elements } = createWatchedElements([{ duration: 10_000 }, null]);
+      const { elements } = createWatchedElements([{ duration: 10_000 }, null, null]);
       elements[1].animate = (element) => {
         firstAnimation = element.animate(FADE, 10_000);
         secondAnimation = element.animate(FADE, 10_000);
@@ -566,30 +567,47 @@ describe('useAnimationsFinished', () => {
       expect(elements[1].onFinished).toHaveBeenCalledTimes(1);
     });
 
-    it('looks up a single element on its own', async () => {
+    it.each([
+      { name: 'a single animated element', timings: [{ duration: 10_000 }] },
+      {
+        name: 'two animated elements',
+        timings: [{ duration: 10_000 }, { duration: 10_000 }],
+      },
+      {
+        name: 'an animated element followed by a nonanimated element',
+        timings: [{ duration: 10_000 }, null],
+      },
+      {
+        name: 'a nonanimated element followed by an animated element',
+        timings: [null, { duration: 10_000 }],
+      },
+    ])('looks up $name individually without scanning the root', async ({ timings }) => {
       const { getDocumentAnimations, getElementAnimations } = spyOnLookups();
 
-      const { animations, elements } = createWatchedElements([{ duration: 10_000 }]);
+      const { animations, elements } = createWatchedElements(timings);
       await render(renderWatched(elements));
 
       await waitFor(() => {
-        expect(getElementAnimations).toHaveBeenCalledTimes(1);
+        expect(getElementAnimations).toHaveBeenCalledTimes(elements.length);
       });
       expect(getDocumentAnimations).not.toHaveBeenCalled();
-      expect(elements[0].onFinished).not.toHaveBeenCalled();
+      const animatedIndex = timings.findIndex((timing) => timing !== null);
+      expect(elements[animatedIndex].onFinished).not.toHaveBeenCalled();
 
       await act(async () => {
-        animations[0].finish();
+        animations.forEach((animation) => animation.finish());
         await flushMicrotasks();
       });
 
       expect(elements[0].onFinished).toHaveBeenCalledTimes(1);
+      expect(elements.at(-1)!.onFinished).toHaveBeenCalledTimes(1);
     });
 
-    it('looks up an element checked twice in the same frame once', async () => {
+    it('deduplicates lookups of two distinct elements without scanning the root', async () => {
       const { getDocumentAnimations, getElementAnimations } = spyOnLookups();
       const onFirstFinished = vi.fn();
       const onSecondFinished = vi.fn();
+      const { elements } = createWatchedElements([null]);
       let animation: Animation | undefined;
 
       function TwiceWatched() {
@@ -611,13 +629,17 @@ describe('useAnimationsFinished', () => {
         return <div ref={ref} />;
       }
 
-      await render(<TwiceWatched />);
+      await render(
+        <React.Fragment>
+          <TwiceWatched />
+          {renderWatched(elements)}
+        </React.Fragment>,
+      );
 
       await waitFor(() => {
-        expect(getElementAnimations).toHaveBeenCalledTimes(1);
+        expect(elements[0].onFinished).toHaveBeenCalledTimes(1);
       });
-      await flushMicrotasks();
-      expect(getElementAnimations).toHaveBeenCalledTimes(1);
+      expect(getElementAnimations).toHaveBeenCalledTimes(2);
       expect(getDocumentAnimations).not.toHaveBeenCalled();
       expect(onFirstFinished).not.toHaveBeenCalled();
       expect(onSecondFinished).not.toHaveBeenCalled();
@@ -682,6 +704,7 @@ describe('useAnimationsFinished', () => {
       onTestFinished(remove);
 
       const { animations, elements } = createWatchedElements([
+        { duration: 10_000 },
         { duration: 10_000 },
         { duration: 10_000 },
       ]);
