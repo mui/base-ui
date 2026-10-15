@@ -401,9 +401,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
-          const spaceActivates =
-            event.key === ' ' && input.value === '' && store.state.activeIndex !== null;
-          if ((event.key === 'Enter' || spaceActivates) && open) {
+          const isEmptySpacePress = event.key === ' ' && input.value === '';
+          const hasActiveItem = store.state.activeIndex !== null;
+          if ((event.key === 'Enter' || (isEmptySpacePress && hasActiveItem)) && open) {
             const activeIndex = store.state.activeIndex;
             const nativeEvent = event.nativeEvent;
 
