@@ -460,7 +460,7 @@ describe.each([
           <React.Fragment>
             <style>{`
               @keyframes indicator-exit { from { opacity: 1; } to { opacity: 0; } }
-              .indicator[data-ending-style] { animation: indicator-exit 100ms; }
+              .indicator[data-ending-style] { animation: indicator-exit 100ms paused; }
             `}</style>
             {visible && (
               <Portal container={container}>
@@ -488,9 +488,11 @@ describe.each([
       const [animation] = indicator.getAnimations();
 
       // Mirror the indicator's completion chain, so this runs right after it queues its unmount.
-      await Promise.all([animation.finished.then(() => {})]).then(() => {
+      const portalShown = Promise.all([animation.finished.then(() => {})]).then(() => {
         ReactDOM.flushSync(showPortal);
       });
+      animation.finish();
+      await portalShown;
       await new Promise((resolve) => {
         requestAnimationFrame(resolve);
       });
