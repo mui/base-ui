@@ -3175,7 +3175,7 @@ describe('<Select.Root />', () => {
     });
 
     it('sets a hidden input id when name is not provided', async () => {
-      await render(
+      const { container } = await render(
         <Select.Root id="test-id">
           <Select.Trigger>
             <Select.Value />
@@ -3183,7 +3183,8 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
+      const hiddenInput = container.querySelector('input');
       expect(hiddenInput).toHaveAttribute('id', 'test-id-hidden-input');
       expect(hiddenInput).not.toHaveAttribute('name');
     });
@@ -3200,6 +3201,50 @@ describe('<Select.Root />', () => {
       const hiddenInput = screen.getByRole('textbox', { hidden: true });
       expect(hiddenInput).toHaveAttribute('name', 'country');
       expect(hiddenInput).not.toHaveAttribute('id');
+    });
+  });
+
+  describe('hidden input type', () => {
+    function renderSelect(props: Select.Root.Props<string> = {}) {
+      return render(
+        <Select.Root {...props}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+    }
+
+    it('is hidden when the select is not part of a form', async () => {
+      const { container } = await renderSelect();
+
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
+      expect(container.querySelector('input')).toHaveAttribute('type', 'hidden');
+    });
+
+    it.each([
+      ['name', { name: 'country' }],
+      ['form', { form: 'form-id' }],
+      ['autoComplete', { autoComplete: 'country' }],
+      ['required', { required: true }],
+    ])('is a text input when %s is set', async (_, props) => {
+      await renderSelect(props);
+
+      expect(screen.getByRole('textbox', { hidden: true })).not.toHaveAttribute('type');
+    });
+
+    it('is a text input inside Field.Root', async () => {
+      await render(
+        <Field.Root>
+          <Select.Root>
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      expect(screen.getByRole('textbox', { hidden: true })).not.toHaveAttribute('type');
     });
   });
 
