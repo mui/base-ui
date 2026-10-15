@@ -7,7 +7,8 @@ import { NOOP } from '@base-ui/utils/empty';
 import { resolveRef } from '../utils/resolveRef';
 import { getFiniteAnimations } from '../utils/getFiniteAnimations';
 import * as TransitionStatusDataAttributes from './TransitionStatusDataAttributes';
-import { createFlushBeforePaint } from './createFlushBeforePaint';
+
+let pendingCallbacks: Array<() => void> | null = null;
 
 /**
  * Runs the callback in a synchronous flush before the browser paints, so that the
@@ -16,7 +17,21 @@ import { createFlushBeforePaint } from './createFlushBeforePaint';
  * whose animations finish together) are batched into a single commit:
  * https://github.com/mui/base-ui/issues/5481
  */
-const flushBeforePaint = createFlushBeforePaint();
+export function flushBeforePaint(fn: () => void) {
+  if (!pendingCallbacks) {
+    const callbacks: Array<() => void> = [];
+    pendingCallbacks = callbacks;
+    queueMicrotask(() => {
+      pendingCallbacks = null;
+      ReactDOM.flushSync(() => {
+        for (const callback of callbacks) {
+          callback();
+        }
+      });
+    });
+  }
+  pendingCallbacks.push(fn);
+}
 
 /**
  * Executes a function once all animations have finished on the provided element.
@@ -67,7 +82,7 @@ export function useAnimationsFinished(
           return;
         }
 
-        void flushBeforePaint(() => {
+        flushBeforePaint(() => {
           // Re-check at flush time: the signal may abort between queueing and the flush.
           if (!signal?.aborted) {
             fnToExecute();

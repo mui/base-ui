@@ -23,7 +23,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { UseRenderElementComponentProps } from '../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { createFlushBeforePaint } from '../../internals/createFlushBeforePaint';
+import { flushBeforePaint } from '../../internals/useAnimationsFinished';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -48,7 +48,6 @@ const PortalContext = React.createContext<null | {
 export const usePortalContext = () => React.useContext(PortalContext);
 
 const attr = createAttribute('portal');
-const flushContainerUpdates = createFlushBeforePaint();
 
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
@@ -91,11 +90,18 @@ export function useFloatingPortalNode(
   });
 
   const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
-  const [commitContainerCheck, setCommitContainerCheck] = React.useState<(() => void) | null>(null);
+  const [containerCheck, setContainerCheck] = React.useState(0);
+  const pendingResolveRef = React.useRef<(() => void) | null>(null);
 
+  // Must run before the effect below, or a mount would consume its own pending resolve.
   useIsoLayoutEffect(() => {
-    commitContainerCheck?.();
-  }, [commitContainerCheck]);
+    const resolve = pendingResolveRef.current;
+    if (resolve) {
+      pendingResolveRef.current = null;
+      // The retry committed, so refs are attached. Resolve after cascading layout updates.
+      flushBeforePaint(resolve);
+    }
+  }, [containerCheck]);
 
   useIsoLayoutEffect(() => {
     // Wait for the container to be resolved if explicitly `null`.
@@ -109,16 +115,8 @@ export function useFloatingPortalNode(
     }
 
     let cancelled = false;
-    let commitPending = false;
-    let waitingForCommit = false;
-    let cancelContainerUpdate: (() => void) | undefined;
     function resolveContainer() {
       if (cancelled) {
-        return;
-      }
-
-      if (commitPending) {
-        waitingForCommit = true;
         return;
       }
 
@@ -144,26 +142,20 @@ export function useFloatingPortalNode(
     }
 
     if (containerProp && !isNode(containerProp) && !containerProp.current) {
-      // Wait for ancestor and later sibling refs, including refs replaced by layout updates.
-      // Only force the queued update after React has committed its own layout-effect retry.
-      // React can defer that retry while preparing a ViewTransition; flushSync would cancel it.
-      commitPending = true;
-      setCommitContainerCheck(() => () => {
-        commitPending = false;
-        if (waitingForCommit && !cancelled) {
-          waitingForCommit = false;
-          // Read the ref after the deferred commit and its cascading layout updates finish.
-          cancelContainerUpdate = flushContainerUpdates(resolveContainer);
-        }
-      });
-      cancelContainerUpdate = flushContainerUpdates(resolveContainer, () => !commitPending);
+      // Ancestor and later sibling refs attach after this effect. Wait for the retry to commit:
+      // React defers it while it prepares a ViewTransition, and flushSync would cancel that.
+      pendingResolveRef.current = resolveContainer;
+      setContainerCheck((value) => value + 1);
     } else {
       resolveContainer();
     }
 
     return () => {
       cancelled = true;
-      cancelContainerUpdate?.();
+      // A hidden Activity or Suspense subtree can unmount effects before the retry commits.
+      if (pendingResolveRef.current === resolveContainer) {
+        pendingResolveRef.current = null;
+      }
     };
   }, [containerProp, parentPortalNode]);
 

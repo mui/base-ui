@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   fireEvent,
   flushMicrotasks,
@@ -229,41 +230,42 @@ describe.each([
     },
   );
 
-  test.each([
-    { name: 'without StrictMode', strict: false },
-    { name: 'with StrictMode', strict: true },
-  ])(
-    'mounts inside an ancestor ref before later commit microtasks run $name',
-    async ({ strict }) => {
-      const mountedAtCheckpoint: boolean[] = [];
+  test('mounts inside an ancestor ref before the next paint', async () => {
+    ignoreActWarnings();
+    let show = () => {};
 
-      function Test() {
-        const container = React.useRef<HTMLDivElement>(null);
+    function Content() {
+      const container = React.useRef<HTMLDivElement>(null);
+      return (
+        <div ref={container} data-testid="container">
+          <Portal container={container}>
+            <div data-testid="content" />
+          </Portal>
+        </div>
+      );
+    }
 
-        useIsoLayoutEffect(() => {
-          // The portal's layout effect queues its container check before this parent effect.
-          // Its children must already be committed by this point, before the browser can paint.
-          queueMicrotask(() => {
-            const content = container.current?.querySelector('[data-testid="content"]');
-            mountedAtCheckpoint.push(content?.isConnected ?? false);
-          });
-        }, []);
+    function Test() {
+      const [visible, setVisible] = React.useState(false);
+      show = () => setVisible(true);
+      return visible ? <Content /> : null;
+    }
 
-        return (
-          <div ref={container} data-testid="container">
-            <Portal container={container}>
-              <div data-testid="content" />
-            </Portal>
-          </div>
-        );
-      }
+    // StrictMode is off: React 18 replays the effects at passive priority, which defers the mount.
+    await renderPortal(<Test />, { strict: false });
+    expect(screen.queryByTestId('container')).toBe(null);
 
-      await renderPortal(<Test />, { strict });
+    // Both callbacks run in one frame with a microtask checkpoint between them, so the second
+    // one sees the DOM that the browser paints after the commit outside act().
+    const mountedBeforePaint = await new Promise<boolean>((resolve) => {
+      requestAnimationFrame(() => ReactDOM.flushSync(show));
+      requestAnimationFrame(() => {
+        resolve(screen.getByTestId('container').contains(screen.queryByTestId('content')));
+      });
+    });
 
-      expect(screen.getByTestId('container')).toContainElement(screen.getByTestId('content'));
-      expect(mountedAtCheckpoint).toEqual(strict ? [true, true] : [true]);
-    },
-  );
+    expect(mountedBeforePaint).toBe(true);
+  });
 
   test
     .skipIf(isJSDOM || !React.ViewTransition || typeof document.startViewTransition !== 'function')
@@ -360,6 +362,81 @@ describe.each([
         canceled ? null : container,
       );
       expect(mounts).toEqual(canceled ? [] : [true]);
+      expect(readiness).toBe('ready');
+    } finally {
+      startViewTransitionSpy.mockRestore();
+    }
+  });
+
+  test.skipIf(
+    isJSDOM ||
+      !React.ViewTransition ||
+      !React.Activity ||
+      typeof document.startViewTransition !== 'function',
+  )('does not cancel a view transition that reveals a hidden pending portal', async () => {
+    ignoreActWarnings();
+    const startViewTransition = document.startViewTransition.bind(document);
+    const startViewTransitionSpy = vi.spyOn(document, 'startViewTransition');
+    const started = new Promise<ViewTransition>((resolve) => {
+      startViewTransitionSpy.mockImplementation((...args) => {
+        const transition = startViewTransition(...args);
+        resolve(transition);
+        return transition;
+      });
+    });
+
+    function Test() {
+      const container = React.useRef<HTMLDivElement>(null);
+      const [show, setShow] = React.useState(false);
+      const [visible, setVisible] = React.useState(true);
+
+      useIsoLayoutEffect(() => {
+        // Hide the portal before its container check commits.
+        if (show) {
+          setVisible(false);
+        }
+      }, [show]);
+
+      return (
+        <React.Fragment>
+          <button onClick={() => setShow(true)}>Show</button>
+          <button onClick={() => React.startTransition(() => setVisible(true))}>Reveal</button>
+          <React.ViewTransition>
+            <div>
+              <React.Activity mode={visible ? 'visible' : 'hidden'}>
+                {show && (
+                  <div ref={container} data-testid="container">
+                    <Portal container={container}>
+                      <div data-testid="content" />
+                    </Portal>
+                  </div>
+                )}
+              </React.Activity>
+            </div>
+          </React.ViewTransition>
+        </React.Fragment>
+      );
+    }
+
+    try {
+      await renderPortal(<Test />, { strict: false });
+
+      // act() flushes pending React effects and can cancel the native transition itself.
+      screen.getByRole('button', { name: 'Show' }).click();
+      await new Promise((resolve) => {
+        requestAnimationFrame(resolve);
+      });
+      expect(screen.queryByTestId('content')).toBe(null);
+
+      screen.getByRole('button', { name: 'Reveal' }).click();
+      const transition = await started;
+      const readiness = await transition.ready.then(
+        () => 'ready',
+        (error: Error) => error.name,
+      );
+      await transition.finished;
+
+      expect(screen.getByTestId('container')).toContainElement(screen.getByTestId('content'));
       expect(readiness).toBe('ready');
     } finally {
       startViewTransitionSpy.mockRestore();
