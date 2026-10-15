@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { Code } from 'docs/src/components/Code';
 import { Kbd } from 'docs/src/components/Kbd/Kbd';
 import styles from './DemoKeyControl.module.css';
 
@@ -40,11 +39,18 @@ export default function DemoKeyControl() {
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     const { key } = event;
-    if (keyLabels[key]) {
-      setLastKey(keyLabels[key]);
-    }
+    setLastKey(keyLabels[key] ?? key);
 
     if (event.nativeEvent.isComposing) {
+      return;
+    }
+
+    if (
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      (event.shiftKey && key !== 'Home' && key !== 'End')
+    ) {
       return;
     }
 
@@ -68,13 +74,21 @@ export default function DemoKeyControl() {
       case 'Home':
       case 'End':
         event.preventDefault();
-        if (isEditing) {
+        if (query !== '' || isEditing || event.shiftKey) {
           const input = event.currentTarget;
           const position = key === 'Home' ? 0 : input.value.length;
           moveCaret(input, position, event.shiftKey);
         } else {
           setHighlightedIndex(key === 'Home' ? 0 : lastActionIndex);
         }
+        return;
+
+      case ' ':
+        if (query !== '' || isEditing) {
+          return;
+        }
+        event.preventDefault();
+        setLastAction(highlightedAction);
         return;
 
       case 'Enter':
@@ -128,10 +142,12 @@ export default function DemoKeyControl() {
       <div className={styles.Readout}>
         <div>
           <dl className={styles.Values}>
-            <dt>Context</dt>
-            <dd>
-              <Code>{isEditing ? 'Editing' : 'Browsing'}</Code>
-            </dd>
+            <dt>Input</dt>
+            <dd>{query === '' ? 'empty' : JSON.stringify(query)}</dd>
+            <dt>Home / End</dt>
+            <dd>{query === '' && !isEditing ? 'navigate menu' : 'move caret'}</dd>
+            <dt>Space</dt>
+            <dd>{query === '' && !isEditing ? 'run action' : 'insert text'}</dd>
             <dt>Highlighted</dt>
             <dd>{isEditing ? 'input' : highlightedAction}</dd>
             <dt>Last key</dt>
@@ -142,12 +158,14 @@ export default function DemoKeyControl() {
           </div>
         </div>
         <div className={styles.Hint}>
-          <p>Type in the field to filter the menu.</p>
           <p>
-            Try <Kbd>↓</Kbd>, <Kbd>Home</Kbd>, and <Kbd>End</Kbd> to navigate.
+            With the input empty, press <Kbd>↓</Kbd>, then <Kbd>Home</Kbd> or <Kbd>End</Kbd>.
           </p>
+          <p>Type "e", highlight a match, and try again to move the caret.</p>
           <p>
-            Press <Kbd>↓</Kbd> past the last item to return to editing.
+            <Kbd>Space</Kbd> runs the highlighted action when the input is empty, and adds text
+            otherwise.
+            <Kbd>Enter</Kbd> runs the highlighted action.
           </p>
         </div>
       </div>
