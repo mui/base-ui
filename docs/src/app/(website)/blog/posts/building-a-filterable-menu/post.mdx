@@ -137,9 +137,9 @@ Another thing to consider is that the same key can mean different things dependi
 
 Browser focus stays in our input while users navigate the menu though, so focus alone can't tell us which behavior to use.
 
-When the input is empty and a menu item is highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item. Once the highlight returns to the input, they move the caret again, and `data-highlighted` shows the user is back at the field.
+When the input is empty and a menu item is highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item. When the highlight returns to the input, they move the caret, and `data-highlighted` shows the user is editing the field.
 
-When the input has a value, those keys move the caret, even when a menu item is highlighted, because entering a query signals the user's intent to search.
+When the input has a value, those keys move the caret regardless of whether a menu item is highlighted, because entering a query signals the user's intent to search.
 
 Try it below. This is a small sketch of the behavior rather than Base UI itself.
 
