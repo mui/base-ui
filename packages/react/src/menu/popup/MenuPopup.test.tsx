@@ -197,32 +197,26 @@ describe('<Menu.Popup />', () => {
     await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
   });
 
-  it('does not move focus behind a modal dialog when an item removes its own menu', async () => {
+  it('does not move focus behind a modal dialog when an item hides the trigger', async () => {
     function App() {
-      const [rows, setRows] = React.useState([1, 2]);
+      const [step, setStep] = React.useState(1);
       return (
         <Dialog.Root>
-          <Dialog.Trigger>Manage</Dialog.Trigger>
+          <Dialog.Trigger>Create</Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Popup>
-              {rows.map((row) => (
-                <div key={row}>
-                  <Menu.Root>
-                    <Menu.Trigger>Actions {row}</Menu.Trigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.Item
-                            onClick={() => setRows((prev) => prev.filter((x) => x !== row))}
-                          >
-                            Remove {row}
-                          </Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.Root>
-                </div>
-              ))}
+              <div hidden={step !== 1}>
+                <Menu.Root>
+                  <Menu.Trigger>Template</Menu.Trigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item onClick={() => setStep(2)}>Blank</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </div>
             </Dialog.Popup>
           </Dialog.Portal>
         </Dialog.Root>
@@ -230,13 +224,13 @@ describe('<Menu.Popup />', () => {
     }
 
     const { user } = await render(<App />);
-    const dialogTrigger = screen.getByRole('button', { name: 'Manage' });
+    const dialogTrigger = screen.getByRole('button', { name: 'Create' });
     await user.click(dialogTrigger);
-    await user.click(await screen.findByRole('button', { name: 'Actions 2' }));
-    await user.click(await screen.findByRole('menuitem', { name: 'Remove 2' }));
+    await user.click(await screen.findByRole('button', { name: 'Template' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Blank' }));
 
     await waitFor(() => {
-      expect(screen.queryByRole('button', { name: 'Actions 2' })).toBe(null);
+      expect(screen.queryByRole('menuitem', { name: 'Blank' })).toBe(null);
     });
     await flushMicrotasks();
     expect(screen.getByRole('dialog')).toBeInTheDocument();

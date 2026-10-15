@@ -276,9 +276,11 @@ describe('<Dialog.Popup />', () => {
     function DialogFromItem({
       source,
       preventTriggerFocus,
+      keepMountedDialog,
     }: {
       source: Source;
       preventTriggerFocus?: boolean;
+      keepMountedDialog?: boolean;
     }) {
       const [open, setOpen] = React.useState(false);
       return (
@@ -314,7 +316,7 @@ describe('<Dialog.Popup />', () => {
             </Menu.Root>
           )}
           <Dialog.Root open={open} onOpenChange={setOpen}>
-            <Dialog.Portal>
+            <Dialog.Portal keepMounted={keepMountedDialog}>
               <Dialog.Popup>
                 <Dialog.Close>Close</Dialog.Close>
               </Dialog.Popup>
@@ -327,6 +329,7 @@ describe('<Dialog.Popup />', () => {
     it.each([
       { name: 'select', source: 'select' },
       { name: 'keepMounted menu', source: 'keepMounted menu' },
+      { name: 'select (keepMounted dialog)', source: 'select', keepMountedDialog: true },
       // Safari and Firefox on macOS don't focus a pressed button.
       {
         name: 'keepMounted menu that pressing did not focus',
