@@ -449,11 +449,9 @@ describe('useCheckboxGroupParent', () => {
 
     const parent = screen.getByTestId('parent');
 
-    // From a mixed state the parent attempts to check all. The group cancels, so
-    // the internal status must not advance to 'on'.
+    // From a mixed state the parent proposes checking all, which the group cancels.
     fireEvent.click(parent);
-    // A second click must retry the same 'mixed -> on' transition instead of
-    // skipping ahead to 'on -> off' and proposing an empty value.
+    // A second click must propose checking all again rather than move on to none.
     fireEvent.click(parent);
 
     expect(handleValueChange).toHaveBeenCalledTimes(2);
@@ -461,7 +459,7 @@ describe('useCheckboxGroupParent', () => {
     expect(handleValueChange.mock.calls[1][0]).toEqual(allValues);
   });
 
-  it('does not pollute the parent snapshot when the group cancels a child change', async () => {
+  it('does not remember a child change the group cancels', async () => {
     const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
       eventDetails.cancel();
     });
@@ -475,11 +473,10 @@ describe('useCheckboxGroupParent', () => {
       </CheckboxGroup>,
     );
 
-    // Unchecking a child is canceled, so the parent's snapshot of checked
-    // children must stay intact.
+    // Unchecking a child is canceled, so the parent must not remember it.
     fireEvent.click(screen.getByTestId('checkboxA'));
-    // The parent still sees an all-checked group and toggles to none. A polluted
-    // snapshot would make it propose checking everything again.
+    // The parent still sees an all-checked group and toggles to none rather than proposing
+    // to check everything again.
     fireEvent.click(screen.getByTestId('parent'));
 
     expect(handleValueChange).toHaveBeenCalledTimes(2);
@@ -744,10 +741,19 @@ describe('useCheckboxGroupParent', () => {
     }) {
       const [value, setValue] = React.useState<string[]>([]);
       const [canceling, setCanceling] = React.useState(false);
+      // A ref, so toggling it doesn't rerender the group.
+      const ignoringRef = React.useRef(false);
       const [enabled, setEnabled] = React.useState(false);
       const [indeterminate, setIndeterminate] = React.useState(false);
       return (
         <div>
+          <button
+            onClick={() => {
+              ignoringRef.current = !ignoringRef.current;
+            }}
+          >
+            toggle ignoring
+          </button>
           <button onClick={() => setValue(props.outsideValue ?? [])}>set outside</button>
           <button onClick={() => setIndeterminate((prev) => !prev)}>toggle indeterminate</button>
           <button onClick={() => setValue(props.otherOutsideValue ?? [])}>set other outside</button>
@@ -759,7 +765,7 @@ describe('useCheckboxGroupParent', () => {
             onValueChange={(nextValue, eventDetails) => {
               if (canceling) {
                 eventDetails.cancel();
-              } else {
+              } else if (!ignoringRef.current) {
                 setValue(nextValue);
               }
             }}
@@ -971,6 +977,29 @@ describe('useCheckboxGroupParent', () => {
       expect(getCheckedValues()).toEqual(['b']);
     });
 
+    it('treats an outside value after an ignored change as a new mixed value', async () => {
+      const { user } = await render(<App outsideValue={['b']} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByRole('button', { name: 'toggle ignoring' }));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(screen.getByRole('button', { name: 'toggle ignoring' }));
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(getCheckedValues()).toEqual(['b']);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['b']);
+    });
+
     it('keeps the mixed value when a forced indeterminate change is canceled', async () => {
       const { user } = await render(<App />);
 
@@ -1006,16 +1035,17 @@ describe('useCheckboxGroupParent', () => {
     }) {
       const [value, setValue] = React.useState<string[]>(props.defaultValue ?? []);
       const [, rerender] = React.useReducer((count: number) => count + 1, 0);
-      const deferredRef = React.useRef<string[]>([]);
+      const deferredRef = React.useRef<string[][]>([]);
       return (
         <div>
-          <button onClick={() => setValue(deferredRef.current)}>land</button>
+          <button onClick={() => setValue(deferredRef.current.shift()!)}>land</button>
+          <button onClick={() => setValue(['b'])}>set outside</button>
           <button onClick={rerender}>rerender</button>
           <CheckboxGroup
             value={props.derived ? [...value] : value}
             onValueChange={(nextValue) => {
               if (props.deferred) {
-                deferredRef.current = nextValue;
+                deferredRef.current.push(nextValue);
               } else if (props.sync) {
                 ReactDOM.flushSync(() => setValue(nextValue));
               } else {
@@ -1061,6 +1091,51 @@ describe('useCheckboxGroupParent', () => {
 
       await user.click(parent);
       expect(getCheckedValues()).toEqual(['a']);
+    });
+
+    it('keeps a child change that lands after the parent was clicked', async () => {
+      const { user } = await render(<App deferred />);
+
+      const parent = screen.getByTestId('parent');
+      const land = screen.getByRole('button', { name: 'land' });
+
+      await user.click(screen.getByTestId('a'));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(land);
+      await user.click(land);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      await user.click(land);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      await user.click(land);
+      expect(getCheckedValues()).toEqual(['a']);
+    });
+
+    it('returns to a mixed value set from outside while changes are deferred', async () => {
+      const { user } = await render(<App deferred />);
+
+      const parent = screen.getByTestId('parent');
+      const land = screen.getByRole('button', { name: 'land' });
+
+      await user.click(parent);
+      await user.click(land);
+      expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(screen.getByRole('button', { name: 'set outside' }));
+      expect(getCheckedValues()).toEqual(['b']);
+
+      for (const checkedValues of [allValues, [], ['b']]) {
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(parent);
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(land);
+        expect(getCheckedValues()).toEqual(checkedValues);
+      }
     });
 
     it('keeps the cycle when a derived value rerenders before a deferred change lands', async () => {

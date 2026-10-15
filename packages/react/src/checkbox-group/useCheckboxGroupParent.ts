@@ -10,15 +10,21 @@ function hasSameValues(a: readonly string[], b: readonly string[]) {
   return a.length === b.length && a.every((v) => b.includes(v));
 }
 
+// The last change, unless `value` was set from outside since.
+function getLastChange(lastChange: LastChange | null, value: string[]) {
+  return lastChange && hasSameValues(value, lastChange.values[0]) ? lastChange : null;
+}
+
 export function useCheckboxGroupParent(
   params: UseCheckboxGroupParentParameters,
 ): UseCheckboxGroupParentReturnValue {
-  const { allValues = EMPTY_ARRAY, value, onValueChange: onValueChangeProp } = params;
+  const { allValues = EMPTY_ARRAY, value, onValueChange } = params;
 
-  // The parent's last proposed value, the mixed selection it returns to, and the `value` it was
-  // stored as, to tell when `value` was changed from outside. Until it's stored, `value` is the
-  // one it replaced, so a handler that stores a transformed selection still advances the cycle.
-  const parentChangeRef = React.useRef<ParentChange | null>(null);
+  // The last proposed value and the mixed selection the parent returns to, which the cycle
+  // advances from. `values` holds the last value stored, then the proposals that haven't landed
+  // yet, so a `value` that doesn't match the first was set from outside.
+  const lastChangeRef = React.useRef<LastChange | null>(null);
+  const [changeCommit, forceRender] = React.useState({});
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
   // A `Map` rather than an object: checkbox values are consumer data, and a value like
@@ -31,15 +37,41 @@ export function useCheckboxGroupParent(
   const checked = value.length === allValues.length;
   const indeterminate = value.length !== allValues.length && value.length > 0;
 
-  const onValueChange = useStableCallback(onValueChangeProp);
-
   useIsoLayoutEffect(() => {
-    const parentChange = parentChangeRef.current;
-    if (parentChange?.pending && !hasSameValues(value, parentChange.value)) {
-      parentChange.value = value;
-      parentChange.pending = false;
+    const lastChange = lastChangeRef.current;
+    if (!lastChange) {
+      return;
     }
-  }, [value]);
+    const index = lastChange.values.findIndex((v) => hasSameValues(value, v));
+    if (index !== -1) {
+      lastChange.values = lastChange.values.slice(index);
+    } else if (lastChange.pending) {
+      // Stored in the commit the change renders in, but transformed by the handler.
+      lastChange.values = [value];
+    }
+    lastChange.pending = false;
+  }, [value, changeCommit]);
+
+  const changeValue = useStableCallback(
+    (
+      nextValue: string[],
+      mixed: string[],
+      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+    ) => {
+      onValueChange?.(nextValue, eventDetails);
+
+      if (!eventDetails.isCanceled) {
+        lastChangeRef.current = {
+          proposed: nextValue,
+          mixed,
+          values: [...(getLastChange(lastChangeRef.current, value)?.values ?? [value]), nextValue],
+          pending: true,
+        };
+        // Commits even when the handler ignores the change, so a later `value` isn't taken as it.
+        forceRender({});
+      }
+    },
+  );
 
   const registerChildId = useStableCallback((childValue: string, childId: string) => {
     const childIds = childIdsState.registry;
@@ -72,19 +104,12 @@ export function useCheckboxGroupParent(
         const none = allValues.filter((v) => disabledStates.get(v) && value.includes(v));
         const all = allValues.filter((v) => !disabledStates.get(v) || value.includes(v));
 
-        // Advance from what the parent proposed rather than what the handler stored. Restart the
-        // cycle from a value set from outside or by a child, or from a partial selection only the
+        // Restart the cycle from a value set from outside, or from a partial selection only the
         // parent's `indeterminate` prop knows about, as with a nested group.
-        let proposed = value;
-        let mixed = value;
-        const parentChange = parentChangeRef.current;
-        if (
-          parentChange &&
-          hasSameValues(value, parentChange.value) &&
-          !(indeterminateProp && !indeterminate)
-        ) {
-          ({ proposed, mixed } = parentChange);
-        }
+        const lastChange =
+          indeterminateProp && !indeterminate ? null : getLastChange(lastChangeRef.current, value);
+        const proposed = lastChange?.proposed ?? value;
+        const mixed = lastChange?.mixed ?? value;
 
         let nextValue = all;
         if (hasSameValues(proposed, all)) {
@@ -97,17 +122,10 @@ export function useCheckboxGroupParent(
           nextValue = mixed;
         }
 
-        // Set before the change so a value stored synchronously is read back.
-        parentChangeRef.current = { proposed: nextValue, mixed, value, pending: true };
-
-        onValueChange(nextValue, eventDetails);
-
-        if (eventDetails.isCanceled) {
-          parentChangeRef.current = parentChange;
-        }
+        changeValue(nextValue, mixed, eventDetails);
       },
     }),
-    [allValues, checked, childIdsState, indeterminate, onValueChange, value],
+    [allValues, changeValue, checked, childIdsState, indeterminate, value],
   );
 
   const getChildProps: UseCheckboxGroupParentReturnValue['getChildProps'] = React.useCallback(
@@ -121,14 +139,10 @@ export function useCheckboxGroupParent(
           newValue.splice(newValue.indexOf(childValue), 1);
         }
 
-        onValueChange(newValue, eventDetails);
-
-        if (!eventDetails.isCanceled) {
-          parentChangeRef.current = null;
-        }
+        changeValue(newValue, newValue, eventDetails);
       },
     }),
-    [onValueChange, value],
+    [changeValue, value],
   );
 
   return React.useMemo(
@@ -142,10 +156,10 @@ export function useCheckboxGroupParent(
   );
 }
 
-interface ParentChange {
+interface LastChange {
   proposed: string[];
   mixed: string[];
-  value: string[];
+  values: string[][];
   pending: boolean;
 }
 
