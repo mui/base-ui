@@ -2853,6 +2853,46 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(onClick).toHaveBeenCalledTimes(1);
     });
 
+    it('types spaces without a highlight and activates the highlighted item with Space', async () => {
+      const onClick = vi.fn();
+      const { user } = await render(
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item onClick={onClick} closeOnClick={false}>
+                      Rename file
+                    </Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => expect(input).toHaveFocus());
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      await user.keyboard('Rename[Space]');
+      expect(input).toHaveValue('Rename ');
+      expect(onClick).not.toHaveBeenCalled();
+
+      await user.keyboard('[ArrowDown]');
+      const item = screen.getByRole('menuitem', { name: 'Rename file' });
+      expect(item).toHaveAttribute('data-highlighted');
+      expect(input).toHaveFocus();
+      await user.keyboard('[Space]');
+
+      expect(onClick).toHaveBeenCalledTimes(1);
+      expect(input).toHaveValue('Rename ');
+      expect(input).toHaveFocus();
+    });
+
     it('does not activate the highlighted item when Enter commits an IME composition', async () => {
       const onClick = vi.fn();
       const { user } = await render(
