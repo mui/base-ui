@@ -197,45 +197,53 @@ describe('<Menu.Popup />', () => {
     await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
   });
 
-  it('does not move focus behind a modal dialog when an item hides the trigger', async () => {
-    function App() {
-      const [step, setStep] = React.useState(1);
-      return (
-        <Dialog.Root>
-          <Dialog.Trigger>Create</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup>
-              <div hidden={step !== 1}>
-                <Menu.Root>
-                  <Menu.Trigger>Template</Menu.Trigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.Item onClick={() => setStep(2)}>Blank</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.Root>
-              </div>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>
-      );
-    }
+  it.each([
+    { name: 'its trigger', live: false },
+    // Live regions outside a modal stay exposed to assistive tech.
+    { name: 'its trigger in a live region', live: true },
+  ])(
+    'does not move focus behind a modal dialog to $name when an item hides the menu trigger',
+    async ({ live }) => {
+      function App() {
+        const [step, setStep] = React.useState(1);
+        const dialogTrigger = <Dialog.Trigger>Create</Dialog.Trigger>;
+        return (
+          <Dialog.Root>
+            {live ? <div aria-live="polite">{dialogTrigger}</div> : dialogTrigger}
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <div hidden={step !== 1}>
+                  <Menu.Root>
+                    <Menu.Trigger>Template</Menu.Trigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Item onClick={() => setStep(2)}>Blank</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.Root>
+                </div>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
 
-    const { user } = await render(<App />);
-    const dialogTrigger = screen.getByRole('button', { name: 'Create' });
-    await user.click(dialogTrigger);
-    await user.click(await screen.findByRole('button', { name: 'Template' }));
-    await user.click(await screen.findByRole('menuitem', { name: 'Blank' }));
+      const { user } = await render(<App />);
+      const dialogTrigger = screen.getByRole('button', { name: 'Create' });
+      await user.click(dialogTrigger);
+      await user.click(await screen.findByRole('button', { name: 'Template' }));
+      await user.click(await screen.findByRole('menuitem', { name: 'Blank' }));
 
-    await waitFor(() => {
-      expect(screen.queryByRole('menuitem', { name: 'Blank' })).toBe(null);
-    });
-    await flushMicrotasks();
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(dialogTrigger).not.toHaveFocus();
-  });
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Blank' })).toBe(null);
+      });
+      await flushMicrotasks();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(dialogTrigger).not.toHaveFocus();
+    },
+  );
 
   it('keeps focus on an input that autofocuses when the trigger is hidden as the menu closes', async () => {
     function App() {
