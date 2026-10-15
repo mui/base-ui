@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../internals/reasons';
@@ -15,8 +16,10 @@ export function useCheckboxGroupParent(
   const { allValues = EMPTY_ARRAY, value, onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
-  // The value this hook last produced, to tell when `value` was changed from outside.
-  const lastValueRef = React.useRef(value);
+  // The parent's last proposed value and the `value` it was stored as, to tell when `value` was
+  // changed from outside. Until it's stored, `value` is the one it replaced, so a handler that
+  // stores a transformed selection still advances the cycle.
+  const parentChangeRef = React.useRef<ParentChange | null>(null);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
   // A `Map` rather than an object: checkbox values are consumer data, and a value like
@@ -30,6 +33,13 @@ export function useCheckboxGroupParent(
   const indeterminate = value.length !== allValues.length && value.length > 0;
 
   const onValueChange = useStableCallback(onValueChangeProp);
+
+  useIsoLayoutEffect(() => {
+    const parentChange = parentChangeRef.current;
+    if (parentChange?.pending && !hasSameValues(value, parentChange.value)) {
+      parentChangeRef.current = { proposed: parentChange.proposed, value, pending: false };
+    }
+  }, [value]);
 
   const registerChildId = useStableCallback((childValue: string, childId: string) => {
     const childIds = childIdsState.registry;
@@ -62,28 +72,40 @@ export function useCheckboxGroupParent(
         const none = allValues.filter((v) => disabledStates.get(v) && value.includes(v));
         const all = allValues.filter((v) => !disabledStates.get(v) || value.includes(v));
 
-        // Restart the cycle from a value set from outside, or from a partial selection only the
-        // parent's `indeterminate` prop knows about, as with a nested group.
-        if (!hasSameValues(value, lastValueRef.current) || (indeterminateProp && !indeterminate)) {
-          uncontrolledStateRef.current = value;
+        let parentChange = parentChangeRef.current;
+        // Restart the cycle from a value set from outside or by a child, or from a partial
+        // selection only the parent's `indeterminate` prop knows about, as with a nested group.
+        if (
+          (parentChange && !hasSameValues(value, parentChange.value)) ||
+          (indeterminateProp && !indeterminate)
+        ) {
+          parentChange = null;
         }
-        const mixed = uncontrolledStateRef.current;
+        // Advance from what the parent proposed rather than what the handler stored.
+        const current = parentChange ? parentChange.proposed : value;
+        const mixed = parentChange ? uncontrolledStateRef.current : value;
 
         let nextValue = all;
-        if (hasSameValues(value, all)) {
+        if (hasSameValues(current, all)) {
           nextValue = none;
         } else if (
-          hasSameValues(value, none) &&
+          hasSameValues(current, none) &&
           mixed.length > none.length &&
           mixed.length < all.length
         ) {
           nextValue = mixed;
         }
 
+        // Set before the change so a value stored synchronously is read back.
+        const prevParentChange = parentChangeRef.current;
+        parentChangeRef.current = { proposed: nextValue, value, pending: true };
+
         onValueChange(nextValue, eventDetails);
 
-        if (!eventDetails.isCanceled) {
-          lastValueRef.current = nextValue;
+        if (eventDetails.isCanceled) {
+          parentChangeRef.current = prevParentChange;
+        } else {
+          uncontrolledStateRef.current = mixed;
         }
       },
     }),
@@ -104,8 +126,7 @@ export function useCheckboxGroupParent(
         onValueChange(newValue, eventDetails);
 
         if (!eventDetails.isCanceled) {
-          uncontrolledStateRef.current = newValue;
-          lastValueRef.current = newValue;
+          parentChangeRef.current = null;
         }
       },
     }),
@@ -121,6 +142,12 @@ export function useCheckboxGroupParent(
     }),
     [getParentProps, getChildProps, registerChildId],
   );
+}
+
+interface ParentChange {
+  proposed: readonly string[];
+  value: readonly string[];
+  pending: boolean;
 }
 
 export interface UseCheckboxGroupParentParameters {

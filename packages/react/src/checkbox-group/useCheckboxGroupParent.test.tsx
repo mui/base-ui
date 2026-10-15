@@ -677,9 +677,11 @@ describe('useCheckboxGroupParent', () => {
       const [value, setValue] = React.useState<string[]>([]);
       const [canceling, setCanceling] = React.useState(false);
       const [enabled, setEnabled] = React.useState(false);
+      const [indeterminate, setIndeterminate] = React.useState(false);
       return (
         <div>
           <button onClick={() => setValue(props.outsideValue ?? [])}>set outside</button>
+          <button onClick={() => setIndeterminate((prev) => !prev)}>toggle indeterminate</button>
           <button onClick={() => setValue(props.otherOutsideValue ?? [])}>set other outside</button>
           <button onClick={() => setValue([])}>clear outside</button>
           <button onClick={() => setCanceling((prev) => !prev)}>toggle canceling</button>
@@ -695,7 +697,7 @@ describe('useCheckboxGroupParent', () => {
             }}
             allValues={allValues}
           >
-            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root parent indeterminate={indeterminate} data-testid="parent" />
             {allValues.map((v) => (
               <Checkbox.Root
                 key={v}
@@ -900,6 +902,30 @@ describe('useCheckboxGroupParent', () => {
       await user.click(parent);
       expect(getCheckedValues()).toEqual(['b']);
     });
+
+    it('keeps the mixed value when a forced indeterminate change is canceled', async () => {
+      const { user } = await render(<App />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(screen.getByTestId('a'));
+      await user.click(parent);
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(screen.getByRole('button', { name: 'toggle indeterminate' }));
+      expect(parent).toHaveAttribute('aria-checked', 'mixed');
+      await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(screen.getByRole('button', { name: 'toggle canceling' }));
+      await user.click(screen.getByRole('button', { name: 'toggle indeterminate' }));
+      expect(parent).toHaveAttribute('aria-checked', 'false');
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a']);
+    });
   });
 
   describe('value stored by onValueChange', () => {
@@ -908,6 +934,7 @@ describe('useCheckboxGroupParent', () => {
       sync?: boolean;
       deferred?: boolean;
       derived?: boolean;
+      exclude?: string;
     }) {
       const [value, setValue] = React.useState<string[]>(props.defaultValue ?? []);
       const [, rerender] = React.useReducer((count: number) => count + 1, 0);
@@ -924,7 +951,7 @@ describe('useCheckboxGroupParent', () => {
               } else if (props.sync) {
                 ReactDOM.flushSync(() => setValue(nextValue));
               } else {
-                setValue(nextValue);
+                setValue(nextValue.filter((v) => v !== props.exclude));
               }
             }}
             allValues={allValues}
@@ -945,6 +972,21 @@ describe('useCheckboxGroupParent', () => {
 
       await user.click(parent);
       expect(getCheckedValues()).toEqual(allValues);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual([]);
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a']);
+    });
+
+    it('keeps the cycle when the handler filters the value', async () => {
+      const { user } = await render(<App exclude="c" defaultValue={['a']} />);
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(parent);
+      expect(getCheckedValues()).toEqual(['a', 'b']);
 
       await user.click(parent);
       expect(getCheckedValues()).toEqual([]);
