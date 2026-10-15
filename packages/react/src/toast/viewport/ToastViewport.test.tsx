@@ -1220,6 +1220,42 @@ describe('<Toast.Viewport />', () => {
       expect(screen.queryByTestId('root')).toBe(null);
     });
 
+    it('keeps timers paused on F6 after the outer focus guard returned focus to the page', async () => {
+      const manager = Toast.createToastManager();
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager}>
+          <button type="button">origin</button>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+      await act(async () => {
+        manager.add({ title: 'title' });
+      });
+      const origin = screen.getByRole('button', { name: 'origin' });
+      const viewport = screen.getByTestId('viewport');
+
+      await act(async () => origin.focus());
+      fireEvent.keyDown(origin, { key: 'F6' });
+      expect(viewport).toHaveFocus();
+
+      // Leaving without the keyboard keeps the guards rendered, so tabbing forward from
+      // the page reaches the outer guard, which returns focus to the F6 origin.
+      await act(async () => origin.focus());
+      const outerGuard = viewport.previousElementSibling as HTMLElement;
+      await act(async () => outerGuard.focus());
+      expect(origin).toHaveFocus();
+
+      fireEvent.keyDown(origin, { key: 'F6' });
+      expect(viewport).toHaveFocus();
+      expect(viewport).toHaveAttribute('data-expanded');
+
+      clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).not.toBe(null);
+    });
+
     it.skipIf(!isJSDOM)('resumes timers when the window regains focus', async () => {
       const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
 

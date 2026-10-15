@@ -28,7 +28,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const store = useToastProviderContext();
   const windowFocusTimeout = useTimeout();
 
-  const handlingFocusGuardRef = React.useRef(false);
   const markedReadyForMouseLeaveRef = React.useRef(false);
   const touchActiveRef = React.useRef(false);
 
@@ -43,9 +42,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const highPriorityToasts = toasts.filter((toast) => toast.priority === 'high');
 
   React.useEffect(() => {
-    // `store.state.viewport` isn't available on the first render, since the portal node hasn't yet
-    // been created. Depending on `isEmpty` re-runs this once toasts exist, by which point the
-    // viewport ref is available. Only window focus is tracked while the viewport is empty.
+    // Window focus is tracked even while empty, so toasts added in the background start paused.
+    // `isEmpty` only toggles the F6 and touch listeners.
     const viewport = store.state.viewport;
     if (!viewport) {
       return undefined;
@@ -64,7 +62,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       event.preventDefault();
       // Set the restore target before focusing: consumer focus handlers may close the toasts.
       store.set('prevFocusElement', activeElement(doc) as HTMLElement | null);
-      viewport?.focus({ preventScroll: true });
+      // `handleFocus` pauses only on visible focus, which script focus doesn't get everywhere.
+      viewport?.focus({ preventScroll: true, focusVisible: true });
     }
 
     function handleWindowBlur(event: FocusEvent) {
@@ -100,8 +99,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }, [store, windowFocusTimeout, isEmpty]);
 
   function handleFocusGuard(event: React.FocusEvent) {
-    handlingFocusGuardRef.current = true;
-
     // If we're coming off the container, move to the first toast that can hold
     // focus, skipping toasts that are animating out or inert because they're limited.
     const firstFocusableToast =
@@ -123,8 +120,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
     const isF6 = event.key === 'F6';
     if (isF6) {
-      // Handle exits before other viewports' global listeners. Without a return target,
-      // leave the default action to the browser.
+      // Keep F6 pressed inside the viewport away from the global F6 listeners (including this
+      // one's), which would pull focus back to the viewport. Without a return target, leave the
+      // default action to the browser.
       event.stopPropagation();
     }
 
@@ -188,11 +186,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleFocus() {
-    if (handlingFocusGuardRef.current) {
-      handlingFocusGuardRef.current = false;
-      return;
-    }
-
     if (focused) {
       return;
     }
