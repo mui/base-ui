@@ -139,7 +139,7 @@ Browser focus stays in our input while users navigate the menu though, so focus 
 
 When the input is empty and a menu item is highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item. When the highlight returns to the input, those keys update the field instead and the input’s `data-highlighted` attribute makes that navigation stop visible.
 
-Once the input has a value, those keys update the input, even when a menu item is highlighted, because entering a query signals the user’s intent to search.
+When the input has a value, those keys navigate the input, even when a menu item is highlighted, because entering a query signals the user’s intent to search.
 
 Try it below. With the input empty, press <kbd>↓</kbd> to highlight an action, then try <kbd>Home</kbd> and <kbd>End</kbd>. Type "e", highlight an action again, and try the same keys to move the caret. This is a small sketch of the behavior rather than Base UI itself.
 

@@ -83,6 +83,12 @@ export default function DemoKeyControl() {
         }
         return;
 
+      case ' ':
+        event.stopPropagation();
+        setHighlightedIndex(INPUT_INDEX);
+        setLastAction('');
+        return;
+
       case 'Enter':
         event.preventDefault();
         if (!isEditing) {
