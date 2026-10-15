@@ -133,13 +133,13 @@ Sighted keyboard users never leave the field, but that arrow-key behavior of loo
 
 ### Same key, different meaning
 
-Another thing to consider is that the same key can mean different things depending on the context you’re in. In an ordinary menu, <kbd>Home</kbd> and <kbd>End</kbd> follow the familiar [menu keyboard conventions](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/#keyboardinteraction) of moving to the first or last item. In a text field, they move the caret to the beginning or end of the text.
+Another thing to consider is that the same key can mean different things depending on the context you're in. In an ordinary menu, <kbd>Home</kbd> and <kbd>End</kbd> follow the familiar [menu keyboard conventions](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/#keyboardinteraction) of moving to the first or last item. In a text field, they move the caret to the beginning or end of the text.
 
 Browser focus stays in our input while users navigate the menu though, so focus alone can't tell us which behavior to use.
 
-When the input is empty and a menu item is highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item. When the highlight returns to the input, those keys update the field instead and the input’s `data-highlighted` attribute makes that navigation stop visible.
+When the input is empty and a menu item is highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item. When the highlight returns to the input, those keys update the field instead and the input's `data-highlighted` attribute makes that navigation stop visible.
 
-When the input has a value, those keys navigate the input, even when a menu item is highlighted, because entering a query signals the user’s intent to search.
+When the input has a value, those keys navigate the input, even when a menu item is highlighted, because entering a query signals the user's intent to search.
 
 Try it below. With the input empty, press <kbd>↓</kbd> to highlight an action, then try <kbd>Home</kbd> and <kbd>End</kbd>. Type "e", highlight an action again, and try the same keys to move the caret. This is a small sketch of the behavior rather than Base UI itself.
 
