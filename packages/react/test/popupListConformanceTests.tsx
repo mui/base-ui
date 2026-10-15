@@ -1100,7 +1100,7 @@ export interface PopupListTestConfig {
    */
   selectable?: boolean;
   /**
-   * Whether Space activates the highlighted item. Comboboxes type it into the input instead.
+   * Whether Space activates the highlighted item when opened without typing.
    * @default true
    */
   spaceActivates?: boolean;

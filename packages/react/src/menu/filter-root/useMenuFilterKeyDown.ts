@@ -74,6 +74,10 @@ export function getMenuFilterKeyAction(
   if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
     return isArrow || isBoundary || key.length === 1 ? 'edit' : 'navigate';
   }
+  // Space activates the highlight only when there is no text to edit.
+  if (key === ' ' && hasActiveItem && !hasValue) {
+    return 'activate';
+  }
   // Characters stay out of parent handlers such as typeahead.
   if (key.length === 1) {
     return 'edit';
