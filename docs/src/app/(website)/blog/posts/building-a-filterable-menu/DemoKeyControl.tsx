@@ -11,9 +11,6 @@ const actions = ['Rename', 'Duplicate', 'Move to folder', 'Archive', 'Delete'];
 const keyLabels: Record<string, string> = {
   ArrowDown: 'Down Arrow',
   ArrowUp: 'Up Arrow',
-  Home: 'Home',
-  End: 'End',
-  Enter: 'Enter',
   ' ': 'Space',
 };
 
@@ -29,6 +26,7 @@ export default function DemoKeyControl() {
   const lastActionIndex = visibleActions.length - 1;
   const highlightedAction = visibleActions[highlightedIndex];
   const isEditing = highlightedIndex === INPUT_INDEX;
+  const homeEndNavigatesMenu = query === '' && !isEditing;
   const menuId = `${id}-menu`;
 
   function handleQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -42,6 +40,14 @@ export default function DemoKeyControl() {
     setLastKey(keyLabels[key] ?? key);
 
     if (event.nativeEvent.isComposing) {
+      return;
+    }
+
+    if (key === 'Enter') {
+      event.preventDefault();
+      if (!isEditing) {
+        setLastAction(highlightedAction);
+      }
       return;
     }
 
@@ -74,25 +80,12 @@ export default function DemoKeyControl() {
       case 'Home':
       case 'End':
         event.preventDefault();
-        if (query !== '' || isEditing || event.shiftKey) {
+        if (!homeEndNavigatesMenu || event.shiftKey) {
           const input = event.currentTarget;
           const position = key === 'Home' ? 0 : input.value.length;
           moveCaret(input, position, event.shiftKey);
         } else {
           setHighlightedIndex(key === 'Home' ? 0 : lastActionIndex);
-        }
-        return;
-
-      case ' ':
-        event.stopPropagation();
-        setHighlightedIndex(INPUT_INDEX);
-        setLastAction('');
-        return;
-
-      case 'Enter':
-        event.preventDefault();
-        if (!isEditing) {
-          setLastAction(highlightedAction);
         }
         return;
 
@@ -143,7 +136,7 @@ export default function DemoKeyControl() {
             <dt>Input</dt>
             <dd>{query === '' ? 'empty' : JSON.stringify(query)}</dd>
             <dt>Home / End</dt>
-            <dd>{query === '' && !isEditing ? 'navigate menu' : 'move caret'}</dd>
+            <dd>{homeEndNavigatesMenu ? 'navigate menu' : 'move caret'}</dd>
             <dt>Highlighted</dt>
             <dd>{isEditing ? 'input' : highlightedAction}</dd>
             <dt>Last key</dt>
@@ -157,7 +150,7 @@ export default function DemoKeyControl() {
           <p>
             With the input empty, press <Kbd>↓</Kbd>, then <Kbd>Home</Kbd> or <Kbd>End</Kbd>.
           </p>
-          <p>Type "e", highlight a match, and try again to move the caret.</p>
+          <p>Type "de", highlight a match, and try again to move the caret.</p>
           <p>
             <Kbd>Enter</Kbd> runs the highlighted action.
           </p>

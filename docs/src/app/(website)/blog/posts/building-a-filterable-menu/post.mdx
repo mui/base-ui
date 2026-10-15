@@ -137,11 +137,11 @@ Another thing to consider is that the same key can mean different things dependi
 
 Browser focus stays in our input while users navigate the menu though, so focus alone can't tell us which behavior to use.
 
-When the input is empty and a menu item is highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item. When the highlight returns to the input, those keys update the field instead and the input's `data-highlighted` attribute makes that navigation stop visible.
+When the input is empty and a menu item is highlighted, <kbd>Home</kbd> and <kbd>End</kbd> move to the first or last item. Once the highlight returns to the input, they move the caret again, and `data-highlighted` shows the user is back at the field.
 
-When the input has a value, those keys navigate the input, even when a menu item is highlighted, because entering a query signals the user's intent to search.
+When the input has a value, those keys move the caret, even when a menu item is highlighted, because entering a query signals the user's intent to search.
 
-Try it below. With the input empty, press <kbd>↓</kbd> to highlight an action, then try <kbd>Home</kbd> and <kbd>End</kbd>. Type "e", highlight an action again, and try the same keys to move the caret. This is a small sketch of the behavior rather than Base UI itself.
+Try it below. This is a small sketch of the behavior rather than Base UI itself.
 
 <Figure>
   <FigureFrame>
@@ -201,7 +201,7 @@ In an ordinary menu, arrow keys move through the actions, while <kbd>Tab</kbd> m
 
 We could have added a hidden dismiss button for touch screen reader users, but it would need a label in the application's language. Asking developers to provide that label through a prop or hidden part would make the exit depend on configuration that's easy to skip because the hidden button's purpose isn't obvious. Letting users navigate past the menu instead keeps the exit available without extra setup.
 
-Why does this matter for filterable menus? Our first version put the input Clear button in the tab order, which seemed fine until we tried leaving the menu and had to press <kbd>Tab</kbd> twice. So, we removed that extra stop. Clear remains available to pointer users, and keyboard and screen reader users can delete the input text directly. This keeps the learned way to leave a menu consistent across filterable and non-filterable menus.
+Why does this matter for filterable menus? Our first version put `Menu.Clear` in the tab order, which seemed fine until we tried leaving the menu and had to press <kbd>Tab</kbd> twice. So, we removed that extra stop. Clear remains available to pointer users, and keyboard and screen reader users can delete the input text directly. This keeps the learned way to leave a menu consistent across filterable and non-filterable menus.
 
 ## Why not a search input?
 
