@@ -5,7 +5,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
@@ -56,23 +56,15 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
     // Listen globally for F6 so we can force-focus the viewport.
     function handleGlobalKeyDown(event: KeyboardEvent) {
-      // Skip presses already handled and viewports that can't take focus.
-      if (
-        event.key !== 'F6' ||
-        event.defaultPrevented ||
-        viewport?.checkVisibility?.({ visibilityProperty: true }) === false ||
-        closest(viewport, '[inert]')
-      ) {
+      // Skip presses another viewport already handled.
+      if (event.key !== 'F6' || event.defaultPrevented) {
         return;
       }
 
       event.preventDefault();
-      // Holding F6 shouldn't move focus back and forth between the viewport and the page.
-      if (!event.repeat) {
-        // Set the restore target before focusing: consumer focus handlers may close the toasts.
-        store.set('prevFocusElement', activeElement(doc) as HTMLElement | null);
-        viewport?.focus({ preventScroll: true });
-      }
+      // Set the restore target before focusing: consumer focus handlers may close the toasts.
+      store.set('prevFocusElement', activeElement(doc) as HTMLElement | null);
+      viewport?.focus({ preventScroll: true });
     }
 
     function handleWindowBlur(event: FocusEvent) {
@@ -134,10 +126,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       // Handle exits before other viewports' global listeners. Without a return target,
       // leave the default action to the browser.
       event.stopPropagation();
-      if (event.repeat) {
-        event.preventDefault();
-        return;
-      }
     }
 
     if (

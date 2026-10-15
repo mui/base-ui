@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import type { UserEvent } from '@testing-library/user-event';
 import { Toast } from '@base-ui/react/toast';
-import { inertValue } from '@base-ui/utils/inertValue';
 import {
   createRenderer,
   describeConformance,
@@ -348,27 +347,6 @@ describe('<Toast.Viewport />', () => {
     expect(origin).toHaveFocus();
   });
 
-  it('keeps focus on the previous element while F6 is held from inside the viewport', async () => {
-    const { user } = await render(
-      <Toast.Provider>
-        <Toast.Viewport data-testid="viewport">
-          <List />
-        </Toast.Viewport>
-        <Button />
-      </Toast.Provider>,
-    );
-
-    const button = screen.getByRole('button', { name: 'add' });
-
-    await user.click(button);
-    await user.keyboard('{F6}');
-    expect(screen.getByTestId('viewport')).toHaveFocus();
-
-    await user.keyboard('{F6>2}');
-
-    expect(button).toHaveFocus();
-  });
-
   it('does not restore focus on an F6 press prevented by the consumer', async () => {
     const { user } = await render(
       <Toast.Provider>
@@ -461,42 +439,6 @@ describe('<Toast.Viewport />', () => {
     expect(screen.getByTestId('viewport')).toHaveFocus();
   });
 
-  it('skips a viewport inside an inert container when F6 is pressed with two providers', async () => {
-    const inertManager = Toast.createToastManager();
-    const usableManager = Toast.createToastManager();
-    const { user } = await render(
-      <React.Fragment>
-        <button type="button">page</button>
-        <div inert={inertValue(true)}>
-          <Toast.Provider toastManager={inertManager}>
-            <Toast.Viewport>
-              <List />
-            </Toast.Viewport>
-          </Toast.Provider>
-        </div>
-        <Toast.Provider toastManager={usableManager}>
-          <Toast.Viewport data-testid="usable-viewport">
-            <List />
-          </Toast.Viewport>
-        </Toast.Provider>
-      </React.Fragment>,
-    );
-
-    await act(async () => {
-      inertManager.add({ title: 'inert' });
-    });
-    await act(async () => {
-      usableManager.add({ title: 'usable' });
-    });
-
-    const button = screen.getByRole('button', { name: 'page' });
-    await act(async () => button.focus());
-
-    await user.keyboard('{F6}');
-
-    expect(screen.getByTestId('usable-viewport')).toHaveFocus();
-  });
-
   it('ignores F6 while the viewport is empty', async () => {
     await render(
       <React.Fragment>
@@ -545,20 +487,17 @@ describe('<Toast.Viewport />', () => {
       secondManager.add({ title: 'second' });
       origin.focus();
     });
+    // The first viewport's global listener was registered first, so F6 enters it.
     const firstViewport = screen.getByTestId('first-viewport');
-    const secondViewport = screen.getByTestId('second-viewport');
-    // Keep the first listener registered while F6 enters the second viewport.
-    firstViewport.setAttribute('inert', '');
     if (enterWithF6) {
       await user.keyboard('{F6}');
     } else {
-      await act(async () => secondViewport.focus());
+      await act(async () => firstViewport.focus());
     }
-    expect(secondViewport).toHaveFocus();
-    firstViewport.removeAttribute('inert');
+    expect(firstViewport).toHaveFocus();
 
-    expect(fireEvent.keyDown(secondViewport, { key: 'F6' })).toBe(!enterWithF6);
-    expect(enterWithF6 ? origin : secondViewport).toHaveFocus();
+    expect(fireEvent.keyDown(firstViewport, { key: 'F6' })).toBe(!enterWithF6);
+    expect(enterWithF6 ? origin : firstViewport).toHaveFocus();
   });
 
   it('returns focus to the body on F6 when nothing had focus before entering', async () => {
@@ -606,22 +545,6 @@ describe('<Toast.Viewport />', () => {
     await act(async () => viewport.focus());
 
     expect(fireEvent.keyDown(viewport, { key: 'Tab', shiftKey: true })).toBe(true);
-  });
-
-  it('keeps the viewport focused while F6 is held', async () => {
-    const { user } = await render(
-      <Toast.Provider>
-        <Toast.Viewport data-testid="viewport">
-          <List />
-        </Toast.Viewport>
-        <Button />
-      </Toast.Provider>,
-    );
-
-    await user.click(screen.getByRole('button', { name: 'add' }));
-    await user.keyboard('{F6>2}');
-
-    expect(screen.getByTestId('viewport')).toHaveFocus();
   });
 
   it.each([
@@ -1969,47 +1892,6 @@ describe('<Toast.Viewport />', () => {
 
       expect(screen.getByTestId('newest')).toHaveFocus();
     });
-
-    it.each([
-      { name: 'the hidden attribute', props: { hidden: true } },
-      { name: 'visibility: hidden', props: { style: { visibility: 'hidden' as const } } },
-    ])(
-      'skips a viewport hidden with $name when F6 is pressed with two providers',
-      async ({ props }) => {
-        const hiddenManager = Toast.createToastManager();
-        const visibleManager = Toast.createToastManager();
-
-        const { user } = await render(
-          <React.Fragment>
-            <button type="button">page</button>
-            <Toast.Provider toastManager={hiddenManager}>
-              <Toast.Viewport data-testid="hidden-viewport" {...props}>
-                <TitleList />
-              </Toast.Viewport>
-            </Toast.Provider>
-            <Toast.Provider toastManager={visibleManager}>
-              <Toast.Viewport data-testid="visible-viewport">
-                <TitleList />
-              </Toast.Viewport>
-            </Toast.Provider>
-          </React.Fragment>,
-        );
-
-        await act(async () => {
-          hiddenManager.add({ id: 'hidden', title: 'hidden' });
-          visibleManager.add({ id: 'visible', title: 'visible' });
-        });
-
-        const button = screen.getByRole('button', { name: 'page' });
-        await act(async () => button.focus());
-
-        await user.keyboard('{F6}');
-        expect(screen.getByTestId('visible-viewport')).toHaveFocus();
-
-        await user.keyboard('{F6}');
-        expect(button).toHaveFocus();
-      },
-    );
 
     it('moves focus to the next toast when the closed toast adds one in onClose', async () => {
       const { userEvent } = await import('vitest/browser');
