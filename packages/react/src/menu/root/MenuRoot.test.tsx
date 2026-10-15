@@ -1797,6 +1797,44 @@ describe('<Menu.Root />', () => {
         expect(menus[0].dataset.testid).toBe('menu');
       });
 
+      it('does not close the parent menu when the Escape key is pressed while focus is outside the menus', async () => {
+        const { user } = await render(<TestMenu />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-1')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-4_1')).toHaveFocus();
+        });
+
+        await act(async () => {
+          screen.getByTestId('item-4_1').blur();
+        });
+        expect(document.activeElement).toBe(document.body);
+
+        await user.keyboard('[Escape]');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).toBe(null);
+        });
+        expect(screen.getByTestId('menu')).not.toBe(null);
+      });
+
       it('closes the parent menu when the Escape key is pressed  if `closeParentOnEsc=true`', async () => {
         const { user } = await render(<TestMenu submenuProps={{ closeParentOnEsc: true }} />);
 
