@@ -67,9 +67,10 @@ export function useTriggerFocusGuards(
 
     // The close callback may change the tab order. Resolve it after the flush, using
     // the trigger as the anchor if the guard unmounted, even when its tabIndex is -1.
+    // A canceled close keeps the guard, so focus goes back the way it came.
     getTabbableNearElement(
       guard.isConnected ? guard : triggerElementRef.current,
-      (contentFocusGuard || !fromOutside ? direction : -direction) as 1 | -1,
+      (contentFocusGuard || !fromOutside || guard.isConnected ? direction : -direction) as 1 | -1,
       positionerElement,
     )?.focus();
   }
