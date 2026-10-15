@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
-import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
-import { REASONS } from '../../internals/reasons';
+import { createRenderer, isJSDOM } from '#test-utils';
 
 describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
   const { render } = createRenderer();
@@ -17,7 +16,6 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
     ({ userEvent: user } = await import('vitest/browser'));
   });
 
-  beforeEach(resetBrowserPointer);
   beforeEach(() => {
     ignoreActWarnings();
     // The guards outlive `open` by a microtask only while exit animations run.
@@ -30,23 +28,14 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
   ])('$name', ({ name, Component }) => {
     function TestPopup(props: {
       tabIndex?: number;
-      openOnHover?: boolean;
       open?: boolean;
       onOpenChange?: (open: boolean) => void;
       className?: string;
       finalFocus?: Popover.Popup.Props['finalFocus'];
-      triggerKey?: string;
     }) {
       return (
         <Component.Root modal={false} open={props.open} onOpenChange={props.onOpenChange}>
-          <Component.Trigger
-            tabIndex={props.tabIndex}
-            openOnHover={props.openOnHover}
-            delay={0}
-            render={props.triggerKey === undefined ? undefined : <button key={props.triggerKey} />}
-          >
-            Toggle
-          </Component.Trigger>
+          <Component.Trigger tabIndex={props.tabIndex}>Toggle</Component.Trigger>
           <Component.Portal>
             <Component.Positioner>
               <Component.Popup
@@ -83,169 +72,6 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
           (direction === 'backward' ? trigger : screen.getByTestId('inside')).focus(),
         );
       }
-
-      it.each([
-        { finalFocusType: 'default' },
-        { finalFocusType: 'ref' },
-        { finalFocusType: 'function' },
-      ] as const)(
-        'closes and moves focus past the trigger of a hover-opened popup through the exit transition with $finalFocusType finalFocus',
-        async ({ finalFocusType }) => {
-          const finalFocusRef = React.createRef<HTMLButtonElement>();
-          const finalFocus = {
-            default: undefined,
-            ref: finalFocusRef,
-            function: () => true,
-          }[finalFocusType];
-
-          await render(
-            <div>
-              <style>{`
-                .popup { transition: opacity 200ms; }
-                .popup[data-ending-style] { opacity: 0; }
-              `}</style>
-              <button data-testid="before">Before</button>
-              <TestPopup openOnHover className="popup" finalFocus={finalFocus} />
-              <button data-testid="after">After</button>
-              <button ref={finalFocusRef}>Final focus</button>
-            </div>,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-          await act(async () => trigger.focus());
-          await user.hover(trigger);
-          await waitFor(() => {
-            expect(trigger).toHaveAttribute('aria-expanded', 'true');
-          });
-          // Menu moves focus into the popup when opened by hover, so refocus the trigger after that.
-          await waitFor(() => {
-            expect(name === 'Menu' ? screen.getByTestId('popup') : trigger).toHaveFocus();
-          });
-          await act(async () => trigger.focus());
-          expect(trigger).toHaveFocus();
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
-
-          await user.tab({ shift: direction === 'backward' });
-
-          const destination = screen.getByTestId(direction === 'backward' ? 'before' : 'after');
-          expect(destination).toHaveFocus();
-          expect(trigger).toHaveAttribute('aria-expanded', 'false');
-          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
-          await waitFor(() => {
-            expect(screen.queryByTestId('popup')).toBe(null);
-          });
-          expect(destination).toHaveFocus();
-        },
-      );
-
-      // A Menu closes once focus leaves it, so it can't stay open while focus is outside.
-      it.skipIf(name === 'Menu').each([
-        { tabIndex: 0, result: 'focuses the trigger', focusesTrigger: true },
-        { tabIndex: -1, result: 'closes and moves focus past the trigger', focusesTrigger: false },
-      ])(
-        '$result when tabbing toward the trigger of a hover-opened popup with tabIndex=$tabIndex',
-        async ({ tabIndex, focusesTrigger }) => {
-          await render(
-            <div>
-              <button data-testid="before">Before</button>
-              <TestPopup openOnHover tabIndex={tabIndex} />
-              <button data-testid="after">After</button>
-            </div>,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-          await user.hover(trigger);
-          await waitFor(() => {
-            expect(trigger).toHaveAttribute('aria-expanded', 'true');
-          });
-          await act(async () =>
-            screen.getByTestId(direction === 'backward' ? 'after' : 'before').focus(),
-          );
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
-
-          await user.tab({ shift: direction === 'backward' });
-
-          expect(
-            focusesTrigger
-              ? trigger
-              : screen.getByTestId(direction === 'backward' ? 'before' : 'after'),
-          ).toHaveFocus();
-          expect(trigger).toHaveAttribute('aria-expanded', String(focusesTrigger));
-        },
-      );
-
-      it.skipIf(name === 'Menu')(
-        'closes and moves focus past a focused untabbable trigger of a hover-opened popup',
-        async () => {
-          await render(
-            <div>
-              <button data-testid="before">Before</button>
-              <TestPopup openOnHover tabIndex={-1} />
-              <button data-testid="after">After</button>
-            </div>,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-          await user.hover(trigger);
-          await waitFor(() => {
-            expect(trigger).toHaveAttribute('aria-expanded', 'true');
-          });
-          await act(async () => trigger.focus());
-          expect(trigger).toHaveFocus();
-
-          await user.tab({ shift: direction === 'backward' });
-
-          expect(screen.getByTestId(direction === 'backward' ? 'before' : 'after')).toHaveFocus();
-          expect(trigger).toHaveAttribute('aria-expanded', 'false');
-        },
-      );
-
-      it.skipIf(name === 'Menu')(
-        'returns focus to where it came from when a hover-opened popup with an untabbable trigger cancels the close',
-        async () => {
-          const handleOpenChange = vi.fn(
-            (open: boolean, eventDetails: Popover.Root.ChangeEventDetails) => {
-              if (eventDetails.reason === REASONS.focusOut) {
-                eventDetails.cancel();
-              }
-            },
-          );
-
-          await render(
-            <div>
-              <button data-testid="before">Before</button>
-              <Popover.Root modal={false} onOpenChange={handleOpenChange}>
-                <Popover.Trigger tabIndex={-1} openOnHover delay={0}>
-                  Toggle
-                </Popover.Trigger>
-                <Popover.Portal>
-                  <Popover.Positioner>
-                    <Popover.Popup>
-                      <button>Inside</button>
-                    </Popover.Popup>
-                  </Popover.Positioner>
-                </Popover.Portal>
-              </Popover.Root>
-              <button data-testid="after">After</button>
-            </div>,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-          await user.hover(trigger);
-          await waitFor(() => {
-            expect(trigger).toHaveAttribute('aria-expanded', 'true');
-          });
-          const origin = screen.getByTestId(direction === 'backward' ? 'after' : 'before');
-          await act(async () => origin.focus());
-          handleOpenChange.mockClear();
-
-          await user.tab({ shift: direction === 'backward' });
-
-          expect(origin).toHaveFocus();
-          expect(handleOpenChange).toHaveBeenCalledTimes(1);
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
-        },
-      );
 
       it.each([
         ['ref', 0],
@@ -347,28 +173,6 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
           expect(screen.getByTestId('target')).toHaveFocus();
         },
       );
-
-      it('moves focus past a trigger whose element is replaced during close', async () => {
-        function Fixture() {
-          const [open, setOpen] = React.useState(false);
-          return (
-            <div>
-              <button data-testid="before">Before</button>
-              <TestPopup open={open} onOpenChange={setOpen} triggerKey={open ? 'open' : 'closed'} />
-              <button data-testid="after">After</button>
-            </div>
-          );
-        }
-
-        await render(<Fixture />);
-        await openPopup();
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await focusTabOrigin(trigger);
-        await user.tab({ shift: direction === 'backward' });
-
-        expect(screen.getByTestId(direction === 'backward' ? 'before' : 'after')).toHaveFocus();
-        expect(trigger).not.toBeInTheDocument();
-      });
 
       it('preserves the surrounding modal dialog focus trap', async () => {
         await render(

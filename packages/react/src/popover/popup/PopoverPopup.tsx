@@ -109,13 +109,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       context={floatingContext}
       openInteractionType={openMethod}
       modal={focusManagerModal}
-      // A focus-out close has already moved focus. Staying disabled through the exit stops a
-      // hover-opened popup's manager from enabling and returning focus on unmount.
-      disabled={
-        !mounted ||
-        openReason === REASONS.triggerHover ||
-        (!open && openReason === REASONS.focusOut)
-      }
+      disabled={!mounted || openReason === REASONS.triggerHover}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"
