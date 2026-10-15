@@ -83,14 +83,6 @@ export default function DemoKeyControl() {
         }
         return;
 
-      case ' ':
-        if (query !== '' || isEditing) {
-          return;
-        }
-        event.preventDefault();
-        setLastAction(highlightedAction);
-        return;
-
       case 'Enter':
         event.preventDefault();
         if (!isEditing) {
@@ -146,8 +138,6 @@ export default function DemoKeyControl() {
             <dd>{query === '' ? 'empty' : JSON.stringify(query)}</dd>
             <dt>Home / End</dt>
             <dd>{query === '' && !isEditing ? 'navigate menu' : 'move caret'}</dd>
-            <dt>Space</dt>
-            <dd>{query === '' && !isEditing ? 'run action' : 'insert text'}</dd>
             <dt>Highlighted</dt>
             <dd>{isEditing ? 'input' : highlightedAction}</dd>
             <dt>Last key</dt>
@@ -163,8 +153,6 @@ export default function DemoKeyControl() {
           </p>
           <p>Type "e", highlight a match, and try again to move the caret.</p>
           <p>
-            <Kbd>Space</Kbd> runs the highlighted action when the input is empty, and adds text
-            otherwise.
             <Kbd>Enter</Kbd> runs the highlighted action.
           </p>
         </div>
