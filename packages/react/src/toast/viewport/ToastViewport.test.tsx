@@ -1157,6 +1157,41 @@ describe('<Toast.Viewport />', () => {
       expect(screen.queryByTestId('root')).toBe(null);
     });
 
+    it('keeps timers paused when the window blurs again before its focus settles', async () => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager}>
+          <Toast.Portal>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+          </Toast.Portal>
+        </Toast.Provider>,
+      );
+
+      await act(async () => {
+        manager.add({ title: 'title' });
+      });
+      await act(async () => {
+        dispatchWindowEvent('blur');
+      });
+      await act(async () => {
+        dispatchWindowEvent('focus');
+        dispatchWindowEvent('blur');
+      });
+
+      clock.tick(5001);
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      await act(async () => {
+        dispatchWindowEvent('focus');
+      });
+      clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
     it('runs the timer of a toast added after the window regained focus while empty', async () => {
       const manager = Toast.createToastManager();
 
