@@ -1,11 +1,10 @@
 import type * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
-import type { FloatingEvents, ContextData, ReferenceType } from '../types';
+import type { FloatingEvents, ContextData, PositioningRootContext, ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../createEventEmitter';
-import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import type { PopupTriggerMap } from '../popupTriggerMap';
-import { isClickLikeEvent } from '../event';
+import { dispatchOpenChange } from './dispatchOpenChange';
 import type { TransitionStatus } from '../../../internals/useTransitionStatus';
 
 export interface FloatingRootState {
@@ -46,25 +45,17 @@ interface FloatingRootStoreOptions {
   floatingElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
   floatingId: string | undefined;
-  /**
-   * When true, `setOpen` only forwards to `onOpenChange`.
-   * The popup store owns `dispatchOpenChange(...)` in this mode.
-   */
-  syncOnly: boolean;
   nested: boolean;
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
-export class FloatingRootStore extends ReactStore<
-  Readonly<FloatingRootState>,
-  FloatingRootStoreContext,
-  typeof selectors
-> {
-  declare private readonly syncOnly: boolean;
-
+export class FloatingRootStore
+  extends ReactStore<Readonly<FloatingRootState>, FloatingRootStoreContext, typeof selectors>
+  implements PositioningRootContext
+{
   constructor(options: FloatingRootStoreOptions) {
-    const { syncOnly, nested, onOpenChange, triggerElements, ...initialState } = options;
+    const { nested, onOpenChange, triggerElements, ...initialState } = options;
 
     super(
       {
@@ -81,41 +72,7 @@ export class FloatingRootStore extends ReactStore<
       },
       selectors,
     );
-
-    this.syncOnly = syncOnly;
   }
-
-  /**
-   * Syncs the event used by hover logic to distinguish hover-open from click-like interaction.
-   */
-  syncOpenEvent = (newOpen: boolean, event: Event | undefined) => {
-    if (
-      !newOpen ||
-      !this.state.open ||
-      // Prevent a pending hover-open from overwriting a click-open event, while allowing
-      // click events to upgrade a hover-open.
-      (event != null && isClickLikeEvent(event))
-    ) {
-      this.context.dataRef.current.openEvent = newOpen ? event : undefined;
-    }
-  };
-
-  /**
-   * Runs the root-owned side effects for an open state change.
-   */
-  dispatchOpenChange = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    this.syncOpenEvent(newOpen, eventDetails.event);
-
-    const details: FloatingUIOpenChangeDetails = {
-      open: newOpen,
-      reason: eventDetails.reason,
-      nativeEvent: eventDetails.event,
-      nested: this.context.nested,
-      triggerElement: eventDetails.trigger,
-    };
-
-    this.context.events.emit('openchange', details);
-  };
 
   /**
    * Emits the `openchange` event through the internal event emitter and calls the `onOpenChange` handler with the provided arguments.
@@ -124,13 +81,16 @@ export class FloatingRootStore extends ReactStore<
    * @param eventDetails Details about the event that triggered the open state change.
    */
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    if (this.syncOnly) {
-      this.context.onOpenChange?.(newOpen, eventDetails);
-      return;
-    }
-
-    this.dispatchOpenChange(newOpen, eventDetails);
-
+    dispatchOpenChange(this.context, this.state.open, newOpen, eventDetails);
     this.context.onOpenChange?.(newOpen, eventDetails);
   };
+
+  clearPositioning() {
+    this.update({
+      referenceElement: null,
+      floatingElement: null,
+      domReferenceElement: null,
+      positionReference: null,
+    });
+  }
 }

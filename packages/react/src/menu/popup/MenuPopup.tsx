@@ -61,7 +61,6 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -121,7 +120,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
     };
   }, [floatingTreeRoot.events, store]);
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverFloatingInteraction(store, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
   });
@@ -193,7 +192,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
 
   return (
     <FloatingFocusManager
-      context={floatingContext}
+      context={store}
       openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}

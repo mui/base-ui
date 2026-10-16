@@ -11,6 +11,10 @@ Content that a component shows on top of the page while it is open, such as a po
 _Avoid_: floating element, floating, overlay
 _In code_: `floatingElement` is the popup in components without a positioner, such as Dialog.
 
+**Root**:
+The part that holds a popup's open state and groups its other parts. It renders no element of its own.
+_Avoid_: provider, container
+
 **Trigger**:
 An element the user interacts with to open or close a popup. A popup can have several triggers; the one that opened it is the **active trigger**.
 _Avoid_: reference, reference element, DOM reference

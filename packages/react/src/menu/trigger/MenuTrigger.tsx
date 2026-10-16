@@ -76,7 +76,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const thisTriggerId = useBaseUiId(idProp);
 
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const controlsId = store.useState('triggerControlsId', thisTriggerId);
 
@@ -174,7 +173,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
   const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
 
-  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+  const hoverProps = useHoverReferenceInteraction(store, {
     enabled:
       openOnHover &&
       !disabled &&
@@ -187,7 +186,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
-    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   // Whether to ignore clicks to open the menu.
@@ -195,7 +193,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
-  const click = useClick(floatingRootContext, {
+  const click = useClick(store, {
     enabled: !disabled,
     event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
     toggle: true,
@@ -203,7 +201,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 
-  const focus = useFocus(floatingRootContext, {
+  const focus = useFocus(store, {
     enabled: !disabled && parentMenubarHasSubmenuOpen,
   });
 

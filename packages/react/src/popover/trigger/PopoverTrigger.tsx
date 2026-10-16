@@ -60,7 +60,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
@@ -82,7 +81,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   const isTouchPressOpen = store.useState('isTouchPressOpen', openOnHover);
   const hasFocusGuards = store.useState('hasTriggerFocusGuards', thisTriggerId);
 
-  const hoverProps = useHoverReferenceInteraction(floatingContext, {
+  const hoverProps = useHoverReferenceInteraction(store, {
     enabled: !disabled && openOnHover && !isTouchPressOpen,
     mouseOnly: true,
     move: false,
@@ -93,11 +92,10 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
-    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const getStickIfOpen = useStableCallback(() => store.context.stickIfOpen);
-  const click = useClick(floatingContext, { stickIfOpen: getStickIfOpen });
+  const click = useClick(store, { stickIfOpen: getStickIfOpen });
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => store.select('open'),
     (interactionType) => {

@@ -26,7 +26,7 @@ import type {
 import type {
   UseFloatingOptions,
   UseFloatingReturn,
-  FloatingRootContext,
+  PositioningRootContext,
   FloatingContext,
 } from '../utils/popups/types';
 import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
@@ -131,7 +131,7 @@ type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
+  params: UseAnchorPositioningParameters & { floatingRootContext: PositioningRootContext },
 ): UseAnchorPositioningReturnValue {
   return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
 }
@@ -462,12 +462,7 @@ export function useAnchorPositioningWithHook(
     // Ensure positioning doesn't run initially for `keepMounted` elements that
     // aren't initially open.
     if (!mounted && floatingRootContext) {
-      floatingRootContext.update({
-        referenceElement: null,
-        floatingElement: null,
-        domReferenceElement: null,
-        positionReference: null,
-      });
+      floatingRootContext.clearPositioning();
     }
   }, [mounted, floatingRootContext]);
 
@@ -814,7 +809,7 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: FloatingRootContext | undefined;
+  floatingRootContext?: PositioningRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
   nodeId?: string | undefined;
