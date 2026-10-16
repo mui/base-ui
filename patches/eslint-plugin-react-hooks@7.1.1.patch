@@ -1,5 +1,5 @@
 diff --git a/cjs/eslint-plugin-react-hooks.development.js b/cjs/eslint-plugin-react-hooks.development.js
-index 35021bbae99a2824e55f4ece4d411c54f012a833..7dbf0954a7a69fc044d574f7c7fc117350f1dcb2 100644
+index 35021bbae99a2824e55f4ece4d411c54f012a833..e28dd2d713ce874a94c8caf9fdb30698f224b7ae 100644
 --- a/cjs/eslint-plugin-react-hooks.development.js
 +++ b/cjs/eslint-plugin-react-hooks.development.js
 @@ -54903,7 +54903,7 @@ function isHook(node) {
@@ -11,8 +11,23 @@ index 35021bbae99a2824e55f4ece4d411c54f012a833..7dbf0954a7a69fc044d574f7c7fc1173
      }
      else {
          return false;
+@@ -55379,6 +55379,14 @@ function getFunctionName(node) {
+             !node.parent.computed) {
+             return node.parent.key;
+         }
++        else if (node.parent &&
++            (node.parent.type === 'MethodDefinition' ||
++                node.parent.type === 'PropertyDefinition' ||
++                node.parent.type === 'ClassProperty') &&
++            node.parent.value === node &&
++            !node.parent.computed) {
++            return node.parent.key;
++        }
+         else if (((_d = node.parent) === null || _d === void 0 ? void 0 : _d.type) === 'AssignmentPattern' &&
+             node.parent.right === node &&
+             !node.parent.computed) {
 diff --git a/cjs/eslint-plugin-react-hooks.production.js b/cjs/eslint-plugin-react-hooks.production.js
-index b5231f2c9dd8a4b918926ec39f559df1d634a12e..f3ee206451724f2905a0fd39a00d8b88ba302d2e 100644
+index b5231f2c9dd8a4b918926ec39f559df1d634a12e..4ed15b65a3c310998e7eb047a8becd7bbd11d796 100644
 --- a/cjs/eslint-plugin-react-hooks.production.js
 +++ b/cjs/eslint-plugin-react-hooks.production.js
 @@ -54730,7 +54730,7 @@ function isHook(node) {
@@ -24,3 +39,18 @@ index b5231f2c9dd8a4b918926ec39f559df1d634a12e..f3ee206451724f2905a0fd39a00d8b88
      }
      else {
          return false;
+@@ -55206,6 +55206,14 @@ function getFunctionName(node) {
+             !node.parent.computed) {
+             return node.parent.key;
+         }
++        else if (node.parent &&
++            (node.parent.type === 'MethodDefinition' ||
++                node.parent.type === 'PropertyDefinition' ||
++                node.parent.type === 'ClassProperty') &&
++            node.parent.value === node &&
++            !node.parent.computed) {
++            return node.parent.key;
++        }
+         else if (((_d = node.parent) === null || _d === void 0 ? void 0 : _d.type) === 'AssignmentPattern' &&
+             node.parent.right === node &&
+             !node.parent.computed) {
