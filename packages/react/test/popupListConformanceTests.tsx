@@ -4,6 +4,7 @@ import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM } from '@base-ui/utils/testUtils';
+import { platform } from '@base-ui/utils/platform';
 import { resetBrowserPointer } from './resetBrowserPointer';
 import { wait, waitSingleFrame } from './wait';
 
@@ -40,6 +41,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
       root,
       items = ITEMS,
       disabledItems = [],
+      nativeButton = false,
       onItemClick,
       onOutsideClick,
       wrap = (node) => node,
@@ -53,6 +55,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
           root,
           items,
           disabledItems,
+          nativeButton,
           onItemClick,
           scrollerStyle: {
             height: SCROLLER_HEIGHT,
@@ -229,6 +232,44 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
   describe('Popup list conformance', () => {
     describe('pointer', () => {
+      it.skipIf(!platform.engine.webkit || focusModel === 'virtual')(
+        'focuses native button items on mousedown and continues keyboard navigation after click',
+        async () => {
+          const onItemClick = vi.fn();
+          const { user } = await renderList({
+            root: { open: true, highlightItemOnHover: false },
+            nativeButton: true,
+            onItemClick,
+          });
+          await waitForOpen();
+          await act(() => getItem(0).focus());
+          expect(getItem(0)).toHaveFocus();
+
+          const item = getItem(1);
+          fireEvent.pointerDown(item, { pointerType: 'mouse' });
+          // Synthetic mousedown has no native focus default, matching Safari 16 buttons.
+          expect(fireEvent.mouseDown(item)).toBe(false);
+          expect(item).toHaveFocus();
+          fireEvent.mouseUp(item);
+          fireEvent.click(item, { detail: 1 });
+
+          expect(onItemClick).toHaveBeenCalledTimes(1);
+          expect(item).toHaveFocus();
+          await user.keyboard('{ArrowDown}');
+          await expectFocusOnItem(2);
+        },
+      );
+
+      it.skipIf(platform.engine.webkit || focusModel === 'virtual')(
+        'does not prevent native button mousedown outside WebKit',
+        async () => {
+          await renderList({ root: { open: true }, nativeButton: true });
+          await waitForOpen();
+
+          expect(fireEvent.mouseDown(getItem(1))).toBe(true);
+        },
+      );
+
       it('highlights and focuses the hovered item', async () => {
         const { user } = await renderList();
         await openWithMouse(user);
@@ -1049,6 +1090,7 @@ export function popupListConformanceTests(config: PopupListTestConfig) {
 
 interface RenderListOptions {
   root?: Record<string, unknown> | undefined;
+  nativeButton?: boolean | undefined;
   items?: readonly string[] | undefined;
   disabledItems?: readonly string[] | undefined;
   onItemClick?: React.MouseEventHandler<HTMLElement> | undefined;
@@ -1065,6 +1107,8 @@ export interface PopupListTestProps {
   items: readonly string[];
   /** Labels of the items to render as disabled. */
   disabledItems: readonly string[];
+  /** Whether items should render native buttons. */
+  nativeButton: boolean;
   /** Click handler attached to every item. */
   onItemClick?: React.MouseEventHandler<HTMLElement>;
   /** Styles for the element that scrolls the items. */

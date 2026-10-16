@@ -695,6 +695,20 @@ export function useListNavigation(
         forceSyncFocusRef.current = true;
         syncCurrentTarget(event);
       },
+      onMouseDown(event) {
+        if (
+          platform.engine.webkit &&
+          !virtual &&
+          event.currentTarget.tagName === 'BUTTON' &&
+          event.button === 0 &&
+          !event.defaultPrevented
+        ) {
+          // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
+          // Prevent its default blur before focusing, so focus survives until click.
+          event.preventDefault();
+          event.currentTarget.focus({ preventScroll: true });
+        }
+      },
       onMouseMove(event) {
         if (isStationaryWebKitPointer(event)) {
           return;

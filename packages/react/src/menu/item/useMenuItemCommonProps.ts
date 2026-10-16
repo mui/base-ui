@@ -9,6 +9,10 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
+function preventMouseDownDefault(event: React.MouseEvent) {
+  event.preventDefault();
+}
+
 export interface UseMenuItemCommonPropsParameters {
   /**
    * Whether to close the menu when the item is clicked.
@@ -76,21 +80,8 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       role: 'menuitem' as const,
       tabIndex,
       'aria-selected': ariaSelected,
-      onMouseDown(event: React.MouseEvent) {
-        const isNativeButton = event.currentTarget.tagName === 'BUTTON';
-        const isPrimaryPress = event.button === 0;
-        const isWebKit = platform.engine.webkit;
-
-        // Real focus stays on the input or list that owns virtual navigation.
-        if (virtualFocus) {
-          event.preventDefault();
-        } else if (isWebKit && isNativeButton && isPrimaryPress && !event.defaultPrevented) {
-          // Safari 16 does not mouse-focus buttons even with an explicit tabIndex.
-          // Prevent its default blur before focusing, so focus survives until click.
-          event.preventDefault();
-          itemRef.current?.focus({ preventScroll: true });
-        }
-      },
+      // Real focus stays on the input or list that owns virtual navigation.
+      onMouseDown: virtualFocus ? preventMouseDownDefault : undefined,
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
