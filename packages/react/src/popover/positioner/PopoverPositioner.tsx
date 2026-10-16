@@ -13,7 +13,6 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 import { REASONS } from '../../internals/reasons';
-import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
@@ -35,7 +34,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const { element, positioning } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
-    defaults: { collisionAvoidance: POPUP_COLLISION_AVOIDANCE },
     positioning: { nodeId },
   });
 

@@ -1,6 +1,7 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
+import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, positionerConformanceTests } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
@@ -23,6 +24,34 @@ describe('<Tooltip.Positioner />', () => {
       );
     },
   }));
+
+  describe('prop: side', () => {
+    it('places the tooltip on the top side by default', async () => {
+      await render(
+        <Tooltip.Root open>
+          <Trigger style={{ marginTop: 200 }}>Trigger</Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner" />
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'top');
+    });
+
+    it('uses the side prop over the default', async () => {
+      await render(
+        <Tooltip.Root open>
+          <Trigger>Trigger</Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner" side="bottom" />
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'bottom');
+    });
+  });
 
   it('throws a descriptive error when rendered outside <Tooltip.Root>', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

@@ -3,9 +3,9 @@ import * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { ReactStore } from '@base-ui/utils/store';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import type {
   Align,
-  CollisionAvoidance,
   Side,
   UseAnchorPositioningParameters,
   UseAnchorPositioningReturnValue,
@@ -49,13 +49,6 @@ export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
    * Whether the popup stays mounted while closed.
    */
   keepMounted: boolean;
-  /**
-   * Values used when the matching prop isn't set.
-   */
-  defaults: {
-    collisionAvoidance: CollisionAvoidance;
-    side?: Side | undefined;
-  };
   /**
    * Positioning parameters that replace the props, such as values derived from the popup's parent.
    */
@@ -112,7 +105,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     ...elementProps
   } = componentProps;
 
-  const { forwardedRef, keepMounted, defaults, positioning: positioningOverrides } = options;
+  const { forwardedRef, keepMounted, positioning: positioningOverrides } = options;
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -125,7 +118,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     floatingRootStore: store,
     positionMethod,
     mounted,
-    side: side ?? defaults.side,
+    side,
     sideOffset,
     align,
     alignOffset,
@@ -135,7 +128,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     sticky,
     disableAnchorTracking,
     keepMounted,
-    collisionAvoidance: collisionAvoidance ?? defaults.collisionAvoidance,
+    collisionAvoidance: collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE,
     adaptiveOrigin,
     ...positioningOverrides,
   });

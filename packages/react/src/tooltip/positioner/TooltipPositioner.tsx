@@ -9,7 +9,6 @@ import type {
 } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
-import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 
 /**
@@ -33,7 +32,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const { element, positioning } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
-    defaults: { side: 'top', collisionAvoidance: POPUP_COLLISION_AVOIDANCE },
+    positioning: { side: componentProps.side ?? 'top' },
     state: { instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : instantType },
     inert: !open || trackCursorAxis === 'both' || disableHoverablePopup,
   });

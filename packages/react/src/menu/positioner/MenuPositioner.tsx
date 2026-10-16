@@ -85,9 +85,9 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const { element, positioning: positioner } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
-    defaults: { collisionAvoidance: defaultCollisionAvoidance },
     positioning: {
       anchor,
+      collisionAvoidance,
       positionMethod: contextMenuContext ? 'fixed' : componentProps.positionMethod,
       side: computedSide,
       sideOffset,

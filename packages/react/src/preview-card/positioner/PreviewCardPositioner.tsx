@@ -11,7 +11,6 @@ import type {
 } from '../../internals/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
-import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { createInlineMiddleware } from '../../utils/popups/inlineRect';
 
@@ -36,7 +35,6 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   const { element, positioning } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
-    defaults: { collisionAvoidance: POPUP_COLLISION_AVOIDANCE },
     positioning: {
       nodeId,
       inline: createInlineMiddleware(inlineRectCoordsRef),
