@@ -21,7 +21,7 @@ import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useH
 import { isMouseLikePointerType } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useHoverIntent } from '../../utils/popups/interactions/hoverIntent';
+import { getHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import { getDelay } from '../../utils/popups/interactions/useHoverShared';
 import * as TooltipTriggerDataAttributes from './TooltipTriggerDataAttributes';
 
@@ -90,7 +90,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(store, {
     open: isOpenedByThisTrigger,
   });
-  const hoverIntent = useHoverIntent(store);
+  const hoverIntent = getHoverIntent(store);
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
 

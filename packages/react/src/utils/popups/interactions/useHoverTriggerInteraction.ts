@@ -95,7 +95,7 @@ export function useHoverTriggerInteraction(
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
-    intent.setHandleCloseOptions(handleClose?.__options);
+    intent.handleCloseOptions = handleClose?.__options;
   }
 
   React.useEffect(() => intent.stopSafePolygon, [intent]);
@@ -168,16 +168,8 @@ export function useHoverTriggerInteraction(
       ? addEventListener(trigger, 'mouseout', onMouseOut)
       : undefined;
 
-    if (move) {
-      return mergeCleanups(
-        addEventListener(trigger, 'mousemove', onMouseEnter, { once: true }),
-        addEventListener(trigger, 'mouseenter', onMouseEnter),
-        addEventListener(trigger, 'mouseleave', onMouseLeave),
-        staleOpenGuard,
-      );
-    }
-
     return mergeCleanups(
+      move && addEventListener(trigger, 'mousemove', onMouseEnter, { once: true }),
       addEventListener(trigger, 'mouseenter', onMouseEnter),
       addEventListener(trigger, 'mouseleave', onMouseLeave),
       staleOpenGuard,
@@ -206,7 +198,7 @@ export function useHoverTriggerInteraction(
     }
 
     function setPointerRef(event: React.PointerEvent) {
-      intent.setPointerType(event.pointerType);
+      intent.pointerType = event.pointerType;
     }
 
     return {

@@ -15,7 +15,7 @@ import { useClick } from '../../utils/popups/interactions/useClick';
 import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
-import { useHoverIntent } from '../../utils/popups/interactions/hoverIntent';
+import { getHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import {
   getTabbableNearElement,
   getNextTabbable,
@@ -475,7 +475,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  const hoverIntent = useHoverIntent(floatingRootStore);
+  const hoverIntent = getHoverIntent(floatingRootStore);
   const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
 
   React.useEffect(() => {

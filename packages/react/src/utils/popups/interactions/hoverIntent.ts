@@ -71,7 +71,10 @@ const pointerEventsOwnerByScopeElement = new WeakMap<PointerEventsScopeElement, 
  * Get it with `useHoverIntent()`.
  */
 export class HoverIntent {
-  private pointerType: string | undefined = undefined;
+  /**
+   * The pointer type of the latest trigger interaction.
+   */
+  pointerType: string | undefined = undefined;
 
   private interactedInside = false;
 
@@ -87,24 +90,12 @@ export class HoverIntent {
 
   private readonly restTimeout = new Timeout();
 
-  private activeHandleCloseOptions: HandleCloseOptions | undefined = undefined;
-
-  constructor(private readonly store: PopupInteractionStore) {}
-
   /**
    * The safe polygon options of the active trigger.
    */
-  get handleCloseOptions(): HandleCloseOptions | undefined {
-    return this.activeHandleCloseOptions;
-  }
+  handleCloseOptions: HandleCloseOptions | undefined = undefined;
 
-  setHandleCloseOptions(options: HandleCloseOptions | undefined) {
-    this.activeHandleCloseOptions = options;
-  }
-
-  setPointerType(pointerType: string) {
-    this.pointerType = pointerType;
-  }
+  constructor(private readonly store: PopupInteractionStore) {}
 
   private isClickLikeOpen() {
     return isClickLikeOpenEvent(this.store.context.openEvent?.type, this.interactedInside);
@@ -142,15 +133,6 @@ export class HoverIntent {
     this.interactedInside = false;
     this.restoreOutsidePointerEvents();
   }
-
-  private dispose = () => {
-    this.openChangeTimeout.clear();
-    this.restTimeout.clear();
-  };
-
-  disposeEffect = () => {
-    return this.dispose;
-  };
 
   /**
    * Removes the safe polygon's `mousemove` listener.
@@ -268,30 +250,27 @@ export class HoverIntent {
       isReenteringSameTriggerDuringCloseTransition;
 
     const shouldOpen = !isOpen || isOverInactive;
+    const open = () => {
+      if (options.shouldOpen()) {
+        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+      }
+    };
 
     // Open immediately when moving between triggers while open, or during
     // a hover-driven close transition (including same-trigger re-entry).
     if (shouldOpenImmediately) {
-      if (options.shouldOpen()) {
-        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
-      }
+      open();
       return;
     }
 
-    if (isRestOnlyDelay) {
+    if (isRestOnlyDelay || !shouldOpen) {
       return;
     }
 
     if (openDelay) {
-      this.openChangeTimeout.start(openDelay, () => {
-        if (shouldOpen && options.shouldOpen()) {
-          store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
-        }
-      });
-    } else if (shouldOpen) {
-      if (options.shouldOpen()) {
-        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
-      }
+      this.openChangeTimeout.start(openDelay, open);
+    } else {
+      open();
     }
   }
 
@@ -375,12 +354,11 @@ export class HoverIntent {
       return;
     }
 
-    if (currentOpen && isOverInactive && this.activeHandleCloseOptions?.blockPointerEvents) {
+    if (currentOpen && isOverInactive && this.handleCloseOptions?.blockPointerEvents) {
       const positionerElement = store.select('positionerElement');
 
       if (positionerElement) {
-        const scopeElement =
-          this.activeHandleCloseOptions?.getScope?.() ?? trigger.ownerDocument.body;
+        const scopeElement = this.handleCloseOptions?.getScope?.() ?? trigger.ownerDocument.body;
 
         this.blockOutsidePointerEvents({
           scopeElement,
@@ -444,7 +422,7 @@ export class HoverIntent {
     tree: FloatingTreeType | null,
     parentId: string | null,
   ): boolean {
-    if (!this.activeHandleCloseOptions?.blockPointerEvents || !this.isHoverOpen()) {
+    if (!this.handleCloseOptions?.blockPointerEvents || !this.isHoverOpen()) {
       return false;
     }
 
@@ -465,7 +443,7 @@ export class HoverIntent {
       previousScopeElement !== positionerElement ? previousScopeElement : null;
     const parentScopeElement = parentFloating !== positionerElement ? parentFloating : null;
     const scopeElement =
-      this.activeHandleCloseOptions?.getScope?.() ??
+      this.handleCloseOptions?.getScope?.() ??
       cachedScopeElement ??
       parentScopeElement ??
       (closest(triggerElement, '[data-rootownerid]') as PointerEventsScopeElement | null) ??
@@ -607,6 +585,6 @@ export function getHoverIntent(store: PopupInteractionStore): HoverIntent {
  */
 export function useHoverIntent(store: PopupInteractionStore): HoverIntent {
   const intent = getHoverIntent(store);
-  React.useEffect(() => intent.disposeEffect(), [intent]);
+  React.useEffect(() => () => intent.cancelPendingOpen(), [intent]);
   return intent;
 }
