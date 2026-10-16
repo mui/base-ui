@@ -4,6 +4,7 @@ export { pasteText } from './clipboard';
 export { createFormDataSpy } from './formData';
 export { createRenderer } from './createRenderer';
 export { mergeRefs } from './mergeRefs';
+export { mockRuntimeLocale } from './mockRuntimeLocale';
 export { enterWithMouse, firePointer, moveMouse, pressWithTouch } from './pointer';
 export { resetBrowserPointer } from './resetBrowserPointer';
 export { isScrollLocked } from './scrollLock';

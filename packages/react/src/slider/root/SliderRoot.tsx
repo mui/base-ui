@@ -466,6 +466,7 @@ export interface SliderRootProps<
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
+   * When server rendering, `en-US` is used until hydration.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**

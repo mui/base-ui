@@ -12,6 +12,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import {
@@ -143,6 +144,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     thumbRefs,
     values: sliderValues,
   } = useSliderRootContext();
+  // Resolved here rather than in Root, since this part can hydrate later, e.g. inside Suspense.
+  const formatLocale = useFormatLocale(locale);
 
   const direction = useDirection();
 
@@ -321,8 +324,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       'aria-valuenow': thumbValue,
       'aria-valuetext':
         typeof getAriaValueTextProp === 'function'
-          ? getAriaValueTextProp(formatNumber(thumbValue, locale, format), thumbValue, index)
-          : (ariaValueTextProp ?? getDefaultAriaValueText(sliderValues, index, format, locale)),
+          ? getAriaValueTextProp(formatNumber(thumbValue, formatLocale, format), thumbValue, index)
+          : (ariaValueTextProp ??
+            getDefaultAriaValueText(sliderValues, index, format, formatLocale)),
       disabled,
       form,
       id: inputId,
