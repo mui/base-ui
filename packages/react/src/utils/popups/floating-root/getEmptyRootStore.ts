@@ -9,7 +9,7 @@ export function getEmptyRootStore(): FloatingRootStore {
   return new FloatingRootStore({
     open: false,
     transitionStatus: undefined,
-    popupPositionerElement: null,
+    positionerElement: null,
     baseAnchor: null,
     triggerElements: new PopupTriggerMap(),
     defaultPopupId: undefined,

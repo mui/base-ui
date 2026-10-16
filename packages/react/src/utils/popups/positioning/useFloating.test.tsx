@@ -20,15 +20,15 @@ function Test({
 
 test('uses the supplied root store while preserving DOM and position references', async () => {
   const referenceElement = document.createElement('button');
-  const popupPositionerElement = document.createElement('div');
-  document.body.append(referenceElement, popupPositionerElement);
+  const positionerElement = document.createElement('div');
+  document.body.append(referenceElement, positionerElement);
 
   try {
     const store = new FloatingRootStore({
       open: true,
       transitionStatus: undefined,
       baseAnchor: referenceElement,
-      popupPositionerElement,
+      positionerElement,
       triggerElements: new PopupTriggerMap(),
       defaultPopupId: undefined,
       nested: false,
@@ -48,7 +48,7 @@ test('uses the supplied root store while preserving DOM and position references'
 
     expect(floating?.context.rootStore).toBe(store);
     expect(floating?.context.events).toBe(store.context.events);
-    expect(floating?.refs.floating.current).toBe(popupPositionerElement);
+    expect(floating?.refs.floating.current).toBe(positionerElement);
     expect(floating?.refs.domReference.current).toBe(referenceElement);
 
     const anchorOverride: VirtualElement = {
@@ -65,6 +65,6 @@ test('uses the supplied root store while preserving DOM and position references'
     expect(floating?.refs.domReference.current).toBe(referenceElement);
   } finally {
     referenceElement.remove();
-    popupPositionerElement.remove();
+    positionerElement.remove();
   }
 });

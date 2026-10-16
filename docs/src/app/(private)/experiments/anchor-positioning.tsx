@@ -47,7 +47,7 @@ export default function AnchorPositioning() {
     open: true,
     transitionStatus: undefined,
     baseAnchor: anchorEl,
-    popupPositionerElement: null,
+    positionerElement: null,
     triggerElements: new PopupTriggerMap(),
     defaultPopupId: '',
     nested: false,

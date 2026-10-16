@@ -35,7 +35,7 @@ export interface UseFloatingRootStoreOptions {
         /**
          * The popup's positioner element, or the popup itself when it has no positioner.
          */
-        popupPositionerElement?: HTMLElement | null | undefined;
+        positionerElement?: HTMLElement | null | undefined;
       }
     | undefined;
 }
@@ -67,7 +67,7 @@ export function useFloatingRootStore(options: UseFloatingRootStoreOptions): Floa
         transitionStatus: undefined,
         onOpenChange,
         baseAnchor: elements.anchor ?? null,
-        popupPositionerElement: elements.popupPositionerElement ?? null,
+        positionerElement: elements.positionerElement ?? null,
         triggerElements: new PopupTriggerMap(),
         defaultPopupId,
         nested,
@@ -77,7 +77,7 @@ export function useFloatingRootStore(options: UseFloatingRootStoreOptions): Floa
   useIsoLayoutEffect(() => {
     const valuesToSync = { open, defaultPopupId } as Pick<
       State,
-      'open' | 'defaultPopupId' | 'baseAnchor' | 'anchorElement' | 'popupPositionerElement'
+      'open' | 'defaultPopupId' | 'baseAnchor' | 'anchorElement' | 'positionerElement'
     >;
 
     if (elements.anchor !== undefined) {
@@ -85,12 +85,12 @@ export function useFloatingRootStore(options: UseFloatingRootStoreOptions): Floa
       valuesToSync.anchorElement = isElement(elements.anchor) ? elements.anchor : null;
     }
 
-    if (elements.popupPositionerElement !== undefined) {
-      valuesToSync.popupPositionerElement = elements.popupPositionerElement;
+    if (elements.positionerElement !== undefined) {
+      valuesToSync.positionerElement = elements.positionerElement;
     }
 
     store.update(valuesToSync);
-  }, [open, defaultPopupId, elements.anchor, elements.popupPositionerElement, store]);
+  }, [open, defaultPopupId, elements.anchor, elements.positionerElement, store]);
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;

@@ -282,12 +282,12 @@ export function useListNavigation(
   }
 
   const open = store.useState('open');
-  const popupPositionerElement = store.useState('popupPositionerElement');
+  const positionerElement = store.useState('positionerElement');
   const anchorElement = store.useState('anchorElement');
 
   const storeContext = store.context;
 
-  const floatingFocusElement = getFloatingFocusElement(popupPositionerElement);
+  const floatingFocusElement = getFloatingFocusElement(positionerElement);
   const typeableComboboxReference = isTypeableCombobox(anchorElement);
 
   const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
@@ -304,7 +304,7 @@ export function useListNavigation(
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
-  const previousMountedRef = React.useRef(!!popupPositionerElement);
+  const previousMountedRef = React.useRef(!!positionerElement);
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
@@ -392,7 +392,7 @@ export function useListNavigation(
       return;
     }
 
-    if (open && popupPositionerElement) {
+    if (open && positionerElement) {
       indexRef.current = selectedIndex ?? -1;
       if (focusItemOnOpenRef.current && selectedIndex != null) {
         // Regardless of the pointer modality, we want to ensure the selected
@@ -407,7 +407,7 @@ export function useListNavigation(
       indexRef.current = -1;
       onNavigate();
     }
-  }, [enabled, open, popupPositionerElement, selectedIndex, onNavigate]);
+  }, [enabled, open, positionerElement, selectedIndex, onNavigate]);
 
   // Sync `activeIndex` to be the focused item while the floating element is
   // open.
@@ -419,7 +419,7 @@ export function useListNavigation(
       forceSyncFocusRef.current = false;
       return;
     }
-    if (!popupPositionerElement) {
+    if (!positionerElement) {
       return;
     }
 
@@ -482,7 +482,7 @@ export function useListNavigation(
   }, [
     enabled,
     open,
-    popupPositionerElement,
+    positionerElement,
     activeIndex,
     selectedIndexRef,
     nested,
@@ -497,13 +497,13 @@ export function useListNavigation(
   // Ensure the parent floating element has focus when a nested child closes
   // to allow arrow key navigation to work after the pointer leaves the child.
   useIsoLayoutEffect(() => {
-    if (!enabled || popupPositionerElement || !tree || virtual || !previousMountedRef.current) {
+    if (!enabled || positionerElement || !tree || virtual || !previousMountedRef.current) {
       return;
     }
 
     const nodes = tree.nodesRef.current;
     const parent = nodes.find((node) => node.id === parentId)?.context?.elements.floating;
-    // `popupPositionerElement` is null here (see the guard above), so resolve the owner document
+    // `positionerElement` is null here (see the guard above), so resolve the owner document
     // from an in-DOM element for realm-safety (shadow DOM/iframes): the reference element, falling
     // back to the parent floating element when the reference is virtual (`anchorElement` is null).
     const activeEl = activeElement(ownerDocument(anchorElement ?? parent ?? null));
@@ -514,11 +514,11 @@ export function useListNavigation(
     if (parent && !treeContainsActiveEl && isPointerModalityRef.current) {
       parent.focus({ preventScroll: true });
     }
-  }, [enabled, popupPositionerElement, anchorElement, tree, parentId, virtual]);
+  }, [enabled, positionerElement, anchorElement, tree, parentId, virtual]);
 
   useIsoLayoutEffect(() => {
     previousOpenRef.current = open;
-    previousMountedRef.current = !!popupPositionerElement;
+    previousMountedRef.current = !!positionerElement;
   });
 
   const hasActiveIndex = activeIndex != null;

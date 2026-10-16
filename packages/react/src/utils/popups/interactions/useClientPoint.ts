@@ -106,7 +106,7 @@ export function useClientPoint(
   const { enabled = true, axis = 'both' } = props;
 
   const open = store.useState('open');
-  const floating = store.useState('popupPositionerElement');
+  const floating = store.useState('positionerElement');
   const domReference = store.useState('anchorElement');
 
   const storeContext = store.context;

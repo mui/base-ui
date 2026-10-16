@@ -29,7 +29,7 @@ export interface FloatingRootState {
   /**
    * The popup's positioner element, or the popup itself when it has no positioner.
    */
-  popupPositionerElement: HTMLElement | null;
+  positionerElement: HTMLElement | null;
   /**
    * An anchor set explicitly, such as the cursor position of a popup that follows it.
    */
@@ -58,7 +58,7 @@ const selectors = {
   transitionStatus: (state: FloatingRootState) => state.transitionStatus,
   anchorElement: (state: FloatingRootState) => state.anchorElement,
   anchor: (state: FloatingRootState) => state.anchorOverride ?? state.baseAnchor,
-  popupPositionerElement: (state: FloatingRootState) => state.popupPositionerElement,
+  positionerElement: (state: FloatingRootState) => state.positionerElement,
   defaultPopupId: (state: FloatingRootState) => state.defaultPopupId,
 };
 
@@ -66,7 +66,7 @@ interface FloatingRootStoreOptions {
   open: boolean;
   transitionStatus: TransitionStatus | undefined;
   baseAnchor: ReferenceType | null;
-  popupPositionerElement: HTMLElement | null;
+  positionerElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
   defaultPopupId: string | undefined;
   nested: boolean;
@@ -121,7 +121,7 @@ export class FloatingRootStore
   clearPositioning() {
     this.update({
       baseAnchor: null,
-      popupPositionerElement: null,
+      positionerElement: null,
       anchorElement: null,
       anchorOverride: null,
     });

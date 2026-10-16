@@ -159,11 +159,11 @@ describe('popupStoreSelectors', () => {
 });
 
 describe('popupStoreSelectors elements', () => {
-  describe('popupPositionerElement', () => {
+  describe('positionerElement', () => {
     it('reports the positioner while the popup is mounted', () => {
       const positioner = document.createElement('div');
       expect(
-        popupStoreSelectors.popupPositionerElement(
+        popupStoreSelectors.positionerElement(
           createState({ open: true, mounted: true, positionerElement: positioner }),
         ),
       ).toBe(positioner);
@@ -172,7 +172,7 @@ describe('popupStoreSelectors elements', () => {
     it('withholds the positioner while an opening popup is not mounted yet', () => {
       const positioner = document.createElement('div');
       expect(
-        popupStoreSelectors.popupPositionerElement(
+        popupStoreSelectors.positionerElement(
           createState({ open: true, mounted: false, positionerElement: positioner }),
         ),
       ).toBe(null);
@@ -181,7 +181,7 @@ describe('popupStoreSelectors elements', () => {
     it('reports a keepMounted positioner while the popup is closed', () => {
       const positioner = document.createElement('div');
       expect(
-        popupStoreSelectors.popupPositionerElement(
+        popupStoreSelectors.positionerElement(
           createState({ open: false, mounted: false, positionerElement: positioner }),
         ),
       ).toBe(positioner);

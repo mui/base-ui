@@ -58,7 +58,7 @@ export interface OutsidePointerEventsElements {
    */
   scopeElement: PointerEventsScopeElement;
   triggerElement: HTMLElement | SVGSVGElement;
-  popupPositionerElement: HTMLElement;
+  positionerElement: HTMLElement;
 }
 
 // Only one popup at a time can block pointer events within a scope element.
@@ -172,7 +172,7 @@ export class HoverIntent {
    * Takes over the scope element from another popup that blocks it.
    */
   blockOutsidePointerEvents(elements: OutsidePointerEventsElements) {
-    const { scopeElement, triggerElement, popupPositionerElement } = elements;
+    const { scopeElement, triggerElement, positionerElement } = elements;
 
     const existingOwner = pointerEventsOwnerByScopeElement.get(scopeElement);
     if (existingOwner && existingOwner !== this) {
@@ -185,7 +185,7 @@ export class HoverIntent {
 
     scopeElement.style.pointerEvents = 'none';
     triggerElement.style.pointerEvents = 'auto';
-    popupPositionerElement.style.pointerEvents = 'auto';
+    positionerElement.style.pointerEvents = 'auto';
   }
 
   /**
@@ -197,12 +197,12 @@ export class HoverIntent {
       return;
     }
 
-    const { scopeElement, triggerElement, popupPositionerElement } = blocked;
+    const { scopeElement, triggerElement, positionerElement } = blocked;
 
     if (pointerEventsOwnerByScopeElement.get(scopeElement) === this) {
       scopeElement.style.removeProperty('pointer-events');
       triggerElement.style.removeProperty('pointer-events');
-      popupPositionerElement.style.removeProperty('pointer-events');
+      positionerElement.style.removeProperty('pointer-events');
       pointerEventsOwnerByScopeElement.delete(scopeElement);
     }
 
@@ -352,7 +352,7 @@ export class HoverIntent {
 
     const shouldClose =
       this.pointerType === 'touch'
-        ? !contains(store.select('popupPositionerElement'), event.relatedTarget as Element | null)
+        ? !contains(store.select('positionerElement'), event.relatedTarget as Element | null)
         : true;
 
     if (shouldClose) {
@@ -377,16 +377,16 @@ export class HoverIntent {
     }
 
     if (currentOpen && isOverInactive && this.activeHandleCloseOptions?.blockPointerEvents) {
-      const popupPositionerElement = store.select('popupPositionerElement');
+      const positionerElement = store.select('positionerElement');
 
-      if (popupPositionerElement) {
+      if (positionerElement) {
         const scopeElement =
           this.activeHandleCloseOptions?.getScope?.() ?? trigger.ownerDocument.body;
 
         this.blockOutsidePointerEvents({
           scopeElement,
           triggerElement: trigger,
-          popupPositionerElement,
+          positionerElement,
         });
       }
     }
@@ -441,7 +441,7 @@ export class HoverIntent {
    */
   blockOutsidePointerEventsForPopup(
     triggerElement: HTMLElement | SVGSVGElement,
-    popupPositionerElement: HTMLElement,
+    positionerElement: HTMLElement,
     tree: FloatingTreeType | null,
     parentId: string | null,
   ): boolean {
@@ -449,7 +449,7 @@ export class HoverIntent {
       return false;
     }
 
-    const doc = ownerDocument(popupPositionerElement);
+    const doc = ownerDocument(positionerElement);
 
     const parentFloating = tree?.nodesRef.current.find((node) => node.id === parentId)?.context
       ?.elements.floating as HTMLElement | null;
@@ -463,8 +463,8 @@ export class HoverIntent {
     // would not shield sibling items in the parent menu.
     const previousScopeElement = this.blockedPointerEvents?.scopeElement ?? null;
     const cachedScopeElement =
-      previousScopeElement !== popupPositionerElement ? previousScopeElement : null;
-    const parentScopeElement = parentFloating !== popupPositionerElement ? parentFloating : null;
+      previousScopeElement !== positionerElement ? previousScopeElement : null;
+    const parentScopeElement = parentFloating !== positionerElement ? parentFloating : null;
     const scopeElement =
       this.activeHandleCloseOptions?.getScope?.() ??
       cachedScopeElement ??
@@ -472,7 +472,7 @@ export class HoverIntent {
       (closest(triggerElement, '[data-rootownerid]') as PointerEventsScopeElement | null) ??
       doc.body;
 
-    this.blockOutsidePointerEvents({ scopeElement, triggerElement, popupPositionerElement });
+    this.blockOutsidePointerEvents({ scopeElement, triggerElement, positionerElement });
 
     return true;
   }

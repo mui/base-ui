@@ -252,16 +252,16 @@ export const popupStoreSelectors = {
   popupProps: (state: S) => state.popupProps,
 
   popupElement: (state: S) => state.popupElement,
-  positionerElement: (state: S) => state.positionerElement,
+  // A `keepMounted` positioner is reported while the popup is closed, but not while an opening
+  // popup is still hidden: the interaction hooks would otherwise try to focus or measure it before
+  // it shows.
+  positionerElement: (state: S) =>
+    openSelector(state) && !state.mounted ? null : state.positionerElement,
 
   // Reads of the interaction hooks' store (`PopupInteractionStore`).
   defaultPopupId: (state: S) => state.defaultPopupId,
   anchorElement: (state: S) => state.anchorElement,
   anchor: (state: S) => state.anchorOverride ?? activeTriggerElementSelector(state),
-  // A `keepMounted` positioner is reported while the popup is closed, but not while an opening
-  // popup is still hidden: the hooks would otherwise try to focus or measure it before it shows.
-  popupPositionerElement: (state: S) =>
-    openSelector(state) && !state.mounted ? null : state.positionerElement,
 };
 
 /**

@@ -80,16 +80,16 @@ export function matchesFocusVisible(element: Element | null) {
 }
 
 export function getFloatingFocusElement(
-  popupPositionerElement: HTMLElement | null | undefined,
+  positionerElement: HTMLElement | null | undefined,
 ): HTMLElement | null {
-  if (!popupPositionerElement) {
+  if (!positionerElement) {
     return null;
   }
   // Try to find the element that has `{...getFloatingProps()}` spread on it.
   // This indicates the floating element is acting as a positioning wrapper, and
   // so focus should be managed on the child element with the event handlers and
   // aria props.
-  return popupPositionerElement.hasAttribute(FOCUSABLE_ATTRIBUTE)
-    ? popupPositionerElement
-    : popupPositionerElement.querySelector(`[${FOCUSABLE_ATTRIBUTE}]`) || popupPositionerElement;
+  return positionerElement.hasAttribute(FOCUSABLE_ATTRIBUTE)
+    ? positionerElement
+    : positionerElement.querySelector(`[${FOCUSABLE_ATTRIBUTE}]`) || positionerElement;
 }

@@ -281,7 +281,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const open = store.useState('open');
   const domReference = store.useState('anchorElement');
-  const floating = store.useState('popupPositionerElement');
+  const floating = store.useState('positionerElement');
 
   const storeContext = store.context;
   const { events } = storeContext;

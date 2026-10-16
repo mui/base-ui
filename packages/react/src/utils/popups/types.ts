@@ -54,9 +54,9 @@ export interface PopupInteractionReader {
    */
   (key: 'anchor'): ReferenceType | null;
   /**
-   * The popup's outermost element: its positioner, or the popup itself when it has none.
+   * The popup's positioner element, or the popup itself when it has no positioner.
    */
-  (key: 'popupPositionerElement'): HTMLElement | null;
+  (key: 'positionerElement'): HTMLElement | null;
   /**
    * The popup's id unless its element sets one.
    */
