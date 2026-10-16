@@ -3,7 +3,7 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
@@ -57,7 +57,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   } = componentProps;
 
   const store = useSelectRootContext();
-  const floatingRootStore = useSelectFloatingContext();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -95,7 +94,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const positioning = useAnchorPositioning({
     anchor,
-    interactionStore: floatingRootStore,
+    interactionStore: store,
     positionMethod,
     mounted,
     side,

@@ -8,14 +8,16 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { ReactStore } from '@base-ui/utils/store';
+import { useId } from '@base-ui/utils/useId';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { getOverflowAncestors } from '@floating-ui/react-dom';
 import type { ElementProps } from '../../utils/popups/types';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
+import { createEventEmitter } from '../../utils/popups/createEventEmitter';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import { useFloatingParentNodeId } from '../../utils/popups/tree/FloatingTree';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { gridNavigation } from '../../utils/popups/interactions/gridNavigation';
@@ -30,14 +32,13 @@ import type {
 import { REASONS } from '../../internals/reasons';
 import { getHighlightReason } from '../../utils/getHighlightReason';
 import {
-  ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
   ComboboxHasItemsContext,
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
-import { selectors } from '../store';
-import type { ComboboxStoreContext, State as StoreState } from '../store';
+import { ComboboxStore, selectors } from '../store';
+import type { State as StoreState } from '../store';
 import {
   attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
@@ -453,6 +454,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return itemToValue ? flat.map((item) => itemToValue(item)) : (flat as any[]);
   }, [filteredItems, filteredItemsProp, externalWindow, itemToValue]);
 
+  const defaultPopupId = useId();
+
   const store = useRefWithInit(() => {
     // An inline list open on the first render never gets a closed pass of the closed-state
     // sync effect below, and `items`-prop lists don't self-register their index the way
@@ -470,7 +473,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       );
     }
 
-    return new ReactStore<StoreState, ComboboxStoreContext, typeof selectors>(
+    return new ComboboxStore(
       {
         id,
         labelId: undefined,
@@ -516,6 +519,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         triggerElement: null,
         inputElement: null,
         inputGroupElement: null,
+        anchorElement: null,
+        anchorOverride: null,
+        defaultPopupId,
         popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
@@ -526,7 +532,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       {
         // Placeholder callbacks replaced on first render
         onOpenChangeComplete: NOOP,
-        setOpen: NOOP,
+        onOpenChange: NOOP,
+        events: createEventEmitter(),
+        nested: false,
+        triggerElements: new PopupTriggerMap(),
         setInputValue: NOOP,
         setSelectedValue: NOOP,
         setIndices: NOOP,
@@ -889,7 +898,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       const href = closest(targetEl, 'a')?.getAttribute('href');
       if (href) {
         if (href.startsWith('#')) {
-          setOpen(false, eventDetails);
+          store.setOpen(false, eventDetails);
         }
         return;
       }
@@ -930,7 +939,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             pendingHighlight.toggledValue = itemValue;
           }
         } else {
-          setOpen(false, eventDetails);
+          store.setOpen(false, eventDetails);
         }
       } else {
         setSelectedValue(itemValue, eventDetails);
@@ -939,7 +948,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           return;
         }
 
-        setOpen(false, eventDetails);
+        store.setOpen(false, eventDetails);
       }
     },
   );
@@ -1020,9 +1029,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     props.actionsRef,
     () => ({
       unmount: handleUnmount,
-      close: () => setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
     }),
-    [handleUnmount, setOpen],
+    [handleUnmount, store],
   );
 
   useIsoLayoutEffect(
@@ -1332,14 +1341,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useValueChanged(items, syncInputAfterItemsOrLabelChange);
   useValueChanged(inputValue, handleInputValueChanged);
 
-  const floatingRootStore = useFloatingRootStore({
-    open: inline ? true : open,
-    onOpenChange: setOpen,
-    elements: {
-      anchor: inputInsidePopup ? triggerElement : inputElement,
-      positionerElement,
-    },
-  });
+  store.context.nested = useFloatingParentNodeId() != null;
+
+  // The interaction hooks anchor to the input, or to the trigger when the input is inside the
+  // popup. A trigger press and positioning both change the anchor, so it's restored whenever the
+  // open state or the elements change.
+  const interactionOpen = open || inline;
+  const baseAnchor = inputInsidePopup ? triggerElement : inputElement;
+  useIsoLayoutEffect(() => {
+    store.update({ anchorElement: baseAnchor, defaultPopupId });
+  }, [interactionOpen, baseAnchor, positionerElement, defaultPopupId, store]);
 
   const ariaHasPopup = grid ? 'grid' : 'listbox';
   // An inline list isn't gated on `open`: it renders for as long as it's in the tree, so the
@@ -1383,7 +1394,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // `readOnly` locks the value, not the interaction: the popup opens and can be browsed.
   // Value changes stay blocked in `ComboboxItem`, `ComboboxInput`'s keydown, `ComboboxTrigger`'s
   // typeahead, the clear/remove parts, and the hidden input's autofill handler.
-  const click = useClick(floatingRootStore, {
+  const click = useClick(store.interactions, {
     enabled: !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
@@ -1393,7 +1404,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     reason: REASONS.inputPress,
   });
 
-  const dismiss = useDismiss(floatingRootStore, {
+  const dismiss = useDismiss(store.interactions, {
     enabled: !disabled && !inline,
     outsidePressEvent: {
       mouse: 'sloppy',
@@ -1415,7 +1426,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     },
   });
 
-  const listNavigation = useListNavigation(floatingRootStore, {
+  const listNavigation = useListNavigation(store.interactions, {
     enabled: !disabled,
     id,
     listRef,
@@ -1502,7 +1513,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     };
   }, [listNavigation.item, id, selectionMode, disabled, readOnly, isItemEqualToValue]);
 
-  store.useContextCallback('setOpen', setOpen);
+  store.useContextCallback('onOpenChange', setOpen);
   store.useContextCallback('setInputValue', setInputValue);
   store.useContextCallback('setSelectedValue', setSelectedValue);
   store.useContextCallback('setIndices', setIndices);
@@ -1717,15 +1728,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   return (
     <ComboboxRootContext.Provider value={store}>
-      <ComboboxFloatingContext.Provider value={floatingRootStore}>
-        <ComboboxHasItemsContext.Provider value={hasItems}>
-          <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-            <ComboboxInputValueContext.Provider value={inputValue}>
-              {children}
-            </ComboboxInputValueContext.Provider>
-          </ComboboxDerivedItemsContext.Provider>
-        </ComboboxHasItemsContext.Provider>
-      </ComboboxFloatingContext.Provider>
+      <ComboboxHasItemsContext.Provider value={hasItems}>
+        <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
+          <ComboboxInputValueContext.Provider value={inputValue}>
+            {children}
+          </ComboboxInputValueContext.Provider>
+        </ComboboxDerivedItemsContext.Provider>
+      </ComboboxHasItemsContext.Provider>
     </ComboboxRootContext.Provider>
   );
 }

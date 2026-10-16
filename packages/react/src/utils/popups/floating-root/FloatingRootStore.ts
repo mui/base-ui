@@ -75,8 +75,7 @@ interface FloatingRootStoreOptions {
 }
 
 /**
- * An interaction store for components without a popup store: Select, Combobox, Navigation Menu
- * and Toast. It holds a copy of the open state, anchor and elements that its owner syncs in from a
+ * An interaction store for components without a popup store: Navigation Menu and Toast. It holds a copy of the open state, anchor and elements that its owner syncs in from a
  * layout effect whenever they change (see `useFloatingRootStore`), and reports open changes back
  * through `onOpenChange`.
  */

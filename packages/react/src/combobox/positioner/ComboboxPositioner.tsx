@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import { useListEmpty } from '../utils/parts';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
@@ -51,7 +51,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   } = componentProps;
 
   const store = useComboboxRootContext();
-  const floatingRootStore = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
   const modal = store.useState('modal');
@@ -71,7 +70,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   const positioning = useAnchorPositioning({
     anchor: resolvedAnchor,
-    interactionStore: floatingRootStore,
+    interactionStore: store.interactions,
     positionMethod,
     mounted,
     side,

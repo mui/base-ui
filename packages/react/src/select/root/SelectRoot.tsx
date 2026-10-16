@@ -10,20 +10,18 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { ReactStore } from '@base-ui/utils/store';
+import { useId } from '@base-ui/utils/useId';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
-import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
+import { SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
-import { selectors } from '../store';
-import type { SelectStoreContext, State as StoreState } from '../store';
+import { SelectStore, selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -45,6 +43,9 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
+import { createEventEmitter } from '../../utils/popups/createEventEmitter';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import { useFloatingParentNodeId } from '../../utils/popups/tree/FloatingTree';
 
 /**
  * Groups all parts of the select.
@@ -134,10 +135,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const initialValueRef = React.useRef(value);
 
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
+  const defaultPopupId = useId();
 
   const store = useRefWithInit(
     () =>
-      new ReactStore<StoreState, SelectStoreContext, typeof selectors>(
+      new SelectStore(
         {
           id: generatedId,
           labelId: undefined,
@@ -167,6 +169,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           triggerElement: null,
           positionerElement: null,
           listElement: null,
+          anchorElement: null,
+          anchorOverride: null,
+          defaultPopupId,
           popupSide: null,
           scrollUpArrowVisible: false,
           scrollDownArrowVisible: false,
@@ -174,7 +179,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         },
         {
           setValue: NOOP,
-          setOpen: NOOP,
+          onOpenChange: NOOP,
+          events: createEventEmitter(),
+          nested: false,
+          triggerElements: new PopupTriggerMap(),
           handleScrollArrowVisibility: NOOP,
           onOpenChangeComplete: NOOP,
           listRef,
@@ -322,11 +330,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       unmount: handleUnmount,
       close: () => {
         if (store.state.open) {
-          setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+          store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
         }
       },
     }),
-    [handleUnmount, setOpen, store],
+    [handleUnmount, store],
   );
 
   const setValue = useStableCallback(
@@ -351,26 +359,25 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
-  const floatingRootStore = useFloatingRootStore({
-    open,
-    onOpenChange: setOpen,
-    elements: {
-      anchor: triggerElement,
-      positionerElement,
-    },
-  });
+  store.context.nested = useFloatingParentNodeId() != null;
+
+  // The interaction hooks anchor to the trigger. Positioning clears the anchor while a closed popup
+  // stays mounted, so it's restored whenever the open state or the elements change.
+  useIsoLayoutEffect(() => {
+    store.update({ anchorElement: triggerElement, defaultPopupId });
+  }, [open, triggerElement, positionerElement, defaultPopupId, store]);
 
   // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
   // user can see the available options and which one is selected. Committing a value is blocked
   // separately in `SelectItem` and in the hidden input's autofill handler.
-  const click = useClick(floatingRootStore, {
+  const click = useClick(store, {
     enabled: !disabled,
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingRootStore);
+  const dismiss = useDismiss(store);
 
-  const listNavigation = useListNavigation(floatingRootStore, {
+  const listNavigation = useListNavigation(store, {
     enabled: !disabled,
     listRef,
     activeIndex,
@@ -387,7 +394,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const typeahead = useTypeahead(floatingRootStore, {
+  const typeahead = useTypeahead(store, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
     // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
     enabled: !disabled && (open || (!readOnly && !multiple)),
@@ -450,7 +457,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   store.useContextCallback('setValue', setValue);
-  store.useContextCallback('setOpen', setOpen);
+  store.useContextCallback('onOpenChange', setOpen);
   store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
@@ -512,9 +519,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   return (
     <SelectRootContext.Provider value={store}>
-      <SelectFloatingContext.Provider value={floatingRootStore}>
-        {children}
-      </SelectFloatingContext.Provider>
+      {children}
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {

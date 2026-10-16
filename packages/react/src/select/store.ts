@@ -1,4 +1,4 @@
-import type { ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
@@ -7,6 +7,13 @@ import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 import type { Group } from '../internals/resolveValueLabel';
 import type { SelectRoot } from './root/SelectRoot';
+import type {
+  PopupInteractionContext,
+  PositioningInteractionStore,
+  ReferenceType,
+} from '../utils/popups/types';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { dispatchOpenChange } from '../utils/popups/floating-root/dispatchOpenChange';
 
 export type State = {
   id: string | undefined;
@@ -51,6 +58,19 @@ export type State = {
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
+  /**
+   * The element the interaction hooks treat as the anchor. It follows the trigger while the popup
+   * is mounted, and is cleared once a closed popup stops positioning.
+   */
+  anchorElement: Element | null;
+  /**
+   * An anchor set explicitly by an interaction hook, which takes precedence over `anchorElement`.
+   */
+  anchorOverride: ReferenceType | null;
+  /**
+   * The popup's id unless its element sets one.
+   */
+  defaultPopupId: string | undefined;
   popupSide: Side | null;
 
   scrollUpArrowVisible: boolean;
@@ -63,7 +83,7 @@ export type State = {
  * Non-reactive values shared with the select parts. Nothing here is observable through
  * `selectors`, so writing to a ref never notifies subscribers.
  */
-export type SelectStoreContext = {
+export type SelectStoreContext = PopupInteractionContext & {
   readonly listRef: React.RefObject<Array<HTMLElement | null>>;
   readonly popupRef: React.RefObject<HTMLDivElement | null>;
   readonly scrollHandlerRef: React.RefObject<((element: HTMLDivElement) => void) | null>;
@@ -85,7 +105,10 @@ export type SelectStoreContext = {
   // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
-  setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  /**
+   * Applies an open change the interaction hooks have heard about. Call `store.setOpen` instead.
+   */
+  onOpenChange: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
   onOpenChangeComplete: (open: boolean) => void;
 };
@@ -158,6 +181,9 @@ export const selectors = {
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,
   listElement: (state: State) => state.listElement,
+  anchorElement: (state: State) => state.anchorElement,
+  anchor: (state: State) => state.anchorOverride ?? state.anchorElement,
+  defaultPopupId: (state: State) => state.defaultPopupId,
   popupSide: (state: State) => state.popupSide,
 
   scrollUpArrowVisible: (state: State) => state.scrollUpArrowVisible,
@@ -166,4 +192,23 @@ export const selectors = {
   hasScrollArrows: (state: State) => state.hasScrollArrows,
 };
 
-export type SelectStore = ReactStore<State, SelectStoreContext, typeof selectors>;
+export class SelectStore
+  extends ReactStore<State, SelectStoreContext, typeof selectors>
+  implements PositioningInteractionStore
+{
+  /**
+   * Requests an open change: the interaction hooks hear about it first, then the Root applies it.
+   */
+  setOpen = (open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
+    dispatchOpenChange(this.context, this.state.open, open, eventDetails);
+    this.context.onOpenChange(open, eventDetails as SelectRoot.ChangeEventDetails);
+  };
+
+  /**
+   * Forgets the anchor while the popup isn't mounted, so positioning doesn't run for a closed
+   * popup that stays in the DOM.
+   */
+  clearPositioning() {
+    this.update({ anchorElement: null, anchorOverride: null });
+  }
+}

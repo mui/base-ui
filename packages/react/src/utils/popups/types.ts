@@ -107,7 +107,8 @@ export interface PopupInteractionContext {
 
 /**
  * The store that interaction hooks, the focus manager and positioning read and write.
- * Popup stores implement it directly. Components without a popup store use `FloatingRootStore`.
+ * Component stores implement it directly. Navigation Menu and Toast, which keep their open state
+ * outside a store, use `FloatingRootStore`.
  */
 export interface PopupInteractionStore {
   select: PopupInteractionReader;
@@ -119,8 +120,8 @@ export interface PopupInteractionStore {
 }
 
 /**
- * The store anchor positioning reads and clears. Popup stores and `FloatingRootStore` implement it;
- * the narrower handle stores that triggers use don't need to.
+ * The store anchor positioning reads and clears. Component stores and `FloatingRootStore`
+ * implement it; the narrower handle stores that triggers use don't need to.
  */
 export interface PositioningInteractionStore extends PopupInteractionStore {
   /**

@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 import type { SelectStore } from '../store';
 
 export const SelectRootContext = React.createContext<SelectStore | undefined>(undefined);
-export const SelectFloatingContext = React.createContext<FloatingRootStore | undefined>(undefined);
 
 export function useSelectRootContext() {
   const store = React.useContext(SelectRootContext);
@@ -14,14 +12,4 @@ export function useSelectRootContext() {
     );
   }
   return store;
-}
-
-export function useSelectFloatingContext() {
-  const context = React.useContext(SelectFloatingContext);
-  if (context === undefined) {
-    throw new Error(
-      'Base UI: SelectFloatingContext is missing. Select parts must be placed within <Select.Root>.',
-    );
-  }
-  return context;
 }

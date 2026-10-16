@@ -250,7 +250,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               return;
             }
 
-            store.context.setOpen(true, createChangeEventDetails(REASONS.inputChange, nativeEvent));
+            store.setOpen(true, createChangeEventDetails(REASONS.inputChange, nativeEvent));
             // When autoHighlight is enabled, keep the highlight (will be set to 0 in root).
             if (!autoHighlightEnabled) {
               clearHighlight(nativeEvent);
@@ -268,10 +268,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             setComposingValue(nextVal);
 
             if (nextVal === '' && !store.state.openOnInputClick && !store.state.inputInsidePopup) {
-              store.context.setOpen(
-                false,
-                createChangeEventDetails(REASONS.inputClear, nativeEvent),
-              );
+              store.setOpen(false, createChangeEventDetails(REASONS.inputClear, nativeEvent));
             }
 
             const trimmed = nextVal.trim();
@@ -302,7 +299,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             }
 
             if (!store.state.openOnInputClick) {
-              store.context.setOpen(false, clearDetails);
+              store.setOpen(false, clearDetails);
             }
           }
 
@@ -411,7 +408,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               }
 
               // Allow form submission when no item is highlighted.
-              store.context.setOpen(false, createChangeEventDetails(REASONS.none, nativeEvent));
+              store.setOpen(false, createChangeEventDetails(REASONS.none, nativeEvent));
               return;
             }
 
