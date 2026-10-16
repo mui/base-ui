@@ -121,7 +121,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
   const initialValueRef = React.useRef(value);
 
-  // Runs for every accepted open change, after `onOpenChange` and before the store commits it.
+  // Calls `onOpenChange` for every open change that isn't ignored, then applies the select's own
+  // handling of an accepted change before the store commits it.
   const handleOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: SelectRoot.OpenChangeEventDetails) => {
       onOpenChange?.(nextOpen, eventDetails);

@@ -108,7 +108,6 @@ export const selectors = {
   },
 
   itemRoot: (state: State) => state.itemRoot,
-  listElement: (state: State) => state.listElement,
 
   scrollUpArrowVisible: (state: State) => state.scrollUpArrowVisible,
   scrollDownArrowVisible: (state: State) => state.scrollDownArrowVisible,

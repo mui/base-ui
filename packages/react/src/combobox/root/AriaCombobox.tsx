@@ -385,7 +385,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             isItemEqualToValue,
           },
           listElement: null,
-          popupId: undefined,
+          popupElementId: undefined,
           triggerElement: null,
           inputElement: null,
           inputGroupElement: null,
@@ -778,7 +778,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         eventDetails.allowPropagation();
       }
 
-      props.onOpenChange?.(nextOpen, eventDetails);
+      store.context.onOpenChange?.(nextOpen, eventDetails);
 
       // A typed request must not highlight a later open: discard it when its own open is
       // rejected, or when any other open change goes through.
