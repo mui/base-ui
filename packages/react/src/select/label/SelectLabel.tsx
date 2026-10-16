@@ -7,7 +7,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import { useLabel } from '../../internals/labelable-provider/useLabel';
 import { getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootStoreContext } from '../root/SelectRootContext';
 
 /**
  * An accessible label that is automatically associated with the select trigger.
@@ -25,7 +25,7 @@ export const SelectLabel = React.forwardRef(function SelectLabel(
   delete elementPropsWithoutId.id;
 
   const fieldRootContext = useFieldRootContext();
-  const store = useSelectRootContext();
+  const store = useSelectRootStoreContext();
 
   const triggerElement = store.useState('triggerElement');
   const rootId = store.useState('id');

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootStoreContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
@@ -28,7 +28,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const isUp = direction === 'up';
 
-  const store = useSelectRootContext();
+  const store = useSelectRootStoreContext();
   const { side, scrollDownArrowRef, scrollUpArrowRef } = useSelectPositionerContext();
 
   const visibleSelector = isUp ? 'scrollUpArrowVisible' : 'scrollDownArrowVisible';

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootStoreContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 
@@ -17,7 +17,7 @@ export const SelectItemText = React.memo(
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const { index, textRef, selectedByFocus } = useSelectItemContext();
-    const store = useSelectRootContext();
+    const store = useSelectRootStoreContext();
 
     const { render, className, style, ...elementProps } = componentProps;
 
