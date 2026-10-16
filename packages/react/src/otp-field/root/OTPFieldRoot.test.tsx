@@ -1,5 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
@@ -1429,6 +1430,44 @@ describe('<OTPField.Root />', () => {
 
         expect(handleSubmit).toHaveBeenCalledTimes(1);
         expect(handleOtherSubmit).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        {
+          name: 'the root is portaled through render',
+          renderOTPField: () => (
+            <OTPField
+              autoSubmit
+              render={(props) => ReactDOM.createPortal(<div {...props} />, document.body)}
+            />
+          ),
+        },
+        {
+          name: 'the inputs are portaled',
+          renderOTPField: () => (
+            <OTPFieldBase.Root length={OTP_LENGTH} autoSubmit>
+              {ReactDOM.createPortal(
+                Array.from({ length: OTP_LENGTH }, (_, index) => (
+                  <OTPFieldBase.Input key={index} />
+                )),
+                document.body,
+              )}
+            </OTPFieldBase.Root>
+          ),
+        },
+      ])('submits the hidden input form when $name', async ({ renderOTPField }) => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+
+        await render(<form onSubmit={handleSubmit}>{renderOTPField()}</form>);
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        expect(firstInput.form).toBe(null);
+
+        fireEvent.change(firstInput, { target: { value: '123456' } });
+
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
       });
 
       it('submits the completed named OTP value from the owning form when enabled', async () => {
