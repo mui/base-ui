@@ -11,7 +11,7 @@ import type { FloatingRootState as State } from './FloatingRootStore';
 import type { ReferenceType } from '../types';
 
 /**
- * What `useFloatingRootStore` syncs into its store on every render.
+ * What `useFloatingRootStore` syncs into its store.
  */
 export interface UseFloatingRootStoreOptions {
   /**
@@ -41,8 +41,9 @@ export interface UseFloatingRootStoreOptions {
 }
 
 /**
- * Creates a `FloatingRootStore` and syncs the open state, anchor and positioner element into it on
- * every render, for components that manage their open state without a popup store.
+ * Creates a `FloatingRootStore` for components that manage their open state without a popup
+ * store. The open state, anchor and positioner element are synced into it from a layout effect
+ * whenever they change; `onOpenChange` and the nesting flag are updated during render.
  */
 export function useFloatingRootStore(options: UseFloatingRootStoreOptions): FloatingRootStore {
   const { open = false, onOpenChange, elements = {} } = options;

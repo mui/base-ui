@@ -39,4 +39,4 @@ The store a popup's interactions read and write: whether it is open, its anchor,
 _Avoid_: floating context
 
 **Floating UI modules**:
-Modules ported from Floating UI keep its names, so they stay recognizable next to the library they came from: `FloatingTree`, `FloatingNode`, `FloatingFocusManager`, `FloatingPortal`, `FloatingDelayGroup`, `FloatingRootStore` with `useFloatingRootStore`, and positioning's `useFloating`. The _Avoid_ lists above apply to the popup concepts and the state they share, not to these module names.
+Modules ported from Floating UI keep its names, so they stay recognizable next to the library they came from: `FloatingTree`, `FloatingNode`, `FloatingTreeStore`, `FloatingFocusManager`, `FloatingPortal`, `FloatingPortalLite`, `FloatingDelayGroup`, `FloatingRootStore` with `useFloatingRootStore`, and positioning's `useFloating`. The _Avoid_ lists above apply to the popup concepts and the state they share, not to these module names.

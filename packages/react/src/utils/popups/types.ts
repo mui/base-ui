@@ -120,8 +120,8 @@ export interface PopupInteractionStore {
  */
 export interface PositioningInteractionStore extends PopupInteractionStore {
   /**
-   * Forgets the elements positioning reads, so it doesn't run for a `keepMounted` popup whose
-   * positioner is unmounted.
+   * Forgets the elements positioning reads while the popup isn't mounted, so positioning doesn't
+   * run for a `keepMounted` popup that is closed.
    */
   clearPositioning(): void;
 }

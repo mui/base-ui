@@ -15,7 +15,7 @@ export interface FloatingRootState {
    */
   open: boolean;
   /**
-   * The popup's open or close transition, if one is running.
+   * The popup's open or close transition. Owners don't sync it, so it stays `undefined`.
    */
   transitionStatus: TransitionStatus | undefined;
   /**
@@ -76,9 +76,9 @@ interface FloatingRootStoreOptions {
 
 /**
  * An interaction store for components without a popup store: Select, Combobox, Navigation Menu
- * and Toast. It holds a copy of the open state, anchor and elements that its owner syncs in on
- * every render (see `useFloatingRootStore`), and reports open changes back through
- * `onOpenChange`.
+ * and Toast. It holds a copy of the open state, anchor and elements that its owner syncs in from a
+ * layout effect whenever they change (see `useFloatingRootStore`), and reports open changes back
+ * through `onOpenChange`.
  */
 export class FloatingRootStore
   extends ReactStore<Readonly<FloatingRootState>, FloatingRootStoreContext, typeof selectors>
@@ -115,8 +115,8 @@ export class FloatingRootStore
   };
 
   /**
-   * Forgets the anchor and elements positioning reads, so it doesn't run for a `keepMounted` popup
-   * whose positioner is unmounted.
+   * Forgets the anchor and elements positioning reads while the popup isn't mounted, so
+   * positioning doesn't run for a `keepMounted` popup that is closed.
    */
   clearPositioning() {
     this.update({
