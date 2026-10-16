@@ -2,7 +2,7 @@ import { vi, expect, describe, it } from 'vitest';
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
 import { createRenderer } from '#test-utils';
-import { reactMajor } from '@mui/internal-test-utils';
+import { reactMajor, screen } from '@mui/internal-test-utils';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { useRenderElement } from './useRenderElement';
@@ -646,6 +646,44 @@ describe('useRenderElement', () => {
       expect(renderRef.current).toBeInstanceOf(HTMLDivElement);
       expect(componentRef.current).toBeInstanceOf(HTMLDivElement);
       expect(renderRef.current).toBe(componentRef.current);
+    });
+  });
+
+  describe('explicit children={null} under a props-array default', () => {
+    // Some components bake a literal default (e.g. an icon glyph) into the props array
+    // passed to `useRenderElement`. That default is not automatically removed when `render`
+    // replaces the default element — see https://github.com/mui/base-ui/issues/4752 for the
+    // history: making removal automatic would silently change behavior for existing call
+    // sites that use `render` only to swap the tag, so it stays opt-in via `children={null}`.
+    const GlyphTestComponent = React.forwardRef(function GlyphTestComponent(
+      componentProps: BaseUIComponentProps<'span', Record<string, never>>,
+      forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+    ) {
+      const { className, render: renderProp, style, ...elementProps } = componentProps;
+
+      return useRenderElement('span', componentProps, {
+        ref: forwardedRef,
+        props: [{ 'aria-hidden': true, children: 'DEFAULT' }, elementProps],
+      });
+    });
+
+    it('renders the props-array default on the default element path', async () => {
+      const { container } = await render(<GlyphTestComponent />);
+      expect(container.firstElementChild).toHaveTextContent('DEFAULT');
+    });
+
+    it('leaks the default into a childless render element unless opted out', async () => {
+      await render(<GlyphTestComponent render={<span data-testid="custom" />} />);
+      const custom = screen.getByTestId('custom');
+      expect(custom.textContent).toBe('DEFAULT');
+    });
+
+    it('removes the default when children={null} is passed alongside render', async () => {
+      await render(
+        <GlyphTestComponent render={<span data-testid="custom" />}>{null}</GlyphTestComponent>,
+      );
+      const custom = screen.getByTestId('custom');
+      expect(custom.textContent).toBe('');
     });
   });
 
