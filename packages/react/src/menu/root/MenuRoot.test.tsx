@@ -263,6 +263,77 @@ describe('<Menu.Root />', () => {
         expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
       });
     });
+
+    it.skipIf(isJSDOM)(
+      'returns focus to the trigger from an alert dialog opened by an item after a screen reader press',
+      async () => {
+        function App() {
+          const [dialogOpen, setDialogOpen] = React.useState(false);
+          return (
+            <React.Fragment>
+              <button type="button">Before</button>
+              <Menu.Root>
+                <Menu.Trigger>Playlist</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item onClick={() => setDialogOpen(true)}>Delete</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+              <AlertDialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+                <AlertDialog.Portal>
+                  <AlertDialog.Popup>
+                    <AlertDialog.Close>Cancel</AlertDialog.Close>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
+            </React.Fragment>
+          );
+        }
+
+        function fireScreenReaderPress(element: Element) {
+          fireEvent.pointerDown(element, {
+            pointerType: 'mouse',
+            width: 1,
+            height: 1,
+            pressure: 0,
+            detail: 0,
+            buttons: 0,
+          });
+          fireEvent.mouseDown(element, { detail: 0 });
+          fireEvent.pointerUp(element, { pointerType: 'mouse', width: 1, height: 1, pressure: 0 });
+          fireEvent.mouseUp(element, { detail: 0 });
+          fireEvent.click(element, { detail: 0 });
+        }
+
+        await render(<App />);
+        const trigger = screen.getByRole('button', { name: 'Playlist' });
+
+        // The virtual cursor moves to the trigger without moving DOM focus off the previous control.
+        await act(async () => {
+          screen.getByRole('button', { name: 'Before' }).focus();
+        });
+        fireScreenReaderPress(trigger);
+
+        const item = await screen.findByRole('menuitem', { name: 'Delete' });
+        await waitFor(() => {
+          expect(item).toHaveFocus();
+        });
+        fireScreenReaderPress(item);
+
+        const cancel = await screen.findByRole('button', { name: 'Cancel' });
+        await waitFor(() => {
+          expect(cancel).toHaveFocus();
+        });
+        fireScreenReaderPress(cancel);
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      },
+    );
   });
 
   popupListConformanceTests({
