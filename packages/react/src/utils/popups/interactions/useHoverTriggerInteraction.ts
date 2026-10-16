@@ -15,7 +15,7 @@ import { useHoverIntent } from './hoverIntent';
 import type { HoverIntentTriggerOptions } from './hoverIntent';
 import type { HandleClose, HandleCloseContextBase } from './useHoverShared';
 
-export interface UseHoverReferenceInteractionProps {
+export interface UseHoverTriggerInteractionProps {
   enabled?: boolean | undefined;
   handleClose?: HandleClose | null | undefined;
   restMs?: number | (() => number) | undefined;
@@ -59,7 +59,7 @@ const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
  */
 export function useHoverTriggerInteraction(
   store: PopupInteractionStore,
-  props: UseHoverReferenceInteractionProps = {},
+  props: UseHoverTriggerInteractionProps = {},
 ): HTMLProps | undefined {
   const {
     enabled = true,

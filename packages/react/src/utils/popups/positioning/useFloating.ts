@@ -30,7 +30,7 @@ export function useBaseUIFloating(
   const open = store.useState('open');
   const defaultPopupId = store.useState('defaultPopupId');
 
-  const [anchorOverride, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
+  const [positionerAnchor, setPositionerAnchor] = React.useState<ReferenceType | null>(null);
 
   const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
 
@@ -49,7 +49,7 @@ export function useBaseUIFloating(
     ...options,
     elements: {
       ...storeElements,
-      ...(anchorOverride && { reference: anchorOverride }),
+      ...(positionerAnchor && { reference: positionerAnchor }),
     },
   });
 
@@ -62,9 +62,9 @@ export function useBaseUIFloating(
             contextElement: node,
           } satisfies VirtualElement)
         : node;
-      // Keep the override in state when the anchor element comes from the store, so it isn't
-      // overridden on future renders.
-      setPositionReferenceRaw(computedPositionReference);
+      // Keep the Positioner's anchor in state when the store also has an anchor, so the store's
+      // doesn't replace it on future renders.
+      setPositionerAnchor(computedPositionReference);
       position.refs.setReference(computedPositionReference);
     },
     [position.refs],

@@ -85,9 +85,9 @@ type PopupRootStore = ReactStore<
  *
  * @param props The props every popup Root shares.
  * @param createStore Builds the store exactly once, from the state the props describe and the
- *   floating id. The store belongs to the
- *   Root, not to its handle: the handle attaches to it, so swapping the handle re-attaches rather
- *   than recreating state. The props only seed it; controlled props are synced after creation.
+ *   default popup id. The store belongs to the Root, not to its handle: the handle attaches to it,
+ *   so swapping the handle re-attaches rather than recreating state. The props only seed it;
+ *   controlled props are synced after creation.
  * @param options What differs between popup Roots.
  * @returns The store, and the open and mounted state, payload and transition status it renders.
  */
@@ -101,9 +101,9 @@ export function usePopupRoot<Store extends PopupRootStore>(
 }
 
 /**
- * `usePopupRoot` for a Root that supplies its own floating id instead of a generated one.
+ * `usePopupRoot` for a Root that supplies its own default popup id instead of a generated one.
  *
- * @param defaultPopupId The floating id, or `undefined` to leave the popup without one.
+ * @param defaultPopupId The default popup id, or `undefined` to leave the popup without one.
  */
 export function usePopupRootWithPopupId<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
@@ -208,12 +208,12 @@ interface PopupRootStoreHandle<Store> {
 
 /**
  * Creates and owns a popup store on behalf of a Root part. The store is created exactly once, with
- * controlled props and root state synced separately after creation. Keeps the floating id and
+ * controlled props and root state synced separately after creation. Keeps the default popup id and
  * whether the popup is nested current, and returns the store.
  *
- * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
- * resolved on the first render.
- * @param defaultPopupId The floating id, or `undefined` to leave the popup without one.
+ * @param createStore Factory that builds the store. Called exactly once, receiving the default
+ * popup id resolved on the first render.
+ * @param defaultPopupId The default popup id, or `undefined` to leave the popup without one.
  */
 function usePopupRootStore<Store extends PopupRootStore>(
   createStore: (defaultPopupId: string | undefined) => Store,

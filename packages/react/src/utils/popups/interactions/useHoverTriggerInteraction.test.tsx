@@ -7,7 +7,7 @@ import { safePolygon } from './safePolygon';
 import { useHoverPopupInteraction } from './useHoverPopupInteraction';
 import { useHoverIntent } from './hoverIntent';
 import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
-import type { UseHoverReferenceInteractionProps } from './useHoverTriggerInteraction';
+import type { UseHoverTriggerInteractionProps } from './useHoverTriggerInteraction';
 import type { FloatingRootStore } from '../floating-root/FloatingRootStore';
 import { REASONS } from '../../../internals/reasons';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
@@ -329,7 +329,7 @@ describe.skipIf(!isJSDOM)('useHoverTriggerInteraction', () => {
       vi.useRealTimers();
     });
 
-    function App(props: UseHoverReferenceInteractionProps) {
+    function App(props: UseHoverTriggerInteractionProps) {
       const [open, setOpen] = React.useState(false);
       const triggerElementRef = React.useRef<Element | null>(null);
       const { refs, context } = useFloating({ open, onOpenChange: setOpen });

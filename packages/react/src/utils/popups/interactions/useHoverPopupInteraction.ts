@@ -12,7 +12,7 @@ import type { PopupInteractionStore } from '../types';
 import { getNodeChildren } from '../tree/nodes';
 import { useHoverIntent } from './hoverIntent';
 
-export type UseHoverFloatingInteractionProps = {
+export type UseHoverPopupInteractionProps = {
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.
@@ -37,7 +37,7 @@ export type UseHoverFloatingInteractionProps = {
  */
 export function useHoverPopupInteraction(
   store: PopupInteractionStore,
-  parameters: UseHoverFloatingInteractionProps = {},
+  parameters: UseHoverPopupInteractionProps = {},
 ): void {
   const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
 

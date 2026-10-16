@@ -19,7 +19,7 @@ export interface FloatingRootState {
    */
   transitionStatus: TransitionStatus | undefined;
   /**
-   * The DOM element the popup is anchored to.
+   * The element of the anchor the owner passes, usually its trigger.
    */
   anchorElement: Element | null;
   /**
