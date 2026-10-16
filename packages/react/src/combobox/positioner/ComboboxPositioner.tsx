@@ -5,7 +5,6 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import { useListEmpty } from '../utils/parts';
-import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,
   Align,
@@ -15,7 +14,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
-import { usePositioner } from '../../utils/popups/positioning/usePositioner';
+import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
 /**
@@ -28,27 +27,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   componentProps: ComboboxPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    render,
-    className,
-    anchor,
-    // `useAnchorPositioning` applies the same defaults to the undefined values; the names
-    // remain destructured to exclude the props from `elementProps`.
-    positionMethod,
-    side,
-    align,
-    sideOffset,
-    alignOffset,
-    collisionBoundary,
-    collisionPadding,
-    arrowPadding,
-    sticky,
-    disableAnchorTracking,
-    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
-    style: styleProp,
-    ...elementProps
-  } = componentProps;
-
   const store = useComboboxRootContext();
   const keepMounted = useComboboxPortalContext();
 
@@ -61,30 +39,25 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const inputElement = store.useState('inputElement');
   const inputGroupElement = store.useState('inputGroupElement');
   const inputInsidePopup = store.useState('inputInsidePopup');
-  const transitionStatus = store.useState('transitionStatus');
 
   const empty = useListEmpty();
-  const resolvedAnchor =
-    anchor ?? (inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement));
 
-  const positioning = useAnchorPositioning({
-    anchor: resolvedAnchor,
-    interactionStore: store.interactions,
-    positionMethod,
-    mounted,
-    side,
-    sideOffset,
-    align,
-    alignOffset,
-    arrowPadding,
-    collisionBoundary,
-    collisionPadding,
-    sticky,
-    disableAnchorTracking,
-    keepMounted,
-    collisionAvoidance,
-    lazyFlip: true,
-  });
+  const { element, positioning } = usePopupPositioner<ComboboxPositionerInternalState>(
+    store,
+    componentProps,
+    {
+      forwardedRef,
+      keepMounted,
+      positioning: {
+        anchor:
+          componentProps.anchor ??
+          (inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement)),
+        collisionAvoidance: componentProps.collisionAvoidance ?? DROPDOWN_COLLISION_AVOIDANCE,
+        lazyFlip: true,
+      },
+      state: { empty },
+    },
+  );
 
   useAnchoredPopupScrollLock(
     open && modal,
@@ -93,28 +66,9 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     triggerElement,
   );
 
-  const state: ComboboxPositionerState = {
-    open,
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    empty,
-  };
-
   useIsoLayoutEffect(() => {
     store.set('popupSide', positioning.side);
   }, [store, positioning.side]);
-
-  const setPositionerElement = store.useStateSetter('positionerElement');
-
-  const element = usePositioner(componentProps, state, {
-    styles: positioning.positionerStyles,
-    transitionStatus,
-    props: elementProps,
-    refs: [forwardedRef, setPositionerElement],
-    hidden: !mounted,
-    inert: !open,
-  });
 
   return (
     <ComboboxPositionerContext.Provider value={positioning}>
@@ -128,6 +82,9 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     </ComboboxPositionerContext.Provider>
   );
 });
+
+// The shared positioner state also carries `instant`, which a combobox never sets.
+type ComboboxPositionerInternalState = ComboboxPositionerState & { instant: undefined };
 
 export interface ComboboxPositionerState {
   /**

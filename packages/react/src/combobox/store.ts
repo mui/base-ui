@@ -2,6 +2,7 @@ import type { HTMLProps } from '../internals/types';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
+import type { AdaptiveOriginMiddleware } from '../utils/popups/positioning/adaptiveOriginConstants';
 import type { PopupInteractionReader, PositioningInteractionStore } from '../utils/popups/types';
 import { popupStoreSelectors } from '../utils/popups/store';
 import { ValuePopupStore, valuePopupSelectors } from '../utils/popups/value-popup/ValuePopupStore';
@@ -42,6 +43,11 @@ export type State = ValuePopupState & {
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
   hasInputValue: boolean;
+
+  // The shared positioner reads these. A combobox has neither an instant transition nor an
+  // adaptive origin, so they stay `undefined`.
+  instantType: undefined;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 /**
@@ -148,6 +154,8 @@ export const selectors = {
   grid: (state: State) => state.grid,
   virtualized: (state: State) => state.virtualized,
   autoHighlight: (state: State) => state.autoHighlight,
+  instantType: (state: State) => state.instantType,
+  adaptiveOrigin: (state: State) => state.adaptiveOrigin,
 };
 
 export class ComboboxStore extends ValuePopupStore<
