@@ -5,6 +5,7 @@ import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
+import { Input } from '@base-ui/react/input';
 import { createRenderer, describeConformance, pasteText } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
@@ -1401,6 +1402,33 @@ describe('<OTPField.Root />', () => {
 
         expect(getValues()).toBe('123456');
         expect(handleSubmit).not.toHaveBeenCalled();
+      });
+
+      it('submits its own form when an unscoped control in another form mounts later', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const handleOtherSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+
+        await render(
+          <React.Fragment>
+            <form onSubmit={handleSubmit}>
+              <OTPField autoSubmit />
+            </form>
+            <form onSubmit={handleOtherSubmit}>
+              <Input aria-label="Unrelated input" />
+            </form>
+          </React.Fragment>,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        fireEvent.change(firstInput, { target: { value: '123456' } });
+
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
+        expect(handleOtherSubmit).not.toHaveBeenCalled();
       });
 
       it('submits the completed named OTP value from the owning form when enabled', async () => {

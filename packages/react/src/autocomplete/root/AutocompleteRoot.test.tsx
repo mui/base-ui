@@ -6,7 +6,6 @@ import { Autocomplete, AutocompleteSeparatorDataAttributes } from '@base-ui/reac
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
-import { Switch } from '@base-ui/react/switch';
 import { REASONS } from '../../internals/reasons';
 
 describe('<Autocomplete.Root />', () => {
@@ -1981,8 +1980,40 @@ describe('<Autocomplete.Root />', () => {
       expect(handleSubmit.mock.results.at(-1)?.value).toBe('alpha');
     });
 
-    it('uses the combobox input form when another unscoped control owns the validation ref', async () => {
+    it('submits the form of the input when only the input is inside the form', async () => {
       const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+      });
+
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha']} submitOnItemClick>
+          {/* The hidden input renders after the children, outside this form. */}
+          <form onSubmit={handleSubmit}>
+            <Autocomplete.Input />
+          </form>
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      await user.type(screen.getByRole('combobox'), 'a');
+      await user.click(screen.getByRole('option', { name: 'alpha' }));
+
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    it('submits its own form when an unscoped control in another form owns the validation ref', async () => {
+      const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+      });
+      const handleOtherSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
       });
 
@@ -2002,8 +2033,9 @@ describe('<Autocomplete.Root />', () => {
               </Autocomplete.Portal>
             </Autocomplete.Root>
           </form>
-          {/* Claims the shared validation ref so Autocomplete must fall back to its input form. */}
-          <Switch.Root aria-label="Unrelated switch" />
+          <form onSubmit={handleOtherSubmit}>
+            <Input aria-label="Unrelated input" />
+          </form>
         </React.Fragment>,
       );
 
@@ -2011,6 +2043,7 @@ describe('<Autocomplete.Root />', () => {
       await user.click(screen.getByRole('option', { name: 'alpha' }));
 
       expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleOtherSubmit).not.toHaveBeenCalled();
     });
 
     it('when true, pressing Enter in the Input submits the owning form when an item is highlighted', async () => {
