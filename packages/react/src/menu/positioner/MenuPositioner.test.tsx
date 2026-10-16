@@ -133,6 +133,42 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
+    it('uses the dropdown default for a context menu', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+          <ContextMenu.Portal keepMounted>
+            <ContextMenu.Positioner data-testid="positioner">
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      expect(lastCallFor(screen.getByTestId('positioner'))?.collisionAvoidance).toEqual(
+        DROPDOWN_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the dropdown default for a menubar menu', async () => {
+      await render(
+        <Menubar>
+          <Menu.Root open>
+            <Menu.Trigger>File</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup />
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      expect(lastCallFor(screen.getByTestId('positioner'))?.collisionAvoidance).toEqual(
+        DROPDOWN_COLLISION_AVOIDANCE,
+      );
+    });
+
     it('uses the popup default for a submenu', async () => {
       await render(<SubmenuApp />);
 
