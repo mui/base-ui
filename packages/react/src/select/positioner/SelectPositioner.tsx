@@ -61,7 +61,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const modal = store.useState('modal');
-  const value = store.useState('value');
+  const value = store.useState('selectedValue');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const triggerElement = store.useState('triggerElement');
@@ -148,7 +148,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
       const eventDetails = createChangeEventDetails(REASONS.none);
 
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
+      if (prevSize !== 0 && !store.select('multiple') && value !== null) {
         const selectedValueIndex = findItemIndex(
           store.context.valuesRef.current,
           value,
@@ -173,7 +173,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         }
       }
 
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
+      if (prevSize !== 0 && store.select('multiple') && Array.isArray(value)) {
         const nextValue = value.filter(
           (selectedItemValue) =>
             findItemIndex(

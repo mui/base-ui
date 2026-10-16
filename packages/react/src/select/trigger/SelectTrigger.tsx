@@ -71,7 +71,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
-  const value = store.useState('value');
+  const value = store.useState('selectedValue');
   const triggerProps = store.useState('triggerProps', true);
   const positionerElement = store.useState('positionerElement');
   const listElement = store.useState('listElement');
@@ -155,7 +155,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         // the items before `open === true`. We could sync those cycles better
         // without a timeout, but this is enough for now.
         timeoutFocus.start(0, () => {
-          store.set('forceMount', true);
+          store.set('forceMounted', true);
         });
       },
       onBlur(event) {

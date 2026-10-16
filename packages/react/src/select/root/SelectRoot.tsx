@@ -38,6 +38,7 @@ import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { usePopupRoot } from '../../utils/popups/popupRoot';
+import { useValuePopupAnchor } from '../../utils/popups/value-popup/useValuePopupAnchor';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 
 /**
@@ -159,7 +160,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           id: generatedId,
           labelId: undefined,
           modal,
-          multiple,
+          selectionMode: multiple ? 'multiple' : 'single',
           disabled,
           readOnly,
           required,
@@ -167,9 +168,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           itemToStringLabel,
           itemToStringValue,
           isItemEqualToValue,
-          value,
+          selectedValue: value,
           items,
-          forceMount: false,
+          forceMounted: false,
           openMethod: null,
           activeIndex: null,
           selectedIndex: null,
@@ -298,11 +299,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
-  // The interaction hooks anchor to the trigger. Positioning clears the anchor while a closed popup
-  // stays mounted, so it's restored whenever the open state or the elements change.
-  useIsoLayoutEffect(() => {
-    store.set('anchorElement', triggerElement);
-  }, [open, triggerElement, positionerElement, store]);
+  // The interaction hooks anchor to the trigger.
+  useValuePopupAnchor(store, open, triggerElement, positionerElement);
 
   // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
   // user can see the available options and which one is selected. Committing a value is blocked
@@ -409,12 +407,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   store.useSyncedValues({
     id: generatedId,
     modal,
-    multiple,
+    selectionMode: multiple ? 'multiple' : 'single',
     disabled,
     readOnly,
     required,
     highlightItemOnHover,
-    value,
+    selectedValue: value,
     popupProps,
     activeTriggerProps: mergedTriggerProps,
     itemRoot,
@@ -502,7 +500,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               }
             }
 
-            store.set('forceMount', true);
+            store.set('forceMounted', true);
             queueMicrotask(handleChange);
           },
         })}
