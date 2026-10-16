@@ -265,15 +265,7 @@ describe('<Menu.Root />', () => {
   });
 
   popupListConformanceTests({
-    createComponent: ({
-      root,
-      items,
-      disabledItems,
-      nativeButton,
-      scrollerStyle,
-      itemStyle,
-      onItemClick,
-    }) => (
+    createComponent: ({ root, items, disabledItems, scrollerStyle, itemStyle, onItemClick }) => (
       <Menu.Root {...root}>
         <Menu.Trigger data-testid="trigger">Open menu</Menu.Trigger>
         <Menu.Portal>
@@ -283,8 +275,6 @@ describe('<Menu.Root />', () => {
                 {items.map((item) => (
                   <Menu.Item
                     key={item}
-                    nativeButton={nativeButton}
-                    render={nativeButton ? <button type="button" /> : undefined}
                     disabled={disabledItems.includes(item)}
                     style={itemStyle}
                     onClick={onItemClick}

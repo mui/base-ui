@@ -1,8 +1,8 @@
-import { expect, vi, describe, it } from 'vitest';
+import { expect, vi, describe, it, onTestFinished } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 
 describe('<Menu.Item />', () => {
   const { render, clock } = createRenderer({
@@ -55,42 +55,54 @@ describe('<Menu.Item />', () => {
     expect(onClick.mock.calls.length).toBe(1);
   });
 
-  it.skipIf(isJSDOM)('focuses an item before mouseup and click without hover focus', async () => {
-    let focusedAtMouseUp: Element | null = null;
-    let focusedAtClick: Element | null = null;
-    const { user } = await render(
-      <Menu.Root open highlightItemOnHover={false}>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <input aria-label="Start" />
-              <Menu.Item
-                closeOnClick={false}
-                onMouseUp={(event) => {
-                  focusedAtMouseUp = event.currentTarget.ownerDocument.activeElement;
-                }}
-                onClick={(event) => {
-                  focusedAtClick = event.currentTarget.ownerDocument.activeElement;
-                }}
-              >
-                Item
-              </Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>,
-    );
+  it.skipIf(isJSDOM).each([
+    { name: 'default', nativeButton: false },
+    { name: 'native button', nativeButton: true },
+  ])(
+    'native press focuses a $name item before mouseup and click without hover focus',
+    async ({ nativeButton }) => {
+      // Testing Library's `user.click` calls `focus()` itself, so it can't verify browser focus.
+      ignoreActWarnings();
+      onTestFinished(resetBrowserPointer);
+      const { userEvent } = await import('vitest/browser');
+      let focusedAtMouseUp: Element | null = null;
+      let focusedAtClick: Element | null = null;
+      await render(
+        <Menu.Root open highlightItemOnHover={false}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <input aria-label="Start" />
+                <Menu.Item
+                  closeOnClick={false}
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button type="button" /> : undefined}
+                  onMouseUp={(event) => {
+                    focusedAtMouseUp = event.currentTarget.ownerDocument.activeElement;
+                  }}
+                  onClick={(event) => {
+                    focusedAtClick = event.currentTarget.ownerDocument.activeElement;
+                  }}
+                >
+                  Item
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
 
-    const input = screen.getByRole('textbox', { name: 'Start' });
-    const item = screen.getByRole('menuitem', { name: 'Item' });
-    await user.click(input);
-    expect(input).toHaveFocus();
+      const input = screen.getByRole('textbox', { name: 'Start' });
+      const item = screen.getByRole('menuitem', { name: 'Item' });
+      await userEvent.click(input);
+      expect(input).toHaveFocus();
 
-    await user.click(item);
+      await userEvent.click(item);
 
-    expect(focusedAtMouseUp).toBe(item);
-    expect(focusedAtClick).toBe(item);
-  });
+      expect(focusedAtMouseUp).toBe(item);
+      expect(focusedAtClick).toBe(item);
+    },
+  );
 
   it.each([{ press: 'mouse' }, { press: 'Enter' }])(
     'preserves focus moved by onClick after $press activation',
@@ -152,6 +164,24 @@ describe('<Menu.Item />', () => {
 
     expect(onClick.mock.calls.length).toBe(1);
     expect(screen.queryByRole('menu')).not.toBe(null);
+  });
+
+  it('allows onMouseDown to call preventBaseUIHandler', async () => {
+    await render(
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item onMouseDown={(event) => event.preventBaseUIHandler()}>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const item = screen.getByRole('menuitem');
+
+    expect(() => fireEvent.mouseDown(item)).not.toThrow();
   });
 
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
