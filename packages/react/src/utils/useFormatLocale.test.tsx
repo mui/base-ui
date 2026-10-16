@@ -20,10 +20,17 @@ describe('useFormatLocale', () => {
   });
 
   it.each([
-    { name: 'en-US until hydrated without a locale', locale: undefined, hydrated: undefined },
-    { name: 'the passed locale while hydrating', locale: 'fr-FR', hydrated: 'fr-FR' },
-  ])('returns $name', async ({ locale, hydrated }) => {
-    const hydrating = locale ?? 'en-US';
+    {
+      name: 'en-US until hydrated without a locale',
+      locale: undefined,
+      hydrationRenders: ['en-US', undefined],
+    },
+    {
+      name: 'the passed locale without re-rendering after hydration',
+      locale: 'fr-FR',
+      hydrationRenders: ['fr-FR'],
+    },
+  ])('returns $name', async ({ locale, hydrationRenders }) => {
     const locales: Array<Intl.LocalesArgument | undefined> = [];
 
     function TestComponent() {
@@ -32,11 +39,10 @@ describe('useFormatLocale', () => {
     }
 
     const { hydrate } = await renderToString(<TestComponent />);
-    expect(locales).toEqual([hydrating]);
+    expect(locales).toEqual([locale ?? 'en-US']);
 
     locales.length = 0;
     await hydrate();
-    expect(locales[0]).toBe(hydrating);
-    expect(locales.at(-1)).toBe(hydrated);
+    expect(locales).toEqual(hydrationRenders);
   });
 });
