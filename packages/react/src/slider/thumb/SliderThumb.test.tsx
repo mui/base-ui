@@ -677,7 +677,7 @@ describe('<Slider.Thumb />', () => {
           );
         }
 
-        const { user } = await render(<App />, { strict, strictEffects: strict });
+        const { user } = await render(<App />, { strict });
 
         const thumb = screen.getByTestId('thumb');
         const indicator = screen.getByTestId('indicator');
@@ -750,7 +750,7 @@ describe('<Slider.Thumb />', () => {
           );
         }
 
-        const { user } = await render(<App />, { strict, strictEffects: strict });
+        const { user } = await render(<App />, { strict });
 
         const startThumb = screen.getByTestId('start-thumb');
         const endThumb = screen.getByTestId('end-thumb');
@@ -811,10 +811,7 @@ describe('<Slider.Thumb />', () => {
       }
 
       // StrictMode re-runs effects after the control's ref attaches, which hides a missing observer.
-      const { setProps } = await render(<App width={200} />, {
-        strict: false,
-        strictEffects: false,
-      });
+      const { setProps } = await render(<App width={200} />, { strict: false });
 
       const control = screen.getByTestId('control');
       const thumb = screen.getByTestId('thumb');
