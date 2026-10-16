@@ -15,6 +15,7 @@ import { getOverflowAncestors } from '@floating-ui/react-dom';
 import type { ElementProps } from '../../utils/popups/types';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { usePopupRoot } from '../../utils/popups/popupRoot';
+import { useValuePopupAnchor } from '../../utils/popups/value-popup/useValuePopupAnchor';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useClick } from '../../utils/popups/interactions/useClick';
@@ -1308,13 +1309,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useValueChanged(inputValue, handleInputValueChanged);
 
   // The interaction hooks anchor to the input, or to the trigger when the input is inside the
-  // popup. A trigger press and positioning both change the anchor, so it's restored whenever the
-  // open state or the elements change.
-  const interactionOpen = open || inline;
-  const baseAnchor = inputInsidePopup ? triggerElement : inputElement;
-  useIsoLayoutEffect(() => {
-    store.set('anchorElement', baseAnchor);
-  }, [interactionOpen, baseAnchor, positionerElement, store]);
+  // popup.
+  useValuePopupAnchor(
+    store,
+    open || inline,
+    inputInsidePopup ? triggerElement : inputElement,
+    positionerElement,
+  );
 
   const ariaHasPopup = grid ? 'grid' : 'listbox';
   // An inline list isn't gated on `open`: it renders for as long as it's in the tree, so the

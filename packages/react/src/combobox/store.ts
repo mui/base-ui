@@ -1,27 +1,19 @@
-import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { HTMLProps } from '../internals/types';
-import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 import type { PopupInteractionReader, PositioningInteractionStore } from '../utils/popups/types';
-import { BasePopupStore, popupStoreSelectors } from '../utils/popups/store';
-import type { PopupStoreContext, PopupStoreState } from '../utils/popups/store';
+import { popupStoreSelectors } from '../utils/popups/store';
+import { ValuePopupStore, valuePopupSelectors } from '../utils/popups/value-popup/ValuePopupStore';
+import type {
+  ValuePopupContext,
+  ValuePopupState,
+} from '../utils/popups/value-popup/ValuePopupStore';
 
-export type State = PopupStoreState<unknown> & {
-  id: string | undefined;
-  labelId: string | undefined;
-
+export type State = ValuePopupState & {
   items: readonly any[] | undefined;
 
-  selectedValue: any;
-
-  forceMounted: boolean;
-
   inline: boolean;
-
-  activeIndex: number | null;
-  selectedIndex: number | null;
 
   listProps: HTMLProps;
   inputProps: HTMLProps;
@@ -35,31 +27,18 @@ export type State = PopupStoreState<unknown> & {
     isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   };
 
-  listElement: HTMLElement | null;
   popupId: string | undefined;
-  triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
   inputGroupElement: HTMLDivElement | null;
-  popupSide: Side | null;
-
-  openMethod: InteractionType | null;
 
   inputInsidePopup: boolean;
   inputOwnsFormValue: boolean;
 
-  selectionMode: 'single' | 'multiple' | 'none';
-
   name: string | undefined;
   form: string | undefined;
-  disabled: boolean;
-  readOnly: boolean;
-  required: boolean;
   grid: boolean;
   virtualized: boolean;
   openOnInputClick: boolean;
-  itemToStringLabel?: ((item: any) => string) | undefined;
-  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
-  modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
   hasInputValue: boolean;
@@ -69,11 +48,7 @@ export type State = PopupStoreState<unknown> & {
  * Non-reactive values shared with the combobox parts. Nothing here is observable through
  * `selectors`, so writing to a ref never notifies subscribers.
  */
-export type ComboboxStoreContext = PopupStoreContext<AriaCombobox.OpenChangeEventDetails> & {
-  /** Item elements in list order, owned by `Combobox.List`. */
-  readonly listRef: React.RefObject<Array<HTMLElement | null>>;
-  /** Item text labels in list order, used for typeahead. */
-  readonly labelsRef: React.RefObject<Array<string | null>>;
+export type ComboboxStoreContext = ValuePopupContext<AriaCombobox.OpenChangeEventDetails> & {
   /** The popup element. */
   readonly popupRef: React.RefObject<HTMLDivElement | null>;
   /** The empty-state element. */
@@ -88,8 +63,6 @@ export type ComboboxStoreContext = PopupStoreContext<AriaCombobox.OpenChangeEven
   readonly chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   /** The clear button. */
   readonly clearRef: React.RefObject<HTMLButtonElement | null>;
-  /** Item values in list order. */
-  readonly valuesRef: React.RefObject<Array<any>>;
   /** Item element that received the last pointerdown, to pair it with a mouseup. */
   readonly pointerDownItemRef: React.RefObject<Element | null>;
   /** Native event that triggered the in-flight selection. */
@@ -122,13 +95,11 @@ export type ComboboxStoreContext = PopupStoreContext<AriaCombobox.OpenChangeEven
 };
 
 export const selectors = {
-  ...popupStoreSelectors,
-  id: (state: State) => state.id,
-  labelId: (state: State) => state.labelId,
-
+  ...valuePopupSelectors,
   items: (state: State) => state.items,
+  hasNullItemLabel: (state: State, enabled: boolean) =>
+    enabled ? hasNullItemLabel(state.items) : false,
 
-  selectedValue: (state: State) => state.selectedValue,
   hasSelectionChips: (state: State) => {
     const selectedValue = state.selectedValue;
     return Array.isArray(selectedValue) && selectedValue.length > 0;
@@ -145,17 +116,8 @@ export const selectors = {
     return true;
   },
 
-  hasNullItemLabel: (state: State, enabled: boolean) => {
-    return enabled ? hasNullItemLabel(state.items) : false;
-  },
-
-  forceMounted: (state: State) => state.forceMounted,
-
   inline: (state: State) => state.inline,
 
-  activeIndex: (state: State) => state.activeIndex,
-  selectedIndex: (state: State) => state.selectedIndex,
-  isActive: (state: State, index: number) => state.activeIndex === index,
   isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const selectedValue = state.selectedValue;
@@ -171,47 +133,29 @@ export const selectors = {
   inputProps: (state: State) => state.inputProps,
   itemRoot: (state: State) => state.itemRoot,
 
-  listElement: (state: State) => state.listElement,
   popupId: (state: State) => state.popupId,
-  triggerElement: (state: State) => state.triggerElement,
   inputElement: (state: State) => state.inputElement,
   inputGroupElement: (state: State) => state.inputGroupElement,
-  // The combobox anchors to its input, which the Root keeps in `anchorElement`, rather than to the
-  // element that opened it.
-  anchor: (state: State) => state.anchorOverride ?? state.anchorElement,
   // An inline list renders for as long as it's in the tree, so the interaction hooks treat it as
   // open even while the open state is `false`.
   interactionOpen: (state: State) => popupStoreSelectors.open(state) || state.inline,
-  popupSide: (state: State) => state.popupSide,
-
-  openMethod: (state: State) => state.openMethod,
 
   inputInsidePopup: (state: State) => state.inputInsidePopup,
   inputOwnsFormValue: (state: State) => state.inputOwnsFormValue,
 
-  selectionMode: (state: State) => state.selectionMode,
-
   name: (state: State) => state.name,
   form: (state: State) => state.form,
-  disabled: (state: State) => state.disabled,
-  readOnly: (state: State) => state.readOnly,
-  required: (state: State) => state.required,
   grid: (state: State) => state.grid,
   virtualized: (state: State) => state.virtualized,
-  itemToStringLabel: (state: State) => state.itemToStringLabel,
-  isItemEqualToValue: (state: State) => state.isItemEqualToValue,
-  modal: (state: State) => state.modal,
   autoHighlight: (state: State) => state.autoHighlight,
 };
 
-export class ComboboxStore extends BasePopupStore<
+export class ComboboxStore extends ValuePopupStore<
   State,
   ComboboxStoreContext,
   typeof selectors,
   AriaCombobox.OpenChangeEventDetails
 > {
-  private wasUnmountPrevented = () => false;
-
   /**
    * The store the interaction hooks read. It reads `open` as `interactionOpen`, so an inline list
    * stays navigable while closed; everything else is the store itself.
@@ -223,20 +167,8 @@ export class ComboboxStore extends BasePopupStore<
     return nextOpen === this.select('open');
   }
 
-  protected attachPreventUnmountOnClose(eventDetails: AriaCombobox.OpenChangeEventDetails) {
-    this.wasUnmountPrevented = super.attachPreventUnmountOnClose(eventDetails);
-    return this.wasUnmountPrevented;
-  }
-
   protected callOnOpenChange(nextOpen: boolean, eventDetails: AriaCombobox.OpenChangeEventDetails) {
     this.context.handleOpenChange(nextOpen, eventDetails);
-  }
-
-  protected completeOpenChange(nextOpen: boolean) {
-    // Each close decides on its own whether the popup stays mounted.
-    if (!nextOpen) {
-      this.set('preventUnmountingOnClose', this.wasUnmountPrevented());
-    }
   }
 
   protected prepareUnmount() {

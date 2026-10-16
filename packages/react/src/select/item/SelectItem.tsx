@@ -78,7 +78,7 @@ export const SelectItem = React.memo(
     }, [index, itemValue, store]);
 
     useIsoLayoutEffect(() => {
-      const selectedValue = store.state.value;
+      const selectedValue = store.state.selectedValue;
 
       const currentIndex = store.state.selectedIndex;
       let nextIndex = currentIndex;
@@ -137,7 +137,7 @@ export const SelectItem = React.memo(
         return;
       }
 
-      const selectedValue = store.state.value;
+      const selectedValue = store.state.selectedValue;
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
         const nextValue = selected
