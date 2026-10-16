@@ -4,7 +4,7 @@ import { platform } from '@base-ui/utils/platform';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
-import { PopupTreeStore } from '../../utils/popups/tree/PopupTreeStore';
+import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import type { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/popups/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
@@ -49,9 +49,9 @@ export type State<Payload> = PopupStoreState<Payload> & {
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
-  popupTreeRoot: PopupTreeStore;
-  popupNodeId: string | undefined;
-  popupParentNodeId: string | null;
+  floatingTreeRoot: FloatingTreeStore;
+  floatingNodeId: string | undefined;
+  floatingParentNodeId: string | null;
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
@@ -151,15 +151,15 @@ const selectors = {
       ? undefined
       : state.instantType,
   lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
-  popupTreeRoot: (state: State<unknown>): PopupTreeStore => {
+  floatingTreeRoot: (state: State<unknown>): FloatingTreeStore => {
     if (state.parent.type === 'menu') {
-      return state.parent.store.select('popupTreeRoot');
+      return state.parent.store.select('floatingTreeRoot');
     }
 
-    return state.popupTreeRoot;
+    return state.floatingTreeRoot;
   },
-  popupNodeId: (state: State<unknown>) => state.popupNodeId,
-  popupParentNodeId: (state: State<unknown>) => state.popupParentNodeId,
+  floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
+  floatingParentNodeId: (state: State<unknown>) => state.floatingParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
@@ -223,24 +223,24 @@ export class MenuStore<Payload> extends BasePopupStore<
     }
 
     let rootId = parent.store.select('rootId');
-    let popupTreeRoot = parent.store.select('popupTreeRoot');
+    let floatingTreeRoot = parent.store.select('floatingTreeRoot');
     let keyboardEventRelay = parent.store.select('keyboardEventRelay');
 
     return parent.store.subscribe(() => {
       const nextRootId = parent.store.select('rootId');
-      const nextPopupTreeRoot = parent.store.select('popupTreeRoot');
+      const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
       const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
 
       if (
         rootId === nextRootId &&
-        popupTreeRoot === nextPopupTreeRoot &&
+        floatingTreeRoot === nextFloatingTreeRoot &&
         keyboardEventRelay === nextKeyboardEventRelay
       ) {
         return;
       }
 
       rootId = nextRootId;
-      popupTreeRoot = nextPopupTreeRoot;
+      floatingTreeRoot = nextFloatingTreeRoot;
       keyboardEventRelay = nextKeyboardEventRelay;
       this.notifyAll();
     });
@@ -427,9 +427,9 @@ function createInitialState<Payload>(
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
-    popupTreeRoot: new PopupTreeStore(),
-    popupNodeId: undefined,
-    popupParentNodeId: null,
+    floatingTreeRoot: new FloatingTreeStore(),
+    floatingNodeId: undefined,
+    floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,

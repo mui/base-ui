@@ -14,7 +14,7 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
-import { getPopupFocusElement } from '../../utils/popups/element';
+import { getFloatingFocusElement } from '../../utils/popups/element';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -137,7 +137,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       'aria-expanded': open,
       'aria-haspopup': 'listbox',
       'aria-controls': open
-        ? (listElement?.id ?? getPopupFocusElement(positionerElement)?.id)
+        ? (listElement?.id ?? getFloatingFocusElement(positionerElement)?.id)
         : undefined,
       'aria-labelledby': ariaLabelledBy,
       'aria-readonly': readOnly || undefined,

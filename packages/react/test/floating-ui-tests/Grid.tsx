@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
-import { PopupFocusManager } from '../../src/utils/popups/focus/PopupFocusManager';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
@@ -54,7 +54,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
           Reference
         </button>
         {open && (
-          <PopupFocusManager context={context.rootStore}>
+          <FloatingFocusManager context={context.rootStore}>
             <div
               role="menu"
               ref={refs.setFloating}
@@ -85,7 +85,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
                 </button>
               ))}
             </div>
-          </PopupFocusManager>
+          </FloatingFocusManager>
         )}
       </div>
     </React.Fragment>

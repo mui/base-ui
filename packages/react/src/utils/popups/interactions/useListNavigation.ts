@@ -10,8 +10,8 @@ import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
-import { usePopupParentNodeId, usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeStore } from '../tree/PopupTreeStore';
+import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
+import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import {
   getMaxListIndex,
@@ -21,7 +21,7 @@ import {
 } from '../../../internals/composite/listIndex';
 import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../constants';
-import { getPopupFocusElement, isTypeableCombobox, isTypeableElement } from '../element';
+import { getFloatingFocusElement, isTypeableCombobox, isTypeableElement } from '../element';
 import { enqueueFocus } from '../focus/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../event';
 
@@ -213,9 +213,9 @@ export interface UseListNavigationProps {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
-   * External PopupTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: FloatingTreeStore | undefined;
   /**
    * Focus target used when a nested list returns to a virtually focused parent.
    */
@@ -287,13 +287,13 @@ export function useListNavigation(
 
   const storeContext = store.context;
 
-  const popupFocusElement = getPopupFocusElement(popupPositionerElement);
+  const floatingFocusElement = getFloatingFocusElement(popupPositionerElement);
   const typeableComboboxReference = isTypeableCombobox(anchorElement);
 
-  const popupFocusElementRef = useValueAsRef(popupFocusElement);
+  const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
-  const parentId = usePopupParentNodeId();
-  const tree = usePopupTree(externalTree);
+  const parentId = useFloatingParentNodeId();
+  const tree = useFloatingTree(externalTree);
 
   const focusItemOnOpenRef = React.useRef(focusItemOnOpen);
   const indexRef = React.useRef(selectedIndex ?? -1);
@@ -562,7 +562,7 @@ export function useListNavigation(
     // If the floating element is animating out, ignore navigation. Otherwise,
     // the `activeIndex` gets set to 0 despite not being open so the next time
     // the user ArrowDowns, the first item won't be focused.
-    if (!latestOpenRef.current && event.currentTarget === popupFocusElementRef.current) {
+    if (!latestOpenRef.current && event.currentTarget === floatingFocusElementRef.current) {
       return;
     }
 
@@ -727,10 +727,10 @@ export function useListNavigation(
         onNavigate(event);
 
         if (!virtual) {
-          const popupFocusEl = popupFocusElementRef.current;
-          const activeEl = activeElement(ownerDocument(popupFocusEl));
-          if (popupFocusEl && contains(popupFocusEl, activeEl)) {
-            popupFocusEl.focus({ preventScroll: true });
+          const floatingFocusEl = floatingFocusElementRef.current;
+          const activeEl = activeElement(ownerDocument(floatingFocusEl));
+          if (floatingFocusEl && contains(floatingFocusEl, activeEl)) {
+            floatingFocusEl.focus({ preventScroll: true });
           }
         }
       },
@@ -740,7 +740,7 @@ export function useListNavigation(
   }, [
     syncCurrentTarget,
     latestOpenRef,
-    popupFocusElementRef,
+    floatingFocusElementRef,
     focusItemOnHover,
     listRef,
     onNavigate,
@@ -768,7 +768,7 @@ export function useListNavigation(
           // within the menu), don't close the menu. The nested element has its own focus
           // management and should handle the Tab key.
           const target = getTarget(event.nativeEvent) as Element | null;
-          if (target && !contains(popupFocusElementRef.current, target)) {
+          if (target && !contains(floatingFocusElementRef.current, target)) {
             return;
           }
 
@@ -796,7 +796,7 @@ export function useListNavigation(
   }, [
     ariaActiveDescendantProp,
     commonOnKeyDown,
-    popupFocusElementRef,
+    floatingFocusElementRef,
     typeableComboboxReference,
     store,
     open,
@@ -875,7 +875,7 @@ export function useListNavigation(
               indexRef.current = getMinEnabledIndex();
               onNavigate(event);
               if (virtual) {
-                popupFocusElementRef.current?.focus();
+                floatingFocusElementRef.current?.focus();
               }
             } else {
               openOnNavigationKeyDown(event);
@@ -934,7 +934,7 @@ export function useListNavigation(
     rtl,
     selectedIndexRef,
     virtual,
-    popupFocusElementRef,
+    floatingFocusElementRef,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {

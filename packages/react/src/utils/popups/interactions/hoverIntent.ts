@@ -13,7 +13,7 @@ import type {
   PopupPositioningContext,
   PopupInteractionStore,
   PopupInteractionContext,
-  PopupTreeType,
+  FloatingTreeType,
 } from '../types';
 import { isInteractiveElement } from '../element';
 import { isMouseLikePointerType } from '../event';
@@ -45,7 +45,7 @@ export interface HoverIntentTriggerOptions {
   isHoverCloseActive: Latest<boolean>;
   triggerElementRef: Latest<Element | null>;
   mouseOnly: boolean;
-  tree: PopupTreeType | null;
+  tree: FloatingTreeType | null;
   shouldOpen: () => boolean;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
 }
@@ -442,7 +442,7 @@ export class HoverIntent {
   blockOutsidePointerEventsForPopup(
     triggerElement: HTMLElement | SVGSVGElement,
     popupPositionerElement: HTMLElement,
-    tree: PopupTreeType | null,
+    tree: FloatingTreeType | null,
     parentId: string | null,
   ): boolean {
     if (!this.activeHandleCloseOptions?.blockPointerEvents || !this.isHoverOpen()) {
@@ -486,7 +486,7 @@ export class HoverIntent {
     event: MouseEvent,
     options: {
       closeDelay: number | (() => number);
-      tree: PopupTreeType | null;
+      tree: FloatingTreeType | null;
       nodeId: string | undefined;
     },
   ) {
@@ -538,7 +538,7 @@ export class HoverIntent {
   private closeWithDelay(
     event: MouseEvent,
     delay: Delay | (() => Delay) | undefined,
-    tree: PopupTreeType | null,
+    tree: FloatingTreeType | null,
   ) {
     const close = () => {
       this.store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));

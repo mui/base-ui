@@ -3,7 +3,7 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { PopupTree } from '../../utils/popups/tree/PopupTree';
+import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
@@ -78,9 +78,9 @@ export const PreviewCardRoot = fastComponent(function PreviewCardRoot<Payload>(
   }
 
   return (
-    <PopupTree>
+    <FloatingTree>
       <PreviewCardRootComponent {...props} />
-    </PopupTree>
+    </FloatingTree>
   );
 });
 

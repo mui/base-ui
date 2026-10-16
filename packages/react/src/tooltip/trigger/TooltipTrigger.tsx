@@ -15,7 +15,7 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
-import { useDelayGroup } from '../../utils/popups/delay-group/PopupDelayGroup';
+import { useDelayGroup } from '../../utils/popups/delay-group/FloatingDelayGroup';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
 import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { isMouseLikePointerType } from '../../utils/popups/event';

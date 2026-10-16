@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPortalContext } from './TooltipPortalContext';
-import { PopupPortalLite } from '../../utils/popups/portal/PopupPortalLite';
+import { FloatingPortalLite } from '../../utils/popups/portal/FloatingPortalLite';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
@@ -28,7 +28,7 @@ export const TooltipPortal = React.forwardRef(function TooltipPortal(
 
   return (
     <TooltipPortalContext.Provider value={keepMounted}>
-      <PopupPortalLite ref={forwardedRef} {...portalProps} />
+      <FloatingPortalLite ref={forwardedRef} {...portalProps} />
     </TooltipPortalContext.Provider>
   );
 });

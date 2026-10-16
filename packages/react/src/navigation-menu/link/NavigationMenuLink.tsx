@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { usePopupTree } from '../../utils/popups/tree/PopupTree';
+import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
@@ -32,7 +32,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
 
   const { setValue, popupElement, positionerElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
-  const tree = usePopupTree();
+  const tree = useFloatingTree();
 
   const state: NavigationMenuLinkState = {
     active,

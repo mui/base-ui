@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PopupPortal } from '../../utils/popups/portal/PopupPortal';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuPortalContext } from './MenuPortalContext';
@@ -34,7 +34,7 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
   return (
     <MenuPortalContext.Provider value={keepMounted}>
       {/* The hidden `aria-owns` owner needs `group` only under role-constrained parents. */}
-      <PopupPortal ref={forwardedRef} {...portalProps} portalOwnerRole={portalOwnerRole} />
+      <FloatingPortal ref={forwardedRef} {...portalProps} portalOwnerRole={portalOwnerRole} />
     </MenuPortalContext.Provider>
   );
 });

@@ -10,13 +10,13 @@ import { contains } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import {
-  usePopupTree,
-  usePopupNodeId,
-  usePopupParentNodeId,
-} from '../../utils/popups/tree/PopupTree';
+  useFloatingTree,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+} from '../../utils/popups/tree/FloatingTree';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
 import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
-import { PopupTreeStore } from '../../utils/popups/tree/PopupTreeStore';
+import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -83,14 +83,14 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
-  const popupTreeRootFromContext = usePopupTree();
+  const floatingTreeRootFromContext = useFloatingTree();
 
-  const popupTreeRoot: PopupTreeStore = React.useMemo(() => {
-    return popupTreeRootFromContext ?? new PopupTreeStore();
-  }, [popupTreeRootFromContext]);
+  const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
+    return floatingTreeRootFromContext ?? new FloatingTreeStore();
+  }, [floatingTreeRootFromContext]);
 
-  const popupNodeId = usePopupNodeId(popupTreeRoot);
-  const popupParentNodeId = usePopupParentNodeId();
+  const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
+  const floatingParentNodeId = useFloatingParentNodeId();
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
@@ -100,9 +100,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       payload,
       closeDelay,
       parent,
-      popupTreeRoot,
-      popupNodeId,
-      popupParentNodeId,
+      floatingTreeRoot,
+      floatingNodeId,
+      floatingParentNodeId,
       keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
     },
   );
@@ -153,7 +153,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       return;
     }
 
-    popupTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
+    floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
   React.useEffect(() => {
@@ -184,7 +184,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     restMs: parent.type === undefined ? delay : undefined,
     delay: { close: closeDelay },
     triggerElementRef,
-    externalTree: popupTreeRoot,
+    externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
   });
 

@@ -6,7 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { PopupTreeNode } from '../../utils/popups/tree/PopupTree';
+import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
@@ -159,7 +159,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
   }
 
   return ReactDOM.createPortal(
-    <PopupTreeNode id={nodeId}>
+    <FloatingNode id={nodeId}>
       <CompositeRoot
         render={render}
         className={className}
@@ -169,7 +169,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         props={[defaultProps, hidden ? { hidden: true } : EMPTY_OBJECT, elementProps]}
         stateAttributesMapping={stateAttributesMapping}
       />
-    </PopupTreeNode>,
+    </FloatingNode>,
     portalContainer,
   );
 });

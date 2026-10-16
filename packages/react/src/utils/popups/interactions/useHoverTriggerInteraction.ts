@@ -8,8 +8,8 @@ import { contains } from '@base-ui/utils/shadowDom';
 import { isElement } from '@floating-ui/utils/dom';
 import { REASONS } from '../../../internals/reasons';
 import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../../internals/types';
-import { usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeStore } from '../tree/PopupTreeStore';
+import { useFloatingTree } from '../tree/FloatingTree';
+import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { Delay, PopupInteractionStore } from '../types';
 import { useHoverIntent } from './hoverIntent';
 import type { HoverIntentTriggerOptions } from './hoverIntent';
@@ -22,7 +22,7 @@ export interface UseHoverReferenceInteractionProps {
   delay?: Delay | (() => Delay) | undefined;
   move?: boolean | undefined;
   mouseOnly?: boolean | undefined;
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: FloatingTreeStore | undefined;
   /**
    * Whether the hook controls the active trigger. When false, the props are
    * returned under the `trigger` key so they can be applied to inactive
@@ -78,7 +78,7 @@ export function useHoverTriggerInteraction(
 
   const { events } = store.context;
 
-  const tree = usePopupTree(externalTree);
+  const tree = useFloatingTree(externalTree);
 
   const intent = useHoverIntent(store);
   const isHoverCloseActiveRef = React.useRef(false);

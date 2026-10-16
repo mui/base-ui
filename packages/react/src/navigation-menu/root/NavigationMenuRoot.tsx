@@ -7,11 +7,11 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import {
-  PopupTreeNode,
-  PopupTree,
-  usePopupNodeId,
-  usePopupParentNodeId,
-} from '../../utils/popups/tree/PopupTree';
+  FloatingNode,
+  FloatingTree,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+} from '../../utils/popups/tree/FloatingTree';
 import type { StandaloneInteractionStore } from '../../utils/popups/interaction-store/StandaloneInteractionStore';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
@@ -77,7 +77,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     onOpenChangeComplete,
   } = componentProps;
 
-  const nested = usePopupParentNodeId() != null;
+  const nested = useFloatingParentNodeId() != null;
   const parentRootContext = useNavigationMenuRootContext(true);
 
   const [value, setValueUnwrapped] = useControlled({
@@ -316,8 +316,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   );
 
   if (!nested) {
-    // PopupTree provides context to nested menus
-    return <PopupTree>{jsx}</PopupTree>;
+    // FloatingTree provides context to nested menus
+    return <FloatingTree>{jsx}</FloatingTree>;
   }
 
   return jsx;
@@ -345,7 +345,7 @@ function TreeContext<Value>(props: {
     ...elementProps
   } = props.componentProps;
 
-  const nodeId = usePopupNodeId();
+  const nodeId = useFloatingNodeId();
   const { rootRef, nested, open } = useNavigationMenuRootContext();
 
   const state: NavigationMenuRootState = {
@@ -361,7 +361,7 @@ function TreeContext<Value>(props: {
 
   return (
     <NavigationMenuTreeContext.Provider value={nodeId}>
-      <PopupTreeNode id={nodeId}>{element}</PopupTreeNode>
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </NavigationMenuTreeContext.Provider>
   );
 }

@@ -11,7 +11,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { clamp } from '@base-ui/utils/clamp';
 import { platform as floatingPlatform } from '@floating-ui/react-dom';
 import type { ClientRectObject } from '@floating-ui/react-dom';
-import { PopupFocusManager } from '../../utils/popups/focus/PopupFocusManager';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popups/popupStateMapping';
@@ -477,7 +477,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   return (
     <React.Fragment>
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
-      <PopupFocusManager
+      <FloatingFocusManager
         context={floatingRootContext}
         modal={false}
         disabled={!mounted}
@@ -486,7 +486,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         restoreFocus
       >
         {element}
-      </PopupFocusManager>
+      </FloatingFocusManager>
     </React.Fragment>
   );
 });

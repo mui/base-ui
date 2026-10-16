@@ -4,9 +4,9 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTestInteractions } from '#test-utils';
 import { flip, offset, shift } from '@floating-ui/react-dom';
 import { getEmptyInteractionStore } from '../../src/utils/popups/interaction-store/getEmptyInteractionStore';
-import { PopupFocusManager } from '../../src/utils/popups/focus/PopupFocusManager';
-import { PopupTreeNode, usePopupNodeId } from '../../src/utils/popups/tree/PopupTree';
-import { PopupPortal } from '../../src/utils/popups/portal/PopupPortal';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
+import { FloatingNode, useFloatingNodeId } from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
 import { useHoverTriggerInteraction } from '../../src/utils/popups/interactions/useHoverTriggerInteraction';
@@ -47,7 +47,7 @@ export const NavigationItem = React.forwardRef<
   const hasChildren = !!children;
   const fallbackContext = React.useMemo(() => getEmptyInteractionStore(), []);
 
-  const nodeId = usePopupNodeId();
+  const nodeId = useFloatingNodeId();
 
   const { floatingStyles, refs, context } = useFloating({
     open,
@@ -77,7 +77,7 @@ export const NavigationItem = React.forwardRef<
   const mergedReferenceRef = useMergedRefs(ref, refs.setReference);
 
   return (
-    <PopupTreeNode id={nodeId}>
+    <FloatingNode id={nodeId}>
       <li>
         <a
           href={href}
@@ -88,9 +88,9 @@ export const NavigationItem = React.forwardRef<
           {label}
         </a>
       </li>
-      <PopupPortal>
+      <FloatingPortal>
         {open && (
-          <PopupFocusManager context={context.rootStore} modal={false} initialFocus={false}>
+          <FloatingFocusManager context={context.rootStore} modal={false} initialFocus={false}>
             <div
               data-testid="subnavigation"
               ref={refs.setFloating}
@@ -103,10 +103,10 @@ export const NavigationItem = React.forwardRef<
               </button>
               <ul className={styles.SubnavList}>{children}</ul>
             </div>
-          </PopupFocusManager>
+          </FloatingFocusManager>
         )}
-      </PopupPortal>
-    </PopupTreeNode>
+      </FloatingPortal>
+    </FloatingNode>
   );
 });
 

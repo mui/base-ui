@@ -4,14 +4,14 @@ import { useTestInteractions } from '#test-utils';
 import type { Placement } from '@floating-ui/react-dom';
 import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
 import { getEmptyInteractionStore } from '../../src/utils/popups/interaction-store/getEmptyInteractionStore';
-import { PopupFocusManager } from '../../src/utils/popups/focus/PopupFocusManager';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
-  PopupTreeNode,
-  PopupTree,
-  usePopupNodeId,
-  usePopupParentNodeId,
-} from '../../src/utils/popups/tree/PopupTree';
-import { PopupPortal } from '../../src/utils/popups/portal/PopupPortal';
+  FloatingNode,
+  FloatingTree,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+} from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
 import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
@@ -107,7 +107,7 @@ function PopoverComponent({
 }: Props) {
   const [open, setOpen] = React.useState(false);
 
-  const nodeId = usePopupNodeId();
+  const nodeId = useFloatingNodeId();
   const { floatingStyles, refs, context } = useFloating({
     nodeId,
     open,
@@ -139,7 +139,7 @@ function PopoverComponent({
   ]);
 
   return (
-    <PopupTreeNode id={nodeId}>
+    <FloatingNode id={nodeId}>
       {React.isValidElement(children) &&
         React.cloneElement(
           children,
@@ -152,9 +152,9 @@ function PopoverComponent({
             'data-open': open ? '' : undefined,
           } as React.HTMLProps<Element>),
         )}
-      <PopupPortal>
+      <FloatingPortal>
         {open && (
-          <PopupFocusManager context={context.rootStore} modal={modal}>
+          <FloatingFocusManager context={context.rootStore} modal={modal}>
             <div
               className={styles.Floating}
               ref={refs.setFloating}
@@ -171,23 +171,23 @@ function PopoverComponent({
                 close: () => setOpen(false),
               })}
             </div>
-          </PopupFocusManager>
+          </FloatingFocusManager>
         )}
-      </PopupPortal>
-    </PopupTreeNode>
+      </FloatingPortal>
+    </FloatingNode>
   );
 }
 
 /** @internal */
 export function Popover(props: Props) {
-  const parentId = usePopupParentNodeId();
+  const parentId = useFloatingParentNodeId();
 
   // This is a root, so we wrap it with the tree
   if (parentId === null) {
     return (
-      <PopupTree>
+      <FloatingTree>
         <PopoverComponent {...props} />
-      </PopupTree>
+      </FloatingTree>
     );
   }
 

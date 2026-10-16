@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { PopupFocusManager } from '../../utils/popups/focus/PopupFocusManager';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -97,7 +97,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   });
 
   return (
-    <PopupFocusManager
+    <FloatingFocusManager
       context={store}
       openInteractionType={openMethod}
       disabled={!mounted}
@@ -108,7 +108,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       restoreFocus="popup"
     >
       {element}
-    </PopupFocusManager>
+    </FloatingFocusManager>
   );
 });
 

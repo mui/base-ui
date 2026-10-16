@@ -8,15 +8,15 @@ import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
 import { getEmptyInteractionStore } from '../../src/utils/popups/interaction-store/getEmptyInteractionStore';
-import { PopupFocusManager } from '../../src/utils/popups/focus/PopupFocusManager';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
-  PopupTreeNode,
-  PopupTree,
-  usePopupNodeId,
-  usePopupParentNodeId,
-  usePopupTree,
-} from '../../src/utils/popups/tree/PopupTree';
-import { PopupPortal } from '../../src/utils/popups/portal/PopupPortal';
+  FloatingNode,
+  FloatingTree,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+  useFloatingTree,
+} from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
 import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
@@ -86,9 +86,9 @@ export const MenuComponent = React.forwardRef<
   const elementsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
 
-  const tree = usePopupTree();
-  const nodeId = usePopupNodeId();
-  const parentId = usePopupParentNodeId();
+  const tree = useFloatingTree();
+  const nodeId = useFloatingNodeId();
+  const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
   const orientation = orientationOption ?? (grid ? 'both' : 'vertical');
 
@@ -209,7 +209,7 @@ export const MenuComponent = React.forwardRef<
   }, [allowHover]);
 
   return (
-    <PopupTreeNode id={nodeId}>
+    <FloatingNode id={nodeId}>
       <button
         type="button"
         ref={useMergedRefsN([refs.setReference, item.ref, forwardedRef])}
@@ -265,8 +265,8 @@ export const MenuComponent = React.forwardRef<
       >
         <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
           {(keepMounted || isOpen) && (
-            <PopupPortal>
-              <PopupFocusManager
+            <FloatingPortal>
+              <FloatingFocusManager
                 context={context.rootStore}
                 modal={false}
                 initialFocus={!isNested}
@@ -298,12 +298,12 @@ export const MenuComponent = React.forwardRef<
                 >
                   {renderGridRows(children, grid)}
                 </div>
-              </PopupFocusManager>
-            </PopupPortal>
+              </FloatingFocusManager>
+            </FloatingPortal>
           )}
         </CompositeList>
       </MenuContext.Provider>
-    </PopupTreeNode>
+    </FloatingNode>
   );
 });
 
@@ -319,7 +319,7 @@ export const MenuItem = React.forwardRef<
 >(function MenuItem({ label, disabled, ...props }, forwardedRef) {
   const menu = React.useContext(MenuContext);
   const item = useCompositeListItem({ label: disabled ? null : label });
-  const tree = usePopupTree();
+  const tree = useFloatingTree();
   const isActive = item.index === menu.activeIndex;
 
   return (
@@ -375,13 +375,13 @@ export const Menu = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
 >(function MenuWrapper(props, ref) {
-  const parentId = usePopupParentNodeId();
+  const parentId = useFloatingParentNodeId();
 
   if (parentId === null) {
     return (
-      <PopupTree>
+      <FloatingTree>
         <MenuComponent {...props} ref={ref} />
-      </PopupTree>
+      </FloatingTree>
     );
   }
 

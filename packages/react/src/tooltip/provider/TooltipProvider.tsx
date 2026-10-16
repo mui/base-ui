@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PopupDelayGroup } from '../../utils/popups/delay-group/PopupDelayGroup';
+import { FloatingDelayGroup } from '../../utils/popups/delay-group/FloatingDelayGroup';
 import { TooltipProviderContext } from './TooltipProviderContext';
 
 /**
@@ -16,9 +16,9 @@ export const TooltipProvider: React.FC<TooltipProvider.Props> = function Tooltip
 
   return (
     <TooltipProviderContext.Provider value={delay}>
-      <PopupDelayGroup delay={delayValue} timeoutMs={timeout}>
+      <FloatingDelayGroup delay={delayValue} timeoutMs={timeout}>
         {props.children}
-      </PopupDelayGroup>
+      </FloatingDelayGroup>
     </TooltipProviderContext.Provider>
   );
 };

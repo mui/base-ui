@@ -13,7 +13,7 @@ import { closest, contains } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { useStandaloneInteractionStore } from '../../utils/popups/interaction-store/useStandaloneInteractionStore';
-import { usePopupTree } from '../../utils/popups/tree/PopupTree';
+import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { useHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import {
@@ -99,7 +99,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   } = useNavigationMenuRootContext();
   const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
-  const tree = usePopupTree();
+  const tree = useFloatingTree();
   const dismissProps = useNavigationMenuDismissContext();
   const direction = useDirection();
 

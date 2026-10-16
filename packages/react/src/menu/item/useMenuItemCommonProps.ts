@@ -67,7 +67,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       : rootContext.store;
   const ariaSelected = selectionStore.useState('webkitAriaSelected', highlighted);
 
-  const { events: menuEvents } = store.useState('popupTreeRoot');
+  const { events: menuEvents } = store.useState('floatingTreeRoot');
   const open = store.useState('open');
 
   const isContextMenu = contextMenuContext !== undefined;
@@ -138,7 +138,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
           // The press started on the trigger and was released over the item, so the item
           // needs a synthetic click. Its `closeOnClick` preference still applies.
           // `detail: 1` and `pointerType: 'mouse'` mark this as a mouse-gesture click so
-          // MenuRoot and PopupFocusManager don't treat it as a keyboard activation.
+          // MenuRoot and FloatingFocusManager don't treat it as a keyboard activation.
           dispatchClickWithModifiers(itemRef.current, event, {
             detail: 1,
             pointerType: 'mouse',

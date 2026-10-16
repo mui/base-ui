@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PopupPortal } from '../../utils/popups/portal/PopupPortal';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { NavigationMenuPortalContext } from './NavigationMenuPortalContext';
@@ -27,7 +27,7 @@ export const NavigationMenuPortal = React.forwardRef(function NavigationMenuPort
 
   return (
     <NavigationMenuPortalContext.Provider value={keepMounted}>
-      <PopupPortal ref={forwardedRef} {...portalProps} />
+      <FloatingPortal ref={forwardedRef} {...portalProps} />
     </NavigationMenuPortalContext.Provider>
   );
 });

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PopupPortal } from '../../utils/popups/portal/PopupPortal';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPortalContext } from './PopoverPortalContext';
@@ -28,7 +28,7 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
 
   return (
     <PopoverPortalContext.Provider value={keepMounted}>
-      <PopupPortal ref={forwardedRef} {...portalProps} />
+      <FloatingPortal ref={forwardedRef} {...portalProps} />
     </PopoverPortalContext.Provider>
   );
 });

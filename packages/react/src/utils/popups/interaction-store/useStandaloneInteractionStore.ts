@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../popupTriggerMap';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { usePopupParentNodeId } from '../tree/PopupTree';
+import { useFloatingParentNodeId } from '../tree/FloatingTree';
 import { StandaloneInteractionStore } from './StandaloneInteractionStore';
 import type { StandaloneInteractionState as State } from './StandaloneInteractionStore';
 import type { ReferenceType } from '../types';
@@ -27,7 +27,7 @@ export function useStandaloneInteractionStore(
   const { open = false, onOpenChange, elements = {} } = options;
 
   const defaultPopupId = useId();
-  const nested = usePopupParentNodeId() != null;
+  const nested = useFloatingParentNodeId() != null;
 
   if (process.env.NODE_ENV !== 'production') {
     const optionAnchor = elements.anchor;

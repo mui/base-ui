@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { PopupFocusManager } from '../../utils/popups/focus/PopupFocusManager';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
-import type { PopupFocusManagerProps } from '../../utils/popups/focus/PopupFocusManager';
+import type { FloatingFocusManagerProps } from '../../utils/popups/focus/FloatingFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -26,7 +26,7 @@ import type { MenuFilterParentHandoff } from '../filter-root/MenuFilterContext';
 
 interface MenuPopupPlainProps extends MenuPopup.Props {
   /** A filter root's own initial focus target; the plain default focuses the popup or its list. */
-  initialFocus?: PopupFocusManagerProps['initialFocus'] | undefined;
+  initialFocus?: FloatingFocusManagerProps['initialFocus'] | undefined;
 }
 
 /**
@@ -61,7 +61,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const popupTreeRoot = store.useState('popupTreeRoot');
+  const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
@@ -77,7 +77,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const submenuRootContext = parent.type === 'menu' ? inheritedSubmenuRootContext : undefined;
   const isContextMenu = parent.type === 'context-menu';
 
-  let initialFocus: PopupFocusManagerProps['initialFocus'] =
+  let initialFocus: FloatingFocusManagerProps['initialFocus'] =
     initialFocusProp ?? parent.type !== 'menu';
   if (initialFocusProp === undefined && listElement && parent.type !== 'menu') {
     initialFocus = () => {
@@ -109,12 +109,12 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       store.setOpen(false, createChangeEventDetails(event.reason, event.domEvent));
     }
 
-    popupTreeRoot.events.on('close', handleClose);
+    floatingTreeRoot.events.on('close', handleClose);
 
     return () => {
-      popupTreeRoot.events.off('close', handleClose);
+      floatingTreeRoot.events.off('close', handleClose);
     };
-  }, [popupTreeRoot.events, store]);
+  }, [floatingTreeRoot.events, store]);
 
   useHoverPopupInteraction(store, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
@@ -187,7 +187,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const dynamicReturnFocus = submenuRootContext?.getReturnElement ?? parentVirtualFocusRef;
 
   return (
-    <PopupFocusManager
+    <FloatingFocusManager
       context={store}
       openInteractionType={openMethod}
       modal={isContextMenu}
@@ -201,7 +201,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
           ? () => [store.context.beforeTriggerFocusGuardRef.current]
           : undefined
       }
-      externalTree={parent.type !== 'menubar' ? popupTreeRoot : undefined}
+      externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
       nextFocusableElement={
         parent.type === undefined ? store.context.triggerFocusTargetRef : undefined
@@ -209,7 +209,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
       {element}
-    </PopupFocusManager>
+    </FloatingFocusManager>
   );
 });
 

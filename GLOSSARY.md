@@ -37,3 +37,6 @@ _Avoid_: hover interaction, hover state, useHover
 **Interaction store**:
 The store a popup's interactions read and write: whether it is open, its anchor, its popup positioner (the Positioner part, or the Popup itself for popups without one, such as Dialog), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a standalone one fed from their own state.
 _Avoid_: floating root context, floating context
+
+**Floating UI modules**:
+Modules ported from Floating UI keep its names, so they stay recognizable next to the library they came from: `FloatingTree`, `FloatingNode`, `FloatingFocusManager`, `FloatingPortal`, `FloatingDelayGroup` and positioning's `useFloating`. The _Avoid_ lists above apply to the popup concepts and the state they share, not to these module names.

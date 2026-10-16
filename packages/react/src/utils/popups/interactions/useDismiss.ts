@@ -15,8 +15,8 @@ import {
 } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { usePopupTree } from '../tree/PopupTree';
-import type { PopupTreeStore } from '../tree/PopupTreeStore';
+import { useFloatingTree } from '../tree/FloatingTree';
+import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
@@ -103,9 +103,9 @@ export interface UseDismissProps {
   bubbles?:
     boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
   /**
-   * External PopupTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: FloatingTreeStore | undefined;
 }
 
 /**
@@ -132,7 +132,7 @@ export function useDismiss(
   const storeContext = store.context;
   const { events } = storeContext;
 
-  const tree = usePopupTree(externalTree);
+  const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );
@@ -377,7 +377,7 @@ export function useDismiss(
       );
     }
 
-    function isEventWithinPopupTree(event: Event) {
+    function isEventWithinFloatingTree(event: Event) {
       const nodeId = storeContext.positioning?.nodeId;
       const targetIsInsideChildren =
         tree &&
@@ -485,7 +485,7 @@ export function useDismiss(
         }
       }
 
-      if (isEventWithinPopupTree(event)) {
+      if (isEventWithinFloatingTree(event)) {
         return;
       }
 
@@ -642,7 +642,7 @@ export function useDismiss(
         return;
       }
 
-      if (isEventWithinPopupTree(event)) {
+      if (isEventWithinFloatingTree(event)) {
         return;
       }
 

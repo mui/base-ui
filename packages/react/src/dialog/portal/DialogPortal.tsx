@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { PopupPortal } from '../../utils/popups/portal/PopupPortal';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
@@ -32,12 +32,12 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
 
   return (
     <DialogPortalContext.Provider value={keepMounted}>
-      <PopupPortal ref={forwardedRef} {...portalProps}>
+      <FloatingPortal ref={forwardedRef} {...portalProps}>
         {mounted && modal === true && (
           <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
         )}
         {props.children}
-      </PopupPortal>
+      </FloatingPortal>
     </DialogPortalContext.Provider>
   );
 });

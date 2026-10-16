@@ -2,23 +2,23 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import type { BaseUIComponentProps } from '../../../internals/types';
-import { usePopupPortalNode } from './PopupPortal';
+import { useFloatingPortalNode } from './FloatingPortal';
 
 type PortalContainer =
   HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null;
 
 /**
- * `PopupPortal` includes tabbable logic handling for focus management.
- * For components that don't need tabbable logic, use `PopupPortalLite`.
+ * `FloatingPortal` includes tabbable logic handling for focus management.
+ * For components that don't need tabbable logic, use `FloatingPortalLite`.
  * @internal
  */
-export const PopupPortalLite = React.forwardRef(function PopupPortalLite(
-  componentProps: PopupPortalLite.Props<any>,
+export const FloatingPortalLite = React.forwardRef(function FloatingPortalLite(
+  componentProps: FloatingPortalLite.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, container, className, render, style, ...elementProps } = componentProps;
 
-  const { node: portalNode, subtree: portalSubtree } = usePopupPortalNode({
+  const { node: portalNode, subtree: portalSubtree } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,
@@ -37,13 +37,13 @@ export const PopupPortalLite = React.forwardRef(function PopupPortalLite(
   );
 });
 
-export interface PopupPortalLiteState {}
+export interface FloatingPortalLiteState {}
 
-export interface PopupPortalLiteProps<TState> extends BaseUIComponentProps<'div', TState> {
+export interface FloatingPortalLiteProps<TState> extends BaseUIComponentProps<'div', TState> {
   container?: PortalContainer | undefined;
 }
 
-export namespace PopupPortalLite {
-  export type State = PopupPortalLiteState;
-  export type Props<TState> = PopupPortalLiteProps<TState>;
+export namespace FloatingPortalLite {
+  export type State = FloatingPortalLiteState;
+  export type Props<TState> = FloatingPortalLiteProps<TState>;
 }

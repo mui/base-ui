@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { PopupTreeNode } from '../../utils/popups/tree/PopupTree';
+import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -39,7 +39,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const contextMenuContext = useContextMenuRootContext(true);
 
   const parent = store.useState('parent');
-  const popupTreeRoot = store.useState('popupTreeRoot');
+  const floatingTreeRoot = store.useState('floatingTreeRoot');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const modal = store.useState('modal');
@@ -47,8 +47,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const triggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const popupNodeId = store.useState('popupNodeId');
-  const popupParentNodeId = store.useState('popupParentNodeId');
+  const floatingNodeId = store.useState('floatingNodeId');
+  const floatingParentNodeId = store.useState('floatingParentNodeId');
   const domReference = store.useState('anchorElement');
 
   const { side } = componentProps;
@@ -94,14 +94,14 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       align: computedAlign,
       alignOffset,
       arrowPadding: contextMenu ? 0 : componentProps.arrowPadding,
-      nodeId: popupNodeId,
+      nodeId: floatingNodeId,
       shift: contextMenu
         ? {
             crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
             rootBoundary: 'layoutViewport',
           }
         : undefined,
-      externalTree: popupTreeRoot,
+      externalTree: floatingTreeRoot,
       lazyFlip: virtualFocus ? 'placement' : false,
     },
     state: { nested: parent.type === 'menu' },
@@ -110,32 +110,32 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   React.useEffect(() => {
     function onMenuOpenChange(details: MenuOpenEventDetails) {
       if (details.open) {
-        if (details.parentNodeId === popupNodeId) {
+        if (details.parentNodeId === floatingNodeId) {
           store.set('hoverEnabled', false);
         }
         if (
-          details.nodeId !== popupNodeId &&
-          details.parentNodeId === store.select('popupParentNodeId')
+          details.nodeId !== floatingNodeId &&
+          details.parentNodeId === store.select('floatingParentNodeId')
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
       }
     }
 
-    popupTreeRoot.events.on('menuopenchange', onMenuOpenChange);
+    floatingTreeRoot.events.on('menuopenchange', onMenuOpenChange);
 
     return () => {
-      popupTreeRoot.events.off('menuopenchange', onMenuOpenChange);
+      floatingTreeRoot.events.off('menuopenchange', onMenuOpenChange);
     };
-  }, [store, popupTreeRoot.events, popupNodeId]);
+  }, [store, floatingTreeRoot.events, floatingNodeId]);
 
   React.useEffect(() => {
-    if (store.select('popupParentNodeId') == null) {
+    if (store.select('floatingParentNodeId') == null) {
       return undefined;
     }
 
     function onParentClose(details: MenuOpenEventDetails) {
-      if (details.open || details.nodeId !== store.select('popupParentNodeId')) {
+      if (details.open || details.nodeId !== store.select('floatingParentNodeId')) {
         return;
       }
 
@@ -143,12 +143,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       store.setOpen(false, createChangeEventDetails(reason));
     }
 
-    popupTreeRoot.events.on('menuopenchange', onParentClose);
+    floatingTreeRoot.events.on('menuopenchange', onParentClose);
 
     return () => {
-      popupTreeRoot.events.off('menuopenchange', onParentClose);
+      floatingTreeRoot.events.off('menuopenchange', onParentClose);
     };
-  }, [popupTreeRoot.events, store]);
+  }, [floatingTreeRoot.events, store]);
 
   const closeTimeout = useTimeout();
 
@@ -164,7 +164,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
       // If an item within our parent menu is hovered, and this menu's trigger is not that item,
       // close this submenu. This ensures hovering a different item in the parent closes other branches.
-      if (!open || event.nodeId !== store.select('popupParentNodeId')) {
+      if (!open || event.nodeId !== store.select('floatingParentNodeId')) {
         return;
       }
 
@@ -185,22 +185,22 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
     }
 
-    popupTreeRoot.events.on('itemhover', onItemHover);
+    floatingTreeRoot.events.on('itemhover', onItemHover);
     return () => {
-      popupTreeRoot.events.off('itemhover', onItemHover);
+      floatingTreeRoot.events.off('itemhover', onItemHover);
     };
-  }, [popupTreeRoot.events, open, triggerElement, store, closeTimeout]);
+  }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
 
   React.useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
       open,
-      nodeId: popupNodeId,
-      parentNodeId: popupParentNodeId,
+      nodeId: floatingNodeId,
+      parentNodeId: floatingParentNodeId,
       reason: store.select('lastOpenChangeReason'),
     };
 
-    popupTreeRoot.events.emit('menuopenchange', eventDetails);
-  }, [popupTreeRoot.events, open, store, popupNodeId, popupParentNodeId]);
+    floatingTreeRoot.events.emit('menuopenchange', eventDetails);
+  }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
   useTriggerSwitchTransition({
     store,
@@ -246,7 +246,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           cutout={backdropCutout}
         />
       )}
-      <PopupTreeNode id={popupNodeId}>
+      <FloatingNode id={floatingNodeId}>
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
@@ -254,7 +254,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         >
           {element}
         </CompositeList>
-      </PopupTreeNode>
+      </FloatingNode>
     </MenuPositionerContext.Provider>
   );
 });

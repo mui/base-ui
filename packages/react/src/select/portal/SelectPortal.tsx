@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PopupPortal } from '../../utils/popups/portal/PopupPortal';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 
@@ -24,7 +24,7 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
     return null;
   }
 
-  return <PopupPortal ref={forwardedRef} {...portalProps} />;
+  return <FloatingPortal ref={forwardedRef} {...portalProps} />;
 });
 
 export interface SelectPortalState {}

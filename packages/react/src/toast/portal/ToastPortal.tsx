@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PopupPortalLite } from '../../utils/popups/portal/PopupPortalLite';
+import { FloatingPortalLite } from '../../utils/popups/portal/FloatingPortalLite';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
@@ -14,7 +14,7 @@ export const ToastPortal = React.forwardRef(function ToastPortal(
   props: ToastPortal.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  return <PopupPortalLite ref={forwardedRef} {...props} />;
+  return <FloatingPortalLite ref={forwardedRef} {...props} />;
 });
 
 export interface ToastPortalState {}

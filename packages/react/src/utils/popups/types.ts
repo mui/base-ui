@@ -6,7 +6,7 @@ import type {
 import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
-import type { PopupTreeStore } from './tree/PopupTreeStore';
+import type { FloatingTreeStore } from './tree/FloatingTreeStore';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';
 
@@ -140,13 +140,13 @@ export type PopupPositioningContext = Omit<
   rootStore: PopupInteractionStore;
 };
 
-export interface PopupTreeNodeType {
+export interface FloatingNodeType {
   id: string | undefined;
   parentId: string | null;
   context?: PopupPositioningContext | undefined;
 }
 
-export type PopupTreeType = PopupTreeStore;
+export type FloatingTreeType = FloatingTreeStore;
 
 export interface ElementProps {
   reference?: React.HTMLProps<Element> | undefined;
@@ -196,11 +196,11 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    */
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   /**
-   * Unique node id when using `PopupTree`.
+   * Unique node id when using `FloatingTree`.
    */
   nodeId?: string | undefined;
   /**
-   * External PopupTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
-  externalTree?: PopupTreeStore | undefined;
+  externalTree?: FloatingTreeStore | undefined;
 }

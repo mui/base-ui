@@ -5,7 +5,7 @@ import * as React from 'react';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
 
 import { isJSDOM, useTestInteractions } from '#test-utils';
-import { PopupDelayGroup, useDelayGroup } from './PopupDelayGroup';
+import { FloatingDelayGroup, useDelayGroup } from './FloatingDelayGroup';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 import { useHoverPopupInteraction } from '../interactions/useHoverPopupInteraction';
 import { useHoverTriggerInteraction } from '../interactions/useHoverTriggerInteraction';
@@ -74,7 +74,7 @@ function Tooltip({ children, label }: Props) {
 
 function App() {
   return (
-    <PopupDelayGroup delay={{ open: 1000, close: 200 }}>
+    <FloatingDelayGroup delay={{ open: 1000, close: 200 }}>
       <Tooltip label="one">
         <button data-testid="reference-one" />
       </Tooltip>
@@ -84,11 +84,11 @@ function App() {
       <Tooltip label="three">
         <button data-testid="reference-three" />
       </Tooltip>
-    </PopupDelayGroup>
+    </FloatingDelayGroup>
   );
 }
 
-describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
+describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -146,7 +146,7 @@ describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
   test('timeoutMs', async () => {
     function App() {
       return (
-        <PopupDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
           <Tooltip label="one">
             <button data-testid="reference-one" />
           </Tooltip>
@@ -156,7 +156,7 @@ describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
           <Tooltip label="three">
             <button data-testid="reference-three" />
           </Tooltip>
-        </PopupDelayGroup>
+        </FloatingDelayGroup>
       );
     }
 
@@ -213,14 +213,14 @@ describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
   it('resets the instant phase after Strict Mode replays the lifecycle effects', async () => {
     render(
       <React.StrictMode>
-        <PopupDelayGroup delay={{ open: 1000, close: 0 }} timeoutMs={50}>
+        <FloatingDelayGroup delay={{ open: 1000, close: 0 }} timeoutMs={50}>
           <Tooltip label="one">
             <button data-testid="reference-one" />
           </Tooltip>
           <Tooltip label="two">
             <button data-testid="reference-two" />
           </Tooltip>
-        </PopupDelayGroup>
+        </FloatingDelayGroup>
       </React.StrictMode>,
     );
 
@@ -250,7 +250,7 @@ describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
       const [showSecond, setShowSecond] = React.useState(true);
 
       return (
-        <PopupDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
           <Tooltip label="one">
             <button data-testid="reference-one" />
           </Tooltip>
@@ -265,7 +265,7 @@ describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
           <button type="button" onClick={() => setShowSecond(false)}>
             Remove inactive
           </button>
-        </PopupDelayGroup>
+        </FloatingDelayGroup>
       );
     }
 
@@ -297,7 +297,7 @@ describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
       const [showFirst, setShowFirst] = React.useState(true);
 
       return (
-        <PopupDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
           {showFirst && (
             <Tooltip label="one">
               <button data-testid="reference-one" />
@@ -309,7 +309,7 @@ describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
           <button type="button" onClick={() => setShowFirst(false)}>
             Remove closed
           </button>
-        </PopupDelayGroup>
+        </FloatingDelayGroup>
       );
     }
 
@@ -344,7 +344,7 @@ describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
   it('does not re-render unrelated consumers', async () => {
     function App() {
       return (
-        <PopupDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
           <Tooltip label="one">
             <button data-testid="reference-one" />
           </Tooltip>
@@ -354,7 +354,7 @@ describe.skipIf(!isJSDOM)('PopupDelayGroup', () => {
           <Tooltip label="three">
             <button data-testid="reference-three" />
           </Tooltip>
-        </PopupDelayGroup>
+        </FloatingDelayGroup>
       );
     }
 

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { PopupFocusManager } from '../../utils/popups/focus/PopupFocusManager';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
@@ -108,7 +108,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   });
 
   return (
-    <PopupFocusManager
+    <FloatingFocusManager
       context={store}
       openInteractionType={openMethod}
       modal={focusManagerModal}
@@ -124,7 +124,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
       <ClosePartContext.Provider value={closePartContext}>{element}</ClosePartContext.Provider>
-    </PopupFocusManager>
+    </FloatingFocusManager>
   );
 });
 

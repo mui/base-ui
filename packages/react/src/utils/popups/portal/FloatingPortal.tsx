@@ -66,7 +66,7 @@ export interface UseFloatingPortalNodeResult {
   subtree: React.ReactPortal | null;
 }
 
-export function usePopupPortalNode(
+export function useFloatingPortalNode(
   props: UseFloatingPortalNodeProps = {},
 ): UseFloatingPortalNodeResult {
   const { ref, container: containerProp, componentProps = EMPTY_OBJECT, elementProps } = props;
@@ -134,7 +134,7 @@ export function usePopupPortalNode(
   });
 
   // This `createPortal` call injects `portalElement` into the `container`.
-  // Another call inside `PopupPortal`/`PopupPortalLite` then injects the children into `portalElement`.
+  // Another call inside `FloatingPortal`/`FloatingPortalLite` then injects the children into `portalElement`.
   const portalSubtree =
     containerElement && portalElement
       ? ReactDOM.createPortal(portalElement, containerElement)
@@ -157,11 +157,11 @@ export function usePopupPortalNode(
  * This is necessary to ensure the floating element can appear outside any
  * potential parent containers that cause clipping (such as `overflow: hidden`),
  * while retaining its location in the React tree.
- * @see https://floating-ui.com/docs/PopupPortal
+ * @see https://floating-ui.com/docs/FloatingPortal
  * @internal
  */
-export const PopupPortal = React.forwardRef(function PopupPortal(
-  componentProps: PopupPortal.Props<any>,
+export const FloatingPortal = React.forwardRef(function FloatingPortal(
+  componentProps: FloatingPortal.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, children, container, portalOwnerRole, ...elementProps } =
@@ -171,7 +171,7 @@ export const PopupPortal = React.forwardRef(function PopupPortal(
     node: portalNode,
     nodeId: portalNodeId,
     subtree: portalSubtree,
-  } = usePopupPortalNode({
+  } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,
@@ -295,10 +295,10 @@ export const PopupPortal = React.forwardRef(function PopupPortal(
   );
 });
 
-export interface PopupPortalState {}
+export interface FloatingPortalState {}
 
-export namespace PopupPortal {
-  export type State = PopupPortalState;
+export namespace FloatingPortal {
+  export type State = FloatingPortalState;
   export interface Props<TState> extends BaseUIComponentProps<'div', TState> {
     /**
      * A parent element to render the portal element into.

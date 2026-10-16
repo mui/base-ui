@@ -238,7 +238,7 @@ describe('<Menu.Root /> without a trigger', () => {
       function CaptureTriggerIds() {
         const { store } = useMenuRootContext();
         useIsoLayoutEffect(() => {
-          registered(store, store.select('popupNodeId'), store.select('popupParentNodeId'));
+          registered(store, store.select('floatingNodeId'), store.select('floatingParentNodeId'));
         }, [store]);
         return null;
       }
@@ -248,9 +248,9 @@ describe('<Menu.Root /> without a trigger', () => {
           if (hasTrigger) {
             const [store, nodeId, parentNodeId] = registered.mock.lastCall!;
             rootIds(
-              store.select('popupNodeId'),
+              store.select('floatingNodeId'),
               nodeId,
-              store.select('popupParentNodeId'),
+              store.select('floatingParentNodeId'),
               parentNodeId,
             );
           }
