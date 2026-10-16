@@ -129,11 +129,7 @@ export type CollisionAvoidance = SideFlipMode | SideShiftMode;
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters &
-    (
-      | { floatingRootStore: PositioningInteractionStore }
-      | { fallbackRootStore: PositioningInteractionStore }
-    ),
+  params: UseAnchorPositioningParameters & { floatingRootStore: PositioningInteractionStore },
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -152,7 +148,6 @@ export function useAnchorPositioning(
     // Private parameters
     keepMounted = false,
     floatingRootStore,
-    fallbackRootStore,
     mounted,
     collisionAvoidance,
     shift,
@@ -457,7 +452,7 @@ export function useAnchorPositioning(
   useIsoLayoutEffect(() => {
     // Ensure positioning doesn't run initially for `keepMounted` elements that
     // aren't initially open.
-    if (!mounted && floatingRootStore) {
+    if (!mounted) {
       floatingRootStore.clearPositioning();
     }
   }, [mounted, floatingRootStore]);
@@ -484,7 +479,7 @@ export function useAnchorPositioning(
     floatingStyles: originalFloatingStyles,
   } = useBaseUIFloating({
     // The parameter type guarantees one of them.
-    rootStore: (floatingRootStore ?? fallbackRootStore) as PositioningInteractionStore,
+    rootStore: floatingRootStore,
     open: keepMounted ? mounted : undefined,
     placement,
     middleware,
@@ -807,11 +802,6 @@ export interface UseAnchorPositioningSharedParameters {
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
   floatingRootStore?: PositioningInteractionStore | undefined;
-  /**
-   * Positions against this store while `floatingRootStore` is missing. Unlike
-   * `floatingRootStore`, it isn't cleared while the positioner is unmounted.
-   */
-  fallbackRootStore?: PositioningInteractionStore | undefined;
   mounted: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
