@@ -148,7 +148,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
         // The popup element shouldn't obscure the focused trigger.
         if (open && store.context.alignItemWithTriggerActiveRef.current) {
-          store.context.setOpen(false, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          store.setOpen(false, createChangeEventDetails(REASONS.none, event.nativeEvent));
         }
 
         // Saves a re-render on initial click: `forceMount === true` mounts
@@ -198,7 +198,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          store.context.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
+          store.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
         }
 
         // Firefox can fire this upon mousedown

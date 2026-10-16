@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
@@ -7525,6 +7525,17 @@ describe('<Combobox.Root />', () => {
     });
 
     it('still clears the kept filter text once the popup closes', async () => {
+      // Reopening resizes the popup while positioning starts observing it, which the browser
+      // reports as a ResizeObserver loop. It only defers a notification by a frame.
+      const consoleError = console.error;
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation((...args) => {
+        if (String(args[0]).includes('ResizeObserver loop')) {
+          return;
+        }
+        consoleError(...args);
+      });
+      onTestFinished(() => consoleErrorSpy.mockRestore());
+
       const { user } = await render(
         <Combobox.Root
           multiple

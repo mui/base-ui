@@ -1,4 +1,4 @@
-import type { ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
@@ -6,6 +6,14 @@ import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
+import type {
+  PopupInteractionContext,
+  PopupInteractionReader,
+  PositioningInteractionStore,
+  ReferenceType,
+} from '../utils/popups/types';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { dispatchOpenChange } from '../utils/popups/floating-root/dispatchOpenChange';
 
 export type State = {
   id: string | undefined;
@@ -45,6 +53,20 @@ export type State = {
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
   inputGroupElement: HTMLDivElement | null;
+  /**
+   * The element the interaction hooks treat as the anchor: the input, or the trigger when the
+   * input is inside the popup. A trigger press points it at the trigger until the open state or
+   * the elements change.
+   */
+  anchorElement: Element | null;
+  /**
+   * An anchor set explicitly by an interaction hook, which takes precedence over `anchorElement`.
+   */
+  anchorOverride: ReferenceType | null;
+  /**
+   * The popup's id for the interaction hooks unless its element sets one.
+   */
+  defaultPopupId: string | undefined;
   popupSide: Side | null;
 
   openMethod: InteractionType | null;
@@ -74,7 +96,7 @@ export type State = {
  * Non-reactive values shared with the combobox parts. Nothing here is observable through
  * `selectors`, so writing to a ref never notifies subscribers.
  */
-export type ComboboxStoreContext = {
+export type ComboboxStoreContext = PopupInteractionContext & {
   /** Item elements in list order, owned by `Combobox.List`. */
   readonly listRef: React.RefObject<Array<HTMLElement | null>>;
   /** Item text labels in list order, used for typeahead. */
@@ -103,8 +125,8 @@ export type ComboboxStoreContext = {
   // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
 
-  /** Opens or closes the popup. */
-  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  /** Applies an open change the interaction hooks have heard about. Call `store.setOpen` instead. */
+  onOpenChange: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   /** Sets the input value. */
   setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   /** Sets the selected value. */
@@ -187,6 +209,12 @@ export const selectors = {
   triggerElement: (state: State) => state.triggerElement,
   inputElement: (state: State) => state.inputElement,
   inputGroupElement: (state: State) => state.inputGroupElement,
+  anchorElement: (state: State) => state.anchorElement,
+  anchor: (state: State) => state.anchorOverride ?? state.anchorElement,
+  defaultPopupId: (state: State) => state.defaultPopupId,
+  // An inline list renders for as long as it's in the tree, so the interaction hooks treat it as
+  // open even while the open state is `false`.
+  interactionOpen: (state: State) => state.open || state.inline,
   popupSide: (state: State) => state.popupSide,
 
   openMethod: (state: State) => state.openMethod,
@@ -209,4 +237,48 @@ export const selectors = {
   autoHighlight: (state: State) => state.autoHighlight,
 };
 
-export type ComboboxStore = ReactStore<State, ComboboxStoreContext, typeof selectors>;
+export class ComboboxStore extends ReactStore<State, ComboboxStoreContext, typeof selectors> {
+  /**
+   * Requests an open change: the interaction hooks hear about it first, then the Root applies it.
+   */
+  setOpen = (open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
+    // The input requests an open on every keystroke and press; only an actual change is one.
+    if (open === this.state.open) {
+      return;
+    }
+
+    dispatchOpenChange(this.context, this.state.open || this.state.inline, open, eventDetails);
+    this.context.onOpenChange(open, eventDetails as AriaCombobox.ChangeEventDetails);
+  };
+
+  /**
+   * Forgets the anchor while the popup isn't mounted, so positioning doesn't run for a closed
+   * popup that stays in the DOM.
+   */
+  clearPositioning() {
+    this.update({ anchorElement: null, anchorOverride: null });
+  }
+
+  /**
+   * The store the interaction hooks read. It reads `open` as `interactionOpen`, so an inline list
+   * stays navigable while closed; everything else is the store itself.
+   */
+  readonly interactions: PositioningInteractionStore = createInteractionView(this);
+}
+
+type InteractionKey =
+  'open' | 'transitionStatus' | 'anchorElement' | 'anchor' | 'positionerElement' | 'defaultPopupId';
+
+function createInteractionView(store: ComboboxStore): PositioningInteractionStore {
+  const getKey = (key: InteractionKey): keyof typeof selectors =>
+    key === 'open' ? 'interactionOpen' : key;
+
+  return {
+    select: ((key: InteractionKey) => store.select(getKey(key))) as PopupInteractionReader,
+    useState: ((key: InteractionKey) => store.useState(getKey(key))) as PopupInteractionReader,
+    set: (key: 'anchorOverride' | 'anchorElement', value: any) => store.set(key, value),
+    setOpen: store.setOpen,
+    context: store.context,
+    clearPositioning: () => store.clearPositioning(),
+  };
+}

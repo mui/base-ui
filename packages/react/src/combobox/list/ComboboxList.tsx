@@ -4,7 +4,6 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxDerivedItemsContext,
-  useComboboxFloatingContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
@@ -26,7 +25,6 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const { render, className, style, children, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
-  const floatingRootStore = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
   const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
 
@@ -58,7 +56,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     empty,
   };
 
-  const defaultPopupId = floatingRootStore.useState('defaultPopupId');
+  const defaultPopupId = store.interactions.useState('defaultPopupId');
 
   const element = useRenderElement('div', componentProps, {
     state,

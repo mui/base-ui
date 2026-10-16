@@ -146,7 +146,7 @@ export const SelectItem = React.memo(
         store.context.setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
       } else {
         store.context.setValue(itemValue, createChangeEventDetails(REASONS.itemPress, event));
-        store.context.setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
+        store.setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
       }
     }
 

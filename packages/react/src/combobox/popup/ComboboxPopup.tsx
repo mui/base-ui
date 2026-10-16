@@ -6,7 +6,7 @@ import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
@@ -31,7 +31,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
-  const floatingRootStore = useComboboxFloatingContext();
 
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -119,7 +118,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   return (
     <FloatingFocusManager
-      store={floatingRootStore}
+      store={store.interactions}
       disabled={!mounted}
       modal={focusManagerModal}
       openInteractionType={openMethod}
