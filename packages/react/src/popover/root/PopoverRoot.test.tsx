@@ -2056,34 +2056,40 @@ describe('<Popover.Root />', () => {
 
     describe.skipIf(isJSDOM)('scroll locking', () => {
       describe('touch scroll lock', () => {
-        it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
-          await render(
-            <Popover.Root modal>
-              <Popover.Trigger>Open</Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner
-                  data-testid="positioner"
-                  style={{ width: 'calc(100vw - 10px)' }}
-                >
-                  <Popover.Popup>Content</Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>,
-          );
+        it.each([
+          { name: 'unmounted while closed', keepMounted: false },
+          { name: 'kept mounted while closed', keepMounted: true },
+        ])(
+          'applies scroll lock when a touch-opened popup $name covers the viewport width',
+          async ({ keepMounted }) => {
+            await render(
+              <Popover.Root modal>
+                <Popover.Trigger>Open</Popover.Trigger>
+                <Popover.Portal keepMounted={keepMounted}>
+                  <Popover.Positioner
+                    data-testid="positioner"
+                    style={{ width: 'calc(100vw - 10px)' }}
+                  >
+                    <Popover.Popup>Content</Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>,
+            );
 
-          const trigger = screen.getByRole('button', { name: 'Open' });
+            const trigger = screen.getByRole('button', { name: 'Open' });
 
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-          fireEvent.click(trigger, { detail: 1 });
+            fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+            fireEvent.mouseDown(trigger);
+            fireEvent.click(trigger, { detail: 1 });
 
-          const popup = await screen.findByRole('dialog');
-          const doc = popup.ownerDocument;
+            const popup = await screen.findByRole('dialog');
+            const doc = popup.ownerDocument;
 
-          await waitFor(() => {
-            expect(isScrollLocked(doc)).toBe(true);
-          });
-        });
+            await waitFor(() => {
+              expect(isScrollLocked(doc)).toBe(true);
+            });
+          },
+        );
 
         it('does not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
           await render(
