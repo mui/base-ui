@@ -2237,6 +2237,116 @@ describe('FloatingFocusManager', () => {
     });
   });
 
+  describe('focus that moved inside before the initial focus resolved', () => {
+    // The popup is open and its initial focus is queued: focus reaches an element inside after the
+    // effect ran and before the microtask resolves the target.
+    async function openThenFocus(testId: string) {
+      fireEvent.click(screen.getByTestId('reference'));
+      screen.getByTestId(testId).focus();
+      expect(screen.getByTestId(testId)).toHaveFocus();
+      await flushMicrotasks();
+    }
+
+    // Frames the test runs by hand, with working cancellation (`enqueueFocus` cancels its own).
+    function holdFrames() {
+      const frames = new Map<number, FrameRequestCallback>();
+      let nextHandle = 1;
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        const handle = nextHandle;
+        nextHandle += 1;
+        frames.set(handle, callback);
+        return handle;
+      });
+      vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((handle) => {
+        frames.delete(handle);
+      });
+
+      return {
+        run() {
+          const callbacks = [...frames.values()];
+          frames.clear();
+          act(() => callbacks.forEach((callback) => callback(0)));
+        },
+      };
+    }
+
+    test('keeps it', async () => {
+      const frames = holdFrames();
+      render(<App />);
+
+      await openThenFocus('three');
+      frames.run();
+
+      expect(screen.getByTestId('three')).toHaveFocus();
+    });
+
+    test('keeps it across a real frame', async () => {
+      vi.mocked(window.requestAnimationFrame).mockRestore();
+      render(<App />);
+
+      await openThenFocus('three');
+      await act(
+        () =>
+          new Promise<void>((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+          }),
+      );
+
+      expect(screen.getByTestId('three')).toHaveFocus();
+    });
+
+    test('keeps it over an explicit initialFocus target', async () => {
+      const frames = holdFrames();
+      render(<App initialFocus="two" />);
+
+      await openThenFocus('three');
+      frames.run();
+
+      expect(screen.getByTestId('three')).toHaveFocus();
+    });
+
+    test('keeps a focused SVG element', async () => {
+      const frames = holdFrames();
+      render(
+        <App>
+          <svg data-testid="svg" tabIndex={-1} />
+        </App>,
+      );
+
+      await openThenFocus('svg');
+      frames.run();
+
+      expect(screen.getByTestId('svg')).toHaveFocus();
+    });
+
+    test('yields to a later move before the frame', async () => {
+      const frames = holdFrames();
+      render(<App />);
+
+      await openThenFocus('three');
+      screen.getByTestId('two').focus();
+      frames.run();
+
+      expect(screen.getByTestId('two')).toHaveFocus();
+    });
+
+    test('falls back to the initial focus if that focus is lost by the frame', async () => {
+      const frames = holdFrames();
+      const { rerender } = render(
+        <App>
+          <input data-testid="field" />
+        </App>,
+      );
+
+      await openThenFocus('field');
+      rerender(<App />);
+      expect(document.activeElement).toBe(document.body);
+      frames.run();
+
+      expect(screen.getByTestId('one')).toHaveFocus();
+    });
+  });
+
   describe('prop: restoreFocus', () => {
     function App({ restoreFocus = true }: { restoreFocus?: boolean }) {
       const [isOpen, setIsOpen] = React.useState(false);

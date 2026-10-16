@@ -43,8 +43,8 @@ afterEach(() => {
 globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
 
 if (typeof window !== 'undefined' && window?.navigator?.userAgent?.includes('jsdom')) {
-  globalThis.requestAnimationFrame = (cb) => {
-    setTimeout(() => cb(0), 0);
-    return 0;
-  };
+  // Return the timer's id as the frame handle, so `cancelAnimationFrame` cancels it as it does in a
+  // browser. jsdom's own `cancelAnimationFrame` does not know these handles.
+  globalThis.requestAnimationFrame = (cb) => Number(setTimeout(() => cb(0), 0));
+  globalThis.cancelAnimationFrame = (handle) => clearTimeout(handle);
 }

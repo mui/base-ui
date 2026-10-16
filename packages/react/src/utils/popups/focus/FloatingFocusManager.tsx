@@ -724,7 +724,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
       elToFocus = elToFocus || getDefaultFocusElement();
 
-      const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
+      const focusedElement = activeElement(doc);
+      const hadFocusInside = contains(floatingFocusElement, focusedElement);
+      // Focus that reached an element inside after `previouslyFocusedElement` was captured is kept,
+      // like focus that was inside before. The queued focus then only steps in if that focus has
+      // been lost by the time the frame runs, e.g. because the element was removed.
+      const focusMovedInsideBeforeResolve =
+        hadFocusInside && focusedElement !== floatingFocusElement;
 
       // Screen readers re-sync focus to their cursor right after a synthesized press. A focus
       // that lands a frame later reads as a stray move and gets pulled back to the reference.
@@ -744,11 +750,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             return false;
           }
 
+          const currentActiveElement = activeElement(doc);
+
+          if (focusMovedInsideBeforeResolve) {
+            return currentActiveElement == null || currentActiveElement === doc.body;
+          }
+
           if (hadFocusInside) {
             return true;
           }
 
-          const currentActiveElement = activeElement(doc);
           const focusMovedInside =
             currentActiveElement !== elToFocus &&
             contains(floatingFocusElement, currentActiveElement);
