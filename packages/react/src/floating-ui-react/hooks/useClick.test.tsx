@@ -1,6 +1,7 @@
 import { vi, expect, beforeEach, afterEach, test } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
+import userEvent from '@testing-library/user-event';
 import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useClick } from '../index';
 import { useFloating } from '../../../test/floating-ui-tests/useFloating';
@@ -105,6 +106,46 @@ describe.skipIf(!isJSDOM)('useClick', () => {
 
     await click(button);
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  test('lets Enter auto-repeat when it was pressed on the reference', async () => {
+    const onOpenChange = vi.fn();
+    render(<App onOpenChange={onOpenChange} />);
+
+    await act(async () => screen.getByRole('button').focus());
+    await userEvent.keyboard('{Enter>3}');
+
+    expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false, true]);
+  });
+
+  test('keeps Enter repeating after another key is pressed on the reference', async () => {
+    render(<App />);
+    const button = screen.getByRole('button');
+    await act(async () => button.focus());
+
+    fireEvent.keyDown(button, { key: 'Enter' });
+    fireEvent.keyDown(button, { key: 'Shift' });
+    fireEvent.keyUp(button, { key: 'Shift' });
+
+    expect(fireEvent.keyDown(button, { key: 'Enter', repeat: true })).toBe(true);
+  });
+
+  test('ignores Enter auto-repeats after focus moved to the reference', async () => {
+    const onOpenChange = vi.fn();
+    render(
+      <React.Fragment>
+        <button type="button" onClick={() => screen.getByTestId('reference').focus()}>
+          move focus
+        </button>
+        <App onOpenChange={onOpenChange} />
+      </React.Fragment>,
+    );
+
+    await act(async () => screen.getByRole('button', { name: 'move focus' }).focus());
+    await userEvent.keyboard('{Enter>4}');
+
+    expect(screen.getByTestId('reference')).toHaveFocus();
+    expect(onOpenChange).not.toHaveBeenCalled();
   });
 
   test('keeps open on repeated clicks when toggle is false', async () => {

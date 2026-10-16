@@ -4,6 +4,7 @@ import { act, screen, waitFor } from '@mui/internal-test-utils';
 import type { AlertDialog } from '@base-ui/react/alert-dialog';
 import type { Dialog } from '@base-ui/react/dialog';
 import type { createRenderer } from '#test-utils';
+import { holdEnter } from './holdEnter';
 import { REASONS } from '../src/internals/reasons';
 
 /**
@@ -208,6 +209,27 @@ export function dialogRootSharedTests(config: DialogRootSharedTestsConfig) {
         await waitFor(() => {
           expect(queryPopup()).toBe(null);
         });
+      });
+    });
+
+    describe('held Enter', () => {
+      it('does not activate the focused control while Enter auto-repeats from the trigger', async () => {
+        const { user } = await render(
+          <Root>
+            <Trigger>Open</Trigger>
+            <Portal>
+              <Popup>
+                <button type="button">Discard</button>
+              </Popup>
+            </Portal>
+          </Root>,
+        );
+
+        await act(async () => screen.getByRole('button', { name: 'Open' }).focus());
+        const allowed = await holdEnter(user);
+
+        expect(screen.getByRole('button', { name: 'Discard' })).toHaveFocus();
+        expect(allowed).toEqual([false, false, false]);
       });
     });
   });

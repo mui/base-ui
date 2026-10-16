@@ -2237,6 +2237,90 @@ describe('FloatingFocusManager', () => {
     });
   });
 
+  describe('held keys', () => {
+    function HeldKeyApp(props: { onAction: () => void; onOther?: () => void }) {
+      const { onAction, onOther } = props;
+      const [open, setOpen] = React.useState(false);
+      const otherRef = React.useRef<HTMLButtonElement>(null);
+      const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+
+      return (
+        <React.Fragment>
+          <button data-testid="reference" ref={refs.setReference} onClick={() => setOpen(!open)} />
+          {open && (
+            <FloatingFocusManager context={context.rootStore}>
+              <div ref={refs.setFloating}>
+                <button
+                  data-testid="action"
+                  onClick={() => {
+                    onAction();
+                    otherRef.current?.focus();
+                  }}
+                />
+                <button data-testid="other" ref={otherRef} onClick={onOther} />
+              </div>
+            </FloatingFocusManager>
+          )}
+        </React.Fragment>
+      );
+    }
+
+    test('ignores auto-repeats of a key pressed before the floating element opened', async () => {
+      const onAction = vi.fn();
+      render(<HeldKeyApp onAction={onAction} />);
+
+      await act(async () => screen.getByTestId('reference').focus());
+      await userEvent.keyboard('{Enter>4}');
+
+      expect(screen.getByTestId('action')).toHaveFocus();
+      expect(onAction).not.toHaveBeenCalled();
+    });
+
+    test('ignores auto-repeats after a key moves focus within the floating element', async () => {
+      const onAction = vi.fn();
+      const onOther = vi.fn();
+      render(<HeldKeyApp onAction={onAction} onOther={onOther} />);
+
+      fireEvent.click(screen.getByTestId('reference'));
+      await flushMicrotasks();
+      expect(screen.getByTestId('action')).toHaveFocus();
+
+      await userEvent.keyboard('{Enter>4}');
+
+      expect(screen.getByTestId('other')).toHaveFocus();
+      expect(onAction).toHaveBeenCalledTimes(1);
+      expect(onOther).not.toHaveBeenCalled();
+    });
+
+    test('keeps a held key repeating after another key is pressed', async () => {
+      render(<HeldKeyApp onAction={() => {}} />);
+
+      fireEvent.click(screen.getByTestId('reference'));
+      await flushMicrotasks();
+      const other = screen.getByTestId('other');
+      await act(async () => other.focus());
+
+      fireEvent.keyDown(other, { key: ' ' });
+      fireEvent.keyDown(other, { key: 'Shift' });
+      fireEvent.keyUp(other, { key: 'Shift' });
+
+      expect(fireEvent.keyDown(other, { key: ' ', repeat: true })).toBe(true);
+    });
+
+    test('lets a key auto-repeat on the element it was pressed on', async () => {
+      const onOther = vi.fn();
+      render(<HeldKeyApp onAction={() => {}} onOther={onOther} />);
+
+      fireEvent.click(screen.getByTestId('reference'));
+      await flushMicrotasks();
+      await act(async () => screen.getByTestId('other').focus());
+
+      await userEvent.keyboard('{Enter>3}');
+
+      expect(onOther).toHaveBeenCalledTimes(3);
+    });
+  });
+
   describe('prop: restoreFocus', () => {
     function App({ restoreFocus = true }: { restoreFocus?: boolean }) {
       const [isOpen, setIsOpen] = React.useState(false);

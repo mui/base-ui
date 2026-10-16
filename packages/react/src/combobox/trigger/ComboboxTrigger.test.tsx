@@ -374,6 +374,32 @@ describe('<Combobox.Trigger />', () => {
       });
     });
 
+    it('does not commit the highlighted item while Enter auto-repeats on the trigger', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root defaultValue="b" onValueChange={onValueChange}>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('{Enter>5}');
+
+      expect(screen.getByRole('listbox')).not.toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
     it('should call onOpenChange when toggling', async () => {
       const handleOpenChange = vi.fn();
       const { user } = await render(

@@ -70,6 +70,7 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
   const dataRef = store.context.dataRef;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch' | 'virtual'>(undefined);
+  const pressedKeyRef = React.useRef<string | null>(null);
   const frame = useAnimationFrame();
   const touchOpenTimeout = useTimeout();
 
@@ -217,8 +218,21 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
           pointerType,
         );
       },
-      onKeyDown() {
+      onKeyDown(event) {
         pointerTypeRef.current = undefined;
+        // A held key auto-repeats into whatever has focus. Ignore Enter/Space repeats of a key
+        // that went down before the trigger was focused, e.g. when a held Enter committed a popup
+        // item and focus returned here.
+        if (event.key === 'Enter' || event.key === ' ') {
+          if (!event.repeat) {
+            pressedKeyRef.current = event.key;
+          } else if (event.key !== pressedKeyRef.current) {
+            event.preventDefault();
+          }
+        }
+      },
+      onFocus() {
+        pressedKeyRef.current = null;
       },
     };
   }, [

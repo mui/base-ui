@@ -403,8 +403,23 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
     }
 
-    function onKeyDown() {
+    // A held key auto-repeats into whatever has focus. Swallow Enter/Space repeats that land in
+    // the popup after focus moved there (e.g. a held Enter on the trigger that opened it), so
+    // they can't activate its contents.
+    let pressedKey: string | null = null;
+
+    function onKeyDown(event: KeyboardEvent) {
       lastInteractionTypeRef.current = 'keyboard';
+      if (event.key === 'Enter' || event.key === ' ') {
+        if (!event.repeat) {
+          pressedKey = event.key;
+        } else if (
+          event.key !== pressedKey &&
+          contains(floating, getTarget(event) as Element | null)
+        ) {
+          stopEvent(event);
+        }
+      }
     }
 
     return mergeCleanups(
@@ -412,6 +427,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       addEventListener(doc, 'pointerup', clearPointerDownOutside, true),
       addEventListener(doc, 'pointercancel', clearPointerDownOutside, true),
       addEventListener(doc, 'keydown', onKeyDown, true),
+      addEventListener(
+        doc,
+        'focusin',
+        () => {
+          pressedKey = null;
+        },
+        true,
+      ),
       // Avoid a stale `true` leaking into the next open (e.g. keep-mounted popups)
       // if the popup dismissed between pointerdown and pointerup.
       clearPointerDownOutside,
