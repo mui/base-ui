@@ -1580,7 +1580,7 @@ describe('<Autocomplete.Root />', () => {
       expect(input.value).toBe('ba');
     });
 
-    it('mode="both": external controlled updates are not replaced by a pointer highlight', async () => {
+    it('mode="both": a completion queued after a pointer highlight does not replace an external controlled update', async () => {
       const items = ['apple', 'banana'];
 
       function Test() {
