@@ -61,9 +61,11 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   // A submenu trigger is an item of the parent menu's list, so it follows that list's focus model.
   const isSubmenuTrigger = itemMetadata.type === 'submenu-trigger';
   const virtualFocus = isSubmenuTrigger ? rootContext.parentVirtualFocus : rootContext.virtualFocus;
-  const webkitItemSelected = isSubmenuTrigger
-    ? rootContext.parentWebkitItemSelected
-    : rootContext.webkitItemSelected;
+  const selectionStore =
+    isSubmenuTrigger && rootContext.parent.type === 'menu'
+      ? rootContext.parent.store
+      : rootContext.store;
+  const ariaSelected = selectionStore.useState('webkitAriaSelected', highlighted);
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const open = store.useState('open');
@@ -71,10 +73,6 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
   const tabIndex = !virtualFocus && open && highlighted ? 0 : -1;
-
-  // `aria-selected` is not valid on `menuitem`, so it is scoped to the engine whose VoiceOver
-  // support needs it. See `webkitItemSelected` on `MenuRootContext`.
-  const ariaSelected = virtualFocus && webkitItemSelected ? highlighted : undefined;
 
   return React.useMemo(
     () => ({
@@ -128,19 +126,23 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
 
         if (
           itemRef.current &&
+          itemMetadata.type === 'regular-item' &&
           store.context.allowMouseUpTriggerRef.current &&
           (!isContextMenu || event.button === 2)
         ) {
-          // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
-          // We trigger the click and override the `closeOnClick` preference to always close the menu.
-          if (itemMetadata.type === 'regular-item') {
-            // `detail: 1` and `pointerType: 'mouse'` mark this as a mouse-gesture click so
-            // MenuRoot and FloatingFocusManager don't treat it as a keyboard activation.
-            dispatchClickWithModifiers(itemRef.current, event, {
-              detail: 1,
-              pointerType: 'mouse',
-            });
+          // Drag release has no mousedown on this item. Focus it before activation so
+          // arrow navigation continues from it when the menu stays open.
+          if (!virtualFocus) {
+            itemRef.current.focus({ preventScroll: true });
           }
+          // The press started on the trigger and was released over the item, so the item
+          // needs a synthetic click. Its `closeOnClick` preference still applies.
+          // `detail: 1` and `pointerType: 'mouse'` mark this as a mouse-gesture click so
+          // MenuRoot and FloatingFocusManager don't treat it as a keyboard activation.
+          dispatchClickWithModifiers(itemRef.current, event, {
+            detail: 1,
+            pointerType: 'mouse',
+          });
         }
       },
     }),

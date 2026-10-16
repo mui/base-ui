@@ -22,6 +22,17 @@
   src: url('/fonts/die-grotesk-b-bold.woff2') format('woff2');
 }
 
+/*
+ * Die Grotesk's alternate R (ss02), enabled with `font-variant-alternates: styleset(alternate-r)`.
+ * Stylistic sets differ per font (ss02 is duospace in Paper Mono), so define them here, scoped by
+ * font family, instead of using `font-feature-settings`, which applies to every font it inherits into.
+ */
+@font-feature-values 'die grotesk a', 'die grotesk b' {
+  @styleset {
+    alternate-r: 2;
+  }
+}
+
 @font-face {
   font-family: 'Paper Mono';
   font-weight: normal;

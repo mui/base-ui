@@ -130,16 +130,16 @@ describe('<Accordion.Root />', () => {
       await user.click(screen.getByRole('button', { name: 'Set id 1' }));
 
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('id', 'custom-trigger-id-1');
         expect(panel).toHaveAttribute('aria-labelledby', 'custom-trigger-id-1');
       });
+      expect(trigger).toHaveAttribute('id', 'custom-trigger-id-1');
 
       await user.click(screen.getByRole('button', { name: 'Set id 2' }));
 
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('id', 'custom-trigger-id-2');
         expect(panel).toHaveAttribute('aria-labelledby', 'custom-trigger-id-2');
       });
+      expect(trigger).toHaveAttribute('id', 'custom-trigger-id-2');
     });
 
     it('restores panel labeling when a manual trigger id is removed', async () => {
@@ -173,10 +173,9 @@ describe('<Accordion.Root />', () => {
       await user.click(screen.getByRole('button', { name: 'Remove id' }));
 
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('id');
-        expect(trigger).not.toHaveAttribute('id', 'custom-trigger-id');
-        expect(panel).toHaveAttribute('aria-labelledby', trigger.id);
+        expect(panel.getAttribute('aria-labelledby')).toMatch(/^base-ui-/);
       });
+      expect(trigger).toHaveAttribute('id', panel.getAttribute('aria-labelledby'));
     });
 
     it('unregisters generated part ids when the trigger or panel unmounts', async () => {
@@ -490,57 +489,60 @@ describe('<Accordion.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('keyboard interactions', () => {
-    [true, false].forEach((isNativeButton) => {
-      describe(`rendering ${isNativeButton ? 'interactive' : 'non-interactive'} triggers`, () => {
-        ['Enter', 'Space'].forEach((key) => {
-          it(`key: ${key} toggles the Accordion open state`, async () => {
-            const { user } = await render(
-              <Accordion.Root>
-                <Accordion.Item>
-                  <Accordion.Header>
-                    <Accordion.Trigger
-                      nativeButton={isNativeButton}
-                      render={isNativeButton ? undefined : <span />}
-                    >
-                      Trigger 1
-                    </Accordion.Trigger>
-                  </Accordion.Header>
-                  <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
-                </Accordion.Item>
-              </Accordion.Root>,
-            );
+    it.each([
+      { triggerKind: 'interactive', isNativeButton: true, key: 'Enter' },
+      { triggerKind: 'interactive', isNativeButton: true, key: 'Space' },
+      { triggerKind: 'non-interactive', isNativeButton: false, key: 'Enter' },
+      { triggerKind: 'non-interactive', isNativeButton: false, key: 'Space' },
+    ])(
+      'key: $key toggles the Accordion open state with $triggerKind triggers',
+      async ({ isNativeButton, key }) => {
+        const { user } = await render(
+          <Accordion.Root>
+            <Accordion.Item>
+              <Accordion.Header>
+                <Accordion.Trigger
+                  nativeButton={isNativeButton}
+                  render={isNativeButton ? undefined : <span />}
+                >
+                  Trigger 1
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+            </Accordion.Item>
+          </Accordion.Root>,
+        );
 
-            const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button');
 
-            expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
-            expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+        expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
 
-            await user.keyboard('[Tab]');
-            expect(trigger).toHaveFocus();
-            await user.keyboard(`[${key}]`);
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+        await user.keyboard(`[${key}]`);
 
-            expect(trigger).toHaveAttribute('aria-expanded', 'true');
-            expect(trigger).toHaveAttribute('data-panel-open');
-            expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
-            expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
-            expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(trigger).toHaveAttribute('data-panel-open');
+        expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
+        expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
 
-            await user.keyboard(`[${key}]`);
+        await user.keyboard(`[${key}]`);
 
-            expect(trigger).toHaveAttribute('aria-expanded', 'false');
-            expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
-          });
-        });
-      });
-    });
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      },
+    );
   });
 
   describe('keyboard activation timing', () => {
-    [true, false].forEach((isNativeButton) => {
-      it(`opens and closes on Space keyup when rendering ${
-        isNativeButton ? 'interactive' : 'non-interactive'
-      } triggers`, async () => {
+    it.each([
+      { triggerKind: 'interactive', isNativeButton: true },
+      { triggerKind: 'non-interactive', isNativeButton: false },
+    ])(
+      'opens and closes on Space keyup when rendering $triggerKind triggers',
+      async ({ isNativeButton }) => {
         const onOpenChange = vi.fn();
 
         const { user } = await render(
@@ -585,8 +587,8 @@ describe('<Accordion.Root />', () => {
         expect(screen.queryByText(PANEL_CONTENT_1)).not.toBeInTheDocument();
         expect(onOpenChange).toHaveBeenCalledTimes(2);
         expect(onOpenChange).toHaveBeenLastCalledWith(false, expect.anything());
-      });
-    });
+      },
+    );
   });
 
   describe('BaseUIChangeEventDetails', () => {

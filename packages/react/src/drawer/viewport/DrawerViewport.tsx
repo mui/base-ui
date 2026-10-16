@@ -8,6 +8,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { clamp } from '@base-ui/utils/clamp';
+import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
 import * as DialogViewportDataAttributes from '../../dialog/viewport/DialogViewportDataAttributes';
@@ -28,7 +29,6 @@ import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
 import { DRAWER_CONTENT_ATTRIBUTE } from '../content/drawerContentAttribute';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
@@ -66,6 +66,7 @@ interface TouchScrollState {
   startY: number;
   lastX: number;
   lastY: number;
+  startedInPopup: boolean;
   scrollTarget: HTMLElement | null;
   hasCrossAxisGestureTarget: boolean;
   allowSwipe: boolean | null;
@@ -359,14 +360,17 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return false;
       }
 
+      const nativeEvent = details.nativeEvent;
+      const touchLike = 'touches' in nativeEvent || nativeEvent.pointerType === 'touch';
+      const touchState = touchLike ? touchScrollStateRef.current : null;
+
       const doc = popupElement.ownerDocument;
       const elementAtPoint = getElementAtPoint(popupElement.getRootNode(), position.x, position.y);
-      if (!elementAtPoint || !contains(popupElement, elementAtPoint)) {
+      // Activation can be deferred until after a touch that started inside has left the popup.
+      if (!touchState?.startedInPopup && !contains(popupElement, elementAtPoint)) {
         return false;
       }
 
-      const nativeEvent = details.nativeEvent;
-      const touchLike = 'touches' in nativeEvent || nativeEvent.pointerType === 'touch';
       if (touchLike && shouldIgnoreSwipeForTextSelection(doc, popupElement)) {
         return false;
       }
@@ -374,9 +378,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       // Over a cross-axis gesture target, stay pending until the drawer axis wins the gesture.
       // Starting on touchstart would leave the drawer swiping (and settling on release) while the
       // cross-axis target handles the drag.
-      const touchState = touchScrollStateRef.current;
       if (
-        touchLike &&
         touchState?.hasCrossAxisGestureTarget &&
         !touchState.drawerAxisAttributed &&
         touchState.allowSwipe !== true
@@ -1027,6 +1029,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             startY: touch.clientY,
             lastX: touch.clientX,
             lastY: touch.clientY,
+            startedInPopup: contains(popupRef.current, elementAtPoint),
             scrollTarget,
             hasCrossAxisGestureTarget,
             allowSwipe,

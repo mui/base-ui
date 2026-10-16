@@ -135,6 +135,100 @@ describe('useLabel', () => {
     }
   });
 
+  it('focuses a control in the light DOM from a label in a shadow root', async () => {
+    const host = document.createElement('div');
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const container = document.createElement('div');
+    shadowRoot.appendChild(container);
+    document.body.appendChild(host);
+
+    try {
+      const { user, unmount } = await render(
+        <Combobox.Root>
+          {ReactDOM.createPortal(<Combobox.Label>Country</Combobox.Label>, container)}
+          <Combobox.Trigger id="country">Choose a country</Combobox.Trigger>
+        </Combobox.Root>,
+      );
+
+      try {
+        await user.click(within(container).getByText('Country'));
+
+        expect(screen.getByRole('combobox')).toHaveFocus();
+      } finally {
+        unmount();
+      }
+    } finally {
+      host.remove();
+    }
+  });
+
+  it('focuses a control in an ancestor shadow root from a label in a nested shadow root', async () => {
+    const outerHost = document.createElement('div');
+    const outerShadowRoot = outerHost.attachShadow({ mode: 'open' });
+    const outerContainer = document.createElement('div');
+    const innerHost = document.createElement('div');
+    const innerContainer = document.createElement('div');
+    innerHost.attachShadow({ mode: 'open' }).appendChild(innerContainer);
+    outerShadowRoot.append(outerContainer, innerHost);
+    document.body.appendChild(outerHost);
+
+    try {
+      const { user, unmount } = await render(
+        <Combobox.Root>
+          {ReactDOM.createPortal(<Combobox.Label>Country</Combobox.Label>, innerContainer)}
+          {ReactDOM.createPortal(
+            <Combobox.Trigger id="country">Choose a country</Combobox.Trigger>,
+            outerContainer,
+          )}
+        </Combobox.Root>,
+      );
+
+      try {
+        await user.click(within(innerContainer).getByText('Country'));
+
+        expect(outerShadowRoot.activeElement).toBe(within(outerContainer).getByRole('combobox'));
+      } finally {
+        unmount();
+      }
+    } finally {
+      outerHost.remove();
+    }
+  });
+
+  it('does not throw when a label is clicked in a detached React root', async () => {
+    const container = document.createElement('div');
+
+    const { unmount } = await render(
+      <Field.Root>
+        <Field.Label nativeLabel={false} render={<div />}>
+          Country
+        </Field.Label>
+        <Select.Root>
+          <Select.Trigger id="country">Choose a country</Select.Trigger>
+        </Select.Root>
+      </Field.Root>,
+      { container },
+    );
+
+    const errors: ErrorEvent[] = [];
+    function handleError(event: ErrorEvent) {
+      event.preventDefault();
+      errors.push(event);
+    }
+    window.addEventListener('error', handleError);
+
+    try {
+      await act(async () => {
+        within(container).getByText('Country').click();
+      });
+
+      expect(errors).toHaveLength(0);
+    } finally {
+      window.removeEventListener('error', handleError);
+      unmount();
+    }
+  });
+
   it('does not focus the control when a composed click originates inside a nested button', async () => {
     function Test() {
       const labelProps = useLabel({ fallbackControlId: 'control' });

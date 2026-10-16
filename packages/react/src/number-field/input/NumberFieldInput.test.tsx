@@ -429,6 +429,91 @@ describe('<NumberField.Input />', () => {
     expect(dispatchKey('‰')).toBe(false);
   });
 
+  it.each([
+    {
+      name: 'accounting with negatives',
+      currencySign: 'accounting',
+      min: -10,
+      outOfRange: false,
+      allowed: true,
+    },
+    {
+      name: 'accounting with out-of-range entry',
+      currencySign: 'accounting',
+      min: 0,
+      outOfRange: true,
+      allowed: true,
+    },
+    {
+      name: 'accounting without negatives',
+      currencySign: 'accounting',
+      min: 0,
+      outOfRange: false,
+      allowed: false,
+    },
+    {
+      name: 'standard currency sign',
+      currencySign: 'standard',
+      min: -10,
+      outOfRange: false,
+      allowed: false,
+    },
+  ] as const)(
+    'allows parentheses on keydown only for accounting formats that accept negatives ($name)',
+    async ({ currencySign, min, outOfRange, allowed }) => {
+      await render(
+        <NumberField.Root
+          min={min}
+          allowOutOfRange={outOfRange}
+          format={{ style: 'currency', currency: 'USD', currencySign }}
+        >
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      function dispatchKey(key: string) {
+        const evt = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+        return input.dispatchEvent(evt);
+      }
+
+      expect(dispatchKey('(')).toBe(allowed);
+      expect(dispatchKey(')')).toBe(allowed);
+    },
+  );
+
+  it('accepts a typed negative exponent when negatives are not allowed', async () => {
+    const format = { notation: 'scientific' } as const;
+    const formatter = new Intl.NumberFormat('en-US', format);
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="en-US"
+        format={format}
+        min={0}
+        defaultValue={1500}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(1500));
+
+    // Replace the exponent of `1.5E3`
+    input.setSelectionRange(input.value.length - 1, input.value.length);
+    await user.keyboard('-3');
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(0.0015);
+    expect(input).toHaveValue(formatter.format(0.0015));
+  });
+
   it('applies locale-aware decimal/group gating (de-DE)', async () => {
     await render(
       <NumberField.Root locale="de-DE">
@@ -533,10 +618,11 @@ describe('<NumberField.Input />', () => {
     );
     const input = screen.getByRole('textbox');
     await act(async () => input.focus());
-    fireEvent.change(input, { target: { value: '1.5' } });
-    expect(input).toHaveValue('1.5');
+    // 1.3 is off the 0.5 step grid, so any snapping on blur would change it.
+    fireEvent.change(input, { target: { value: '1.3' } });
+    expect(input).toHaveValue('1.3');
     fireEvent.blur(input);
-    expect(input).toHaveValue((1.5).toLocaleString());
+    expect(input).toHaveValue((1.3).toLocaleString());
   });
 
   it('should commit validated number on blur (step and min)', async () => {
@@ -1393,6 +1479,453 @@ describe('<NumberField.Input />', () => {
     expect(onValueChange.mock.calls[0][0]).toBe(1234.5);
 
     expect(input.value).toBe((1234.5).toLocaleString('fr-FR'));
+  });
+
+  it('commits an edited negative pt-BR currency value on blur', async () => {
+    const format = { style: 'currency', currency: 'BRL' } as const;
+    const formatter = new Intl.NumberFormat('pt-BR', format);
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        name="price"
+        locale="pt-BR"
+        format={format}
+        defaultValue={-13}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(-13));
+
+    // Replace the `3` in `-R$ 13,00`.
+    const digitIndex = input.value.indexOf('13') + 1;
+    input.setSelectionRange(digitIndex, digitIndex + 1);
+    await user.keyboard('4');
+    expect(input).toHaveValue(formatter.format(-14));
+    expect(onValueChange.mock.lastCall?.[0]).toBe(-14);
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(-14);
+    expect(input).toHaveValue(formatter.format(-14));
+    expect(document.querySelector<HTMLInputElement>('input[name="price"]')).toHaveValue(-14);
+
+    await act(async () => input.focus());
+    await user.keyboard('{ArrowUp}');
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(-13);
+  });
+
+  it('commits an edited value whose unit label contains a period (pl-PL)', async () => {
+    const format = { style: 'unit', unit: 'celsius' } as const;
+    const formatter = new Intl.NumberFormat('pl-PL', format);
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="pl-PL"
+        format={format}
+        defaultValue={21.5}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(21.5));
+
+    // Replace the fraction digit in `21,5 st. C`.
+    const digitIndex = input.value.indexOf('5');
+    input.setSelectionRange(digitIndex, digitIndex + 1);
+    await user.keyboard('7');
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(21.7);
+    expect(input).toHaveValue(formatter.format(21.7));
+  });
+
+  it.each([
+    // Pinned because WebKit formats bn-BD with Latin digits
+    { name: 'locale tag (bn-BD)', locale: 'bn-BD-u-nu-beng', format: undefined },
+    { name: 'numberingSystem option', locale: 'en-US', format: { numberingSystem: 'deva' } },
+  ])('accepts typed digits of the numbering system ($name)', async ({ locale, format }) => {
+    const formatter = new Intl.NumberFormat(locale, format);
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale={locale}
+        format={format}
+        defaultValue={12}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(12));
+
+    input.setSelectionRange(input.value.length, input.value.length);
+    await user.keyboard(formatter.format(3));
+
+    expect(input).toHaveValue(formatter.format(123));
+    expect(onValueChange.mock.lastCall?.[0]).toBe(123);
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(123);
+  });
+
+  it.each([
+    {
+      name: 'fraction digits',
+      format: { notation: 'compact', maximumFractionDigits: 1 },
+      committed: [],
+    },
+    {
+      name: 'significant digits',
+      format: { notation: 'compact', maximumSignificantDigits: 2 },
+      committed: [1200],
+    },
+  ] as const)(
+    'rounds the stored value, not the compact text, on blur ($name)',
+    async ({ format, committed }) => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+
+      await render(
+        <NumberField.Root
+          locale="en-US"
+          format={format}
+          defaultValue={1234}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        >
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      await act(async () => input.focus());
+      expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1234));
+
+      fireEvent.blur(input);
+
+      // `1.2K` is never read back as 1.2: one fraction digit keeps 1234, two significant digits
+      // round it to 1200
+      expect(onValueChange.mock.calls.map(([value]) => value)).toEqual(committed);
+      expect(onValueCommitted.mock.calls.map(([value]) => value)).toEqual(committed);
+    },
+  );
+
+  it('commits an edited grouped compact value (de-DE)', async () => {
+    const format = { notation: 'compact' } as const;
+    const formatter = new Intl.NumberFormat('de-DE', format);
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="de-DE"
+        format={format}
+        defaultValue={10000}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(10000));
+
+    // Replace the last digit of `10.000`
+    input.setSelectionRange(input.value.length - 1, input.value.length);
+    await user.keyboard('1');
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(10001);
+    expect(input).toHaveValue(formatter.format(10001));
+  });
+
+  it('keeps the stored value on blur after a rejected edit to compact text', async () => {
+    const format = { notation: 'compact' } as const;
+    const onValueChange = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        name="count"
+        locale="en-US"
+        format={format}
+        defaultValue={1234}
+        onValueChange={onValueChange}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    input.setSelectionRange(input.value.length, input.value.length);
+
+    // `1.2K5` is rejected because the compact suffix can't be typed
+    await user.keyboard('5');
+    expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1234));
+
+    fireEvent.blur(input);
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(document.querySelector<HTMLInputElement>('input[name="count"]')).toHaveValue(1234);
+  });
+
+  it.each([
+    {
+      name: 'en-US foot',
+      locale: 'en-US',
+      format: { style: 'unit', unit: 'foot', unitDisplay: 'long' },
+      value: 1,
+      edited: 12,
+    },
+    {
+      name: 'ru-RU day',
+      locale: 'ru-RU',
+      format: { style: 'unit', unit: 'day', unitDisplay: 'long' },
+      value: 1,
+      edited: 12,
+    },
+    {
+      name: 'ga acre',
+      locale: 'ga',
+      format: { style: 'unit', unit: 'acre', unitDisplay: 'long' },
+      value: 7,
+      edited: 72,
+    },
+    {
+      name: 'bs EUR',
+      locale: 'bs',
+      format: { style: 'currency', currency: 'EUR', currencyDisplay: 'name' },
+      value: 1.01,
+      edited: 12.01,
+    },
+    {
+      name: 'bs GBP',
+      locale: 'bs',
+      format: { style: 'currency', currency: 'GBP', currencyDisplay: 'name' },
+      value: 0.02,
+      edited: 2.02,
+    },
+    {
+      name: 'fil USD',
+      locale: 'fil',
+      format: { style: 'currency', currency: 'USD', currencyDisplay: 'name' },
+      value: 1.49,
+      edited: 12.49,
+    },
+    {
+      name: 'cy foot',
+      locale: 'cy',
+      format: { style: 'unit', unit: 'foot', unitDisplay: 'long' },
+      value: 6,
+      edited: 62,
+    },
+    {
+      name: 'cy millisecond',
+      locale: 'cy',
+      format: { style: 'unit', unit: 'millisecond' },
+      value: 0,
+      edited: 2,
+    },
+    {
+      name: 'br foot',
+      locale: 'br',
+      format: { style: 'unit', unit: 'foot', unitDisplay: 'long' },
+      value: 3,
+      edited: 32,
+    },
+    {
+      name: 'br acre',
+      locale: 'br',
+      format: { style: 'unit', unit: 'acre', unitDisplay: 'long' },
+      value: 1e6,
+      edited: 12000000,
+    },
+    {
+      name: 'mt megabyte',
+      locale: 'mt',
+      format: { style: 'unit', unit: 'megabyte', unitDisplay: 'long' },
+      value: 11,
+      edited: 121,
+    },
+    {
+      name: 'sl day',
+      locale: 'sl',
+      format: { style: 'unit', unit: 'day', unitDisplay: 'long' },
+      value: 2,
+      edited: 22,
+    },
+  ] as const)(
+    'accepts edits to a label that changes with the plural form ($name)',
+    async ({ locale, format, value, edited }) => {
+      // Labels such as `1 foot`, `1 день`, `7 n-acra` and `1,01 euro` have letters the other plural
+      // forms lack. Each value is the only one of the formatter's plural samples that renders some
+      // letter of its label.
+      const formatter = new Intl.NumberFormat(locale, format);
+      const onValueChange = vi.fn();
+
+      const { user } = await render(
+        <NumberField.Root
+          locale={locale}
+          format={format}
+          defaultValue={value}
+          onValueChange={onValueChange}
+        >
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      await act(async () => input.focus());
+      expect(input).toHaveValue(formatter.format(value));
+
+      // Insert a `2` after the first digit
+      input.setSelectionRange(1, 1);
+      await user.keyboard('2');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(edited);
+
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue(formatter.format(edited));
+    },
+  );
+
+  it('does not report a change when blurring a NaN value', async () => {
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    await expect(() =>
+      render(
+        <NumberField.Root
+          value={NaN}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        >
+          <NumberField.Input />
+        </NumberField.Root>,
+      ),
+    ).toErrorDev('Received NaN for the `value` attribute');
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+    fireEvent.blur(input);
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(onValueCommitted).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { name: 'with a value', defaultValue: 5, expected: new Intl.NumberFormat().format(5) },
+    { name: 'when empty', defaultValue: undefined, expected: '' },
+  ])(
+    'reformats text left unparsed by an earlier blur on the next blur ($name)',
+    async ({ defaultValue, expected }) => {
+      const onValueChange = vi.fn();
+
+      await render(
+        <NumberField.Root defaultValue={defaultValue} onValueChange={onValueChange}>
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      await act(async () => input.focus());
+      fireEvent.change(input, { target: { value: '-' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('-');
+
+      await act(async () => input.focus());
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue(expected);
+      expect(onValueChange).not.toHaveBeenCalled();
+    },
+  );
+
+  it('commits an edited accounting negative on blur', async () => {
+    const format = { style: 'currency', currency: 'USD', currencySign: 'accounting' } as const;
+    const formatter = new Intl.NumberFormat('en-US', format);
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="en-US"
+        format={format}
+        defaultValue={-13}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(-13));
+
+    // Replace the `3` in `($13.00)`.
+    const digitIndex = input.value.indexOf('13') + 1;
+    input.setSelectionRange(digitIndex, digitIndex + 1);
+    await user.keyboard('4');
+    expect(input).toHaveValue(formatter.format(-14));
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(-14);
+    expect(input).toHaveValue(formatter.format(-14));
+  });
+
+  it('reads an accounting negative as negative after its closing parenthesis is deleted', async () => {
+    const format = { style: 'currency', currency: 'USD', currencySign: 'accounting' } as const;
+    const formatter = new Intl.NumberFormat('en-US', format);
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root
+        locale="en-US"
+        format={format}
+        defaultValue={-1234.5}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    await act(async () => input.focus());
+    expect(input).toHaveValue(formatter.format(-1234.5));
+
+    // Backspace over the `)` and the last `0` of `($1,234.50)`, then type `7`
+    input.setSelectionRange(input.value.length, input.value.length);
+    await user.keyboard('{Backspace}{Backspace}7');
+    expect(input).toHaveValue(formatter.format(-1234.57).slice(0, -1));
+    expect(onValueChange.mock.lastCall?.[0]).toBe(-1234.57);
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(-1234.57);
+    expect(input).toHaveValue(formatter.format(-1234.57));
   });
 
   it('warns in development when clipboard text cannot be read during paste handling', async () => {

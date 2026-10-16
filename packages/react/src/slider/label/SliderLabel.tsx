@@ -1,7 +1,11 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { focusElementWithVisible, useLabel } from '../../internals/labelable-provider/useLabel';
+import {
+  focusElementWithVisible,
+  getControlById,
+  useLabel,
+} from '../../internals/labelable-provider/useLabel';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { SliderRoot } from '../root/SliderRoot';
@@ -27,8 +31,7 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
 
   function focusControl(event: React.MouseEvent, controlId: string | undefined) {
     if (controlId) {
-      const root = event.currentTarget.getRootNode() as Document | ShadowRoot;
-      const controlElement = root.getElementById(controlId);
+      const controlElement = getControlById(event.currentTarget, controlId);
       if (isHTMLElement(controlElement)) {
         focusElementWithVisible(controlElement);
         return;

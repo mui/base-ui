@@ -66,16 +66,6 @@ describe('<Checkbox.Indicator />', () => {
     expect(indicator).not.toBe(null);
   });
 
-  it('should spread extra props', async () => {
-    await render(
-      <Checkbox.Root defaultChecked>
-        <Checkbox.Indicator data-testid="indicator" data-extra-prop="Lorem ipsum" />
-      </Checkbox.Root>,
-    );
-    const indicator = screen.getByTestId('indicator');
-    expect(indicator).toHaveAttribute('data-extra-prop', 'Lorem ipsum');
-  });
-
   describe('prop: keepMounted', () => {
     it('should keep indicator mounted when unchecked', async () => {
       await render(

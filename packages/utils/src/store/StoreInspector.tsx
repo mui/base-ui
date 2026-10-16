@@ -324,14 +324,6 @@ function getStringifyReplacer() {
       return '[undefined]';
     }
 
-    if (value instanceof Map) {
-      return Array.from(value.entries());
-    }
-
-    if (value instanceof Set) {
-      return Array.from(value);
-    }
-
     if (typeof value !== 'object' || value === null) {
       return value;
     }
@@ -346,6 +338,15 @@ function getStringifyReplacer() {
     }
 
     ancestors.push(value);
+
+    if (value instanceof Map || value instanceof Set) {
+      // The entries are visited with the replacement array as their parent, so it has to be on the
+      // stack too for the ancestors above it to be kept.
+      const entries = Array.from(value);
+      ancestors.push(entries);
+      return entries;
+    }
+
     return value;
   };
 }

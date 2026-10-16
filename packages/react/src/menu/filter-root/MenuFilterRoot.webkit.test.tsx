@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -17,7 +17,7 @@ vi.mock('@base-ui/utils/platform', async () => {
   };
 });
 
-function Test() {
+function Test(props: { autoFocus?: boolean; inputKey?: string; showInput?: boolean }) {
   return (
     <Menu.FilterProvider>
       <Menu.Root defaultOpen>
@@ -25,7 +25,13 @@ function Test() {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
-              <Menu.Input aria-label="Filter actions" />
+              {props.showInput !== false && (
+                <Menu.Input
+                  key={props.inputKey}
+                  aria-label="Filter actions"
+                  autoFocus={props.autoFocus}
+                />
+              )}
               <Menu.List>
                 <Menu.Item>Apple</Menu.Item>
                 <Menu.Item>Banana</Menu.Item>
@@ -43,7 +49,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
   const { render } = createRenderer();
 
-  it('marks the active descendant selected for the WebKit compatibility path', async () => {
+  it('marks only the highlighted item while its input is focused in WebKit', async () => {
     const { user } = await render(<Test />);
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -53,21 +59,140 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
     const apple = screen.getByRole('menuitem', { name: 'Apple' });
     const banana = screen.getByRole('menuitem', { name: 'Banana' });
-    expect(apple).toHaveAttribute('aria-selected', 'false');
+    expect(apple).not.toHaveAttribute('aria-selected');
 
     await user.keyboard('[ArrowDown]');
 
     expect(apple).toHaveAttribute('aria-selected', 'true');
-    expect(banana).toHaveAttribute('aria-selected', 'false');
+    expect(banana).not.toHaveAttribute('aria-selected');
     expect(input).toHaveAttribute('aria-activedescendant', apple.id);
 
     await user.keyboard('[ArrowDown]');
 
-    expect(apple).toHaveAttribute('aria-selected', 'false');
+    expect(apple).not.toHaveAttribute('aria-selected');
+    expect(banana).toHaveAttribute('aria-selected', 'true');
+
+    await act(async () => input.blur());
+    expect(banana).not.toHaveAttribute('aria-selected');
+
+    await act(async () => input.focus());
     expect(banana).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('preserves checked state on checkbox and radio items in the WebKit compatibility path', async () => {
+  it('keeps selection state for an auto-focused input in Strict Mode', async () => {
+    const { user } = await render(
+      <React.StrictMode>
+        <Test autoFocus />
+      </React.StrictMode>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+
+    await user.keyboard('[ArrowDown]');
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
+
+  it('keeps selection state when a focused input is replaced', async () => {
+    const { user, setProps } = await render(<Test autoFocus inputKey="first" />);
+    await waitFor(() =>
+      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus(),
+    );
+
+    await setProps({ inputKey: 'second' });
+    const replacement = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(replacement).toHaveFocus());
+
+    await user.keyboard('[ArrowDown]');
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
+
+  it('keeps selection in sync when a focused input is replaced without autofocus', async () => {
+    const { user, setProps } = await render(<Test autoFocus inputKey="first" />);
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+    await user.keyboard('[ArrowDown]');
+    const apple = screen.getByRole('menuitem', { name: 'Apple' });
+    expect(apple).toHaveAttribute('aria-selected', 'true');
+
+    await setProps({ inputKey: 'second', autoFocus: false });
+    const replacement = screen.getByRole('searchbox', { name: 'Filter actions' });
+    expect(replacement).not.toBe(input);
+    // Engines differ in whether they restore focus after removing the old input.
+    expect(apple.getAttribute('aria-selected')).toBe(replacement.matches(':focus') ? 'true' : null);
+  });
+
+  it('clears selection when the focused input unmounts while the menu stays open', async () => {
+    const { user, setProps } = await render(<Test autoFocus />);
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+    await user.keyboard('[ArrowDown]');
+    const apple = screen.getByRole('menuitem', { name: 'Apple' });
+    expect(apple).toHaveAttribute('aria-selected', 'true');
+
+    await setProps({ showInput: false });
+    expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
+    expect(apple).toBeInTheDocument();
+    expect(apple).not.toHaveAttribute('aria-selected');
+  });
+
+  it('does not restore selection after a focused input unmounts and the menu reopens on hover', async () => {
+    function ControlledTest(props: { close: boolean }) {
+      const [open, setOpen] = React.useState(true);
+
+      React.useEffect(() => {
+        if (props.close) {
+          setOpen(false);
+        }
+      }, [props.close]);
+
+      return (
+        <Menu.FilterProvider autoHighlight="always">
+          <Menu.Root open={open} onOpenChange={setOpen}>
+            <Menu.Trigger openOnHover delay={0}>
+              Actions
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>Apple</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
+      );
+    }
+
+    const { user, setProps } = await render(<ControlledTest close={false} />);
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => expect(input).toHaveFocus());
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+
+    await setProps({ close: true });
+    await waitFor(() =>
+      expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null),
+    );
+
+    await user.hover(screen.getByRole('button', { name: 'Actions' }));
+    const reopenedInput = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    expect(reopenedInput).not.toHaveFocus();
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).not.toHaveAttribute('aria-selected');
+  });
+
+  it('preserves checked state on checkbox and radio items in WebKit', async () => {
     const { user } = await render(
       <Menu.FilterProvider>
         <Menu.Root defaultOpen>
@@ -104,7 +229,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
     expect(radio).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('marks link items and submenu triggers selected for the WebKit compatibility path', async () => {
+  it('marks highlighted links and submenu triggers while their input is focused in WebKit', async () => {
     const { user } = await render(
       <Menu.FilterProvider>
         <Menu.Root defaultOpen>
@@ -157,23 +282,23 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
 
     await user.keyboard('[ArrowDown]');
     expect(link).toHaveAttribute('aria-selected', 'true');
-    expect(submenuTrigger).toHaveAttribute('aria-selected', 'false');
+    expect(submenuTrigger).not.toHaveAttribute('aria-selected');
     expect(input).toHaveAttribute('aria-activedescendant', link.id);
 
     await user.keyboard('[ArrowDown]');
-    expect(link).toHaveAttribute('aria-selected', 'false');
+    expect(link).not.toHaveAttribute('aria-selected');
     expect(submenuTrigger).toHaveAttribute('aria-selected', 'true');
     expect(input).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
 
-    expect(plainSubmenuTrigger).toHaveAttribute('aria-selected', 'false');
+    expect(plainSubmenuTrigger).not.toHaveAttribute('aria-selected');
     await user.keyboard('[ArrowDown]');
 
-    expect(submenuTrigger).toHaveAttribute('aria-selected', 'false');
+    expect(submenuTrigger).not.toHaveAttribute('aria-selected');
     expect(plainSubmenuTrigger).toHaveAttribute('aria-selected', 'true');
     expect(input).toHaveAttribute('aria-activedescendant', plainSubmenuTrigger.id);
   });
 
-  it('marks items inside an opened submenu selected', async () => {
+  it('marks items inside an opened submenu while its input is focused', async () => {
     const { user } = await render(
       <Menu.FilterProvider>
         <Menu.Root defaultOpen>
@@ -217,10 +342,12 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () 
     });
 
     const shareItem = screen.getByRole('menuitem', { name: 'Share' });
+    const submenuTrigger = screen.getByRole('menuitem', { name: 'More actions' });
+    expect(submenuTrigger).not.toHaveAttribute('aria-selected');
     expect(shareItem).toHaveAttribute('aria-selected', 'true');
 
     await user.keyboard('[ArrowUp]');
-    expect(shareItem).toHaveAttribute('aria-selected', 'false');
+    expect(shareItem).not.toHaveAttribute('aria-selected');
 
     await user.keyboard('[ArrowDown]');
 

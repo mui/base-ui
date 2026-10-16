@@ -90,16 +90,14 @@ describe('visual regressions', () => {
     await browser.close();
   });
 
-  routes.forEach((route: string, index: number) => {
-    it(
-      `creates screenshots of ${route}`,
-      // With the playwright inspector we might want to call `page.pause` which would lead to a timeout.
-      { timeout: process.env.PWDEBUG ? 0 : 5000 },
-      async () => {
-        const testcase = await renderFixture(index);
+  it.each(routes.map((route, index) => ({ route, index })))(
+    'creates screenshots of $route',
+    // With the playwright inspector we might want to call `page.pause` which would lead to a timeout.
+    { timeout: process.env.PWDEBUG ? 0 : 5000 },
+    async ({ route, index }) => {
+      const testcase = await renderFixture(index);
 
-        await takeScreenshot({ testcase, route });
-      },
-    );
-  });
+      await takeScreenshot({ testcase, route });
+    },
+  );
 });

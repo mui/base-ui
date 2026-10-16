@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
+import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,
@@ -14,7 +14,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { usePositioner } from '../../utils/usePositioner';
-import { createInlineMiddleware } from '../../utils/popups';
+import { createInlineMiddleware } from '../../utils/popups/inlineRect';
 
 /**
  * Positions the popup against the trigger.
@@ -51,7 +51,6 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
-  const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
@@ -59,7 +58,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   const positioning = useAnchorPositioning({
     anchor,
-    floatingRootContext,
+    floatingRootContext: store,
     positionMethod,
     mounted,
     side,

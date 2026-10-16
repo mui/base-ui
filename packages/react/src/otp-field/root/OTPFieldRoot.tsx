@@ -8,7 +8,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { warn } from '@base-ui/utils/warn';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -212,6 +212,20 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       if (pendingFocus.value === value) {
         focusInput(pendingFocus.index);
       }
+    }
+
+    // When the value shrinks externally, move focus off slots past the first empty one so typing
+    // and Backspace keep working.
+    const focusedElement = activeElement(ownerDocument(rootRef.current));
+
+    if (
+      focusedElement &&
+      inputRefs.current.indexOf(focusedElement as HTMLInputElement) > value.length
+    ) {
+      focusInput(value.length);
+      // Slots may not have their updated indexes yet when leading slots unmount, so sync the
+      // tab stop with the redirect target directly.
+      setFocusedIndex(value.length);
     }
 
     const pendingCompleteValue = pendingCompleteValueRef.current;

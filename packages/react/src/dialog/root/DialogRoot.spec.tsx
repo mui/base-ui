@@ -23,6 +23,6 @@ const triggerWithPayload = <Dialog.Trigger handle={numberPayloadHandle} payload=
 const triggerWithoutPayload = <Dialog.Trigger handle={numberPayloadHandle} />;
 
 const triggerWithInvalidPayload = (
-  // @ts-expect-error
+  // @ts-expect-error The handle requires a number payload, not a string.
   <Dialog.Trigger handle={numberPayloadHandle} payload={'invalid'} />
 );

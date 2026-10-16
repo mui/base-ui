@@ -10,14 +10,14 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
-import { stopEvent } from '../../floating-ui-react/utils/event';
-import { getMaxListIndex, getMinListIndex } from '../../floating-ui-react/utils/composite';
+import { stopEvent } from '../../utils/popups/event';
+import { getMaxListIndex, getMinListIndex } from '../../internals/composite/listIndex';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import {
   isCrossOrientationCloseKey,
   isCrossOrientationOpenKey,
   isMainOrientationKey,
-} from '../../floating-ui-react/hooks/useListNavigation';
+} from '../../utils/popups/interactions/useListNavigation';
 
 export type MenuFilterKeyAction =
   /** Native text editing in the input; list navigation and parent handlers stay out of it. */
@@ -121,6 +121,10 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
   const direction = useDirection();
 
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    // Like a plain menu, ignore keys while the popup animates out with the input still focused.
+    if (!store.select('open')) {
+      return;
+    }
     const activeItem = store.state.highlightedItem;
     const action = getMenuFilterKeyAction(event, {
       orientation,

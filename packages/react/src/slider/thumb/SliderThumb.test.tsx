@@ -3,7 +3,13 @@ import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { Field } from '@base-ui/react/field';
-import { createRenderer, describeConformance, isJSDOM, mergeRefs } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  mergeRefs,
+  mockRuntimeLocale,
+} from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
@@ -54,21 +60,24 @@ describe('<Slider.Thumb />', () => {
   });
 
   describe('ARIA attributes', () => {
-    ['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-valuetext'].forEach((attr) => {
-      it(`forwards ${attr} to the input`, async () => {
-        await render(
-          <Slider.Root defaultValue={50}>
-            <Slider.Control>
-              <Slider.Thumb
-                {...{
-                  [attr]: 'test',
-                }}
-              />
-            </Slider.Control>
-          </Slider.Root>,
-        );
-        expect(screen.getByRole('slider')).toHaveAttribute(attr, 'test');
-      });
+    it.each([
+      { attr: 'aria-label' },
+      { attr: 'aria-labelledby' },
+      { attr: 'aria-describedby' },
+      { attr: 'aria-valuetext' },
+    ])('forwards $attr to the input', async ({ attr }) => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb
+              {...{
+                [attr]: 'test',
+              }}
+            />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+      expect(screen.getByRole('slider')).toHaveAttribute(attr, 'test');
     });
 
     it('prefers getAriaValueText over a direct aria-valuetext prop', async () => {
@@ -83,6 +92,30 @@ describe('<Slider.Thumb />', () => {
         </Slider.Root>,
       );
       expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', '50 percent');
+    });
+
+    it('formats aria-valuetext with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(
+        <Slider.Root defaultValue={1000} max={2000} format={format}>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+      expect(screen.getByRole('slider')).toHaveAttribute(
+        'aria-valuetext',
+        (1000).toLocaleString('en-US', format),
+      );
+
+      await hydrate();
+      expect(screen.getByRole('slider')).toHaveAttribute(
+        'aria-valuetext',
+        (1000).toLocaleString('de-DE', format),
+      );
     });
   });
 
@@ -105,8 +138,9 @@ describe('<Slider.Thumb />', () => {
       expect(handleKeyDown).toHaveBeenCalledTimes(1);
     });
 
-    ['ArrowRight', 'PageUp'].forEach((key) => {
-      it(`forwards handled ${key} key events`, async () => {
+    it.each([{ key: 'ArrowRight' }, { key: 'PageUp' }])(
+      'forwards handled $key key events',
+      async ({ key }) => {
         const handleKeyDown = vi.fn();
         await render(
           <Slider.Root defaultValue={50}>
@@ -123,8 +157,8 @@ describe('<Slider.Thumb />', () => {
         fireEvent.keyDown(slider, { key });
 
         expect(handleKeyDown).toHaveBeenCalledTimes(1);
-      });
-    });
+      },
+    );
 
     it('allows preventing the internal key handling', async () => {
       const handleKeyDown = vi.fn((event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -675,21 +709,32 @@ describe('<Slider.Thumb />', () => {
 
       const thumb = screen.getByTestId('thumb');
       const indicator = screen.getByTestId('indicator');
+      // Read the thumb and indicator together so each poll checks one consistent snapshot.
+      const getInsetStyles = () => ({
+        thumbVisibility: thumb.style.visibility,
+        thumbPosition: thumb.style.getPropertyValue('--position'),
+        indicatorVisibility: indicator.style.visibility,
+        indicatorStartPosition: indicator.style.getPropertyValue('--start-position'),
+      });
 
       await waitFor(() => {
-        expect(thumb.style.visibility).toBe('hidden');
-        expect(thumb.style.getPropertyValue('--position')).toBe('0%');
-        expect(indicator.style.visibility).toBe('hidden');
-        expect(indicator.style.getPropertyValue('--start-position')).toBe('0%');
+        expect(getInsetStyles()).toEqual({
+          thumbVisibility: 'hidden',
+          thumbPosition: '0%',
+          indicatorVisibility: 'hidden',
+          indicatorStartPosition: '0%',
+        });
       });
 
       await user.click(screen.getByRole('button', { name: 'show' }));
 
       await waitFor(() => {
-        expect(thumb.style.visibility).toBe('');
-        expect(thumb.style.getPropertyValue('--position')).toBe('32%');
-        expect(indicator.style.visibility).toBe('');
-        expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
+        expect(getInsetStyles()).toEqual({
+          thumbVisibility: '',
+          thumbPosition: '32%',
+          indicatorVisibility: '',
+          indicatorStartPosition: '32%',
+        });
       });
     });
 
@@ -737,27 +782,41 @@ describe('<Slider.Thumb />', () => {
         const startThumb = screen.getByTestId('start-thumb');
         const endThumb = screen.getByTestId('end-thumb');
         const indicator = screen.getByTestId('indicator');
+        // Read the thumbs and indicator together so each poll checks one consistent snapshot.
+        const getInsetStyles = () => ({
+          startThumbVisibility: startThumb.style.visibility,
+          startThumbPosition: startThumb.style.getPropertyValue('--position'),
+          endThumbVisibility: endThumb.style.visibility,
+          endThumbPosition: endThumb.style.getPropertyValue('--position'),
+          indicatorVisibility: indicator.style.visibility,
+          indicatorStartPosition: indicator.style.getPropertyValue('--start-position'),
+          indicatorRelativeSize: indicator.style.getPropertyValue('--relative-size'),
+        });
 
         await waitFor(() => {
-          expect(startThumb.style.visibility).toBe('hidden');
-          expect(startThumb.style.getPropertyValue('--position')).toBe('0%');
-          expect(endThumb.style.visibility).toBe('hidden');
-          expect(endThumb.style.getPropertyValue('--position')).toBe('0%');
-          expect(indicator.style.visibility).toBe('hidden');
-          expect(indicator.style.getPropertyValue('--start-position')).toBe('0%');
-          expect(indicator.style.getPropertyValue('--relative-size')).toBe('0%');
+          expect(getInsetStyles()).toEqual({
+            startThumbVisibility: 'hidden',
+            startThumbPosition: '0%',
+            endThumbVisibility: 'hidden',
+            endThumbPosition: '0%',
+            indicatorVisibility: 'hidden',
+            indicatorStartPosition: '0%',
+            indicatorRelativeSize: '0%',
+          });
         });
 
         await user.click(screen.getByRole('button', { name: 'show' }));
 
         await waitFor(() => {
-          expect(startThumb.style.visibility).toBe('');
-          expect(startThumb.style.getPropertyValue('--position')).toBe('32%');
-          expect(endThumb.style.visibility).toBe('');
-          expect(endThumb.style.getPropertyValue('--position')).toBe('68%');
-          expect(indicator.style.visibility).toBe('');
-          expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
-          expect(indicator.style.getPropertyValue('--relative-size')).toBe('36%');
+          expect(getInsetStyles()).toEqual({
+            startThumbVisibility: '',
+            startThumbPosition: '32%',
+            endThumbVisibility: '',
+            endThumbPosition: '68%',
+            indicatorVisibility: '',
+            indicatorStartPosition: '32%',
+            indicatorRelativeSize: '36%',
+          });
         });
       },
     );

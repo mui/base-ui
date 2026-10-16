@@ -59,3 +59,12 @@ export const firePointer = {
   move: (element: Element, init: PointerInit) => firePointerEvent('pointerMove', element, init),
   up: (element: Element, init: PointerInit) => firePointerEvent('pointerUp', element, init),
 };
+
+/**
+ * Presses an element the way a touch screen does before the click: a touch `pointerdown`
+ * followed by the compatibility `mousedown`.
+ */
+export function pressWithTouch(element: HTMLElement) {
+  fireEvent.pointerDown(element, { pointerType: 'touch' });
+  fireEvent.mouseDown(element);
+}
