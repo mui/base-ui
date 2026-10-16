@@ -20,7 +20,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const internalStore = useFloatingRootStore({
     ...options,
     elements: {
-      anchor: options.elements?.reference,
+      anchor: options.elements?.reference as Element | null | undefined,
       positionerElement: options.elements?.floating,
     },
   });

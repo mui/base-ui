@@ -8,7 +8,6 @@ import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEv
 import { useFloatingParentNodeId } from '../tree/FloatingTree';
 import { FloatingRootStore } from './FloatingRootStore';
 import type { FloatingRootState as State } from './FloatingRootStore';
-import type { ReferenceType } from '../types';
 
 /**
  * What `useFloatingRootStore` syncs into its store.
@@ -29,9 +28,10 @@ export interface UseFloatingRootStoreOptions {
   elements?:
     | {
         /**
-         * The DOM element the popup is anchored to. Virtual elements go in `anchorOverride`.
+         * The DOM element the popup is anchored to. To position against a virtual element, pass it
+         * as `useAnchorPositioning`'s `anchor` instead.
          */
-        anchor?: ReferenceType | null | undefined;
+        anchor?: Element | null | undefined;
         /**
          * The popup's positioner element, or the popup itself when it has no positioner.
          */
@@ -56,7 +56,7 @@ export function useFloatingRootStore(options: UseFloatingRootStoreOptions): Floa
     if (optionAnchor && !isElement(optionAnchor)) {
       console.error(
         'Cannot pass a virtual element to the `elements.anchor` option,',
-        'as it must be a real DOM element. Set the `anchorOverride` instead.',
+        "as it must be a real DOM element. Pass it as `useAnchorPositioning`'s `anchor` instead.",
       );
     }
   }

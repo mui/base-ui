@@ -90,7 +90,7 @@ export class FloatingRootStore
     super(
       {
         ...initialState,
-        anchorOverride: initialState.baseAnchor,
+        anchorOverride: null,
         anchorElement: initialState.baseAnchor as Element | null,
       },
       {
