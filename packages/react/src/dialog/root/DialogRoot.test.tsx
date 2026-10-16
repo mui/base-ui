@@ -1378,6 +1378,45 @@ describe('<Dialog.Root />', () => {
     expect(handleOpenChange.mock.calls.length).toBe(0);
   });
 
+  it('closes one sibling dialog per Escape press when several open together', async () => {
+    function SiblingDialog({ name }: { name: string }) {
+      return (
+        <Dialog.Root defaultOpen>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid={name}>
+              <Dialog.Close>Close {name}</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
+
+    const { user } = await render(
+      <React.Fragment>
+        <SiblingDialog name="a" />
+        <SiblingDialog name="b" />
+        <SiblingDialog name="c" />
+      </React.Fragment>,
+    );
+
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('c')).toBe(null);
+    });
+    expect(screen.queryByTestId('b')).not.toBe(null);
+
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('b')).toBe(null);
+    });
+    expect(screen.queryByTestId('a')).not.toBe(null);
+
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('a')).toBe(null);
+    });
+  });
+
   describe('closed shadow root', () => {
     const reactGlobals = globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean };
 

@@ -2,6 +2,7 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { Combobox } from '@base-ui/react/combobox';
+import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
@@ -2187,6 +2188,48 @@ describe('<Popover.Root />', () => {
           expect(screen.queryByTestId('parent-popup')).toBe(null);
         });
         expect(parentTrigger).toHaveFocus();
+      });
+
+      it('keeps the popover open when Escape closes a nested dialog after a backdrop press', async () => {
+        const onPopoverOpenChange = vi.fn();
+        const { user } = await render(
+          <Popover.Root defaultOpen onOpenChange={onPopoverOpenChange}>
+            <Popover.Trigger>Popover trigger</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover">
+                  <Dialog.Root disablePointerDismissal>
+                    <Dialog.Trigger>Open dialog</Dialog.Trigger>
+                    <Dialog.Portal>
+                      <Dialog.Backdrop data-testid="backdrop" />
+                      <Dialog.Popup data-testid="dialog">
+                        <input data-testid="input" />
+                      </Dialog.Popup>
+                    </Dialog.Portal>
+                  </Dialog.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Open dialog' }));
+        await waitFor(() => {
+          expect(screen.getByTestId('input')).toHaveFocus();
+        });
+
+        // `disablePointerDismissal` keeps the dialog open, but the press still moves focus to the body.
+        await user.click(screen.getByTestId('backdrop'));
+        expect(document.activeElement).toBe(document.body);
+        expect(screen.queryByTestId('dialog')).not.toBe(null);
+
+        await user.keyboard('[Escape]');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog')).toBe(null);
+        });
+        expect(screen.queryByTestId('popover')).not.toBe(null);
+        expect(onPopoverOpenChange).not.toHaveBeenCalled();
       });
 
       it('keeps the parent popover open when press starts in nested popover and ends outside', async () => {
