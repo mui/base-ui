@@ -18,7 +18,7 @@ import {
 } from '@mui/internal-test-utils';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { isJSDOM, useTestInteractions } from '#test-utils';
+import { createRenderer, isJSDOM, useTestInteractions } from '#test-utils';
 import { FloatingFocusManager } from './FloatingFocusManager';
 import {
   FloatingNode,
@@ -207,6 +207,78 @@ function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
 }
 
 describe('FloatingFocusManager', () => {
+  describe('prop: returnFocus', () => {
+    const { render } = createRenderer();
+    const virtualPointerId = -1;
+
+    test.each([
+      { name: 'pointer', detail: 1, pointerId: 1, closeType: 'mouse' },
+      { name: 'virtual', detail: 0, pointerId: virtualPointerId, closeType: 'keyboard' },
+    ] as const)(
+      'restores focus for an untyped $name click after a completed pointer gesture',
+      async ({ detail, pointerId, closeType }) => {
+        const finalFocus = vi.fn((type: InteractionType) => type === closeType);
+
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context.rootStore);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
+
+          return (
+            <>
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <FloatingFocusManager
+                context={context.rootStore}
+                disabled={!isOpen}
+                returnFocus={finalFocus}
+              >
+                <div ref={refs.setFloating} {...getFloatingProps()}>
+                  <button data-testid="child" />
+                </div>
+              </FloatingFocusManager>
+            </>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const reference = screen.getByTestId('reference');
+        await user.click(reference);
+        await waitFor(() => {
+          expect(screen.getByTestId('child')).toHaveFocus();
+        });
+
+        const child = screen.getByTestId('child');
+        await user.click(child);
+        expect(child).toHaveFocus();
+
+        fireEvent(
+          reference,
+          new PointerEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            pointerType: '',
+            pointerId,
+            detail,
+          }),
+        );
+
+        await waitFor(() => {
+          expect(finalFocus).toHaveBeenCalledWith(closeType);
+        });
+        await waitFor(() => {
+          expect(reference).toHaveFocus();
+        });
+      },
+    );
+  });
+
   describe.skipIf(!isJSDOM)('JSDOM-only coverage', () => {
     describe('prop: initialFocus', () => {
       test('default behavior focuses first tabbable element', async () => {
