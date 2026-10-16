@@ -1725,6 +1725,37 @@ describe('<Popover.Root />', () => {
         expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
       });
 
+      it('unmounts when `close` and `unmount` are called in one batch while controlled', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+
+        function App() {
+          const [open, setOpen] = React.useState(true);
+          return (
+            <TestPopover
+              rootProps={{
+                open,
+                actionsRef,
+                onOpenChange: (nextOpen, details) => {
+                  if (!nextOpen) {
+                    details.preventUnmountOnClose();
+                  }
+                  setOpen(nextOpen);
+                },
+              }}
+            />
+          );
+        }
+
+        await render(<App />);
+
+        await act(async () => {
+          actionsRef.current!.close();
+          actionsRef.current!.unmount();
+        });
+
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
       it('still unmounts on a later close after `unmount` was called while open', async () => {
         const actionsRef = React.createRef<Popover.Root.Actions>();
         const onOpenChangeComplete = vi.fn();

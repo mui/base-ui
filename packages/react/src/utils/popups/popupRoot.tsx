@@ -142,7 +142,9 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openState = store.useState('open');
-  const open = !disabled && openState;
+  // The store receives a controlled `open` prop in a layout effect, a commit after the Root renders
+  // with it, so the transitions read the prop itself.
+  const open = !disabled && (openProp ?? openState);
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Store['state']['payload'];
 
