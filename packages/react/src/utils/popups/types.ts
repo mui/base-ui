@@ -67,6 +67,8 @@ export interface PopupInteractionReader {
 
 /**
  * Non-reactive values shared by the interaction hooks of one popup.
+ * The inert stores that detached triggers use before a Root attaches freeze their context, so
+ * code that can run against them only reads these fields.
  */
 export interface PopupInteractionContext {
   readonly events: PopupEvents;

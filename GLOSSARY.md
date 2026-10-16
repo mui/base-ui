@@ -32,11 +32,11 @@ _In code_: `positionerElement` is the positioner in components that have one.
 
 **Hover intent**:
 The logic that decides when hovering a trigger opens its popup and when leaving closes it. It covers the open and close delays, waiting for the pointer to rest, and the safe polygon that keeps the popup open while the pointer travels from the trigger to it. Each popup has one, shared by all its triggers.
-_Avoid_: hover interaction, hover state, useHover
+_Avoid_: hover state, useHover
 
 **Interaction store**:
 The store a popup's interactions read and write: whether it is open, its anchor, its positioner element (the Positioner part, or the Popup itself for popups without one, such as Dialog), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a `FloatingRootStore` fed from their own state.
 _Avoid_: floating context
 
 **Floating UI modules**:
-Modules ported from Floating UI keep its names, so they stay recognizable next to the library they came from: `FloatingTree`, `FloatingNode`, `FloatingTreeStore`, `FloatingFocusManager`, `FloatingPortal`, `FloatingPortalLite`, `FloatingDelayGroup`, `FloatingRootStore` with `useFloatingRootStore`, and positioning's `useFloating`. The _Avoid_ lists above apply to the popup concepts and the state they share, not to these module names.
+Modules ported from Floating UI keep its names, so they stay recognizable next to the library they came from: `FloatingTree`, `FloatingNode`, `FloatingTreeStore`, `FloatingFocusManager`, `FloatingPortal`, `FloatingPortalLite`, `FloatingDelayGroup` and `FloatingRootStore`, and positioning keeps Floating UI's terms because it wraps `@floating-ui/react-dom`'s `useFloating` (in `useBaseUIFloating`). The hook that creates a `FloatingRootStore`, which Floating UI calls `useFloatingRootContext`, is `useFloatingRootStore`, since it returns a store. The _Avoid_ lists above apply to the popup concepts and the state they share, not to these module names.

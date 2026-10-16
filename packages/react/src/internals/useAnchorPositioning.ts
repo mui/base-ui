@@ -134,7 +134,7 @@ export type CollisionAvoidance = SideFlipMode | SideShiftMode;
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { interactionStore: PositioningInteractionStore },
+  params: UseAnchorPositioningParameters,
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -483,7 +483,6 @@ export function useAnchorPositioning(
     isPositioned,
     floatingStyles: originalFloatingStyles,
   } = useBaseUIFloating({
-    // The parameter type guarantees one of them.
     rootStore: interactionStore,
     open: keepMounted ? mounted : undefined,
     placement,
@@ -810,7 +809,7 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    * The interaction store the popup is positioned with. Components without a popup store create
    * one with `useFloatingRootStore`.
    */
-  interactionStore?: PositioningInteractionStore | undefined;
+  interactionStore: PositioningInteractionStore;
   mounted: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
