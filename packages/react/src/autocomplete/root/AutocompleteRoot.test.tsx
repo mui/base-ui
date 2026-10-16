@@ -2122,6 +2122,43 @@ describe('<Autocomplete.Root />', () => {
       expect(handleSubmit).toHaveBeenCalledTimes(1);
     });
 
+    it('submits its own form when an unscoped control in another form owns the validation ref', async () => {
+      const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+      });
+      const handleOtherSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          <form onSubmit={handleSubmit}>
+            <Autocomplete.Root items={['alpha']} submitOnItemClick>
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </form>
+          <form onSubmit={handleOtherSubmit}>
+            <Input aria-label="Unrelated input" />
+          </form>
+        </React.Fragment>,
+      );
+
+      await user.type(screen.getByRole('combobox'), 'a');
+      await user.click(screen.getByRole('option', { name: 'alpha' }));
+
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleOtherSubmit).not.toHaveBeenCalled();
+    });
+
     it('when true, pressing Enter in the Input submits the owning form when an item is highlighted', async () => {
       const handleSubmit = createFormDataSpy('q');
 
