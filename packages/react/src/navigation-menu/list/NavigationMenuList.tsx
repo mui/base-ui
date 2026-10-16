@@ -12,7 +12,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
-import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../utils/popups/floating-root/getEmptyRootStore';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -32,7 +32,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   const {
     orientation,
     open,
-    floatingRootContext,
+    floatingRootStore,
     positionerElement,
     value,
     closeDelay,
@@ -40,14 +40,14 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     nested,
   } = useNavigationMenuRootContext();
 
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
-  const context = floatingRootContext || fallbackContext;
+  const fallbackStore = React.useMemo(() => getEmptyRootStore(), []);
+  const context = floatingRootStore || fallbackStore;
   const interactionsEnabled = positionerElement != null || value == null;
   const hoverInteractionsEnabled =
     positionerElement != null || viewportElement != null || value == null;
 
   useHoverPopupInteraction(context, {
-    enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,
+    enabled: Boolean(floatingRootStore) && hoverInteractionsEnabled,
     closeDelay,
     nodeId,
   });
@@ -65,7 +65,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     },
   });
 
-  const dismissProps = floatingRootContext ? dismiss : undefined;
+  const dismissProps = floatingRootStore ? dismiss : undefined;
 
   const state: NavigationMenuListState = {
     open,

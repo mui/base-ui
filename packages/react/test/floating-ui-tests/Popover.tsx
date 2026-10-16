@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
 import type { Placement } from '@floating-ui/react-dom';
 import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
-import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
   FloatingNode,
@@ -121,8 +121,8 @@ function PopoverComponent({
   const labelId = `${id}-label`;
   const descriptionId = `${id}-description`;
   const triggerId = `${id}-trigger`;
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
-  const hoverStore = hover ? context.rootStore : fallbackContext;
+  const fallbackStore = React.useMemo(() => getEmptyRootStore(), []);
+  const hoverStore = hover ? context.rootStore : fallbackStore;
 
   const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {
     handleClose: safePolygon({ blockPointerEvents: true }),
@@ -154,7 +154,7 @@ function PopoverComponent({
         )}
       <FloatingPortal>
         {open && (
-          <FloatingFocusManager context={context.rootStore} modal={modal}>
+          <FloatingFocusManager store={context.rootStore} modal={modal}>
             <div
               className={styles.Floating}
               ref={refs.setFloating}

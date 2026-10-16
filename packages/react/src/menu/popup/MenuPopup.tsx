@@ -188,7 +188,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
 
   return (
     <FloatingFocusManager
-      context={store}
+      store={store}
       openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}

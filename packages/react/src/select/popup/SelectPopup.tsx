@@ -55,7 +55,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const multiple = store.useState('multiple');
   const readOnly = store.useState('readOnly');
   const highlightItemOnHover = store.useState('highlightItemOnHover');
-  const floatingRootContext = useSelectFloatingContext();
+  const floatingRootStore = useSelectFloatingContext();
   const {
     side,
     align,
@@ -478,7 +478,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     <React.Fragment>
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
-        context={floatingRootContext}
+        store={floatingRootStore}
         modal={false}
         disabled={!mounted}
         openInteractionType={openMethod}

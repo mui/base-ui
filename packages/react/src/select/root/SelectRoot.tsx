@@ -14,7 +14,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
@@ -351,7 +351,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
-  const floatingContext = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     open,
     onOpenChange: setOpen,
     elements: {
@@ -363,14 +363,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
   // user can see the available options and which one is selected. Committing a value is blocked
   // separately in `SelectItem` and in the hidden input's autofill handler.
-  const click = useClick(floatingContext, {
+  const click = useClick(floatingRootStore, {
     enabled: !disabled,
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingContext);
+  const dismiss = useDismiss(floatingRootStore);
 
-  const listNavigation = useListNavigation(floatingContext, {
+  const listNavigation = useListNavigation(floatingRootStore, {
     enabled: !disabled,
     listRef,
     activeIndex,
@@ -387,7 +387,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const typeahead = useTypeahead(floatingContext, {
+  const typeahead = useTypeahead(floatingRootStore, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
     // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
     enabled: !disabled && (open || (!readOnly && !multiple)),
@@ -512,7 +512,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   return (
     <SelectRootContext.Provider value={store}>
-      <SelectFloatingContext.Provider value={floatingContext}>
+      <SelectFloatingContext.Provider value={floatingRootStore}>
         {children}
       </SelectFloatingContext.Provider>
       <input

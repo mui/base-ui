@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useBaseUIFloating } from '../../src/utils/popups/positioning/useFloating';
-import { useFloatingRootContext } from '../../src/utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../src/utils/popups/floating-root/useFloatingRootStore';
 import type { FloatingRootStore } from '../../src/utils/popups/floating-root/FloatingRootStore';
 import type {
   NarrowedElement,
@@ -17,15 +17,15 @@ import type {
  * only the ported Floating UI tests use this.
  */
 export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
-  const internalStore = useFloatingRootContext({
+  const internalStore = useFloatingRootStore({
     ...options,
     elements: {
       anchor: options.elements?.reference,
       popupPositionerElement: options.elements?.floating,
     },
   });
-  // The ported Floating UI tests only pass stores created by `useFloatingRootContext`.
-  const store = (options.rootContext as FloatingRootStore | undefined) || internalStore;
+  // The ported Floating UI tests only pass stores created by `useFloatingRootStore`.
+  const store = (options.rootStore as FloatingRootStore | undefined) || internalStore;
   const anchorElement = store.useState('anchorElement');
 
   const [localDomReference, setLocalDomReference] = React.useState<
@@ -49,7 +49,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   );
   store.useSyncedValue('popupPositionerElement', syncedFloatingElement);
 
-  const floating = useBaseUIFloating({ ...options, rootContext: store });
+  const floating = useBaseUIFloating({ ...options, rootStore: store });
   const baseRefs = floating.refs;
 
   const setReference = React.useCallback(

@@ -58,9 +58,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     ...elementProps
   } = componentProps;
 
-  const rootContext = useTooltipRootContext(true);
+  const rootStore = useTooltipRootContext(true);
   const handleStore = usePopupHandleStore(handle);
-  const store = handleStore ?? rootContext;
+  const store = handleStore ?? rootStore;
   if (!store) {
     throw new Error(
       'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',

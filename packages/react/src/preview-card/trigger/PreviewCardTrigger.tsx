@@ -37,9 +37,9 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
     ...elementProps
   } = componentProps;
 
-  const rootContext = usePreviewCardRootContext(true);
+  const rootStore = usePreviewCardRootContext(true);
   const handleStore = usePopupHandleStore(handle);
-  const store = handleStore ?? rootContext;
+  const store = handleStore ?? rootStore;
   if (!store) {
     throw new Error(
       'Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.',

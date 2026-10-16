@@ -43,7 +43,7 @@ export default function AnchorPositioning() {
     fallbackAxisSide: 'end',
   });
 
-  const floatingRootContext = new FloatingRootStore({
+  const floatingRootStore = new FloatingRootStore({
     open: true,
     transitionStatus: undefined,
     baseAnchor: anchorEl,
@@ -62,7 +62,7 @@ export default function AnchorPositioning() {
     side: renderedSide,
     arrowUncentered,
   } = useAnchorPositioning({
-    floatingRootContext,
+    floatingRootStore,
     side,
     align,
     sideOffset,

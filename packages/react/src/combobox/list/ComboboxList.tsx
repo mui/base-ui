@@ -27,7 +27,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const { render, className, style, children, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
   const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
 
@@ -64,7 +64,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     empty,
   };
 
-  const defaultPopupId = floatingRootContext.useState('defaultPopupId');
+  const defaultPopupId = floatingRootStore.useState('defaultPopupId');
 
   const element = useRenderElement('div', componentProps, {
     state,

@@ -146,7 +146,7 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
 
       return (
         <FloatingPortal id="custom-portal">
-          <FloatingFocusManager context={context.rootStore} modal={false}>
+          <FloatingFocusManager store={context.rootStore} modal={false}>
             <div ref={refs.setFloating} />
           </FloatingFocusManager>
         </FloatingPortal>

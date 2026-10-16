@@ -57,7 +57,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   } = componentProps;
 
   const store = useSelectRootContext();
-  const floatingRootContext = useSelectFloatingContext();
+  const floatingRootStore = useSelectFloatingContext();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -95,7 +95,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const positioning = useAnchorPositioning({
     anchor,
-    floatingRootContext,
+    floatingRootStore,
     positionMethod,
     mounted,
     side,

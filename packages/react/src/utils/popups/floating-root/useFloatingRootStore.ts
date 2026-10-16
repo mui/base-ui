@@ -10,7 +10,7 @@ import { FloatingRootStore } from './FloatingRootStore';
 import type { FloatingRootState as State } from './FloatingRootStore';
 import type { ReferenceType } from '../types';
 
-export interface UseFloatingRootContextOptions {
+export interface UseFloatingRootStoreOptions {
   open?: boolean | undefined;
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements?:
@@ -21,7 +21,7 @@ export interface UseFloatingRootContextOptions {
     | undefined;
 }
 
-export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
+export function useFloatingRootStore(options: UseFloatingRootStoreOptions): FloatingRootStore {
   const { open = false, onOpenChange, elements = {} } = options;
 
   const defaultPopupId = useId();

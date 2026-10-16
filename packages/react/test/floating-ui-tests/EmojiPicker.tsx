@@ -232,7 +232,7 @@ export function Main() {
           )}
           <FloatingPortal>
             {open && (
-              <FloatingFocusManager context={context.rootStore} modal={false}>
+              <FloatingFocusManager store={context.rootStore} modal={false}>
                 <div
                   ref={refs.setFloating}
                   className={styles.Floating}

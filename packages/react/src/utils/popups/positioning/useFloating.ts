@@ -20,9 +20,9 @@ import type {
  * @see https://floating-ui.com/docs/useFloating
  */
 export function useBaseUIFloating(
-  options: UseFloatingOptions & { rootContext: PopupInteractionStore },
+  options: UseFloatingOptions & { rootStore: PopupInteractionStore },
 ): UseFloatingReturn {
-  const { nodeId, externalTree, rootContext: store } = options;
+  const { nodeId, externalTree, rootStore: store } = options;
 
   const anchor = store.useState('anchor');
   const popupPositionerElement = store.useState('popupPositionerElement');

@@ -174,7 +174,7 @@ export type UseFloatingReturn = Prettify<
 >;
 
 export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'> {
-  rootContext?: PopupInteractionStore | undefined;
+  rootStore?: PopupInteractionStore | undefined;
   /**
    * Object of external elements as an alternative to the `refs` object setters.
    */

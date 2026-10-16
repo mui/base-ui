@@ -131,8 +131,8 @@ export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 export function useAnchorPositioning(
   params: UseAnchorPositioningParameters &
     (
-      | { floatingRootContext: PositioningInteractionStore }
-      | { fallbackRootContext: PositioningInteractionStore }
+      | { floatingRootStore: PositioningInteractionStore }
+      | { fallbackRootStore: PositioningInteractionStore }
     ),
 ): UseAnchorPositioningReturnValue {
   const {
@@ -151,8 +151,8 @@ export function useAnchorPositioning(
     inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
-    floatingRootContext,
-    fallbackRootContext,
+    floatingRootStore,
+    fallbackRootStore,
     mounted,
     collisionAvoidance,
     shift,
@@ -457,10 +457,10 @@ export function useAnchorPositioning(
   useIsoLayoutEffect(() => {
     // Ensure positioning doesn't run initially for `keepMounted` elements that
     // aren't initially open.
-    if (!mounted && floatingRootContext) {
-      floatingRootContext.clearPositioning();
+    if (!mounted && floatingRootStore) {
+      floatingRootStore.clearPositioning();
     }
-  }, [mounted, floatingRootContext]);
+  }, [mounted, floatingRootStore]);
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
@@ -484,7 +484,7 @@ export function useAnchorPositioning(
     floatingStyles: originalFloatingStyles,
   } = useBaseUIFloating({
     // The parameter type guarantees one of them.
-    rootContext: (floatingRootContext ?? fallbackRootContext) as PositioningInteractionStore,
+    rootStore: (floatingRootStore ?? fallbackRootStore) as PositioningInteractionStore,
     open: keepMounted ? mounted : undefined,
     placement,
     middleware,
@@ -806,12 +806,12 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: PositioningInteractionStore | undefined;
+  floatingRootStore?: PositioningInteractionStore | undefined;
   /**
-   * Positions against this store while `floatingRootContext` is missing. Unlike
-   * `floatingRootContext`, it isn't cleared while the positioner is unmounted.
+   * Positions against this store while `floatingRootStore` is missing. Unlike
+   * `floatingRootStore`, it isn't cleared while the positioner is unmounted.
    */
-  fallbackRootContext?: PositioningInteractionStore | undefined;
+  fallbackRootStore?: PositioningInteractionStore | undefined;
   mounted: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;

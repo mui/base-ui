@@ -8,13 +8,13 @@ import type { UseFloatingReturn } from '../types';
 import { useBaseUIFloating } from './useFloating';
 
 function Test({
-  rootContext,
+  rootStore,
   onRender,
 }: {
-  rootContext: FloatingRootStore;
+  rootStore: FloatingRootStore;
   onRender(value: UseFloatingReturn): void;
 }) {
-  onRender(useBaseUIFloating({ rootContext }));
+  onRender(useBaseUIFloating({ rootStore }));
   return null;
 }
 
@@ -38,7 +38,7 @@ test('uses the supplied root store while preserving DOM and position references'
 
     render(
       <Test
-        rootContext={store}
+        rootStore={store}
         onRender={(value) => {
           floating = value;
         }}

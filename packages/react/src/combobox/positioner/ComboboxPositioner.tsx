@@ -51,7 +51,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   } = componentProps;
 
   const store = useComboboxRootContext();
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
   const modal = store.useState('modal');
@@ -71,7 +71,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   const positioning = useAnchorPositioning({
     anchor: resolvedAnchor,
-    floatingRootContext,
+    floatingRootStore,
     positionMethod,
     mounted,
     side,

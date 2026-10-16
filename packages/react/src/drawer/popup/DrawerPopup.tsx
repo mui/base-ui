@@ -394,7 +394,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   return (
     <FloatingFocusManager
-      context={store}
+      store={store}
       openInteractionType={openMethod}
       disabled={!mounted}
       closeOnFocusOut={!disablePointerDismissal}

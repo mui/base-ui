@@ -76,7 +76,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const selectedIndex = store.useState('selectedIndex');
   const hasSelectedValue = store.useState('hasSelectedValue');
 
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
 
   const focusTimeout = useTimeout();
@@ -108,7 +108,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
+  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootStore, {
     // Typeahead on a closed trigger commits a value rather than moving a highlight, so it stays
     // gated on `readOnly`.
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
@@ -123,7 +123,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     },
   });
 
-  const { reference: triggerClickProps } = useClick(floatingRootContext, {
+  const { reference: triggerClickProps } = useClick(floatingRootStore, {
     enabled: !comboboxDisabled,
     event: 'mousedown',
   });
@@ -197,7 +197,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           if (!inputInsidePopup) {
-            floatingRootContext.set('anchorElement', event.currentTarget);
+            floatingRootStore.set('anchorElement', event.currentTarget);
           }
 
           // Ensure items are registered for initial selection highlight.

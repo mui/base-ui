@@ -1,7 +1,7 @@
 import { PopupTriggerMap } from '../popupTriggerMap';
 import { FloatingRootStore } from './FloatingRootStore';
 
-export function getEmptyRootContext(): FloatingRootStore {
+export function getEmptyRootStore(): FloatingRootStore {
   return new FloatingRootStore({
     open: false,
     transitionStatus: undefined,

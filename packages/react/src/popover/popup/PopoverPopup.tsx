@@ -109,7 +109,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   return (
     <FloatingFocusManager
-      context={store}
+      store={store}
       openInteractionType={openMethod}
       modal={focusManagerModal}
       disabled={!mounted || openReason === REASONS.triggerHover}

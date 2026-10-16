@@ -98,7 +98,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   return (
     <FloatingFocusManager
-      context={store}
+      store={store}
       openInteractionType={openMethod}
       disabled={!mounted}
       closeOnFocusOut={!disablePointerDismissal}

@@ -38,7 +38,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
 
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -126,7 +126,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      store={floatingRootStore}
       disabled={!mounted}
       modal={focusManagerModal}
       openInteractionType={openMethod}

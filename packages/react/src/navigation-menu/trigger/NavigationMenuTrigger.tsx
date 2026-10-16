@@ -12,7 +12,7 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { closest, contains } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { useHoverIntent } from '../../utils/popups/interactions/hoverIntent';
@@ -79,7 +79,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     open,
     positionerElement,
     setActivationDirection,
-    setFloatingRootContext,
+    setFloatingRootStore,
     popupElement,
     viewportElement,
     transitionStatus,
@@ -466,7 +466,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }
 
-  const context = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     open,
     onOpenChange: handleOpenChange,
     elements: {
@@ -475,18 +475,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  const hoverIntent = useHoverIntent(context);
+  const hoverIntent = useHoverIntent(floatingRootStore);
   const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
 
   React.useEffect(() => {
     if (!open) {
-      context.context.openEvent = undefined;
+      floatingRootStore.context.openEvent = undefined;
       hoverIntent.reset();
       hoverIntent.cancelPendingOpen();
     }
 
     return hoverIntent.restoreOutsidePointerEvents;
-  }, [context, hoverIntent, open]);
+  }, [floatingRootStore, hoverIntent, open]);
 
   const getInlineHandleCloseContext = useStableCallback(() => {
     if (!nested || positionerElement || !triggerElementRef.current || !hoverPopupElement) {
@@ -504,7 +504,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return closest(triggerElementRef.current, 'ul');
   }
 
-  const hoverProps = useHoverTriggerInteraction(context, {
+  const hoverProps = useHoverTriggerInteraction(floatingRootStore, {
     enabled: hoverInteractionsEnabled,
     move: false,
     handleClose: safePolygon({
@@ -522,7 +522,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     [hoverProps],
   );
 
-  const click = useClick(context, {
+  const click = useClick(floatingRootStore, {
     enabled: interactionsEnabled,
     stickIfOpen,
     toggle: isActiveItem,
@@ -534,10 +534,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
-      setFloatingRootContext(context);
+      setFloatingRootStore(floatingRootStore);
       prevTriggerElementRef.current = triggerElement;
     }
-  }, [isActiveItem, context, setFloatingRootContext, prevTriggerElementRef, triggerElement]);
+  }, [
+    isActiveItem,
+    floatingRootStore,
+    setFloatingRootStore,
+    prevTriggerElementRef,
+    triggerElement,
+  ]);
 
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
@@ -560,7 +566,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
       // cause the popup to remain stuck open when leaving the old trigger.
       if (event.type !== 'click' && value != null) {
-        context.context.openEvent = undefined;
+        floatingRootStore.context.openEvent = undefined;
       }
 
       if (pointerType === 'touch' && event.type !== 'click') {

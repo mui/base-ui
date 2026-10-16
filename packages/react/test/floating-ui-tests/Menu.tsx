@@ -7,7 +7,7 @@ import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
 import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
   FloatingNode,
@@ -108,13 +108,13 @@ export const MenuComponent = React.forwardRef<
     ],
     whileElementsMounted: autoUpdate,
   });
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
-  const hoverStore = isNested && allowHover ? context.rootStore : fallbackContext;
+  const fallbackStore = React.useMemo(() => getEmptyRootStore(), []);
+  const hoverStore = isNested && allowHover ? context.rootStore : fallbackStore;
 
   const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
-    triggerElementRef: hoverStore === fallbackContext ? undefined : refs.domReference,
+    triggerElementRef: hoverStore === fallbackStore ? undefined : refs.domReference,
   });
   useHoverPopupInteraction(hoverStore);
   const hover = React.useMemo(() => ({ reference: hoverReferenceProps }), [hoverReferenceProps]);
@@ -267,7 +267,7 @@ export const MenuComponent = React.forwardRef<
           {(keepMounted || isOpen) && (
             <FloatingPortal>
               <FloatingFocusManager
-                context={context.rootStore}
+                store={context.rootStore}
                 modal={false}
                 initialFocus={!isNested}
                 returnFocus={!isNested}
