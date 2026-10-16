@@ -74,7 +74,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
   const positioning = useAnchorPositioning({
     anchor,
     positionMethod,
-    floatingRootStore,
+    interactionStore: floatingRootStore,
     mounted: true,
     side,
     sideOffset,

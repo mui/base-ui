@@ -2,8 +2,7 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { useFloatingRootStore } from '../utils/popups/floating-root/useFloatingRootStore';
-import { useAnchorPositioning } from './useAnchorPositioning';
+import { useAnchorPositioning, useFloatingRootStore } from './useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
 
 const shiftSpy = vi.hoisted(() => vi.fn());
@@ -41,7 +40,7 @@ function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameter
     keepMounted: false,
     collisionAvoidance: { fallbackAxisSide: 'none' },
     shift: props.shift,
-    floatingRootStore: rootStore,
+    interactionStore: rootStore,
   });
 
   return (
@@ -79,7 +78,7 @@ function TestLazyFlip(props: {
     keepMounted: false,
     collisionAvoidance: { fallbackAxisSide: 'none' },
     lazyFlip,
-    floatingRootStore: rootStore,
+    interactionStore: rootStore,
   });
 
   return (

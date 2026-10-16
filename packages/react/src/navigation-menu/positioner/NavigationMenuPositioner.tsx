@@ -125,7 +125,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     sticky,
     disableAnchorTracking,
     keepMounted,
-    floatingRootStore: interactionStore,
+    interactionStore,
     collisionAvoidance,
     shift: { rootBoundary: 'layoutViewport' },
     nodeId,

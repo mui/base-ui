@@ -56,7 +56,7 @@ export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
     | Partial<
         Omit<
           UseAnchorPositioningParameters,
-          'floatingRootStore' | 'mounted' | 'keepMounted' | 'adaptiveOrigin'
+          'interactionStore' | 'mounted' | 'keepMounted' | 'adaptiveOrigin'
         >
       >
     | undefined;
@@ -115,7 +115,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
 
   const positioning = useAnchorPositioning({
     anchor,
-    floatingRootStore: store,
+    interactionStore: store,
     positionMethod,
     mounted,
     side,

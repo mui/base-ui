@@ -37,6 +37,11 @@ import { hide } from '../utils/popups/positioning/hideMiddleware';
 import { DEFAULT_SIDES } from '../utils/popups/positioning/adaptiveOriginConstants';
 import * as CommonPositionerCssVars from '../utils/popups/positioning/CommonPositionerCssVars';
 
+export { useFloatingRootStore } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { UseFloatingRootStoreOptions } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
+export type { PositioningInteractionStore } from '../utils/popups/types';
+
 const AVAILABLE_WIDTH_VAR = CommonPositionerCssVars.availableWidth;
 const AVAILABLE_HEIGHT_VAR = CommonPositionerCssVars.availableHeight;
 
@@ -129,7 +134,7 @@ export type CollisionAvoidance = SideFlipMode | SideShiftMode;
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootStore: PositioningInteractionStore },
+  params: UseAnchorPositioningParameters & { interactionStore: PositioningInteractionStore },
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -147,7 +152,7 @@ export function useAnchorPositioning(
     inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
-    floatingRootStore,
+    interactionStore,
     mounted,
     collisionAvoidance,
     shift,
@@ -453,9 +458,9 @@ export function useAnchorPositioning(
     // Ensure positioning doesn't run initially for `keepMounted` elements that
     // aren't initially open.
     if (!mounted) {
-      floatingRootStore.clearPositioning();
+      interactionStore.clearPositioning();
     }
-  }, [mounted, floatingRootStore]);
+  }, [mounted, interactionStore]);
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
@@ -479,7 +484,7 @@ export function useAnchorPositioning(
     floatingStyles: originalFloatingStyles,
   } = useBaseUIFloating({
     // The parameter type guarantees one of them.
-    rootStore: floatingRootStore,
+    rootStore: interactionStore,
     open: keepMounted ? mounted : undefined,
     placement,
     middleware,
@@ -801,7 +806,11 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootStore?: PositioningInteractionStore | undefined;
+  /**
+   * The interaction store the popup is positioned with. Components without a popup store create
+   * one with `useFloatingRootStore`.
+   */
+  interactionStore?: PositioningInteractionStore | undefined;
   mounted: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;

@@ -111,7 +111,7 @@ describe('<Menu.Positioner />', () => {
 
     function lastCallFor(positioner: HTMLElement) {
       const calls = useAnchorPositioningSpy.mock.calls.filter(
-        ([params]) => params.floatingRootStore.select('positionerElement') === positioner,
+        ([params]) => params.interactionStore.select('positionerElement') === positioner,
       );
       return calls[calls.length - 1]?.[0];
     }

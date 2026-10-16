@@ -95,7 +95,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const positioning = useAnchorPositioning({
     anchor,
-    floatingRootStore,
+    interactionStore: floatingRootStore,
     positionMethod,
     mounted,
     side,

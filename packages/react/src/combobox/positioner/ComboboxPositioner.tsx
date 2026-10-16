@@ -71,7 +71,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   const positioning = useAnchorPositioning({
     anchor: resolvedAnchor,
-    floatingRootStore,
+    interactionStore: floatingRootStore,
     positionMethod,
     mounted,
     side,
