@@ -1,8 +1,7 @@
 'use client';
-import type * as React from 'react';
+import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isElement } from '@floating-ui/utils/dom';
@@ -602,10 +601,12 @@ export function getHoverIntent(store: PopupInteractionStore): HoverIntent {
 }
 
 /**
- * Returns the popup's `HoverIntent` and clears its timers when the calling component unmounts.
+ * Returns the popup's `HoverIntent` and clears its timers when the calling component unmounts or
+ * moves to another store, such as a detached trigger moving from its handle's fallback store to
+ * the Root's.
  */
 export function useHoverIntent(store: PopupInteractionStore): HoverIntent {
   const intent = getHoverIntent(store);
-  useOnMount(intent.disposeEffect);
+  React.useEffect(() => intent.disposeEffect(), [intent]);
   return intent;
 }
