@@ -954,6 +954,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             swipePointerProps.onPointerUp?.(event);
           }
         },
+        onPointerLeave: swipePointerProps.onPointerLeave,
         onPointerCancel(event) {
           if (handlePointerEnd(event)) {
             swipePointerProps.onPointerCancel?.(event);
