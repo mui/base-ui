@@ -2365,6 +2365,155 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  describe('controlled open request during the exit animation', () => {
+    type Response = 'commit after the exit' | 'commit in a transition' | 'ignore' | 'cancel';
+
+    // Presses the trigger while a controlled close is animating out, then answers the open request.
+    // 'commit after the exit' queues the reopen only after the exit animation's completion callback
+    // has run, the way React 18 can commit a parent's response after it.
+    // 'commit in a transition' queues the reopen in a transition that is still pending when the
+    // exit completes, so React 18 renders it together with the close check.
+    async function requestOpenDuringExit(
+      response: Response,
+      rootProps: Partial<Popover.Root.Props> = {},
+    ): Promise<HTMLElement> {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let finishExit!: () => void;
+      const exitFinished = new Promise<void>((resolve) => {
+        finishExit = resolve;
+      });
+      let setOpenExternal!: (open: boolean) => void;
+      let exiting = false;
+      let requestedOpen: boolean | null = null;
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        setOpenExternal = setOpen;
+
+        return (
+          <Popover.Root
+            {...rootProps}
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              rootProps.onOpenChange?.(nextOpen, eventDetails);
+              if (!exiting) {
+                setOpen(nextOpen);
+                return;
+              }
+              if (response === 'cancel') {
+                eventDetails.cancel();
+              }
+              requestedOpen = nextOpen;
+            }}
+          >
+            <Popover.Trigger>Trigger</Popover.Trigger>
+            <Popover.Portal keepMounted>
+              <Popover.Positioner data-testid="positioner">
+                <Popover.Popup data-testid="popup">Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const popup = screen.getByTestId('popup');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-popup-open');
+      });
+
+      Object.defineProperty(popup, 'getAnimations', {
+        value: () => [{ finished: exitFinished }],
+        configurable: true,
+      });
+
+      await act(async () => setOpenExternal(false));
+      expect(popup).toHaveAttribute('data-ending-style');
+
+      exiting = true;
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(requestedOpen).toBe(true);
+      });
+
+      const positioner = screen.getByTestId('positioner');
+      await act(async () => {
+        if (response === 'commit in a transition') {
+          React.startTransition(() => setOpenExternal(true));
+        }
+        finishExit();
+        // Let the exit complete and unmount the popup before the parent's response is queued
+        // (or, for a transition, rendered).
+        while (!positioner.hasAttribute('hidden')) {
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve);
+          });
+        }
+        if (response === 'commit after the exit') {
+          setOpenExternal(true);
+        }
+      });
+
+      return trigger;
+    }
+
+    function recordOpenChanges() {
+      const calls: string[] = [];
+      const rootProps: Partial<Popover.Root.Props> = {
+        onOpenChange: (nextOpen) => calls.push(`change:${nextOpen}`),
+        onOpenChangeComplete: (nextOpen) => calls.push(`complete:${nextOpen}`),
+      };
+      return { calls, rootProps };
+    }
+
+    it('keeps the pressed state of the trigger that reopened the popover', async () => {
+      const trigger = await requestOpenDuringExit('commit after the exit');
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-pressed');
+    });
+
+    it('does not report a completed close after the reopen request', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      await requestOpenDuringExit('commit after the exit', rootProps);
+
+      const reopenIndex = calls.lastIndexOf('change:true');
+      expect(reopenIndex).toBeGreaterThan(-1);
+      expect(calls.slice(reopenIndex)).not.toContain('complete:false');
+    });
+
+    it('keeps the reopen when the parent commits it in a transition', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      const trigger = await requestOpenDuringExit('commit in a transition', rootProps);
+
+      expect(trigger).toHaveAttribute('data-pressed');
+      expect(calls.slice(calls.lastIndexOf('change:true'))).not.toContain('complete:false');
+    });
+
+    it('reports the completed close when the open request is canceled', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      await requestOpenDuringExit('cancel', rootProps);
+
+      expect(calls.at(-1)).toBe('complete:false');
+    });
+
+    it('reports the completed close when the open request is ignored', async () => {
+      const { calls, rootProps } = recordOpenChanges();
+
+      await requestOpenDuringExit('ignore', rootProps);
+
+      expect(calls.at(-1)).toBe('complete:false');
+    });
+  });
+
   describe('preventUnmountOnClose()', () => {
     it('does not leak from a canceled close into a synchronous second close', async () => {
       const popover = Popover.createHandle();
