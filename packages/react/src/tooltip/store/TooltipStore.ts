@@ -6,13 +6,14 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
-import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
-import {
-  applyPopupOpenChange,
-  createInitialPopupStoreState,
-  popupStoreSelectors,
-  PopupTriggerMap,
-} from '../../utils/popups';
+import type {
+  PopupStoreContext,
+  PopupStoreState,
+  PopupTriggerStoreKeys,
+} from '../../utils/popups/store';
+import { applyPopupOpenChange } from '../../utils/popups/popupStoreUtils';
+import { createInitialPopupStoreState, popupStoreSelectors } from '../../utils/popups/store';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;

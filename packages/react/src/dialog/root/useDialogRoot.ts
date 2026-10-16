@@ -2,10 +2,10 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import { useDismiss } from '../../floating-ui-react';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import type { DialogStore } from '../store/DialogStore';
-import { usePopupInteractionProps } from '../../utils/popups';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
 
 export function DialogInteractions({
   store,

@@ -19,9 +19,9 @@ import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 import type { DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useTriggerRegistration } from '../../utils/popups';
+import { useTriggerRegistration } from '../../utils/popups/popupStoreUtils';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import { isVirtualClick } from '../../floating-ui-react/utils/event';
+import { isVirtualClick } from '../../utils/popups/event';
 import * as DrawerSwipeAreaDataAttributes from './DrawerSwipeAreaDataAttributes';
 
 const DEFAULT_SWIPE_OPEN_RATIO = 0.5;

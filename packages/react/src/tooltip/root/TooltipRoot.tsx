@@ -4,7 +4,8 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useClientPoint, useDismiss } from '../../floating-ui-react';
+import { useClientPoint } from '../../utils/popups/interactions/useClientPoint';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import {
@@ -13,8 +14,8 @@ import {
   usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
-} from '../../utils/popups';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 import { mergeProps } from '../../merge-props';
 import { TooltipStore } from '../store/TooltipStore';
 import type { State as TooltipStoreState } from '../store/TooltipStore';

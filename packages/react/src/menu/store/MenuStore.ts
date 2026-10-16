@@ -4,16 +4,17 @@ import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
-import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
+import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import type { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
-import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
-import {
-  createInitialPopupStoreState,
-  popupStoreSelectors,
-  PopupTriggerMap,
-} from '../../utils/popups';
+import type {
+  PopupStoreContext,
+  PopupStoreState,
+  PopupTriggerStoreKeys,
+} from '../../utils/popups/store';
+import { createInitialPopupStoreState, popupStoreSelectors } from '../../utils/popups/store';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
