@@ -44,6 +44,7 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
+import { getHiddenInputType } from '../../internals/getHiddenInputType';
 
 /**
  * Groups all parts of the select.
@@ -92,6 +93,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     disabled: fieldDisabled,
     validation,
     validationMode,
+    setValidityData,
   } = useFieldRootContext();
 
   const generatedId = useLabelableId({ id });
@@ -570,6 +572,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
         form={form}
         name={hiddenInputName}
+        type={getHiddenInputType(setValidityData !== NOOP, name, autoComplete, required, inputRef)}
         autoComplete={autoComplete}
         value={serializedValue}
         disabled={disabled}
