@@ -45,6 +45,51 @@ describe('<PreviewCard.Root />', () => {
     triggerMouseAction: 'hover',
   });
 
+  describe('data-instant', () => {
+    async function setupKeepMountedCard() {
+      await render(
+        <PreviewCard.Root>
+          <PreviewCard.Trigger href="#" delay={0}>
+            Link
+          </PreviewCard.Trigger>
+          <PreviewCard.Portal keepMounted>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup data-testid="popup">Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+      return screen.getByRole('link', { name: 'Link' });
+    }
+
+    it('is focus when the card opens from trigger focus', async () => {
+      const trigger = await setupKeepMountedCard();
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+
+      await act(async () => trigger.focus());
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'focus');
+    });
+
+    it('is dismiss when Escape closes the card', async () => {
+      const trigger = await setupKeepMountedCard();
+      await act(async () => trigger.focus());
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+
+      fireEvent.keyDown(trigger, { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+    });
+  });
+
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerPreviewCard },
     { name: 'detached triggers', Component: DetachedTriggerPreviewCard },
@@ -782,6 +827,29 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId('child-popup')).toBe(null);
         expect(screen.queryByTestId('parent-popup')).toBe(null);
       });
+    });
+  });
+
+  describe('close requests', () => {
+    it('does not report a trigger for an Escape close', async () => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <PreviewCard.Root defaultOpen onOpenChange={onOpenChange}>
+          <PreviewCard.Trigger href="#">Trigger</PreviewCard.Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await user.keyboard('[Escape]');
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
     });
   });
 });
