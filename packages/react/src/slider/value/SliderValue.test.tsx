@@ -1,7 +1,8 @@
 import { expect, vi, describe, it } from 'vitest';
-import { screen } from '@mui/internal-test-utils';
+import * as React from 'react';
+import { reactMajor, screen } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, mockRuntimeLocale } from '#test-utils';
 
 describe('<Slider.Value />', () => {
   const { render, renderToString } = createRenderer();
@@ -109,22 +110,38 @@ describe('<Slider.Value />', () => {
   });
 
   describe('server-side rendering', () => {
-    it('does not warn when hydrating markup formatted by a different locale', async () => {
+    async function expectHydratesWithRuntimeLocale(suspense: boolean) {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+      const valueElement = <Slider.Value data-testid="output" />;
+
       const { hydrate } = await renderToString(
-        <Slider.Root defaultValue={1000} max={2000}>
-          <Slider.Value data-testid="output" />
+        <Slider.Root defaultValue={1000} max={2000} format={format}>
+          {suspense ? (
+            <React.Suspense fallback={null}>{valueElement}</React.Suspense>
+          ) : (
+            valueElement
+          )}
         </Slider.Root>,
       );
-
-      // Simulate a server whose default locale formats numbers differently than the client's,
-      // for example `de-DE` grouping thousands with a period.
-      const output = screen.getByTestId('output');
-      output.textContent = `${output.textContent} `;
+      const value = screen.getByTestId('output');
+      expect(value.textContent).toBe((1000).toLocaleString('en-US', format));
 
       await hydrate();
+      // A mismatch makes React discard the server markup and render new nodes.
+      expect(screen.getByTestId('output')).toBe(value);
+      expect(value.textContent).toBe((1000).toLocaleString('de-DE', format));
+    }
 
-      // A mismatch makes React discard the server markup and render new nodes on the client.
-      expect(screen.getByTestId('output')).toBe(output);
-    });
+    it('hydrates directly inside Root without a mismatch, then uses the runtime locale', () =>
+      expectHydratesWithRuntimeLocale(false));
+
+    // React 18 client-renders the boundary because Root's thumb registration updates its context
+    // before the boundary hydrates.
+    it.skipIf(reactMajor < 19)(
+      'hydrates inside a Suspense boundary without a mismatch, then uses the runtime locale',
+      () => expectHydratesWithRuntimeLocale(true),
+    );
   });
 });

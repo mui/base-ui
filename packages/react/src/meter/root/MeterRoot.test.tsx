@@ -1,7 +1,7 @@
 import { expect, vi, describe, it } from 'vitest';
 import { Meter } from '@base-ui/react/meter';
 import { screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, mockRuntimeLocale } from '#test-utils';
 
 describe('<Meter.Root />', () => {
   const { render, renderToString } = createRenderer();
@@ -299,25 +299,22 @@ describe('<Meter.Root />', () => {
   });
 
   describe('server-side rendering', () => {
-    it('does not warn when hydrating markup formatted by a different locale', async () => {
+    it('formats with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
       const { hydrate } = await renderToString(
-        <Meter.Root value={30}>
-          <Meter.Value data-testid="value" />
-        </Meter.Root>,
+        <Meter.Root value={1234.5} max={2000} format={format} />,
+      );
+      expect(screen.getByRole('meter').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('en-US', format),
       );
 
-      // Simulate a server whose default locale formats percents differently than the client's,
-      // for example `fr-FR` inserting a space before the percent sign.
-      const meter = screen.getByRole('meter');
-      const value = screen.getByTestId('value');
-      meter.setAttribute('aria-valuetext', `${meter.getAttribute('aria-valuetext')} `);
-      value.textContent = `${value.textContent} `;
-
       await hydrate();
-
-      // A mismatch makes React discard the server markup and render new nodes on the client.
-      expect(screen.getByRole('meter')).toBe(meter);
-      expect(screen.getByTestId('value')).toBe(value);
+      expect(screen.getByRole('meter').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('de-DE', format),
+      );
     });
   });
 });

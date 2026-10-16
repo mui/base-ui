@@ -4,6 +4,8 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRootState } from '../root/MeterRoot';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { formatRangeValue } from '../../utils/formatRangeValue';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 
 /**
  * A text element displaying the current value.
@@ -17,7 +19,10 @@ export const MeterValue = React.forwardRef(function MeterValue(
 ) {
   const { className, render, children, style, ...elementProps } = componentProps;
 
-  const { value, formattedValue } = useMeterRootContext();
+  const { clampedValue, format, locale, percentageValue, value } = useMeterRootContext();
+  // Resolved here rather than in Root, since this part can hydrate later, e.g. inside Suspense.
+  const formatLocale = useFormatLocale(locale);
+  const formattedValue = formatRangeValue(clampedValue, percentageValue, formatLocale, format);
 
   return useRenderElement('span', componentProps, {
     ref: forwardedRef,
@@ -25,9 +30,6 @@ export const MeterValue = React.forwardRef(function MeterValue(
       {
         'aria-hidden': true,
         children: typeof children === 'function' ? children(formattedValue, value) : formattedValue,
-        // If the server's locale does not match the client's locale, the formatting may not match,
-        // causing a hydration mismatch.
-        suppressHydrationWarning: true,
       },
       elementProps,
     ],

@@ -1,7 +1,7 @@
 import { expect, vi, describe, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Progress } from '@base-ui/react/progress';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, mockRuntimeLocale } from '#test-utils';
 import type { ProgressRoot } from './ProgressRoot';
 
 function formatPercent(value: number) {
@@ -354,25 +354,22 @@ describe('<Progress.Root />', () => {
   });
 
   describe('server-side rendering', () => {
-    it('does not warn when hydrating markup formatted by a different locale', async () => {
+    it('formats with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
       const { hydrate } = await renderToString(
-        <Progress.Root value={30}>
-          <Progress.Value data-testid="value" />
-        </Progress.Root>,
+        <Progress.Root value={1234.5} max={2000} format={format} />,
+      );
+      expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('en-US', format),
       );
 
-      // Simulate a server whose default locale formats percents differently than the client's,
-      // for example `fr-FR` inserting a space before the percent sign.
-      const progressbar = screen.getByRole('progressbar');
-      const value = screen.getByTestId('value');
-      progressbar.setAttribute('aria-valuetext', `${progressbar.getAttribute('aria-valuetext')} `);
-      value.textContent = `${value.textContent} `;
-
       await hydrate();
-
-      // A mismatch makes React discard the server markup and render new nodes on the client.
-      expect(screen.getByRole('progressbar')).toBe(progressbar);
-      expect(screen.getByTestId('value')).toBe(value);
+      expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('de-DE', format),
+      );
     });
   });
 });

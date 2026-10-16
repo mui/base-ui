@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { formatNumber } from '@base-ui/utils/formatNumber';
 import { clamp } from '@base-ui/utils/clamp';
+import { formatRangeValue } from '../../utils/formatRangeValue';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -34,6 +35,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
+  const formatLocale = useFormatLocale(locale);
 
   // `value === null` (or any non-finite value) keeps Progress indeterminate. Otherwise compute a
   // single clamped value and normalized percentage so completion status, `aria-valuenow`, the
@@ -53,9 +55,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     status = clampedValue === max ? 'complete' : 'progressing';
     // Format the clamped value so visible and accessible text stay in sync with `aria-valuenow` and
     // the indicator fill. The raw value remains available as the second `getAriaValueText` argument.
-    formattedValue = format
-      ? formatNumber(clampedValue, locale, format)
-      : formatNumber(percentageValue / 100, locale, { style: 'percent' });
+    formattedValue = formatRangeValue(clampedValue, percentageValue, formatLocale, format);
     defaultAriaValueText = formattedValue;
   }
 
@@ -70,9 +70,6 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
       ? getAriaValueText(formattedValue, value)
       : defaultAriaValueText,
     role: 'progressbar',
-    // If the server's locale does not match the client's locale, the formatting may not match,
-    // causing a hydration mismatch.
-    suppressHydrationWarning: true,
     children: (
       <React.Fragment>
         {children}
@@ -85,13 +82,15 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const contextValue: ProgressRootContext = React.useMemo(
     () => ({
-      formattedValue,
+      clampedValue,
+      format,
+      locale,
       percentageValue,
       setLabelId,
       state,
       value,
     }),
-    [formattedValue, percentageValue, setLabelId, state, value],
+    [clampedValue, format, locale, percentageValue, setLabelId, state, value],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -131,6 +130,7 @@ export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressR
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
+   * When server rendering, `en-US` is used until hydration.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**
