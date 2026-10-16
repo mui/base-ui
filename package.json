@@ -98,7 +98,7 @@
     "lerna": "10.0.1",
     "pkg-pr-new": "0.0.91",
     "postcss-value-parser": "4.2.0",
-    "prettier": "3.9.9",
+    "prettier": "3.9.10",
     "pretty-quick": "4.2.2",
     "publint": "0.3.25",
     "react": "19.3.0",
