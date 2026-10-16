@@ -250,6 +250,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const hiddenInputElementRef = React.useRef<HTMLInputElement | null>(null);
   const startDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const endDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
@@ -943,7 +944,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   );
 
   const requestSubmit = useStableCallback(() => {
-    const formElement = validation.inputRef.current?.form ?? store.state.inputElement?.form;
+    // Not `validation.inputRef`: outside a Field, every control shares it.
+    const formElement = hiddenInputElementRef.current?.form ?? store.state.inputElement?.form;
     if (formElement && typeof formElement.requestSubmit === 'function') {
       formElement.requestSubmit();
     }
@@ -1566,7 +1568,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, ...Object.values(syncedValues)]);
 
-  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
+  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef, hiddenInputElementRef);
 
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
