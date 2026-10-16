@@ -218,7 +218,7 @@ describe('<Combobox.Root />', () => {
     focusModel: 'virtual',
     homeEnd: false,
     selectable: true,
-    spaceActivates: false,
+    spaceActivates: true,
     enterSpaceOpen: false,
     typeahead: false,
     modal: false,

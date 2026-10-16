@@ -2892,6 +2892,50 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(onClick).toHaveBeenCalledTimes(1);
     });
 
+    it.each([
+      { query: '', clicks: 1, value: '' },
+      { query: 'Rename', clicks: 0, value: 'Rename ' },
+    ])('routes Space with query "$query"', async ({ query, clicks, value }) => {
+      const onClick = vi.fn();
+      const { user } = await render(
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item onClick={onClick} closeOnClick={false}>
+                      Rename file
+                    </Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => expect(input).toHaveFocus());
+      if (query) {
+        await user.keyboard(query);
+      }
+      await user.keyboard('[ArrowDown]');
+      expect(screen.getByRole('menuitem', { name: 'Rename file' })).toHaveAttribute(
+        'data-highlighted',
+      );
+      expect(input).toHaveValue(query);
+      expect(onClick).not.toHaveBeenCalled();
+
+      await user.keyboard('[Space]');
+
+      expect(onClick).toHaveBeenCalledTimes(clicks);
+      expect(input).toHaveValue(value);
+      expect(input).toHaveFocus();
+    });
+
     it('does not activate the highlighted item when Enter commits an IME composition', async () => {
       const onClick = vi.fn();
       const { user } = await render(
