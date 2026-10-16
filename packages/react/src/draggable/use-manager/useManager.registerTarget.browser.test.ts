@@ -1,0 +1,406 @@
+import { describe, it, expect, vi } from 'vitest';
+import { act } from '@mui/internal-test-utils';
+import { isJSDOM } from '#test-utils';
+import { Draggable } from '@base-ui/react/draggable';
+import { createDndRenderer } from '../../../test/dndEngine';
+import { flushRaf, registerCleanup, setupDragEngineTests } from '../../../test/dnd';
+import { getActiveSession } from '../../utils/drag-and-drop/core/dragSession';
+
+setupDragEngineTests();
+
+const cardKind = Draggable.createKind<string>('card');
+
+/**
+ * Other engine tests drive drags through `fireDrag`, which stubs `elementFromPoint`.
+ * These dispatch raw pointer events so the engine hit-tests real layout.
+ */
+describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
+  const { renderDnd } = createDndRenderer();
+
+  /** A laid-out box at fixed viewport coordinates. */
+  function createBox(left: number, top: number): HTMLElement {
+    const el = document.createElement('div');
+    el.style.cssText = `position: fixed; left: ${left}px; top: ${top}px; width: 100px; height: 50px; background: rgb(200 200 200);`;
+    document.body.appendChild(el);
+    registerCleanup(() => el.remove());
+    return el;
+  }
+
+  function pointer(type: string, target: EventTarget, x: number, y: number): void {
+    act(() => {
+      target.dispatchEvent(
+        new PointerEvent(type, {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: x,
+          clientY: y,
+          button: 0,
+          buttons: type === 'pointerup' ? 0 : 1,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    });
+  }
+
+  it('resolves the target under the pointer, looking past the drag preview', async () => {
+    const { engine } = await renderDnd();
+    const source = createBox(0, 0);
+    const target = createBox(0, 200);
+
+    const onDraggableEnter = vi.fn();
+    const onDrop = vi.fn();
+    engine.registerSource(source, {
+      kind: cardKind,
+      payload: 'card-1',
+      activation: { mouse: { type: 'immediate' } },
+    });
+    engine.registerTarget(target, {
+      accept: cardKind,
+      onDraggableEnter,
+      onDraggableDrop: onDrop,
+    });
+
+    pointer('pointerdown', source, 50, 25);
+    await flushRaf();
+
+    // Onto the target's center, with any preview between the cursor and the target.
+    pointer('pointermove', source, 50, 225);
+    await flushRaf(2);
+
+    expect(onDraggableEnter).toHaveBeenCalled();
+
+    pointer('pointerup', source, 50, 225);
+    await flushRaf();
+
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop.mock.calls[0][0].currentTarget.element).toBe(target);
+  });
+
+  it('resolves a target inside a closed shadow root', async () => {
+    const { engine } = await renderDnd();
+    const source = createBox(0, 0);
+    const host = createBox(0, 200);
+    const shadowRoot = host.attachShadow({ mode: 'closed' });
+    const target = document.createElement('div');
+    target.style.cssText = 'display: block; width: 100%; height: 100%;';
+    shadowRoot.appendChild(target);
+
+    const onDraggableEnter = vi.fn();
+    const onDrop = vi.fn();
+    engine.registerSource(source, {
+      kind: cardKind,
+      payload: 'card-1',
+      activation: { mouse: { type: 'immediate' } },
+    });
+    engine.registerTarget(target, {
+      accept: cardKind,
+      onDraggableEnter,
+      onDraggableDrop: onDrop,
+    });
+
+    pointer('pointerdown', source, 50, 25);
+    await flushRaf();
+    pointer('pointermove', source, 50, 225);
+    await flushRaf(2);
+
+    expect(onDraggableEnter).toHaveBeenCalledTimes(1);
+
+    pointer('pointerup', source, 50, 225);
+    await flushRaf();
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop.mock.calls[0][0].currentTarget.element).toBe(target);
+  });
+
+  // `assignedSlot` hides the slot of a closed root, so the engine looks it up in
+  // the closed root it knows from the registered target.
+  it.each(['open', 'closed'] as const)(
+    'resolves a shadow-tree target around slotted content (%s root)',
+    async (mode) => {
+      const { engine } = await renderDnd();
+      const source = createBox(0, 0);
+      const host = createBox(0, 200);
+      const shadowRoot = host.attachShadow({ mode });
+      const target = document.createElement('div');
+      target.style.cssText = 'display: block; width: 100%; height: 100%;';
+      target.appendChild(document.createElement('slot'));
+      shadowRoot.appendChild(target);
+      const slotted = document.createElement('button');
+      slotted.style.cssText = 'display: block; width: 100%; height: 100%;';
+      host.appendChild(slotted);
+
+      const onDrop = vi.fn();
+      engine.registerSource(source, {
+        kind: cardKind,
+        payload: 'card-1',
+        activation: { mouse: { type: 'immediate' } },
+      });
+      engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+
+      pointer('pointerdown', source, 50, 25);
+      await flushRaf();
+      pointer('pointermove', source, 50, 225);
+      await flushRaf(2);
+      pointer('pointerup', source, 50, 225);
+      await flushRaf();
+
+      expect(document.elementFromPoint(50, 225)).toBe(slotted);
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      expect(onDrop.mock.calls[0][0].currentTarget.element).toBe(target);
+    },
+  );
+
+  it('ends the drag normally when a modifier returns non-finite coordinates', async () => {
+    const { engine } = await renderDnd();
+    const source = createBox(0, 0);
+    const target = createBox(0, 200);
+    const onDrop = vi.fn();
+    const onMoveEnd = vi.fn();
+    engine.registerSource(source, {
+      kind: cardKind,
+      payload: 'card-1',
+      activation: { mouse: { type: 'immediate' } },
+      // `elementFromPoint` throws on a non-finite coordinate, which would fail
+      // every frame and the release, and leave the engine refusing pickups.
+      modifiers: ({ point }) => ({ x: Number.NaN, y: point.y }),
+      onMoveEnd,
+    });
+    engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+
+    pointer('pointerdown', source, 50, 25);
+    await flushRaf();
+    pointer('pointermove', source, 50, 225);
+    await flushRaf(2);
+    pointer('pointerup', source, 50, 225);
+    await flushRaf();
+
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(getActiveSession()).toBe(null);
+
+    pointer('pointerdown', source, 50, 25);
+    await flushRaf();
+    expect(getActiveSession()).not.toBe(null);
+    pointer('pointerup', source, 50, 25);
+    await flushRaf();
+  });
+
+  it('resolves the innermost target when they nest', async () => {
+    const { engine } = await renderDnd();
+    const source = createBox(0, 0);
+    const outer = createBox(0, 200);
+    const inner = document.createElement('div');
+    // Inset inside `outer`, so a point in its middle hits both boxes and the
+    // bubble-ordered stack must put the inner one first.
+    inner.style.cssText =
+      'position: absolute; left: 10px; top: 10px; width: 60px; height: 30px; background: rgb(120 120 120);';
+    outer.appendChild(inner);
+
+    const onOuterDrop = vi.fn();
+    const onInnerDrop = vi.fn();
+    engine.registerSource(source, {
+      kind: cardKind,
+      payload: 'card-1',
+      activation: { mouse: { type: 'immediate' } },
+    });
+    engine.registerTarget(outer, { accept: cardKind, onDraggableDrop: onOuterDrop });
+    engine.registerTarget(inner, { accept: cardKind, onDraggableDrop: onInnerDrop });
+
+    pointer('pointerdown', source, 50, 25);
+    await flushRaf();
+    // (40, 225) sits inside `inner`, which sits inside `outer`.
+    pointer('pointermove', source, 40, 225);
+    await flushRaf(2);
+    pointer('pointerup', source, 40, 225);
+    await flushRaf();
+
+    expect(onInnerDrop).toHaveBeenCalledTimes(1);
+    expect(onOuterDrop).not.toHaveBeenCalled();
+  });
+
+  it('resolves no target when the pointer is released over empty space', async () => {
+    const { engine } = await renderDnd();
+    const source = createBox(0, 0);
+    const target = createBox(0, 200);
+
+    const onDrop = vi.fn();
+    const onMoveEnd = vi.fn();
+    engine.registerSource(source, {
+      kind: cardKind,
+      payload: 'card-1',
+      activation: { mouse: { type: 'immediate' } },
+      onMoveEnd,
+    });
+    engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+
+    pointer('pointerdown', source, 50, 25);
+    await flushRaf();
+    // Well clear of both boxes.
+    pointer('pointermove', source, 400, 400);
+    await flushRaf(2);
+    pointer('pointerup', source, 400, 400);
+    await flushRaf();
+
+    expect(onDrop).not.toHaveBeenCalled();
+    expect(onMoveEnd).toHaveBeenCalledTimes(1);
+    expect(onMoveEnd.mock.calls[0][0].target).toBeNull();
+    expect(onMoveEnd.mock.calls[0][0].reason).toBe('outside-release');
+  });
+
+  /**
+   * Boxes are 100×50 at fixed viewport positions, so every expected fraction is
+   * arithmetic rather than a snapshot.
+   */
+  describe('getLocalPoint', () => {
+    it('reports where in the target the pointer was, as a fraction of its box', async () => {
+      const { engine } = await renderDnd();
+      const source = createBox(0, 0);
+      const target = createBox(0, 200);
+
+      const onDrop = vi.fn();
+      engine.registerSource(source, {
+        kind: cardKind,
+        payload: 'card-1',
+        activation: { mouse: { type: 'immediate' } },
+      });
+      engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+
+      pointer('pointerdown', source, 50, 25);
+      await flushRaf();
+      // A quarter across and three-fifths down the 100×50 box at (0, 200).
+      pointer('pointermove', source, 25, 230);
+      await flushRaf(2);
+      pointer('pointerup', source, 25, 230);
+      await flushRaf();
+
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      expect(onDrop.mock.calls[0][0].currentTarget.getLocalPoint()).toEqual({ x: 0.25, y: 0.6 });
+    });
+
+    it('quantizes the snapped point against real geometry, on both anchors', async () => {
+      const { engine } = await renderDnd();
+      const source = createBox(0, 0);
+      const target = createBox(0, 200);
+
+      const onDrop = vi.fn();
+      engine.registerSource(source, {
+        kind: cardKind,
+        payload: 'card-1',
+        activation: { mouse: { type: 'immediate' } },
+      });
+      engine.registerTarget(target, {
+        accept: cardKind,
+        snap: { x: 4, y: 10 },
+        onDraggableDrop: onDrop,
+      });
+
+      // Grabbed at (10, 20) inside the 100×50 source, so the source anchor
+      // trails the pointer by that much.
+      pointer('pointerdown', source, 10, 20);
+      await flushRaf();
+      pointer('pointermove', source, 35, 233);
+      await flushRaf(2);
+      pointer('pointerup', source, 35, 233);
+      await flushRaf();
+
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      const record = onDrop.mock.calls[0][0].currentTarget;
+      // Pointer: (0.35, 0.66) → nearest of (4, 10) steps.
+      expect(record.getSnappedLocalPoint()).toEqual({ x: 0.25, y: 0.7 });
+      // Source's leading edges: ((35−10)/100, (233−20−200)/50) = (0.25, 0.26).
+      expect(record.getSnappedLocalPoint({ anchor: 'source' })).toEqual({ x: 0.25, y: 0.3 });
+    });
+
+    it('measures each target in the stack against its own box', async () => {
+      const { engine } = await renderDnd();
+      const source = createBox(0, 0);
+      const outer = createBox(0, 200);
+      const inner = document.createElement('div');
+      // Inset 10px into the 100×50 outer and 60×30 itself, so one pointer lands at a
+      // different fraction of each.
+      inner.style.cssText =
+        'position: absolute; left: 10px; top: 10px; width: 60px; height: 30px; background: rgb(120 120 120);';
+      outer.appendChild(inner);
+
+      const onMove = vi.fn();
+      engine.registerSource(source, {
+        kind: cardKind,
+        payload: 'card-1',
+        activation: { mouse: { type: 'immediate' } },
+        onMove,
+      });
+      engine.registerTarget(outer, { accept: cardKind });
+      engine.registerTarget(inner, { accept: cardKind });
+
+      pointer('pointerdown', source, 50, 25);
+      await flushRaf();
+      // (40, 225): 40% across the outer box, half across the inner one.
+      pointer('pointermove', source, 40, 225);
+      await flushRaf(2);
+
+      const { targets } = onMove.mock.calls.at(-1)![0].location.current;
+      expect(targets).toHaveLength(2);
+      // Innermost first.
+      expect(targets[0].element).toBe(inner);
+      expect(targets[0].getLocalPoint()).toEqual({ x: 0.5, y: 0.5 });
+      expect(targets[1].element).toBe(outer);
+      expect(targets[1].getLocalPoint()).toEqual({ x: 0.4, y: 0.5 });
+    });
+
+    it('does not measure anything unless it is called', async () => {
+      const { engine } = await renderDnd();
+      const source = createBox(0, 0);
+      const target = createBox(0, 200);
+
+      engine.registerSource(source, {
+        kind: cardKind,
+        payload: 'card-1',
+        activation: { mouse: { type: 'immediate' } },
+      });
+      engine.registerTarget(target, { accept: cardKind });
+
+      pointer('pointerdown', source, 50, 25);
+      await flushRaf();
+
+      // Armed after the pickup so the preview's own measurements don't count.
+      const measure = vi.spyOn(target, 'getBoundingClientRect');
+      pointer('pointermove', source, 20, 210);
+      await flushRaf();
+      pointer('pointermove', source, 50, 225);
+      await flushRaf();
+      pointer('pointermove', source, 80, 240);
+      await flushRaf(2);
+
+      expect(measure).not.toHaveBeenCalled();
+      measure.mockRestore();
+    });
+
+    it('reports the origin for a target with no extent', async () => {
+      const { engine } = await renderDnd();
+      const source = createBox(0, 0);
+      const target = createBox(0, 200);
+
+      const onDrop = vi.fn();
+      engine.registerSource(source, {
+        kind: cardKind,
+        payload: 'card-1',
+        activation: { mouse: { type: 'immediate' } },
+      });
+      engine.registerTarget(target, { accept: cardKind, onDraggableDrop: onDrop });
+
+      pointer('pointerdown', source, 50, 25);
+      await flushRaf();
+      pointer('pointermove', source, 50, 225);
+      await flushRaf(2);
+      pointer('pointerup', source, 50, 225);
+      await flushRaf();
+
+      // Detached before the record is read, so it measures as all zeros. Without
+      // the guard, this would divide by zero.
+      const { currentTarget: targetRecord } = onDrop.mock.calls[0][0];
+      target.remove();
+
+      expect(targetRecord.getLocalPoint()).toEqual({ x: 0, y: 0 });
+    });
+  });
+});

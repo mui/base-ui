@@ -1,0 +1,133 @@
+.Root {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Hint {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/*
+ * The `Draggable.Viewport` element. It clips the canvas but can't scroll, so
+ * `onDragScroll` moves the content instead.
+ */
+.Viewport {
+  position: relative;
+  box-sizing: border-box;
+  height: 260px;
+  border: 1px solid oklch(92.2% 0 0deg);
+  overflow: hidden;
+  touch-action: none;
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(37.1% 0 0deg);
+  }
+}
+
+/* The camera. `onDragScroll` writes this element's transform. */
+.Content {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.Pin {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  color: oklch(14.5% 0 0deg);
+  cursor: grab;
+  transition: background-color 0.15s;
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &[data-dragging] {
+    opacity: 0.4;
+  }
+
+  &[data-drag-preview] {
+    box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: none;
+    }
+  }
+}
+
+.Archive {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 160px;
+  height: 90px;
+  border: 1px dashed oklch(70.8% 0 0deg);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(55.6% 0 0deg);
+    color: oklch(70.8% 0 0deg);
+  }
+
+  &[data-drag-over] {
+    border-style: solid;
+    border-color: oklch(14.5% 0 0deg);
+    color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-color: white;
+      color: white;
+    }
+  }
+}

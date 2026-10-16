@@ -1,0 +1,123 @@
+import { describe, it, expect } from 'vitest';
+import type { DraggableRootRecord } from '../../draggable/root/DraggableRoot';
+import type { DraggableTargetRecord } from '../../draggable/target/DraggableTarget';
+import { anyDragKind, createGlobalKind, createKind, matchesAccept } from './dragKind';
+
+function sourceOfKind(kind: symbol): DraggableRootRecord<unknown> {
+  return {
+    element: document.createElement('div'),
+    kind,
+    handle: null,
+    dragData: undefined,
+    updatePayload() {},
+    updateDragData() {},
+    payload: undefined,
+  };
+}
+
+function recordOfKind(kind: symbol | undefined): DraggableTargetRecord<unknown> {
+  return {
+    element: document.createElement('div'),
+    kind,
+    payload: undefined,
+    dragData: undefined,
+    updatePayload() {},
+    updateDragData() {},
+    getLocalPoint: () => ({ x: 0, y: 0 }),
+    getSnappedLocalPoint: () => ({ x: 0, y: 0 }),
+  };
+}
+
+describe('createKind', () => {
+  it('keeps the name it was created with', () => {
+    expect(createKind('card').name).toBe('card');
+  });
+
+  it('gives separately created kinds with the same name different identities', () => {
+    expect(createKind('card').id).not.toBe(createKind<{ id: string }>('card').id);
+  });
+
+  describe('matches', () => {
+    it('matches a source of that kind', () => {
+      const card = createKind('card');
+      expect(card.matches(sourceOfKind(card.id))).toBe(true);
+    });
+
+    it('rejects a source of another kind', () => {
+      const card = createKind('card');
+      expect(card.matches(sourceOfKind(createKind('column').id))).toBe(false);
+    });
+
+    it('matches a drop target record of that kind', () => {
+      const slot = createKind('slot');
+      expect(slot.matches(recordOfKind(slot.id))).toBe(true);
+      expect(slot.matches(recordOfKind(createKind('trash').id))).toBe(false);
+    });
+
+    it('rejects a record from a target registered without a kind', () => {
+      expect(createKind('slot').matches(recordOfKind(undefined))).toBe(false);
+    });
+  });
+});
+
+describe('createGlobalKind', () => {
+  it('keeps the key it was created with', () => {
+    expect(createGlobalKind('myapp/card').name).toBe('myapp/card');
+  });
+
+  it('resolves two kinds with the same key to the same identity', () => {
+    expect(createGlobalKind('myapp/card').id).toBe(
+      createGlobalKind<{ id: string }>('myapp/card').id,
+    );
+  });
+});
+
+describe('matchesAccept', () => {
+  const card = createKind('card');
+  const column = createKind('column');
+
+  it('accepts any source when `accept` is omitted', () => {
+    expect(matchesAccept(undefined, sourceOfKind(card.id))).toBe(true);
+  });
+
+  it('matches a single kind', () => {
+    expect(matchesAccept(card, sourceOfKind(card.id))).toBe(true);
+    expect(matchesAccept(card, sourceOfKind(column.id))).toBe(false);
+  });
+
+  it('matches any kind in an array', () => {
+    expect(matchesAccept([card, column], sourceOfKind(column.id))).toBe(true);
+    expect(matchesAccept([card, column], sourceOfKind(createKind('row').id))).toBe(false);
+  });
+
+  it('treats `accept: null` from plain JS as omitted', () => {
+    expect(matchesAccept(null as never, sourceOfKind(card.id))).toBe(true);
+  });
+
+  it('skips empty slots in an array instead of throwing', () => {
+    const accept = [undefined, null, card] as never;
+    expect(matchesAccept(accept, sourceOfKind(card.id))).toBe(true);
+    expect(matchesAccept(accept, sourceOfKind(column.id))).toBe(false);
+  });
+
+  it('accepts nothing when the array is empty', () => {
+    expect(matchesAccept([], sourceOfKind(card.id))).toBe(false);
+  });
+
+  it('accepts every source through the catch-all sentinel', () => {
+    // Accepting every drag takes this explicit opt-in, so each drop target that
+    // does it is easy to find with a text search.
+    expect(matchesAccept(anyDragKind, sourceOfKind(card.id))).toBe(true);
+    expect(matchesAccept(anyDragKind, sourceOfKind(column.id))).toBe(true);
+  });
+
+  it('accepts every source when the catch-all appears in an array', () => {
+    expect(matchesAccept([card, anyDragKind], sourceOfKind(column.id))).toBe(true);
+  });
+
+  it('gives the catch-all an identity no consumer kind can collide with', () => {
+    // `createKind('any')` is a normal kind and must stay distinct from the sentinel.
+    expect(anyDragKind.id).not.toBe(createKind('any').id);
+    expect(matchesAccept(createKind('any'), sourceOfKind(card.id))).toBe(false);
+  });
+});

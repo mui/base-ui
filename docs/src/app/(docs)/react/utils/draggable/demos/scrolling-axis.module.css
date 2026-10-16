@@ -1,0 +1,94 @@
+.Root {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+  contain: inline-size;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* The scroll container the auto-scroller drives. */
+.Lane {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid oklch(92.2% 0 0deg);
+  overflow-x: auto;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(37.1% 0 0deg);
+  }
+}
+
+/* Sized to its content so the lane overflows sideways and can scroll. */
+.Track {
+  display: flex;
+  gap: 0.375rem;
+  width: max-content;
+}
+
+.Stop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  color: oklch(14.5% 0 0deg);
+  cursor: grab;
+  transition:
+    background-color 0.15s,
+    opacity 0.15s;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  &[data-dragging] {
+    opacity: 0.4;
+  }
+
+  /* The preview is a clone of the stop and keeps its classes. */
+  &[data-drag-preview] {
+    box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: none;
+    }
+  }
+}
+
+.Grip {
+  flex: none;
+  color: oklch(70.8% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(55.6% 0 0deg);
+  }
+}
