@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { getTarget } from '@base-ui/utils/shadowDom';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, getTarget } from '@base-ui/utils/shadowDom';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isTypeableElement } from '../element';
 import { isMouseLikePointerType, isVirtualPointerEvent } from '../event';
@@ -166,12 +167,21 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
 
         if (isTypeable || pointerType === 'virtual') {
           // A virtual press may target a descendant of the trigger; the trigger is what opened.
-          setOpenWithTouchDelay(
-            nextOpen,
-            nativeEvent,
-            (isTypeable ? target : event.currentTarget) as HTMLElement,
-            pointerType,
-          );
+          const pressedElement = (isTypeable ? target : event.currentTarget) as HTMLElement;
+
+          // The reader only moves focus to its cursor after the press, so focus the trigger first.
+          // Otherwise the popup records the previously focused element as where focus returns.
+          // Like the browser's own mousedown focus, skip it when the default was prevented.
+          if (
+            !open &&
+            !isTypeable &&
+            !event.defaultPrevented &&
+            activeElement(ownerDocument(pressedElement)) !== pressedElement
+          ) {
+            pressedElement.focus({ preventScroll: true });
+          }
+
+          setOpenWithTouchDelay(nextOpen, nativeEvent, pressedElement, pointerType);
           return;
         }
 
