@@ -233,12 +233,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   useIsoLayoutEffect(() => {
     if (inset) {
-      queueMicrotask(getInsetPosition);
-    }
-  }, [getInsetPosition, inset]);
-
-  useIsoLayoutEffect(() => {
-    if (inset) {
       getInsetPosition();
     }
   }, [getInsetPosition, inset, thumbValuePercent]);
@@ -248,25 +242,33 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       return undefined;
     }
 
-    const control = controlRef.current;
-    const thumb = thumbRef.current;
+    let resizeObserver: ResizeObserver | undefined;
+    let cancelled = false;
 
-    if (!control || !thumb) {
-      return undefined;
-    }
+    // The control's ref attaches after this descendant's layout effect runs.
+    queueMicrotask(() => {
+      const control = controlRef.current;
+      const thumb = thumbRef.current;
 
-    const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
-    if (typeof ResizeObserverCtor !== 'function') {
-      return undefined;
-    }
+      if (cancelled || !control || !thumb) {
+        return;
+      }
 
-    const resizeObserver = new ResizeObserverCtor(getInsetPosition);
+      getInsetPosition();
 
-    resizeObserver.observe(control);
-    resizeObserver.observe(thumb);
+      const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
+      if (typeof ResizeObserverCtor !== 'function') {
+        return;
+      }
+
+      resizeObserver = new ResizeObserverCtor(getInsetPosition);
+      resizeObserver.observe(control);
+      resizeObserver.observe(thumb);
+    });
 
     return () => {
-      resizeObserver.disconnect();
+      cancelled = true;
+      resizeObserver?.disconnect();
     };
   }, [controlRef, getInsetPosition, inset]);
 

@@ -649,68 +649,71 @@ describe('<Slider.Thumb />', () => {
   });
 
   describe('prop: thumbAlignment', () => {
-    it.skipIf(isJSDOM)('recomputes inset positions when the slider becomes visible', async () => {
-      function App() {
-        const [visible, setVisible] = React.useState(false);
+    it.skipIf(isJSDOM).each([{ strict: true }, { strict: false }])(
+      'recomputes inset positions when the slider becomes visible (strict: $strict)',
+      async ({ strict }) => {
+        function App() {
+          const [visible, setVisible] = React.useState(false);
 
-        return (
-          <React.Fragment>
-            <button type="button" onClick={() => setVisible(true)}>
-              show
-            </button>
-            <div style={{ display: visible ? 'block' : 'none' }}>
-              <Slider.Root defaultValue={30} thumbAlignment="edge" style={{ width: '100px' }}>
-                <Slider.Control
-                  data-testid="control"
-                  style={{ position: 'relative', width: '100%', height: '10px' }}
-                >
-                  <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
-                    <Slider.Indicator data-testid="indicator" />
-                    <Slider.Thumb data-testid="thumb" style={{ width: '10px', height: '10px' }} />
-                  </Slider.Track>
-                </Slider.Control>
-              </Slider.Root>
-            </div>
-          </React.Fragment>
-        );
-      }
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setVisible(true)}>
+                show
+              </button>
+              <div style={{ display: visible ? 'block' : 'none' }}>
+                <Slider.Root defaultValue={30} thumbAlignment="edge" style={{ width: '100px' }}>
+                  <Slider.Control
+                    data-testid="control"
+                    style={{ position: 'relative', width: '100%', height: '10px' }}
+                  >
+                    <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                      <Slider.Indicator data-testid="indicator" />
+                      <Slider.Thumb data-testid="thumb" style={{ width: '10px', height: '10px' }} />
+                    </Slider.Track>
+                  </Slider.Control>
+                </Slider.Root>
+              </div>
+            </React.Fragment>
+          );
+        }
 
-      const { user } = await render(<App />);
+        const { user } = await render(<App />, { strict, strictEffects: strict });
 
-      const thumb = screen.getByTestId('thumb');
-      const indicator = screen.getByTestId('indicator');
-      // Read the thumb and indicator together so each poll checks one consistent snapshot.
-      const getInsetStyles = () => ({
-        thumbVisibility: thumb.style.visibility,
-        thumbPosition: thumb.style.getPropertyValue('--position'),
-        indicatorVisibility: indicator.style.visibility,
-        indicatorStartPosition: indicator.style.getPropertyValue('--start-position'),
-      });
-
-      await waitFor(() => {
-        expect(getInsetStyles()).toEqual({
-          thumbVisibility: 'hidden',
-          thumbPosition: '0%',
-          indicatorVisibility: 'hidden',
-          indicatorStartPosition: '0%',
+        const thumb = screen.getByTestId('thumb');
+        const indicator = screen.getByTestId('indicator');
+        // Read the thumb and indicator together so each poll checks one consistent snapshot.
+        const getInsetStyles = () => ({
+          thumbVisibility: thumb.style.visibility,
+          thumbPosition: thumb.style.getPropertyValue('--position'),
+          indicatorVisibility: indicator.style.visibility,
+          indicatorStartPosition: indicator.style.getPropertyValue('--start-position'),
         });
-      });
 
-      await user.click(screen.getByRole('button', { name: 'show' }));
-
-      await waitFor(() => {
-        expect(getInsetStyles()).toEqual({
-          thumbVisibility: '',
-          thumbPosition: '32%',
-          indicatorVisibility: '',
-          indicatorStartPosition: '32%',
+        await waitFor(() => {
+          expect(getInsetStyles()).toEqual({
+            thumbVisibility: 'hidden',
+            thumbPosition: '0%',
+            indicatorVisibility: 'hidden',
+            indicatorStartPosition: '0%',
+          });
         });
-      });
-    });
 
-    it.skipIf(isJSDOM)(
-      'recomputes range inset positions when the slider becomes visible',
-      async () => {
+        await user.click(screen.getByRole('button', { name: 'show' }));
+
+        await waitFor(() => {
+          expect(getInsetStyles()).toEqual({
+            thumbVisibility: '',
+            thumbPosition: '32%',
+            indicatorVisibility: '',
+            indicatorStartPosition: '32%',
+          });
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM).each([{ strict: true }, { strict: false }])(
+      'recomputes range inset positions when the slider becomes visible (strict: $strict)',
+      async ({ strict }) => {
         function App() {
           const [visible, setVisible] = React.useState(false);
 
@@ -747,7 +750,7 @@ describe('<Slider.Thumb />', () => {
           );
         }
 
-        const { user } = await render(<App />);
+        const { user } = await render(<App />, { strict, strictEffects: strict });
 
         const startThumb = screen.getByTestId('start-thumb');
         const endThumb = screen.getByTestId('end-thumb');
@@ -790,6 +793,45 @@ describe('<Slider.Thumb />', () => {
         });
       },
     );
+
+    it.skipIf(isJSDOM)('recomputes inset positions when the control resizes', async () => {
+      function App({ width }: { width: number }) {
+        return (
+          <Slider.Root defaultValue={0} thumbAlignment="edge" style={{ width }}>
+            <Slider.Control
+              data-testid="control"
+              style={{ position: 'relative', width: '100%', height: '10px' }}
+            >
+              <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                <Slider.Thumb data-testid="thumb" style={{ width: '40px', height: '10px' }} />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>
+        );
+      }
+
+      // StrictMode re-runs effects after the control's ref attaches, which hides a missing observer.
+      const { setProps } = await render(<App width={200} />, {
+        strict: false,
+        strictEffects: false,
+      });
+
+      const control = screen.getByTestId('control');
+      const thumb = screen.getByTestId('thumb');
+      const getThumbStartGap = () =>
+        thumb.getBoundingClientRect().left - control.getBoundingClientRect().left;
+
+      await waitFor(() => {
+        expect(getThumbStartGap()).toBeCloseTo(0);
+      });
+
+      await setProps({ width: 600 });
+
+      expect(control.getBoundingClientRect().width).toBe(600);
+      await waitFor(() => {
+        expect(getThumbStartGap()).toBeCloseTo(0);
+      });
+    });
   });
 
   /**
