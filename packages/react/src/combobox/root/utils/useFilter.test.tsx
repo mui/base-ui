@@ -71,4 +71,36 @@ describe('useComboboxFilter', () => {
     expect(screen.getByTestId('selected-match')).toHaveTextContent('false');
     expect(screen.getByTestId('item-match')).toHaveTextContent('true');
   });
+
+  it.each([
+    { value: 'Sign-in', query: 'signin', showAll: true },
+    { value: 'Résumé', query: 'Re\u0301sume\u0301', showAll: true },
+    { value: 'foobar', query: 'foo---', showAll: false },
+    { value: 'abcabc', query: 'abc', showAll: false },
+  ])('compares the entire selection $value with $query', async ({ value, query, showAll }) => {
+    function Test({ multiple }: { multiple: boolean }) {
+      const filter = useComboboxFilter({ value, locale: 'en', multiple });
+      return <span data-testid="matches">{String(filter.contains('Banana', query))}</span>;
+    }
+
+    const { rerender } = await render(<Test multiple={false} />);
+    expect(screen.getByTestId('matches')).toHaveTextContent(String(showAll));
+
+    await rerender(<Test multiple />);
+    expect(screen.getByTestId('matches')).toHaveTextContent('false');
+  });
+
+  it('respects punctuation sensitivity when comparing the selection', async () => {
+    function Test() {
+      const filter = useComboboxFilter({
+        value: 'Sign-in',
+        locale: 'en',
+        ignorePunctuation: false,
+      });
+      return <span data-testid="matches">{String(filter.contains('Banana', 'signin'))}</span>;
+    }
+
+    await render(<Test />);
+    expect(screen.getByTestId('matches')).toHaveTextContent('false');
+  });
 });
