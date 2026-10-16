@@ -78,8 +78,11 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
-  /** The event that last opened or closed the menu. Cleared once the menu is closed. */
-  openEvent: Event | undefined;
+  /**
+   * The event of the menu's last open change, unlike `openEvent`, which keeps the event of a
+   * click open when a hover open follows. Cleared once the menu is closed.
+   */
+  lastOpenChangeEvent: Event | undefined;
   /**
    * Whether a touch click may close the menu. Some mobile browsers fire `focus` and then a delayed
    * `click` for one tap, so a focus-open briefly ignores touch clicks.
@@ -303,7 +306,7 @@ export class MenuStore<Payload> extends BasePopupStore<
       this.context.allowTouchToCloseTimeout.clear();
     }
 
-    this.context.openEvent = eventDetails.event;
+    this.context.lastOpenChangeEvent = eventDetails.event;
 
     let instantType: State<Payload>['instantType'];
     if (
@@ -395,7 +398,7 @@ function createInitialContext(): Context {
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
-    openEvent: undefined,
+    lastOpenChangeEvent: undefined,
     allowTouchToClose: true,
     allowTouchToCloseTimeout: new Timeout(),
     getCommittedOpenState: undefined,

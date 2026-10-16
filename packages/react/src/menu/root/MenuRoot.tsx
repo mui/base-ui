@@ -276,7 +276,7 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
 
   React.useEffect(() => {
     if (!open) {
-      store.context.openEvent = undefined;
+      store.context.lastOpenChangeEvent = undefined;
     }
 
     if (parent.type !== 'context-menu') {
@@ -341,7 +341,10 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     enabled: !disabled,
     bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
-      if (parent.type !== 'context-menu' || store.context.openEvent?.type === 'contextmenu') {
+      if (
+        parent.type !== 'context-menu' ||
+        store.context.lastOpenChangeEvent?.type === 'contextmenu'
+      ) {
         return true;
       }
 
