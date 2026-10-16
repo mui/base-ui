@@ -1,0 +1,26 @@
+diff --git a/cjs/eslint-plugin-react-hooks.development.js b/cjs/eslint-plugin-react-hooks.development.js
+index 35021bbae99a2824e55f4ece4d411c54f012a833..7dbf0954a7a69fc044d574f7c7fc117350f1dcb2 100644
+--- a/cjs/eslint-plugin-react-hooks.development.js
++++ b/cjs/eslint-plugin-react-hooks.development.js
+@@ -54903,7 +54903,7 @@ function isHook(node) {
+         isHook(node.property)) {
+         const obj = node.object;
+         const isPascalCaseNameSpace = /^[A-Z].*/;
+-        return obj.type === 'Identifier' && isPascalCaseNameSpace.test(obj.name);
++        return node.property.name !== 'use' || (obj.type === 'Identifier' && isPascalCaseNameSpace.test(obj.name));
+     }
+     else {
+         return false;
+diff --git a/cjs/eslint-plugin-react-hooks.production.js b/cjs/eslint-plugin-react-hooks.production.js
+index b5231f2c9dd8a4b918926ec39f559df1d634a12e..f3ee206451724f2905a0fd39a00d8b88ba302d2e 100644
+--- a/cjs/eslint-plugin-react-hooks.production.js
++++ b/cjs/eslint-plugin-react-hooks.production.js
+@@ -54730,7 +54730,7 @@ function isHook(node) {
+         isHook(node.property)) {
+         const obj = node.object;
+         const isPascalCaseNameSpace = /^[A-Z].*/;
+-        return obj.type === 'Identifier' && isPascalCaseNameSpace.test(obj.name);
++        return node.property.name !== 'use' || (obj.type === 'Identifier' && isPascalCaseNameSpace.test(obj.name));
+     }
+     else {
+         return false;
