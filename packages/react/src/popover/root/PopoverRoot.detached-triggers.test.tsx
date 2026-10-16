@@ -1,12 +1,19 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
-import { createRenderer, detachedTriggersConformanceTests, isJSDOM } from '#test-utils';
+import {
+  createRenderer,
+  detachedTriggersConformanceTests,
+  isJSDOM,
+  resetBrowserPointer,
+} from '#test-utils';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Popover } from '@base-ui/react/popover';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Popover.Root />', () => {
+  beforeEach(resetBrowserPointer);
+
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });

@@ -10,17 +10,15 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import type { ElementProps } from '../../floating-ui-react';
-import {
-  getOverflowAncestors,
-  useDismiss,
-  useFloatingRootContext,
-  useListNavigation,
-  useClick,
-} from '../../floating-ui-react';
-import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
-import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
+import { getOverflowAncestors } from '@floating-ui/react-dom';
+import type { ElementProps } from '../../utils/popups/types';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { gridNavigation } from '../../utils/popups/interactions/gridNavigation';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -40,7 +38,10 @@ import {
 } from './ComboboxRootContext';
 import { selectors } from '../store';
 import type { ComboboxStoreContext, State as StoreState } from '../store';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
+import {
+  attachPreventUnmountOnClose,
+  FOCUSABLE_POPUP_PROPS,
+} from '../../utils/popups/popupStoreUtils';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -54,7 +55,7 @@ import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { mergeProps } from '../../merge-props';
 import type { Group } from '../../internals/resolveValueLabel';
 import {
@@ -154,6 +155,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     setFocused,
     validationMode,
     validation,
+    setValidityData,
   } = useFieldRootContext();
 
   const direction = useDirection();
@@ -1691,6 +1693,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
         form={form}
         name={hiddenInputName}
+        type={getHiddenInputType(
+          setValidityData !== NOOP,
+          name,
+          formAutoComplete,
+          required,
+          inputRefProp,
+        )}
         autoComplete={formAutoComplete}
         disabled={disabled}
         required={required && !hasMultipleSelection}

@@ -1,19 +1,26 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
+import { Timeout } from '@base-ui/utils/useTimeout';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
-import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
+import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import type { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
-import type { PopupStoreContext, PopupStoreState, PopupTriggerStoreKeys } from '../../utils/popups';
+import { REASONS } from '../../internals/reasons';
+import type {
+  PopupStoreContext,
+  PopupStoreState,
+  PopupTriggerStoreKeys,
+} from '../../utils/popups/store';
 import {
+  BasePopupStore,
   createInitialPopupStoreState,
+  createPopupStoreContext,
   popupStoreSelectors,
-  PopupTriggerMap,
-} from '../../utils/popups';
+} from '../../utils/popups/store';
+import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -71,7 +78,29 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeTriggerFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
+  /** The event that last opened or closed the menu. Cleared once the menu is closed. */
+  openEvent: Event | undefined;
+  /**
+   * Whether a touch click may close the menu. Some mobile browsers fire `focus` and then a delayed
+   * `click` for one tap, so a focus-open briefly ignores touch clicks.
+   */
+  allowTouchToClose: boolean;
+  readonly allowTouchToCloseTimeout: Timeout;
+  /**
+   * Returns the open state the `Menu.Root` last committed, which tells a repeated request apart.
+   * Set only while the Root is mounted, so open changes requested while it isn't are dropped.
+   */
+  getCommittedOpenState: (() => MenuCommittedOpenState) | undefined;
 };
+
+/**
+ * The open state a `Menu.Root` last committed.
+ */
+export interface MenuCommittedOpenState {
+  open: boolean;
+  activeTriggerElement: Element | null;
+  openChangeReason: MenuRoot.ChangeEventReason | null;
+}
 
 const selectors = {
   ...popupStoreSelectors,
@@ -159,16 +188,16 @@ type Selectors = typeof selectors;
  */
 export type MenuHandleStore<Payload> = Pick<MenuStore<Payload>, PopupTriggerStoreKeys | 'setOpen'>;
 
-export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Context, Selectors> {
-  constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
-  ) {
-    const triggerElements = new PopupTriggerMap();
-    const state = createInitialState<Payload>(triggerElements, floatingId, nested, initialState);
+export class MenuStore<Payload> extends BasePopupStore<
+  State<Payload>,
+  Context,
+  Selectors,
+  MenuRoot.ChangeEventDetails
+> {
+  constructor(initialState?: Partial<State<Payload>>, floatingId?: string | undefined) {
+    const state = createInitialState<Payload>(floatingId, initialState);
 
-    super(state, createInitialContext(triggerElements), selectors);
+    super(state, createInitialContext(), selectors);
 
     // Share the mouse-up trigger ref of the parent menu, if any. This observes the store's own
     // state, so the subscription lives exactly as long as the store and needs no cleanup.
@@ -217,8 +246,92 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     });
   }
 
-  setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {
-    this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
+  protected isOpenChangeIgnored(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
+    const getCommittedOpenState = this.context.getCommittedOpenState;
+    if (!getCommittedOpenState) {
+      return true;
+    }
+
+    // Read the store directly, as relayed tree events and stale hover timers can request a close
+    // after the state changed but before the Root re-rendered.
+    if (!nextOpen && !this.select('open')) {
+      return true;
+    }
+
+    // Repeated requests are compared against what the Root last committed.
+    const committed = getCommittedOpenState();
+    return (
+      committed.open === nextOpen &&
+      eventDetails.trigger === committed.activeTriggerElement &&
+      committed.openChangeReason === eventDetails.reason
+    );
+  }
+
+  protected getCloseTrigger() {
+    // Keep the previous trigger so exit animations play and focus is returned correctly.
+    return this.context.getCommittedOpenState!().activeTriggerElement ?? undefined;
+  }
+
+  protected isOpenChangeDropped(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
+    // Some mobile browsers fire `focus` and then a delayed `click` for one tap. Without this guard,
+    // a menu that opened on focus would close on the click right away.
+    const nativeEvent = eventDetails.event as Event | undefined;
+    return (
+      !nextOpen &&
+      eventDetails.reason !== REASONS.itemPress &&
+      nativeEvent?.type === 'click' &&
+      (nativeEvent as PointerEvent).pointerType === 'touch' &&
+      !this.context.allowTouchToClose
+    );
+  }
+
+  protected isCommittedSynchronously() {
+    return false;
+  }
+
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
+    const reason = eventDetails.reason;
+    const nativeEvent = eventDetails.event as Event | undefined;
+
+    if (nextOpen && reason === REASONS.triggerFocus) {
+      this.context.allowTouchToClose = false;
+      this.context.allowTouchToCloseTimeout.start(300, () => {
+        this.context.allowTouchToClose = true;
+      });
+    } else {
+      this.context.allowTouchToClose = true;
+      this.context.allowTouchToCloseTimeout.clear();
+    }
+
+    this.context.openEvent = eventDetails.event;
+
+    let instantType: State<Payload>['instantType'];
+    if (
+      this.state.parent.type === 'menubar' &&
+      (reason === REASONS.triggerFocus ||
+        reason === REASONS.focusOut ||
+        reason === REASONS.triggerHover ||
+        reason === REASONS.listNavigation ||
+        reason === REASONS.siblingOpen)
+    ) {
+      instantType = 'group';
+    } else if (isKeyboardClick(reason, nativeEvent)) {
+      instantType = 'click';
+    } else if (!nextOpen && (reason === REASONS.escapeKey || reason == null)) {
+      instantType = 'dismiss';
+    }
+
+    // `instantType` lands in the same update that mounts the popup subtree: in React 17 legacy
+    // mode the update can flush synchronously, and a separate `instantType` write after it would
+    // come too late for an initially open submenu seeding its own store from this one.
+    return {
+      keyboardOpen: nextOpen && isKeyboardOpen(reason, nativeEvent),
+      instantType,
+    };
+  }
+
+  protected prepareUnmount() {
+    return { allowMouseEnter: false };
   }
 
   setActiveIndex(
@@ -259,19 +372,18 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
  * `setOpen` without it ever taking effect while detached.
  */
 export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
-  const triggerElements = new PopupTriggerMap();
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(triggerElements)),
-    Object.freeze(createInitialContext(triggerElements)),
+    Object.freeze(createInitialState<Payload>()),
+    Object.freeze(createInitialContext()),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
 }
 
-function createInitialContext(triggerElements: PopupTriggerMap): Context {
+function createInitialContext(): Context {
   return {
+    ...createPopupStoreContext(),
     positionerRef: React.createRef<HTMLElement | null>(),
-    popupRef: React.createRef<HTMLElement | null>(),
     typingRef: { current: false },
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
@@ -283,19 +395,19 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeTriggerFocusGuardRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
-    onOpenChangeComplete: undefined,
-    triggerElements,
+    openEvent: undefined,
+    allowTouchToClose: true,
+    allowTouchToCloseTimeout: new Timeout(),
+    getCommittedOpenState: undefined,
   };
 }
 
 function createInitialState<Payload>(
-  triggerElements: PopupTriggerMap,
   floatingId?: string | undefined,
-  nested = false,
   initialState?: Partial<State<Payload>>,
 ): State<Payload> {
   return {
-    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
+    ...createInitialPopupStoreState<Payload>(floatingId),
     disabled: false,
     modal: true,
     openMethod: null,

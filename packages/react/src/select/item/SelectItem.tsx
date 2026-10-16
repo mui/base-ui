@@ -19,7 +19,7 @@ import {
   removeItem,
   resolveSelectedIndex,
 } from '../../internals/itemEquality';
-import { isVirtualClick } from '../../floating-ui-react/utils/event';
+import { isVirtualClick } from '../../utils/popups/event';
 
 /**
  * An individual option in the select popup.
@@ -231,6 +231,9 @@ export const SelectItem = React.memo(
         }
 
         allowMouseSelectionRef.current = true;
+        // Drag selection has no mousedown on the item. Focus it before the synthetic click so
+        // arrow-key navigation continues from the selected item.
+        itemRef.current?.focus({ preventScroll: true });
         itemRef.current?.click();
         allowMouseSelectionRef.current = false;
       },

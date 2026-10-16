@@ -3,7 +3,13 @@ import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { Field } from '@base-ui/react/field';
-import { createRenderer, describeConformance, isJSDOM, mergeRefs } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  mergeRefs,
+  mockRuntimeLocale,
+} from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
@@ -86,6 +92,30 @@ describe('<Slider.Thumb />', () => {
         </Slider.Root>,
       );
       expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', '50 percent');
+    });
+
+    it('formats aria-valuetext with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(
+        <Slider.Root defaultValue={1000} max={2000} format={format}>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+      expect(screen.getByRole('slider')).toHaveAttribute(
+        'aria-valuetext',
+        (1000).toLocaleString('en-US', format),
+      );
+
+      await hydrate();
+      expect(screen.getByRole('slider')).toHaveAttribute(
+        'aria-valuetext',
+        (1000).toLocaleString('de-DE', format),
+      );
     });
   });
 
