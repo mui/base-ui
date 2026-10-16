@@ -8,16 +8,14 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useId } from '@base-ui/utils/useId';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { getOverflowAncestors } from '@floating-ui/react-dom';
 import type { ElementProps } from '../../utils/popups/types';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { createEventEmitter } from '../../utils/popups/createEventEmitter';
-import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
-import { useFloatingParentNodeId } from '../../utils/popups/tree/FloatingTree';
+import { usePopupRoot } from '../../utils/popups/popupRoot';
+import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { gridNavigation } from '../../utils/popups/interactions/gridNavigation';
@@ -39,10 +37,7 @@ import {
 } from './ComboboxRootContext';
 import { ComboboxStore, selectors } from '../store';
 import type { State as StoreState } from '../store';
-import {
-  attachPreventUnmountOnClose,
-  FOCUSABLE_POPUP_PROPS,
-} from '../../utils/popups/popupStoreUtils';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -50,7 +45,6 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { createCollatorItemFilter } from './utils';
 import type { FilterItemToString } from './utils';
 import { useCoreFilter } from './utils/useFilter';
-import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenInteractionType';
 import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
@@ -332,12 +326,102 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     state: 'inputValue',
   });
 
-  const [open, setOpenUnwrapped] = useControlled({
-    controlled: openProp,
-    default: defaultOpen,
-    name: 'Combobox',
-    state: 'open',
-  });
+  // Support composing the Dialog component around an inline combobox: its transitions wait for
+  // the dialog's animations. The Root's transitions start before the list element is known, so they
+  // read the element through this ref, which follows `resolvedPopupRef` below.
+  const animatedPopupRef = useRefWithInit(() => ({
+    target: popupRef as React.RefObject<HTMLElement | null>,
+    get current() {
+      return this.target.current;
+    },
+  })).current;
+
+  const { store, open, transitionStatus } = usePopupRoot(
+    {
+      open: openProp,
+      defaultOpen,
+      onOpenChange: props.onOpenChange,
+      onOpenChangeComplete: onOpenChangeCompleteProp,
+      actionsRef: props.actionsRef,
+    },
+    (initialState, defaultPopupId) =>
+      new ComboboxStore(
+        {
+          ...createInitialPopupStoreState(defaultPopupId),
+          ...initialState,
+          id,
+          labelId: undefined,
+          selectedValue,
+          items: storeItems,
+          selectionMode,
+          name,
+          form,
+          disabled,
+          readOnly,
+          required,
+          grid,
+          virtualized,
+          openOnInputClick,
+          itemToStringLabel,
+          isItemEqualToValue,
+          modal,
+          autoHighlight: autoHighlightMode,
+          submitOnItemClick,
+          hasInputValue,
+          forceMounted: false,
+          inline: inlineProp,
+          activeIndex: null,
+          selectedIndex: null,
+          listProps: {},
+          inputProps: {},
+          itemRoot: {
+            props: EMPTY_OBJECT,
+            id,
+            selectionMode,
+            disabled,
+            readOnly,
+            isItemEqualToValue,
+          },
+          listElement: null,
+          popupId: undefined,
+          triggerElement: null,
+          inputElement: null,
+          inputGroupElement: null,
+          popupSide: null,
+          openMethod: null,
+          inputInsidePopup: true,
+          // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
+          // until after hydration, so the hidden input takes over then if needed.
+          inputOwnsFormValue: selectionMode === 'none',
+        },
+        {
+          ...createPopupStoreContext(),
+          // Placeholder callbacks replaced on first render
+          handleOpenChange: NOOP,
+          handleUnmount: NOOP,
+          setInputValue: NOOP,
+          setSelectedValue: NOOP,
+          setIndices: NOOP,
+          handleSelection: NOOP,
+          forceMount: NOOP,
+          requestSubmit: NOOP,
+          listRef,
+          labelsRef,
+          popupRef,
+          emptyRef,
+          inputRef,
+          startDismissRef,
+          endDismissRef,
+          chipsContainerRef,
+          clearRef,
+          valuesRef,
+          pointerDownItemRef,
+          selectionEventRef,
+        },
+        selectors,
+      ),
+    { popupRef: animatedPopupRef },
+  );
 
   const isGrouped = isGroupedItems(items);
   const query = !open && closeQuery !== null ? closeQuery : String(inputValue).trim();
@@ -454,110 +538,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return itemToValue ? flat.map((item) => itemToValue(item)) : (flat as any[]);
   }, [filteredItems, filteredItemsProp, externalWindow, itemToValue]);
 
-  const defaultPopupId = useId();
-
-  const store = useRefWithInit(() => {
+  useOnFirstRender(() => {
     // An inline list open on the first render never gets a closed pass of the closed-state
     // sync effect below, and `items`-prop lists don't self-register their index the way
     // individually rendered `<Combobox.Item>`s do, so the selected item was never highlighted.
     // Seeding the index here lets list navigation highlight and scroll to the selection on
-    // mount. Computed once by construction, so a selection or list that resolves after mount
-    // doesn't move an existing highlight or scroll the list away.
-    let initialSelectedIndex: number | null = null;
+    // mount. Computed once, so a selection or list that resolves after mount doesn't move an
+    // existing highlight or scroll the list away.
     if (inlineProp && open && hasItems && selectionMode !== 'none') {
-      initialSelectedIndex = findSelectionIndex(
-        flatFilteredValues,
-        selectedValue,
-        isItemEqualToValue,
-        multiple,
+      store.set(
+        'selectedIndex',
+        findSelectionIndex(flatFilteredValues, selectedValue, isItemEqualToValue, multiple),
       );
     }
-
-    return new ComboboxStore(
-      {
-        id,
-        labelId: undefined,
-        selectedValue,
-        open,
-        items: storeItems,
-        selectionMode,
-        name,
-        form,
-        disabled,
-        readOnly,
-        required,
-        grid,
-        virtualized,
-        openOnInputClick,
-        itemToStringLabel,
-        isItemEqualToValue,
-        modal,
-        autoHighlight: autoHighlightMode,
-        submitOnItemClick,
-        hasInputValue,
-        mounted: false,
-        forceMounted: false,
-        transitionStatus: 'idle',
-        inline: inlineProp,
-        activeIndex: null,
-        selectedIndex: initialSelectedIndex,
-        popupProps: {},
-        listProps: {},
-        inputProps: {},
-        triggerProps: {},
-        itemRoot: {
-          props: EMPTY_OBJECT,
-          id,
-          selectionMode,
-          disabled,
-          readOnly,
-          isItemEqualToValue,
-        },
-        positionerElement: null,
-        listElement: null,
-        popupId: undefined,
-        triggerElement: null,
-        inputElement: null,
-        inputGroupElement: null,
-        anchorElement: null,
-        anchorOverride: null,
-        defaultPopupId,
-        popupSide: null,
-        openMethod: null,
-        inputInsidePopup: true,
-        // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
-        // until after hydration, so the hidden input takes over then if needed.
-        inputOwnsFormValue: selectionMode === 'none',
-      },
-      {
-        // Placeholder callbacks replaced on first render
-        onOpenChangeComplete: NOOP,
-        onOpenChange: NOOP,
-        events: createEventEmitter(),
-        nested: false,
-        triggerElements: new PopupTriggerMap(),
-        setInputValue: NOOP,
-        setSelectedValue: NOOP,
-        setIndices: NOOP,
-        handleSelection: NOOP,
-        forceMount: NOOP,
-        requestSubmit: NOOP,
-        listRef,
-        labelsRef,
-        popupRef,
-        emptyRef,
-        inputRef,
-        startDismissRef,
-        endDismissRef,
-        chipsContainerRef,
-        clearRef,
-        valuesRef,
-        pointerDownItemRef,
-        selectionEventRef,
-      },
-      selectors,
-    );
-  }).current;
+  });
 
   const fieldRawValue = selectionMode === 'none' ? inputValue : selectedValue;
   const fieldStringValue = React.useMemo(() => {
@@ -571,7 +565,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [fieldRawValue, itemToStringValue, selectionMode, selectedValue]);
 
   const onItemHighlighted = useStableCallback(onItemHighlightedProp);
-  const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
 
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
@@ -765,14 +758,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   });
 
-  const [preventUnmountOnClose, setPreventUnmountOnClose] = React.useState(false);
-
-  const setOpen = useStableCallback(
-    (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
-      if (open === nextOpen) {
-        return;
-      }
-
+  // Runs for every open change that isn't ignored, around `onOpenChange` and before the store
+  // commits it.
+  const handleOpenChange = useStableCallback(
+    (nextOpen: boolean, eventDetails: AriaCombobox.OpenChangeEventDetails) => {
       // If the `Empty` component is not used, the positioner or popup should be hidden
       // with CSS. In this case, allow the Escape key to bubble to close a parent popup
       // if there are no items to show.
@@ -785,9 +774,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         eventDetails.allowPropagation();
       }
 
-      const openEventDetails = eventDetails as AriaCombobox.OpenChangeEventDetails;
-      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
-      props.onOpenChange?.(nextOpen, openEventDetails);
+      props.onOpenChange?.(nextOpen, eventDetails);
 
       // A typed request must not highlight a later open: discard it when its own open is
       // rejected, or when any other open change goes through.
@@ -840,11 +827,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           }
         }
       }
-
-      if (!nextOpen) {
-        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
-      }
-      setOpenUnwrapped(nextOpen);
 
       if (
         !nextOpen &&
@@ -960,8 +942,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   });
 
-  const handleUnmountCleanup = useStableCallback(() => {
-    onOpenChangeComplete?.(false);
+  const handleUnmount = useStableCallback(() => {
     setQueryChangedAfterOpen(false);
     setCloseQuery(null);
 
@@ -1013,26 +994,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return popupRef;
   }, [inline, positionerElement]);
 
-  const {
-    mounted,
-    transitionStatus,
-    forceUnmount: handleUnmount,
-  } = useUnmountAfterClose({
-    open,
-    ref: resolvedPopupRef,
-    preventUnmountOnClose,
-    setPreventUnmountOnClose,
-    onUnmount: handleUnmountCleanup,
-  });
-
-  React.useImperativeHandle(
-    props.actionsRef,
-    () => ({
-      unmount: handleUnmount,
-      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-    }),
-    [handleUnmount, store],
-  );
+  useIsoLayoutEffect(() => {
+    animatedPopupRef.target = resolvedPopupRef;
+  }, [animatedPopupRef, resolvedPopupRef]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
@@ -1151,7 +1115,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           // commit, so the item registries are mid-update here. Defer past React's cascade.
           queueMicrotask(() => {
             if (
-              (!store.state.open && (!store.state.inline || resolvedPopupRef.current)) ||
+              (!store.select('open') && (!store.state.inline || resolvedPopupRef.current)) ||
               (inputRef.current && inputRef.current.value.trim() !== '')
             ) {
               return;
@@ -1341,16 +1305,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useValueChanged(items, syncInputAfterItemsOrLabelChange);
   useValueChanged(inputValue, handleInputValueChanged);
 
-  store.context.nested = useFloatingParentNodeId() != null;
-
   // The interaction hooks anchor to the input, or to the trigger when the input is inside the
   // popup. A trigger press and positioning both change the anchor, so it's restored whenever the
   // open state or the elements change.
   const interactionOpen = open || inline;
   const baseAnchor = inputInsidePopup ? triggerElement : inputElement;
   useIsoLayoutEffect(() => {
-    store.update({ anchorElement: baseAnchor, defaultPopupId });
-  }, [interactionOpen, baseAnchor, positionerElement, defaultPopupId, store]);
+    store.set('anchorElement', baseAnchor);
+  }, [interactionOpen, baseAnchor, positionerElement, store]);
 
   const ariaHasPopup = grid ? 'grid' : 'listbox';
   // An inline list isn't gated on `open`: it renders for as long as it's in the tree, so the
@@ -1513,14 +1475,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     };
   }, [listNavigation.item, id, selectionMode, disabled, readOnly, isItemEqualToValue]);
 
-  store.useContextCallback('onOpenChange', setOpen);
+  store.useContextCallback('handleOpenChange', handleOpenChange);
+  store.useContextCallback('handleUnmount', handleUnmount);
   store.useContextCallback('setInputValue', setInputValue);
   store.useContextCallback('setSelectedValue', setSelectedValue);
   store.useContextCallback('setIndices', setIndices);
   store.useContextCallback('handleSelection', handleSelection);
   store.useContextCallback('forceMount', forceMount);
   store.useContextCallback('requestSubmit', requestSubmit);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeCompleteProp);
 
   // The prop bags must be in the store before the parts render: they read them with `useStore`
   // during render, and a layout effect commits only after all children have rendered.
@@ -1530,7 +1492,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       popupProps,
       listProps,
       inputProps,
-      triggerProps,
+      activeTriggerProps: triggerProps,
       itemRoot,
     });
   });
@@ -1538,15 +1500,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const syncedValues = {
     id,
     selectedValue,
-    open,
-    mounted,
-    transitionStatus,
     items: storeItems,
     inline: inlineProp,
     popupProps,
     listProps,
     inputProps,
-    triggerProps,
+    activeTriggerProps: triggerProps,
     itemRoot,
     openMethod,
     selectionMode,

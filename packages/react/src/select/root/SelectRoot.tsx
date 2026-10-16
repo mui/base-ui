@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
@@ -10,7 +9,6 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useId } from '@base-ui/utils/useId';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
@@ -20,15 +18,11 @@ import { SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { SelectStore, selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import {
-  attachPreventUnmountOnClose,
-  FOCUSABLE_POPUP_PROPS,
-} from '../../utils/popups/popupStoreUtils';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import type { Group } from '../../internals/resolveValueLabel';
@@ -43,9 +37,8 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
-import { createEventEmitter } from '../../utils/popups/createEventEmitter';
-import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
-import { useFloatingParentNodeId } from '../../utils/popups/tree/FloatingTree';
+import { usePopupRoot } from '../../utils/popups/popupRoot';
+import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 
 /**
  * Groups all parts of the select.
@@ -109,13 +102,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'value',
   });
 
-  const [open, setOpenUnwrapped] = useControlled({
-    controlled: openProp,
-    default: defaultOpen,
-    name: 'Select',
-    state: 'open',
-  });
-
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -134,13 +120,42 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
   const initialValueRef = React.useRef(value);
 
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
-  const defaultPopupId = useId();
+  // Runs for every accepted open change, after `onOpenChange` and before the store commits it.
+  const handleOpenChange = useStableCallback(
+    (nextOpen: boolean, eventDetails: SelectRoot.OpenChangeEventDetails) => {
+      onOpenChange?.(nextOpen, eventDetails);
 
-  const store = useRefWithInit(
-    () =>
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      if (
+        !nextOpen &&
+        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
+      ) {
+        setTouched(true);
+        setFocused(false);
+
+        if (validationMode === 'onBlur') {
+          validation.commit(value);
+        }
+      }
+    },
+  );
+
+  const { store, open } = usePopupRoot(
+    {
+      open: openProp,
+      defaultOpen,
+      onOpenChange: handleOpenChange,
+      onOpenChangeComplete,
+      actionsRef,
+    },
+    (initialState, defaultPopupId) =>
       new SelectStore(
         {
+          ...createInitialPopupStoreState(defaultPopupId),
+          ...initialState,
           id: generatedId,
           labelId: undefined,
           modal,
@@ -153,38 +168,23 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           itemToStringValue,
           isItemEqualToValue,
           value,
-          open,
-          // Seeded with the initial values of `useUnmountAfterClose`, which is called after the
-          // store because its unmount cleanup writes to it. `useSyncedValues` keeps them in sync.
-          mounted: open,
-          transitionStatus: undefined,
           items,
           forceMount: false,
           openMethod: null,
           activeIndex: null,
           selectedIndex: null,
-          popupProps: EMPTY_OBJECT,
-          triggerProps: EMPTY_OBJECT,
           itemRoot: { props: EMPTY_OBJECT, multiple, disabled, readOnly, isItemEqualToValue },
           triggerElement: null,
-          positionerElement: null,
           listElement: null,
-          anchorElement: null,
-          anchorOverride: null,
-          defaultPopupId,
           popupSide: null,
           scrollUpArrowVisible: false,
           scrollDownArrowVisible: false,
           hasScrollArrows: false,
         },
         {
+          ...createPopupStoreContext(),
           setValue: NOOP,
-          onOpenChange: NOOP,
-          events: createEventEmitter(),
-          nested: false,
-          triggerElements: new PopupTriggerMap(),
           handleScrollArrowVisibility: NOOP,
-          onOpenChangeComplete: NOOP,
           listRef,
           popupRef,
           scrollHandlerRef,
@@ -201,28 +201,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         },
         selectors,
       ),
-  ).current;
+  );
 
-  const [preventUnmountOnClose, setPreventUnmountOnClose] = React.useState(false);
-  const {
-    mounted,
-    transitionStatus,
-    forceUnmount: handleUnmount,
-  } = useUnmountAfterClose({
-    open,
-    ref: popupRef,
-    preventUnmountOnClose,
-    setPreventUnmountOnClose,
-    onUnmount() {
-      store.update({
-        activeIndex: null,
-        openMethod: null,
-        scrollUpArrowVisible: false,
-        scrollDownArrowVisible: false,
-      });
-      onOpenChangeComplete?.(false);
-    },
-  });
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
@@ -295,48 +276,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     validation.change(value);
   });
 
-  const setOpen = useStableCallback(
-    (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
-      const openEventDetails = eventDetails as SelectRoot.OpenChangeEventDetails;
-      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
-      onOpenChange?.(nextOpen, openEventDetails);
-
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      if (!nextOpen) {
-        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
-      }
-      setOpenUnwrapped(nextOpen);
-
-      if (
-        !nextOpen &&
-        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
-      ) {
-        setTouched(true);
-        setFocused(false);
-
-        if (validationMode === 'onBlur') {
-          validation.commit(value);
-        }
-      }
-    },
-  );
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({
-      unmount: handleUnmount,
-      close: () => {
-        if (store.state.open) {
-          store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-        }
-      },
-    }),
-    [handleUnmount, store],
-  );
-
   const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
       onValueChange?.(nextValue, eventDetails);
@@ -359,13 +298,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
-  store.context.nested = useFloatingParentNodeId() != null;
-
   // The interaction hooks anchor to the trigger. Positioning clears the anchor while a closed popup
   // stays mounted, so it's restored whenever the open state or the elements change.
   useIsoLayoutEffect(() => {
-    store.update({ anchorElement: triggerElement, defaultPopupId });
-  }, [open, triggerElement, positionerElement, defaultPopupId, store]);
+    store.set('anchorElement', triggerElement);
+  }, [open, triggerElement, positionerElement, store]);
 
   // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
   // user can see the available options and which one is selected. Committing a value is blocked
@@ -457,16 +394,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   store.useContextCallback('setValue', setValue);
-  store.useContextCallback('onOpenChange', setOpen);
   store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   // The prop bags must be in the store before the parts render. `useSyncedValues` writes in a
   // layout effect, after all descendants have rendered.
   useOnFirstRender(() => {
     store.update({
       popupProps,
-      triggerProps: mergedTriggerProps,
+      activeTriggerProps: mergedTriggerProps,
       itemRoot,
     });
   });
@@ -480,11 +415,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     required,
     highlightItemOnHover,
     value,
-    open,
-    mounted,
-    transitionStatus,
     popupProps,
-    triggerProps: mergedTriggerProps,
+    activeTriggerProps: mergedTriggerProps,
     itemRoot,
     items,
     itemToStringLabel,

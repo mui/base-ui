@@ -173,7 +173,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.context.onOpenChangeComplete(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });

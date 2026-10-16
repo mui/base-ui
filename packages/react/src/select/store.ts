@@ -1,21 +1,15 @@
-import { ReactStore } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 import type { Group } from '../internals/resolveValueLabel';
+import { REASONS } from '../internals/reasons';
 import type { SelectRoot } from './root/SelectRoot';
-import type {
-  PopupInteractionContext,
-  PositioningInteractionStore,
-  ReferenceType,
-} from '../utils/popups/types';
-import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
-import { dispatchOpenChange } from '../utils/popups/floating-root/dispatchOpenChange';
+import { BasePopupStore, popupStoreSelectors } from '../utils/popups/store';
+import type { PopupStoreContext, PopupStoreState } from '../utils/popups/store';
 
-export type State = {
+export type State = PopupStoreState<unknown> & {
   id: string | undefined;
   labelId: string | undefined;
   modal: boolean;
@@ -36,17 +30,12 @@ export type State = {
 
   value: any;
 
-  open: boolean;
-  mounted: boolean;
   forceMount: boolean;
-  transitionStatus: TransitionStatus;
   openMethod: InteractionType | null;
 
   activeIndex: number | null;
   selectedIndex: number | null;
 
-  popupProps: HTMLProps;
-  triggerProps: HTMLProps;
   // Root values every item reads, combined so each item needs a single subscription for them.
   itemRoot: {
     props: HTMLProps;
@@ -56,21 +45,7 @@ export type State = {
     isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   };
   triggerElement: HTMLElement | null;
-  positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
-  /**
-   * The element the interaction hooks treat as the anchor. It follows the trigger while the popup
-   * is mounted, and is cleared once a closed popup stops positioning.
-   */
-  anchorElement: Element | null;
-  /**
-   * An anchor set explicitly by an interaction hook, which takes precedence over `anchorElement`.
-   */
-  anchorOverride: ReferenceType | null;
-  /**
-   * The popup's id unless its element sets one.
-   */
-  defaultPopupId: string | undefined;
   popupSide: Side | null;
 
   scrollUpArrowVisible: boolean;
@@ -83,7 +58,7 @@ export type State = {
  * Non-reactive values shared with the select parts. Nothing here is observable through
  * `selectors`, so writing to a ref never notifies subscribers.
  */
-export type SelectStoreContext = PopupInteractionContext & {
+export type SelectStoreContext = PopupStoreContext<SelectRoot.OpenChangeEventDetails> & {
   readonly listRef: React.RefObject<Array<HTMLElement | null>>;
   readonly popupRef: React.RefObject<HTMLDivElement | null>;
   readonly scrollHandlerRef: React.RefObject<((element: HTMLDivElement) => void) | null>;
@@ -105,15 +80,11 @@ export type SelectStoreContext = PopupInteractionContext & {
   // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
-  /**
-   * Applies an open change the interaction hooks have heard about. Call `store.setOpen` instead.
-   */
-  onOpenChange: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
-  onOpenChangeComplete: (open: boolean) => void;
 };
 
 export const selectors = {
+  ...popupStoreSelectors,
   id: (state: State) => state.id,
   labelId: (state: State) => state.labelId,
   modal: (state: State) => state.modal,
@@ -145,10 +116,7 @@ export const selectors = {
     return enabled ? hasNullItemLabel(state.items) : false;
   },
 
-  open: (state: State) => state.open,
-  mounted: (state: State) => state.mounted,
   forceMount: (state: State) => state.forceMount,
-  transitionStatus: (state: State) => state.transitionStatus,
   openMethod: (state: State) => state.openMethod,
 
   activeIndex: (state: State) => state.activeIndex,
@@ -175,15 +143,12 @@ export const selectors = {
     return state.selectedIndex === index;
   },
 
-  popupProps: (state: State) => state.popupProps,
-  triggerProps: (state: State) => state.triggerProps,
   itemRoot: (state: State) => state.itemRoot,
   triggerElement: (state: State) => state.triggerElement,
-  positionerElement: (state: State) => state.positionerElement,
   listElement: (state: State) => state.listElement,
-  anchorElement: (state: State) => state.anchorElement,
+  // The select anchors to its trigger, which the Root keeps in `anchorElement`, rather than to the
+  // trigger that opened it.
   anchor: (state: State) => state.anchorOverride ?? state.anchorElement,
-  defaultPopupId: (state: State) => state.defaultPopupId,
   popupSide: (state: State) => state.popupSide,
 
   scrollUpArrowVisible: (state: State) => state.scrollUpArrowVisible,
@@ -192,23 +157,40 @@ export const selectors = {
   hasScrollArrows: (state: State) => state.hasScrollArrows,
 };
 
-export class SelectStore
-  extends ReactStore<State, SelectStoreContext, typeof selectors>
-  implements PositioningInteractionStore
-{
-  /**
-   * Requests an open change: the interaction hooks hear about it first, then the Root applies it.
-   */
-  setOpen = (open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    dispatchOpenChange(this.context, this.state.open, open, eventDetails);
-    this.context.onOpenChange(open, eventDetails as SelectRoot.ChangeEventDetails);
-  };
+export class SelectStore extends BasePopupStore<
+  State,
+  SelectStoreContext,
+  typeof selectors,
+  SelectRoot.OpenChangeEventDetails
+> {
+  private wasUnmountPrevented = () => false;
 
-  /**
-   * Forgets the anchor while the popup isn't mounted, so positioning doesn't run for a closed
-   * popup that stays in the DOM.
-   */
-  clearPositioning() {
-    this.update({ anchorElement: null, anchorOverride: null });
+  protected isOpenChangeIgnored(
+    nextOpen: boolean,
+    eventDetails: SelectRoot.OpenChangeEventDetails,
+  ) {
+    // `actionsRef.close()` does nothing while the select is closed.
+    return eventDetails.reason === REASONS.imperativeAction && !nextOpen && !this.select('open');
+  }
+
+  protected attachPreventUnmountOnClose(eventDetails: SelectRoot.OpenChangeEventDetails) {
+    this.wasUnmountPrevented = super.attachPreventUnmountOnClose(eventDetails);
+    return this.wasUnmountPrevented;
+  }
+
+  protected completeOpenChange(nextOpen: boolean) {
+    // Each close decides on its own whether the popup stays mounted.
+    if (!nextOpen) {
+      this.set('preventUnmountingOnClose', this.wasUnmountPrevented());
+    }
+  }
+
+  protected prepareUnmount() {
+    return {
+      activeIndex: null,
+      openMethod: null,
+      scrollUpArrowVisible: false,
+      scrollDownArrowVisible: false,
+    };
   }
 }
