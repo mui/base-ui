@@ -495,6 +495,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         mounted: false,
         forceMounted: false,
         transitionStatus: 'idle',
+        instantType: undefined,
         inline: inlineProp,
         activeIndex: null,
         selectedIndex: initialSelectedIndex,
@@ -836,6 +837,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         setPreventUnmountOnClose(shouldPreventUnmountOnClose());
       }
       setOpenUnwrapped(nextOpen);
+      // Mark the transition instant when dismissing with Escape so the popup
+      // can skip its exit animation, mirroring Menu's `instantType`.
+      store.set(
+        'instantType',
+        !nextOpen && eventDetails.reason === REASONS.escapeKey ? 'dismiss' : undefined,
+      );
 
       if (
         !nextOpen &&
