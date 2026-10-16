@@ -28,7 +28,10 @@ export type State = ValuePopupState & {
     isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   };
 
-  popupId: string | undefined;
+  /**
+   * The id the input and trigger point at with `aria-controls`.
+   */
+  popupElementId: string | undefined;
   inputElement: HTMLInputElement | null;
   inputGroupElement: HTMLDivElement | null;
 
@@ -139,7 +142,7 @@ export const selectors = {
   inputProps: (state: State) => state.inputProps,
   itemRoot: (state: State) => state.itemRoot,
 
-  popupId: (state: State) => state.popupId,
+  popupElementId: (state: State) => state.popupElementId,
   inputElement: (state: State) => state.inputElement,
   inputGroupElement: (state: State) => state.inputGroupElement,
   // An inline list renders for as long as it's in the tree, so the interaction hooks treat it as

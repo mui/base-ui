@@ -62,7 +62,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     empty,
   };
 
-  const defaultPopupId = store.interactions.useState('defaultPopupId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
   const element = useRenderElement('div', componentProps, {
     state,

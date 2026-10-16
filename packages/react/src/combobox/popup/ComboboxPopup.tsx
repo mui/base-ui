@@ -47,9 +47,9 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   useIsoLayoutEffect(() => {
     // Prefer the rendered DOM id, which a `render` prop element or function may override.
-    store.set('popupId', store.context.popupRef.current?.id || popupId);
+    store.set('popupElementId', store.context.popupRef.current?.id || popupId);
     return () => {
-      store.set('popupId', undefined);
+      store.set('popupElementId', undefined);
     };
   }, [store, popupId]);
 

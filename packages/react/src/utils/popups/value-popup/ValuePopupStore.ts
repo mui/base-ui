@@ -93,16 +93,21 @@ export abstract class ValuePopupStore<
   Selectors extends Record<string, (state: Readonly<State>, ...args: any[]) => any>,
   ChangeEventDetails extends PopupOpenChangeEventDetails,
 > extends BasePopupStore<State, Context, Selectors, ChangeEventDetails> {
-  private wasUnmountPrevented = () => false;
+  private readonly unmountPrevented = new WeakMap<ChangeEventDetails, () => boolean>();
 
-  protected attachPreventUnmountOnClose(eventDetails: ChangeEventDetails) {
-    this.wasUnmountPrevented = super.attachPreventUnmountOnClose(eventDetails);
-    return this.wasUnmountPrevented;
+  protected anchorsToActiveTrigger() {
+    return false;
   }
 
-  protected completeOpenChange(nextOpen: boolean, _eventDetails: ChangeEventDetails) {
+  protected attachPreventUnmountOnClose(eventDetails: ChangeEventDetails) {
+    const wasUnmountPrevented = super.attachPreventUnmountOnClose(eventDetails);
+    this.unmountPrevented.set(eventDetails, wasUnmountPrevented);
+    return wasUnmountPrevented;
+  }
+
+  protected completeOpenChange(nextOpen: boolean, eventDetails: ChangeEventDetails) {
     if (!nextOpen) {
-      this.set('preventUnmountingOnClose', this.wasUnmountPrevented());
+      this.set('preventUnmountingOnClose', this.unmountPrevented.get(eventDetails)?.() ?? false);
     }
   }
 }
