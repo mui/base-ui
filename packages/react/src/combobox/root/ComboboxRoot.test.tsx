@@ -12905,8 +12905,10 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(validateSpy.mock.calls.length).toBe(1);
       });
-
-      expect(trigger).toHaveAttribute('data-touched', '');
+      // The store commits the close before the Field's state updates land.
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-touched', '');
+      });
       expect(trigger).not.toHaveAttribute('data-focused');
       expect(trigger).toHaveAttribute('aria-invalid', 'true');
     });

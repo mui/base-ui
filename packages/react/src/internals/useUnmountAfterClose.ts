@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useTransitionStatus } from './useTransitionStatus';
 import { useOpenChangeComplete } from './useOpenChangeComplete';
 
@@ -80,8 +79,12 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   // render without changing the committed `mounted`, so a `[mounted]` dependency would leave the
   // mirror stale and block every later unmount.
   const mountedRef = React.useRef(mounted);
-  const pendingUnmountRef = React.useRef(false);
-  const rerender = useForcedRerendering();
+  // A `forceUnmount()` call while open is decided in the commit that renders its request. Other
+  // renders in the same batch can commit first, such as a store update React 18 flushes
+  // synchronously, before the batch's own state (a controlled `open` prop) has landed.
+  const [unmountRequest, setUnmountRequest] = React.useState(0);
+  const unmountRequestRef = React.useRef(0);
+  const pendingUnmountRef = React.useRef<number | null>(null);
 
   const unmount = () => {
     mountedRef.current = false;
@@ -91,8 +94,8 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
 
   useIsoLayoutEffect(() => {
     mountedRef.current = mounted;
-    if (pendingUnmountRef.current) {
-      pendingUnmountRef.current = false;
+    if (pendingUnmountRef.current !== null && pendingUnmountRef.current <= unmountRequest) {
+      pendingUnmountRef.current = null;
       if (!open && mounted) {
         unmount();
       }
@@ -108,8 +111,9 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
       // close batched with this call (`close(); unmount()`). Decide once the batch commits: unmount
       // if the popup closed, otherwise drop the call rather than run the host's unmount cleanup and
       // the close completion against a live popup.
-      pendingUnmountRef.current = true;
-      rerender();
+      unmountRequestRef.current += 1;
+      pendingUnmountRef.current = unmountRequestRef.current;
+      setUnmountRequest(unmountRequestRef.current);
       return;
     }
     unmount();
