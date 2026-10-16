@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { createEventEmitter } from './createEventEmitter';
-import { dispatchOpenChange } from './interaction-store/dispatchOpenChange';
+import { dispatchOpenChange } from './floating-root/dispatchOpenChange';
 import type { PopupEvents, PopupInteractionContext, ReferenceType } from './types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';

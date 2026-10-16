@@ -18,7 +18,7 @@ _Avoid_: provider, container
 **Trigger**:
 An element the user interacts with to open or close a popup. A popup can have several triggers; the one that opened it is the **active trigger**.
 _Avoid_: reference, reference element, DOM reference
-_In code_: the active trigger is `activeTriggerElement` in the popup store and `anchorElement` in `StandaloneInteractionStore`.
+_In code_: the active trigger is `activeTriggerElement` in the popup store and `anchorElement` in `FloatingRootStore`.
 
 **Anchor**:
 The element or rectangle a popup is positioned against. When none is set, the component picks a default, usually the active trigger: Combobox uses its input, and Context Menu uses the point where it was opened. One set explicitly is the **anchor override**. The **anchor element** is the DOM element the popup is anchored to, kept after the popup unmounts.
@@ -35,8 +35,8 @@ The logic that decides when hovering a trigger opens its popup and when leaving 
 _Avoid_: hover interaction, hover state, useHover
 
 **Interaction store**:
-The store a popup's interactions read and write: whether it is open, its anchor, its popup positioner (the Positioner part, or the Popup itself for popups without one, such as Dialog), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a standalone one fed from their own state.
-_Avoid_: floating root context, floating context
+The store a popup's interactions read and write: whether it is open, its anchor, its popup positioner (the Positioner part, or the Popup itself for popups without one, such as Dialog), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a `FloatingRootStore` fed from their own state.
+_Avoid_: floating context
 
 **Floating UI modules**:
-Modules ported from Floating UI keep its names, so they stay recognizable next to the library they came from: `FloatingTree`, `FloatingNode`, `FloatingFocusManager`, `FloatingPortal`, `FloatingDelayGroup` and positioning's `useFloating`. The _Avoid_ lists above apply to the popup concepts and the state they share, not to these module names.
+Modules ported from Floating UI keep its names, so they stay recognizable next to the library they came from: `FloatingTree`, `FloatingNode`, `FloatingFocusManager`, `FloatingPortal`, `FloatingDelayGroup`, `FloatingRootStore` with `useFloatingRootContext`, and positioning's `useFloating`. The _Avoid_ lists above apply to the popup concepts and the state they share, not to these module names.

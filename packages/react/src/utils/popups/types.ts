@@ -103,7 +103,7 @@ export interface PopupInteractionContext {
 
 /**
  * The store that interaction hooks, the focus manager and positioning read and write.
- * Popup stores implement it directly. Components without a popup store use `StandaloneInteractionStore`.
+ * Popup stores implement it directly. Components without a popup store use `FloatingRootStore`.
  */
 export interface PopupInteractionStore {
   select: PopupInteractionReader;
@@ -115,7 +115,7 @@ export interface PopupInteractionStore {
 }
 
 /**
- * The store anchor positioning reads and clears. Popup stores and `StandaloneInteractionStore` implement it;
+ * The store anchor positioning reads and clears. Popup stores and `FloatingRootStore` implement it;
  * the narrower handle stores that triggers use don't need to.
  */
 export interface PositioningInteractionStore extends PopupInteractionStore {

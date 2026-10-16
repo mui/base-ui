@@ -3,7 +3,7 @@ import * as React from 'react';
 import { flushMicrotasks, render } from '@mui/internal-test-utils';
 import type { VirtualElement } from '@floating-ui/react-dom';
 import { PopupTriggerMap } from '../popupTriggerMap';
-import { StandaloneInteractionStore } from '../interaction-store/StandaloneInteractionStore';
+import { FloatingRootStore } from '../floating-root/FloatingRootStore';
 import type { UseFloatingReturn } from '../types';
 import { useBaseUIFloating } from './useFloating';
 
@@ -11,7 +11,7 @@ function Test({
   rootContext,
   onRender,
 }: {
-  rootContext: StandaloneInteractionStore;
+  rootContext: FloatingRootStore;
   onRender(value: UseFloatingReturn): void;
 }) {
   onRender(useBaseUIFloating({ rootContext }));
@@ -24,7 +24,7 @@ test('uses the supplied root store while preserving DOM and position references'
   document.body.append(referenceElement, popupPositionerElement);
 
   try {
-    const store = new StandaloneInteractionStore({
+    const store = new FloatingRootStore({
       open: true,
       transitionStatus: undefined,
       baseAnchor: referenceElement,

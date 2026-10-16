@@ -7,7 +7,7 @@ import { useTestInteractions } from '#test-utils';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 import { PopupTriggerMap } from '../popupTriggerMap';
-import { StandaloneInteractionStore } from '../interaction-store/StandaloneInteractionStore';
+import { FloatingRootStore } from '../floating-root/FloatingRootStore';
 import { useClientPoint } from './useClientPoint';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 
@@ -26,7 +26,7 @@ function expectRect({ x, y, width, height }: DOMRectInit) {
 }
 
 function createRootStore(referenceElement: HTMLElement) {
-  return new StandaloneInteractionStore({
+  return new FloatingRootStore({
     open: false,
     transitionStatus: undefined,
     baseAnchor: referenceElement,
@@ -114,7 +114,7 @@ function ClientPointStoreTest({
   store,
   enabled = true,
 }: {
-  store: StandaloneInteractionStore;
+  store: FloatingRootStore;
   enabled?: boolean;
 }) {
   useClientPoint(store, { enabled });

@@ -6,11 +6,11 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../popupTriggerMap';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../tree/FloatingTree';
-import { StandaloneInteractionStore } from './StandaloneInteractionStore';
-import type { StandaloneInteractionState as State } from './StandaloneInteractionStore';
+import { FloatingRootStore } from './FloatingRootStore';
+import type { FloatingRootState as State } from './FloatingRootStore';
 import type { ReferenceType } from '../types';
 
-export interface UseStandaloneInteractionStoreOptions {
+export interface UseFloatingRootContextOptions {
   open?: boolean | undefined;
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements?:
@@ -21,9 +21,7 @@ export interface UseStandaloneInteractionStoreOptions {
     | undefined;
 }
 
-export function useStandaloneInteractionStore(
-  options: UseStandaloneInteractionStoreOptions,
-): StandaloneInteractionStore {
+export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
   const { open = false, onOpenChange, elements = {} } = options;
 
   const defaultPopupId = useId();
@@ -41,7 +39,7 @@ export function useStandaloneInteractionStore(
 
   const store = useRefWithInit(
     () =>
-      new StandaloneInteractionStore({
+      new FloatingRootStore({
         open,
         transitionStatus: undefined,
         onOpenChange,

@@ -4,7 +4,7 @@ import { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { HandleCloseContext } from './useHoverShared';
 import type { PopupPositioningContext } from '../types';
 import { safePolygon } from './safePolygon';
-import { getEmptyInteractionStore } from '../interaction-store/getEmptyInteractionStore';
+import { getEmptyRootContext } from '../floating-root/getEmptyRootContext';
 
 function createRect(left: number, top: number, width: number, height: number) {
   return {
@@ -104,7 +104,7 @@ function createFloatingContext({
     defaultPopupId: 'floating-id',
     refs,
     elements: { reference: domReference, domReference, floating },
-    rootStore: getEmptyInteractionStore(),
+    rootStore: getEmptyRootContext(),
   };
 }
 

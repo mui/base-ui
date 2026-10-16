@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
 import type { Placement } from '@floating-ui/react-dom';
 import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
-import { getEmptyInteractionStore } from '../../src/utils/popups/interaction-store/getEmptyInteractionStore';
+import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
   FloatingNode,
@@ -121,7 +121,7 @@ function PopoverComponent({
   const labelId = `${id}-label`;
   const descriptionId = `${id}-description`;
   const triggerId = `${id}-trigger`;
-  const fallbackContext = React.useMemo(() => getEmptyInteractionStore(), []);
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const hoverStore = hover ? context.rootStore : fallbackContext;
 
   const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {

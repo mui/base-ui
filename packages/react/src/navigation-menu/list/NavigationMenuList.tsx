@@ -12,7 +12,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
-import { getEmptyInteractionStore } from '../../utils/popups/interaction-store/getEmptyInteractionStore';
+import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -40,7 +40,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     nested,
   } = useNavigationMenuRootContext();
 
-  const fallbackContext = React.useMemo(() => getEmptyInteractionStore(), []);
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
   const interactionsEnabled = positionerElement != null || value == null;
   const hoverInteractionsEnabled =

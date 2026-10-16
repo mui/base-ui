@@ -6,7 +6,7 @@ import type { PopupTriggerMap } from '../popupTriggerMap';
 import { dispatchOpenChange } from './dispatchOpenChange';
 import type { TransitionStatus } from '../../../internals/useTransitionStatus';
 
-export interface StandaloneInteractionState {
+export interface FloatingRootState {
   open: boolean;
   transitionStatus: TransitionStatus | undefined;
   /**
@@ -31,21 +31,21 @@ export interface StandaloneInteractionState {
   defaultPopupId: string | undefined;
 }
 
-export interface StandaloneInteractionStoreContext extends PopupInteractionContext {
+export interface FloatingRootStoreContext extends PopupInteractionContext {
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
 const selectors = {
-  open: (state: StandaloneInteractionState) => state.open,
-  transitionStatus: (state: StandaloneInteractionState) => state.transitionStatus,
-  anchorElement: (state: StandaloneInteractionState) => state.anchorElement,
-  anchor: (state: StandaloneInteractionState) => state.anchorOverride ?? state.baseAnchor,
-  popupPositionerElement: (state: StandaloneInteractionState) => state.popupPositionerElement,
-  defaultPopupId: (state: StandaloneInteractionState) => state.defaultPopupId,
+  open: (state: FloatingRootState) => state.open,
+  transitionStatus: (state: FloatingRootState) => state.transitionStatus,
+  anchorElement: (state: FloatingRootState) => state.anchorElement,
+  anchor: (state: FloatingRootState) => state.anchorOverride ?? state.baseAnchor,
+  popupPositionerElement: (state: FloatingRootState) => state.popupPositionerElement,
+  defaultPopupId: (state: FloatingRootState) => state.defaultPopupId,
 };
 
-interface StandaloneInteractionStoreOptions {
+interface FloatingRootStoreOptions {
   open: boolean;
   transitionStatus: TransitionStatus | undefined;
   baseAnchor: ReferenceType | null;
@@ -57,15 +57,11 @@ interface StandaloneInteractionStoreOptions {
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
-export class StandaloneInteractionStore
-  extends ReactStore<
-    Readonly<StandaloneInteractionState>,
-    StandaloneInteractionStoreContext,
-    typeof selectors
-  >
+export class FloatingRootStore
+  extends ReactStore<Readonly<FloatingRootState>, FloatingRootStoreContext, typeof selectors>
   implements PositioningInteractionStore
 {
-  constructor(options: StandaloneInteractionStoreOptions) {
+  constructor(options: FloatingRootStoreOptions) {
     const { nested, onOpenChange, triggerElements, ...initialState } = options;
 
     super(

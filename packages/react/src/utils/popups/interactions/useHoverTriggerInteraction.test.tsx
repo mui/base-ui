@@ -8,7 +8,7 @@ import { useHoverPopupInteraction } from './useHoverPopupInteraction';
 import { useHoverIntent } from './hoverIntent';
 import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
 import type { UseHoverReferenceInteractionProps } from './useHoverTriggerInteraction';
-import type { StandaloneInteractionStore } from '../interaction-store/StandaloneInteractionStore';
+import type { FloatingRootStore } from '../floating-root/FloatingRootStore';
 import { REASONS } from '../../../internals/reasons';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 
@@ -264,7 +264,7 @@ describe.skipIf(!isJSDOM)('useHoverTriggerInteraction', () => {
 
       // Simulate active close transition lifecycle while closed.
       (
-        (context.rootStore as StandaloneInteractionStore).state as {
+        (context.rootStore as FloatingRootStore).state as {
           transitionStatus?: 'ending' | undefined;
         }
       ).transitionStatus = open ? undefined : 'ending';

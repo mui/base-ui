@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTestInteractions } from '#test-utils';
 import { flip, offset, shift } from '@floating-ui/react-dom';
-import { getEmptyInteractionStore } from '../../src/utils/popups/interaction-store/getEmptyInteractionStore';
+import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import { FloatingNode, useFloatingNodeId } from '../../src/utils/popups/tree/FloatingTree';
 import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
@@ -45,7 +45,7 @@ export const NavigationItem = React.forwardRef<
 >(function NavigationItem({ children, label, href, ...props }, ref) {
   const [open, setOpen] = React.useState(false);
   const hasChildren = !!children;
-  const fallbackContext = React.useMemo(() => getEmptyInteractionStore(), []);
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
 
   const nodeId = useFloatingNodeId();
 

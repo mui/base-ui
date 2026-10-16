@@ -153,7 +153,7 @@ function handleTabIndex(floatingFocusElement: HTMLElement) {
 export interface FloatingFocusManagerProps {
   children: React.JSX.Element;
   /**
-   * The floating context returned from `useStandaloneInteractionStore`.
+   * The floating context returned from `useFloatingRootContext`.
    */
   context: PopupInteractionStore;
   /**

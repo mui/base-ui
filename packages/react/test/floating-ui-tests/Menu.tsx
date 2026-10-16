@@ -7,7 +7,7 @@ import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
 import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { getEmptyInteractionStore } from '../../src/utils/popups/interaction-store/getEmptyInteractionStore';
+import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
   FloatingNode,
@@ -108,7 +108,7 @@ export const MenuComponent = React.forwardRef<
     ],
     whileElementsMounted: autoUpdate,
   });
-  const fallbackContext = React.useMemo(() => getEmptyInteractionStore(), []);
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const hoverStore = isNested && allowHover ? context.rootStore : fallbackContext;
 
   const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {

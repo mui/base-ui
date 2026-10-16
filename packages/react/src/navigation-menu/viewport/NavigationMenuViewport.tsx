@@ -13,10 +13,10 @@ import {
   getPreviousTabbable,
   isOutsideEvent,
 } from '../../utils/popups/focus/tabbable';
-import { getEmptyInteractionStore } from '../../utils/popups/interaction-store/getEmptyInteractionStore';
+import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
-const EMPTY_ROOT_CONTEXT = getEmptyInteractionStore();
+const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
 function Guards({ children }: { children: React.ReactNode }) {
   const {
