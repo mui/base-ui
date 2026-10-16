@@ -6,8 +6,8 @@ import type { VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type {
-  FloatingContext,
-  FloatingRootContext,
+  PopupPositioningContext,
+  PopupInteractionStore,
   NarrowedElement,
   ReferenceType,
   UseFloatingOptions,
@@ -20,17 +20,17 @@ import type {
  * @see https://floating-ui.com/docs/useFloating
  */
 export function useBaseUIFloating(
-  options: UseFloatingOptions & { rootContext: FloatingRootContext },
+  options: UseFloatingOptions & { rootStore: PopupInteractionStore },
 ): UseFloatingReturn {
-  const { nodeId, externalTree, rootContext: store } = options;
+  const { nodeId, externalTree, rootStore: store } = options;
 
-  const referenceElement = store.useState('referenceElement');
-  const floatingElement = store.useState('floatingElement');
-  const domReferenceElement = store.useState('domReferenceElement');
+  const anchor = store.useState('anchor');
+  const positionerElement = store.useState('positionerElement');
+  const anchorElement = store.useState('anchorElement');
   const open = store.useState('open');
-  const floatingId = store.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
-  const [positionReference, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
+  const [positionerAnchor, setPositionerAnchor] = React.useState<ReferenceType | null>(null);
 
   const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
 
@@ -38,18 +38,18 @@ export function useBaseUIFloating(
 
   const storeElements = React.useMemo(
     () => ({
-      reference: referenceElement,
-      floating: floatingElement,
-      domReference: domReferenceElement,
+      reference: anchor,
+      floating: positionerElement,
+      domReference: anchorElement,
     }),
-    [referenceElement, floatingElement, domReferenceElement],
+    [anchor, positionerElement, anchorElement],
   );
 
   const position = usePosition({
     ...options,
     elements: {
       ...storeElements,
-      ...(positionReference && { reference: positionReference }),
+      ...(positionerAnchor && { reference: positionerAnchor }),
     },
   });
 
@@ -62,9 +62,9 @@ export function useBaseUIFloating(
             contextElement: node,
           } satisfies VirtualElement)
         : node;
-      // Store the positionReference in state if the DOM reference is specified externally via the
-      // `elements.reference` option. This ensures that it won't be overridden on future renders.
-      setPositionReferenceRaw(computedPositionReference);
+      // Keep the Positioner's anchor in state when the store also has an anchor, so the store's
+      // doesn't replace it on future renders.
+      setPositionerAnchor(computedPositionReference);
       position.refs.setReference(computedPositionReference);
     },
     [position.refs],
@@ -82,35 +82,32 @@ export function useBaseUIFloating(
   const elements = React.useMemo(
     () => ({
       ...position.elements,
-      domReference: domReferenceElement,
+      domReference: anchorElement,
     }),
-    [position.elements, domReferenceElement],
+    [position.elements, anchorElement],
   );
 
-  const context = React.useMemo<FloatingContext>(
+  const context = React.useMemo<PopupPositioningContext>(
     () => ({
       ...position,
-      dataRef: store.context.dataRef,
       open,
-      onOpenChange: store.setOpen,
-      events: store.context.events,
-      floatingId,
+      defaultPopupId,
       refs,
       elements,
       nodeId,
       rootStore: store,
     }),
-    [position, refs, elements, nodeId, store, open, floatingId],
+    [position, refs, elements, nodeId, store, open, defaultPopupId],
   );
 
   useIsoLayoutEffect(() => {
-    if (domReferenceElement) {
-      domReferenceRef.current = domReferenceElement as NarrowedElement<ReferenceType> | null;
+    if (anchorElement) {
+      domReferenceRef.current = anchorElement as NarrowedElement<ReferenceType> | null;
     }
-  }, [domReferenceElement]);
+  }, [anchorElement]);
 
   useIsoLayoutEffect(() => {
-    store.context.dataRef.current.floatingContext = context;
+    store.context.positioning = context;
 
     const node = tree?.nodesRef.current.find((n) => n.id === nodeId);
     if (node) {

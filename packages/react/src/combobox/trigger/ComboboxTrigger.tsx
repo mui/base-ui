@@ -7,11 +7,7 @@ import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
-import {
-  useComboboxFloatingContext,
-  useComboboxInputValueContext,
-  useComboboxRootContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
@@ -65,8 +61,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const required = store.useState('required');
   const positionerElement = store.useState('positionerElement');
   const listElement = store.useState('listElement');
-  const storedPopupId = store.useState('popupId');
-  const triggerProps = store.useState('triggerProps');
+  const storedPopupId = store.useState('popupElementId');
+  const triggerProps = store.useState('triggerProps', true);
   const inputInsidePopup = store.useState('inputInsidePopup');
   const rootId = store.useState('id');
   const comboboxLabelId = store.useState('labelId');
@@ -76,7 +72,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const selectedIndex = store.useState('selectedIndex');
   const hasSelectedValue = store.useState('hasSelectedValue');
 
-  const floatingRootContext = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
 
   const focusTimeout = useTimeout();
@@ -108,7 +103,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
+  const { reference: triggerTypeaheadProps } = useTypeahead(store.interactions, {
     // Typeahead on a closed trigger commits a value rather than moving a highlight, so it stays
     // gated on `readOnly`.
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
@@ -123,9 +118,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     },
   });
 
-  const { reference: triggerClickProps } = useClick(floatingRootContext, {
+  const { reference: triggerClickProps } = useClick(store.interactions, {
     enabled: !comboboxDisabled,
     event: 'mousedown',
+    // A Combobox never opens on hover or focus, so a press always toggles it, even when typing
+    // opened it.
+    stickIfOpen: false,
   });
 
   const { buttonRef, getButtonProps } = useButton({
@@ -197,7 +195,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           if (!inputInsidePopup) {
-            floatingRootContext.set('domReferenceElement', event.currentTarget);
+            store.interactions.set('anchorElement', event.currentTarget);
           }
 
           // Ensure items are registered for initial selection highlight.
@@ -239,7 +237,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               return;
             }
 
-            store.context.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
+            store.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
           }
 
           if (inputInsidePopup) {
@@ -249,7 +247,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         onKeyDown(event) {
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
-            store.context.setOpen(
+            store.setOpen(
               true,
               createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );

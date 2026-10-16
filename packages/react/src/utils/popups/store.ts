@@ -4,7 +4,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { createEventEmitter } from './createEventEmitter';
 import { dispatchOpenChange } from './floating-root/dispatchOpenChange';
-import type { ContextData, FloatingEvents, ReferenceType } from './types';
+import type { PopupEvents, PopupInteractionContext, ReferenceType } from './types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
@@ -35,8 +35,10 @@ export type PopupStoreState<Payload> = {
    * The current enter/exit transition status of the popup.
    */
   transitionStatus: TransitionStatus;
-
-  floatingId: string | undefined;
+  /**
+   * The popup's id unless its element sets one.
+   */
+  defaultPopupId: string | undefined;
   /**
    * Number of trigger elements currently registered for this popup.
    */
@@ -65,7 +67,7 @@ export type PopupStoreState<Payload> = {
    * once the popup unmounts, so the interaction hooks still recognize the trigger that the popup
    * last belonged to.
    */
-  domReferenceElement: Element | null;
+  anchorElement: Element | null;
   /**
    * Whether the popup is open because of a request that deliberately carried no trigger, such as a
    * handle's `open(null)` or `openWithPayload()`. While set, a lone registered trigger is not
@@ -93,7 +95,7 @@ export type PopupStoreState<Payload> = {
    * A virtual anchor that overrides the active trigger, such as the cursor position of a tooltip
    * that follows it.
    */
-  positionReference: ReferenceType | null;
+  anchorOverride: ReferenceType | null;
 
   /**
    * Props to spread onto the active trigger element.
@@ -110,33 +112,33 @@ export type PopupStoreState<Payload> = {
 };
 
 export function createInitialPopupStoreState<Payload>(
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): PopupStoreState<Payload> {
   return {
     open: false,
     openProp: undefined,
     mounted: false,
     transitionStatus: undefined,
-    floatingId,
+    defaultPopupId,
     triggerCount: 0,
     preventUnmountingOnClose: false,
     payload: undefined,
     activeTriggerId: null,
     activeTriggerElement: null,
-    domReferenceElement: null,
+    anchorElement: null,
     openedWithoutTrigger: false,
     openChangeReason: null,
     triggerIdProp: undefined,
     popupElement: null,
     positionerElement: null,
-    positionReference: null,
+    anchorOverride: null,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
   };
 }
 
-export type PopupStoreContext<ChangeEventDetails> = {
+export type PopupStoreContext<ChangeEventDetails> = PopupInteractionContext & {
   /**
    * Map of registered trigger elements.
    */
@@ -154,13 +156,9 @@ export type PopupStoreContext<ChangeEventDetails> = {
    */
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   /**
-   * Data the interaction hooks share, such as the event that opened the popup.
-   */
-  readonly dataRef: React.RefObject<ContextData>;
-  /**
    * Internal events for the interaction hooks, such as `openchange`.
    */
-  readonly events: FloatingEvents;
+  readonly events: PopupEvents;
   /**
    * Whether the popup has a parent in the floating tree.
    */
@@ -176,7 +174,6 @@ export function createPopupStoreContext() {
     triggerElements: new PopupTriggerMap(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
-    dataRef: { current: {} } as React.RefObject<ContextData>,
     events: createEventEmitter(),
     nested: false,
   };
@@ -192,7 +189,7 @@ const activeTriggerElementSelector = (state: S) =>
   state.mounted ? state.activeTriggerElement : null;
 
 const popupIdSelector = (state: S) => {
-  const popupId = state.popupElement?.id ?? state.floatingId;
+  const popupId = state.popupElement?.id ?? state.defaultPopupId;
   return popupId || undefined;
 };
 
@@ -255,21 +252,21 @@ export const popupStoreSelectors = {
   popupProps: (state: S) => state.popupProps,
 
   popupElement: (state: S) => state.popupElement,
-  positionerElement: (state: S) => state.positionerElement,
-
-  // Reads of the interaction hooks' store (`FloatingRootContext`).
-  floatingId: (state: S) => state.floatingId,
-  domReferenceElement: (state: S) => state.domReferenceElement,
-  referenceElement: (state: S) => state.positionReference ?? activeTriggerElementSelector(state),
   // A `keepMounted` positioner is reported while the popup is closed, but not while an opening
-  // popup is still hidden: the hooks would otherwise try to focus or measure it before it shows.
-  floatingElement: (state: S) =>
+  // popup is still hidden: the interaction hooks would otherwise try to focus or measure it before
+  // it shows.
+  positionerElement: (state: S) =>
     openSelector(state) && !state.mounted ? null : state.positionerElement,
+
+  // Reads of the interaction hooks' store (`PopupInteractionStore`).
+  defaultPopupId: (state: S) => state.defaultPopupId,
+  anchorElement: (state: S) => state.anchorElement,
+  anchor: (state: S) => state.anchorOverride ?? activeTriggerElementSelector(state),
 };
 
 /**
  * Applies what follows from a change of the trigger the popup is anchored to: the trigger is
- * remembered as the DOM reference, and a position reference that followed the old trigger follows
+ * remembered as the anchor element, and an anchor override that followed the old trigger follows
  * the new one.
  */
 function syncAnchorState<State extends S>(previous: State, next: State): State {
@@ -281,13 +278,12 @@ function syncAnchorState<State extends S>(previous: State, next: State): State {
   }
 
   const followsAnchor =
-    next.positionReference === previous.positionReference &&
-    previous.positionReference === previousAnchor;
+    next.anchorOverride === previous.anchorOverride && previous.anchorOverride === previousAnchor;
 
   return {
     ...next,
-    domReferenceElement: nextAnchor ?? next.domReferenceElement,
-    positionReference: followsAnchor ? nextAnchor : next.positionReference,
+    anchorElement: nextAnchor ?? next.anchorElement,
+    anchorOverride: followsAnchor ? nextAnchor : next.anchorOverride,
   };
 }
 
@@ -373,7 +369,7 @@ type PopupUnmountKey =
  * 1. `isOpenChangeIgnored` can drop the change before anything is notified.
  * 2. `getCloseTrigger` can name the trigger a close request without one reports.
  * 3. `attachPreventUnmountOnClose` adds `preventUnmountOnClose()` to the event details.
- * 4. `onOpenChange` is called and can cancel the change.
+ * 4. `callOnOpenChange` calls `onOpenChange`, which can cancel the change.
  * 5. A cancelled change goes no further.
  * 6. The interactions are notified.
  * 7. `isOpenChangeDropped` can drop the change before it is committed.
@@ -394,7 +390,17 @@ export abstract class BasePopupStore<
   ChangeEventDetails extends PopupOpenChangeEventDetails,
 > extends ReactStore<Readonly<State>, Context, Selectors> {
   override setState(newState: Readonly<State>): void {
-    super.setState(syncAnchorState(this.state, newState));
+    super.setState(
+      this.anchorsToActiveTrigger() ? syncAnchorState(this.state, newState) : newState,
+    );
+  }
+
+  /**
+   * Whether the popup anchors to the trigger that opened it. A store that keeps its anchor in
+   * `anchorElement` itself turns this off.
+   */
+  protected anchorsToActiveTrigger(): boolean {
+    return true;
   }
 
   /**
@@ -402,7 +408,7 @@ export abstract class BasePopupStore<
    * from the popup's own state, so they stay.
    */
   clearPositioning() {
-    this.update({ domReferenceElement: null, positionReference: null });
+    this.update({ anchorElement: null, anchorOverride: null });
   }
 
   setOpen = (
@@ -421,7 +427,7 @@ export abstract class BasePopupStore<
 
     const shouldPreventUnmountOnClose = this.attachPreventUnmountOnClose(details);
 
-    this.context.onOpenChange?.(nextOpen, details);
+    this.callOnOpenChange(nextOpen, details);
 
     if (details.isCanceled) {
       return;
@@ -476,6 +482,14 @@ export abstract class BasePopupStore<
    */
   protected attachPreventUnmountOnClose(eventDetails: ChangeEventDetails): () => boolean {
     return attachPreventUnmountOnClose(eventDetails);
+  }
+
+  /**
+   * Calls `onOpenChange`. A store can wrap the call with work that has to see the change before or
+   * after the consumer does.
+   */
+  protected callOnOpenChange(nextOpen: boolean, eventDetails: ChangeEventDetails): void {
+    this.context.onOpenChange?.(nextOpen, eventDetails);
   }
 
   /**
