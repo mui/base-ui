@@ -187,6 +187,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   );
 
   const { ref: listItemRef, index: compositeIndex } = useCompositeListItem<ThumbMetadata>({
+    guess: true,
     metadata: thumbMetadata,
   });
 
