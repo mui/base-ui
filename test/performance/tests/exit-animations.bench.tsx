@@ -60,6 +60,8 @@ async function closeAndMeasure() {
   await completed;
   completeDuration.record(performance.now() - start);
   scriptDuration.record((await getScriptDuration(session)) - scriptStart);
+  // The domain stays enabled across benchmark files and slows down their paint otherwise.
+  await session.send('Performance.disable');
 }
 
 function CheckboxIndicators(props: { count: number; className: string }) {

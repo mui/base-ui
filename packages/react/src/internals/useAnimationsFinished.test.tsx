@@ -581,6 +581,10 @@ describe('useAnimationsFinished', () => {
         name: 'a nonanimated element followed by an animated element',
         timings: [null, { duration: 10_000 }],
       },
+      {
+        name: 'three elements with one left after the animated one',
+        timings: [null, { duration: 10_000 }, null],
+      },
     ])('looks up $name individually without scanning the root', async ({ timings }) => {
       const { getDocumentAnimations, getElementAnimations } = spyOnLookups();
 
@@ -603,7 +607,7 @@ describe('useAnimationsFinished', () => {
       expect(elements.at(-1)!.onFinished).toHaveBeenCalledTimes(1);
     });
 
-    it('deduplicates lookups of two distinct elements without scanning the root', async () => {
+    it('looks up an element checked twice once and counts it once toward the root lookup', async () => {
       const { getDocumentAnimations, getElementAnimations } = spyOnLookups();
       const onFirstFinished = vi.fn();
       const onSecondFinished = vi.fn();

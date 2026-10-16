@@ -30,7 +30,7 @@ function createMicrotaskQueue<T>(flush: (items: T[]) => void) {
  * In Blink, `element.getAnimations()` returns early for an element without animations, but
  * otherwise sorts every animation in the tree. Once an element with animations is found, the
  * remaining elements of its tree are served by a single `getAnimations()` call on the tree's root.
- * Batches of up to two distinct elements use individual lookups, since a root scan cannot save a sort.
+ * A root scan for a single remaining element cannot save a sort, so it is skipped.
  */
 const getAnimationsBatched = createMicrotaskQueue<
   [element: Element, callback: (animations: Animation[]) => void]
@@ -39,12 +39,14 @@ const getAnimationsBatched = createMicrotaskQueue<
   for (const [element] of lookups) {
     animationsByElement.set(element, undefined);
   }
+  let remaining = animationsByElement.size;
   let animatedRoot: (Node & Partial<DocumentOrShadowRoot>) | undefined;
   let animationsByTarget: Map<Element | null, Animation[]> | undefined;
 
   for (const [element, callback] of lookups) {
     let animations = animationsByElement.get(element);
     if (!animations) {
+      remaining -= 1;
       const root: Node & Partial<DocumentOrShadowRoot> = element.getRootNode();
       if (root === animatedRoot && !animationsByTarget) {
         animationsByTarget = new Map();
@@ -61,12 +63,7 @@ const getAnimationsBatched = createMicrotaskQueue<
       }
       animations =
         root === animatedRoot ? (animationsByTarget!.get(element) ?? []) : element.getAnimations();
-      if (
-        animationsByElement.size > 2 &&
-        animations.length &&
-        element.isConnected &&
-        root.getAnimations
-      ) {
+      if (remaining > 1 && animations.length && element.isConnected && root.getAnimations) {
         animatedRoot ??= root;
       }
       animationsByElement.set(element, animations);
