@@ -58,7 +58,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.context.onOpenChangeComplete(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });

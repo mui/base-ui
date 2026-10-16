@@ -61,6 +61,11 @@ export interface UsePopupRootOptions {
    * @default false
    */
   disabled?: boolean | undefined;
+  /**
+   * The element whose closing animations are awaited before the popup unmounts.
+   * @default store.context.popupRef
+   */
+  popupRef?: React.RefObject<HTMLElement | null> | undefined;
 }
 
 /**
@@ -124,6 +129,7 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
     closeOnActiveTriggerUnmount = false,
     animateInitialOpen = false,
     disabled = false,
+    popupRef,
   } = options;
 
   const store = usePopupRootStore(
@@ -154,6 +160,7 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
     store,
     openProp,
     animateInitialOpen,
+    popupRef,
   );
 
   React.useImperativeHandle(
@@ -428,6 +435,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
  *   only mounts in response to something the user did, such as a submenu inside a menu popup.
+ * @param popupRef The element whose closing animations are awaited before unmounting.
  *
  * @returns A function to forcibly unmount the popup. It is a no-op once the popup is already
  *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
@@ -439,6 +447,7 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   },
   openProp: boolean | undefined,
   animateInitialOpen?: boolean,
+  popupRef: React.RefObject<HTMLElement | null> = store.context.popupRef,
 ) {
   // In controlled mode, `state.open` holds the last open-change request instead of the open state,
   // and a close through the prop doesn't reset it. Clear it in the commit that receives a closing
@@ -453,7 +462,7 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
 
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
-    ref: store.context.popupRef,
+    ref: popupRef,
     preventUnmountOnClose: store.useState('preventUnmountingOnClose'),
     setPreventUnmountOnClose: (preventUnmountOnClose) =>
       store.set('preventUnmountingOnClose', preventUnmountOnClose),

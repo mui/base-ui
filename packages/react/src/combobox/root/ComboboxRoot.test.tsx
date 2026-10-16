@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
@@ -302,6 +302,35 @@ describe('<Combobox.Root />', () => {
 
       expect(optionA).toHaveAttribute('data-highlighted');
     });
+  });
+
+  it('calls onOpenChangeComplete after the closed popup resets the input', async () => {
+    const calls: string[] = [];
+    const { user } = await render(
+      <Combobox.Root
+        onInputValueChange={(value) => calls.push(`inputValueChange:${value}`)}
+        onOpenChangeComplete={(open) => calls.push(`openChangeComplete:${open}`)}
+      >
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.type(screen.getByTestId('input'), 'ap');
+    await waitFor(() => expect(calls).toContain('openChangeComplete:true'));
+    calls.length = 0;
+
+    await user.click(document.body);
+    await waitFor(() => expect(calls).toContain('openChangeComplete:false'));
+    expect(calls).toEqual(['inputValueChange:', 'openChangeComplete:false']);
   });
 
   describe('manual unmount lifecycle', () => {
@@ -7525,17 +7554,6 @@ describe('<Combobox.Root />', () => {
     });
 
     it('still clears the kept filter text once the popup closes', async () => {
-      // Reopening resizes the popup while positioning starts observing it, which the browser
-      // reports as a ResizeObserver loop. It only defers a notification by a frame.
-      const consoleError = console.error;
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation((...args) => {
-        if (String(args[0]).includes('ResizeObserver loop')) {
-          return;
-        }
-        consoleError(...args);
-      });
-      onTestFinished(() => consoleErrorSpy.mockRestore());
-
       const { user } = await render(
         <Combobox.Root
           multiple
