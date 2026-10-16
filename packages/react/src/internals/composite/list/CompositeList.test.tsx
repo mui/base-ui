@@ -3,7 +3,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, mergeRefs } from '#test-utils';
-import { CompositeList } from './CompositeList';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { CompositeList, useCompositeList } from './CompositeList';
+import { CompositeListContext, useCompositeListContext } from './CompositeListContext';
+import { CompositeListModel } from './CompositeListModel';
 import { useCompositeListItem } from './useCompositeListItem';
 
 describe('<CompositeList />', () => {
@@ -744,6 +748,98 @@ describe('<CompositeList />', () => {
       expect(observedRoots).toEqual([screen.getByTestId('list')]);
     });
 
+    it('keeps the observer when a re-registration leaves the order unchanged', async () => {
+      const observe = vi.spyOn(MutationObserver.prototype, 'observe');
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const labelsRef = {
+        current: [] as Array<string | null>,
+      };
+
+      function RelabelledItem(props: { label: string; testId: string }) {
+        const { ref, index } = useCompositeListItem({ label: props.label });
+        return <div ref={ref} data-testid={props.testId} data-index={index} />;
+      }
+
+      function App(props: { label: string }) {
+        return (
+          <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
+            <div data-testid="list">
+              <RelabelledItem testId="a" label={props.label} />
+              <RelabelledItem testId="b" label="b" />
+            </div>
+          </CompositeList>
+        );
+      }
+
+      const { setProps } = await render(<App label="before" />, { strict: false });
+      expect(labelsRef.current).toEqual(['before', 'b']);
+      expect(observe).toHaveBeenCalledTimes(1);
+
+      // A label change re-registers the item, which is a flush without a reorder.
+      await setProps({ label: 'after' });
+      expect(labelsRef.current).toEqual(['after', 'b']);
+      expect(observe).toHaveBeenCalledTimes(1);
+
+      // The retained observer still catches a later move.
+      const list = screen.getByTestId('list');
+      list.insertBefore(screen.getByTestId('b'), screen.getByTestId('a'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('b')).toHaveAttribute('data-index', '0');
+      });
+      observe.mockRestore();
+      expect(screen.getByTestId('a')).toHaveAttribute('data-index', '1');
+    });
+
+    it('does not re-render an item whose index is unchanged when it has pending work', async () => {
+      const renderCounts: Record<string, number> = { a: 0, b: 0 };
+      const rerenderItem: Record<string, () => void> = {};
+
+      const CountedItem = React.memo(function CountedItem(props: { label: string }) {
+        const { ref, index } = useCompositeListItem({ guess: true });
+        const [, rerender] = React.useReducer((count: number) => count + 1, 0);
+        rerenderItem[props.label] = rerender;
+        renderCounts[props.label] += 1;
+        return <div ref={ref} data-testid={props.label} data-index={index} />;
+      });
+
+      function App() {
+        const [items, setItems] = React.useState(['a']);
+        const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                // Batched with the mount below, so the existing item renders in the same commit
+                // and its fiber still carries the update's lane when the list flushes. React
+                // cannot bail out of a same-value `setState` eagerly in that state.
+                rerenderItem.a();
+                setItems(['a', 'b']);
+              }}
+            >
+              Add item
+            </button>
+            <CompositeList elementsRef={elementsRef}>
+              {items.map((item) => (
+                <CountedItem key={item} label={item} />
+              ))}
+            </CompositeList>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />, { strict: false });
+      expect(renderCounts.a).toBe(1);
+
+      await user.click(screen.getByRole('button', { name: 'Add item' }));
+
+      expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');
+      expect(renderCounts).toEqual({ a: 2, b: 1 });
+    });
+
     it('updates indexes when keyed groups reorder', async () => {
       function App() {
         const [reordered, setReordered] = React.useState(false);
@@ -1180,18 +1276,194 @@ describe('<CompositeList />', () => {
     });
   });
 
-  describe('without a parent list', () => {
-    it('renders an item that is not wrapped in a list', async () => {
-      function OrphanItem() {
+  describe('useCompositeList', () => {
+    it('lets a consumer provide the context itself', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const onMapChange = vi.fn();
+
+      function Item(props: { label: string }) {
         const { ref, index } = useCompositeListItem();
-        return <div ref={ref} data-testid="orphan" data-index={index} />;
+        return <div ref={ref} data-testid={props.label} data-index={index} />;
       }
 
-      const { unmount } = await render(<OrphanItem />);
+      function List(props: { children: React.ReactNode }) {
+        const context = useCompositeList({ elementsRef, onMapChange });
+        return (
+          <CompositeListContext.Provider value={context}>
+            {props.children}
+          </CompositeListContext.Provider>
+        );
+      }
 
-      // The default context no-ops keep a stray item inert rather than throwing.
-      expect(screen.getByTestId('orphan')).toBeInTheDocument();
+      const { unmount } = await render(
+        <List>
+          <Item label="a" />
+          <Item label="b" />
+        </List>,
+      );
+
+      expect(elementsRef.current).toEqual([screen.getByTestId('a'), screen.getByTestId('b')]);
+      expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');
+      const map = onMapChange.mock.lastCall?.[0] as Map<Element, { index: number }>;
+      expect(Array.from(map.values(), (metadata) => metadata.index)).toEqual([0, 1]);
+
+      unmount();
+      expect(elementsRef.current).toHaveLength(0);
+    });
+  });
+
+  describe('subscribeMapChange', () => {
+    it('notifies subscribers before onMapChange', async () => {
+      const calls: string[] = [];
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      function Subscriber() {
+        const { subscribeMapChange } = useCompositeListContext();
+        React.useLayoutEffect(
+          () =>
+            subscribeMapChange((map) => {
+              calls.push(`subscriber:${map.size}`);
+            }),
+          [subscribeMapChange],
+        );
+        return null;
+      }
+
+      function Item() {
+        const { ref } = useCompositeListItem();
+        return <div ref={ref} />;
+      }
+
+      await render(
+        <CompositeList
+          elementsRef={elementsRef}
+          onMapChange={(map) => {
+            calls.push(`onMapChange:${map.size}`);
+          }}
+        >
+          <Subscriber />
+          <Item />
+          <Item />
+        </CompositeList>,
+        { strict: false },
+      );
+
+      expect(calls).toEqual(['subscriber:2', 'onMapChange:2']);
+    });
+  });
+
+  describe('CompositeListModel', () => {
+    it('lets an owner drive the list and items register without a provider', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const ListContext = React.createContext<CompositeListModel<unknown> | null>(null);
+
+      function Item(props: { label: string }) {
+        const list = React.useContext(ListContext)!;
+        const { ref, index } = useCompositeListItem({ guess: true, list: list.context });
+        return <div ref={ref} data-testid={props.label} data-index={index} />;
+      }
+
+      function Owner(props: { children: React.ReactNode }) {
+        const [, requestFlush] = React.useReducer((count: number) => count + 1, 0);
+        const list = useRefWithInit(
+          () => new CompositeListModel<unknown>({ elementsRef, requestFlush }),
+        ).current;
+
+        useIsoLayoutEffect(() => {
+          if (list.dirty) {
+            list.flush();
+          }
+        });
+
+        return <ListContext.Provider value={list}>{props.children}</ListContext.Provider>;
+      }
+
+      function App(props: { items: string[] }) {
+        return (
+          <Owner>
+            {props.items.map((item) => (
+              <Item key={item} label={item} />
+            ))}
+          </Owner>
+        );
+      }
+
+      const { setProps } = await render(<App items={['a', 'c']} />);
+      expect(elementsRef.current).toEqual([screen.getByTestId('a'), screen.getByTestId('c')]);
+
+      await setProps({ items: ['a', 'b', 'c'] });
+
+      expect(elementsRef.current).toEqual([
+        screen.getByTestId('a'),
+        screen.getByTestId('b'),
+        screen.getByTestId('c'),
+      ]);
+      expect(screen.getByTestId('c')).toHaveAttribute('data-index', '2');
+    });
+
+    it('publishes an empty list once and settles it on later flushes', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      const onMapChange = vi.fn();
+
+      function Item() {
+        const { ref } = useCompositeListItem();
+        return <div ref={ref} data-testid="item" />;
+      }
+
+      function App(props: { revision: number; withItem: boolean }) {
+        return (
+          <CompositeList elementsRef={elementsRef} onMapChange={onMapChange}>
+            <span data-revision={props.revision} />
+            {props.withItem && <Item />}
+          </CompositeList>
+        );
+      }
+
+      const { setProps } = await render(<App revision={0} withItem={false} />, { strict: false });
+      expect(onMapChange).toHaveBeenCalledTimes(1);
+      expect(onMapChange.mock.lastCall?.[0].size).toBe(0);
+
+      await setProps({ revision: 1, withItem: false });
+      expect(onMapChange).toHaveBeenCalledTimes(1);
+
+      await setProps({ revision: 2, withItem: true });
+      expect(elementsRef.current).toEqual([screen.getByTestId('item')]);
+
+      await setProps({ revision: 3, withItem: false });
+      expect(elementsRef.current).toEqual([]);
+      expect(onMapChange.mock.lastCall?.[0].size).toBe(0);
+      expect(onMapChange).toHaveBeenCalledTimes(3);
+    });
+  });
+
+  describe('without a parent list', () => {
+    it('keeps items that are not wrapped in a list inert', async () => {
+      function OrphanItem(props: { testId: string; guess?: boolean }) {
+        const { ref, index } = useCompositeListItem({ guess: props.guess });
+        return <div ref={ref} data-testid={props.testId} data-index={index} />;
+      }
+
+      const { unmount } = await render(
+        <React.Fragment>
+          <OrphanItem testId="orphan" />
+          <OrphanItem testId="guessing" guess />
+          <OrphanItem testId="guessing-again" guess />
+        </React.Fragment>,
+      );
+
+      // The default context no-ops keep stray items inert rather than throwing, and guesses
+      // must not come from a counter shared by every item rendered outside a list.
       expect(screen.getByTestId('orphan')).toHaveAttribute('data-index', '-1');
+      expect(screen.getByTestId('guessing')).toHaveAttribute('data-index', '-1');
+      expect(screen.getByTestId('guessing-again')).toHaveAttribute('data-index', '-1');
       expect(() => unmount()).not.toThrow();
     });
   });
