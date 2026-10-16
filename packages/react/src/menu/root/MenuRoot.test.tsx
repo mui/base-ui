@@ -31,6 +31,7 @@ import {
   waitSingleFrame,
 } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { MenuStore } from '../store/MenuStore';
 import { useMenuRootContext } from './MenuRootContext';
@@ -2807,6 +2808,85 @@ describe('<Menu.Root />', () => {
         expect((openChangeSpy.mock.lastCall?.[1].event as MouseEvent).detail).toBe(1);
       });
 
+      it('continues arrow navigation from a checkbox item selected by drag release', async () => {
+        ignoreActWarnings();
+        const { user } = await render(
+          <Menu.Root>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.CheckboxItem>Two</Menu.CheckboxItem>
+                  <Menu.Item>Three</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        fireEvent.mouseDown(trigger);
+
+        const firstItem = await screen.findByRole('menuitem', { name: 'One' });
+        const checkboxItem = screen.getByRole('menuitemcheckbox', { name: 'Two' });
+        const thirdItem = screen.getByRole('menuitem', { name: 'Three' });
+        await waitFor(() => {
+          expect(firstItem).toHaveFocus();
+        });
+
+        await wait(200);
+
+        fireEvent.mouseUp(checkboxItem);
+
+        await waitFor(() => {
+          expect(checkboxItem).toHaveAttribute('aria-checked', 'true');
+        });
+        expect(checkboxItem).toHaveFocus();
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(thirdItem).toHaveFocus();
+        });
+      });
+
+      it('focuses a disabled item on drag release without activating it', async () => {
+        ignoreActWarnings();
+        const onClick = vi.fn();
+        await render(
+          <Menu.Root highlightItemOnHover={false}>
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.Item disabled onClick={onClick}>
+                    Two
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        fireEvent.mouseDown(screen.getByRole('button', { name: 'Toggle' }));
+
+        const firstItem = await screen.findByRole('menuitem', { name: 'One' });
+        const disabledItem = screen.getByRole('menuitem', { name: 'Two' });
+        await waitFor(() => {
+          expect(firstItem).toHaveFocus();
+        });
+
+        await wait(200);
+        fireEvent.mouseUp(disabledItem);
+        await flushMicrotasks();
+
+        expect(disabledItem).toHaveFocus();
+        expect(onClick).not.toHaveBeenCalled();
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+      });
+
       it('closes the menu on click, drag outside, release', async () => {
         const { userEvent: user, page } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
@@ -3762,6 +3842,482 @@ describe('<Menu.Root />', () => {
 
       expect(submenuListener).toHaveBeenCalled();
     });
+  });
+
+  describe('open change requests', () => {
+    it('reports two identical requests made in one tick twice', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <React.Fragment>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger-a">
+            Trigger A
+          </Menu.Trigger>
+          <Menu.Trigger handle={handle} id="trigger-b">
+            Trigger B
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger A' }));
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+      onOpenChange.mockClear();
+
+      await act(async () => {
+        handle.open('trigger-b');
+        handle.open('trigger-b');
+      });
+
+      expect(onOpenChange).toHaveBeenCalledTimes(2);
+      expect(screen.getByRole('button', { name: 'Trigger B' })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+    });
+
+    it('ignores a request made before the root has mounted', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+
+      function OpenOnMount() {
+        React.useLayoutEffect(() => {
+          handle.open('trigger');
+        }, []);
+        return null;
+      }
+
+      await render(
+        <React.Fragment>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <OpenOnMount />
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>,
+      );
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+
+    it('accepts a request made after the root has mounted in the same commit', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+
+      function OpenOnMount() {
+        React.useLayoutEffect(() => {
+          handle.open('trigger');
+        }, []);
+        return null;
+      }
+
+      await render(
+        <React.Fragment>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <OpenOnMount />
+        </React.Fragment>,
+      );
+
+      expect(onOpenChange.mock.calls[0][0]).toBe(true);
+      expect(screen.queryByRole('menu')).not.toBe(null);
+    });
+
+    it('ignores a request identical to the open state the root committed', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await act(async () => {
+        handle.open('trigger');
+      });
+      expect(screen.queryByRole('menu')).not.toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        handle.open('trigger');
+      });
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores a close request while the menu is already closed', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+      expect(screen.queryByRole('menu')).toBe(null);
+
+      await act(async () => {
+        handle.close();
+      });
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('drops a request made after the root unmounts', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+
+      function Fixture({ showRoot }: { showRoot: boolean }) {
+        return (
+          <React.Fragment>
+            {showRoot && (
+              <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            )}
+            <Menu.Trigger handle={handle} id="trigger">
+              Trigger
+            </Menu.Trigger>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<Fixture showRoot />);
+      const store = handle.store;
+      await setProps({ showRoot: false });
+
+      await act(async () => {
+        store.setOpen(true, createChangeEventDetails(REASONS.imperativeAction));
+      });
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('reports the committed active trigger for a close that carries no trigger', async () => {
+      const handle = Menu.createHandle();
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <React.Fragment>
+          <Menu.Root handle={handle} onOpenChange={onOpenChange}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger-a">
+            Trigger A
+          </Menu.Trigger>
+          <Menu.Trigger handle={handle} id="trigger-b">
+            Trigger B
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger B' }));
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+      onOpenChange.mockClear();
+
+      await act(async () => {
+        handle.close();
+      });
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(
+        screen.getByRole('button', { name: 'Trigger B' }),
+      );
+    });
+
+    it('resets allowMouseEnter once the menu unmounts after closing', async () => {
+      const handle = Menu.createHandle();
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await act(async () => {
+        handle.open('trigger');
+      });
+      await act(async () => {
+        handle.store.set('allowMouseEnter', true);
+      });
+      expect(handle.store.state.allowMouseEnter).toBe(true);
+
+      await act(async () => {
+        handle.close();
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      expect(handle.store.state.allowMouseEnter).toBe(false);
+    });
+
+    it('marks a close without a reason as a dismissal', async () => {
+      const handle = Menu.createHandle();
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle}>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="popup">
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      await act(async () => {
+        handle.open('trigger');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+
+      await act(async () => {
+        handle.store.setOpen(
+          false,
+          createChangeEventDetails(undefined as unknown as typeof REASONS.none),
+        );
+      });
+
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+    });
+
+    it('commits a hover open after the hover event has been dispatched', async () => {
+      const menuPresentDuringEvent: boolean[] = [];
+      await render(
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={0}>
+            Trigger
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      function recordMenu() {
+        menuPresentDuringEvent.push(screen.queryByRole('menu') !== null);
+      }
+
+      // The trigger opens from a native `mouseenter` listener. One added after it runs once the
+      // menu has handled the event. The event is dispatched outside `act()`, so React commits the
+      // open on its own schedule.
+      ignoreActWarnings();
+      trigger.addEventListener('mouseenter', recordMenu);
+      try {
+        trigger.dispatchEvent(new MouseEvent('mouseenter'));
+      } finally {
+        trigger.removeEventListener('mouseenter', recordMenu);
+      }
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+      expect(menuPresentDuringEvent).toEqual([false]);
+    });
+
+    it.skipIf(isJSDOM)(
+      'reopens immediately when re-hovering the trigger during its close transition',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        // Long enough that a slow run can't finish the close before the re-enter.
+        const closeTransitionMs = 10_000;
+        const style = `
+          @keyframes menu-reopen-during-close {
+            from {
+              opacity: 1;
+            }
+            to {
+              opacity: 0.01;
+            }
+          }
+
+          [data-testid="popup"][data-ending-style] {
+            animation: menu-reopen-during-close ${closeTransitionMs}ms linear forwards;
+          }
+        `;
+
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Menu.Root>
+              <Menu.Trigger openOnHover delay={500}>
+                Trigger
+              </Menu.Trigger>
+              <Menu.Portal keepMounted>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup">
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        await user.hover(trigger);
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+        });
+
+        await user.unhover(trigger);
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+
+        await user.hover(trigger);
+
+        // Well under the open delay, so only the close-transition fast path can reopen it.
+        await waitFor(
+          () => {
+            expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+          },
+          { timeout: 200 },
+        );
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-closed');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'leaves focus outside the menu when a keepMounted submenu reopens on hover',
+      async () => {
+        await render(
+          <React.Fragment>
+            <button type="button">Outside</button>
+            <Menu.Root open modal={false} highlightItemOnHover={false}>
+              <Menu.Trigger>Trigger</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>More</Menu.SubmenuTrigger>
+                      <Menu.Portal keepMounted>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Item>Submenu item</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>,
+        );
+
+        const outside = screen.getByRole('button', { name: 'Outside' });
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'More' });
+
+        // Open and close the submenu by pressing its trigger, then move focus out of the menu.
+        fireEvent.mouseDown(submenuTrigger);
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+        });
+        fireEvent.mouseDown(submenuTrigger);
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveAttribute('aria-expanded', 'false');
+        });
+        await act(async () => {
+          outside.focus();
+        });
+
+        enterWithMouse(submenuTrigger);
+        await waitFor(() => {
+          expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        expect(outside).toHaveFocus();
+      },
+    );
   });
 });
 

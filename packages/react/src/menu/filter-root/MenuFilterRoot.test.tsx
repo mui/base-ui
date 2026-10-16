@@ -19,6 +19,7 @@ import {
   firePointer,
   isJSDOM,
   resetBrowserPointer,
+  wait,
   waitSingleFrame,
 } from '#test-utils';
 
@@ -46,6 +47,44 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   const { render, renderToString } = createRenderer();
   // Strict Mode's double render would hide an extra commit from a render count.
   const { render: renderNonStrict } = createRenderer({ strict: false });
+
+  it.skipIf(isJSDOM)('keeps input focus after selecting an item by drag release', async () => {
+    ignoreActWarnings();
+    await render(
+      <Menu.FilterProvider>
+        <Menu.Root highlightItemOnHover={false}>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.CheckboxItem>Two</Menu.CheckboxItem>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Actions' }));
+
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    const checkbox = screen.getByRole('menuitemcheckbox', { name: 'Two' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    await wait(200);
+    fireEvent.mouseUp(checkbox);
+
+    await waitFor(() => {
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+    expect(input).toHaveFocus();
+  });
 
   describe('opening with a query', () => {
     it('keeps the matching items mounted', async () => {
