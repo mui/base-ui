@@ -23,6 +23,7 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../internals/useAnchorPositioning';
 import * as SelectTriggerDataAttributes from './SelectTriggerDataAttributes';
+import { useSelectFilterImpl, useUnfilteredTriggerProps } from '../filter-root/SelectFilterContext';
 
 const SELECTED_DELAY = 400;
 
@@ -128,19 +129,27 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, store, timeoutMouseDown, selectedDelayTimeout]);
 
+  // A filterable select opens a dialog holding the input and the list, so the trigger stays a
+  // plain button: no element carries the combobox role.
+  const { virtualFocus } = store.context;
+
+  const useFilterTriggerProps = useSelectFilterImpl()?.useTriggerProps ?? useUnfilteredTriggerProps;
+  const filterTriggerProps = useFilterTriggerProps();
+
   const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
       id,
-      role: 'combobox',
+      role: virtualFocus ? undefined : 'combobox',
       'aria-expanded': open,
-      'aria-haspopup': 'listbox',
+      'aria-haspopup': virtualFocus ? 'dialog' : 'listbox',
       'aria-controls': open
-        ? (listElement?.id ?? getFloatingFocusElement(positionerElement)?.id)
+        ? ((virtualFocus ? undefined : listElement?.id) ??
+          getFloatingFocusElement(positionerElement)?.id)
         : undefined,
       'aria-labelledby': ariaLabelledBy,
-      'aria-readonly': readOnly || undefined,
-      'aria-required': required || undefined,
+      'aria-readonly': (!virtualFocus && readOnly) || undefined,
+      'aria-required': (!virtualFocus && required) || undefined,
       tabIndex: disabled ? -1 : 0,
       onFocus(event) {
         setFocused(true);
@@ -152,10 +161,13 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
         // Saves a re-render on initial click: `forceMount === true` mounts
         // the items before `open === true`. We could sync those cycles better
-        // without a timeout, but this is enough for now.
-        timeoutFocus.start(0, () => {
-          store.set('forceMount', true);
-        });
+        // without a timeout, but this is enough for now. A filterable select has no
+        // closed-trigger typeahead to serve, so its popup mounts on open only.
+        if (!virtualFocus) {
+          timeoutFocus.start(0, () => {
+            store.set('forceMount', true);
+          });
+        }
       },
       onBlur(event) {
         // If focus is moving into the popup, don't count it as a blur.
@@ -206,6 +218,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         });
       },
     },
+    filterTriggerProps,
     elementProps,
     getButtonProps,
   );
@@ -213,7 +226,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />
-  props.role = 'combobox';
+  if (!virtualFocus) {
+    props.role = 'combobox';
+  }
 
   const state: SelectTriggerState = {
     ...fieldState,

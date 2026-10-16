@@ -26,8 +26,15 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { selectors } from '../store';
 import type { SelectStoreContext, State as StoreState } from '../store';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIHighlightEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import { REASONS } from '../../internals/reasons';
 import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -44,15 +51,54 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
+import type { HTMLProps } from '../../internals/types';
+import { SelectFilterProviderContext } from '../filter-provider/SelectFilterProviderContext';
 
-/**
- * Groups all parts of the select.
- * Doesn't render its own HTML element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRoot.Props<Value, Multiple>,
+interface SelectRootInternalProps<
+  Value,
+  Multiple extends boolean | undefined,
+> extends SelectRoot.Props<Value, Multiple> {
+  /**
+   * @ignore
+   * Keeps real focus on an element inside the popup and navigates the list with
+   * `aria-activedescendant`.
+   */
+  virtualFocus?: boolean | undefined;
+  /**
+   * @ignore
+   * Whether keyboard or virtual activation should initially highlight an option.
+   */
+  virtualFocusInitialHighlight?: boolean | undefined;
+  /**
+   * @ignore
+   * Whether list navigation can start from the selected option. Filtering leaves `selectedIndex`
+   * pointing at a stale position, so a filter root turns this off once the query changes.
+   */
+  virtualFocusSelectedIndex?: boolean | undefined;
+  /**
+   * @ignore
+   * The element that retains real focus while virtual list navigation is active.
+   */
+  virtualFocusRef?: React.RefObject<HTMLElement | null> | undefined;
+  /**
+   * @ignore
+   * Whether virtual focus can leave the list during arrow navigation.
+   */
+  allowEscape?: boolean | undefined;
+  /**
+   * @ignore
+   * Whether pointer leave should clear the active item.
+   */
+  resetOnPointerLeave?: boolean | undefined;
+  /**
+   * @ignore
+   * Renders internal virtual-focus adapters with the current navigation props.
+   */
+  renderVirtualFocusChildren?: ((inputProps: HTMLProps) => React.ReactNode) | undefined;
+}
+
+export function SelectRootInternal<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRootInternalProps<Value, Multiple>,
 ): React.JSX.Element {
   const {
     id,
@@ -78,7 +124,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
     highlightItemOnHover = true,
+    onItemHighlighted: onItemHighlightedProp,
     children,
+    virtualFocus = false,
+    virtualFocusInitialHighlight = false,
+    virtualFocusSelectedIndex = false,
+    virtualFocusRef,
+    allowEscape = true,
+    resetOnPointerLeave,
+    renderVirtualFocusChildren,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -188,6 +242,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           selectedItemTextRef,
           alignItemWithTriggerActiveRef,
           initialValueRef,
+          virtualFocus,
+          virtualFocusRef,
         },
         selectors,
       ),
@@ -368,18 +424,53 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const dismiss = useDismiss(floatingContext);
 
+  const onItemHighlighted = useStableCallback(onItemHighlightedProp);
+  // The navigation event behind the next highlight change, reported as its reason.
+  const highlightEventRef = React.useRef<Event | undefined>(undefined);
+  const reportedIndexRef = React.useRef<number | null>(null);
+
+  useIsoLayoutEffect(() => {
+    const event = highlightEventRef.current;
+    highlightEventRef.current = undefined;
+    if (activeIndex === reportedIndexRef.current) {
+      return;
+    }
+    reportedIndexRef.current = activeIndex;
+    if (onItemHighlightedProp) {
+      onItemHighlighted(
+        activeIndex === null ? undefined : valuesRef.current[activeIndex],
+        createGenericEventDetails(getHighlightReason(event), event, { index: activeIndex ?? -1 }),
+      );
+    }
+  }, [activeIndex, onItemHighlighted, onItemHighlightedProp]);
+
+  const navigationSelectedIndex = virtualFocus && !virtualFocusSelectedIndex ? null : selectedIndex;
+
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !disabled,
     listRef,
     activeIndex,
-    selectedIndex,
+    selectedIndex: navigationSelectedIndex,
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex) {
+    virtual: virtualFocus,
+    // A filterable select keeps DOM focus on its input. Like an ordinary select, it opens on the
+    // selected option; without one, keyboard and virtual opens highlight the first option. The
+    // input remains part of the arrow-key loop.
+    focusItemOnOpen: virtualFocus
+      ? virtualFocusInitialHighlight || navigationSelectedIndex !== null
+      : undefined,
+    loopFocus: virtualFocus,
+    allowEscape: virtualFocus && allowEscape,
+    resetOnPointerLeave,
+    onNavigate(nextActiveIndex, event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
         return;
       }
 
+      if (nextActiveIndex !== store.state.activeIndex) {
+        highlightEventRef.current = event?.nativeEvent;
+      }
       store.set('activeIndex', nextActiveIndex);
     },
     focusItemOnHover: highlightItemOnHover,
@@ -387,8 +478,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const typeahead = useTypeahead(floatingContext, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
-    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
-    enabled: !disabled && (open || (!readOnly && !multiple)),
+    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't. Under
+    // virtual focus the input owns typing, so typeahead would race the filter query.
+    enabled: !disabled && !virtualFocus && (open || (!readOnly && !multiple)),
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
@@ -410,12 +502,30 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
+  // Under virtual focus the filter input holds real focus, so it takes the navigation's
+  // reference props (`aria-activedescendant` and the key handling) and the trigger keeps only
+  // the props that open the popup.
+  const openTriggerProps = React.useMemo(() => {
+    if (!virtualFocus) {
+      return listNavigation.reference;
+    }
+    if (!listNavigation.trigger) {
+      return EMPTY_OBJECT;
+    }
+    // Focusing the trigger while the popup is open must not seed the virtual highlight.
+    const { onFocus, ...rest } = listNavigation.trigger;
+    return rest;
+  }, [virtualFocus, listNavigation.reference, listNavigation.trigger]);
+  const inputProps: HTMLProps = virtualFocus
+    ? (listNavigation.reference ?? EMPTY_OBJECT)
+    : EMPTY_OBJECT;
+
   // `Select.Trigger` applies the id itself from the store, so it's deliberately not merged here.
   const mergedTriggerProps = React.useMemo(
     () =>
       mergeProps(
         typeahead.reference,
-        listNavigation.reference,
+        openTriggerProps,
         dismiss.reference,
         click.reference,
         interactionTypeProps,
@@ -423,7 +533,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [
       click.reference,
       typeahead.reference,
-      listNavigation.reference,
+      openTriggerProps,
       dismiss.reference,
       interactionTypeProps,
     ],
@@ -511,7 +621,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   return (
     <SelectRootContext.Provider value={store}>
       <SelectFloatingContext.Provider value={floatingContext}>
-        {children}
+        {renderVirtualFocusChildren ? renderVirtualFocusChildren(inputProps) : children}
       </SelectFloatingContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
@@ -586,6 +696,30 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 }
 
+/**
+ * Groups all parts of the select.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
+  props: SelectRoot.Props<Value, Multiple>,
+): React.JSX.Element {
+  const filter = React.useContext(SelectFilterProviderContext);
+  if (filter === null) {
+    return <SelectRootInternal {...props} />;
+  }
+
+  const FilterRoot = filter.Root;
+  return (
+    // The root consumes its provider so a plain select nested inside doesn't inherit it.
+    <SelectFilterProviderContext.Provider value={null}>
+      {/* Kept apart from the root's props, where the query's `value` would clash. */}
+      <FilterRoot {...props} filterOptions={filter.options} />
+    </SelectFilterProviderContext.Provider>
+  );
+}
+
 type SelectInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? readonly Value[]
   : Value;
@@ -644,6 +778,19 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * @default true
    */
   highlightItemOnHover?: boolean | undefined;
+  /**
+   * Callback fired when the user navigates through the list and highlights an item.
+   * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
+   * - `'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the
+   *   item list changing, or the popup opening or closing.
+   */
+  onItemHighlighted?:
+    | ((itemValue: Value | undefined, eventDetails: SelectRoot.HighlightEventDetails) => void)
+    | undefined;
   /**
    * Whether the select popup is initially open.
    *
@@ -762,6 +909,19 @@ export type SelectRootOpenChangeEventDetails = SelectRootChangeEventDetails & {
 
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 
+export type SelectRootHighlightEventReason =
+  typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
+
+export type SelectRootHighlightEventDetails = BaseUIHighlightEventDetails<
+  SelectRootHighlightEventReason,
+  {
+    /**
+     * The index of the highlighted item in the list, or `-1` when no item is highlighted.
+     */
+    index: number;
+  }
+>;
+
 export namespace SelectRoot {
   export type Props<Value, Multiple extends boolean | undefined = false> = SelectRootProps<
     Value,
@@ -772,4 +932,6 @@ export namespace SelectRoot {
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
   export type OpenChangeEventDetails = SelectRootOpenChangeEventDetails;
+  export type HighlightEventReason = SelectRootHighlightEventReason;
+  export type HighlightEventDetails = SelectRootHighlightEventDetails;
 }
