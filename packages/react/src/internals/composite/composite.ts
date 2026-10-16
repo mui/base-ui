@@ -1,14 +1,14 @@
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import type { TextDirection } from '../direction-context/DirectionContext';
 
+export { stopEvent } from '../../utils/popups/event';
 export {
-  stopEvent,
   isIndexOutOfListBounds,
   isListIndexDisabled,
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
-} from '../../floating-ui-react/utils';
+} from './listIndex';
 
 export const ARROW_UP = 'ArrowUp';
 export const ARROW_DOWN = 'ArrowDown';

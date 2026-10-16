@@ -19,6 +19,7 @@ import {
   firePointer,
   isJSDOM,
   resetBrowserPointer,
+  wait,
   waitSingleFrame,
 } from '#test-utils';
 
@@ -46,6 +47,44 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   const { render, renderToString } = createRenderer();
   // Strict Mode's double render would hide an extra commit from a render count.
   const { render: renderNonStrict } = createRenderer({ strict: false });
+
+  it.skipIf(isJSDOM)('keeps input focus after selecting an item by drag release', async () => {
+    ignoreActWarnings();
+    await render(
+      <Menu.FilterProvider>
+        <Menu.Root highlightItemOnHover={false}>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.CheckboxItem>Two</Menu.CheckboxItem>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Actions' }));
+
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    const checkbox = screen.getByRole('menuitemcheckbox', { name: 'Two' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    await wait(200);
+    fireEvent.mouseUp(checkbox);
+
+    await waitFor(() => {
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+    expect(input).toHaveFocus();
+  });
 
   describe('opening with a query', () => {
     it('keeps the matching items mounted', async () => {
@@ -4545,6 +4584,299 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
       expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
     });
+
+    it.skipIf(isJSDOM).each([
+      {
+        name: 'Escape',
+        close: (user: ReturnType<typeof userEvent.setup>) => user.keyboard('[Escape]'),
+      },
+      {
+        name: 'an item press',
+        close: (user: ReturnType<typeof userEvent.setup>) =>
+          user.click(screen.getByRole('menuitem', { name: 'Apricot' })),
+      },
+      {
+        name: 'an outside press',
+        close: (user: ReturnType<typeof userEvent.setup>) => user.click(document.body),
+      },
+    ])(
+      'keeps externally filtered items while the popup animates out after $name',
+      async ({ close }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const fruits = ['Apple', 'Apricot', 'Banana'];
+        const onValueChange = vi.fn();
+
+        function ExternalFilterMenu() {
+          const { contains } = Menu.useFilter();
+          const [query, setQuery] = React.useState('');
+          const results = fruits.filter((fruit) => contains(fruit, query));
+
+          return (
+            <React.Fragment>
+              <style>{`
+                @keyframes filter-menu-external-exit-test {
+                  to { opacity: 0; }
+                }
+                .filter-menu-external-exit-test[data-ending-style] {
+                  animation: filter-menu-external-exit-test 10s linear;
+                }
+              `}</style>
+              <Menu.FilterProvider
+                filter={null}
+                value={query}
+                onValueChange={(value, eventDetails) => {
+                  onValueChange(value, eventDetails.reason);
+                  setQuery(value);
+                }}
+              >
+                <Menu.Root>
+                  <Menu.Trigger>Fruit</Menu.Trigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="popup" className="filter-menu-external-exit-test">
+                        <Menu.Input aria-label="Filter fruit" />
+                        <Menu.List>
+                          {results.map((fruit) => (
+                            <Menu.Item key={fruit}>{fruit}</Menu.Item>
+                          ))}
+                        </Menu.List>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menu.FilterProvider>
+            </React.Fragment>
+          );
+        }
+
+        function getItemNames() {
+          return screen.getAllByRole('menuitem').map((item) => item.textContent);
+        }
+
+        const { user } = await render(<ExternalFilterMenu />);
+
+        await user.click(screen.getByRole('button', { name: 'Fruit' }));
+        const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+        await user.type(input, 'ap');
+        await waitFor(() => {
+          expect(getItemNames()).toEqual(['Apple', 'Apricot']);
+        });
+
+        await close(user);
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(getItemNames()).toEqual(['Apple', 'Apricot']);
+        expect(input).toHaveValue('ap');
+        expect(onValueChange).not.toHaveBeenCalledWith('', 'popup-close');
+
+        popup.getAnimations().forEach((animation) => animation.finish());
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+        await waitFor(() => {
+          expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
+        });
+      },
+    );
+  });
+
+  describe('closing with a query', () => {
+    function ControlledQueryMenu(props: {
+      onValueChange: (value: string, reason: string) => void;
+      rootProps?: Menu.Root.Props;
+    }) {
+      const [query, setQuery] = React.useState('');
+
+      return (
+        <React.Fragment>
+          <style>{`
+            @keyframes filter-menu-query-exit-test {
+              to { opacity: 0; }
+            }
+            .filter-menu-query-exit-test[data-ending-style] {
+              animation: filter-menu-query-exit-test 10s linear;
+            }
+          `}</style>
+          <Menu.FilterProvider
+            value={query}
+            onValueChange={(value, eventDetails) => {
+              props.onValueChange(value, eventDetails.reason);
+              setQuery(value);
+            }}
+          >
+            <Menu.Root {...props.rootProps}>
+              <Menu.Trigger>Fruit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup" className="filter-menu-query-exit-test">
+                    <Menu.Input aria-label="Filter fruit" />
+                    <Menu.List>
+                      <Menu.Item>Apple</Menu.Item>
+                      <Menu.Item>Apricot</Menu.Item>
+                      <Menu.Item>Banana</Menu.Item>
+                      {query !== '' && <Menu.Item label={query}>{`Create "${query}"`}</Menu.Item>}
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        </React.Fragment>
+      );
+    }
+
+    function getItemNames() {
+      return screen.getAllByRole('menuitem').map((item) => item.textContent);
+    }
+
+    async function openAndType(user: ReturnType<typeof userEvent.setup>, text: string) {
+      await user.click(screen.getByRole('button', { name: 'Fruit' }));
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      fireEvent.change(input, { target: { value: text } });
+      await waitFor(() => {
+        expect(getItemNames()).toEqual(['Apple', 'Apricot', `Create "${text}"`]);
+      });
+      return input;
+    }
+
+    it.skipIf(isJSDOM)(
+      'keeps an item rendered from the controlled query while the popup animates out',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const { user } = await render(<ControlledQueryMenu onValueChange={vi.fn()} />);
+        await openAndType(user, 'ap');
+
+        await user.keyboard('[Escape]');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(getItemNames()).toEqual(['Apple', 'Apricot', 'Create "ap"']);
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets the query when the popup reopens before its exit transition completes',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const onValueChange = vi.fn();
+
+        const { user } = await render(<ControlledQueryMenu onValueChange={onValueChange} />);
+        const input = await openAndType(user, 'ap');
+        onValueChange.mockClear();
+
+        await user.keyboard('[Escape]');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(input).toHaveValue('ap');
+
+        await user.click(screen.getByRole('button', { name: 'Fruit' }));
+
+        await waitFor(() => {
+          expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toHaveValue('');
+        });
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+        expect(getItemNames()).toEqual(['Apple', 'Apricot', 'Banana']);
+        expect(onValueChange).toHaveBeenCalledTimes(1);
+        expect(onValueChange).toHaveBeenCalledWith('', 'popup-close');
+      },
+    );
+
+    it('keeps the query until a popup that prevented unmounting is unmounted', async () => {
+      const onValueChange = vi.fn();
+      const actionsRef = React.createRef<Menu.Root.Actions>();
+
+      const { user } = await render(
+        <ControlledQueryMenu
+          onValueChange={onValueChange}
+          rootProps={{
+            actionsRef,
+            onOpenChange(_, eventDetails) {
+              eventDetails.preventUnmountOnClose();
+            },
+          }}
+        />,
+      );
+      const input = await openAndType(user, 'ap');
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Fruit' })).toHaveAttribute(
+          'aria-expanded',
+          'false',
+        );
+      });
+      expect(input).toHaveValue('ap');
+      expect(getItemNames()).toEqual(['Apple', 'Apricot', 'Create "ap"']);
+      expect(onValueChange).not.toHaveBeenCalledWith('', 'popup-close');
+
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
+    });
+
+    it.skipIf(isJSDOM)(
+      'resets the query when the menu is removed as its exit transition completes',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const onValueChange = vi.fn();
+
+        function RemovedOnCloseMenu() {
+          const [rendered, setRendered] = React.useState(true);
+
+          if (!rendered) {
+            return null;
+          }
+
+          return (
+            <ControlledQueryMenu
+              onValueChange={onValueChange}
+              rootProps={{
+                onOpenChangeComplete(open) {
+                  if (!open) {
+                    setRendered(false);
+                  }
+                },
+              }}
+            />
+          );
+        }
+
+        const { user } = await render(<RemovedOnCloseMenu />);
+        await openAndType(user, 'ap');
+
+        await user.keyboard('[Escape]');
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(onValueChange).not.toHaveBeenCalledWith('', 'popup-close');
+
+        popup.getAnimations().forEach((animation) => animation.finish());
+
+        await waitFor(() => {
+          expect(screen.queryByRole('button', { name: 'Fruit' })).toBe(null);
+        });
+        expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
+      },
+    );
   });
 
   describe('canceling changes', () => {

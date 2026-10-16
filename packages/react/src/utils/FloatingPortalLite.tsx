@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import type { BaseUIComponentProps } from '../internals/types';
-import { useFloatingPortalNode } from '../floating-ui-react/components/FloatingPortal';
+import { useFloatingPortalNode } from './popups/portal/FloatingPortal';
 
 type PortalContainer =
   HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null;

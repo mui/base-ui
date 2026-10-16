@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/71a01dd6186f601475e5c9ad15a4c55cc782ca6f/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/0a555da875ab03199afe8f28dbb4c723f853a52d/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -74,6 +74,11 @@ jobs:
           command: pnpm docs:validate
   test_lint:
     <<: *default-job
+    resource_class: medium+
+    environment:
+      <<: *default-environment
+      # Type-aware docs linting loads the docs and component TypeScript projects.
+      NODE_OPTIONS: --max-old-space-size=4096
     steps:
       - checkout
       - code-infra/install-deps

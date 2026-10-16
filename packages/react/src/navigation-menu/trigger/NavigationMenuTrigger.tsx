@@ -9,28 +9,25 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import {
-  safePolygon,
-  useClick,
-  useFloatingRootContext,
-  useFloatingTree,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-react';
+import { closest, contains } from '@base-ui/utils/shadowDom';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
 import {
   applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
   useHoverInteractionSharedState,
-} from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
+} from '../../utils/popups/interactions/useHoverInteractionSharedState';
 import {
-  closest,
-  contains,
   getTabbableNearElement,
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
-  stopEvent,
-} from '../../floating-ui-react/utils';
-import type { HandleCloseContextBase } from '../../floating-ui-react/hooks/useHoverShared';
+} from '../../utils/popups/focus/tabbable';
+import { stopEvent } from '../../utils/popups/event';
+import type { HandleCloseContextBase } from '../../utils/popups/interactions/useHoverShared';
 import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../internals/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {

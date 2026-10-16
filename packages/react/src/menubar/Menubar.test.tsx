@@ -89,6 +89,75 @@ describe('<Menubar />', () => {
     });
   });
 
+  it('reports a delayed touch click it ignores to a controlled menu', async () => {
+    const onEditOpenChange = vi.fn();
+
+    function ControlledEditMenubar() {
+      const [editOpen, setEditOpen] = React.useState(false);
+      return (
+        <Menubar>
+          <Menu.Root>
+            <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="file-menu">
+                <Menu.Popup>
+                  <Menu.Item>Open</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Root
+            open={editOpen}
+            onOpenChange={(nextOpen, eventDetails) => {
+              onEditOpenChange(nextOpen, eventDetails.reason);
+              setEditOpen(nextOpen);
+            }}
+          >
+            <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="edit-menu">
+                <Menu.Popup>
+                  <Menu.Item>Copy</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>
+      );
+    }
+
+    const { user } = await render(<ControlledEditMenubar />);
+
+    await user.click(screen.getByTestId('file-trigger'));
+    await screen.findByTestId('file-menu');
+
+    const editTrigger = screen.getByTestId('edit-trigger');
+
+    // Freeze timers so the 300ms touch-click cooldown started by the focus-open is still
+    // active when the trigger is clicked.
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        editTrigger.focus();
+      });
+      screen.getByTestId('edit-menu');
+      expect(onEditOpenChange).toHaveBeenLastCalledWith(true, 'trigger-focus');
+
+      fireEvent(
+        editTrigger,
+        new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+
+    // The menu ignores the click only after reporting it, so a controlled menu follows the report.
+    expect(onEditOpenChange).toHaveBeenLastCalledWith(false, 'trigger-press');
+    await waitFor(() => {
+      expect(screen.queryByTestId('edit-menu')).toBe(null);
+    });
+  });
+
   it('closes on a touch item click immediately after focus opens another menu', async () => {
     const { user } = await render(<ContainedTriggerMenubar />);
 

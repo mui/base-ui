@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { NavigationMenuRoot } from './NavigationMenuRoot';
 
@@ -30,8 +30,8 @@ export interface NavigationMenuRootContext<Value = any> {
   setActivationDirection: React.Dispatch<
     React.SetStateAction<'left' | 'right' | 'up' | 'down' | null>
   >;
-  floatingRootContext: FloatingRootContext | undefined;
-  setFloatingRootContext: React.Dispatch<React.SetStateAction<FloatingRootContext | undefined>>;
+  floatingRootContext: FloatingRootStore | undefined;
+  setFloatingRootContext: React.Dispatch<React.SetStateAction<FloatingRootStore | undefined>>;
   currentContentRef: React.RefObject<HTMLDivElement | null>;
   nested: boolean;
   rootRef: React.RefObject<HTMLDivElement | null>;
