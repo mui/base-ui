@@ -6,12 +6,13 @@ const PACKAGE_ROOT = path.resolve(import.meta.dirname, '..');
 const DOCS_PUBLIC = path.resolve(PACKAGE_ROOT, '../../docs/public');
 const STAGE_DIR = path.join(PACKAGE_ROOT, 'published-docs');
 
+// Always clear, otherwise a stale stage dir is copied into the build even when not publishing docs.
+await fs.rm(STAGE_DIR, { recursive: true, force: true });
+
 if (!process.env.BASE_UI_PUBLISH_DOCS) {
   console.log('[stage-docs] BASE_UI_PUBLISH_DOCS not set, skipping docs staging.');
   process.exit(0);
 }
-
-await fs.rm(STAGE_DIR, { recursive: true, force: true });
 
 let count = 0;
 for await (const entry of fs.glob('**/*.md', { cwd: DOCS_PUBLIC })) {
