@@ -14,6 +14,7 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  hiddenInputTypeTests,
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
@@ -3204,48 +3205,16 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe('hidden input type', () => {
-    function renderSelect(props: Select.Root.Props<string> = {}) {
-      return render(
-        <Select.Root {...props}>
-          <Select.Trigger>
-            <Select.Value />
-          </Select.Trigger>
-        </Select.Root>,
-      );
-    }
-
-    it('is hidden when the select is not part of a form', async () => {
-      const { container } = await renderSelect();
-
-      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
-      expect(container.querySelector('input')).toHaveAttribute('type', 'hidden');
-    });
-
-    it.each([
-      ['name', { name: 'country' }],
-      ['form', { form: 'form-id' }],
-      ['autoComplete', { autoComplete: 'country' }],
-      ['required', { required: true }],
-    ])('is a text input when %s is set', async (_, props) => {
-      await renderSelect(props);
-
-      expect(screen.getByRole('textbox', { hidden: true })).not.toHaveAttribute('type');
-    });
-
-    it('is a text input inside Field.Root', async () => {
-      await render(
-        <Field.Root>
-          <Select.Root>
-            <Select.Trigger>
-              <Select.Value />
-            </Select.Trigger>
-          </Select.Root>
-        </Field.Root>,
-      );
-
-      expect(screen.getByRole('textbox', { hidden: true })).not.toHaveAttribute('type');
-    });
+  hiddenInputTypeTests({
+    render,
+    createComponent: (props) => (
+      <Select.Root {...props}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+      </Select.Root>
+    ),
+    getFocusTarget: () => screen.getByTestId('trigger'),
   });
 
   describe('with Field.Root parent', () => {

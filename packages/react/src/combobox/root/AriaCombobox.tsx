@@ -54,6 +54,7 @@ import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
+import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import type { Group } from '../../internals/resolveValueLabel';
@@ -154,6 +155,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     setFocused,
     validationMode,
     validation,
+    setValidityData,
   } = useFieldRootContext();
 
   const direction = useDirection();
@@ -1691,6 +1693,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
         form={form}
         name={hiddenInputName}
+        type={getHiddenInputType(
+          setValidityData !== NOOP,
+          name,
+          formAutoComplete,
+          required,
+          inputRefProp,
+        )}
         autoComplete={formAutoComplete}
         disabled={disabled}
         required={required && !hasMultipleSelection}

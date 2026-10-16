@@ -44,6 +44,7 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
+import { getHiddenInputType } from '../../internals/getHiddenInputType';
 
 /**
  * Groups all parts of the select.
@@ -488,14 +489,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
   const hiddenInputName = multiple ? undefined : name;
-  // The visually hidden input lets the select take part in a form: submission, constraint
-  // validation and autofill. When it does none of these, a `type="hidden"` input is enough,
-  // and password managers skip it instead of treating every select as a form field and
-  // rescanning the page whenever one is added or removed.
-  const hiddenInputType =
-    name == null && form == null && autoComplete == null && !required && setValidityData === NOOP
-      ? 'hidden'
-      : undefined;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(value) || !name) {
@@ -579,7 +572,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
         form={form}
         name={hiddenInputName}
-        type={hiddenInputType}
+        type={getHiddenInputType(setValidityData !== NOOP, name, autoComplete, required, inputRef)}
         autoComplete={autoComplete}
         value={serializedValue}
         disabled={disabled}
