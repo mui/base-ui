@@ -6,14 +6,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  autoUpdate,
-  flip,
-  limitShift,
-  offset,
-  shift as floatingShift,
-  size,
-} from '../floating-ui-react';
+import { flip, limitShift, offset, shift as floatingShift, size } from '../floating-ui-react';
 import type {
   UseFloatingOptions,
   UseFloatingReturn,
@@ -32,6 +25,7 @@ import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from '../utils/hideMiddleware';
+import { autoUpdateWhileMoving } from '../utils/autoUpdateWhileMoving';
 import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
 import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
 
@@ -497,7 +491,7 @@ export function useAnchorPositioningWithHook(
     strategy: positionMethod,
     whileElementsMounted: keepMounted
       ? undefined
-      : (...args) => autoUpdate(...args, autoUpdateOptions),
+      : (...args) => autoUpdateWhileMoving(...args, autoUpdateOptions),
     nodeId,
     externalTree,
   });
@@ -580,7 +574,12 @@ export function useAnchorPositioningWithHook(
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.reference && elements.floating) {
-      return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
+      return autoUpdateWhileMoving(
+        elements.reference,
+        elements.floating,
+        update,
+        autoUpdateOptions,
+      );
     }
     return undefined;
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
