@@ -37,7 +37,7 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
-import { usePopupRoot } from '../../utils/popups/popupRoot';
+import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
 import { useValuePopupAnchor } from '../../utils/popups/value-popup/useValuePopupAnchor';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 
@@ -145,7 +145,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
-  const { store, open } = usePopupRoot(
+  const { store, open } = useSingleAnchorPopupRoot(
     {
       open: openProp,
       defaultOpen,
