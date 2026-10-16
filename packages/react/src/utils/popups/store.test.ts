@@ -189,7 +189,7 @@ describe('popupStoreSelectors elements', () => {
   });
 
   describe('anchor', () => {
-    it('returns the position reference when one is set', () => {
+    it('returns the anchor override when one is set', () => {
       const trigger = document.createElement('button');
       const cursor = { getBoundingClientRect: () => new DOMRect() };
       expect(
@@ -206,7 +206,7 @@ describe('popupStoreSelectors elements', () => {
       ).toBe(trigger);
     });
 
-    it('is null without a position reference while the popup is unmounted', () => {
+    it('is null without an anchor override while the popup is unmounted', () => {
       const trigger = document.createElement('button');
       expect(
         popupStoreSelectors.anchor(createState({ mounted: false, activeTriggerElement: trigger })),
@@ -481,7 +481,7 @@ describe('BasePopupStore', () => {
       expect(store.state.anchorElement).toBe(trigger);
     });
 
-    it('moves a position reference that followed the previous trigger to the new one', () => {
+    it('moves an anchor override that followed the previous trigger to the new one', () => {
       const triggerA = document.createElement('button');
       const triggerB = document.createElement('button');
       const store = new TestPopupStore(() => {}, {
@@ -497,7 +497,7 @@ describe('BasePopupStore', () => {
       expect(store.state.anchorElement).toBe(triggerB);
     });
 
-    it('keeps a virtual position reference when the trigger switches', () => {
+    it('keeps a virtual anchor override when the trigger switches', () => {
       const triggerA = document.createElement('button');
       const triggerB = document.createElement('button');
       const cursor = { getBoundingClientRect: () => new DOMRect() };

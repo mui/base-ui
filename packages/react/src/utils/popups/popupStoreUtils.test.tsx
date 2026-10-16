@@ -234,7 +234,7 @@ describe('useTriggerRegistration', () => {
 });
 
 describe('popupId selector', () => {
-  it('uses the floating id as the popup id', () => {
+  it('uses the default popup id as the popup id', () => {
     const store = createTestPopupStore();
 
     store.set('defaultPopupId', 'popup-id');
@@ -242,7 +242,7 @@ describe('popupId selector', () => {
     expect(store.select('popupId')).toBe('popup-id');
   });
 
-  it('omits popup id when the floating id is empty', () => {
+  it('omits the popup id when the default popup id is empty', () => {
     const store = createTestPopupStore();
 
     store.set('defaultPopupId', '');
@@ -250,7 +250,7 @@ describe('popupId selector', () => {
     expect(store.select('popupId')).toBeUndefined();
   });
 
-  it('prefers an explicit popup element id over the generated floating id', () => {
+  it('prefers an explicit popup element id over the default popup id', () => {
     const store = createTestPopupStore();
     const popupElement = document.createElement('div');
     popupElement.id = 'explicit-popup-id';

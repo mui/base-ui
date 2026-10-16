@@ -25,6 +25,71 @@ describe('<Popover.Root />', () => {
 
   const { render, clock } = createRenderer();
 
+  describe('hover intent across opens', () => {
+    clock.withFakeTimers();
+
+    function App() {
+      return (
+        <Popover.Root modal={false}>
+          <Popover.Trigger openOnHover delay={0} closeDelay={0}>
+            Toggle
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner">
+              <Popover.Popup>
+                <button type="button" aria-haspopup="menu">
+                  More
+                </button>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    function hoverOpen(trigger: HTMLElement) {
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+    }
+
+    function leave(trigger: HTMLElement) {
+      fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
+      fireEvent.mouseMove(document.body);
+    }
+
+    it('closes a later hover open on leave after a press inside an earlier one', async () => {
+      await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      hoverOpen(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'More' }), { pointerType: 'mouse' });
+      leave(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+      clock.tick(100);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      hoverOpen(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      leave(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+  });
+
   popupConformanceTests({
     createComponent: (props) => (
       <Popover.Root {...props.root}>
