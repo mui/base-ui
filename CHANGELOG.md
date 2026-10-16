@@ -1,5 +1,20 @@
 # Versions
 
+## Unreleased
+
+### Portal
+
+- Fix portal placement when a `container` ref points to an ancestor or later sibling that has not attached yet (#5963).
+
+**Testing compatibility:** When a `container` ref is still empty during the portal's initial mount, its children now mount asynchronously. This can affect tests for initially open or kept-mounted popups that query the content immediately after a synchronous `render()`. Await a `findBy*` query or wrap rendering in asynchronous `act()` before asserting portal content:
+
+```tsx
+render(<TestDialog />);
+expect(await screen.findByRole('dialog')).toBeVisible();
+```
+
+The timing change is limited to unresolved `container` refs. If fake timers include `queueMicrotask`, advance those timers as well.
+
 ## v1.9.0
 
 <!-- generated comparing v1.8.0...master -->
