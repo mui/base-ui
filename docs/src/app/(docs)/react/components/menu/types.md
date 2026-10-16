@@ -468,7 +468,7 @@ type MenuPopupState = {
   /** Whether the component is nested. */
   nested: boolean;
   /** Whether transitions should be skipped. */
-  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+  instant: 'dismiss' | 'click' | 'group' | 'navigation' | 'trigger-change' | undefined;
 };
 ```
 
@@ -600,7 +600,7 @@ type MenuViewportState = {
   /** Whether the viewport is currently transitioning between contents. */
   transitioning: boolean;
   /** Present if animations should be instant. */
-  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+  instant: 'dismiss' | 'click' | 'group' | 'navigation' | 'trigger-change' | undefined;
 };
 ```
 
