@@ -631,6 +631,7 @@ describe('<Menu.Positioner />', () => {
   });
 
   positionerConformanceTests({
+    triggerSwitch: Menu,
     render,
     viewport: true,
     createComponent: ({ root, trigger, positioner, popup, viewport }) => (

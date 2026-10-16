@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { expect, it } from 'vitest';
+import { describe, expect, it, onTestFinished, vi } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import type { createRenderer } from '#test-utils';
-import { isJSDOM, waitForPositioned } from '#test-utils';
+import { isJSDOM, waitForPositioned, waitSingleFrame } from '#test-utils';
+import type { DetachedTriggersTestConfig } from './detachedTriggersConformanceTests';
 import type {
   Align,
   CollisionAvoidance,
@@ -102,6 +103,10 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
   }
 
   describe.skipIf(isJSDOM)('Positioner conformance', () => {
+    if (config.triggerSwitch) {
+      triggerSwitchTests({ render, ...config.triggerSwitch });
+    }
+
     describe.each(offsetCases)(
       'prop: $prop',
       ({ prop, numberPosition, offsetFunction, functionPosition }) => {
@@ -303,4 +308,300 @@ export interface PositionerTestConfig {
    * @default false
    */
   viewport?: boolean;
+  /**
+   * Parts that support transitions between detached triggers.
+   */
+  triggerSwitch?: TriggerSwitchTestParts;
+}
+
+type TriggerSwitchTestParts = Required<
+  Pick<
+    DetachedTriggersTestConfig,
+    'createHandle' | 'Root' | 'Trigger' | 'Portal' | 'Positioner' | 'Popup' | 'Viewport'
+  >
+>;
+
+function triggerSwitchTests({
+  render,
+  createHandle,
+  Root,
+  Trigger,
+  Portal,
+  Positioner,
+  Popup,
+  Viewport,
+}: TriggerSwitchTestParts & Pick<PositionerTestConfig, 'render'>) {
+  function Fixture({
+    handle,
+    rootProps,
+    keepMounted = false,
+    withViewport = false,
+  }: {
+    handle: ReturnType<typeof createHandle>;
+    rootProps?: Record<string, unknown>;
+    keepMounted?: boolean;
+    withViewport?: boolean;
+  }) {
+    return (
+      <React.Fragment>
+        <style>{`
+          .tracking-positioner {
+            transition: transform 200ms linear, top 200ms linear, right 200ms linear,
+              bottom 200ms linear, left 200ms linear;
+          }
+          .tracking-positioner[data-instant] { transition: none; }
+          .tracking-popup { opacity: 1; transition: opacity 200ms linear; }
+          .tracking-popup[data-starting-style], .tracking-popup[data-ending-style] { opacity: 0; }
+          .tracking-popup[data-instant] { transition: none; }
+        `}</style>
+        <div data-testid="scroller" style={{ width: 400, height: 200, overflow: 'auto' }}>
+          <div
+            data-testid="layout"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              gap: 40,
+              paddingTop: 40,
+              width: '25vw',
+              height: 500,
+            }}
+          >
+            <Trigger handle={handle} id="first">
+              First
+            </Trigger>
+            <Trigger handle={handle} id="second">
+              Second
+            </Trigger>
+          </div>
+        </div>
+        <Root handle={handle} modal={false} {...rootProps}>
+          <Portal keepMounted={keepMounted}>
+            <Positioner
+              data-testid="positioner"
+              className="tracking-positioner"
+              side="right"
+              align="start"
+            >
+              <Popup
+                data-testid="popup"
+                className="tracking-popup"
+                style={{ width: 80, height: 30 }}
+              >
+                {withViewport ? <Viewport>Popup</Viewport> : 'Popup'}
+              </Popup>
+            </Positioner>
+          </Portal>
+        </Root>
+      </React.Fragment>
+    );
+  }
+
+  describe.each([
+    { name: 'transform', withViewport: false },
+    { name: 'top/left', withViewport: true },
+  ])('trigger transitions ($name)', ({ withViewport }) => {
+    describe.each([
+      { name: 'before switching triggers', afterSwitch: false },
+      { name: 'after switching triggers', afterSwitch: true },
+    ])('tracking $name', ({ afterSwitch }) => {
+      it.each([
+        {
+          name: 'ancestor scroll',
+          update: () => {
+            screen.getByTestId('scroller').scrollTop += 20;
+          },
+        },
+        {
+          name: 'layout resize',
+          update: () => {
+            screen.getByTestId('layout').style.width = '300px';
+          },
+        },
+        {
+          name: 'viewport resize',
+          update: async () => {
+            const { page } = await import('vitest/browser');
+            const { innerWidth, innerHeight } = window;
+            onTestFinished(() => page.viewport(innerWidth, innerHeight));
+            await page.viewport(innerWidth + 100, innerHeight);
+          },
+        },
+      ])('tracks $name without a position transition', async ({ update }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const { user } = await render(
+          <Fixture handle={createHandle()} withViewport={withViewport} />,
+        );
+        const first = screen.getByRole('button', { name: 'First' });
+        const second = screen.getByRole('button', { name: 'Second' });
+        await user.click(first);
+        const positioner = await screen.findByTestId('positioner');
+        await waitFor(() => expect(positioner.style.transition).toBe(''));
+        await waitFor(() =>
+          expect(positioner.getBoundingClientRect().top).toBeCloseTo(
+            first.getBoundingClientRect().top,
+            0,
+          ),
+        );
+        await waitFor(() => expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0));
+
+        if (afterSwitch) {
+          await user.click(second);
+        }
+        const trigger = afterSwitch ? second : first;
+        await waitFor(() =>
+          expect(positioner.getBoundingClientRect().top).toBeCloseTo(
+            trigger.getBoundingClientRect().top,
+            0,
+          ),
+        );
+        await waitFor(() => expect(positioner.getAnimations()).toHaveLength(0));
+
+        expect(positioner).toHaveAttribute('data-open');
+        expect(positioner.getAnimations()).toHaveLength(0);
+        const transitionRun = vi.fn();
+        positioner.addEventListener('transitionrun', (event) => {
+          if (event.target === positioner) {
+            transitionRun();
+          }
+        });
+        const previousPosition = positioner.style.cssText;
+        await act(async () => update());
+        await waitFor(() => expect(positioner.style.cssText).not.toBe(previousPosition));
+        await act(async () => {
+          await waitSingleFrame();
+          await waitSingleFrame();
+        });
+
+        expect(transitionRun).not.toHaveBeenCalled();
+        expect(positioner.getBoundingClientRect().top).toBeCloseTo(
+          trigger.getBoundingClientRect().top,
+          0,
+        );
+        expect(
+          Math.abs(positioner.getBoundingClientRect().left - trigger.getBoundingClientRect().right),
+        ).toBeLessThan(1);
+      });
+    });
+  });
+
+  it.each([
+    { name: 'unmounted', keepMounted: false },
+    { name: 'kept mounted', keepMounted: true },
+  ])('preserves Popup enter and exit transitions when $name', async ({ keepMounted }) => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const { setProps } = await render(
+      <Fixture
+        handle={createHandle()}
+        keepMounted={keepMounted}
+        rootProps={{ open: false, triggerId: 'first' }}
+      />,
+    );
+
+    await setProps({ rootProps: { open: true, triggerId: 'first' } });
+    const popup = screen.getByTestId('popup');
+    await waitFor(() => expect(popup.getAnimations().length).toBeGreaterThan(0));
+    expect(popup).not.toHaveAttribute('data-instant');
+    expect(screen.getByTestId('positioner')).toHaveAttribute('data-instant');
+    await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+
+    await setProps({ rootProps: { open: false, triggerId: 'first' } });
+    expect(popup).toHaveAttribute('data-ending-style');
+    await waitFor(() => expect(popup.getAnimations().length).toBeGreaterThan(0));
+    expect(popup).not.toHaveAttribute('data-instant');
+  });
+
+  it.each([
+    { name: 'uncontrolled click', mode: 'click' },
+    { name: 'controlled triggerId', mode: 'controlled' },
+    { name: 'imperative handle', mode: 'imperative' },
+  ])('animates a switch through $name then resumes instant tracking', async ({ mode }) => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const handle = createHandle();
+    const { setProps, user } = await render(
+      <Fixture
+        handle={handle}
+        rootProps={
+          mode === 'controlled'
+            ? { open: true, triggerId: 'first' }
+            : { defaultOpen: true, defaultTriggerId: 'first' }
+        }
+      />,
+    );
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => expect(positioner.style.transition).toBe(''));
+    await waitFor(() => expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0));
+    expect(positioner).toHaveAttribute('data-instant');
+
+    if (mode === 'controlled') {
+      await setProps({ rootProps: { open: true, triggerId: 'second' } });
+    } else if (mode === 'click') {
+      await user.click(screen.getByRole('button', { name: 'Second' }));
+    } else {
+      await act(async () => handle.open('second'));
+    }
+    await waitFor(() => expect(positioner.getAnimations().length).toBeGreaterThan(0));
+    expect(positioner).not.toHaveAttribute('data-instant');
+    await waitFor(() => expect(positioner).toHaveAttribute('data-instant', 'trigger-change'));
+    expect(positioner.getAnimations()).toHaveLength(0);
+    expect(positioner.getBoundingClientRect().top).toBeCloseTo(
+      screen.getByRole('button', { name: 'Second' }).getBoundingClientRect().top,
+      0,
+    );
+  });
+
+  it('keeps tracking instant after a canceled trigger switch', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const onOpenChange = vi.fn((_open: boolean, details: { cancel: () => void }) =>
+      details.cancel(),
+    );
+    const { user } = await render(
+      <Fixture
+        handle={createHandle()}
+        rootProps={{ defaultOpen: true, defaultTriggerId: 'first', onOpenChange }}
+      />,
+    );
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => expect(positioner.style.transition).toBe(''));
+    expect(positioner).toHaveAttribute('data-instant');
+    const previousPosition = positioner.style.transform;
+
+    await user.click(screen.getByRole('button', { name: 'Second' }));
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalled());
+    await act(async () => {
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+    expect(positioner).toHaveAttribute('data-instant');
+    expect(positioner.getAnimations()).toHaveLength(0);
+    expect(positioner.style.transform).toBe(previousPosition);
+  });
+
+  it('restores instant tracking when reopened during a trigger switch', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const { setProps } = await render(
+      <Fixture
+        handle={createHandle()}
+        keepMounted
+        rootProps={{ open: true, triggerId: 'first' }}
+      />,
+    );
+    const positioner = screen.getByTestId('positioner');
+    const popup = screen.getByTestId('popup');
+    await waitFor(() => expect(positioner.style.transition).toBe(''));
+    await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+
+    await setProps({ rootProps: { open: true, triggerId: 'second' } });
+    await waitFor(() => expect(positioner.getAnimations().length).toBeGreaterThan(0));
+    expect(positioner).not.toHaveAttribute('data-instant');
+    await setProps({ rootProps: { open: false, triggerId: 'second' } });
+    expect(popup).toHaveAttribute('data-ending-style');
+    await waitFor(() => expect(popup.getAnimations().length).toBeGreaterThan(0));
+    await setProps({ rootProps: { open: true, triggerId: 'second' } });
+    await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+
+    expect(positioner).toHaveAttribute('data-instant');
+    expect(popup).not.toHaveAttribute('data-instant');
+    expect(popup).toHaveAttribute('data-open');
+  });
 }

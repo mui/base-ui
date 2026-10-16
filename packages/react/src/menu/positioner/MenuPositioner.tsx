@@ -225,7 +225,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
-  useTriggerSwitchTransition({
+  const instantPosition = useTriggerSwitchTransition({
     store,
     domReference,
     positionerElement,
@@ -238,7 +238,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     align: positioner.align,
     anchorHidden: positioner.anchorHidden,
     nested: parent.type === 'menu',
-    instant: instantType,
+    instant: instantType ?? (instantPosition ? 'trigger-change' : undefined),
   };
 
   const menubarModal = parent.type === 'menubar' && parent.context.modal;
