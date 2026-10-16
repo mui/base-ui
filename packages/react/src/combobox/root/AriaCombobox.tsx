@@ -394,6 +394,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
           // until after hydration, so the hidden input takes over then if needed.
           inputOwnsFormValue: selectionMode === 'none',
+          instantType: undefined,
+          adaptiveOrigin: undefined,
         },
         {
           ...createPopupStoreContext(),
