@@ -6,8 +6,17 @@ import type { PopupTriggerMap } from '../popupTriggerMap';
 import { dispatchOpenChange } from './dispatchOpenChange';
 import type { TransitionStatus } from '../../../internals/useTransitionStatus';
 
+/**
+ * The state of a `FloatingRootStore`, synced from the component that owns it.
+ */
 export interface FloatingRootState {
+  /**
+   * Whether the popup is open.
+   */
   open: boolean;
+  /**
+   * The popup's open or close transition, if one is running.
+   */
   transitionStatus: TransitionStatus | undefined;
   /**
    * The DOM element the popup is anchored to.
@@ -18,7 +27,7 @@ export interface FloatingRootState {
    */
   baseAnchor: ReferenceType | null;
   /**
-   * The popup's outermost element, usually its positioner.
+   * The popup's positioner element, or the popup itself when it has no positioner.
    */
   popupPositionerElement: HTMLElement | null;
   /**
@@ -31,7 +40,15 @@ export interface FloatingRootState {
   defaultPopupId: string | undefined;
 }
 
+/**
+ * The non-reactive context of a `FloatingRootStore`: what the interaction hooks share, plus the
+ * owner's open change callback.
+ */
 export interface FloatingRootStoreContext extends PopupInteractionContext {
+  /**
+   * Called after an open change is dispatched to the interaction hooks, so the owner can update
+   * its own open state.
+   */
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
@@ -57,6 +74,12 @@ interface FloatingRootStoreOptions {
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
+/**
+ * An interaction store for components without a popup store: Select, Combobox, Navigation Menu
+ * and Toast. It holds a copy of the open state, anchor and elements that its owner syncs in on
+ * every render (see `useFloatingRootStore`), and reports open changes back through
+ * `onOpenChange`.
+ */
 export class FloatingRootStore
   extends ReactStore<Readonly<FloatingRootState>, FloatingRootStoreContext, typeof selectors>
   implements PositioningInteractionStore
@@ -91,6 +114,10 @@ export class FloatingRootStore
     this.context.onOpenChange?.(newOpen, eventDetails);
   };
 
+  /**
+   * Forgets the anchor and elements positioning reads, so it doesn't run for a `keepMounted` popup
+   * whose positioner is unmounted.
+   */
   clearPositioning() {
     this.update({
       baseAnchor: null,

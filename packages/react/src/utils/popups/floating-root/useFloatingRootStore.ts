@@ -10,17 +10,40 @@ import { FloatingRootStore } from './FloatingRootStore';
 import type { FloatingRootState as State } from './FloatingRootStore';
 import type { ReferenceType } from '../types';
 
+/**
+ * What `useFloatingRootStore` syncs into its store on every render.
+ */
 export interface UseFloatingRootStoreOptions {
+  /**
+   * Whether the popup is open.
+   * @default false
+   */
   open?: boolean | undefined;
+  /**
+   * Called when an interaction hook requests an open change.
+   */
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+  /**
+   * The elements to sync into the store. A key left `undefined` keeps the store's current value.
+   */
   elements?:
     | {
+        /**
+         * The DOM element the popup is anchored to. Virtual elements go in `anchorOverride`.
+         */
         anchor?: ReferenceType | null | undefined;
+        /**
+         * The popup's positioner element, or the popup itself when it has no positioner.
+         */
         popupPositionerElement?: HTMLElement | null | undefined;
       }
     | undefined;
 }
 
+/**
+ * Creates a `FloatingRootStore` and syncs the open state, anchor and positioner element into it on
+ * every render, for components that manage their open state without a popup store.
+ */
 export function useFloatingRootStore(options: UseFloatingRootStoreOptions): FloatingRootStore {
   const { open = false, onOpenChange, elements = {} } = options;
 
