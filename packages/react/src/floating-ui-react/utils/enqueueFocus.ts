@@ -8,18 +8,30 @@ interface Options {
   shouldFocus?: (() => boolean) | undefined;
 }
 
-let rafId = 0;
+// Pending focus frames are keyed per element so concurrent callers targeting
+// different elements can't cancel each other's queued focus.
+const rafIds = new WeakMap<FocusableElement, number>();
+
 export function enqueueFocus(el: FocusableElement | null, options: Options = {}) {
   const { preventScroll = false, sync = false, shouldFocus } = options;
 
-  cancelAnimationFrame(rafId);
+  if (!el) {
+    return NOOP;
+  }
 
-  function exec() {
+  const pendingRafId = rafIds.get(el);
+  if (pendingRafId !== undefined) {
+    cancelAnimationFrame(pendingRafId);
+    rafIds.delete(el);
+  }
+
+  const exec = () => {
+    rafIds.delete(el);
     if (shouldFocus && !shouldFocus()) {
       return;
     }
-    el?.focus({ preventScroll });
-  }
+    el.focus({ preventScroll });
+  };
 
   if (sync) {
     exec();
@@ -27,11 +39,11 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
   }
 
   const currentRafId = requestAnimationFrame(exec);
-  rafId = currentRafId;
+  rafIds.set(el, currentRafId);
   return () => {
-    if (rafId === currentRafId) {
+    if (rafIds.get(el) === currentRafId) {
       cancelAnimationFrame(currentRafId);
-      rafId = 0;
+      rafIds.delete(el);
     }
   };
 }
