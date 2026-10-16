@@ -45,7 +45,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     align,
     sideOffset,
     alignOffset,
-    collisionBoundary = 'clipping-ancestors',
+    collisionBoundary,
     collisionPadding,
     arrowPadding,
     sticky,

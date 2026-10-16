@@ -82,12 +82,6 @@ function createFloatingContext({
     setPositionReference() {},
   };
 
-  const events: PopupPositioningContext['events'] = {
-    emit() {},
-    on() {},
-    off() {},
-  };
-
   return {
     x: 0,
     y: 0,
@@ -98,8 +92,6 @@ function createFloatingContext({
     update: async () => {},
     floatingStyles: {},
     open,
-    onOpenChange() {},
-    events,
     nodeId: 'root',
     defaultPopupId: 'floating-id',
     refs,

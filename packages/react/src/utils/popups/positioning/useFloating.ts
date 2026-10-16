@@ -91,8 +91,6 @@ export function useBaseUIFloating(
     () => ({
       ...position,
       open,
-      onOpenChange: store.setOpen,
-      events: store.context.events,
       defaultPopupId,
       refs,
       elements,

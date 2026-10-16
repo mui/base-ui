@@ -133,8 +133,6 @@ export type PopupPositioningContext = Omit<
   'refs' | 'elements'
 > & {
   open: boolean;
-  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-  events: PopupEvents;
   nodeId: string | undefined;
   defaultPopupId: string | undefined;
   refs: ExtendedRefs;

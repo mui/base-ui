@@ -40,11 +40,11 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     align,
     sideOffset,
     alignOffset,
-    collisionBoundary = 'clipping-ancestors',
+    collisionBoundary,
     collisionPadding,
     arrowPadding,
     sticky,
-    disableAnchorTracking = false,
+    disableAnchorTracking,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style: styleProp,
     ...elementProps
