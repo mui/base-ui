@@ -11,8 +11,19 @@ import type {
  */
 export function createToastManager<Data extends object = any>(): ToastManager<Data> {
   const listeners = new Set<(data: ToastManagerEvent) => void>();
+  // Events emitted while no provider is subscribed: before its subscription effect runs, or while
+  // it sits in a hidden `<Activity>` (which runs effect cleanups). Replayed to the next subscriber.
+  let pendingEvents: ToastManagerEvent[] = [];
 
   function emit(data: ToastManagerEvent) {
+    if (listeners.size === 0) {
+      // No provider ever subscribes on the server, so queuing there would only grow.
+      if (typeof window !== 'undefined') {
+        pendingEvents.push(data);
+      }
+      return;
+    }
+
     listeners.forEach((listener) => listener(data));
   }
 
@@ -21,6 +32,11 @@ export function createToastManager<Data extends object = any>(): ToastManager<Da
     // https://x.com/drosenwasser/status/1816947740032872664
     ' subscribe': function subscribe(listener: (data: ToastManagerEvent) => void) {
       listeners.add(listener);
+
+      const events = pendingEvents;
+      pendingEvents = [];
+      events.forEach((event) => listener(event));
+
       return () => {
         listeners.delete(listener);
       };
@@ -66,6 +82,7 @@ export function createToastManager<Data extends object = any>(): ToastManager<Da
       options: ToastManagerPromiseOptions<Value, T>,
     ): Promise<Value> {
       let handledPromise = promiseValue;
+      let returned = false;
 
       emit({
         action: 'promise',
@@ -73,11 +90,18 @@ export function createToastManager<Data extends object = any>(): ToastManager<Da
           ...options,
           promise: promiseValue,
           setPromise(promise: Promise<Value>) {
+            if (returned) {
+              // The event was queued, so the caller already received `promiseValue` and handles
+              // its rejection. Don't let the provider's derived promise reject unhandled.
+              promise.catch(() => {});
+              return;
+            }
             handledPromise = promise;
           },
         },
       });
 
+      returned = true;
       return handledPromise;
     },
   };
