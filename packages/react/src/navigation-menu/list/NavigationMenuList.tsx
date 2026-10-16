@@ -41,18 +41,18 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   } = useNavigationMenuRootContext();
 
   const fallbackStore = React.useMemo(() => getEmptyRootStore(), []);
-  const context = floatingRootStore || fallbackStore;
+  const store = floatingRootStore || fallbackStore;
   const interactionsEnabled = positionerElement != null || value == null;
   const hoverInteractionsEnabled =
     positionerElement != null || viewportElement != null || value == null;
 
-  useHoverPopupInteraction(context, {
+  useHoverPopupInteraction(store, {
     enabled: Boolean(floatingRootStore) && hoverInteractionsEnabled,
     closeDelay,
     nodeId,
   });
 
-  const dismiss = useDismiss(context, {
+  const dismiss = useDismiss(store, {
     enabled: interactionsEnabled,
     outsidePressEvent: 'intentional',
     outsidePress(event) {
