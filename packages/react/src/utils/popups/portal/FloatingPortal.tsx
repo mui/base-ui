@@ -23,6 +23,7 @@ import { useRenderElement } from '../../../internals/useRenderElement';
 import type { UseRenderElementComponentProps } from '../../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../../internals/constants';
 import type { BaseUIComponentProps } from '../../../internals/types';
+import { createFlushBeforePaint } from '../../../internals/createFlushBeforePaint';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -47,6 +48,9 @@ const PortalContext = React.createContext<null | {
 export const usePortalContext = () => React.useContext(PortalContext);
 
 const attr = createAttribute('portal');
+// A separate queue: a shared batch could run an animation completion that removes the container
+// before this read commits.
+const flushContainerUpdates = createFlushBeforePaint();
 
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
@@ -89,6 +93,18 @@ export function useFloatingPortalNode(
   });
 
   const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
+  const [containerCheck, setContainerCheck] = React.useState(0);
+  const pendingResolveRef = React.useRef<(() => void) | null>(null);
+
+  // Must run before the effect below, or a mount would consume its own pending resolve.
+  useIsoLayoutEffect(() => {
+    const resolve = pendingResolveRef.current;
+    if (resolve) {
+      pendingResolveRef.current = null;
+      // The retry committed, so refs are attached. Resolve after cascading layout updates.
+      flushContainerUpdates(resolve);
+    }
+  }, [containerCheck]);
 
   useIsoLayoutEffect(() => {
     // Wait for the container to be resolved if explicitly `null`.
@@ -98,28 +114,52 @@ export function useFloatingPortalNode(
         setPortalNode(null);
         setContainerElement(null);
       }
-      return;
+      return undefined;
     }
 
-    const resolvedContainer =
-      (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
-      parentPortalNode ??
-      document.body;
-
-    if (resolvedContainer == null) {
-      if (containerRef.current) {
-        containerRef.current = null;
-        setPortalNode(null);
-        setContainerElement(null);
+    let cancelled = false;
+    function resolveContainer() {
+      if (cancelled) {
+        return;
       }
-      return;
+
+      const resolvedContainer =
+        (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
+        parentPortalNode ??
+        document.body;
+
+      if (resolvedContainer == null) {
+        if (containerRef.current) {
+          containerRef.current = null;
+          setPortalNode(null);
+          setContainerElement(null);
+        }
+        return;
+      }
+
+      if (containerRef.current !== resolvedContainer) {
+        containerRef.current = resolvedContainer;
+        setPortalNode(null);
+        setContainerElement(resolvedContainer);
+      }
     }
 
-    if (containerRef.current !== resolvedContainer) {
-      containerRef.current = resolvedContainer;
-      setPortalNode(null);
-      setContainerElement(resolvedContainer);
+    if (containerProp && !isNode(containerProp) && !containerProp.current) {
+      // Ancestor and later sibling refs attach after this effect. Wait for the retry to commit:
+      // React defers it while it prepares a ViewTransition, and flushSync would cancel that.
+      pendingResolveRef.current = resolveContainer;
+      setContainerCheck((value) => value + 1);
+    } else {
+      resolveContainer();
     }
+
+    return () => {
+      cancelled = true;
+      // A hidden Activity or Suspense subtree can unmount effects before the retry commits.
+      if (pendingResolveRef.current === resolveContainer) {
+        pendingResolveRef.current = null;
+      }
+    };
   }, [containerProp, parentPortalNode]);
 
   const portalElement = useRenderElement('div', componentProps, {
