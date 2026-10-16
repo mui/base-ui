@@ -4,7 +4,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { getTarget } from '@base-ui/utils/shadowDom';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionStore } from '../types';
 import { isTypeableElement } from '../element';
 import { isMouseLikePointerType, isVirtualPointerEvent } from '../event';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
@@ -57,7 +57,7 @@ export interface UseClickProps {
  * Opens or closes the floating element when clicking the reference element.
  * @see https://floating-ui.com/docs/useClick
  */
-export function useClick(store: FloatingRootContext, props: UseClickProps = {}): ElementProps {
+export function useClick(store: PopupInteractionStore, props: UseClickProps = {}): ElementProps {
   const {
     enabled = true,
     event: eventOption = 'click',
@@ -68,7 +68,7 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
     reason = REASONS.triggerPress,
   } = props;
 
-  const dataRef = store.context.dataRef;
+  const storeContext = store.context;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch' | 'virtual'>(undefined);
   const frame = useAnimationFrame();
@@ -97,8 +97,8 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
       currentTarget: EventTarget | null,
       isClickLikeOpenEvent: (eventType: string | undefined) => boolean,
     ) {
-      const openEvent = dataRef.current.openEvent;
-      const hasClickedOnInactiveTrigger = store.select('domReferenceElement') !== currentTarget;
+      const openEvent = storeContext.openEvent;
+      const hasClickedOnInactiveTrigger = store.select('anchorElement') !== currentTarget;
 
       if (open && hasClickedOnInactiveTrigger) {
         // Moving between triggers should always open the newly active one.
@@ -223,7 +223,7 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
       },
     };
   }, [
-    dataRef,
+    storeContext,
     eventOption,
     ignoreMouse,
     reason,

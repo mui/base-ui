@@ -7,16 +7,16 @@ import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import {
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
 } from '../../utils/popups/focus/tabbable';
-import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../utils/popups/floating-root/getEmptyRootStore';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
-const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
+const EMPTY_ROOT_STORE = getEmptyRootStore();
 
 function Guards({ children }: { children: React.ReactNode }) {
   const {
@@ -26,13 +26,13 @@ function Guards({ children }: { children: React.ReactNode }) {
     afterOutsideRef,
     positionerElement,
     viewportElement,
-    floatingRootContext,
+    floatingRootStore,
   } = useNavigationMenuRootContext();
   const hasPositioner = Boolean(useNavigationMenuPositionerContext(true));
 
   const referenceElement = positionerElement || viewportElement;
 
-  if (!floatingRootContext && !hasPositioner) {
+  if (!floatingRootStore && !hasPositioner) {
     return children;
   }
 
@@ -80,7 +80,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   const {
     setViewportElement,
     setViewportTargetElement,
-    floatingRootContext,
+    floatingRootStore,
     prevTriggerElementRef,
     viewportInert,
     setViewportInert,
@@ -88,7 +88,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
 
   const positioning = useNavigationMenuPositionerContext(true);
   const hasPositioner = Boolean(positioning);
-  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
+  const domReference = (floatingRootStore || EMPTY_ROOT_STORE).useState('anchorElement');
 
   useIsoLayoutEffect(() => {
     if (domReference) {

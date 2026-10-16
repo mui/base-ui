@@ -12,6 +12,7 @@ import {
   resetBrowserPointer,
   positionerConformanceTests,
 } from '#test-utils';
+import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 
 const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
 
@@ -81,6 +82,109 @@ describe('<Menu.Positioner />', () => {
     // popup that flipped once does not jitter back while typing resizes it. Combobox stays on
     // `true` (side only), which is what it shipped with.
     expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe('placement');
+  });
+
+  describe('collision avoidance', () => {
+    function SubmenuApp(props: {
+      collisionAvoidance?: Menu.Positioner.Props['collisionAvoidance'];
+    }) {
+      return (
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot open>
+                  <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="submenu-positioner" {...props}>
+                      <Menu.Popup />
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    function lastCallFor(positioner: HTMLElement) {
+      const calls = useAnchorPositioningSpy.mock.calls.filter(
+        ([params]) => params.interactionStore.select('positionerElement') === positioner,
+      );
+      return calls[calls.length - 1]?.[0];
+    }
+
+    it('uses the dropdown default for a root menu', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(useAnchorPositioningSpy.mock.lastCall?.[0].collisionAvoidance).toEqual(
+        DROPDOWN_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the dropdown default for a context menu', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+          <ContextMenu.Portal keepMounted>
+            <ContextMenu.Positioner data-testid="positioner">
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      expect(lastCallFor(screen.getByTestId('positioner'))?.collisionAvoidance).toEqual(
+        DROPDOWN_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the dropdown default for a menubar menu', async () => {
+      await render(
+        <Menubar>
+          <Menu.Root open>
+            <Menu.Trigger>File</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup />
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      expect(lastCallFor(screen.getByTestId('positioner'))?.collisionAvoidance).toEqual(
+        DROPDOWN_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the popup default for a submenu', async () => {
+      await render(<SubmenuApp />);
+
+      expect(lastCallFor(screen.getByTestId('submenu-positioner'))?.collisionAvoidance).toEqual(
+        POPUP_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the collisionAvoidance prop over the default', async () => {
+      const collisionAvoidance = { side: 'none', align: 'none' } as const;
+      await render(<SubmenuApp collisionAvoidance={collisionAvoidance} />);
+
+      expect(lastCallFor(screen.getByTestId('submenu-positioner'))?.collisionAvoidance).toBe(
+        collisionAvoidance,
+      );
+    });
   });
 
   it('leaves lazy flipping off for a plain menu', async () => {

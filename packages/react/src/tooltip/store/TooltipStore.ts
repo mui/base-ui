@@ -3,8 +3,8 @@ import { NOOP } from '@base-ui/utils/empty';
 import type { TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { NullStore } from '../../utils/NullStore';
-import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import { NullStore } from '../../utils/popups/NullStore';
+import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
 import { dispatchOpenChange } from '../../utils/popups/floating-root/dispatchOpenChange';
 import type {
   PopupStoreContext,
@@ -74,8 +74,12 @@ export class TooltipStore<Payload> extends BasePopupStore<
   Selectors,
   TooltipRoot.ChangeEventDetails
 > {
-  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
-    super(createInitialState<Payload>(initialState, floatingId), createInitialContext(), selectors);
+  constructor(initialState: Partial<State<Payload>>, defaultPopupId: string | undefined) {
+    super(
+      createInitialState<Payload>(initialState, defaultPopupId),
+      createInitialContext(),
+      selectors,
+    );
   }
 
   protected prepareOpenChange(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
@@ -111,10 +115,10 @@ export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     instantType: undefined,
     isInstantPhase: false,

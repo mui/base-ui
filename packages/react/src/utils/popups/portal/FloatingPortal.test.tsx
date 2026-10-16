@@ -5,7 +5,7 @@ import { isJSDOM } from '#test-utils';
 import { FloatingFocusManager } from '../focus/FloatingFocusManager';
 import { FloatingPortal } from './FloatingPortal';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { FloatingPortalLite } from '../../FloatingPortalLite';
+import { FloatingPortalLite } from './FloatingPortalLite';
 import type { UseFloatingPortalNodeProps } from './FloatingPortal';
 
 interface AppProps {
@@ -146,7 +146,7 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
 
       return (
         <FloatingPortal id="custom-portal">
-          <FloatingFocusManager context={context.rootStore} modal={false}>
+          <FloatingFocusManager store={context.rootStore} modal={false}>
             <div ref={refs.setFloating} />
           </FloatingFocusManager>
         </FloatingPortal>

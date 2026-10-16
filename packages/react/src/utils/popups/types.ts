@@ -33,84 +33,119 @@ export interface ExtendedElements {
   domReference: NarrowedElement<ReferenceType> | null;
 }
 
-export interface FloatingEvents {
+export interface PopupEvents {
   emit<T extends string>(event: T, data?: any): void;
   on(event: string, handler: (data: any) => void): void;
   off(event: string, handler: (data: any) => void): void;
 }
 
-export interface ContextData {
-  openEvent?: Event | undefined;
-  floatingContext?: FloatingContext | undefined;
-  [key: string]: any;
-}
-
 /**
  * Reads the interaction state of a popup by key.
  */
-export interface FloatingRootContextReader {
+export interface PopupInteractionReader {
   (key: 'open'): boolean;
   (key: 'transitionStatus'): TransitionStatus | undefined;
-  (key: 'domReferenceElement'): Element | null;
-  (key: 'referenceElement'): ReferenceType | null;
-  (key: 'floatingElement'): HTMLElement | null;
-  (key: 'floatingId'): string | undefined;
+  /**
+   * The active trigger's element, kept after the popup unmounts.
+   */
+  (key: 'anchorElement'): Element | null;
+  /**
+   * The anchor the interaction hooks see: the anchor override, such as the cursor position from
+   * `useClientPoint`, or else the active trigger. A Positioner's `anchor` prop isn't included;
+   * positioning applies it on its own.
+   */
+  (key: 'anchor'): ReferenceType | null;
+  /**
+   * The popup's positioner element, or the popup itself when it has no positioner.
+   */
+  (key: 'positionerElement'): HTMLElement | null;
+  /**
+   * The popup's id unless its element sets one.
+   */
+  (key: 'defaultPopupId'): string | undefined;
 }
 
 /**
  * Non-reactive values shared by the interaction hooks of one popup.
+ * The inert stores that detached triggers use before a Root attaches freeze their context, so
+ * code that can run against them only reads these fields.
  */
-export interface FloatingRootContextValues {
-  readonly dataRef: React.RefObject<ContextData>;
-  readonly events: FloatingEvents;
+export interface PopupInteractionContext {
+  readonly events: PopupEvents;
   nested: boolean;
   readonly triggerElements: PopupTriggerMap;
+  /**
+   * The event that opened the popup. Written by `dispatchOpenChange`; NavigationMenu clears it.
+   */
+  openEvent?: Event | undefined;
+  /**
+   * The popup's positioning. Written by `useFloating()`.
+   */
+  positioning?: PopupPositioningContext | undefined;
+  /**
+   * The popup's list navigation orientation, which nested lists read from their parent. Written by
+   * `useListNavigation`.
+   */
+  orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
+  /**
+   * Whether the current event passed through the popup's React tree, such as from a portaled
+   * child, so native listeners that see it as outside ignore it. Set by `useDismiss` and the focus
+   * manager, and cleared on the next tick.
+   */
+  insideReactTree?: boolean | undefined;
+  /**
+   * Whether an Escape key press bubbles to the parent popup. Written by `useDismiss` and never
+   * cleared.
+   */
+  escapeKeyBubbles?: boolean | undefined;
+  /**
+   * Whether an outside press bubbles to the parent popup. Written by `useDismiss` and never
+   * cleared.
+   */
+  outsidePressBubbles?: boolean | undefined;
 }
 
 /**
  * The store that interaction hooks, the focus manager and positioning read and write.
  * Popup stores implement it directly. Components without a popup store use `FloatingRootStore`.
  */
-export interface FloatingRootContext {
-  select: FloatingRootContextReader;
-  useState: FloatingRootContextReader;
-  set(key: 'positionReference', value: ReferenceType | null): void;
-  set(key: 'domReferenceElement', value: Element | null): void;
+export interface PopupInteractionStore {
+  select: PopupInteractionReader;
+  useState: PopupInteractionReader;
+  set(key: 'anchorOverride', value: ReferenceType | null): void;
+  set(key: 'anchorElement', value: Element | null): void;
   setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-  readonly context: FloatingRootContextValues;
+  readonly context: PopupInteractionContext;
 }
 
 /**
  * The store anchor positioning reads and clears. Popup stores and `FloatingRootStore` implement it;
  * the narrower handle stores that triggers use don't need to.
  */
-export interface PositioningRootContext extends FloatingRootContext {
+export interface PositioningInteractionStore extends PopupInteractionStore {
   /**
-   * Forgets the elements positioning reads, so it doesn't run for a `keepMounted` popup whose
-   * positioner is unmounted.
+   * Forgets the elements positioning reads while the popup isn't mounted, so positioning doesn't
+   * run for a `keepMounted` popup that is closed.
    */
   clearPositioning(): void;
 }
 
-export type FloatingContext = Omit<
+export type PopupPositioningContext = Omit<
   UsePositionFloatingReturn<ReferenceType>,
   'refs' | 'elements'
 > & {
   open: boolean;
-  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-  events: FloatingEvents;
-  dataRef: React.RefObject<ContextData>;
   nodeId: string | undefined;
-  floatingId: string | undefined;
+  defaultPopupId: string | undefined;
   refs: ExtendedRefs;
   elements: ExtendedElements;
-  rootStore: FloatingRootContext;
+  rootStore: PopupInteractionStore;
 };
 
 export interface FloatingNodeType {
   id: string | undefined;
   parentId: string | null;
-  context?: FloatingContext | undefined;
+  context?: PopupPositioningContext | undefined;
 }
 
 export type FloatingTreeType = FloatingTreeStore;
@@ -129,9 +164,9 @@ export type UseFloatingData = Prettify<UseFloatingReturn>;
 export type UseFloatingReturn = Prettify<
   UsePositionFloatingReturn & {
     /**
-     * `FloatingContext`
+     * `PopupPositioningContext`
      */
-    context: Prettify<FloatingContext>;
+    context: Prettify<PopupPositioningContext>;
     /**
      * Object containing the reference and floating refs and reactive setters.
      */
@@ -141,7 +176,7 @@ export type UseFloatingReturn = Prettify<
 >;
 
 export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'> {
-  rootContext?: FloatingRootContext | undefined;
+  rootStore?: PopupInteractionStore | undefined;
   /**
    * Object of external elements as an alternative to the `refs` object setters.
    */

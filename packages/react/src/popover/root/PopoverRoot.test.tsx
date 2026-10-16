@@ -25,6 +25,71 @@ describe('<Popover.Root />', () => {
 
   const { render, clock } = createRenderer();
 
+  describe('hover intent across opens', () => {
+    clock.withFakeTimers();
+
+    function App() {
+      return (
+        <Popover.Root modal={false}>
+          <Popover.Trigger openOnHover delay={0} closeDelay={0}>
+            Toggle
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner">
+              <Popover.Popup>
+                <button type="button" aria-haspopup="menu">
+                  More
+                </button>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    function hoverOpen(trigger: HTMLElement) {
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+    }
+
+    function leave(trigger: HTMLElement) {
+      fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
+      fireEvent.mouseMove(document.body);
+    }
+
+    it('closes a later hover open on leave after a press inside an earlier one', async () => {
+      await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      hoverOpen(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'More' }), { pointerType: 'mouse' });
+      leave(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+      clock.tick(100);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      hoverOpen(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      leave(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+  });
+
   popupConformanceTests({
     createComponent: (props) => (
       <Popover.Root {...props.root}>
@@ -2056,34 +2121,40 @@ describe('<Popover.Root />', () => {
 
     describe.skipIf(isJSDOM)('scroll locking', () => {
       describe('touch scroll lock', () => {
-        it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
-          await render(
-            <Popover.Root modal>
-              <Popover.Trigger>Open</Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner
-                  data-testid="positioner"
-                  style={{ width: 'calc(100vw - 10px)' }}
-                >
-                  <Popover.Popup>Content</Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>,
-          );
+        it.each([
+          { name: 'unmounted while closed', keepMounted: false },
+          { name: 'kept mounted while closed', keepMounted: true },
+        ])(
+          'applies scroll lock when a touch-opened popup $name covers the viewport width',
+          async ({ keepMounted }) => {
+            await render(
+              <Popover.Root modal>
+                <Popover.Trigger>Open</Popover.Trigger>
+                <Popover.Portal keepMounted={keepMounted}>
+                  <Popover.Positioner
+                    data-testid="positioner"
+                    style={{ width: 'calc(100vw - 10px)' }}
+                  >
+                    <Popover.Popup>Content</Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>,
+            );
 
-          const trigger = screen.getByRole('button', { name: 'Open' });
+            const trigger = screen.getByRole('button', { name: 'Open' });
 
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-          fireEvent.click(trigger, { detail: 1 });
+            fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+            fireEvent.mouseDown(trigger);
+            fireEvent.click(trigger, { detail: 1 });
 
-          const popup = await screen.findByRole('dialog');
-          const doc = popup.ownerDocument;
+            const popup = await screen.findByRole('dialog');
+            const doc = popup.ownerDocument;
 
-          await waitFor(() => {
-            expect(isScrollLocked(doc)).toBe(true);
-          });
-        });
+            await waitFor(() => {
+              expect(isScrollLocked(doc)).toBe(true);
+            });
+          },
+        );
 
         it('does not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
           await render(
