@@ -9,7 +9,7 @@ Base UI is a library of unstyled React components. This glossary names the conc
 **Popup**:
 Content that a component shows on top of the page while it is open, such as a popover, menu, tooltip, dialog or select list.
 _Avoid_: floating element, floating, overlay
-_In code_: `outerPopupElement` is the popup in components without a positioner, such as Dialog.
+_In code_: `popupPositionerElement` is the popup in components without a positioner, such as Dialog.
 
 **Root**:
 The part that holds a popup's open state and groups its other parts. It renders no element of its own.
@@ -28,12 +28,12 @@ _In code_: `anchorOverride` and `anchorElement`; the `anchor` selector returns t
 **Positioner**:
 The part that places a popup next to its anchor and keeps it there as the page scrolls or resizes.
 _Avoid_: floating element, floating wrapper
-_In code_: `outerPopupElement` is the positioner in components that have one.
+_In code_: `popupPositionerElement` is the positioner in components that have one.
 
 **Hover intent**:
 The logic that decides when hovering a trigger opens its popup and when leaving closes it. It covers the open and close delays, waiting for the pointer to rest, and the safe polygon that keeps the popup open while the pointer travels from the trigger to it. Each popup has one, shared by all its triggers.
 _Avoid_: hover interaction, hover state, useHover
 
 **Interaction store**:
-The store a popup's interactions read and write: whether it is open, its anchor, its outer popup element (the positioner, or the popup itself when it has none), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a standalone one fed from their own state.
+The store a popup's interactions read and write: whether it is open, its anchor, its popup positioner (the Positioner part, or the Popup itself for popups without one, such as Dialog), and the values the interactions share, such as the event that opened it. Popup stores implement it. Select, Combobox, Navigation Menu and Toast use a standalone one fed from their own state.
 _Avoid_: floating root context, floating context

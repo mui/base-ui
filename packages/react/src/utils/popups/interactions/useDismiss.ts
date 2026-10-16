@@ -128,7 +128,7 @@ export function useDismiss(
   } = props;
 
   const open = store.useState('open');
-  const outerPopupElement = store.useState('outerPopupElement');
+  const popupPositionerElement = store.useState('popupPositionerElement');
   const storeContext = store.context;
   const { events } = storeContext;
 
@@ -183,7 +183,7 @@ export function useDismiss(
 
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
     return (
-      isEventTargetWithin(event, store.select('outerPopupElement')) ||
+      isEventTargetWithin(event, store.select('popupPositionerElement')) ||
       isEventTargetWithin(event, store.select('anchorElement'))
     );
   });
@@ -250,7 +250,7 @@ export function useDismiss(
 
       // Only treat presses that start within the floating DOM subtree as inside.
       // This avoids suppressing parent dismissal when interacting with nested portals.
-      if (!contains(store.select('outerPopupElement'), target)) {
+      if (!contains(store.select('popupPositionerElement'), target)) {
         return;
       }
 
@@ -315,7 +315,7 @@ export function useDismiss(
     storeContext.outsidePressBubbles = outsidePressBubbles;
 
     const preventedPressSuppressionTimeout = new Timeout();
-    const doc = ownerDocument(outerPopupElement);
+    const doc = ownerDocument(popupPositionerElement);
 
     function handleCompositionStart() {
       compositionTimeout.clear();
@@ -411,7 +411,7 @@ export function useDismiss(
       const markers = Array.from(
         (isShadowRoot(targetRoot)
           ? targetRoot
-          : ownerDocument(store.select('outerPopupElement'))
+          : ownerDocument(store.select('popupPositionerElement'))
         ).querySelectorAll(inertSelector),
       );
 
@@ -443,7 +443,7 @@ export function useDismiss(
         isElement(target) &&
         !isRootElement(target) &&
         // Clicked on a direct ancestor (e.g. FloatingOverlay).
-        !contains(target, store.select('outerPopupElement')) &&
+        !contains(target, store.select('popupPositionerElement')) &&
         // If the target root element contains none of the markers, then the
         // element was injected after the floating element rendered.
         markers.every((marker) => !contains(targetRootAncestor, marker))
@@ -757,7 +757,7 @@ export function useDismiss(
     };
   }, [
     storeContext,
-    outerPopupElement,
+    popupPositionerElement,
     escapeKey,
     outsidePressEnabled,
     outsidePress,

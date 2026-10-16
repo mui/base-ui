@@ -7,7 +7,7 @@ const floatingRect: Rect = { x: 0, y: 0, width: 5, height: 5 };
 
 function createState(reference: Rect, overflow: SideObject): MiddlewareState {
   const referenceElement = document.createElement('button');
-  const outerPopupElement = document.createElement('div');
+  const popupPositionerElement = document.createElement('div');
 
   return {
     x: 0,
@@ -18,7 +18,7 @@ function createState(reference: Rect, overflow: SideObject): MiddlewareState {
     middlewareData: {},
     elements: {
       reference: referenceElement,
-      floating: outerPopupElement,
+      floating: popupPositionerElement,
     },
     rects: {
       reference,

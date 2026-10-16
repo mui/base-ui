@@ -471,7 +471,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     onOpenChange: handleOpenChange,
     elements: {
       anchor: triggerElement,
-      outerPopupElement: hoverPopupElement,
+      popupPositionerElement: hoverPopupElement,
     },
   });
 
@@ -591,7 +591,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           hoverIntent.blockOutsidePointerEvents({
             scopeElement,
             triggerElement: currentTarget,
-            outerPopupElement: hoverPopupElement,
+            popupPositionerElement: hoverPopupElement,
           });
         };
 
@@ -799,10 +799,10 @@ export namespace NavigationMenuTrigger {
 
 function getPlacementFromElements(
   anchorElement: Element,
-  outerPopupElement: HTMLElement,
+  popupPositionerElement: HTMLElement,
 ): HandleCloseContextBase['placement'] {
   const referenceRect = anchorElement.getBoundingClientRect();
-  const floatingRect = outerPopupElement.getBoundingClientRect();
+  const floatingRect = popupPositionerElement.getBoundingClientRect();
   const referenceCenterX = referenceRect.left + referenceRect.width / 2;
   const referenceCenterY = referenceRect.top + referenceRect.height / 2;
   const floatingCenterX = floatingRect.left + floatingRect.width / 2;
@@ -819,14 +819,14 @@ function getPlacementFromElements(
 
 function getHandleCloseContext(
   anchorElement: Element,
-  outerPopupElement: HTMLElement,
+  popupPositionerElement: HTMLElement,
   nodeId: string | undefined,
 ): HandleCloseContextBase {
   return {
-    placement: getPlacementFromElements(anchorElement, outerPopupElement),
+    placement: getPlacementFromElements(anchorElement, popupPositionerElement),
     elements: {
       domReference: anchorElement,
-      floating: outerPopupElement,
+      floating: popupPositionerElement,
     },
     nodeId,
   };

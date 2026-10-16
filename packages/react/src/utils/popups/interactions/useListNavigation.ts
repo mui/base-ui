@@ -282,12 +282,12 @@ export function useListNavigation(
   }
 
   const open = store.useState('open');
-  const outerPopupElement = store.useState('outerPopupElement');
+  const popupPositionerElement = store.useState('popupPositionerElement');
   const anchorElement = store.useState('anchorElement');
 
   const storeContext = store.context;
 
-  const popupFocusElement = getPopupFocusElement(outerPopupElement);
+  const popupFocusElement = getPopupFocusElement(popupPositionerElement);
   const typeableComboboxReference = isTypeableCombobox(anchorElement);
 
   const popupFocusElementRef = useValueAsRef(popupFocusElement);
@@ -304,7 +304,7 @@ export function useListNavigation(
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
-  const previousMountedRef = React.useRef(!!outerPopupElement);
+  const previousMountedRef = React.useRef(!!popupPositionerElement);
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
@@ -392,7 +392,7 @@ export function useListNavigation(
       return;
     }
 
-    if (open && outerPopupElement) {
+    if (open && popupPositionerElement) {
       indexRef.current = selectedIndex ?? -1;
       if (focusItemOnOpenRef.current && selectedIndex != null) {
         // Regardless of the pointer modality, we want to ensure the selected
@@ -407,7 +407,7 @@ export function useListNavigation(
       indexRef.current = -1;
       onNavigate();
     }
-  }, [enabled, open, outerPopupElement, selectedIndex, onNavigate]);
+  }, [enabled, open, popupPositionerElement, selectedIndex, onNavigate]);
 
   // Sync `activeIndex` to be the focused item while the floating element is
   // open.
@@ -419,7 +419,7 @@ export function useListNavigation(
       forceSyncFocusRef.current = false;
       return;
     }
-    if (!outerPopupElement) {
+    if (!popupPositionerElement) {
       return;
     }
 
@@ -482,7 +482,7 @@ export function useListNavigation(
   }, [
     enabled,
     open,
-    outerPopupElement,
+    popupPositionerElement,
     activeIndex,
     selectedIndexRef,
     nested,
@@ -497,15 +497,15 @@ export function useListNavigation(
   // Ensure the parent floating element has focus when a nested child closes
   // to allow arrow key navigation to work after the pointer leaves the child.
   useIsoLayoutEffect(() => {
-    if (!enabled || outerPopupElement || !tree || virtual || !previousMountedRef.current) {
+    if (!enabled || popupPositionerElement || !tree || virtual || !previousMountedRef.current) {
       return;
     }
 
     const nodes = tree.nodesRef.current;
     const parent = nodes.find((node) => node.id === parentId)?.context?.elements.floating;
-    // `outerPopupElement` is null here (see the guard above), so resolve the owner document from an
-    // in-DOM element for realm-safety (shadow DOM/iframes): the reference element, falling back to
-    // the parent floating element when the reference is virtual (`anchorElement` is null).
+    // `popupPositionerElement` is null here (see the guard above), so resolve the owner document
+    // from an in-DOM element for realm-safety (shadow DOM/iframes): the reference element, falling
+    // back to the parent floating element when the reference is virtual (`anchorElement` is null).
     const activeEl = activeElement(ownerDocument(anchorElement ?? parent ?? null));
     const treeContainsActiveEl = nodes.some(
       (node) => node.context && contains(node.context.elements.floating, activeEl),
@@ -514,11 +514,11 @@ export function useListNavigation(
     if (parent && !treeContainsActiveEl && isPointerModalityRef.current) {
       parent.focus({ preventScroll: true });
     }
-  }, [enabled, outerPopupElement, anchorElement, tree, parentId, virtual]);
+  }, [enabled, popupPositionerElement, anchorElement, tree, parentId, virtual]);
 
   useIsoLayoutEffect(() => {
     previousOpenRef.current = open;
-    previousMountedRef.current = !!outerPopupElement;
+    previousMountedRef.current = !!popupPositionerElement;
   });
 
   const hasActiveIndex = activeIndex != null;

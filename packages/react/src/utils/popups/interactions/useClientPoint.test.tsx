@@ -30,7 +30,7 @@ function createRootStore(referenceElement: HTMLElement) {
     open: false,
     transitionStatus: undefined,
     baseAnchor: referenceElement,
-    outerPopupElement: document.createElement('div'),
+    popupPositionerElement: document.createElement('div'),
     triggerElements: new PopupTriggerMap(),
     defaultPopupId: undefined,
     nested: false,

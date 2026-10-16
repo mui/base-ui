@@ -260,7 +260,7 @@ export const popupStoreSelectors = {
   anchor: (state: S) => state.anchorOverride ?? activeTriggerElementSelector(state),
   // A `keepMounted` positioner is reported while the popup is closed, but not while an opening
   // popup is still hidden: the hooks would otherwise try to focus or measure it before it shows.
-  outerPopupElement: (state: S) =>
+  popupPositionerElement: (state: S) =>
     openSelector(state) && !state.mounted ? null : state.positionerElement,
 };
 

@@ -16,7 +16,7 @@ export interface UseStandaloneInteractionStoreOptions {
   elements?:
     | {
         anchor?: ReferenceType | null | undefined;
-        outerPopupElement?: HTMLElement | null | undefined;
+        popupPositionerElement?: HTMLElement | null | undefined;
       }
     | undefined;
 }
@@ -46,7 +46,7 @@ export function useStandaloneInteractionStore(
         transitionStatus: undefined,
         onOpenChange,
         baseAnchor: elements.anchor ?? null,
-        outerPopupElement: elements.outerPopupElement ?? null,
+        popupPositionerElement: elements.popupPositionerElement ?? null,
         triggerElements: new PopupTriggerMap(),
         defaultPopupId,
         nested,
@@ -56,7 +56,7 @@ export function useStandaloneInteractionStore(
   useIsoLayoutEffect(() => {
     const valuesToSync = { open, defaultPopupId } as Pick<
       State,
-      'open' | 'defaultPopupId' | 'baseAnchor' | 'anchorElement' | 'outerPopupElement'
+      'open' | 'defaultPopupId' | 'baseAnchor' | 'anchorElement' | 'popupPositionerElement'
     >;
 
     if (elements.anchor !== undefined) {
@@ -64,12 +64,12 @@ export function useStandaloneInteractionStore(
       valuesToSync.anchorElement = isElement(elements.anchor) ? elements.anchor : null;
     }
 
-    if (elements.outerPopupElement !== undefined) {
-      valuesToSync.outerPopupElement = elements.outerPopupElement;
+    if (elements.popupPositionerElement !== undefined) {
+      valuesToSync.popupPositionerElement = elements.popupPositionerElement;
     }
 
     store.update(valuesToSync);
-  }, [open, defaultPopupId, elements.anchor, elements.outerPopupElement, store]);
+  }, [open, defaultPopupId, elements.anchor, elements.popupPositionerElement, store]);
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;

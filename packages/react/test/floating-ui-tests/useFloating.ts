@@ -21,7 +21,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     ...options,
     elements: {
       anchor: options.elements?.reference,
-      outerPopupElement: options.elements?.floating,
+      popupPositionerElement: options.elements?.floating,
     },
   });
   // The ported Floating UI tests only pass stores created by `useStandaloneInteractionStore`.
@@ -40,14 +40,14 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     : null;
 
   const syncedFloatingElement =
-    localFloatingElement === undefined ? store.state.outerPopupElement : localFloatingElement;
+    localFloatingElement === undefined ? store.state.popupPositionerElement : localFloatingElement;
 
   store.useSyncedValue('baseAnchor', localDomReference ?? null);
   store.useSyncedValue(
     'anchorElement',
     localDomReference === undefined ? anchorElement : localDomReferenceElement,
   );
-  store.useSyncedValue('outerPopupElement', syncedFloatingElement);
+  store.useSyncedValue('popupPositionerElement', syncedFloatingElement);
 
   const floating = useBaseUIFloating({ ...options, rootContext: store });
   const baseRefs = floating.refs;

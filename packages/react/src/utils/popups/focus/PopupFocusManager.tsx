@@ -281,7 +281,7 @@ export function PopupFocusManager(props: PopupFocusManagerProps): React.JSX.Elem
 
   const open = store.useState('open');
   const domReference = store.useState('anchorElement');
-  const floating = store.useState('outerPopupElement');
+  const floating = store.useState('popupPositionerElement');
 
   const storeContext = store.context;
   const { events } = storeContext;

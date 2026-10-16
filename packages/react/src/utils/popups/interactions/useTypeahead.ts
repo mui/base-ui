@@ -206,7 +206,7 @@ export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadPr
   const onBlur = useStableCallback((event: React.FocusEvent) => {
     const next = event.relatedTarget as Element | null;
     const currentDomReferenceElement = store.select('anchorElement');
-    const currentFloatingElement = store.select('outerPopupElement');
+    const currentFloatingElement = store.select('popupPositionerElement');
     const withinComposite =
       contains(currentDomReferenceElement, next) || contains(currentFloatingElement, next);
 

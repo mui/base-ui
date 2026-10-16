@@ -5,7 +5,7 @@ export function getEmptyInteractionStore(): StandaloneInteractionStore {
   return new StandaloneInteractionStore({
     open: false,
     transitionStatus: undefined,
-    outerPopupElement: null,
+    popupPositionerElement: null,
     baseAnchor: null,
     triggerElements: new PopupTriggerMap(),
     defaultPopupId: undefined,

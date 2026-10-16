@@ -56,7 +56,7 @@ export interface PopupInteractionReader {
   /**
    * The popup's outermost element: its positioner, or the popup itself when it has none.
    */
-  (key: 'outerPopupElement'): HTMLElement | null;
+  (key: 'popupPositionerElement'): HTMLElement | null;
   /**
    * The popup's id unless its element sets one.
    */

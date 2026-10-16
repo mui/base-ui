@@ -20,7 +20,7 @@ export interface StandaloneInteractionState {
   /**
    * The popup's outermost element, usually its positioner.
    */
-  outerPopupElement: HTMLElement | null;
+  popupPositionerElement: HTMLElement | null;
   /**
    * An anchor set explicitly, such as the cursor position of a popup that follows it.
    */
@@ -41,7 +41,7 @@ const selectors = {
   transitionStatus: (state: StandaloneInteractionState) => state.transitionStatus,
   anchorElement: (state: StandaloneInteractionState) => state.anchorElement,
   anchor: (state: StandaloneInteractionState) => state.anchorOverride ?? state.baseAnchor,
-  outerPopupElement: (state: StandaloneInteractionState) => state.outerPopupElement,
+  popupPositionerElement: (state: StandaloneInteractionState) => state.popupPositionerElement,
   defaultPopupId: (state: StandaloneInteractionState) => state.defaultPopupId,
 };
 
@@ -49,7 +49,7 @@ interface StandaloneInteractionStoreOptions {
   open: boolean;
   transitionStatus: TransitionStatus | undefined;
   baseAnchor: ReferenceType | null;
-  outerPopupElement: HTMLElement | null;
+  popupPositionerElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
   defaultPopupId: string | undefined;
   nested: boolean;
@@ -98,7 +98,7 @@ export class StandaloneInteractionStore
   clearPositioning() {
     this.update({
       baseAnchor: null,
-      outerPopupElement: null,
+      popupPositionerElement: null,
       anchorElement: null,
       anchorOverride: null,
     });

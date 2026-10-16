@@ -49,7 +49,7 @@ const selectors = {
   viewportElement: (state: State<unknown>) => state.viewportElement,
   role: (state: State<unknown>) => state.role,
   // Dialogs have no positioner, so the interaction hooks treat the popup as the floating element.
-  outerPopupElement: (state: State<unknown>) => state.popupElement,
+  popupPositionerElement: (state: State<unknown>) => state.popupElement,
 };
 
 /**

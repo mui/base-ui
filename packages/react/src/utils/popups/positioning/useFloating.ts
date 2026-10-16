@@ -25,7 +25,7 @@ export function useBaseUIFloating(
   const { nodeId, externalTree, rootContext: store } = options;
 
   const anchor = store.useState('anchor');
-  const outerPopupElement = store.useState('outerPopupElement');
+  const popupPositionerElement = store.useState('popupPositionerElement');
   const anchorElement = store.useState('anchorElement');
   const open = store.useState('open');
   const defaultPopupId = store.useState('defaultPopupId');
@@ -39,10 +39,10 @@ export function useBaseUIFloating(
   const storeElements = React.useMemo(
     () => ({
       reference: anchor,
-      floating: outerPopupElement,
+      floating: popupPositionerElement,
       domReference: anchorElement,
     }),
-    [anchor, outerPopupElement, anchorElement],
+    [anchor, popupPositionerElement, anchorElement],
   );
 
   const position = usePosition({

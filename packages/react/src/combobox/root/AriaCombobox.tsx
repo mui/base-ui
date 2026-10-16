@@ -1337,7 +1337,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     onOpenChange: setOpen,
     elements: {
       anchor: inputInsidePopup ? triggerElement : inputElement,
-      outerPopupElement: positionerElement,
+      popupPositionerElement: positionerElement,
     },
   });
 
