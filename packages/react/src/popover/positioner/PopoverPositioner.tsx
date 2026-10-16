@@ -87,7 +87,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const domReference = store.useState('domReferenceElement');
 
-  useTriggerSwitchTransition({
+  const instantPosition = useTriggerSwitchTransition({
     store,
     domReference,
     positionerElement,
@@ -110,7 +110,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     side: positioning.side,
     align: positioning.align,
     anchorHidden: positioning.anchorHidden,
-    instant: instantType,
+    instant: instantType ?? (instantPosition ? 'trigger-change' : undefined),
   };
 
   const element = usePositioner(componentProps, state, {

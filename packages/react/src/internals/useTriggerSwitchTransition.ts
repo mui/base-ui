@@ -45,10 +45,15 @@ export interface UseTriggerSwitchTransitionParameters {
  * Applying `trigger-change` to a closed popup is prevented separately, by the
  * stores' `instantType` selector, since a controlled `open={false}` commit
  * reaches the popup without passing through `setOpen`.
+ *
+ * Returns whether the positioner should disable transitions for anchor tracking.
  */
-export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitionParameters): void {
+export function useTriggerSwitchTransition(
+  parameters: UseTriggerSwitchTransitionParameters,
+): boolean {
   const { store, domReference, positionerElement, open } = parameters;
 
+  const [isSwitching, setIsSwitching] = React.useState(false);
   const previousTriggerRef = React.useRef<Element | null>(null);
   const pendingSwitchRef = React.useRef<AbortController | null>(null);
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
@@ -60,6 +65,7 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
 
     pendingSwitchRef.current?.abort();
     pendingSwitchRef.current = null;
+    setIsSwitching(false);
 
     // `trigger-change` belongs to the open cycle that scheduled it. The selector
     // stops a closed popup from rendering it, but the value has to be dropped
@@ -91,6 +97,7 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
       return undefined;
     }
 
+    setIsSwitching(true);
     store.set('instantType', undefined);
 
     const abortController = new AbortController();
@@ -101,6 +108,7 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
       // in the same frame the close commits. Writing `trigger-change` then would
       // leave stale state behind for the next open to inherit.
       if (store.select('open')) {
+        setIsSwitching(false);
         store.set('instantType', 'trigger-change');
       }
     }, abortController.signal);
@@ -109,4 +117,9 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
       abortController.abort();
     };
   }, [domReference, runOnceAnimationsFinish, store]);
+
+  // Anchor tracking must be instant even before the first trigger switch. Keep
+  // this default local to the positioner: setting the shared `instantType` on
+  // open would also disable the popup's enter transition.
+  return open && !isSwitching;
 }

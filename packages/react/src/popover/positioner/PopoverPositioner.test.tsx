@@ -58,6 +58,7 @@ describe('<Popover.Positioner />', () => {
   const popupStyle = { width: popupWidth, height: popupHeight };
 
   positionerConformanceTests({
+    triggerSwitch: Popover,
     render,
     viewport: true,
     createComponent: ({ root, trigger, positioner, popup, viewport }) => (
