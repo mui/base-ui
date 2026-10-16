@@ -14,7 +14,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { getOverflowAncestors } from '@floating-ui/react-dom';
 import type { ElementProps } from '../../utils/popups/types';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { usePopupRoot } from '../../utils/popups/popupRoot';
+import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
 import { useValuePopupAnchor } from '../../utils/popups/value-popup/useValuePopupAnchor';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
@@ -338,7 +338,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     },
   })).current;
 
-  const { store, open, transitionStatus } = usePopupRoot(
+  const { store, open, transitionStatus } = useSingleAnchorPopupRoot(
     {
       open: openProp,
       defaultOpen,
@@ -424,7 +424,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         },
         selectors,
       ),
-    { popupRef: animatedPopupRef },
+    animatedPopupRef,
   );
 
   const isGrouped = isGroupedItems(items);
