@@ -247,6 +247,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     validation
       ? (validationProps: HTMLProps) => validation.getValidationProps(disabled, validationProps)
       : EMPTY_OBJECT,
+    // Only a fully disabled group leaves the tab order. A single disabled radio
+    // keeps the composite tab index.
+    disabledGroup ? { tabIndex: -1 } : EMPTY_OBJECT,
   ];
 
   const element = useRenderElement('span', componentProps, {

@@ -12,7 +12,7 @@ import { isJSDOM, createRenderer, describeConformance } from '#test-utils';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 
 describe('<RadioGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<RadioGroup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -228,6 +228,52 @@ describe('<RadioGroup />', () => {
       fireEvent.click(item);
 
       expect(item).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('is not a tab stop when the whole group is disabled', async () => {
+      const { user } = await render(
+        <div>
+          <button type="button">Before</button>
+          <RadioGroup disabled>
+            <Radio.Root value="a" data-testid="a" />
+            <Radio.Root value="b" data-testid="b" />
+          </RadioGroup>
+          <button type="button">After</button>
+        </div>,
+      );
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '-1');
+
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Before' })).toHaveFocus();
+
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+    });
+
+    it('keeps a tab stop on an enabled radio when another radio is disabled', async () => {
+      await render(
+        <RadioGroup>
+          <Radio.Root value="a" disabled data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('a')).not.toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '0');
+    });
+
+    it('keeps a disabled group out of the tab order in the server markup', async () => {
+      await renderToString(
+        <RadioGroup disabled>
+          <Radio.Root value="a" data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '-1');
     });
   });
 
