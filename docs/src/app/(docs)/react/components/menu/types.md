@@ -385,6 +385,7 @@ Renders a `<div>` element.
 | data-closed        | -                                                                          | Present when the menu popup is closed.                               |
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                   |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to the specified side.   |
+| data-nested        | -                                                                          | Present when the menu is a submenu.                                  |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the anchor. |
 
 **Positioner CSS Variables:**
@@ -445,6 +446,7 @@ Renders a `<div>` element.
 | data-closed         | -                                                                          | Present when the menu is closed.                                     |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.       |
 | data-instant        | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present if animations should be instant.                             |
+| data-nested         | -                                                                          | Present when the menu is a submenu.                                  |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the anchor. |
 | data-starting-style | -                                                                          | Present when the menu begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the menu is animating out.                              |
@@ -1474,6 +1476,8 @@ declare namespace MenuPopupDataAttributes {
   const open: 'data-open';
   /** Present when the menu is closed. */
   const closed: 'data-closed';
+  /** Present when the menu is a submenu. */
+  const nested: 'data-nested';
   /** Present when the menu begins animating in. */
   const startingStyle: 'data-starting-style';
   /** Present when the menu is animating out. */
@@ -1552,6 +1556,8 @@ declare namespace MenuPositionerDataAttributes {
   const open: 'data-open';
   /** Present when the menu popup is closed. */
   const closed: 'data-closed';
+  /** Present when the menu is a submenu. */
+  const nested: 'data-nested';
   /** Present when the anchor is hidden. */
   const anchorHidden: 'data-anchor-hidden';
   /**
