@@ -3058,6 +3058,110 @@ describe('<Menu.Root />', () => {
     expect(menuItem).toHaveAttribute('tabindex', '-1');
   });
 
+  // Both menus stay mounted so they can open in one update, where the submenu's effects run
+  // before its root's. Blurring the focused submenu trigger lets Escape reach the document.
+  describe('when a submenu opens in the same update as its root', () => {
+    it('requests the submenu dismissal on Escape from the body', async () => {
+      const onSubmenuOpenChange = vi.fn();
+
+      function Test({ open }: { open: boolean }) {
+        return (
+          <Menu.Root open={open}>
+            <Menu.Trigger>Menu</Menu.Trigger>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.SubmenuRoot open={open} onOpenChange={onSubmenuOpenChange}>
+                    <Menu.SubmenuTrigger data-testid="submenu-trigger">More</Menu.SubmenuTrigger>
+                    <Menu.Portal keepMounted>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="submenu" />
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { setProps, user } = await render(<Test open={false} />);
+      await setProps({ open: true });
+      await waitFor(() => {
+        expect(screen.getByTestId('submenu')).toHaveAttribute('data-open');
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
+      });
+      await act(async () => {
+        screen.getByTestId('submenu-trigger').blur();
+      });
+      expect(document.activeElement).toBe(document.body);
+
+      await user.keyboard('[Escape]');
+
+      expect(onSubmenuOpenChange.mock.calls.length).toBe(1);
+      expect(onSubmenuOpenChange.mock.calls[0][0]).toBe(false);
+      expect(onSubmenuOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
+    });
+
+    it('closes the submenu on Escape from the body when the root cancels its dismissal', async () => {
+      function Test({ open }: { open: boolean }) {
+        const [submenuClosed, setSubmenuClosed] = React.useState(false);
+
+        return (
+          <Menu.Root
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              if (eventDetails.reason === REASONS.escapeKey) {
+                eventDetails.cancel();
+              }
+            }}
+          >
+            <Menu.Trigger>Menu</Menu.Trigger>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="menu">
+                  <Menu.SubmenuRoot
+                    open={open && !submenuClosed}
+                    onOpenChange={(nextOpen) => setSubmenuClosed(!nextOpen)}
+                  >
+                    <Menu.SubmenuTrigger data-testid="submenu-trigger">More</Menu.SubmenuTrigger>
+                    <Menu.Portal keepMounted>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="submenu" />
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { setProps, user } = await render(<Test open={false} />);
+      await setProps({ open: true });
+      await waitFor(() => {
+        expect(screen.getByTestId('submenu')).toHaveAttribute('data-open');
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
+      });
+      await act(async () => {
+        screen.getByTestId('submenu-trigger').blur();
+      });
+      expect(document.activeElement).toBe(document.body);
+
+      await user.keyboard('[Escape]');
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('submenu')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('menu')).toHaveAttribute('data-open');
+    });
+  });
+
   describe.skipIf(isJSDOM || !platform.engine.blink)('opening a dialog from an item', () => {
     it('keeps the dialog open after a press-drag-release activation', async () => {
       ignoreActWarnings();

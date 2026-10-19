@@ -18,7 +18,7 @@ import { platform } from '@base-ui/utils/platform';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
-import type { ContextData, ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
@@ -29,12 +29,14 @@ import { getNodeChildren } from '../tree/nodes';
 
 type PressType = 'intentional' | 'sloppy';
 
-// Open floating elements that dismiss on Escape, per document, in opening order. An Escape that
-// reaches the document (focus is on `body` after a backdrop press, for example) bypasses the
-// floating elements' own `onKeyDown` handlers, and `stopPropagation()` there can't stop the other
-// document listeners. `FloatingTree` only covers children registered in the same tree, which
-// components such as Dialog don't use, so parents would otherwise close alongside their children.
-const escapeKeyLayers = new WeakMap<Document, Array<ContextData>>();
+// Floating elements number themselves when they open, during render, which reaches parents before
+// their children. An Escape that reaches the document (focus is on `body` after a backdrop press,
+// for example) bypasses the floating elements' own `onKeyDown` handlers, and `stopPropagation()`
+// can't stop the other document listeners. So each open floating element records its number for the
+// event in the capture phase, and the newest one that doesn't let Escape bubble handles it, along
+// with any newer ones that do.
+let openCount = 0;
+const escapeLayers = new WeakMap<Event, number>();
 
 function alwaysFalse() {
   return false;
@@ -108,8 +110,8 @@ export interface UseDismissProps {
    * Determines whether event listeners bubble upwards through a tree of
    * floating elements.
    * `escapeKey` also determines whether an Escape that reaches the document, rather than a
-   * floating element, propagates to layers opened earlier in the same document, even when they
-   * share no `FloatingTree`.
+   * floating element, propagates to floating elements opened earlier, even when they share no
+   * `FloatingTree`.
    */
   bubbles?:
     boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
@@ -242,21 +244,14 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     },
   );
 
-  const closeOnDocumentEscapeKeyDown = useStableCallback((event: KeyboardEvent) => {
-    if (event.key !== 'Escape') {
-      return;
+  // This popup's open number for an Escape that reaches the document (see `openCount`).
+  const layer = React.useMemo(() => {
+    if (!open) {
+      return 0;
     }
-
-    // Only the most recently opened layer handles an Escape that reaches the document, unless
-    // every layer opened after this one lets Escape bubble.
-    const layers = escapeKeyLayers.get(ownerDocument(store.select('floatingElement')));
-    const index = layers ? layers.indexOf(dataRef.current) : -1;
-    if (index !== -1 && layers!.slice(index + 1).some((layer) => !layer.__escapeKeyBubbles)) {
-      return;
-    }
-
-    closeOnEscapeKeyDown(event);
-  });
+    openCount += 1;
+    return openCount;
+  }, [open]);
 
   const markInsideReactTree = useStableCallback(() => {
     dataRef.current.insideReactTree = true;
@@ -320,27 +315,6 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
   // Not cleared in the listener effect's cleanup, which can run mid-press when a dependency
   // changes. In a closed shadow root, the marker is the only inside-press signal.
   React.useEffect(() => clearInsideReactTree, [clearInsideReactTree]);
-
-  // Kept apart from the listener effect so its other dependencies can't re-register this layer
-  // on top of layers that opened after it.
-  React.useEffect(() => {
-    if (!open || !enabled || !escapeKey) {
-      return undefined;
-    }
-
-    const doc = ownerDocument(floatingElement);
-    const layers = escapeKeyLayers.get(doc) ?? [];
-    escapeKeyLayers.set(doc, layers);
-    const layer = dataRef.current;
-    layers.push(layer);
-
-    return () => {
-      const index = layers.indexOf(layer);
-      if (index !== -1) {
-        layers.splice(index, 1);
-      }
-    };
-  }, [open, enabled, escapeKey, floatingElement, dataRef]);
 
   React.useEffect(() => {
     if (!open || !enabled) {
@@ -766,7 +740,21 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     const unsubscribe = mergeCleanups(
       escapeKey &&
         mergeCleanups(
-          addEventListener(doc, 'keydown', closeOnDocumentEscapeKeyDown),
+          addEventListener(
+            doc,
+            'keydown',
+            (event) => {
+              if (!escapeKeyBubbles) {
+                escapeLayers.set(event, Math.max(escapeLayers.get(event) ?? 0, layer));
+              }
+            },
+            true,
+          ),
+          addEventListener(doc, 'keydown', (event) => {
+            if (layer >= (escapeLayers.get(event) ?? 0)) {
+              closeOnEscapeKeyDown(event);
+            }
+          }),
           addEventListener(doc, 'compositionstart', handleCompositionStart),
           addEventListener(doc, 'compositionend', handleCompositionEnd),
         ),
@@ -809,7 +797,8 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     enabled,
     escapeKeyBubbles,
     outsidePressBubbles,
-    closeOnDocumentEscapeKeyDown,
+    closeOnEscapeKeyDown,
+    layer,
     clearInsideReactTree,
     getOutsidePressEventProp,
     hasBlockingChild,
