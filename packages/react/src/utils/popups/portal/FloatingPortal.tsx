@@ -8,7 +8,7 @@ import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FocusGuard } from '../../FocusGuard';
+import { FocusGuard } from '../focus/FocusGuard';
 import {
   enableFocusInside,
   disableFocusInside,

@@ -5,11 +5,11 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { NOOP, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { Dimensions } from '@floating-ui/react-dom';
-import { useAnimationsFinished } from '../internals/useAnimationsFinished';
-import { getCssDimensions } from './getCssDimensions';
-import type { Side } from '../internals/useAnchorPositioning';
+import { useAnimationsFinished } from '../../../internals/useAnimationsFinished';
+import { getCssDimensions } from '../../getCssDimensions';
+import type { Side } from '../../../internals/useAnchorPositioning';
 import * as CommonPopupCssVars from './CommonPopupCssVars';
-import * as CommonPositionerCssVars from './CommonPositionerCssVars';
+import * as CommonPositionerCssVars from '../positioning/CommonPositionerCssVars';
 
 /**
  * Allows the element to automatically resize based on its content while supporting animations.
