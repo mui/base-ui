@@ -8,29 +8,29 @@ import type { UseFloatingReturn } from '../types';
 import { useBaseUIFloating } from './useFloating';
 
 function Test({
-  rootContext,
+  rootStore,
   onRender,
 }: {
-  rootContext: FloatingRootStore;
+  rootStore: FloatingRootStore;
   onRender(value: UseFloatingReturn): void;
 }) {
-  onRender(useBaseUIFloating({ rootContext }));
+  onRender(useBaseUIFloating({ rootStore }));
   return null;
 }
 
 test('uses the supplied root store while preserving DOM and position references', async () => {
   const referenceElement = document.createElement('button');
-  const floatingElement = document.createElement('div');
-  document.body.append(referenceElement, floatingElement);
+  const positionerElement = document.createElement('div');
+  document.body.append(referenceElement, positionerElement);
 
   try {
     const store = new FloatingRootStore({
       open: true,
       transitionStatus: undefined,
-      referenceElement,
-      floatingElement,
+      baseAnchor: referenceElement,
+      positionerElement,
       triggerElements: new PopupTriggerMap(),
-      floatingId: undefined,
+      defaultPopupId: undefined,
       nested: false,
       onOpenChange: vi.fn(),
     });
@@ -38,7 +38,7 @@ test('uses the supplied root store while preserving DOM and position references'
 
     render(
       <Test
-        rootContext={store}
+        rootStore={store}
         onRender={(value) => {
           floating = value;
         }}
@@ -47,25 +47,24 @@ test('uses the supplied root store while preserving DOM and position references'
     await flushMicrotasks();
 
     expect(floating?.context.rootStore).toBe(store);
-    expect(floating?.context.dataRef).toBe(store.context.dataRef);
-    expect(floating?.context.events).toBe(store.context.events);
-    expect(floating?.refs.floating.current).toBe(floatingElement);
+    expect(store.context.positioning).toBe(floating?.context);
+    expect(floating?.refs.floating.current).toBe(positionerElement);
     expect(floating?.refs.domReference.current).toBe(referenceElement);
 
-    const positionReference: VirtualElement = {
+    const anchorOverride: VirtualElement = {
       getBoundingClientRect: () => new DOMRect(1, 2, 3, 4),
     };
 
     await React.act(async () => {
-      floating?.refs.setPositionReference(positionReference);
+      floating?.refs.setPositionReference(anchorOverride);
     });
 
-    expect(floating?.refs.reference.current).toBe(positionReference);
-    expect(floating?.elements.reference).toBe(positionReference);
-    expect(store.state.domReferenceElement).toBe(referenceElement);
+    expect(floating?.refs.reference.current).toBe(anchorOverride);
+    expect(floating?.elements.reference).toBe(anchorOverride);
+    expect(store.state.anchorElement).toBe(referenceElement);
     expect(floating?.refs.domReference.current).toBe(referenceElement);
   } finally {
     referenceElement.remove();
-    floatingElement.remove();
+    positionerElement.remove();
   }
 });

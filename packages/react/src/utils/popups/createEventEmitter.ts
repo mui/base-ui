@@ -1,6 +1,6 @@
-import type { FloatingEvents } from './types';
+import type { PopupEvents } from './types';
 
-export function createEventEmitter(): FloatingEvents {
+export function createEventEmitter(): PopupEvents {
   const map = new Map<string, Set<(data: any) => void>>();
   return {
     emit(event: string, data: any) {

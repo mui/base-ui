@@ -305,6 +305,35 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('calls onOpenChangeComplete after the closed popup resets the input', async () => {
+    const calls: string[] = [];
+    const { user } = await render(
+      <Combobox.Root
+        onInputValueChange={(value) => calls.push(`inputValueChange:${value}`)}
+        onOpenChangeComplete={(open) => calls.push(`openChangeComplete:${open}`)}
+      >
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.type(screen.getByTestId('input'), 'ap');
+    await waitFor(() => expect(calls).toContain('openChangeComplete:true'));
+    calls.length = 0;
+
+    await user.click(document.body);
+    await waitFor(() => expect(calls).toContain('openChangeComplete:false'));
+    expect(calls).toEqual(['inputValueChange:', 'openChangeComplete:false']);
+  });
+
   describe('manual unmount lifecycle', () => {
     function Popup(
       props: Pick<
@@ -12876,8 +12905,10 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(validateSpy.mock.calls.length).toBe(1);
       });
-
-      expect(trigger).toHaveAttribute('data-touched', '');
+      // The store commits the close before the Field's state updates land.
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-touched', '');
+      });
       expect(trigger).not.toHaveAttribute('data-focused');
       expect(trigger).toHaveAttribute('aria-invalid', 'true');
     });

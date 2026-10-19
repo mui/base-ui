@@ -68,7 +68,7 @@ describe('<Tooltip.Root />', () => {
   describe('trigger unmount during the open delay', () => {
     clock.withFakeTimers();
 
-    function App({ showTrigger }: { showTrigger: boolean }) {
+    function ContainedApp({ showTrigger }: { showTrigger: boolean }) {
       return (
         <Tooltip.Root>
           {showTrigger && <Tooltip.Trigger>Toggle</Tooltip.Trigger>}
@@ -81,7 +81,26 @@ describe('<Tooltip.Root />', () => {
       );
     }
 
-    it('does not open once the hovered trigger has unmounted', async () => {
+    function DetachedApp({ showTrigger }: { showTrigger: boolean }) {
+      const handle = useRefWithInit(() => Tooltip.createHandle()).current;
+      return (
+        <React.Fragment>
+          {showTrigger && <Tooltip.Trigger handle={handle}>Toggle</Tooltip.Trigger>}
+          <Tooltip.Root handle={handle}>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </React.Fragment>
+      );
+    }
+
+    it.each([
+      { name: 'contained trigger', App: ContainedApp },
+      { name: 'detached trigger', App: DetachedApp },
+    ])('does not open once the hovered $name has unmounted', async ({ App }) => {
       const { setProps } = await render(<App showTrigger />);
 
       const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -2972,7 +2991,7 @@ describe('nested tooltips', () => {
     fireEvent.mouseEnter(innerTrigger);
     fireEvent.mouseOver(innerTrigger);
     // Repeated mouseMoves keep the safePolygon / mouseover path active, which
-    // calls `setOpen(true)` via `useHoverReferenceInteraction`'s onMouseMove
+    // calls `setOpen(true)` via `useHoverTriggerInteraction`'s onMouseMove
     // handler — that path is now gated by `checkShouldOpen()`.
     fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
     fireEvent.mouseMove(innerTrigger, { clientX: 51, clientY: 10 });

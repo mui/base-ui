@@ -85,38 +85,35 @@ type PopupRootStore = ReactStore<
  *
  * @param props The props every popup Root shares.
  * @param createStore Builds the store exactly once, from the state the props describe and the
- *   floating id. The store belongs to the
- *   Root, not to its handle: the handle attaches to it, so swapping the handle re-attaches rather
- *   than recreating state. The props only seed it; controlled props are synced after creation.
+ *   default popup id. The store belongs to the Root, not to its handle: the handle attaches to it,
+ *   so swapping the handle re-attaches rather than recreating state. The props only seed it;
+ *   controlled props are synced after creation.
  * @param options What differs between popup Roots.
  * @returns The store, and the open and mounted state, payload and transition status it renders.
  */
 export function usePopupRoot<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
-  createStore: (initialState: PopupRootInitialState, floatingId: string | undefined) => Store,
+  createStore: (initialState: PopupRootInitialState, defaultPopupId: string | undefined) => Store,
   options: UsePopupRootOptions = {},
 ) {
-  const floatingId = useId();
-  return usePopupRootWithFloatingId(props, createStore, floatingId, options);
+  const defaultPopupId = useId();
+  return usePopupRootWithPopupId(props, createStore, defaultPopupId, options);
 }
 
 /**
- * `usePopupRoot` for a Root that supplies its own floating id instead of a generated one.
+ * `usePopupRoot` for a Root that supplies its own default popup id instead of a generated one.
  *
- * @param floatingId The floating id, or `undefined` to leave the popup without one.
+ * @param defaultPopupId The default popup id, or `undefined` to leave the popup without one.
  */
-export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
+export function usePopupRootWithPopupId<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
-  createStore: (initialState: PopupRootInitialState, floatingId: string | undefined) => Store,
-  floatingId: string | undefined,
+  createStore: (initialState: PopupRootInitialState, defaultPopupId: string | undefined) => Store,
+  defaultPopupId: string | undefined,
   options: UsePopupRootOptions = {},
 ) {
   const {
     open: openProp,
     defaultOpen = false,
-    onOpenChange,
-    onOpenChangeComplete,
-    actionsRef,
     triggerId: triggerIdProp,
     defaultTriggerId = null,
   } = props;
@@ -127,35 +124,96 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
   } = options;
 
   const store = usePopupRootStore(
-    (initialFloatingId) =>
+    (initialPopupId) =>
       createStore(
         { open: defaultOpen, openProp, activeTriggerId: defaultTriggerId, triggerIdProp },
-        initialFloatingId,
+        initialPopupId,
       ),
-    floatingId,
+    defaultPopupId,
   );
 
-  store.useControlledProp('openProp', openProp);
+  const open = usePopupRootOpenState(store, props, disabled);
   store.useControlledProp('triggerIdProp', triggerIdProp);
+  const mounted = store.useState('mounted');
+  const payload = store.useState('payload') as Store['state']['payload'];
+
+  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount });
+  const transitionStatus = usePopupRootTransitions(store, open, props, animateInitialOpen);
+
+  return { store, open, mounted, payload, transitionStatus };
+}
+
+/**
+ * `usePopupRoot` for a popup that has a single anchor and no triggers to track, such as a Select
+ * or a Combobox: it leaves out the trigger props and the active trigger.
+ *
+ * @param popupRef The element whose closing animations are awaited before the popup unmounts.
+ *   Defaults to the store's `popupRef`.
+ */
+export function useSingleAnchorPopupRoot<Store extends PopupRootStore>(
+  props: Omit<PopupRootProps<Store>, 'triggerId' | 'defaultTriggerId'>,
+  createStore: (initialState: PopupRootInitialState, defaultPopupId: string | undefined) => Store,
+  popupRef?: React.RefObject<HTMLElement | null>,
+) {
+  const { open: openProp, defaultOpen = false } = props;
+
+  const store = usePopupRootStore(
+    (initialPopupId) =>
+      createStore(
+        { open: defaultOpen, openProp, activeTriggerId: null, triggerIdProp: undefined },
+        initialPopupId,
+      ),
+    useId(),
+  );
+
+  const open = usePopupRootOpenState(store, props, false);
+  const transitionStatus = usePopupRootTransitions(store, open, props, false, popupRef);
+
+  return { store, open, transitionStatus };
+}
+
+/**
+ * Syncs the controlled `open` prop and the open change callbacks, and returns whether the popup
+ * renders as open.
+ */
+function usePopupRootOpenState<Store extends PopupRootStore>(
+  store: Store,
+  props: Pick<PopupRootProps<Store>, 'open' | 'onOpenChange' | 'onOpenChangeComplete'>,
+  disabled: boolean,
+) {
+  const { open: openProp, onOpenChange, onOpenChangeComplete } = props;
+
+  store.useControlledProp('openProp', openProp);
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openState = store.useState('open');
-  const open = !disabled && openState;
-  const mounted = store.useState('mounted');
-  const payload = store.useState('payload') as Store['state']['payload'];
+  // The store receives a controlled `open` prop in a layout effect, a commit after the Root renders
+  // with it, so the transitions read the prop itself.
+  return !disabled && (openProp ?? openState);
+}
 
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount });
+/**
+ * Runs the open and close transitions and exposes the `actionsRef` actions.
+ */
+function usePopupRootTransitions<Store extends PopupRootStore>(
+  store: Store,
+  open: boolean,
+  props: Pick<PopupRootProps<Store>, 'open' | 'actionsRef'>,
+  animateInitialOpen: boolean,
+  popupRef?: React.RefObject<HTMLElement | null>,
+) {
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(
     open,
     store,
-    openProp,
+    props.open,
     animateInitialOpen,
+    popupRef,
   );
 
   React.useImperativeHandle(
-    actionsRef,
+    props.actionsRef,
     () => ({
       unmount: forceUnmount,
       close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
@@ -163,7 +221,7 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
     [forceUnmount, store],
   );
 
-  return { store, open, mounted, payload, transitionStatus };
+  return transitionStatus;
 }
 
 /**
@@ -208,22 +266,22 @@ interface PopupRootStoreHandle<Store> {
 
 /**
  * Creates and owns a popup store on behalf of a Root part. The store is created exactly once, with
- * controlled props and root state synced separately after creation. Keeps the floating id and
+ * controlled props and root state synced separately after creation. Keeps the default popup id and
  * whether the popup is nested current, and returns the store.
  *
- * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
- * resolved on the first render.
- * @param floatingId The floating id, or `undefined` to leave the popup without one.
+ * @param createStore Factory that builds the store. Called exactly once, receiving the default
+ * popup id resolved on the first render.
+ * @param defaultPopupId The default popup id, or `undefined` to leave the popup without one.
  */
 function usePopupRootStore<Store extends PopupRootStore>(
-  createStore: (floatingId: string | undefined) => Store,
-  floatingId: string | undefined,
+  createStore: (defaultPopupId: string | undefined) => Store,
+  defaultPopupId: string | undefined,
 ): Store {
   const nested = useFloatingParentNodeId() != null;
 
-  const store = useRefWithInit(() => createStore(floatingId)).current;
+  const store = useRefWithInit(() => createStore(defaultPopupId)).current;
 
-  store.useSyncedValue('floatingId', floatingId);
+  store.useSyncedValue('defaultPopupId', defaultPopupId);
   store.context.nested = nested;
 
   return store;
@@ -426,6 +484,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
  *   only mounts in response to something the user did, such as a submenu inside a menu popup.
+ * @param popupRef The element whose closing animations are awaited before unmounting.
  *
  * @returns A function to forcibly unmount the popup. It is a no-op once the popup is already
  *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
@@ -437,6 +496,7 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   },
   openProp: boolean | undefined,
   animateInitialOpen?: boolean,
+  popupRef: React.RefObject<HTMLElement | null> = store.context.popupRef,
 ) {
   // In controlled mode, `state.open` holds the last open-change request instead of the open state,
   // and a close through the prop doesn't reset it. Clear it in the commit that receives a closing
@@ -451,7 +511,7 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
 
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
-    ref: store.context.popupRef,
+    ref: popupRef,
     preventUnmountOnClose: store.useState('preventUnmountingOnClose'),
     setPreventUnmountOnClose: (preventUnmountOnClose) =>
       store.set('preventUnmountingOnClose', preventUnmountOnClose),
