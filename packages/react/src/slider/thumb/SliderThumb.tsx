@@ -292,18 +292,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         return;
       }
 
-      // Still before the first paint, so flush to avoid a frame with the thumb hidden.
-      getInsetPosition(true);
-
       const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
-      if (typeof ResizeObserverCtor !== 'function') {
-        return;
+      if (typeof ResizeObserverCtor === 'function') {
+        // Observer callbacks run before paint; flush so a resize never paints a stale position.
+        resizeObserver = new ResizeObserverCtor(() => getInsetPosition(true));
+        resizeObserver.observe(control);
+        resizeObserver.observe(thumb);
       }
 
-      // Observer callbacks run before paint; flush so a resize never paints a stale position.
-      resizeObserver = new ResizeObserverCtor(() => getInsetPosition(true));
-      resizeObserver.observe(control);
-      resizeObserver.observe(thumb);
+      // Still before the first paint, so flush to avoid a frame with the thumb hidden.
+      // The observer exists first, so an unmount during this flush disconnects it.
+      getInsetPosition(true);
     });
 
     return () => {

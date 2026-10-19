@@ -1045,6 +1045,83 @@ describe('<Slider.Thumb />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)(
+      'disconnects its ResizeObserver when the slider unmounts during the mount measurement',
+      async () => {
+        const proto = ResizeObserver.prototype;
+        const originalObserve = proto.observe;
+        const originalDisconnect = proto.disconnect;
+        const observedTargets = new Map<ResizeObserver, Element[]>();
+        const disconnected = new Set<ResizeObserver>();
+        vi.spyOn(proto, 'observe').mockImplementation(function observe(
+          this: ResizeObserver,
+          target: Element,
+          options?: ResizeObserverOptions,
+        ) {
+          observedTargets.set(this, [...(observedTargets.get(this) ?? []), target]);
+          return originalObserve.call(this, target, options);
+        });
+        vi.spyOn(proto, 'disconnect').mockImplementation(function disconnect(this: ResizeObserver) {
+          disconnected.add(this);
+          return originalDisconnect.call(this);
+        });
+
+        const handleShown = vi.fn();
+
+        // Unmounts the slider from a layout effect once the indicator is positioned,
+        // which happens inside the mount measurement's synchronous flush.
+        function UnmountOnShow(props: React.ComponentProps<'div'> & { onShown: () => void }) {
+          const { onShown, ...other } = props;
+          const shown = other.style?.visibility !== 'hidden';
+          React.useLayoutEffect(() => {
+            if (shown) {
+              onShown();
+            }
+          }, [shown, onShown]);
+          return <div {...other} />;
+        }
+
+        function App() {
+          const [mounted, setMounted] = React.useState(true);
+          const onShown = React.useCallback(() => {
+            handleShown();
+            setMounted(false);
+          }, []);
+
+          if (!mounted) {
+            return null;
+          }
+
+          return (
+            <Slider.Root defaultValue={30} thumbAlignment="edge" style={{ width: '200px' }}>
+              <Slider.Control
+                data-testid="control"
+                style={{ position: 'relative', width: '100%', height: '10px' }}
+              >
+                <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                  <Slider.Indicator
+                    render={(props) => <UnmountOnShow {...props} onShown={onShown} />}
+                  />
+                  <Slider.Thumb style={{ width: '40px', height: '10px' }} />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>
+          );
+        }
+
+        await render(<App />, { strict: false });
+        await waitForFrames();
+
+        expect(handleShown).toHaveBeenCalledTimes(1);
+        expect(screen.queryByTestId('control')).toBe(null);
+
+        const controlObservers = [...observedTargets].filter(([, targets]) =>
+          targets.some((target) => target.getAttribute('data-testid') === 'control'),
+        );
+        expect(controlObservers.filter(([observer]) => !disconnected.has(observer))).toEqual([]);
+      },
+    );
+
     describe.skipIf(isJSDOM)('updates inset positions before the next paint', () => {
       async function renderEdgeSlider() {
         await render(
