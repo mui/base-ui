@@ -206,7 +206,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
 
   // The last position and indicator edge applied, including updates that haven't rendered yet.
-  const appliedInsetRef = React.useRef<[number | undefined, number]>([undefined, -2]);
+  const appliedInsetRef = React.useRef<[number | undefined, number]>([undefined, -1]);
 
   const getInsetPosition = useStableCallback((sync?: boolean) => {
     const control = controlRef.current;
@@ -292,7 +292,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         return;
       }
 
-      getInsetPosition();
+      // Still before the first paint, so flush to avoid a frame with the thumb hidden.
+      getInsetPosition(true);
 
       const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
       if (typeof ResizeObserverCtor !== 'function') {

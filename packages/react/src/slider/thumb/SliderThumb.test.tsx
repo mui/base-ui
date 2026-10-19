@@ -992,6 +992,59 @@ describe('<Slider.Thumb />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)(
+      'moves the indicator start to a thumb that becomes the first thumb',
+      async () => {
+        function App({ value }: { value: number[] }) {
+          return (
+            <Slider.Root value={value} thumbAlignment="edge" style={{ width: '200px' }}>
+              <Slider.Control
+                data-testid="control"
+                style={{ position: 'relative', width: '100%', height: '10px' }}
+              >
+                <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                  <Slider.Indicator data-testid="indicator" />
+                  {value.map((thumbValue, index) => (
+                    <Slider.Thumb
+                      key={thumbValue}
+                      index={index}
+                      data-testid={`thumb-${thumbValue}`}
+                      style={{ width: '40px', height: '10px' }}
+                    />
+                  ))}
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>
+          );
+        }
+
+        const { setProps } = await render(<App value={[20, 50, 80]} />);
+
+        const control = screen.getByTestId('control');
+        const indicator = screen.getByTestId('indicator');
+        const getIndicatorStart = () =>
+          indicator.getBoundingClientRect().left - control.getBoundingClientRect().left;
+        const getThumbCenter = (thumb: HTMLElement) => {
+          const rect = thumb.getBoundingClientRect();
+          return rect.left + rect.width / 2 - control.getBoundingClientRect().left;
+        };
+
+        await waitFor(() => {
+          expect(getIndicatorStart()).toBeCloseTo(getThumbCenter(screen.getByTestId('thumb-20')));
+        });
+        // Let the ResizeObserver deliver its initial callback, so it can't recompute after the update.
+        await waitForFrames();
+
+        await setProps({ value: [50, 80] });
+
+        expect(screen.queryByTestId('thumb-20')).toBe(null);
+        const thumb = screen.getByTestId('thumb-50');
+        await waitFor(() => {
+          expect(getIndicatorStart()).toBeCloseTo(getThumbCenter(thumb));
+        });
+      },
+    );
+
     describe.skipIf(isJSDOM)('updates inset positions before the next paint', () => {
       async function renderEdgeSlider() {
         await render(
