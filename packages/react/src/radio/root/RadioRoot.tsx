@@ -21,6 +21,7 @@ import { useSetFieldFocused } from '../../internals/field-root-context/useSetFie
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { resolveRenderedAriaLabel } from '../../internals/resolveRenderedAriaLabel';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { serializeValue } from '../../internals/serializeValue';
@@ -123,7 +124,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     inputRef,
     !nativeButton,
     hiddenInputId,
-    elementProps['aria-label'],
+    resolveRenderedAriaLabel(componentProps),
   );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
@@ -132,6 +133,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     'aria-labelledby': ariaLabelledBy,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id: nativeButton ? inputId : id,
+    // Only a fully disabled group leaves the tab order. A single disabled radio
+    // keeps the composite tab index.
+    ...(disabledGroup && { tabIndex: -1 }),
     onKeyDown(event) {
       if (event.key === 'Enter') {
         // Radio only activates with Space. Preventing the keydown's default

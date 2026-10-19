@@ -25,6 +25,7 @@ import {
   moveMouse,
   popupConformanceTests,
   popupListConformanceTests,
+  pressWithScreenReader,
   resetBrowserPointer,
   wait,
   waitSingleFrame,
@@ -263,6 +264,98 @@ describe('<Menu.Root />', () => {
         expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
       });
     });
+
+    it.skipIf(isJSDOM)(
+      'returns focus to the trigger from an alert dialog opened by an item after a screen reader press',
+      async () => {
+        function App() {
+          const [dialogOpen, setDialogOpen] = React.useState(false);
+          return (
+            <React.Fragment>
+              <button type="button">Before</button>
+              <Menu.Root>
+                <Menu.Trigger>Playlist</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item onClick={() => setDialogOpen(true)}>Delete</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+              <AlertDialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+                <AlertDialog.Portal>
+                  <AlertDialog.Popup>
+                    <AlertDialog.Close>Cancel</AlertDialog.Close>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+        const trigger = screen.getByRole('button', { name: 'Playlist' });
+
+        // The virtual cursor moves to the trigger without moving DOM focus off the previous control.
+        await act(async () => {
+          screen.getByRole('button', { name: 'Before' }).focus();
+        });
+        pressWithScreenReader(trigger);
+
+        const item = await screen.findByRole('menuitem', { name: 'Delete' });
+        await waitFor(() => {
+          expect(item).toHaveFocus();
+        });
+        pressWithScreenReader(item);
+
+        const cancel = await screen.findByRole('button', { name: 'Cancel' });
+        await waitFor(() => {
+          expect(cancel).toHaveFocus();
+        });
+        pressWithScreenReader(cancel);
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'keeps focus in the popup when a screen reader press moves it to another trigger',
+      async () => {
+        const handle = Menu.createHandle();
+        await render(
+          <React.Fragment>
+            <Menu.Root handle={handle}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>One</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Trigger handle={handle}>Trigger A</Menu.Trigger>
+            <Menu.Trigger handle={handle}>Trigger B</Menu.Trigger>
+          </React.Fragment>,
+        );
+
+        pressWithScreenReader(screen.getByRole('button', { name: 'Trigger A' }));
+        const item = await screen.findByRole('menuitem', { name: 'One' });
+        await waitFor(() => {
+          expect(item).toHaveFocus();
+        });
+
+        const triggerB = screen.getByRole('button', { name: 'Trigger B' });
+        pressWithScreenReader(triggerB);
+        expect(triggerB).toHaveAttribute('aria-expanded', 'true');
+
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
+        });
+      },
+    );
   });
 
   popupListConformanceTests({
@@ -2185,63 +2278,75 @@ describe('<Menu.Root />', () => {
       });
 
       describe('touch scroll lock', () => {
-        it('should apply scroll lock when a touch-opened popup covers the viewport width', async () => {
-          await render(
-            <Menu.Root modal>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner data-testid="positioner" style={{ width: 'calc(100vw - 10px)' }}>
-                  <Menu.Popup>
-                    <Menu.Item>1</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>,
-          );
+        it.each([
+          { name: 'unmounted while closed', keepMounted: false },
+          { name: 'kept mounted while closed', keepMounted: true },
+        ])(
+          'should apply scroll lock when a touch-opened popup $name covers the viewport width',
+          async ({ keepMounted }) => {
+            await render(
+              <Menu.Root modal>
+                <Menu.Trigger>Open</Menu.Trigger>
+                <Menu.Portal keepMounted={keepMounted}>
+                  <Menu.Positioner data-testid="positioner" style={{ width: 'calc(100vw - 10px)' }}>
+                    <Menu.Popup>
+                      <Menu.Item>1</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>,
+            );
 
-          const trigger = screen.getByRole('button', { name: 'Open' });
+            const trigger = screen.getByRole('button', { name: 'Open' });
 
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
+            fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+            fireEvent.mouseDown(trigger);
 
-          const menu = await screen.findByRole('menu');
-          const doc = menu.ownerDocument;
+            const menu = await screen.findByRole('menu');
+            const doc = menu.ownerDocument;
 
-          await waitFor(() => {
-            expect(isScrollLocked(doc)).toBe(true);
-          });
-        });
-
-        it('should not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
-          await render(
-            <Menu.Root modal>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner data-testid="positioner" style={{ width: '240px' }}>
-                  <Menu.Popup>
-                    <Menu.Item>1</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Open' });
-
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-
-          const menu = await screen.findByRole('menu');
-          const doc = menu.ownerDocument;
-
-          await act(async () => {
-            await new Promise<void>((resolve) => {
-              requestAnimationFrame(() => resolve());
+            await waitFor(() => {
+              expect(isScrollLocked(doc)).toBe(true);
             });
-          });
+          },
+        );
 
-          expect(isScrollLocked(doc)).toBe(false);
-        });
+        it.each([
+          { name: 'unmounted while closed', keepMounted: false },
+          { name: 'kept mounted while closed', keepMounted: true },
+        ])(
+          'should not apply scroll lock when a touch-opened popup $name is narrower than the viewport',
+          async ({ keepMounted }) => {
+            await render(
+              <Menu.Root modal>
+                <Menu.Trigger>Open</Menu.Trigger>
+                <Menu.Portal keepMounted={keepMounted}>
+                  <Menu.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                    <Menu.Popup>
+                      <Menu.Item>1</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>,
+            );
+
+            const trigger = screen.getByRole('button', { name: 'Open' });
+
+            fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+            fireEvent.mouseDown(trigger);
+
+            const menu = await screen.findByRole('menu');
+            const doc = menu.ownerDocument;
+
+            await act(async () => {
+              await new Promise<void>((resolve) => {
+                requestAnimationFrame(() => resolve());
+              });
+            });
+
+            expect(isScrollLocked(doc)).toBe(false);
+          },
+        );
       });
     });
 
