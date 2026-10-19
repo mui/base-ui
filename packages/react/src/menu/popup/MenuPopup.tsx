@@ -68,6 +68,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const openMethod = store.useState('openMethod');
   const activeTriggerId = store.useState('activeTriggerId');
   const listElement = store.useState('listElement');
+  const hoverKeepsOutsideFocusRef = React.useRef(false);
 
   const [id, registerIdRef] = useRenderedId(
     componentProps,
@@ -81,9 +82,23 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
   const submenuRootContext = parent.type === 'menu' ? inheritedSubmenuRootContext : undefined;
   const isContextMenu = parent.type === 'context-menu';
 
+  // A root menu opened by pointer hover must not take focus from a text field. Popover already
+  // turns its focus manager off for this reason. The flag stays on through the close that follows
+  // that hover, including a `keepMounted` exit, so return-focus does not move the caret to the
+  // trigger. Click, keyboard, and screen reader opens clear it. Nested menus already skip initial
+  // focus, and filter popups pass their own `initialFocus`.
+  if (!mounted) {
+    hoverKeepsOutsideFocusRef.current = false;
+  } else if (open && initialFocusProp === undefined && parent.type === undefined) {
+    hoverKeepsOutsideFocusRef.current = lastOpenChangeReason === REASONS.triggerHover;
+  }
+  const hoverKeepsOutsideFocus = hoverKeepsOutsideFocusRef.current;
+
   let initialFocus: FloatingFocusManagerProps['initialFocus'] =
     initialFocusProp ?? parent.type !== 'menu';
-  if (initialFocusProp === undefined && listElement && parent.type !== 'menu') {
+  if (hoverKeepsOutsideFocus) {
+    initialFocus = false;
+  } else if (initialFocusProp === undefined && listElement && parent.type !== 'menu') {
     initialFocus = () => {
       // A keyboard or screen reader open highlights an item, which list navigation focuses.
       if (store.state.activeIndex !== null) {
@@ -195,7 +210,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
       context={store}
       openInteractionType={openMethod}
       modal={isContextMenu}
-      disabled={!mounted}
+      disabled={!mounted || hoverKeepsOutsideFocus}
       returnFocus={finalFocus ?? dynamicReturnFocus ?? returnFocus}
       explicitReturnFocus={finalFocus === undefined && dynamicReturnFocus ? false : undefined}
       initialFocus={initialFocus}
