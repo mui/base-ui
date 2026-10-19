@@ -907,6 +907,35 @@ describe('<Slider.Thumb />', () => {
       });
     });
 
+    it.skipIf(isJSDOM)('hides the thumb when min and max become equal', async () => {
+      function App({ max }: { max: number }) {
+        return (
+          <Slider.Root value={0} min={0} max={max} thumbAlignment="edge" style={{ width: '200px' }}>
+            <Slider.Control style={{ position: 'relative', width: '100%', height: '10px' }}>
+              <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                <Slider.Thumb data-testid="thumb" style={{ width: '40px', height: '10px' }} />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>
+        );
+      }
+
+      const { setProps } = await render(<App max={100} />);
+      const thumb = screen.getByTestId('thumb');
+
+      await waitFor(() => {
+        expect(thumb.style.visibility).toBe('');
+      });
+
+      await expect(() => setProps({ max: 0 })).toWarnDev(
+        'Base UI: Slider `max` must be greater than `min`.',
+      );
+
+      await waitFor(() => {
+        expect(thumb.style.visibility).toBe('hidden');
+      });
+    });
+
     describe.skipIf(isJSDOM)('updates inset positions before the next paint', () => {
       async function renderEdgeSlider() {
         await render(

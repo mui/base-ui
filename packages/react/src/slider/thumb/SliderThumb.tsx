@@ -219,27 +219,36 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const controlRect = control.getBoundingClientRect();
 
     const side = vertical ? 'height' : 'width';
+
+    // A hidden control measures 0, so keep the last position until it can be measured again.
+    if (!controlRect[side]) {
+      return;
+    }
+
     // the total travel distance adjusted to account for the thumb size
     const controlSize = controlRect[side] - thumbRect[side];
     // px distance from the starting edge (inline-start or bottom) to the thumb center
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
+    // `min === max` has no valid position, which hides the thumb.
+    const nextInsetPosition = Number.isFinite(nextPositionPercent)
+      ? nextPositionPercent
+      : undefined;
 
-    // A hidden control measures 0, so keep the last position until it can be measured again.
-    if (!Number.isFinite(nextPositionPercent) || nextPositionPercent === insetPositionRef.current) {
+    if (nextInsetPosition === insetPositionRef.current) {
       return;
     }
 
-    insetPositionRef.current = nextPositionPercent;
+    insetPositionRef.current = nextInsetPosition;
 
     const update = () => {
-      setPositionPercent(nextPositionPercent);
+      setPositionPercent(nextInsetPosition);
 
       if (index === 0) {
-        setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
+        setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
       } else if (last) {
-        setIndicatorPosition((prevPosition) => [prevPosition[0], nextPositionPercent]);
+        setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
       }
     };
 
