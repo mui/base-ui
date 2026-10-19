@@ -26,8 +26,7 @@ test('uses the supplied root store while preserving DOM and position references'
   try {
     const store = new FloatingRootStore({
       open: true,
-      transitionStatus: undefined,
-      baseAnchor: referenceElement,
+      anchorElement: referenceElement,
       positionerElement,
       triggerElements: new PopupTriggerMap(),
       defaultPopupId: undefined,

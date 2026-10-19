@@ -2180,36 +2180,42 @@ describe('<Menu.Root />', () => {
           },
         );
 
-        it('should not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
-          await render(
-            <Menu.Root modal>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner data-testid="positioner" style={{ width: '240px' }}>
-                  <Menu.Popup>
-                    <Menu.Item>1</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>,
-          );
+        it.each([
+          { name: 'unmounted while closed', keepMounted: false },
+          { name: 'kept mounted while closed', keepMounted: true },
+        ])(
+          'should not apply scroll lock when a touch-opened popup $name is narrower than the viewport',
+          async ({ keepMounted }) => {
+            await render(
+              <Menu.Root modal>
+                <Menu.Trigger>Open</Menu.Trigger>
+                <Menu.Portal keepMounted={keepMounted}>
+                  <Menu.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                    <Menu.Popup>
+                      <Menu.Item>1</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>,
+            );
 
-          const trigger = screen.getByRole('button', { name: 'Open' });
+            const trigger = screen.getByRole('button', { name: 'Open' });
 
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
+            fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+            fireEvent.mouseDown(trigger);
 
-          const menu = await screen.findByRole('menu');
-          const doc = menu.ownerDocument;
+            const menu = await screen.findByRole('menu');
+            const doc = menu.ownerDocument;
 
-          await act(async () => {
-            await new Promise<void>((resolve) => {
-              requestAnimationFrame(() => resolve());
+            await act(async () => {
+              await new Promise<void>((resolve) => {
+                requestAnimationFrame(() => resolve());
+              });
             });
-          });
 
-          expect(isScrollLocked(doc)).toBe(false);
-        });
+            expect(isScrollLocked(doc)).toBe(false);
+          },
+        );
       });
     });
 

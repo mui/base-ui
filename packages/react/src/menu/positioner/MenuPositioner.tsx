@@ -40,8 +40,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const parent = store.useState('parent');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-  const mounted = store.useState('mounted');
-  const open = store.useState('open');
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const triggerElement = store.useState('activeTriggerElement');
@@ -82,7 +80,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const contextMenu = parent.type === 'context-menu';
 
-  const { element, positioning: positioner } = usePopupPositioner(store, componentProps, {
+  const {
+    element,
+    positioning: positioner,
+    open,
+    mounted,
+  } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     positioning: {

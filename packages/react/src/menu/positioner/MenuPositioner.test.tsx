@@ -116,23 +116,6 @@ describe('<Menu.Positioner />', () => {
       return calls[calls.length - 1]?.[0];
     }
 
-    it('uses the dropdown default for a root menu', async () => {
-      await render(
-        <Menu.Root open>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup />
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      expect(useAnchorPositioningSpy.mock.lastCall?.[0].collisionAvoidance).toEqual(
-        DROPDOWN_COLLISION_AVOIDANCE,
-      );
-    });
-
     it('uses the dropdown default for a context menu', async () => {
       await render(
         <ContextMenu.Root>

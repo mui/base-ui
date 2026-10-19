@@ -28,11 +28,9 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   const keepMounted = usePreviewCardPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
-  const { element, positioning } = usePopupPositioner(store, componentProps, {
+  const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     positioning: {

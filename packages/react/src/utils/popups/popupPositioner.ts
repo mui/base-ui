@@ -74,6 +74,8 @@ export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
 export interface UsePopupPositionerReturnValue {
   element: React.ReactElement;
   positioning: UseAnchorPositioningReturnValue;
+  open: boolean;
+  mounted: boolean;
 }
 
 /**
@@ -168,5 +170,5 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     inert: options.inert ?? !open,
   });
 
-  return { element, positioning };
+  return { element, positioning, open, mounted };
 }

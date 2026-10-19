@@ -42,7 +42,6 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const syncedFloatingElement =
     localFloatingElement === undefined ? store.state.positionerElement : localFloatingElement;
 
-  store.useSyncedValue('baseAnchor', localDomReference ?? null);
   store.useSyncedValue(
     'anchorElement',
     localDomReference === undefined ? anchorElement : localDomReferenceElement,

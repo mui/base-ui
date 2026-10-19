@@ -19,13 +19,10 @@ export interface FloatingRootState {
    */
   transitionStatus: TransitionStatus | undefined;
   /**
-   * The element of the anchor the owner passes, usually its trigger.
+   * The anchor element the owner passes, usually its trigger. Cleared while the popup isn't
+   * mounted.
    */
   anchorElement: Element | null;
-  /**
-   * The anchor the component passes, which `anchorOverride` takes precedence over.
-   */
-  baseAnchor: ReferenceType | null;
   /**
    * The popup's positioner element, or the popup itself when it has no positioner.
    */
@@ -57,15 +54,14 @@ const selectors = {
   open: (state: FloatingRootState) => state.open,
   transitionStatus: (state: FloatingRootState) => state.transitionStatus,
   anchorElement: (state: FloatingRootState) => state.anchorElement,
-  anchor: (state: FloatingRootState) => state.anchorOverride ?? state.baseAnchor,
+  anchor: (state: FloatingRootState) => state.anchorOverride ?? state.anchorElement,
   positionerElement: (state: FloatingRootState) => state.positionerElement,
   defaultPopupId: (state: FloatingRootState) => state.defaultPopupId,
 };
 
 interface FloatingRootStoreOptions {
   open: boolean;
-  transitionStatus: TransitionStatus | undefined;
-  baseAnchor: ReferenceType | null;
+  anchorElement: Element | null;
   positionerElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
   defaultPopupId: string | undefined;
@@ -88,11 +84,7 @@ export class FloatingRootStore
     const { nested, onOpenChange, triggerElements, ...initialState } = options;
 
     super(
-      {
-        ...initialState,
-        anchorOverride: null,
-        anchorElement: initialState.baseAnchor as Element | null,
-      },
+      { ...initialState, transitionStatus: undefined, anchorOverride: null },
       {
         onOpenChange,
         events: createEventEmitter(),
@@ -120,7 +112,6 @@ export class FloatingRootStore
    */
   clearPositioning() {
     this.update({
-      baseAnchor: null,
       positionerElement: null,
       anchorElement: null,
       anchorOverride: null,

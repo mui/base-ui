@@ -28,8 +28,7 @@ function expectRect({ x, y, width, height }: DOMRectInit) {
 function createRootStore(referenceElement: HTMLElement) {
   return new FloatingRootStore({
     open: false,
-    transitionStatus: undefined,
-    baseAnchor: referenceElement,
+    anchorElement: referenceElement,
     positionerElement: document.createElement('div'),
     triggerElements: new PopupTriggerMap(),
     defaultPopupId: undefined,

@@ -1,5 +1,4 @@
 'use client';
-import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -14,7 +13,9 @@ import type { FloatingRootState as State } from './FloatingRootStore';
  */
 export interface UseFloatingRootStoreOptions {
   /**
-   * Whether the popup is open.
+   * Whether the popup is open. Positioning clears the anchor while the popup isn't mounted, and
+   * syncs it in again only when `open` or `elements.anchor` changes, so `open` must follow
+   * `mounted`.
    * @default false
    */
   open?: boolean | undefined;
@@ -51,23 +52,12 @@ export function useFloatingRootStore(options: UseFloatingRootStoreOptions): Floa
   const defaultPopupId = useId();
   const nested = useFloatingParentNodeId() != null;
 
-  if (process.env.NODE_ENV !== 'production') {
-    const optionAnchor = elements.anchor;
-    if (optionAnchor && !isElement(optionAnchor)) {
-      console.error(
-        'Cannot pass a virtual element to the `elements.anchor` option,',
-        "as it must be a real DOM element. Pass it as `useAnchorPositioning`'s `anchor` instead.",
-      );
-    }
-  }
-
   const store = useRefWithInit(
     () =>
       new FloatingRootStore({
         open,
-        transitionStatus: undefined,
         onOpenChange,
-        baseAnchor: elements.anchor ?? null,
+        anchorElement: elements.anchor ?? null,
         positionerElement: elements.positionerElement ?? null,
         triggerElements: new PopupTriggerMap(),
         defaultPopupId,
@@ -78,12 +68,11 @@ export function useFloatingRootStore(options: UseFloatingRootStoreOptions): Floa
   useIsoLayoutEffect(() => {
     const valuesToSync = { open, defaultPopupId } as Pick<
       State,
-      'open' | 'defaultPopupId' | 'baseAnchor' | 'anchorElement' | 'positionerElement'
+      'open' | 'defaultPopupId' | 'anchorElement' | 'positionerElement'
     >;
 
     if (elements.anchor !== undefined) {
-      valuesToSync.baseAnchor = elements.anchor;
-      valuesToSync.anchorElement = isElement(elements.anchor) ? elements.anchor : null;
+      valuesToSync.anchorElement = elements.anchor;
     }
 
     if (elements.positionerElement !== undefined) {

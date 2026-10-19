@@ -2156,35 +2156,41 @@ describe('<Popover.Root />', () => {
           },
         );
 
-        it('does not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
-          await render(
-            <Popover.Root modal>
-              <Popover.Trigger>Open</Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner data-testid="positioner" style={{ width: '240px' }}>
-                  <Popover.Popup>Content</Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>,
-          );
+        it.each([
+          { name: 'unmounted while closed', keepMounted: false },
+          { name: 'kept mounted while closed', keepMounted: true },
+        ])(
+          'does not apply scroll lock when a touch-opened popup $name is narrower than the viewport',
+          async ({ keepMounted }) => {
+            await render(
+              <Popover.Root modal>
+                <Popover.Trigger>Open</Popover.Trigger>
+                <Popover.Portal keepMounted={keepMounted}>
+                  <Popover.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                    <Popover.Popup>Content</Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>,
+            );
 
-          const trigger = screen.getByRole('button', { name: 'Open' });
+            const trigger = screen.getByRole('button', { name: 'Open' });
 
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-          fireEvent.click(trigger, { detail: 1 });
+            fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+            fireEvent.mouseDown(trigger);
+            fireEvent.click(trigger, { detail: 1 });
 
-          const popup = await screen.findByRole('dialog');
-          const doc = popup.ownerDocument;
+            const popup = await screen.findByRole('dialog');
+            const doc = popup.ownerDocument;
 
-          await act(async () => {
-            await new Promise<void>((resolve) => {
-              requestAnimationFrame(() => resolve());
+            await act(async () => {
+              await new Promise<void>((resolve) => {
+                requestAnimationFrame(() => resolve());
+              });
             });
-          });
 
-          expect(isScrollLocked(doc)).toBe(false);
-        });
+            expect(isScrollLocked(doc)).toBe(false);
+          },
+        );
       });
     });
 

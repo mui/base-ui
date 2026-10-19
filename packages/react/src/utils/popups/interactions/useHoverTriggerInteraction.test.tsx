@@ -5,7 +5,7 @@ import { isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 import { safePolygon } from './safePolygon';
 import { useHoverPopupInteraction } from './useHoverPopupInteraction';
-import { useHoverIntent } from './hoverIntent';
+import { getHoverIntent } from './hoverIntent';
 import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
 import type { UseHoverTriggerInteractionProps } from './useHoverTriggerInteraction';
 import type { FloatingRootStore } from '../floating-root/FloatingRootStore';
@@ -21,7 +21,7 @@ describe.skipIf(!isJSDOM)('useHoverTriggerInteraction', () => {
       useHoverTriggerInteraction(context.rootStore, {
         handleClose: safePolygon({ blockPointerEvents: block }),
       });
-      const hoverIntent = useHoverIntent(context.rootStore);
+      const hoverIntent = getHoverIntent(context.rootStore);
       blockPointerEvents = hoverIntent.handleCloseOptions?.blockPointerEvents;
 
       return null;

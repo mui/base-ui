@@ -46,13 +46,14 @@ export interface PopupInteractionReader {
   (key: 'open'): boolean;
   (key: 'transitionStatus'): TransitionStatus | undefined;
   /**
-   * The active trigger's element, kept after the popup unmounts.
+   * The active trigger's element. Popup stores keep it after the popup unmounts;
+   * `FloatingRootStore` clears it while the popup isn't mounted.
    */
   (key: 'anchorElement'): Element | null;
   /**
    * The anchor the interaction hooks see: the anchor override, such as the cursor position from
-   * `useClientPoint`, or else the active trigger. A Positioner's `anchor` prop isn't included;
-   * positioning applies it on its own.
+   * `useClientPoint`, or else the owner's anchor (usually the active trigger). A Positioner's
+   * `anchor` prop isn't included; positioning applies it on its own.
    */
   (key: 'anchor'): ReferenceType | null;
   /**

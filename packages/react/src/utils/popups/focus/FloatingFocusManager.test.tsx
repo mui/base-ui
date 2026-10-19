@@ -2739,6 +2739,7 @@ describe('FloatingFocusManager', () => {
 
         await userEvent.unhover(screen.getByTestId('floating'));
 
+        expect(screen.queryByTestId('floating')).toBe(null);
         expect(screen.getByTestId('reference')).not.toHaveFocus();
       });
 

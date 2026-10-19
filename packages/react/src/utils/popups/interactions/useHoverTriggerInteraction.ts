@@ -11,7 +11,7 @@ import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../../internals/
 import { useFloatingTree } from '../tree/FloatingTree';
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
 import type { Delay, PopupInteractionStore } from '../types';
-import { useHoverIntent } from './hoverIntent';
+import { getHoverIntent } from './hoverIntent';
 import type { HoverIntentTriggerOptions } from './hoverIntent';
 import type { HandleClose, HandleCloseContextBase } from './useHoverShared';
 
@@ -54,8 +54,7 @@ export interface UseHoverTriggerInteractionProps {
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
 
 /**
- * Provides hover interactions that should be attached to reference or trigger
- * elements.
+ * Provides hover interactions that should be attached to trigger elements.
  */
 export function useHoverTriggerInteraction(
   store: PopupInteractionStore,
@@ -80,7 +79,7 @@ export function useHoverTriggerInteraction(
 
   const tree = useFloatingTree(externalTree);
 
-  const intent = useHoverIntent(store);
+  const intent = getHoverIntent(store);
   const isHoverCloseActiveRef = React.useRef(false);
 
   const handleCloseRef = useValueAsRef(handleClose);
@@ -98,7 +97,15 @@ export function useHoverTriggerInteraction(
     intent.handleCloseOptions = handleClose?.__options;
   }
 
-  React.useEffect(() => intent.stopSafePolygon, [intent]);
+  // Clears the timers and the safe polygon when the trigger unmounts or moves to another store,
+  // such as a detached trigger moving from its handle's fallback store to the Root's.
+  React.useEffect(
+    () => () => {
+      intent.cancelPendingOpen();
+      intent.stopSafePolygon();
+    },
+    [intent],
+  );
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.

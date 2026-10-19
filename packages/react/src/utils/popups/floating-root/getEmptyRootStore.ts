@@ -8,9 +8,8 @@ import { FloatingRootStore } from './FloatingRootStore';
 export function getEmptyRootStore(): FloatingRootStore {
   return new FloatingRootStore({
     open: false,
-    transitionStatus: undefined,
     positionerElement: null,
-    baseAnchor: null,
+    anchorElement: null,
     triggerElements: new PopupTriggerMap(),
     defaultPopupId: undefined,
     nested: false,

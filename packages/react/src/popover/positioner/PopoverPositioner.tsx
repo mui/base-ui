@@ -31,14 +31,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const { element, positioning } = usePopupPositioner(store, componentProps, {
+  const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     positioning: { nodeId },
   });
 
-  const mounted = store.useState('mounted');
-  const open = store.useState('open');
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');

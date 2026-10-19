@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
@@ -9,7 +9,6 @@ import { createChangeEventDetails } from '../../../internals/createBaseUIEventDe
 import { REASONS } from '../../../internals/reasons';
 import type {
   Delay,
-  PopupPositioningContext,
   PopupInteractionStore,
   PopupInteractionContext,
   FloatingTreeType,
@@ -68,7 +67,7 @@ const pointerEventsOwnerByScopeElement = new WeakMap<PointerEventsScopeElement, 
  * the safe polygon between the trigger and the popup, and blocking pointer events outside them.
  *
  * Every popup with hover interactions has one, shared by all its triggers and its popup.
- * Get it with `useHoverIntent()`.
+ * Get it with `getHoverIntent()`.
  */
 export class HoverIntent {
   /**
@@ -99,10 +98,6 @@ export class HoverIntent {
 
   private isClickLikeOpen() {
     return isClickLikeOpenEvent(this.store.context.openEvent?.type, this.interactedInside);
-  }
-
-  private isHoverOpen() {
-    return isHoverOpenEvent(this.store.context.openEvent?.type);
   }
 
   /**
@@ -148,7 +143,7 @@ export class HoverIntent {
   };
 
   /**
-   * Blocks pointer events within `scopeElement`, except on the reference and floating elements,
+   * Blocks pointer events within `scopeElement`, except on the trigger and positioner elements,
    * so the pointer can travel to the popup without hovering anything else.
    * Takes over the scope element from another popup that blocks it.
    */
@@ -289,7 +284,8 @@ export class HoverIntent {
     this.restTimeout.clear();
     this.restTimeoutPending = false;
 
-    const handleCloseContextBase = this.getPositioning() ?? options.getHandleCloseContext?.();
+    const handleCloseContextBase =
+      this.store.context.positioning ?? options.getHandleCloseContext?.();
 
     if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
       return;
@@ -422,7 +418,10 @@ export class HoverIntent {
     tree: FloatingTreeType | null,
     parentId: string | null,
   ): boolean {
-    if (!this.handleCloseOptions?.blockPointerEvents || !this.isHoverOpen()) {
+    if (
+      !this.handleCloseOptions?.blockPointerEvents ||
+      !isHoverOpenEvent(this.store.context.openEvent?.type)
+    ) {
       return false;
     }
 
@@ -471,12 +470,12 @@ export class HoverIntent {
     const { tree } = options;
 
     if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
-      // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
+      // If the mouse is leaving the popup for another trigger, don't explicitly close the popup
       // as it will be moved.
       return;
     }
 
-    const currentNodeId = this.getPositioning()?.nodeId ?? options.nodeId;
+    const currentNodeId = this.store.context.positioning?.nodeId ?? options.nodeId;
     const relatedTarget = event.relatedTarget;
     const isMovingIntoDescendantFloating =
       tree &&
@@ -497,7 +496,7 @@ export class HoverIntent {
     }
 
     this.restoreOutsidePointerEvents();
-    if (this.isHoverOpen() && !this.isClickLikeOpen()) {
+    if (isHoverOpenEvent(this.store.context.openEvent?.type) && !this.isClickLikeOpen()) {
       this.closeWithDelay(event, options.closeDelay, tree);
     }
   }
@@ -554,14 +553,6 @@ export class HoverIntent {
       (!currentDomReference || !contains(currentDomReference, targetElement))
     );
   }
-
-  /**
-   * The safe polygon reads the popup's placement and tree node id from the positioning context.
-   * `useFloating()` keeps it up to date in a layout effect.
-   */
-  private getPositioning(): PopupPositioningContext | undefined {
-    return this.store.context.positioning;
-  }
 }
 
 const hoverIntents = new WeakMap<PopupInteractionContext, HoverIntent>();
@@ -575,16 +566,5 @@ export function getHoverIntent(store: PopupInteractionStore): HoverIntent {
     intent = new HoverIntent(store);
     hoverIntents.set(store.context, intent);
   }
-  return intent;
-}
-
-/**
- * Returns the popup's `HoverIntent` and clears its timers when the calling component unmounts or
- * moves to another store, such as a detached trigger moving from its handle's fallback store to
- * the Root's.
- */
-export function useHoverIntent(store: PopupInteractionStore): HoverIntent {
-  const intent = getHoverIntent(store);
-  React.useEffect(() => () => intent.cancelPendingOpen(), [intent]);
   return intent;
 }

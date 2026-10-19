@@ -11,23 +11,6 @@ import {
   positionerConformanceTests,
   waitSingleFrame,
 } from '#test-utils';
-import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-
-const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
-
-vi.mock('../../internals/useAnchorPositioning', async () => {
-  const actual = await vi.importActual<typeof import('../../internals/useAnchorPositioning')>(
-    '../../internals/useAnchorPositioning',
-  );
-
-  return {
-    ...actual,
-    useAnchorPositioning: ((...args: Parameters<typeof actual.useAnchorPositioning>) => {
-      useAnchorPositioningSpy(...args);
-      return actual.useAnchorPositioning(...args);
-    }) satisfies typeof actual.useAnchorPositioning,
-  };
-});
 
 const Trigger = React.forwardRef(function Trigger(
   props: Popover.Trigger.Props,
@@ -77,6 +60,7 @@ describe('<Popover.Positioner />', () => {
   positionerConformanceTests({
     render,
     viewport: true,
+    defaultCollisionAvoidance: 'popup',
     createComponent: ({ root, trigger, positioner, popup, viewport }) => (
       <Popover.Root {...root}>
         <Trigger {...trigger}>Trigger</Trigger>
@@ -308,40 +292,6 @@ describe('<Popover.Positioner />', () => {
       expect(Math.abs(closingRect.y - initialRect.y)).toBeLessThanOrEqual(1);
     },
   );
-
-  describe('prop: collisionAvoidance', () => {
-    function App(props: { collisionAvoidance?: Popover.Positioner.Props['collisionAvoidance'] }) {
-      return (
-        <Popover.Root open>
-          <Trigger>Trigger</Trigger>
-          <Popover.Portal>
-            <Popover.Positioner {...props}>
-              <Popover.Popup />
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>
-      );
-    }
-
-    it('uses the popup default when the prop is not set', async () => {
-      useAnchorPositioningSpy.mockClear();
-      await render(<App />);
-
-      expect(useAnchorPositioningSpy.mock.lastCall?.[0].collisionAvoidance).toEqual(
-        POPUP_COLLISION_AVOIDANCE,
-      );
-    });
-
-    it('uses the prop over the default', async () => {
-      useAnchorPositioningSpy.mockClear();
-      const collisionAvoidance = { side: 'none', align: 'none' } as const;
-      await render(<App collisionAvoidance={collisionAvoidance} />);
-
-      expect(useAnchorPositioningSpy.mock.lastCall?.[0].collisionAvoidance).toBe(
-        collisionAvoidance,
-      );
-    });
-  });
 
   describe.skipIf(isJSDOM)('transform origin', () => {
     function getTransformOrigin() {

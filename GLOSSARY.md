@@ -21,9 +21,9 @@ _Avoid_: reference, reference element, DOM reference
 _In code_: the active trigger is `activeTriggerElement` in the popup store and `anchorElement` in `FloatingRootStore`.
 
 **Anchor**:
-The element or rectangle a popup is positioned against. When none is set, the component picks a default, usually the active trigger: Combobox uses its input, and Context Menu uses the point where it was opened. One that the interactions set, such as the cursor position, is the **anchor override**. The **anchor element** is the active trigger's element, kept after the popup unmounts.
+The element or rectangle a popup is positioned against. When none is set, the component picks a default, usually the active trigger: Combobox uses its input, and Context Menu uses the point where it was opened. One that the interactions set, such as the cursor position, is the **anchor override**. The **anchor element** is the active trigger's element. Popup stores keep it after the popup unmounts; `FloatingRootStore` clears it while the popup isn't mounted.
 _Avoid_: reference, position reference, DOM reference
-_In code_: `anchorOverride` and `anchorElement`; the `anchor` selector returns the anchor override, falling back to the active trigger. A Positioner's `anchor` prop is applied by positioning and isn't in the store.
+_In code_: `anchorOverride` and `anchorElement`; the `anchor` selector returns the anchor override, falling back to the owner's anchor (usually the active trigger). A Positioner's `anchor` prop is applied by positioning and isn't in the store.
 
 **Positioner**:
 The part that places a popup next to its anchor and keeps it there as the page scrolls or resizes.

@@ -10,7 +10,7 @@ import { REASONS } from '../../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../tree/FloatingTree';
 import type { PopupInteractionStore } from '../types';
 import { getNodeChildren } from '../tree/nodes';
-import { useHoverIntent } from './hoverIntent';
+import { getHoverIntent } from './hoverIntent';
 
 export type UseHoverPopupInteractionProps = {
   /**
@@ -33,7 +33,7 @@ export type UseHoverPopupInteractionProps = {
 };
 
 /**
- * Provides hover interactions that should be attached to the floating element.
+ * Provides hover interactions that should be attached to the popup's positioner element.
  */
 export function useHoverPopupInteraction(
   store: PopupInteractionStore,
@@ -47,7 +47,7 @@ export function useHoverPopupInteraction(
 
   const tree = useFloatingTree();
   const parentId = useFloatingParentNodeId();
-  const intent = useHoverIntent(store);
+  const intent = getHoverIntent(store);
 
   const childClosedTimeout = useTimeout();
 
@@ -57,9 +57,13 @@ export function useHoverPopupInteraction(
     }
   }, [open, intent]);
 
-  React.useEffect(() => {
-    return intent.restoreOutsidePointerEvents;
-  }, [intent]);
+  React.useEffect(
+    () => () => {
+      intent.cancelPendingOpen();
+      intent.restoreOutsidePointerEvents();
+    },
+    [intent],
+  );
 
   useIsoLayoutEffect(() => {
     if (!enabled) {
