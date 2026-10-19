@@ -13,6 +13,7 @@ import {
   wait,
 } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
+import { Popover } from '@base-ui/react/popover';
 import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
 import { ScrollArea } from '@base-ui/react/scroll-area';
@@ -1376,6 +1377,128 @@ describe('<Dialog.Root />', () => {
 
     expect(screen.getByRole('dialog')).not.toBe(null);
     expect(handleOpenChange.mock.calls.length).toBe(0);
+  });
+
+  it('closes one sibling dialog per Escape press when several open together', async () => {
+    function SiblingDialog({ name }: { name: string }) {
+      return (
+        <Dialog.Root defaultOpen>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid={name}>
+              <Dialog.Close>Close {name}</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
+
+    const { user } = await render(
+      <React.Fragment>
+        <SiblingDialog name="a" />
+        <SiblingDialog name="b" />
+        <SiblingDialog name="c" />
+      </React.Fragment>,
+    );
+
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('c')).toBe(null);
+    });
+    expect(screen.queryByTestId('b')).not.toBe(null);
+
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('b')).toBe(null);
+    });
+    expect(screen.queryByTestId('a')).not.toBe(null);
+
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('a')).toBe(null);
+    });
+  });
+
+  it('closes the newest sibling dialog on Escape after an older one remounts its popup', async () => {
+    function Test({ popupKey }: { popupKey: number }) {
+      return (
+        <React.Fragment>
+          <Dialog.Root defaultOpen>
+            <Dialog.Portal>
+              <Dialog.Popup key={popupKey} initialFocus={false} data-testid="a" />
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Dialog.Root defaultOpen>
+            <Dialog.Portal>
+              <Dialog.Popup initialFocus={false} data-testid="b" />
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>
+      );
+    }
+
+    // Neither popup takes focus, so the remount can't move it and Escape reaches the document.
+    const { setProps, user } = await render(<Test popupKey={0} />);
+    const popupA = screen.getByTestId('a');
+
+    await setProps({ popupKey: 1 });
+    expect(screen.getByTestId('a')).not.toBe(popupA);
+    expect(document.activeElement).toBe(document.body);
+
+    await user.keyboard('[Escape]');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('b')).toBe(null);
+    });
+    expect(screen.queryByTestId('a')).not.toBe(null);
+  });
+
+  it('closes a popover opened during a nested dialog, not the parent, on Escape after the nested dialog closes', async () => {
+    const onPopoverOpenChange = vi.fn();
+
+    // The parent dialog stops handling Escape while its nested dialog is open.
+    function Test({ nestedOpen, popoverOpen }: { nestedOpen: boolean; popoverOpen: boolean }) {
+      return (
+        <React.Fragment>
+          <Dialog.Root defaultOpen modal={false}>
+            <Dialog.Portal>
+              <Dialog.Popup initialFocus={false} data-testid="parent">
+                <Dialog.Root open={nestedOpen} modal={false}>
+                  <Dialog.Portal>
+                    <Dialog.Popup initialFocus={false} data-testid="nested" />
+                  </Dialog.Portal>
+                </Dialog.Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Popover.Root open={popoverOpen} onOpenChange={onPopoverOpenChange}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup initialFocus={false} data-testid="popover" />
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { setProps, user } = await render(<Test nestedOpen popoverOpen={false} />);
+    expect(screen.getByTestId('nested')).not.toBe(null);
+
+    await setProps({ nestedOpen: true, popoverOpen: true });
+    expect(screen.getByTestId('popover')).not.toBe(null);
+
+    await setProps({ nestedOpen: false, popoverOpen: true });
+    await waitFor(() => {
+      expect(screen.queryByTestId('nested')).toBe(null);
+    });
+    expect(document.activeElement).toBe(document.body);
+
+    await user.keyboard('[Escape]');
+
+    expect(onPopoverOpenChange.mock.calls.length).toBe(1);
+    expect(onPopoverOpenChange.mock.calls[0][0]).toBe(false);
+    expect(onPopoverOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
+    expect(screen.queryByTestId('parent')).not.toBe(null);
   });
 
   describe('closed shadow root', () => {

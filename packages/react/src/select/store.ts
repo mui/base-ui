@@ -131,6 +131,7 @@ export const selectors = {
   activeIndex: (state: State) => state.activeIndex,
   selectedIndex: (state: State) => state.selectedIndex,
   isActive: (state: State, index: number) => state.activeIndex === index,
+  isActiveWhileOpen: (state: State, index: number) => state.open && state.activeIndex === index,
 
   isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
