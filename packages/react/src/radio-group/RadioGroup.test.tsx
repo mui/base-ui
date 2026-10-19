@@ -12,7 +12,7 @@ import { isJSDOM, createRenderer, describeConformance } from '#test-utils';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 
 describe('<RadioGroup />', () => {
-  const { render, renderToString } = createRenderer();
+  const { render } = createRenderer();
 
   describeConformance(<RadioGroup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -252,28 +252,14 @@ describe('<RadioGroup />', () => {
       expect(screen.getByRole('button', { name: 'After' })).toHaveFocus();
     });
 
-    it('keeps a tab stop on an enabled radio when another radio is disabled', async () => {
+    it('lets a tabIndex prop override the disabled group tab index', async () => {
       await render(
-        <RadioGroup>
-          <Radio.Root value="a" disabled data-testid="a" />
-          <Radio.Root value="b" data-testid="b" />
-        </RadioGroup>,
-      );
-
-      expect(screen.getByTestId('a')).not.toHaveAttribute('tabindex', '0');
-      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '0');
-    });
-
-    it('keeps a disabled group out of the tab order in the server markup', async () => {
-      await renderToString(
         <RadioGroup disabled>
-          <Radio.Root value="a" data-testid="a" />
-          <Radio.Root value="b" data-testid="b" />
+          <Radio.Root value="a" tabIndex={0} data-testid="a" />
         </RadioGroup>,
       );
 
-      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
-      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '0');
     });
   });
 

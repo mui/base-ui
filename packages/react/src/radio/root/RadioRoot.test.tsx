@@ -249,6 +249,18 @@ describe('<Radio.Root />', () => {
       expect(radio).toHaveFocus();
       expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
     });
+
+    it('keeps the tab stop on a checked radio that is disabled', async () => {
+      await render(
+        <RadioGroup defaultValue="a">
+          <Radio.Root value="a" disabled data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '-1');
+    });
   });
 
   describe('prop: readOnly', () => {
