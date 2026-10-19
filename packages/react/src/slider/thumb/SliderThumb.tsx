@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
@@ -204,7 +205,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const safeLastUsedThumbIndex =
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
 
-  const getInsetPosition = useStableCallback(() => {
+  // The last position applied, including updates that haven't rendered yet.
+  const insetPositionRef = React.useRef<number | undefined>(undefined);
+
+  const getInsetPosition = useStableCallback((sync?: boolean) => {
     const control = controlRef.current;
     const thumb = thumbRef.current;
     if (!control || !thumb) {
@@ -221,16 +225,28 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
-    const nextInsetPosition = Number.isFinite(nextPositionPercent)
-      ? nextPositionPercent
-      : undefined;
 
-    setPositionPercent(nextInsetPosition);
+    // A hidden control measures 0, so keep the last position until it can be measured again.
+    if (!Number.isFinite(nextPositionPercent) || nextPositionPercent === insetPositionRef.current) {
+      return;
+    }
 
-    if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
-    } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
+    insetPositionRef.current = nextPositionPercent;
+
+    const update = () => {
+      setPositionPercent(nextPositionPercent);
+
+      if (index === 0) {
+        setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
+      } else if (last) {
+        setIndicatorPosition((prevPosition) => [prevPosition[0], nextPositionPercent]);
+      }
+    };
+
+    if (sync) {
+      ReactDOM.flushSync(update);
+    } else {
+      update();
     }
   });
 
@@ -264,7 +280,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         return;
       }
 
-      resizeObserver = new ResizeObserverCtor(getInsetPosition);
+      // Observer callbacks run before paint; flush so a resize never paints a stale position.
+      resizeObserver = new ResizeObserverCtor(() => getInsetPosition(true));
       resizeObserver.observe(control);
       resizeObserver.observe(thumb);
     });

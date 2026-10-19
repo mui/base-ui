@@ -679,6 +679,14 @@ describe('<Slider.Thumb />', () => {
   });
 
   describe('prop: thumbAlignment', () => {
+    async function waitForFrames() {
+      await act(async () => {
+        await new Promise((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(resolve));
+        });
+      });
+    }
+
     it.skipIf(isJSDOM).each([{ strict: true }, { strict: false }])(
       'recomputes inset positions when the slider becomes visible (strict: $strict)',
       async ({ strict }) => {
@@ -857,6 +865,118 @@ describe('<Slider.Thumb />', () => {
       expect(control.getBoundingClientRect().width).toBe(600);
       await waitFor(() => {
         expect(getThumbStartGap()).toBeCloseTo(0);
+      });
+    });
+
+    it.skipIf(isJSDOM)('recomputes inset positions when the value changes', async () => {
+      await render(
+        <Slider.Root defaultValue={0} thumbAlignment="edge" style={{ width: '200px' }}>
+          <Slider.Control
+            data-testid="control"
+            style={{ position: 'relative', width: '100%', height: '10px' }}
+          >
+            <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+              <Slider.Thumb data-testid="thumb" style={{ width: '40px', height: '10px' }} />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const control = screen.getByTestId('control');
+      const thumb = screen.getByTestId('thumb');
+      const getThumbStartGap = () =>
+        thumb.getBoundingClientRect().left - control.getBoundingClientRect().left;
+      const getThumbEndGap = () =>
+        control.getBoundingClientRect().right - thumb.getBoundingClientRect().right;
+
+      await waitFor(() => {
+        expect(getThumbStartGap()).toBeCloseTo(0);
+      });
+      // Let the ResizeObserver deliver its initial callback, so it can't recompute after the key press.
+      await waitForFrames();
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: 'End' });
+
+      expect(slider).toHaveAttribute('aria-valuenow', '100');
+      await waitFor(() => {
+        expect(getThumbEndGap()).toBeCloseTo(0);
+      });
+    });
+
+    describe.skipIf(isJSDOM)('updates inset positions before the next paint', () => {
+      async function renderEdgeSlider() {
+        await render(
+          <div data-testid="wrapper">
+            <Slider.Root defaultValue={0} thumbAlignment="edge" style={{ width: '200px' }}>
+              <Slider.Control
+                data-testid="control"
+                style={{ position: 'relative', width: '100%', height: '10px' }}
+              >
+                <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                  <Slider.Thumb data-testid="thumb" style={{ width: '40px', height: '10px' }} />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>
+          </div>,
+        );
+
+        const control = screen.getByTestId('control');
+        const thumb = screen.getByTestId('thumb');
+
+        await waitFor(() => {
+          expect(thumb.getBoundingClientRect().left - control.getBoundingClientRect().left).toBe(0);
+        });
+        // Let the slider's ResizeObserver deliver its initial callback.
+        await waitForFrames();
+
+        return { control, thumb };
+      }
+
+      // Observers are notified in creation order before paint, so this callback sees what's painted.
+      function readThumbOnNextResize(control: HTMLElement, thumb: HTMLElement) {
+        return new Promise<{ startGap: number; visibility: string }>((resolve) => {
+          const observer = new ResizeObserver(() => {
+            const controlRect = control.getBoundingClientRect();
+            if (controlRect.width === 0) {
+              return;
+            }
+            observer.disconnect();
+            resolve({
+              startGap: thumb.getBoundingClientRect().left - controlRect.left,
+              visibility: thumb.style.visibility,
+            });
+          });
+          observer.observe(control);
+        });
+      }
+
+      it('after the control resizes', async () => {
+        const { control, thumb } = await renderEdgeSlider();
+        const painted = readThumbOnNextResize(control, thumb);
+
+        control.parentElement!.style.width = '600px';
+        await waitForFrames();
+
+        expect(await painted).toEqual({ startGap: 0, visibility: '' });
+      });
+
+      it('after the slider is shown again', async () => {
+        const { control, thumb } = await renderEdgeSlider();
+        const wrapper = screen.getByTestId('wrapper');
+
+        wrapper.style.display = 'none';
+        await waitForFrames();
+        expect(control.getBoundingClientRect().width).toBe(0);
+
+        const painted = readThumbOnNextResize(control, thumb);
+        wrapper.style.display = '';
+        await waitForFrames();
+
+        expect(await painted).toEqual({ startGap: 0, visibility: '' });
       });
     });
   });
