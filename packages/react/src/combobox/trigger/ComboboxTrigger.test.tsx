@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, pressWithScreenReader } from '#test-utils';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
@@ -503,18 +503,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      fireEvent.pointerDown(trigger, {
-        pointerType: 'mouse',
-        width: 1,
-        height: 1,
-        pressure: 0,
-        detail: 0,
-        buttons: 0,
-      });
-      fireEvent.mouseDown(trigger, { detail: 0 });
-      fireEvent.pointerUp(trigger, { pointerType: 'mouse', width: 1, height: 1, pressure: 0 });
-      fireEvent.mouseUp(trigger, { detail: 0 });
-      fireEvent.click(trigger, { detail: 0 });
+      pressWithScreenReader(trigger);
 
       expect(await screen.findByRole('listbox')).not.toBe(null);
       await waitFor(() => {

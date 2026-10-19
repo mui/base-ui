@@ -25,6 +25,7 @@ import {
   moveMouse,
   popupConformanceTests,
   popupListConformanceTests,
+  pressWithScreenReader,
   resetBrowserPointer,
   wait,
   waitSingleFrame,
@@ -293,21 +294,6 @@ describe('<Menu.Root />', () => {
           );
         }
 
-        function fireScreenReaderPress(element: Element) {
-          fireEvent.pointerDown(element, {
-            pointerType: 'mouse',
-            width: 1,
-            height: 1,
-            pressure: 0,
-            detail: 0,
-            buttons: 0,
-          });
-          fireEvent.mouseDown(element, { detail: 0 });
-          fireEvent.pointerUp(element, { pointerType: 'mouse', width: 1, height: 1, pressure: 0 });
-          fireEvent.mouseUp(element, { detail: 0 });
-          fireEvent.click(element, { detail: 0 });
-        }
-
         await render(<App />);
         const trigger = screen.getByRole('button', { name: 'Playlist' });
 
@@ -315,22 +301,58 @@ describe('<Menu.Root />', () => {
         await act(async () => {
           screen.getByRole('button', { name: 'Before' }).focus();
         });
-        fireScreenReaderPress(trigger);
+        pressWithScreenReader(trigger);
 
         const item = await screen.findByRole('menuitem', { name: 'Delete' });
         await waitFor(() => {
           expect(item).toHaveFocus();
         });
-        fireScreenReaderPress(item);
+        pressWithScreenReader(item);
 
         const cancel = await screen.findByRole('button', { name: 'Cancel' });
         await waitFor(() => {
           expect(cancel).toHaveFocus();
         });
-        fireScreenReaderPress(cancel);
+        pressWithScreenReader(cancel);
 
         await waitFor(() => {
           expect(trigger).toHaveFocus();
+        });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'keeps focus in the popup when a screen reader press moves it to another trigger',
+      async () => {
+        const handle = Menu.createHandle();
+        await render(
+          <React.Fragment>
+            <Menu.Root handle={handle}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>One</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Trigger handle={handle}>Trigger A</Menu.Trigger>
+            <Menu.Trigger handle={handle}>Trigger B</Menu.Trigger>
+          </React.Fragment>,
+        );
+
+        pressWithScreenReader(screen.getByRole('button', { name: 'Trigger A' }));
+        const item = await screen.findByRole('menuitem', { name: 'One' });
+        await waitFor(() => {
+          expect(item).toHaveFocus();
+        });
+
+        const triggerB = screen.getByRole('button', { name: 'Trigger B' });
+        pressWithScreenReader(triggerB);
+        expect(triggerB).toHaveAttribute('aria-expanded', 'true');
+
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'One' })).toHaveFocus();
         });
       },
     );
