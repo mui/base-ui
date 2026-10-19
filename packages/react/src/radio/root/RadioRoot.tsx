@@ -133,6 +133,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     'aria-labelledby': ariaLabelledBy,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id: nativeButton ? inputId : id,
+    // Only a fully disabled group leaves the tab order. A single disabled radio
+    // keeps the composite tab index.
+    ...(disabledGroup && { tabIndex: -1 }),
     onKeyDown(event) {
       if (event.key === 'Enter') {
         // Radio only activates with Space. Preventing the keydown's default
