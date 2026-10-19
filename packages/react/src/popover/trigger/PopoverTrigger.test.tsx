@@ -290,6 +290,147 @@ describe('<Popover.Trigger />', () => {
     });
   });
 
+  describe('prop: openOnHover', () => {
+    const { clock, render: renderFakeTimers } = createRenderer();
+
+    clock.withFakeTimers();
+
+    let setOpen: (nextOpen: boolean) => void = () => {};
+
+    function ControlledPopover(props: { keepMounted?: boolean; closeDelay?: number }) {
+      const [isOpen, setIsOpen] = React.useState(false);
+      setOpen = setIsOpen;
+      return (
+        <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+          <Popover.Trigger openOnHover delay={100} closeDelay={props.closeDelay}>
+            Open
+          </Popover.Trigger>
+          <Popover.Portal keepMounted={props.keepMounted}>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    function hover(trigger: HTMLElement) {
+      enterWithMouse(trigger);
+      clock.tick(100);
+    }
+
+    async function closeThroughProp() {
+      await act(async () => setOpen(false));
+      await flushMicrotasks();
+      expect(screen.queryByText('Content')).toBe(null);
+    }
+
+    it.each([
+      {
+        name: 'a click',
+        open(trigger: HTMLElement) {
+          fireEvent.click(trigger);
+        },
+      },
+      { name: 'a hover', open: hover },
+      {
+        name: 'a hover pinned by a click',
+        open(trigger: HTMLElement) {
+          hover(trigger);
+          fireEvent.click(trigger);
+        },
+      },
+    ])(
+      'opens on hover after a popover opened by $name is closed through the `open` prop',
+      async ({ open }) => {
+        await renderFakeTimers(<ControlledPopover />);
+        const trigger = screen.getByRole('button', { name: 'Open' });
+
+        open(trigger);
+        await flushMicrotasks();
+        expect(screen.queryByText('Content')).not.toBe(null);
+
+        await closeThroughProp();
+
+        fireEvent.mouseLeave(trigger);
+        hover(trigger);
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).not.toBe(null);
+      },
+    );
+
+    it('does not reopen a retained popover from a hover delay that was pending when a click opened it, once it is closed through the `open` prop', async () => {
+      // A popup that unmounts on close disposes of the pending timer with it.
+      await renderFakeTimers(<ControlledPopover keepMounted />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      enterWithMouse(trigger);
+      clock.tick(50);
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      await act(async () => setOpen(false));
+      await flushMicrotasks();
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    describe('with a closeDelay', () => {
+      // Strict Mode remounts the popup, which disposes of the shared hover timers and hides the
+      // leftover close timer this covers.
+      const { clock: nonStrictClock, render: renderNonStrict } = createRenderer({ strict: false });
+
+      nonStrictClock.withFakeTimers();
+
+      it.each([
+        {
+          name: 'after a click opened it and the `open` prop closed it',
+          async setUp(trigger: HTMLElement) {
+            fireEvent.click(trigger);
+            await flushMicrotasks();
+            expect(trigger).toHaveAttribute('aria-expanded', 'true');
+            await act(async () => setOpen(false));
+            await flushMicrotasks();
+          },
+        },
+        {
+          name: 'after the pointer only passed over the trigger',
+          async setUp() {
+            nonStrictClock.tick(50);
+          },
+        },
+      ])(
+        'does not close a popover opened through the `open` prop within the closeDelay $name',
+        async ({ setUp }) => {
+          await renderNonStrict(<ControlledPopover closeDelay={500} />);
+          const trigger = screen.getByRole('button', { name: 'Open' });
+
+          enterWithMouse(trigger);
+          await setUp(trigger);
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+          fireEvent.mouseLeave(trigger);
+          nonStrictClock.tick(60);
+
+          await act(async () => setOpen(true));
+          await flushMicrotasks();
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+          nonStrictClock.tick(600);
+          await flushMicrotasks();
+
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        },
+      );
+    });
+  });
+
   describe('impatient clicks with `openOnHover=true`', () => {
     const { clock, render: renderFakeTimers } = createRenderer();
 

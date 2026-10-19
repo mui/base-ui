@@ -118,6 +118,11 @@ export class PopoverStore<Payload> extends BasePopupStore<
     );
   }
 
+  protected isOpenChangeIgnored(nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
+    // A stale hover timer can request a close after the controlled `open` already changed.
+    return !nextOpen && eventDetails.reason === REASONS.triggerHover && !this.select('open');
+  }
+
   protected prepareOpenChange(_nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
     if (eventDetails.reason === REASONS.triggerHover) {
       // Only allow "patient" clicks to close the popover if it's open.

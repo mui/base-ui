@@ -10,7 +10,7 @@ import {
 } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { describeConformance, createRenderer, enterWithMouse, isJSDOM } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
@@ -255,6 +255,54 @@ describe('<Menu.Trigger />', () => {
       expect(screen.getByRole('menu')).toHaveAttribute('data-open');
       expect(trigger).toHaveAttribute('data-popup-open');
       expect(handle.isOpen).toBe(true);
+    });
+  });
+
+  describe('prop: openOnHover', () => {
+    const { clock, render: renderFakeTimers } = createRenderer();
+
+    clock.withFakeTimers();
+
+    // The hover interaction is shared with Popover, whose tests cover its variants.
+    it('opens on hover after a menu opened by a click is closed through the `open` prop', async () => {
+      let setOpen: (nextOpen: boolean) => void = () => {};
+
+      function App() {
+        const [isOpen, setIsOpen] = React.useState(false);
+        setOpen = setIsOpen;
+        return (
+          <Menu.Root open={isOpen} onOpenChange={setIsOpen}>
+            <Menu.Trigger openOnHover delay={100}>
+              Open
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      await renderFakeTimers(<App />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+      expect(screen.queryByRole('menu')).not.toBe(null);
+
+      await act(async () => setOpen(false));
+      await flushMicrotasks();
+      expect(screen.queryByRole('menu')).toBe(null);
+
+      fireEvent.mouseLeave(trigger);
+      enterWithMouse(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
     });
   });
 
