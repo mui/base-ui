@@ -936,6 +936,62 @@ describe('<Slider.Thumb />', () => {
       });
     });
 
+    it.skipIf(isJSDOM).each([
+      { name: 'with a resize', nextWidth: 600 },
+      { name: 'without a resize', nextWidth: 200 },
+    ])(
+      'moves the indicator end to a thumb that becomes the last thumb ($name)',
+      async ({ nextWidth }) => {
+        function App({ value, width }: { value: number[]; width: number }) {
+          return (
+            <Slider.Root value={value} thumbAlignment="edge" style={{ width }}>
+              <Slider.Control
+                data-testid="control"
+                style={{ position: 'relative', width: '100%', height: '10px' }}
+              >
+                <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                  <Slider.Indicator data-testid="indicator" />
+                  {value.map((_, index) => (
+                    <Slider.Thumb
+                      key={index}
+                      index={index}
+                      data-testid={`thumb-${index}`}
+                      style={{ width: '40px', height: '10px' }}
+                    />
+                  ))}
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>
+          );
+        }
+
+        const { setProps } = await render(<App value={[20, 50, 80]} width={200} />);
+
+        const control = screen.getByTestId('control');
+        const indicator = screen.getByTestId('indicator');
+        const getIndicatorEnd = () =>
+          indicator.getBoundingClientRect().right - control.getBoundingClientRect().left;
+        const getThumbCenter = (thumb: HTMLElement) => {
+          const rect = thumb.getBoundingClientRect();
+          return rect.left + rect.width / 2 - control.getBoundingClientRect().left;
+        };
+
+        await waitFor(() => {
+          expect(getIndicatorEnd()).toBeCloseTo(getThumbCenter(screen.getByTestId('thumb-2')));
+        });
+        // Let the ResizeObserver deliver its initial callback, so it can't recompute after the update.
+        await waitForFrames();
+
+        await setProps({ value: [20, 50], width: nextWidth });
+
+        expect(screen.queryByTestId('thumb-2')).toBe(null);
+        const thumb = screen.getByTestId('thumb-1');
+        await waitFor(() => {
+          expect(getIndicatorEnd()).toBeCloseTo(getThumbCenter(thumb));
+        });
+      },
+    );
+
     describe.skipIf(isJSDOM)('updates inset positions before the next paint', () => {
       async function renderEdgeSlider() {
         await render(

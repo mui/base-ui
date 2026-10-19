@@ -205,8 +205,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const safeLastUsedThumbIndex =
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
 
-  // The last position applied, including updates that haven't rendered yet.
-  const insetPositionRef = React.useRef<number | undefined>(undefined);
+  // The last position and indicator edge applied, including updates that haven't rendered yet.
+  const appliedInsetRef = React.useRef<[number | undefined, number]>([undefined, -2]);
 
   const getInsetPosition = useStableCallback((sync?: boolean) => {
     const control = controlRef.current;
@@ -236,18 +236,27 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       ? nextPositionPercent
       : undefined;
 
-    if (nextInsetPosition === insetPositionRef.current) {
+    // The indicator edge this thumb drives: 0 = start, 1 = end, -1 = none.
+    let indicatorEdge = -1;
+    if (index === 0) {
+      indicatorEdge = 0;
+    } else if (last) {
+      indicatorEdge = 1;
+    }
+
+    const [appliedPosition, appliedEdge] = appliedInsetRef.current;
+    if (nextInsetPosition === appliedPosition && indicatorEdge === appliedEdge) {
       return;
     }
 
-    insetPositionRef.current = nextInsetPosition;
+    appliedInsetRef.current = [nextInsetPosition, indicatorEdge];
 
     const update = () => {
       setPositionPercent(nextInsetPosition);
 
-      if (index === 0) {
+      if (indicatorEdge === 0) {
         setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
-      } else if (last) {
+      } else if (indicatorEdge === 1) {
         setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
       }
     };
@@ -263,7 +272,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     if (inset) {
       getInsetPosition();
     }
-  }, [getInsetPosition, inset, thumbValuePercent]);
+    // `index` and `last` decide which indicator edge this thumb drives.
+  }, [getInsetPosition, inset, thumbValuePercent, index, last]);
 
   useIsoLayoutEffect(() => {
     if (!inset) {
