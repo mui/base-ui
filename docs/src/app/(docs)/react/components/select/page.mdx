@@ -12,7 +12,7 @@ import { DemoSelectHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
+- **Add a search field for long lists**: A plain Select finds items by keyboard typeahead only. Wrap it in `<Select.FilterProvider>` to add a search field (see [Filtering](#filtering)), and virtualize very large lists (see [Virtualization](#virtualization)). Prefer [Combobox](/react/components/combobox) when the items come from a server or the input belongs outside the popup.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 - **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 - **Closing animations**: The popup stays rendered until its closing animation finishes. See [JavaScript animations](/react/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
@@ -24,34 +24,39 @@ Import the component and assemble its parts:
 ```jsx title="Anatomy"
 import { Select } from '@base-ui/react/select';
 
-<Select.Root>
-  <Select.Label />
-  <Select.Trigger>
-    <Select.Value />
-    <Select.Icon />
-  </Select.Trigger>
+<Select.FilterProvider>
+  <Select.Root>
+    <Select.Label />
+    <Select.Trigger>
+      <Select.Value />
+      <Select.Icon />
+    </Select.Trigger>
 
-  <Select.Portal>
-    <Select.Backdrop />
-    <Select.Positioner>
-      <Select.Popup>
-        <Select.ScrollUpArrow />
-        <Select.Arrow />
-        <Select.List>
-          <Select.Item>
-            <Select.ItemText />
-            <Select.ItemIndicator />
-          </Select.Item>
-          <Select.Separator />
-          <Select.Group>
-            <Select.GroupLabel />
-          </Select.Group>
-        </Select.List>
-        <Select.ScrollDownArrow />
-      </Select.Popup>
-    </Select.Positioner>
-  </Select.Portal>
-</Select.Root>;
+    <Select.Portal>
+      <Select.Backdrop />
+      <Select.Positioner>
+        <Select.Popup>
+          <Select.ScrollUpArrow />
+          <Select.Arrow />
+          <Select.Input />
+          <Select.Clear />
+          <Select.Empty />
+          <Select.List>
+            <Select.Item>
+              <Select.ItemText />
+              <Select.ItemIndicator />
+            </Select.Item>
+            <Select.Separator />
+            <Select.Group>
+              <Select.GroupLabel />
+            </Select.Group>
+          </Select.List>
+          <Select.ScrollDownArrow />
+        </Select.Popup>
+      </Select.Positioner>
+    </Select.Portal>
+  </Select.Root>
+</Select.FilterProvider>;
 ```
 
 ## Positioning
@@ -225,9 +230,147 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 <DemoSelectGrouped />
 
+### Filtering [Preview]
+
+Wrap `<Select.Root>` in `<Select.FilterProvider>`, add `<Select.Input>` to the popup, and put the items inside `<Select.List>`.
+
+```jsx title="Filterable select"
+<Select.FilterProvider>
+  <Select.Root items={countries}>
+    <Select.Label>Country</Select.Label>
+    <Select.Trigger>
+      <Select.Value placeholder="Select country" />
+    </Select.Trigger>
+    <Select.Portal>
+      <Select.Positioner>
+        <Select.Popup>
+          <Select.Input aria-label="Filter countries" />
+          <Select.Clear>Clear</Select.Clear>
+          <Select.Empty>No results.</Select.Empty>
+          <Select.List>
+            {countries.map((country) => (
+              <Select.Item key={country.value} value={country.value}>
+                <Select.ItemText>{country.label}</Select.ItemText>
+              </Select.Item>
+            ))}
+          </Select.List>
+        </Select.Popup>
+      </Select.Positioner>
+    </Select.Portal>
+  </Select.Root>
+</Select.FilterProvider>
+```
+
+Label the input with `aria-label`, `aria-labelledby`, or a visible `<label>`.
+Type to narrow the items, then use the arrow keys to move through matching items.
+
+import { DemoSelectFilter } from './demos/filter';
+
+<DemoSelectFilter />
+
+#### Matching items
+
+Items match their text by default. Use `label` to override it.
+
+```jsx title="Labels"
+<Select.Item value="nl" label="Netherlands">
+  <Select.ItemText>The Netherlands</Select.ItemText>
+</Select.Item>
+```
+
+Groups with no matching items get the `hidden` attribute and stay mounted. If your styles set `display` on a group, add a `[hidden]` rule so it still hides.
+
+```css title="Hiding styled groups"
+.Group {
+  display: flex;
+}
+
+.Group[hidden] {
+  display: none;
+}
+```
+
+`<Select.Empty>` appears when no items match.
+
+By default, an item matches when its text contains the query, ignoring case, accents, and punctuation.
+Use `filter` to replace the matching. It receives each item's text and the trimmed query, and keeps the item when it returns `true`.
+`Select.useFilter` provides the same locale-aware comparisons.
+
+```jsx title="Custom matching"
+const { startsWith } = Select.useFilter();
+
+<Select.FilterProvider filter={startsWith}>
+  <Select.Root>{/* select parts */}</Select.Root>
+</Select.FilterProvider>;
+```
+
+For external filtering, pass `filter={null}` and render the results yourself, omitting empty groups.
+
+```jsx title="External filtering"
+const { contains } = Select.useFilter();
+const [query, setQuery] = React.useState('');
+const results = countries.filter((country) => contains(country.label, query));
+
+<Select.FilterProvider filter={null} value={query} onValueChange={setQuery}>
+  <Select.Root items={countries}>{/* render `results` */}</Select.Root>
+</Select.FilterProvider>;
+```
+
+#### Virtualization
+
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+Pass `virtualized` to `<Select.FilterProvider>` and `items` to `<Select.Root>`, then render the matching items from `Select.useFilteredItems()`.
+Since most items aren't rendered, a virtualized list matches the string `label` of each entry in `items`, or the text from `itemToStringLabel`.
+
+import { DemoSelectVirtualized } from './demos/virtualized';
+
+<DemoSelectVirtualized />
+
+#### Selected values
+
+Filtering an item out does not clear its selection, and the form still submits it.
+`<Select.Value>` shows labels from `items` or `itemToStringLabel` on `<Select.Root>`, so it keeps showing the label of a selected item that is filtered out.
+A single select closes when an item is selected. A multiple select stays open and clears the query.
+To keep the query, cancel the clear, marked with `eventDetails.isItemPress`:
+
+```jsx title="Keeping the query after selection"
+<Select.FilterProvider
+  onValueChange={(value, eventDetails) => {
+    if (eventDetails.isItemPress) {
+      eventDetails.cancel();
+    }
+  }}
+>
+  <Select.Root multiple>{/* select parts */}</Select.Root>
+</Select.FilterProvider>
+```
+
+#### Controlling the query
+
+`value` and `onValueChange` on `<Select.FilterProvider>` control the query.
+It resets to an empty string once the select finishes closing, reported with the `'popup-close'` reason. Cancel that change to keep the query.
+
+#### Highlighting
+
+The popup opens on the selected item: it is highlighted and scrolled into view.
+Without a selection, opening the select from the keyboard highlights the first item, or the last item with <kbd>ArrowUp</kbd>.
+Use `autoHighlight` to highlight the first match while filtering, or `autoHighlight="always"` to highlight it even when the query is empty.
+The highlighted item has the `data-highlighted` attribute, and `onItemHighlighted` on `<Select.Root>` reports each change with the item's value.
+
+#### Focus and keyboard
+
+Opening the select with a click or the keyboard focuses the input. Opening it with touch or a pen does not, so the on-screen keyboard stays hidden.
+The arrow keys move the highlight while the input keeps focus. <kbd>Tab</kbd> closes the select, and <kbd>Shift</kbd>+<kbd>Tab</kbd> returns focus to the trigger.
+The popup is a `dialog` that holds the `searchbox` input and the `listbox` list.
+`alignItemWithTrigger` is disabled for filterable selects.
+
 ## API reference
 
 import { TypesSelect } from './types';
+
+### FilterProvider [Preview]
+
+<TypesSelect.FilterProvider />
 
 ### Root
 
@@ -285,6 +428,18 @@ import { TypesSelect } from './types';
 
 <TypesSelect.ItemIndicator />
 
+### Input
+
+<TypesSelect.Input />
+
+### Clear
+
+<TypesSelect.Clear />
+
+### Empty
+
+<TypesSelect.Empty />
+
 ### Group
 
 <TypesSelect.Group />
@@ -305,6 +460,18 @@ import { TypesSelect } from './types';
 
 <TypesSelect.Separator />
 
+## useFilter
+
+When filtering items yourself, `Select.useFilter` matches text according to the user's locale.
+
+<TypesSelect.useFilter hideDescription />
+
+## useFilteredItems
+
+Returns the filtered items when called inside `<Select.FilterProvider>`.
+
+<TypesSelect.useFilteredItems hideDescription />
+
 export const metadata = {
   keywords: [
     'React Select Component',
@@ -320,6 +487,8 @@ export const metadata = {
     'Multi Select React',
     'Multiselect',
     'Object Value Select',
+    'Filterable Select',
+    'Searchable Select',
     'Single Select',
     'Keyboard Navigation Select',
     'Listbox Role',

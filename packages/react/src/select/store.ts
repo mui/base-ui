@@ -57,6 +57,13 @@ export type State = {
   scrollDownArrowVisible: boolean;
 
   hasScrollArrows: boolean;
+
+  // A filterable select keeps real focus on its input and navigates the list virtually.
+  keyboardOpen: boolean;
+  /** Whether list navigation can start from the selected option, which filtering moves. */
+  navigateFromSelected: boolean;
+  inputProps: HTMLProps;
+  highlightedItem: HTMLElement | undefined;
 };
 
 /**
@@ -81,6 +88,11 @@ export type SelectStoreContext = {
   readonly selectedItemTextRef: React.RefObject<HTMLElement | null>;
   readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   readonly initialValueRef: React.RefObject<any>;
+  /**
+   * Whether real focus stays on `Select.Input` while the list is navigated with
+   * `aria-activedescendant`. Set by the filter root and fixed for the store's lifetime.
+   */
+  readonly virtualFocus: boolean;
 
   // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
@@ -88,6 +100,8 @@ export type SelectStoreContext = {
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
   onOpenChangeComplete: (open: boolean) => void;
+  /** Reports the highlighted item through `onItemHighlighted` if it changed. */
+  syncHighlight: () => void;
 };
 
 export const selectors = {
@@ -149,6 +163,11 @@ export const selectors = {
     // keep a previously selected item marked as selected.
     return compareItemEquality(itemValue, storeValue, comparer);
   },
+  keyboardOpen: (state: State) => state.keyboardOpen,
+  navigateFromSelected: (state: State) => state.navigateFromSelected,
+  inputProps: (state: State) => state.inputProps,
+  highlightedItemId: (state: State) => state.highlightedItem?.id || undefined,
+
   isSelectedByFocus: (state: State, index: number) => {
     return state.selectedIndex === index;
   },
