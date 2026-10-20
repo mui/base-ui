@@ -11,5 +11,8 @@
   // `@base-ui/react` resolves to its source here, whose globals live in a declaration file nothing
   // imports.
   "include": ["src", "vite.config.mjs", "../../packages/react/src/global.d.ts"],
-  "exclude": ["src/__bench__"]
+  "exclude": ["src/__bench__"],
+  // Against Base UI's own typecheck project, so its sources are checked with its settings rather
+  // than this harness's.
+  "references": [{ "path": "../../packages/react/tsconfig.typecheck.json" }]
 }
