@@ -7025,6 +7025,91 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('prop: onItemHighlighted', () => {
+    it('reports the highlighted value and index with the reason for the change', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <Select.Root onItemHighlighted={onItemHighlighted}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
+      });
+      onItemHighlighted.mockClear();
+
+      await user.keyboard('[ArrowDown]');
+      expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      expect(onItemHighlighted.mock.calls[0][0]).toBe('b');
+      expect(onItemHighlighted.mock.calls[0][1].reason).toBe(REASONS.keyboard);
+      expect(onItemHighlighted.mock.calls[0][1].index).toBe(1);
+
+      onItemHighlighted.mockClear();
+      await user.hover(screen.getByRole('option', { name: 'c' }));
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      });
+      expect(onItemHighlighted.mock.calls[0][0]).toBe('c');
+      expect(onItemHighlighted.mock.calls[0][1].reason).toBe(REASONS.pointer);
+      expect(onItemHighlighted.mock.calls[0][1].index).toBe(2);
+
+      onItemHighlighted.mockClear();
+      await user.unhover(screen.getByRole('option', { name: 'c' }));
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      });
+      expect(onItemHighlighted.mock.calls[0][0]).toBe(undefined);
+      expect(onItemHighlighted.mock.calls[0][1].index).toBe(-1);
+    });
+
+    it('reports a typeahead match as a keyboard highlight', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <Select.Root onItemHighlighted={onItemHighlighted}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="apple">Apple</Select.Item>
+                <Select.Item value="banana">Banana</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Apple' })).toHaveFocus();
+      });
+      onItemHighlighted.mockClear();
+
+      await user.keyboard('b');
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      });
+      expect(onItemHighlighted.mock.calls[0][0]).toBe('banana');
+      expect(onItemHighlighted.mock.calls[0][1].reason).toBe(REASONS.keyboard);
+    });
+  });
+
   describe('prop: highlightItemOnHover', () => {
     it('highlights an item on mouse move by default', async () => {
       const { user } = await render(

@@ -5,14 +5,21 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { warn } from '@base-ui/utils/warn';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { isTypeableElement } from '../../utils/popups/element';
-import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
-import { refocusOwner, isRefocusingOwner } from '../../filter-dropdown/utils/refocusOwner';
-import type { MenuRoot } from '../root/MenuRoot';
+import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { refocusOwner, isRefocusingOwner } from '../utils/refocusOwner';
+import type { Orientation } from '../../internals/types';
 import { isCrossOrientationCloseKey } from '../../utils/popups/interactions/useListNavigation';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
-export function useMenuFilterPopup(
-  orientation: MenuRoot.Orientation,
+/**
+ * Interaction props for a filterable popup, whose input keeps real focus while the pointer and
+ * nested popups move around it.
+ *
+ * @param component The public namespace, named in the missing-input warning.
+ */
+export function useFilterDropdownPopup(
+  orientation: Orientation,
+  component: 'Menu' | 'Select',
 ): React.HTMLAttributes<HTMLDivElement> {
   const context = useFilterDropdownRootContext();
   const direction = useDirection();
@@ -35,12 +42,14 @@ export function useMenuFilterPopup(
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
       if (context.open && focusOwnerRef.current === null) {
+        const name = component.toLowerCase();
         warn(
-          'A filterable menu opened without a <Menu.Input>. Render the input inside ' +
-            '<Menu.Popup>, or drop <Menu.FilterProvider> for a menu that does not filter.',
+          `A filterable ${name} opened without a <${component}.Input>. Render the input inside ` +
+            `<${component}.Popup>, or drop <${component}.FilterProvider> for a ${name} that does ` +
+            'not filter.',
         );
       }
-    }, [context.open, focusOwnerRef]);
+    }, [context.open, focusOwnerRef, component]);
   }
 
   function restoreInputFocus(event: React.MouseEvent<HTMLDivElement>, enteredTrigger: boolean) {
