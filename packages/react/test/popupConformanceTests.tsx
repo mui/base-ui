@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement } from '@base-ui/utils/shadowDom';
 import type { UserEvent } from '@testing-library/user-event';
 import { expect, vi, describe, it, afterEach, beforeEach } from 'vitest';
 import {
@@ -11,7 +12,6 @@ import {
 } from '@mui/internal-test-utils';
 import type { createRenderer } from '#test-utils';
 import { enterWithMouse, isJSDOM } from '#test-utils';
-import { activeElement } from '../src/floating-ui-react/utils';
 import { REASONS } from '../src/internals/reasons';
 
 // StrictMode replays effects in development, which reports an instant open completion twice.
@@ -256,6 +256,43 @@ export function popupConformanceTests(config: PopupTestConfig) {
         }
       });
     }
+
+    describe('prop: onOpenChangeComplete without animations', () => {
+      it('is called on open in the commit that mounts the popup', async () => {
+        let commits = 0;
+        let mountCommit: number | null = null;
+        let completeCommit: number | null = null;
+
+        function handleCommit() {
+          commits += 1;
+          if (mountCommit === null && getPopup() !== null) {
+            mountCommit = commits;
+          }
+        }
+
+        function onOpenChangeComplete(open: boolean) {
+          if (open) {
+            completeCommit = commits;
+          }
+        }
+
+        function App(props: { open: boolean }) {
+          return (
+            <React.Profiler id="popup" onRender={handleCommit}>
+              {prepareComponent({ root: { open: props.open, onOpenChangeComplete } })}
+            </React.Profiler>
+          );
+        }
+
+        const { rerender } = await render(<App open={false} />, NON_STRICT);
+        await rerender(<App open />);
+        await waitFor(() => {
+          expect(completeCommit).not.toBe(null);
+        });
+
+        expect(completeCommit).toBe(mountCommit);
+      });
+    });
 
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
       afterEach(() => {

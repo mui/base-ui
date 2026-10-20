@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -15,12 +16,13 @@ import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
-import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../utils/popups/event';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useClick, useTypeahead } from '../../floating-ui-react';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
@@ -74,7 +76,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const selectedIndex = store.useState('selectedIndex');
   const hasSelectedValue = store.useState('hasSelectedValue');
 
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
 
   const focusTimeout = useTimeout();
@@ -106,7 +108,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
+  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootStore, {
     // Typeahead on a closed trigger commits a value rather than moving a highlight, so it stays
     // gated on `readOnly`.
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
@@ -121,7 +123,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     },
   });
 
-  const { reference: triggerClickProps } = useClick(floatingRootContext, {
+  const { reference: triggerClickProps } = useClick(floatingRootStore, {
     enabled: !comboboxDisabled,
     event: 'mousedown',
   });
@@ -195,7 +197,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           if (!inputInsidePopup) {
-            floatingRootContext.set('domReferenceElement', event.currentTarget);
+            floatingRootStore.set('anchorElement', event.currentTarget);
           }
 
           // Ensure items are registered for initial selection highlight.

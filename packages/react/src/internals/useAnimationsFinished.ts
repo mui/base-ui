@@ -7,31 +7,9 @@ import { NOOP } from '@base-ui/utils/empty';
 import { resolveRef } from '../utils/resolveRef';
 import { getFiniteAnimations } from '../utils/getFiniteAnimations';
 import * as TransitionStatusDataAttributes from './TransitionStatusDataAttributes';
+import { createFlushBeforePaint } from './createFlushBeforePaint';
 
-let pendingCallbacks: Array<() => void> | null = null;
-
-/**
- * Runs the callback in a synchronous flush before the browser paints, so that the
- * browser doesn't paint an intermediate frame: https://github.com/mui/base-ui/issues/979
- * Callbacks that become ready within the same microtask checkpoint (e.g. multiple elements
- * whose animations finish together) are batched into a single commit:
- * https://github.com/mui/base-ui/issues/5481
- */
-function flushBeforePaint(fn: () => void) {
-  if (!pendingCallbacks) {
-    const callbacks: Array<() => void> = [];
-    pendingCallbacks = callbacks;
-    queueMicrotask(() => {
-      pendingCallbacks = null;
-      ReactDOM.flushSync(() => {
-        for (const callback of callbacks) {
-          callback();
-        }
-      });
-    });
-  }
-  pendingCallbacks.push(fn);
-}
+const flushBeforePaint = createFlushBeforePaint();
 
 /**
  * Executes a function once all animations have finished on the provided element.

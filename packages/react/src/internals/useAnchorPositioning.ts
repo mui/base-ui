@@ -13,27 +13,34 @@ import {
   offset,
   shift as floatingShift,
   size,
-} from '../floating-ui-react';
+} from '@floating-ui/react-dom';
 import type {
-  UseFloatingOptions,
-  UseFloatingReturn,
   Placement,
-  FloatingRootContext,
   VirtualElement,
   Padding,
-  FloatingContext,
   Side as PhysicalSide,
   MiddlewareState,
   AutoUpdateOptions,
   Middleware,
-  FloatingTreeStore,
-} from '../floating-ui-react';
-import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
+} from '@floating-ui/react-dom';
+import type {
+  UseFloatingOptions,
+  UseFloatingReturn,
+  PositioningInteractionStore,
+  PopupPositioningContext,
+} from '../utils/popups/types';
+import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
+import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
-import { arrow } from '../floating-ui-react/middleware/arrow';
-import { hide } from '../utils/hideMiddleware';
-import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
-import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
+import { arrow } from '../utils/popups/positioning/arrow';
+import { hide } from '../utils/popups/positioning/hideMiddleware';
+import { DEFAULT_SIDES } from '../utils/popups/positioning/adaptiveOriginConstants';
+import * as CommonPositionerCssVars from '../utils/popups/positioning/CommonPositionerCssVars';
+
+export { useFloatingRootStore } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { UseFloatingRootStoreOptions } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
+export type { PositioningInteractionStore } from '../utils/popups/types';
 
 const AVAILABLE_WIDTH_VAR = CommonPositionerCssVars.availableWidth;
 const AVAILABLE_HEIGHT_VAR = CommonPositionerCssVars.availableHeight;
@@ -122,21 +129,12 @@ interface SideShiftMode {
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 
-type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
-
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
-): UseAnchorPositioningReturnValue {
-  return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
-}
-
-export function useAnchorPositioningWithHook(
   params: UseAnchorPositioningParameters,
-  useFloatingHook: UseFloatingHook,
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -146,7 +144,7 @@ export function useAnchorPositioningWithHook(
     sideOffset = 0,
     align = 'center',
     alignOffset = 0,
-    collisionBoundary,
+    collisionBoundary = 'clipping-ancestors',
     collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
@@ -154,7 +152,7 @@ export function useAnchorPositioningWithHook(
     inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
-    floatingRootContext,
+    interactionStore,
     mounted,
     collisionAvoidance,
     shift,
@@ -459,15 +457,10 @@ export function useAnchorPositioningWithHook(
   useIsoLayoutEffect(() => {
     // Ensure positioning doesn't run initially for `keepMounted` elements that
     // aren't initially open.
-    if (!mounted && floatingRootContext) {
-      floatingRootContext.update({
-        referenceElement: null,
-        floatingElement: null,
-        domReferenceElement: null,
-        positionReference: null,
-      });
+    if (!mounted) {
+      interactionStore.clearPositioning();
     }
-  }, [mounted, floatingRootContext]);
+  }, [mounted, interactionStore]);
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
@@ -489,8 +482,8 @@ export function useAnchorPositioningWithHook(
     context,
     isPositioned,
     floatingStyles: originalFloatingStyles,
-  } = useFloatingHook({
-    rootContext: floatingRootContext,
+  } = useBaseUIFloating({
+    rootStore: interactionStore,
     open: keepMounted ? mounted : undefined,
     placement,
     middleware,
@@ -812,9 +805,12 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: FloatingRootContext | undefined;
+  /**
+   * The interaction store the popup is positioned with. Components without a popup store create
+   * one with `useFloatingRootStore`.
+   */
+  interactionStore: PositioningInteractionStore;
   mounted: boolean;
-  disableAnchorTracking: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
@@ -847,7 +843,7 @@ export interface UseAnchorPositioningReturnValue {
   physicalSide: PhysicalSide;
   anchorHidden: boolean;
   refs: UseFloatingReturn['refs'];
-  context: FloatingContext;
+  context: PopupPositioningContext;
   isPositioned: boolean;
   update: () => void;
 }
