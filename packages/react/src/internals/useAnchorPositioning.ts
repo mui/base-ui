@@ -494,11 +494,11 @@ export function useAnchorPositioning(
   });
 
   // An arrow that mounts after the popup is positioned doesn't resize the positioner, so reposition
-  // explicitly. On a regular open, the positioner isn't registered yet and this no-ops.
+  // explicitly. Deferred so an anchor that changed in the same commit is registered first.
   const arrowRef = useStableCallback((element: Element | null) => {
     arrowElementRef.current = element;
-    if (element) {
-      update();
+    if (element && isPositioned) {
+      queueMicrotask(update);
     }
   });
 

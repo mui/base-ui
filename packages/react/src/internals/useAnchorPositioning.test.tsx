@@ -106,16 +106,17 @@ function TestLazyFlip(props: {
   );
 }
 
-function TestLateArrow() {
-  const anchorRef = React.useRef<HTMLDivElement>(null);
+function TestLateArrow(props: { switchAnchor?: boolean }) {
+  const [offscreenAnchor, setOffscreenAnchor] = React.useState<HTMLDivElement | null>(null);
+  const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
   const [arrowMounted, setArrowMounted] = React.useState(false);
 
   const rootStore = useFloatingRootStore({});
   const positioning = useAnchorPositioning({
-    anchor: anchorRef,
+    anchor: props.switchAnchor && !arrowMounted ? offscreenAnchor : anchor,
     mounted: true,
     positionMethod: 'fixed',
-    side: 'bottom',
+    side: 'top',
     align: 'center',
     sideOffset: 0,
     alignOffset: 0,
@@ -133,7 +134,11 @@ function TestLateArrow() {
   return (
     <React.Fragment>
       <div
-        ref={anchorRef}
+        ref={setOffscreenAnchor}
+        style={{ position: 'fixed', left: 100, top: -1000, width: 40, height: 20 }}
+      />
+      <div
+        ref={setAnchor}
         data-testid="anchor"
         style={{ position: 'fixed', left: 100, top: 100, width: 40, height: 20 }}
       >
@@ -273,4 +278,24 @@ describe('useAnchorPositioning', () => {
       expect(arrowRect.left + arrowRect.width / 2).toBeCloseTo(anchorCenter, 0);
     });
   });
+
+  it.skipIf(isJSDOM)(
+    'positions against the new anchor when the arrow mounts as the anchor changes',
+    async () => {
+      const { user } = await render(<TestLateArrow switchAnchor />);
+      const floating = screen.getByTestId('floating');
+
+      await waitFor(() => {
+        expect(floating).toHaveAttribute('data-positioned');
+      });
+      expect(floating.getBoundingClientRect().bottom).toBeLessThan(0);
+
+      await user.click(screen.getByRole('button', { name: 'Mount arrow' }));
+
+      const anchorTop = screen.getByTestId('anchor').getBoundingClientRect().top;
+      await waitFor(() => {
+        expect(floating.getBoundingClientRect().bottom).toBeCloseTo(anchorTop, 0);
+      });
+    },
+  );
 });
