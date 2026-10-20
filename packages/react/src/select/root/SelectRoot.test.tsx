@@ -679,8 +679,13 @@ describe('<Select.Root />', () => {
       }
 
       const { user } = await render(<Test />);
+      expect(screen.getByRole('listbox')).not.toHaveAttribute('aria-multiselectable');
+      expect(screen.getByRole('option', { name: 'carol' })).toBeInTheDocument();
+
       await user.click(screen.getByRole('button', { name: 'Update selection' }));
 
+      expect(screen.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true');
+      expect(screen.queryByRole('option', { name: 'carol' })).not.toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'alice' })).toHaveAttribute('data-selected', '');
       expect(onValueChange).not.toHaveBeenCalled();
     });
