@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import {
   act,

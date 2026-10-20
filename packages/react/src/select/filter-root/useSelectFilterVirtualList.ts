@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
   compareItemEquality,
   findItemIndex,
@@ -26,7 +27,7 @@ export function useSelectFilterVirtualList(
   const multiple = store.useState('multiple');
   const isItemEqualToValue = store.useState('isItemEqualToValue');
 
-  const virtualItemsRef = React.useRef(new Map<number, HTMLElement | null>());
+  const virtualItemsRef = useRefWithInit(() => new Map<number, HTMLElement | null>());
 
   const syncVirtualList = useStableCallback(() => {
     const list = store.context.listRef.current;
