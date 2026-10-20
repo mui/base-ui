@@ -43,7 +43,11 @@ export default function ExampleVirtualizedSelect() {
           </Select.Trigger>
         </div>
         <Select.Portal>
-          <Select.Positioner className="z-10 outline-hidden select-none" sideOffset={4}>
+          <Select.Positioner
+            className="z-10 outline-hidden select-none"
+            sideOffset={4}
+            align="start"
+          >
             <Select.Popup className="w-[var(--anchor-width)] min-w-64 origin-[var(--transform-origin)] bg-clip-padding border border-neutral-950 bg-white text-neutral-950 outline-hidden shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
               <div className="flex items-center border-b border-neutral-300 has-data-highlighted:border-neutral-950 has-data-highlighted:ring-1 has-data-highlighted:ring-neutral-950 has-data-highlighted:ring-inset dark:border-neutral-700 dark:has-data-highlighted:border-white dark:has-data-highlighted:ring-white">
                 <Select.Input
