@@ -12,9 +12,8 @@ import { useSelectFilterKeyDown } from './useSelectFilterKeyDown';
 /**
  * The props a filterable select adds to its trigger: screen reader press tracking, and a relay of
  * list navigation and typing on the trigger to the input, which holds real focus while the popup
- * is open. The popup is a dialog holding the input and the list, so the trigger stays a plain
- * button: no element carries the combobox role, and the listbox carries `aria-readonly` and
- * `aria-required`.
+ * is open. Like a combobox with its input inside the popup, the trigger stays a combobox that
+ * opens a dialog holding the input and the list.
  */
 export function useSelectFilterTriggerProps(): HTMLProps {
   const store = useSelectRootContext();
@@ -27,11 +26,8 @@ export function useSelectFilterTriggerProps(): HTMLProps {
 
   return React.useMemo<HTMLProps>(
     () => ({
-      role: undefined,
       'aria-haspopup': 'dialog',
       'aria-controls': open ? getFloatingFocusElement(positionerElement)?.id : undefined,
-      'aria-readonly': undefined,
-      'aria-required': undefined,
       onPointerDown(event: React.PointerEvent<HTMLElement>) {
         virtualPressRef.current = isVirtualPointerEvent(event.nativeEvent);
       },

@@ -54,7 +54,6 @@ export const SelectFilterList = React.forwardRef(function SelectFilterList(
   const labelId = store.useState('labelId');
   const multiple = store.useState('multiple');
   const readOnly = store.useState('readOnly');
-  const required = store.useState('required');
   const hasScrollArrows = store.useState('hasScrollArrows');
   const openMethod = store.useState('openMethod');
   const setListElement = store.useStateSetter('listElement');
@@ -142,8 +141,6 @@ export const SelectFilterList = React.forwardRef(function SelectFilterList(
       role: 'listbox',
       'aria-multiselectable': multiple || undefined,
       'aria-readonly': readOnly || undefined,
-      // The trigger is a plain button here, which can't carry these; the listbox can.
-      'aria-required': required || undefined,
       'aria-labelledby': ariaLabelledBy,
       onKeyDown: handleKeyDown,
       onScroll(event: React.UIEvent<HTMLDivElement>) {
