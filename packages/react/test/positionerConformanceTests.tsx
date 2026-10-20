@@ -633,6 +633,27 @@ function triggerSwitchTests({
     expect(popup).not.toHaveAttribute('data-instant');
   });
 
+  it('preserves the Popup enter transition when kept mounted and reopened at another trigger', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const { setProps } = await render(
+      <Fixture
+        handle={createHandle()}
+        keepMounted
+        rootProps={{ open: true, triggerId: 'first' }}
+      />,
+    );
+    const positioner = screen.getByTestId('positioner');
+    const popup = screen.getByTestId('popup');
+    await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+    await setProps({ rootProps: { open: false, triggerId: 'first' } });
+    await waitFor(() => expect(positioner).toHaveAttribute('hidden'));
+
+    await setProps({ rootProps: { open: true, triggerId: 'second' } });
+    await waitFor(() => expect(popup.getAnimations().length).toBeGreaterThan(0));
+    await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+    expect(popup).not.toHaveAttribute('data-instant');
+  });
+
   it.each([
     { name: 'an uncontrolled trigger', mode: 'trigger' },
     { name: 'controlled triggerId', mode: 'controlled' },

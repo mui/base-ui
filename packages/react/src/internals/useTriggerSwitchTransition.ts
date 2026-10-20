@@ -83,10 +83,9 @@ export function useTriggerSwitch(parameters: UseTriggerSwitchParameters): boolea
   useIsoLayoutEffect(() => {
     const currentTrigger = domReference;
     const previousTrigger = previousTriggerRef.current;
-
-    if (currentTrigger) {
-      previousTriggerRef.current = currentTrigger;
-    }
+    // A kept-mounted popup clears the reference when it unmounts, so its next open is not a
+    // switch from the previous trigger.
+    previousTriggerRef.current = currentTrigger;
 
     if (!previousTrigger || !currentTrigger || currentTrigger === previousTrigger) {
       return undefined;
