@@ -10,6 +10,7 @@ import type {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
+import { useTriggerSwitch } from '../../internals/useTriggerSwitchTransition';
 
 /**
  * Positions the tooltip against the trigger.
@@ -28,12 +29,26 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
   const instantType = store.useState('instantType');
+  const positionerElement = store.useState('positionerElement');
+  const domReference = store.useState('anchorElement');
+
+  const instantPosition = useTriggerSwitch({
+    store,
+    domReference,
+    positionerElement,
+    open,
+  });
 
   const { element, positioning } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     positioning: { side: componentProps.side ?? 'top' },
-    state: { instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : instantType },
+    state: {
+      instant:
+        trackCursorAxis !== 'none'
+          ? 'tracking-cursor'
+          : (instantType ?? (instantPosition ? 'trigger-change' : undefined)),
+    },
     inert: !open || trackCursorAxis === 'both' || disableHoverablePopup,
   });
 

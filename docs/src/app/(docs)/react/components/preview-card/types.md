@@ -274,7 +274,7 @@ type PreviewCardPositionerState = {
   /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
   /** Whether transitions should be skipped. */
-  instant: 'dismiss' | 'focus' | undefined;
+  instant: 'dismiss' | 'focus' | 'trigger-change' | undefined;
 };
 ```
 

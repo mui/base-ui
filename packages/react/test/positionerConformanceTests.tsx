@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { describe, expect, it, onTestFinished, vi } from 'vitest';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import type { UserEvent } from '@testing-library/user-event';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM, waitForPositioned, waitSingleFrame } from '#test-utils';
@@ -419,7 +420,14 @@ type TriggerSwitchTestParts = Required<
     DetachedTriggersTestConfig,
     'createHandle' | 'Root' | 'Trigger' | 'Portal' | 'Positioner' | 'Popup' | 'Viewport'
   >
->;
+> &
+  Pick<DetachedTriggersTestConfig, 'triggerProps'> & {
+    /**
+     * How a trigger opens the popup or takes it over.
+     * @default 'click'
+     */
+    interaction?: 'click' | 'hover';
+  };
 
 function triggerSwitchTests({
   render,
@@ -430,7 +438,21 @@ function triggerSwitchTests({
   Positioner,
   Popup,
   Viewport,
+  triggerProps,
+  interaction = 'click',
 }: TriggerSwitchTestParts & Pick<PositionerTestConfig, 'render'>) {
+  async function activate(user: UserEvent, name: 'First' | 'Second') {
+    const trigger = screen.getByText(name);
+    if (interaction === 'hover') {
+      // The pointer moves from the other trigger, as it does when a user switches triggers.
+      fireEvent.mouseLeave(screen.getByText(name === 'First' ? 'Second' : 'First'));
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+    } else {
+      await user.click(trigger);
+    }
+  }
+
   function Fixture({
     handle,
     rootProps,
@@ -467,10 +489,10 @@ function triggerSwitchTests({
               height: 500,
             }}
           >
-            <Trigger handle={handle} id="first">
+            <Trigger handle={handle} id="first" {...triggerProps}>
               First
             </Trigger>
-            <Trigger handle={handle} id="second">
+            <Trigger handle={handle} id="second" {...triggerProps}>
               Second
             </Trigger>
           </div>
@@ -532,9 +554,9 @@ function triggerSwitchTests({
         const { user } = await render(
           <Fixture handle={createHandle()} withViewport={withViewport} />,
         );
-        const first = screen.getByRole('button', { name: 'First' });
-        const second = screen.getByRole('button', { name: 'Second' });
-        await user.click(first);
+        const first = screen.getByText('First');
+        const second = screen.getByText('Second');
+        await activate(user, 'First');
         const positioner = await screen.findByTestId('positioner');
         await waitFor(() => expect(positioner.style.transition).toBe(''));
         await waitFor(() =>
@@ -546,7 +568,7 @@ function triggerSwitchTests({
         await waitFor(() => expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0));
 
         if (afterSwitch) {
-          await user.click(second);
+          await activate(user, 'Second');
         }
         const trigger = afterSwitch ? second : first;
         await waitFor(() =>
@@ -612,7 +634,7 @@ function triggerSwitchTests({
   });
 
   it.each([
-    { name: 'uncontrolled click', mode: 'click' },
+    { name: 'an uncontrolled trigger', mode: 'trigger' },
     { name: 'controlled triggerId', mode: 'controlled' },
     { name: 'imperative handle', mode: 'imperative' },
   ])('animates a switch through $name then resumes instant tracking', async ({ mode }) => {
@@ -635,8 +657,8 @@ function triggerSwitchTests({
 
     if (mode === 'controlled') {
       await setProps({ rootProps: { open: true, triggerId: 'second' } });
-    } else if (mode === 'click') {
-      await user.click(screen.getByRole('button', { name: 'Second' }));
+    } else if (mode === 'trigger') {
+      await activate(user, 'Second');
     } else {
       await act(async () => handle.open('second'));
     }
@@ -645,7 +667,7 @@ function triggerSwitchTests({
     await waitFor(() => expect(positioner).toHaveAttribute('data-instant', 'trigger-change'));
     expect(positioner.getAnimations()).toHaveLength(0);
     expect(positioner.getBoundingClientRect().top).toBeCloseTo(
-      screen.getByRole('button', { name: 'Second' }).getBoundingClientRect().top,
+      screen.getByText('Second').getBoundingClientRect().top,
       0,
     );
   });
@@ -666,7 +688,7 @@ function triggerSwitchTests({
     expect(positioner).toHaveAttribute('data-instant');
     const previousPosition = positioner.style.transform;
 
-    await user.click(screen.getByRole('button', { name: 'Second' }));
+    await activate(user, 'Second');
     await waitFor(() => expect(onOpenChange).toHaveBeenCalled());
     await act(async () => {
       await waitSingleFrame();

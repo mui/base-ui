@@ -13,6 +13,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { createInlineMiddleware } from '../../utils/popups/inlineRect';
+import { useTriggerSwitch } from '../../internals/useTriggerSwitchTransition';
 
 /**
  * Positions the popup against the trigger.
@@ -29,14 +30,26 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   const nodeId = useFloatingNodeId();
 
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
+  const positionerElement = store.useState('positionerElement');
+  const domReference = store.useState('anchorElement');
+  const open = store.useState('open');
+  const instantType = store.useState('instantType');
 
-  const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
+  const instantPosition = useTriggerSwitch({
+    store,
+    domReference,
+    positionerElement,
+    open,
+  });
+
+  const { element, positioning, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     positioning: {
       nodeId,
       inline: createInlineMiddleware(inlineRectCoordsRef),
     },
+    state: { instant: instantType ?? (instantPosition ? 'trigger-change' : undefined) },
   });
   const updatePosition = positioning.update;
 
@@ -73,7 +86,7 @@ export interface PreviewCardPositionerState {
   /**
    * Whether transitions should be skipped.
    */
-  instant: 'dismiss' | 'focus' | undefined;
+  instant: 'dismiss' | 'focus' | 'trigger-change' | undefined;
 }
 
 export interface PreviewCardPositionerProps
