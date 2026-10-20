@@ -244,7 +244,7 @@ export const SelectItemPlain = React.forwardRef(function SelectItem(
       allowMouseSelectionRef.current = true;
       // Drag selection has no mousedown on the item. Focus it before the synthetic click so
       // arrow-key navigation continues from the selected item.
-      if (!store.context.virtualFocus) {
+      if (!store.context.filterable) {
         itemRef.current?.focus({ preventScroll: true });
       }
       itemRef.current?.click();

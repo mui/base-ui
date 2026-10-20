@@ -63,10 +63,11 @@ export type SelectStoreContext = ValuePopupContext<SelectRoot.OpenChangeEventDet
   readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   readonly initialValueRef: React.RefObject<any>;
   /**
-   * Whether real focus stays on `Select.Input` while the list is navigated with
-   * `aria-activedescendant`. Set by the filter root and fixed for the store's lifetime.
+   * Whether the select is wrapped in `Select.FilterProvider`, so real focus stays on
+   * `Select.Input` while the list is navigated with `aria-activedescendant`. Fixed for the store's
+   * lifetime.
    */
-  readonly virtualFocus: boolean;
+  readonly filterable: boolean;
 
   // Callbacks. Initialized when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.

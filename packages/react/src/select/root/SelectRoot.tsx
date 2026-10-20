@@ -55,8 +55,11 @@ interface SelectRootInternalProps<
   Value,
   Multiple extends boolean | undefined,
 > extends SelectRoot.Props<Value, Multiple> {
-  /** Navigates the list with `aria-activedescendant` while the input holds real focus. */
-  virtualFocus?: boolean | undefined;
+  /**
+   * Whether the select is wrapped in `Select.FilterProvider`. Real focus stays on `Select.Input`
+   * while the list is navigated with `aria-activedescendant`.
+   */
+  filterable?: boolean | undefined;
   allowEscape?: boolean | undefined;
   resetOnPointerLeave?: boolean | undefined;
 }
@@ -90,7 +93,7 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     highlightItemOnHover = true,
     onItemHighlighted: onItemHighlightedProp,
     children,
-    virtualFocus = false,
+    filterable = false,
     allowEscape,
     resetOnPointerLeave,
   } = props;
@@ -224,7 +227,7 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
           selectedItemTextRef,
           alignItemWithTriggerActiveRef,
           initialValueRef,
-          virtualFocus,
+          filterable,
         },
         selectors,
       ),
@@ -369,7 +372,7 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
 
   useIsoLayoutEffect(() => store.context.syncHighlight(), [activeIndex, store]);
 
-  const navigationSelectedIndex = virtualFocus && !navigateFromSelected ? null : selectedIndex;
+  const navigationSelectedIndex = filterable && !navigateFromSelected ? null : selectedIndex;
 
   const listNavigation = useListNavigation(store, {
     enabled: !disabled,
@@ -377,12 +380,12 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     activeIndex,
     selectedIndex: navigationSelectedIndex,
     disabledIndices: EMPTY_ARRAY,
-    virtual: virtualFocus,
+    virtual: filterable,
     // A filterable select keeps DOM focus on its input. Like an ordinary select, it opens on the
     // selected option; without one, keyboard opens highlight the first option, or the last with
     // ArrowUp. The input remains part of the arrow-key loop.
-    focusItemOnOpen: virtualFocus ? keyboardOpen || navigationSelectedIndex !== null : undefined,
-    loopFocus: virtualFocus,
+    focusItemOnOpen: filterable ? keyboardOpen || navigationSelectedIndex !== null : undefined,
+    loopFocus: filterable,
     allowEscape,
     resetOnPointerLeave,
     onNavigate(nextActiveIndex, event) {
@@ -401,9 +404,9 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
 
   const typeahead = useTypeahead(store, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
-    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't. Under
-    // virtual focus the input owns typing, so typeahead would race the filter query.
-    enabled: !disabled && !virtualFocus && (open || (!readOnly && !multiple)),
+    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't. In a
+    // filterable select the input owns typing, so typeahead would race the filter query.
+    enabled: !disabled && !filterable && (open || (!readOnly && !multiple)),
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
@@ -428,11 +431,11 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     },
   });
 
-  // Under virtual focus the filter input holds real focus, so it takes the navigation's
+  // In a filterable select the input holds real focus, so it takes the navigation's
   // reference props (`aria-activedescendant` and the key handling) and the trigger keeps only
   // the props that open the popup.
   const openTriggerProps = React.useMemo(() => {
-    if (!virtualFocus) {
+    if (!filterable) {
       return listNavigation.reference;
     }
     if (!listNavigation.trigger) {
@@ -441,11 +444,11 @@ export function SelectRootInternal<Value, Multiple extends boolean | undefined =
     // Focusing the trigger while the popup is open must not seed the virtual highlight.
     const { onFocus, ...rest } = listNavigation.trigger;
     return rest;
-  }, [virtualFocus, listNavigation.reference, listNavigation.trigger]);
+  }, [filterable, listNavigation.reference, listNavigation.trigger]);
 
   store.useSyncedValue(
     'inputProps',
-    virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT,
+    filterable ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT,
   );
 
   // `Select.Trigger` applies the id itself from the store, so it's deliberately not merged here.

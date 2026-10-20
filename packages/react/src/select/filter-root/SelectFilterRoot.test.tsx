@@ -3,6 +3,7 @@ import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Select } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
+import { Dialog } from '@base-ui/react/dialog';
 import {
   createRenderer,
   filterablePopupConformanceTests,
@@ -66,7 +67,7 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
     render,
     itemRole: 'option',
     createComponent: (props) => (
-      <Select.FilterProvider>
+      <Select.FilterProvider {...props.providerProps}>
         <Select.Root {...props.rootProps}>
           <Select.Label>Letter</Select.Label>
           <Select.Trigger data-testid="trigger">
@@ -386,6 +387,32 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
   });
 
   describe('closing', () => {
+    it('closes only the select when Escape is pressed in the input inside a dialog', async () => {
+      const { user } = await render(
+        <Dialog.Root defaultOpen>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="dialog">
+              <Test />
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('ja');
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('searchbox', { name: 'Filter countries' })).toBe(null);
+      });
+      expect(screen.getByTestId('dialog')).toBeInTheDocument();
+      expect(screen.getByTestId('trigger')).toHaveFocus();
+    });
+
     it.skipIf(isJSDOM)(
       'opens at the selected option when reopened during the exit animation',
       async () => {

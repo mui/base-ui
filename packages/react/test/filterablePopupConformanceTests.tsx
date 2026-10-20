@@ -1,13 +1,14 @@
 import * as React from 'react';
-import { expect, vi, describe, it } from 'vitest';
+import { expect, vi, describe, it, onTestFinished } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import type { createRenderer } from '#test-utils';
 import { firePointer, isJSDOM, waitSingleFrame } from '#test-utils';
 
 /**
  * Contracts that `Menu.FilterProvider` and `Select.FilterProvider` share: input focus by opening
- * modality, label resolution, the keyboard-opening state across controlled closes, and the
- * trigger's relay of navigation and typing to the input.
+ * modality, label resolution, the keyboard-opening state across controlled closes, the trigger's
+ * relay of navigation and typing to the input, focus kept on the input when the list takes it,
+ * and an input that ignores keys and edits while the popup animates out.
  *
  * `createComponent` renders a filterable popup with a trigger (`data-testid="trigger"`), an
  * input labelled "Filter", and the items "Alpha", "Beta", and "Gamma".
@@ -31,6 +32,17 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
     firePointer.up(trigger, { ...init, timeStamp: 20 });
     fireEvent.mouseUp(trigger, { detail: 1 });
     fireEvent.click(trigger, { detail: 1 });
+  }
+
+  // Holds the popup in its exit animation until the test finishes it.
+  function slowExitAnimation() {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const style = document.createElement('style');
+    style.textContent =
+      '@keyframes filterable-popup-exit{to{opacity:0}}' +
+      '[role="dialog"][data-ending-style]{animation:filterable-popup-exit 10s linear}';
+    document.head.appendChild(style);
+    onTestFinished(() => style.remove());
   }
 
   async function findFocusedInput() {
@@ -137,6 +149,94 @@ export function filterablePopupConformanceTests(config: FilterablePopupConforman
       expect(reopenedInput).not.toHaveAttribute('aria-activedescendant');
     });
 
+    describe('list focus', () => {
+      it('returns focus to the input when the list takes it from the input', async () => {
+        const { user } = await render(createComponent({}));
+        await user.click(screen.getByTestId('trigger'));
+        const input = await findFocusedInput();
+        const list = screen.getByRole(listRole);
+        // A press on non-item content, such as a group label, focuses the list.
+        expect(list).toHaveAttribute('tabindex');
+
+        await act(async () => list.focus());
+
+        expect(input).toHaveFocus();
+      });
+
+      it('leaves focus on the list when the input did not have it', async () => {
+        const { user } = await render(createComponent({}));
+        await user.click(screen.getByTestId('trigger'));
+        const input = await findFocusedInput();
+        const list = screen.getByRole(listRole);
+        // A touch open leaves the input unfocused so the on-screen keyboard stays closed.
+        await act(async () => input.blur());
+
+        await act(async () => list.focus());
+
+        expect(list).toHaveFocus();
+      });
+    });
+
+    describe('while the popup animates out', () => {
+      async function openWithKeyboardAndClose(user: Awaited<ReturnType<typeof render>>['user']) {
+        const trigger = screen.getByTestId('trigger');
+        await act(async () => trigger.focus());
+        await user.keyboard('[ArrowDown]');
+        const input = await findFocusedInput();
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant');
+        });
+        await user.keyboard('[Escape]');
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
+        return { trigger, input };
+      }
+
+      it.skipIf(isJSDOM).each(['ArrowDown', 'ArrowUp', 'Enter', 'End'])(
+        'ignores %s in the input',
+        async (key) => {
+          slowExitAnimation();
+          const onOpenChange = vi.fn();
+          const { user } = await render(createComponent({ rootProps: { onOpenChange } }));
+          const { trigger, input } = await openWithKeyboardAndClose(user);
+          const activeItemId = input.getAttribute('aria-activedescendant');
+
+          await user.keyboard(`[${key}]`);
+
+          expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+          expect(input.getAttribute('aria-activedescendant')).toBe(activeItemId);
+        },
+      );
+
+      it.skipIf(isJSDOM).each([
+        { name: 'an empty query', query: '', matches: 3 },
+        { name: 'a query', query: 'al', matches: 1 },
+      ])('ignores text typed in the input with $name', async ({ query, matches }) => {
+        slowExitAnimation();
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          createComponent({ providerProps: { defaultValue: query, onValueChange } }),
+        );
+        const { input } = await openWithKeyboardAndClose(user);
+        // The closing popup keeps showing the query it closed with.
+        expect(input).toHaveValue(query);
+        expect(screen.getAllByRole(itemRole)).toHaveLength(matches);
+        const changesBeforeTyping = onValueChange.mock.calls.map(([value, details]) => [
+          value,
+          details.reason,
+        ]);
+
+        await user.keyboard('m');
+
+        expect(onValueChange.mock.calls.map(([value, details]) => [value, details.reason])).toEqual(
+          changesBeforeTyping,
+        );
+        expect(input).toHaveValue(query);
+        expect(screen.getAllByRole(itemRole)).toHaveLength(matches);
+      });
+    });
+
     describe('trigger relay', () => {
       async function openAndRefocusTrigger(user: Awaited<ReturnType<typeof render>>['user']) {
         await user.click(screen.getByTestId('trigger'));
@@ -183,6 +283,10 @@ export interface FilterablePopupTestProps {
   };
   popupProps?: { 'aria-label'?: string; render?: React.ReactElement };
   listProps?: { 'aria-label'?: string; render?: React.ReactElement };
+  providerProps?: {
+    defaultValue?: string | undefined;
+    onValueChange?: ((value: string, eventDetails: { reason: string }) => void) | undefined;
+  };
   onInputFocus?: () => void;
 }
 
