@@ -2257,7 +2257,7 @@ describe('FloatingFocusManager', () => {
   });
 
   describe('prop: restoreFocus', () => {
-    function App({ restoreFocus = true }: { restoreFocus?: boolean }) {
+    function App({ restoreFocus = true }: { restoreFocus?: boolean | 'popup' }) {
       const [isOpen, setIsOpen] = React.useState(false);
       const [removed, setRemoved] = React.useState(false);
       const twoRef = React.useRef<HTMLButtonElement | null>(null);
@@ -2332,6 +2332,69 @@ describe('FloatingFocusManager', () => {
         await waitFor(() => {
           expect(document.body).toHaveFocus();
         });
+      },
+    );
+
+    // Holds animation frames until the test runs them, so that focus can move in between.
+    function holdAnimationFrames() {
+      const frames: FrameRequestCallback[] = [];
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frames.push(callback);
+        return frames.length;
+      });
+      return () => {
+        frames.splice(0).forEach((callback) => callback(performance.now()));
+      };
+    }
+
+    test.skipIf(isJSDOM)(
+      'popup: keeps focus that moved elsewhere before the deferred re-focus',
+      async () => {
+        render(<App restoreFocus="popup" />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        const two = screen.getByRole('button', { name: 'two' });
+        const three = screen.getByRole('button', { name: 'three' });
+
+        expect(two).toHaveFocus();
+
+        const runAnimationFrames = holdAnimationFrames();
+        fireEvent.click(screen.getByText('remove'));
+        await flushMicrotasks();
+        expect(screen.getByTestId('floating')).toHaveFocus();
+
+        // the app moves focus before the next frame
+        three.focus();
+        runAnimationFrames();
+
+        expect(three).toHaveFocus();
+      },
+    );
+
+    test.skipIf(isJSDOM)(
+      'popup: re-focuses the popup when focus is still lost on the next frame',
+      async () => {
+        render(<App restoreFocus="popup" />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        expect(screen.getByRole('button', { name: 'two' })).toHaveFocus();
+
+        const runAnimationFrames = holdAnimationFrames();
+        fireEvent.click(screen.getByText('remove'));
+        await flushMicrotasks();
+        const floating = screen.getByTestId('floating');
+        expect(floating).toHaveFocus();
+
+        // focus is lost again before the next frame
+        floating.blur();
+        expect(document.body).toHaveFocus();
+        runAnimationFrames();
+
+        expect(floating).toHaveFocus();
       },
     );
 
