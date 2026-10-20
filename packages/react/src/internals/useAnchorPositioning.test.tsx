@@ -106,6 +106,60 @@ function TestLazyFlip(props: {
   );
 }
 
+function TestLateArrow() {
+  const anchorRef = React.useRef<HTMLDivElement>(null);
+  const [arrowMounted, setArrowMounted] = React.useState(false);
+
+  const rootStore = useFloatingRootStore({});
+  const positioning = useAnchorPositioning({
+    anchor: anchorRef,
+    mounted: true,
+    positionMethod: 'fixed',
+    side: 'bottom',
+    align: 'center',
+    sideOffset: 0,
+    alignOffset: 0,
+    collisionBoundary: 'clipping-ancestors',
+    collisionPadding: 5,
+    sticky: false,
+    arrowPadding: 5,
+    // Nothing else repositions the popup, so only the arrow mounting can center it.
+    disableAnchorTracking: true,
+    keepMounted: false,
+    collisionAvoidance: { fallbackAxisSide: 'none' },
+    interactionStore: rootStore,
+  });
+
+  return (
+    <React.Fragment>
+      <div
+        ref={anchorRef}
+        data-testid="anchor"
+        style={{ position: 'fixed', left: 100, top: 100, width: 40, height: 20 }}
+      >
+        anchor
+      </div>
+      <div
+        ref={positioning.refs.setFloating}
+        data-testid="floating"
+        data-positioned={positioning.isPositioned || undefined}
+        style={{ ...positioning.positionerStyles, width: 200, height: 50 }}
+      >
+        {arrowMounted && (
+          <div
+            ref={positioning.arrowRef}
+            data-testid="arrow"
+            style={{ ...positioning.arrowStyles, width: 10, height: 5 }}
+          />
+        )}
+      </div>
+      <button type="button" onClick={() => setArrowMounted(true)}>
+        Mount arrow
+      </button>
+    </React.Fragment>
+  );
+}
+
 describe('useAnchorPositioning', () => {
   const { render } = createRenderer();
 
@@ -199,6 +253,24 @@ describe('useAnchorPositioning', () => {
 
     await waitFor(() => {
       expect(floating).toHaveAttribute('data-side', 'bottom');
+    });
+  });
+
+  it.skipIf(isJSDOM)('centers an arrow that mounts after the popup is positioned', async () => {
+    const { user } = await render(<TestLateArrow />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('floating')).toHaveAttribute('data-positioned');
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Mount arrow' }));
+
+    const anchorRect = screen.getByTestId('anchor').getBoundingClientRect();
+    const anchorCenter = anchorRect.left + anchorRect.width / 2;
+
+    await waitFor(() => {
+      const arrowRect = screen.getByTestId('arrow').getBoundingClientRect();
+      expect(arrowRect.left + arrowRect.width / 2).toBeCloseTo(anchorCenter, 0);
     });
   });
 });
