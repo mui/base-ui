@@ -7,14 +7,9 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { clamp } from '@base-ui/utils/clamp';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import {
-  activeElement,
-  closest,
-  contains,
-  getTarget,
-  isInteractiveElement,
-} from '../../floating-ui-react/utils';
+import { isInteractiveElement } from '../../utils/popups/element';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import * as DrawerViewportCssVars from '../viewport/DrawerViewportCssVars';
@@ -692,13 +687,13 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // events, including `click`; redispatch an untrusted replacement on the
       // original tap target so click handlers still run with the tap coordinates.
       dispatchKeyboardClick(keyboardClickTarget, touch);
-      // Label activation refocuses its control without preventScroll. While the keyboard
-      // is opening, WebKit replaces the pending focus options even for an already-focused
-      // input. Reapply preventScroll without blurring or undoing a consumer's focus change.
-      if (
-        keyboardClickTarget !== keyboardFocusTarget &&
-        activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget
-      ) {
+      // Refocus the now-focused input without blurring or undoing a consumer's focus change:
+      // - iOS 27 doesn't show the keyboard when focus moves to an input after the user
+      //   dismissed it natively (e.g. by tapping the browser UI), leaving every tap dead; a
+      //   refocus of the already-focused input brings it back.
+      // - Label activation refocuses its control without preventScroll, and while the
+      //   keyboard is opening WebKit replaces the pending focus options; this restores them.
+      if (activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget) {
         keyboardFocusTarget.focus({ preventScroll: true });
       }
       resetTouchTrackingState();

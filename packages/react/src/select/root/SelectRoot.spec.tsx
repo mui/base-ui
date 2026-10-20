@@ -39,7 +39,7 @@ const groupedItemsReadonly = [
     return item;
   }}
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error The selection can be cleared, so value may be null.
     value.startsWith('a');
   }}
 />;
@@ -56,7 +56,7 @@ const groupedItemsReadonly = [
     return item;
   }}
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error The selection can be cleared, so value may be null.
     value.startsWith('a');
   }}
 />;
@@ -90,7 +90,7 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
   itemToStringLabel={(item) => item.code}
   itemToStringValue={(item) => item.code}
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error The selected object may be null after clearing the selection.
     value.code;
   }}
 />;
@@ -130,7 +130,7 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
 
 <Select.Root
   multiple
-  // @ts-expect-error
+  // @ts-expect-error Multiple selection requires an array default value.
   defaultValue="javascript"
   onValueChange={(value) => {
     value.pop();
@@ -147,10 +147,10 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
 
 <Select.Root
   multiple={false}
-  // @ts-expect-error
+  // @ts-expect-error Single selection does not accept an array default value.
   defaultValue={['javascript', 'typescript']}
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error Single selection does not produce an array.
     value.pop();
   }}
 />;
@@ -158,7 +158,7 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
 <Select.Root
   defaultValue="javascript"
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error Single selection does not produce an array.
     value.pop();
   }}
 />;
@@ -176,7 +176,7 @@ function App() {
     <Select.Root
       multiple={multiple}
       onValueChange={(value) => {
-        // @ts-expect-error
+        // @ts-expect-error A dynamic multiple flag does not guarantee an array value.
         value.pop();
       }}
     />
@@ -186,7 +186,7 @@ function App() {
 <Select.Root
   defaultValue="test"
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error The selection can be cleared, so value may be null.
     value.length;
   }}
 />;
@@ -209,7 +209,7 @@ function App2() {
     <Select.Root
       value={value}
       onValueChange={(newValue) => {
-        // @ts-expect-error
+        // @ts-expect-error The selection can be cleared even when the current value is a string.
         newValue.length;
         // @ts-expect-error - user is forced to type useState with null
         // even if they don't want to allow null
@@ -225,7 +225,7 @@ function App3() {
     <Select.Root
       value={value}
       onValueChange={(newValue) => {
-        // @ts-expect-error
+        // @ts-expect-error The selected value may be null.
         newValue.length;
         setValue(newValue);
       }}

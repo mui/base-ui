@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/71a01dd6186f601475e5c9ad15a4c55cc782ca6f/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/0a555da875ab03199afe8f28dbb4c723f853a52d/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -74,6 +74,11 @@ jobs:
           command: pnpm docs:validate
   test_lint:
     <<: *default-job
+    resource_class: medium+
+    environment:
+      <<: *default-environment
+      # Type-aware docs linting loads the docs and component TypeScript projects.
+      NODE_OPTIONS: --max-old-space-size=4096
     steps:
       - checkout
       - code-infra/install-deps
@@ -137,7 +142,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.63.0-noble
+      playwright-img-version: v1.64.1-noble
     steps:
       - checkout
       - code-infra/install-deps:
@@ -153,7 +158,7 @@ jobs:
     resource_class: medium+
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.63.0-noble
+      playwright-img-version: v1.64.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -167,7 +172,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.63.0-noble
+      playwright-img-version: v1.64.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -226,7 +231,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.63.0-noble
+      playwright-img-version: v1.64.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -243,7 +248,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.63.0-noble
+      playwright-img-version: v1.64.1-noble
     # Building both sides is most of the setup time, and more logical CPUs leave the browser less to
     # contend with while sampling. The `benchmark` CLI warns below 3.
     resource_class: large

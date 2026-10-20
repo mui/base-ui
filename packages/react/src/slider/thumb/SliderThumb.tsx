@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
@@ -8,10 +9,12 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { script as prehydrationScript } from '#prehydration/slider/thumb';
 import { clamp } from '@base-ui/utils/clamp';
 import { formatNumber } from '@base-ui/utils/formatNumber';
+import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import {
@@ -30,8 +33,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
-import { contains } from '../../floating-ui-react/utils';
-import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
+import { matchesFocusVisible } from '../../utils/popups/element';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -143,6 +145,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     thumbRefs,
     values: sliderValues,
   } = useSliderRootContext();
+  // Resolved here rather than in Root, since this part can hydrate later, e.g. inside Suspense.
+  const formatLocale = useFormatLocale(locale);
 
   const direction = useDirection();
 
@@ -202,7 +206,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const safeLastUsedThumbIndex =
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
 
-  const getInsetPosition = useStableCallback(() => {
+  // The last position and indicator edge applied, including updates that haven't rendered yet.
+  const appliedInsetRef = React.useRef<[number | undefined, number]>([undefined, -1]);
+
+  const getInsetPosition = useStableCallback((sync?: boolean) => {
     const control = controlRef.current;
     const thumb = thumbRef.current;
     if (!control || !thumb) {
@@ -213,61 +220,95 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const controlRect = control.getBoundingClientRect();
 
     const side = vertical ? 'height' : 'width';
+
+    // A hidden control measures 0, so keep the last position until it can be measured again.
+    if (!controlRect[side]) {
+      return;
+    }
+
     // the total travel distance adjusted to account for the thumb size
     const controlSize = controlRect[side] - thumbRect[side];
     // px distance from the starting edge (inline-start or bottom) to the thumb center
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
+    // `min === max` has no valid position, which hides the thumb.
     const nextInsetPosition = Number.isFinite(nextPositionPercent)
       ? nextPositionPercent
       : undefined;
 
-    setPositionPercent(nextInsetPosition);
-
+    // The indicator edge this thumb drives: 0 = start, 1 = end, -1 = none.
+    let indicatorEdge = -1;
     if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
+      indicatorEdge = 0;
     } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
+      indicatorEdge = 1;
+    }
+
+    const [appliedPosition, appliedEdge] = appliedInsetRef.current;
+    if (nextInsetPosition === appliedPosition && indicatorEdge === appliedEdge) {
+      return;
+    }
+
+    appliedInsetRef.current = [nextInsetPosition, indicatorEdge];
+
+    const update = () => {
+      setPositionPercent(nextInsetPosition);
+
+      if (indicatorEdge === 0) {
+        setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
+      } else if (indicatorEdge === 1) {
+        setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
+      }
+    };
+
+    if (sync) {
+      ReactDOM.flushSync(update);
+    } else {
+      update();
     }
   });
 
   useIsoLayoutEffect(() => {
     if (inset) {
-      queueMicrotask(getInsetPosition);
-    }
-  }, [getInsetPosition, inset]);
-
-  useIsoLayoutEffect(() => {
-    if (inset) {
       getInsetPosition();
     }
-  }, [getInsetPosition, inset, thumbValuePercent]);
+    // `index` and `last` decide which indicator edge this thumb drives.
+  }, [getInsetPosition, inset, thumbValuePercent, index, last]);
 
   useIsoLayoutEffect(() => {
     if (!inset) {
       return undefined;
     }
 
-    const control = controlRef.current;
-    const thumb = thumbRef.current;
+    let resizeObserver: ResizeObserver | undefined;
+    let cancelled = false;
 
-    if (!control || !thumb) {
-      return undefined;
-    }
+    // The control's ref attaches after this descendant's layout effect runs.
+    queueMicrotask(() => {
+      const control = controlRef.current;
+      const thumb = thumbRef.current;
 
-    const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
-    if (typeof ResizeObserverCtor !== 'function') {
-      return undefined;
-    }
+      if (cancelled || !control || !thumb) {
+        return;
+      }
 
-    const resizeObserver = new ResizeObserverCtor(getInsetPosition);
+      const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
+      if (typeof ResizeObserverCtor === 'function') {
+        // Observer callbacks run before paint; flush so a resize never paints a stale position.
+        resizeObserver = new ResizeObserverCtor(() => getInsetPosition(true));
+        resizeObserver.observe(control);
+        resizeObserver.observe(thumb);
+      }
 
-    resizeObserver.observe(control);
-    resizeObserver.observe(thumb);
+      // Still before the first paint, so flush to avoid a frame with the thumb hidden.
+      // The observer exists first, so an unmount during this flush disconnects it.
+      getInsetPosition(true);
+    });
 
     return () => {
-      resizeObserver.disconnect();
+      cancelled = true;
+      resizeObserver?.disconnect();
     };
   }, [controlRef, getInsetPosition, inset]);
 
@@ -322,8 +363,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       'aria-valuenow': thumbValue,
       'aria-valuetext':
         typeof getAriaValueTextProp === 'function'
-          ? getAriaValueTextProp(formatNumber(thumbValue, locale, format), thumbValue, index)
-          : (ariaValueTextProp ?? getDefaultAriaValueText(sliderValues, index, format, locale)),
+          ? getAriaValueTextProp(formatNumber(thumbValue, formatLocale, format), thumbValue, index)
+          : (ariaValueTextProp ??
+            getDefaultAriaValueText(sliderValues, index, format, formatLocale)),
       disabled,
       form,
       id: inputId,

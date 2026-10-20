@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '@base-ui/utils/formatNumber';
-import { useStore } from '@base-ui/utils/store';
-import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
-import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
@@ -29,13 +27,18 @@ export const SliderValue = React.forwardRef(function SliderValue(
     ...elementProps
   } = componentProps;
 
-  const { thumbMapStore, state, values, format, locale } = useSliderRootContext();
+  const { thumbMap, state, values, format, locale } = useSliderRootContext();
+  // Resolved here rather than in Root, since this part can hydrate later, e.g. inside Suspense.
+  const formatLocale = useFormatLocale(locale);
 
-  const outputFor = useStore(thumbMapStore, selectOutputFor);
+  const outputFor =
+    Array.from(thumbMap.values(), ({ inputId }) => inputId)
+      .join(' ')
+      .trim() || undefined;
 
   const formattedValues = React.useMemo(
-    () => values.map((v) => formatNumber(v, locale, format)),
-    [format, locale, values],
+    () => values.map((v) => formatNumber(v, formatLocale, format)),
+    [format, formatLocale, values],
   );
 
   const defaultDisplayValue = formattedValues.join(' – ');
@@ -59,14 +62,6 @@ export const SliderValue = React.forwardRef(function SliderValue(
 
   return element;
 });
-
-function selectOutputFor(thumbMap: Map<Node, CompositeMetadata<ThumbMetadata>>) {
-  return (
-    Array.from(thumbMap.values(), ({ inputId }) => inputId)
-      .join(' ')
-      .trim() || undefined
-  );
-}
 
 export interface SliderValueState extends SliderRootState {}
 

@@ -7,8 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { clamp } from '@base-ui/utils/clamp';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
-import { Store } from '@base-ui/utils/store';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import {
   createChangeEventDetails,
@@ -21,7 +20,6 @@ import type {
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { activeElement, contains } from '../../floating-ui-react/utils';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -142,14 +140,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [active, setActiveState] = React.useState(-1);
   const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
-  // Only `Slider.Value` reads the registered thumbs, so it subscribes on its own rather than every
-  // part re-rendering when they register on mount.
-  const thumbMapStore = useRefWithInit(
-    () => new Store(new Map<Node, CompositeMetadata<ThumbMetadata>>()),
-  ).current;
-  const setThumbMap = useStableCallback((map: Map<Node, CompositeMetadata<ThumbMetadata>>) => {
-    thumbMapStore.setState(map);
-  });
+  const [thumbMap, setThumbMap] = React.useState(
+    () => new Map<Node, CompositeMetadata<ThumbMetadata>>(),
+  );
   const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
     undefined,
     undefined,
@@ -343,7 +336,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       state,
       step,
       thumbCollisionBehavior,
-      thumbMapStore,
+      thumbMap,
       thumbRefs,
       values,
     }),
@@ -375,7 +368,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       step,
       thumbCollisionBehavior,
       thumbAlignment,
-      thumbMapStore,
+      thumbMap,
       values,
     ],
   );
@@ -473,6 +466,7 @@ export interface SliderRootProps<
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
+   * When server rendering, `en-US` is used until hydration.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**

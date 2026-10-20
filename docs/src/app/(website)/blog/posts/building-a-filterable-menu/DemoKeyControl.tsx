@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { Code } from 'docs/src/components/Code';
 import { Kbd } from 'docs/src/components/Kbd/Kbd';
 import styles from './DemoKeyControl.module.css';
 
@@ -12,9 +11,6 @@ const actions = ['Rename', 'Duplicate', 'Move to folder', 'Archive', 'Delete'];
 const keyLabels: Record<string, string> = {
   ArrowDown: 'Down Arrow',
   ArrowUp: 'Up Arrow',
-  Home: 'Home',
-  End: 'End',
-  Enter: 'Enter',
   ' ': 'Space',
 };
 
@@ -30,6 +26,7 @@ export default function DemoKeyControl() {
   const lastActionIndex = visibleActions.length - 1;
   const highlightedAction = visibleActions[highlightedIndex];
   const isEditing = highlightedIndex === INPUT_INDEX;
+  const homeEndNavigatesMenu = query === '' && !isEditing;
   const menuId = `${id}-menu`;
 
   function handleQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -40,11 +37,26 @@ export default function DemoKeyControl() {
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     const { key } = event;
-    if (keyLabels[key]) {
-      setLastKey(keyLabels[key]);
-    }
+    setLastKey(keyLabels[key] ?? key);
 
     if (event.nativeEvent.isComposing) {
+      return;
+    }
+
+    if (key === 'Enter') {
+      event.preventDefault();
+      if (!isEditing) {
+        setLastAction(highlightedAction);
+      }
+      return;
+    }
+
+    if (
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      (event.shiftKey && key !== 'Home' && key !== 'End')
+    ) {
       return;
     }
 
@@ -68,19 +80,12 @@ export default function DemoKeyControl() {
       case 'Home':
       case 'End':
         event.preventDefault();
-        if (isEditing) {
+        if (!homeEndNavigatesMenu || event.shiftKey) {
           const input = event.currentTarget;
           const position = key === 'Home' ? 0 : input.value.length;
           moveCaret(input, position, event.shiftKey);
         } else {
           setHighlightedIndex(key === 'Home' ? 0 : lastActionIndex);
-        }
-        return;
-
-      case 'Enter':
-        event.preventDefault();
-        if (!isEditing) {
-          setLastAction(highlightedAction);
         }
         return;
 
@@ -128,10 +133,10 @@ export default function DemoKeyControl() {
       <div className={styles.Readout}>
         <div>
           <dl className={styles.Values}>
-            <dt>Context</dt>
-            <dd>
-              <Code>{isEditing ? 'Editing' : 'Browsing'}</Code>
-            </dd>
+            <dt>Input</dt>
+            <dd>{query === '' ? 'empty' : JSON.stringify(query)}</dd>
+            <dt>Home / End</dt>
+            <dd>{homeEndNavigatesMenu ? 'navigate menu' : 'move caret'}</dd>
             <dt>Highlighted</dt>
             <dd>{isEditing ? 'input' : highlightedAction}</dd>
             <dt>Last key</dt>
@@ -142,12 +147,12 @@ export default function DemoKeyControl() {
           </div>
         </div>
         <div className={styles.Hint}>
-          <p>Type in the field to filter the menu.</p>
           <p>
-            Try <Kbd>↓</Kbd>, <Kbd>Home</Kbd>, and <Kbd>End</Kbd> to navigate.
+            With the input empty, press <Kbd>↓</Kbd>, then <Kbd>Home</Kbd> or <Kbd>End</Kbd>.
           </p>
+          <p>Type "de", highlight a match, and try again to move the caret.</p>
           <p>
-            Press <Kbd>↓</Kbd> past the last item to return to editing.
+            <Kbd>Enter</Kbd> runs the highlighted action.
           </p>
         </div>
       </div>

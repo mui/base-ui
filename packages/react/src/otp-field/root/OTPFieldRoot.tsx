@@ -2,13 +2,14 @@
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { warn } from '@base-ui/utils/warn';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { activeElement, contains } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -103,6 +104,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const inputRefs = React.useRef<Array<HTMLInputElement | null>>([]);
+  const hiddenInputElementRef = React.useRef<HTMLInputElement | null>(null);
   const pendingFocusRef = React.useRef<{
     index: number;
     value: string;
@@ -174,9 +176,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   });
 
   function requestSubmit() {
-    // The hidden validation input only renders for a valid `length`, but the slots always do,
-    // so fall back to the owning form of the first slot.
-    let formElement = validation.inputRef.current?.form ?? inputRefs.current[0]?.form ?? null;
+    // Not `validation.inputRef`: outside a Field, every control shares it.
+    // The hidden input only renders for a valid `length` and the slots may be portaled,
+    // so prefer the hidden input's form before falling back to the first slot.
+    let formElement = hiddenInputElementRef.current?.form ?? inputRefs.current[0]?.form ?? null;
 
     if (form) {
       const associatedElement = ownerDocument(rootRef.current).getElementById(form);
@@ -406,6 +409,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     stateAttributesMapping: rootStateAttributesMapping,
   });
 
+  const hiddenInputRef = useMergedRefs(validation.inputRef, hiddenInputElementRef);
+
   return (
     <CompositeList
       elementsRef={inputRefs}
@@ -451,7 +456,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
                 }
               },
             })}
-            ref={validation.inputRef}
+            ref={hiddenInputRef}
             type="text"
             id={id && name == null ? `${id}-hidden-input` : undefined}
             form={form}

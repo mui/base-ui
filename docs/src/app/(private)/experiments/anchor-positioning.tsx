@@ -2,10 +2,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { useAnchorPositioning } from '../../../../../packages/react/src/internals/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  useFloatingRootStore,
+} from '../../../../../packages/react/src/internals/useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from '../../../../../packages/react/src/internals/useAnchorPositioning';
-import { FloatingRootStore } from '../../../../../packages/react/src/floating-ui-react/components/FloatingRootStore';
-import { PopupTriggerMap } from '../../../../../packages/react/src/utils/popups';
 import styles from './anchor-positioning.module.css';
 
 const oppositeSideMap = {
@@ -43,17 +44,7 @@ export default function AnchorPositioning() {
     fallbackAxisSide: 'end',
   });
 
-  const floatingRootContext = new FloatingRootStore({
-    open: true,
-    transitionStatus: undefined,
-    referenceElement: anchorEl,
-    floatingElement: null,
-    triggerElements: new PopupTriggerMap(),
-    floatingId: '',
-    syncOnly: false,
-    nested: false,
-    onOpenChange: undefined,
-  });
+  const floatingRootStore = useFloatingRootStore({ open: true, elements: { anchor: anchorEl } });
 
   const {
     refs,
@@ -63,7 +54,7 @@ export default function AnchorPositioning() {
     side: renderedSide,
     arrowUncentered,
   } = useAnchorPositioning({
-    floatingRootContext,
+    interactionStore: floatingRootStore,
     side,
     align,
     sideOffset,
