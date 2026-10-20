@@ -10,7 +10,7 @@ import { SelectRootContext } from '../root/SelectRootContext';
 
 /**
  * The filter implementation that the filterable root hands to the parts below it. Only the root
- * `Select.FilterProvider` renders imports it, so a plain select never bundles it.
+ * that `Select.FilterProvider` renders imports it, so a plain select never bundles it.
  */
 export interface SelectFilterImpl {
   Popup: typeof SelectFilterPopup;
@@ -28,7 +28,7 @@ export const SelectFilterImplContext = React.createContext<SelectFilterImpl | nu
 export function useSelectFilterImpl(): SelectFilterImpl | null {
   const impl = React.useContext(SelectFilterImplContext);
   // A plain select nested inside a filterable one keeps its own parts.
-  return React.useContext(SelectRootContext)?.context.virtualFocus ? impl : null;
+  return React.useContext(SelectRootContext)?.context.filterable ? impl : null;
 }
 
 /** Throws when a filter part renders in a select that isn't wrapped in `Select.FilterProvider`. */

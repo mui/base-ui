@@ -60,8 +60,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const floatingRootStore = useSelectFloatingContext();
 
   // A filterable popup holds an input above the list, so it never overlaps the trigger.
-  const { virtualFocus } = store.context;
-  const alignItemWithTrigger = !virtualFocus && alignItemWithTriggerProp;
+  const { filterable } = store.context;
+  const alignItemWithTrigger = !filterable && alignItemWithTriggerProp;
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -153,7 +153,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
       // Filtering unmounts options without removing them from the select: the value stays, and
       // `Select.Value` resolves its label from `items` rather than from a mounted option.
-      if (virtualFocus) {
+      if (filterable) {
         return;
       }
 
