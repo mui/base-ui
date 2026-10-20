@@ -195,6 +195,29 @@ describe('<Switch.Root />', () => {
       expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
       expect(fieldLabelled).toHaveAccessibleName('Bluetooth');
     });
+
+    it("prefers a render element's `aria-label` over an associated label", async () => {
+      await render(
+        <React.Fragment>
+          <label>
+            <Switch.Root render={<span aria-label="Wi-Fi" />} />
+            Wi-Fi
+          </label>
+          <Field.Root>
+            <Field.Label>
+              <Switch.Root render={<span aria-label="Bluetooth" />} />
+              Bluetooth
+            </Field.Label>
+          </Field.Root>
+        </React.Fragment>,
+      );
+
+      const [nativeLabelled, fieldLabelled] = screen.getAllByRole('switch');
+      expect(nativeLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(nativeLabelled).toHaveAccessibleName('Wi-Fi');
+      expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
+      expect(fieldLabelled).toHaveAccessibleName('Bluetooth');
+    });
   });
 
   describe('prop: onCheckedChange', () => {

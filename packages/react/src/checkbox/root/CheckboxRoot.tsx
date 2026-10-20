@@ -26,6 +26,7 @@ import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { resolveRenderedAriaLabel } from '../../internals/resolveRenderedAriaLabel';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
@@ -167,7 +168,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     inputRef,
     !nativeButton,
     controlId,
-    elementProps['aria-label'],
+    resolveRenderedAriaLabel(componentProps),
   );
 
   useIsoLayoutEffect(() => {

@@ -19,6 +19,7 @@ import { useRegisterFieldControl } from '../../internals/field-register-control/
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { resolveRenderedAriaLabel } from '../../internals/resolveRenderedAriaLabel';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -114,7 +115,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     inputRef,
     !nativeButton,
     hiddenInputId,
-    elementProps['aria-label'],
+    resolveRenderedAriaLabel(componentProps),
   );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {

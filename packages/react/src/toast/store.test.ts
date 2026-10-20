@@ -404,6 +404,30 @@ describe('ToastStore', () => {
       expect(selectors.toast(store.state, 'b')?.transitionStatus).not.toBe('ending');
     });
 
+    it('does not consume the remaining time twice when paused while the provider effect is torn down', () => {
+      vi.useFakeTimers();
+      const store = createStore([]);
+      const cleanup = store.disposeEffect();
+
+      store.addToast({ id: 'a', title: 'a', timeout: 5000 });
+      vi.advanceTimersByTime(1000);
+
+      // Hidden in `<Activity>`: 4000ms remain, and the clock keeps moving.
+      cleanup();
+      vi.advanceTimersByTime(1000);
+      store.pauseTimers();
+      store.resumeTimers();
+
+      // Revealed.
+      store.disposeEffect();
+
+      vi.advanceTimersByTime(3999);
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).not.toBe('ending');
+
+      vi.advanceTimersByTime(1);
+      expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+    });
+
     it('accumulates active time across hover cycles so the toast still dismisses', () => {
       vi.useFakeTimers();
       const store = createStore([]);

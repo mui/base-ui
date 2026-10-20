@@ -9,11 +9,12 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { clamp } from '@base-ui/utils/clamp';
-import { FloatingFocusManager, platform as floatingPlatform } from '../../floating-ui-react';
-import type { ClientRectObject } from '../../floating-ui-react';
+import { platform as floatingPlatform } from '@floating-ui/react-dom';
+import type { ClientRectObject } from '@floating-ui/react-dom';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useSelectFloatingContext, useSelectRootStoreContext } from '../root/SelectRootContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -54,7 +55,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const multiple = store.useState('multiple');
   const readOnly = store.useState('readOnly');
   const highlightItemOnHover = store.useState('highlightItemOnHover');
-  const floatingRootContext = useSelectFloatingContext();
+  const floatingRootStore = useSelectFloatingContext();
   const {
     side,
     align,
@@ -477,7 +478,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     <React.Fragment>
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
-        context={floatingRootContext}
+        store={floatingRootStore}
         modal={false}
         disabled={!mounted}
         openInteractionType={openMethod}

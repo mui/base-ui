@@ -12,6 +12,7 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  hiddenInputTypeTests,
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
@@ -75,9 +76,8 @@ function SelectedIndexProbe() {
 }
 
 function getHiddenControl() {
-  return screen
-    .getAllByRole<HTMLInputElement>('textbox', { hidden: true })
-    .find((element) => element.getAttribute('aria-hidden') === 'true')!;
+  // Outside of forms it's `type="hidden"`, which has no role.
+  return document.querySelector<HTMLInputElement>('input[aria-hidden="true"]')!;
 }
 
 function ActiveIndexProbe() {
@@ -11617,6 +11617,16 @@ describe('<Combobox.Root />', () => {
         expect(apple).toHaveAttribute('data-highlighted');
       });
     });
+  });
+
+  hiddenInputTypeTests({
+    render,
+    createComponent: (props) => (
+      <Combobox.Root {...props}>
+        <Combobox.Input data-testid="input" />
+      </Combobox.Root>
+    ),
+    getFocusTarget: () => screen.getByTestId('input'),
   });
 
   describe('Form', () => {

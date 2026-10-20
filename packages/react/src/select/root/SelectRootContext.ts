@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 import type { SelectStore } from '../store';
 import type { ItemEqualityComparer } from '../../internals/itemEquality';
 
@@ -11,9 +11,7 @@ export const SelectRootContext = React.createContext<{
   multiple: boolean;
   isItemEqualToValue: ItemEqualityComparer;
 } | null>(null);
-export const SelectFloatingContext = React.createContext<FloatingRootContext | undefined>(
-  undefined,
-);
+export const SelectFloatingContext = React.createContext<FloatingRootStore | undefined>(undefined);
 
 export function useSelectRootStoreContext() {
   const store = React.useContext(SelectRootStoreContext);
