@@ -10,8 +10,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { isKeyboardOpen } from '../../utils/isKeyboardOpen';
 import { getFilter } from '../../internals/filter';
-import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
-import type { ItemEqualityComparer } from '../../internals/itemEquality';
+import { findItemIndex } from '../../internals/itemEquality';
 import {
   flattenLeafItems,
   isGroupedItems,
@@ -74,18 +73,17 @@ function filterItems(
   };
 }
 
-function getToggledValue(
-  nextValue: readonly unknown[],
-  previousValue: readonly unknown[],
-  comparer: ItemEqualityComparer,
-) {
-  const isIn = (values: readonly unknown[], value: unknown) =>
-    values.some((other) => compareItemEquality(value, other, comparer));
-  // `null` is a valid item value, so the result can't be told apart from a miss with `??`.
-  const addedIndex = nextValue.findIndex((value) => !isIn(previousValue, value));
-  return addedIndex === -1
-    ? previousValue.find((value) => !isIn(nextValue, value))
-    : nextValue[addedIndex];
+// An item press appends the pressed value or filters it out, keeping the others in order, so the
+// toggled value is the appended one or the first that no longer lines up.
+function getToggledValue(nextValue: readonly unknown[], previousValue: readonly unknown[]) {
+  if (nextValue.length > previousValue.length) {
+    return nextValue[nextValue.length - 1];
+  }
+  let index = 0;
+  while (index < nextValue.length && Object.is(nextValue[index], previousValue[index])) {
+    index += 1;
+  }
+  return previousValue[index];
 }
 
 /**
@@ -168,11 +166,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
 
       const previousValue = store.state.selectedValue;
       toggledItemRef.current = {
-        value: getToggledValue(
-          nextValue,
-          Array.isArray(previousValue) ? previousValue : [],
-          store.state.isItemEqualToValue,
-        ),
+        value: getToggledValue(nextValue, Array.isArray(previousValue) ? previousValue : []),
       };
       const clearDetails = createChangeEventDetails(
         REASONS.inputClear,
@@ -293,6 +287,7 @@ export function SelectFilterDropdown(props: SelectFilterDropdownProps) {
     useSelectFilterVirtualList(
       virtualized,
       virtualized ? getFilteredItems().filteredValues : NO_VALUES,
+      open && (autoHighlight === 'always' || (autoHighlight && query.trim() !== '')),
       syncActiveItem,
     );
 

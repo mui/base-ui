@@ -2,7 +2,11 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { findItemIndex, findSelectionIndex } from '../../internals/itemEquality';
+import {
+  compareItemEquality,
+  findItemIndex,
+  findSelectionIndex,
+} from '../../internals/itemEquality';
 import { useSelectRootContext } from '../root/SelectRootContext';
 
 /**
@@ -14,6 +18,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 export function useSelectFilterVirtualList(
   virtualized: boolean,
   filteredValues: any[],
+  autoHighlightEnabled: boolean,
   syncActiveItem: () => void,
 ) {
   const store = useSelectRootContext();
@@ -47,21 +52,48 @@ export function useSelectFilterVirtualList(
     };
   });
 
-  // The values and the selected position come from the filtered `items` too.
+  const previousValuesRef = React.useRef(filteredValues);
+
+  // The values, the highlight, and the selected position follow the filtered `items`, which can
+  // change without any option mounting or unmounting.
   useIsoLayoutEffect(() => {
     if (!virtualized) {
       return;
     }
+    const previousValues = previousValuesRef.current;
+    previousValuesRef.current = filteredValues;
     store.context.valuesRef.current = filteredValues;
     syncVirtualList();
-    store.context.syncHighlight();
-    if (!store.state.open) {
-      store.set(
-        'selectedIndex',
-        findSelectionIndex(filteredValues, value, isItemEqualToValue, multiple),
-      );
+
+    // A positional highlight must not silently move to the item that takes its index.
+    const activeIndex = store.state.activeIndex;
+    if (
+      activeIndex !== null &&
+      !compareItemEquality(
+        previousValues[activeIndex],
+        filteredValues[activeIndex],
+        isItemEqualToValue,
+      )
+    ) {
+      store.set('activeIndex', autoHighlightEnabled && filteredValues.length > 0 ? 0 : null);
     }
-  }, [virtualized, filteredValues, value, isItemEqualToValue, multiple, store, syncVirtualList]);
+    store.context.syncHighlight();
+
+    // Reopening during the exit clears the query while open, which moves the selected item too.
+    store.set(
+      'selectedIndex',
+      findSelectionIndex(filteredValues, value, isItemEqualToValue, multiple),
+    );
+  }, [
+    virtualized,
+    filteredValues,
+    autoHighlightEnabled,
+    value,
+    isItemEqualToValue,
+    multiple,
+    store,
+    syncVirtualList,
+  ]);
 
   // Mounted options find their position among the filtered items by value.
   const getVirtualIndex = React.useMemo(() => {
