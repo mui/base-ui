@@ -224,9 +224,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />
-  if (!filterable) {
-    props.role = 'combobox';
-  }
+  props.role = 'combobox';
 
   const state: SelectTriggerState = {
     ...fieldState,

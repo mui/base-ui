@@ -60,7 +60,7 @@ describe.skipIf(isJSDOM)('<Select.FilterProvider /> with a screen reader press',
 
     fireScreenReaderPress(screen.getByTestId('trigger'));
 
-    const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+    const input = await screen.findByRole('combobox', { name: 'Filter countries' });
     await waitFor(() => {
       expect(input).toHaveFocus();
     });
@@ -90,7 +90,7 @@ describe.skipIf(isJSDOM)('<Select.FilterProvider /> with a screen reader press',
     fireEvent.mouseUp(trigger, { detail: 1 });
     fireEvent.click(trigger, { detail: 1 });
 
-    const input = await screen.findByRole('searchbox', { name: 'Filter countries' });
+    const input = await screen.findByRole('combobox', { name: 'Filter countries' });
     await waitFor(() => {
       expect(input).toHaveFocus();
     });
