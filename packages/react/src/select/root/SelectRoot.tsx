@@ -17,11 +17,7 @@ import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
-import {
-  SelectFloatingContext,
-  SelectRootStoreContext,
-  SelectRootContext,
-} from './SelectRootContext';
+import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -177,6 +173,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           hasScrollArrows: false,
         },
         {
+          getSelection: () => ({ value, multiple, isItemEqualToValue }),
           setValue: NOOP,
           setOpen: NOOP,
           handleScrollArrowVisibility: NOOP,
@@ -453,6 +450,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [itemProps, multiple, disabled, readOnly, isItemEqualToValue],
   );
 
+  // Reconciliation runs in descendant layout effects, before `useSyncedValues` updates the store.
+  store.useContextCallback('getSelection', () => ({ value, multiple, isItemEqualToValue }));
   store.useContextCallback('setValue', setValue);
   store.useContextCallback('setOpen', setOpen);
   store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
@@ -514,19 +513,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   }, [multiple, value, form, name, itemToStringValue, disabled]);
 
-  const handleIsItemEqualToValue = useStableCallback(isItemEqualToValue);
-  const selection = React.useMemo(
-    () => ({ value, multiple, isItemEqualToValue: handleIsItemEqualToValue }),
-    [value, multiple, handleIsItemEqualToValue],
-  );
-
   return (
-    <SelectRootStoreContext.Provider value={store}>
-      <SelectRootContext.Provider value={selection}>
-        <SelectFloatingContext.Provider value={floatingRootStore}>
-          {children}
-        </SelectFloatingContext.Provider>
-      </SelectRootContext.Provider>
+    <SelectRootContext.Provider value={store}>
+      <SelectFloatingContext.Provider value={floatingRootStore}>
+        {children}
+      </SelectFloatingContext.Provider>
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
@@ -597,7 +588,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         suppressHydrationWarning
       />
       {hiddenInputs}
-    </SelectRootStoreContext.Provider>
+    </SelectRootContext.Provider>
   );
 }
 

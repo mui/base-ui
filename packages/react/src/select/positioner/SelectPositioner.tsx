@@ -3,11 +3,7 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  useSelectFloatingContext,
-  useSelectRootStoreContext,
-  useSelectRootContext,
-} from '../root/SelectRootContext';
+import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
@@ -60,13 +56,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...elementProps
   } = componentProps;
 
-  const store = useSelectRootStoreContext();
+  const store = useSelectRootContext();
   const floatingRootStore = useSelectFloatingContext();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const modal = store.useState('modal');
-  const context = useSelectRootContext();
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const triggerElement = store.useState('triggerElement');
@@ -150,13 +145,14 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       const prevSize = prevMapSizeRef.current;
       prevMapSizeRef.current = map.size;
 
+      const { value, multiple, isItemEqualToValue } = store.context.getSelection();
       const eventDetails = createChangeEventDetails(REASONS.none);
 
-      if (prevSize !== 0 && !context.multiple && context.value !== null) {
+      if (prevSize !== 0 && !multiple && value !== null) {
         const selectedValueIndex = findItemIndex(
           store.context.valuesRef.current,
-          context.value,
-          context.isItemEqualToValue,
+          value,
+          isItemEqualToValue,
         );
         if (selectedValueIndex === -1) {
           const initialSelectedValue = store.context.initialValueRef.current;
@@ -165,7 +161,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
             findItemIndex(
               store.context.valuesRef.current,
               initialSelectedValue,
-              context.isItemEqualToValue,
+              isItemEqualToValue,
             ) !== -1;
           const nextValue = hasInitial ? initialSelectedValue : null;
           store.context.setValue(nextValue, eventDetails);
@@ -177,16 +173,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         }
       }
 
-      if (prevSize !== 0 && context.multiple && Array.isArray(context.value)) {
-        const nextValue = context.value.filter(
+      if (prevSize !== 0 && multiple && Array.isArray(value)) {
+        const nextValue = value.filter(
           (selectedItemValue) =>
             findItemIndex(
               store.context.valuesRef.current,
               selectedItemValue,
-              context.isItemEqualToValue,
+              isItemEqualToValue,
             ) !== -1,
         );
-        if (nextValue.length !== context.value.length) {
+        if (nextValue.length !== value.length) {
           store.context.setValue(nextValue, eventDetails);
 
           if (nextValue.length === 0) {

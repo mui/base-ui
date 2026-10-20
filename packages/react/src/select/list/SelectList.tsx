@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { useSelectRootStoreContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
@@ -19,7 +19,7 @@ export const SelectList = React.forwardRef(function SelectList(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const store = useSelectRootStoreContext();
+  const store = useSelectRootContext();
   const multiple = store.useState('multiple');
   const readOnly = store.useState('readOnly');
   const { alignItemWithTriggerActive } = useSelectPositionerContext();

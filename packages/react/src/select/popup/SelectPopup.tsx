@@ -13,7 +13,7 @@ import { platform as floatingPlatform } from '@floating-ui/react-dom';
 import type { ClientRectObject } from '@floating-ui/react-dom';
 import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { useSelectFloatingContext, useSelectRootStoreContext } from '../root/SelectRootContext';
+import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -51,7 +51,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, style, finalFocus, ...elementProps } = componentProps;
 
-  const store = useSelectRootStoreContext();
+  const store = useSelectRootContext();
   const multiple = store.useState('multiple');
   const readOnly = store.useState('readOnly');
   const highlightItemOnHover = store.useState('highlightItemOnHover');

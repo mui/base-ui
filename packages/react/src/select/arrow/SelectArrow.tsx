@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
-import { useSelectRootStoreContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
@@ -19,7 +19,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const store = useSelectRootStoreContext();
+  const store = useSelectRootContext();
   const { side, align, arrowRef, arrowStyles, arrowUncentered, alignItemWithTriggerActive } =
     useSelectPositionerContext();
 

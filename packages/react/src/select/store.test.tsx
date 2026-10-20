@@ -3,7 +3,7 @@ import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { Select } from '@base-ui/react/select';
-import { useSelectRootStoreContext } from './root/SelectRootContext';
+import { useSelectRootContext } from './root/SelectRootContext';
 import type { SelectStore } from './store';
 import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
@@ -16,7 +16,7 @@ describe('select store synchronization', () => {
   const { render } = createRenderer();
 
   function StoreProbe({ storeRef }: { storeRef: { current: SelectStore | null } }) {
-    storeRef.current = useSelectRootStoreContext();
+    storeRef.current = useSelectRootContext();
     return null;
   }
 
@@ -71,7 +71,7 @@ describe('select store synchronization', () => {
     let invoked = false;
 
     function CommandProbe() {
-      const store = useSelectRootStoreContext();
+      const store = useSelectRootContext();
 
       return (
         <div

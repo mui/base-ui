@@ -4,7 +4,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { contains } from '@base-ui/utils/shadowDom';
-import { useSelectRootStoreContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
@@ -63,7 +63,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     disabled: fieldDisabled,
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
-  const store = useSelectRootStoreContext();
+  const store = useSelectRootContext();
   const readOnly = store.useState('readOnly');
   const required = store.useState('required');
   const selectDisabled = store.useState('disabled');

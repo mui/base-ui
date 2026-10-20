@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useSelectRootStoreContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 
@@ -29,7 +29,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
     ...elementProps
   } = componentProps;
 
-  const store = useSelectRootStoreContext();
+  const store = useSelectRootContext();
 
   const value = store.useState('value');
   const items = store.useState('items');

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useSelectRootStoreContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
@@ -50,7 +50,7 @@ export const SelectItem = React.memo(
       textRef,
     });
 
-    const store = useSelectRootStoreContext();
+    const store = useSelectRootContext();
     const {
       props: itemProps,
       multiple,

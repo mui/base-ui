@@ -82,6 +82,8 @@ export type SelectStoreContext = {
   readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   readonly initialValueRef: React.RefObject<any>;
 
+  getSelection: () => Pick<State, 'value' | 'multiple' | 'isItemEqualToValue'>;
+
   // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
