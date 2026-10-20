@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { Metadata, ResolvingMetadata } from 'next';
 import clsx from 'clsx';
 import { Link } from 'docs/src/components/Link';
+import { BLOG_DESCRIPTION, BLOG_TITLE } from './constants';
 import { getPosts } from './posts';
 import { HeadingLink } from '../../../components/HeadingLink';
 
@@ -10,7 +11,10 @@ export default async function BlogPage() {
 
   return (
     <React.Fragment>
-      <h1 className="Text sz-4 bp2:sz-5 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">Notes on interfaces</h1>
+      <h1 className="Text sz-4 bp2:sz-5 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">{BLOG_TITLE}</h1>
+      <a className="Link Text sz-2 bui-gcs-1 bui-gce-9" href="/blog/rss.xml">
+        RSS feed
+      </a>
       <ul className="List bui-d-c">
         {posts.map((post, index) => (
           <li key={post.slug} className="bui-d-c">
@@ -45,21 +49,18 @@ export default async function BlogPage() {
   );
 }
 
-const description = 'Design and engineering notes from the Base UI team.';
-
 export async function generateMetadata(
   _props: unknown,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   return {
     title: 'Blog',
-    description,
-    alternates: { canonical: '/blog' },
+    description: BLOG_DESCRIPTION,
     openGraph: {
       ...(await parent).openGraph,
       type: 'website',
       title: 'Blog',
-      description,
+      description: BLOG_DESCRIPTION,
       url: '/blog',
     },
   };
