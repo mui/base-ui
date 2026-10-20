@@ -156,6 +156,53 @@ describe('<Select.Trigger />', () => {
     });
   });
 
+  it('keeps the popup open when the opening press is released on an item inside a shadow root', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const container = shadowRoot.appendChild(document.createElement('div'));
+
+    try {
+      await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal container={shadowRoot}>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+        { container },
+      );
+
+      const trigger = shadowRoot.querySelector('[data-testid="trigger"]') as HTMLElement;
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(trigger, { button: 0 });
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      // The press is held long enough for the trigger to start watching its release.
+      await act(async () => {
+        await wait(20);
+      });
+
+      const item = shadowRoot.querySelector('[role="option"]') as HTMLElement;
+      fireEvent.mouseUp(item, { button: 0, clientX: 1000, clientY: 1000 });
+      await act(async () => {
+        await wait(20);
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    } finally {
+      await act(async () => {
+        host.remove();
+      });
+    }
+  });
+
   describe('disabled state', () => {
     it('is removed from the tab order when disabled and not rendered as a button', async () => {
       await render(
