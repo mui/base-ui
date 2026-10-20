@@ -42,6 +42,20 @@ export interface CompositeGridNavigationState {
 export type CompositeGridNavigator = (state: CompositeGridNavigationState) => number;
 
 /**
+ * Builds the grid navigation handler for grids whose items each occupy a single cell. It skips the
+ * cell map that `gridNavigation` builds for spanning items, so bundles that only use uniform grids
+ * leave the cell-map helpers out.
+ */
+export function uniformGridNavigation(cols: number): CompositeGridNavigator {
+  return (state) =>
+    getGridNavigatedIndex(state.elementsRef.current, {
+      ...state,
+      cols,
+      prevIndex: state.highlightedIndex > state.maxIndex ? state.minIndex : state.highlightedIndex,
+    });
+}
+
+/**
  * Builds the grid navigation handler passed to `CompositeRoot`/`useCompositeRoot`
  * via the `grid` prop. Importing and calling this is the opt-in for grid
  * navigation: composites that don't pass `grid` never reference the algorithm,
@@ -49,6 +63,10 @@ export type CompositeGridNavigator = (state: CompositeGridNavigationState) => nu
  */
 export function gridNavigation(config: CompositeGridConfig): CompositeGridNavigator {
   const { cols, dense = false, itemSizes } = config;
+
+  if (!itemSizes) {
+    return uniformGridNavigation(cols);
+  }
 
   return (state) => {
     const {
@@ -64,12 +82,7 @@ export function gridNavigation(config: CompositeGridConfig): CompositeGridNaviga
       rtl,
     } = state;
 
-    const sizes =
-      itemSizes ||
-      Array.from({ length: elementsRef.current.length }, () => ({
-        width: 1,
-        height: 1,
-      }));
+    const sizes = itemSizes;
     // Work in hypothetical 1x1 cell indices, then convert back to item indices.
     const cellMap = createGridCellMap(sizes, cols, dense);
     const minGridIndex = cellMap.findIndex(
