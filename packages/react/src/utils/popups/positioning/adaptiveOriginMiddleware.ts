@@ -17,10 +17,8 @@ export const adaptiveOrigin: Middleware = {
     } = state;
 
     const win = ownerWindow(floating);
-    const styles = win.getComputedStyle(floating);
-    const hasTransition = styles.transitionDuration !== '0s' && styles.transitionDuration !== '';
 
-    if (!hasTransition) {
+    if (!hasTransition(floating, win)) {
       return {
         x: rawX,
         y: rawY,
@@ -71,3 +69,41 @@ export const adaptiveOrigin: Middleware = {
     };
   },
 };
+
+function isTransitioned(styles: CSSStyleDeclaration) {
+  return styles.transitionDuration !== '0s' && styles.transitionDuration !== '';
+}
+
+/**
+ * Checks for a transition without the `[data-instant]` styles or the inline `transition: none`
+ * that disable it for a moment.
+ */
+function hasTransition(floating: HTMLElement, win: Window) {
+  const styles = win.getComputedStyle(floating);
+  if (isTransitioned(styles)) {
+    return true;
+  }
+
+  const instant = floating.getAttribute('data-instant');
+  const inlineNone = floating.style.transitionProperty === 'none';
+  if (instant === null && !inlineNone) {
+    return false;
+  }
+
+  // The read above applied all pending styles, so this toggle cannot start a transition.
+  const inlineStyle = floating.style.cssText;
+  if (instant !== null) {
+    floating.removeAttribute('data-instant');
+  }
+  if (inlineNone) {
+    floating.style.removeProperty('transition');
+  }
+  const result = isTransitioned(styles);
+  if (instant !== null) {
+    floating.setAttribute('data-instant', instant);
+  }
+  if (inlineNone) {
+    floating.style.cssText = inlineStyle;
+  }
+  return result;
+}

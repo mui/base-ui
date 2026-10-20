@@ -305,6 +305,19 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
         });
       });
 
+      it('keeps an inline transition-property on the positioner with Viewport', async () => {
+        await render(
+          prepareComponent({
+            viewport: true,
+            positioner: { style: { transitionProperty: 'none' } },
+          }),
+        );
+
+        const positioner = screen.getByTestId('positioner');
+        await waitForPositioned(positioner);
+        expect(positioner.style.transitionProperty).toBe('none');
+      });
+
       it('updates positioning when Viewport mounts and unmounts', async () => {
         function App() {
           const [showViewport, setShowViewport] = React.useState(false);
@@ -352,6 +365,7 @@ export interface PositionerTestProps {
   collisionPadding?: number;
   collisionAvoidance?: CollisionAvoidance | undefined;
   render?: (props: React.HTMLAttributes<HTMLDivElement>, state: unknown) => React.ReactElement;
+  style?: React.CSSProperties;
 }
 
 export interface PositionerTestComponentProps {
@@ -458,11 +472,13 @@ function triggerSwitchTests({
     rootProps,
     keepMounted = false,
     withViewport = false,
+    side = 'right',
   }: {
     handle: ReturnType<typeof createHandle>;
     rootProps?: Record<string, unknown>;
     keepMounted?: boolean;
     withViewport?: boolean;
+    side?: Side;
   }) {
     return (
       <React.Fragment>
@@ -502,7 +518,7 @@ function triggerSwitchTests({
             <Positioner
               data-testid="positioner"
               className="tracking-positioner"
-              side="right"
+              side={side}
               align="start"
             >
               <Popup
@@ -692,6 +708,39 @@ function triggerSwitchTests({
       0,
     );
   });
+
+  it.each([
+    { name: 'initially open', initiallyOpen: true },
+    { name: 'opened from a trigger', initiallyOpen: false },
+  ])(
+    'animates the side axis of a switch to another row with side="top" when $name',
+    async ({ initiallyOpen }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const { user } = await render(
+        <Fixture
+          handle={createHandle()}
+          withViewport
+          side="top"
+          rootProps={{ defaultOpen: initiallyOpen, defaultTriggerId: 'first' }}
+        />,
+      );
+      if (!initiallyOpen) {
+        await activate(user, 'First');
+      }
+      const positioner = await screen.findByTestId('positioner');
+      await waitFor(() => expect(positioner.style.transition).toBe(''));
+      await waitFor(() => expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0));
+
+      await activate(user, 'Second');
+      await waitFor(() => expect(positioner.getAnimations().length).toBeGreaterThan(0));
+
+      expect(
+        positioner
+          .getAnimations()
+          .map((animation) => (animation as CSSTransition).transitionProperty),
+      ).toEqual(expect.arrayContaining([expect.stringMatching(/^(top|bottom)$/)]));
+    },
+  );
 
   it('keeps tracking instant after a canceled trigger switch', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
