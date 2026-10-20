@@ -39,7 +39,7 @@ export default function ExampleVirtualizedSelect() {
           </Select.Trigger>
         </div>
         <Select.Portal>
-          <Select.Positioner className={styles.Positioner} sideOffset={4}>
+          <Select.Positioner className={styles.Positioner} sideOffset={4} align="start">
             <Select.Popup className={styles.Popup}>
               <div className={styles.InputContainer}>
                 <Select.Input
