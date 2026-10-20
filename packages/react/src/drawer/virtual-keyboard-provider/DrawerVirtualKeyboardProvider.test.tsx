@@ -1811,10 +1811,83 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
           expect(touchEnd.defaultPrevented).toBe(true);
           expect(blurSpy).toHaveBeenCalledTimes(1);
-          expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          // iOS 27 only re-presents a natively dismissed keyboard for a refocus of the
+          // already-focused input, so the blur/focus transition is followed by one.
+          expect(focusSpy).toHaveBeenCalledTimes(2);
+          expect(focusSpy).toHaveBeenLastCalledWith({ preventScroll: true });
+          expect(input).toHaveFocus();
         } finally {
           document.elementFromPoint = originalElementFromPoint;
           blurSpy.mockRestore();
+          focusSpy.mockRestore();
+        }
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'refocuses a tapped input after focus moves from another input while the keyboard is closed',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup>
+                    <input data-testid="first" type="text" />
+                    <input data-testid="second" type="text" />
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const first = screen.getByTestId('first');
+        const second = screen.getByTestId('second');
+
+        // The keyboard was dismissed natively, leaving the first field focused.
+        await act(async () => {
+          first.focus();
+        });
+
+        const focusSpy = vi.spyOn(second, 'focus');
+        const onFocus = vi.fn();
+        second.addEventListener('focus', onFocus);
+        const focusedDuringCall: boolean[] = [];
+        focusSpy.mockImplementation(function focus(this: HTMLElement, options?: FocusOptions) {
+          focusedDuringCall.push(document.activeElement === second);
+          HTMLElement.prototype.focus.call(this, options);
+        });
+        const originalElementFromPoint = document.elementFromPoint;
+        document.elementFromPoint = () => second;
+
+        try {
+          fireEvent.touchStart(second, {
+            touches: [createTouch(second, { clientX: 0, clientY: 0 })],
+          });
+
+          const touchEnd = createNativeTouchEnd(second, { clientX: 0, clientY: 0 });
+
+          await act(async () => {
+            second.dispatchEvent(touchEnd);
+            await flushMicrotasks();
+          });
+
+          expect(touchEnd.defaultPrevented).toBe(true);
+          expect(focusedDuringCall).toEqual([false, true]);
+          expect(focusSpy).toHaveBeenLastCalledWith({ preventScroll: true });
+          expect(onFocus).toHaveBeenCalledTimes(1);
+          expect(second).toHaveFocus();
+        } finally {
+          document.elementFromPoint = originalElementFromPoint;
           focusSpy.mockRestore();
         }
       } finally {

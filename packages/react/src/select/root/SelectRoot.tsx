@@ -12,13 +12,11 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  useClick,
-  useDismiss,
-  useFloatingRootContext,
-  useListNavigation,
-  useTypeahead,
-} from '../../floating-ui-react';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
+import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -29,7 +27,10 @@ import type { SelectStoreContext, State as StoreState } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
+import {
+  attachPreventUnmountOnClose,
+  FOCUSABLE_POPUP_PROPS,
+} from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import type { Group } from '../../internals/resolveValueLabel';
@@ -39,11 +40,11 @@ import {
   isSelectedValueDirty,
 } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
+import { getHiddenInputType } from '../../internals/getHiddenInputType';
 
 /**
  * Groups all parts of the select.
@@ -92,6 +93,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     disabled: fieldDisabled,
     validation,
     validationMode,
+    setValidityData,
   } = useFieldRootContext();
 
   const generatedId = useLabelableId({ id });
@@ -349,26 +351,26 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
-  const floatingContext = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     open,
     onOpenChange: setOpen,
     elements: {
-      reference: triggerElement,
-      floating: positionerElement,
+      anchor: triggerElement,
+      positionerElement,
     },
   });
 
   // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
   // user can see the available options and which one is selected. Committing a value is blocked
   // separately in `SelectItem` and in the hidden input's autofill handler.
-  const click = useClick(floatingContext, {
+  const click = useClick(floatingRootStore, {
     enabled: !disabled,
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingContext);
+  const dismiss = useDismiss(floatingRootStore);
 
-  const listNavigation = useListNavigation(floatingContext, {
+  const listNavigation = useListNavigation(floatingRootStore, {
     enabled: !disabled,
     listRef,
     activeIndex,
@@ -385,7 +387,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const typeahead = useTypeahead(floatingContext, {
+  const typeahead = useTypeahead(floatingRootStore, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
     // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
     enabled: !disabled && (open || (!readOnly && !multiple)),
@@ -510,7 +512,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   return (
     <SelectRootContext.Provider value={store}>
-      <SelectFloatingContext.Provider value={floatingContext}>
+      <SelectFloatingContext.Provider value={floatingRootStore}>
         {children}
       </SelectFloatingContext.Provider>
       <input
@@ -570,6 +572,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
         form={form}
         name={hiddenInputName}
+        type={getHiddenInputType(setValidityData !== NOOP, name, autoComplete, required, inputRef)}
         autoComplete={autoComplete}
         value={serializedValue}
         disabled={disabled}

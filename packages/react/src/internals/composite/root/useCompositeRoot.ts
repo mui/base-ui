@@ -6,6 +6,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
@@ -28,7 +29,6 @@ import type { ModifierKey } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import type { CompositeMetadata } from '../list/CompositeList';
 import type { HTMLProps } from '../../types';
-import { getTarget } from '../../../floating-ui-react/utils';
 import type { CompositeGridNavigator } from './gridNavigation';
 
 export interface UseCompositeRootParameters {
