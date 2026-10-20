@@ -1123,6 +1123,150 @@ describe('<Select.FilterProvider><Select.Root/></Select.FilterProvider>', () => 
       );
     });
 
+    it.skipIf(isJSDOM)(
+      'opens at the selected item when reopened during the exit after a filtered selection',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const style = document.createElement('style');
+        style.textContent =
+          '@keyframes select-filter-exit{to{opacity:0}}[role="dialog"][data-ending-style]{animation:select-filter-exit 10s linear}';
+        document.head.appendChild(style);
+        onTestFinished(() => style.remove());
+
+        const { user } = await render(<Virtualized />);
+        const trigger = screen.getByTestId('trigger');
+        const input = await openWithKeyboard(user);
+        await user.keyboard('Item 99');
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(input).toHaveAttribute(
+            'aria-activedescendant',
+            screen.getByRole('option', { name: 'Item 99' }).id,
+          );
+        });
+        await user.keyboard('[Enter]');
+        await waitFor(() => {
+          expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        });
+        expect(screen.getByTestId('value')).toHaveTextContent('Item 99');
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.getByRole('dialog')).toHaveAttribute('data-open');
+        });
+        expect(input).toHaveValue('');
+        await waitFor(() => {
+          expect(input).toHaveAttribute(
+            'aria-activedescendant',
+            screen.getByRole('option', { name: 'Item 99' }).id,
+          );
+        });
+      },
+    );
+
+    describe('when the items change while an item is highlighted', () => {
+      const letters = [
+        { value: 'alpha', label: 'Alpha' },
+        { value: 'beta', label: 'Beta' },
+        { value: 'gamma', label: 'Gamma' },
+      ];
+      const replacements = [
+        { value: 'xylophone', label: 'Xylophone' },
+        { value: 'yellow', label: 'Yellow' },
+      ];
+
+      async function highlightBeta(
+        onItemHighlighted: Select.Root.Props<string, boolean>['onItemHighlighted'],
+        provider?: Partial<Select.FilterProvider.Props>,
+      ) {
+        const onValueChange = vi.fn();
+        const result = await render(
+          <Virtualized
+            root={{ items: letters, onItemHighlighted, onValueChange }}
+            provider={provider}
+          />,
+        );
+        const input = await openWithKeyboard(result.user);
+        await result.user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(input).toHaveAttribute(
+            'aria-activedescendant',
+            screen.getByRole('option', { name: 'Beta' }).id,
+          );
+        });
+        return { ...result, input, onValueChange };
+      }
+
+      it('clears a highlight that another item would take over', async () => {
+        const onItemHighlighted = vi.fn();
+        const { user, setProps, input, onValueChange } = await highlightBeta(onItemHighlighted);
+
+        await setProps({ root: { items: replacements, onItemHighlighted, onValueChange } });
+
+        expect(screen.getByRole('option', { name: 'Yellow' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ index: -1 }),
+        );
+
+        await user.keyboard('[Enter]');
+        expect(onValueChange).not.toHaveBeenCalled();
+      });
+
+      it('reports the cleared highlight when the items empty', async () => {
+        const onItemHighlighted = vi.fn();
+        const { setProps, input, onValueChange } = await highlightBeta(onItemHighlighted);
+        expect(onItemHighlighted).toHaveBeenLastCalledWith('beta', expect.anything());
+
+        await setProps({ root: { items: [], onItemHighlighted, onValueChange } });
+
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+        expect(onItemHighlighted).toHaveBeenLastCalledWith(
+          undefined,
+          expect.objectContaining({ index: -1 }),
+        );
+      });
+
+      it("moves the highlight to the first item with autoHighlight 'always'", async () => {
+        const onItemHighlighted = vi.fn();
+        const provider = { autoHighlight: 'always' as const };
+        const { setProps, input, onValueChange } = await highlightBeta(onItemHighlighted, provider);
+
+        await setProps({
+          root: { items: replacements, onItemHighlighted, onValueChange },
+          provider,
+        });
+
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Xylophone' }).id,
+        );
+        expect(onItemHighlighted).toHaveBeenLastCalledWith('xylophone', expect.anything());
+      });
+
+      it('keeps the highlight when the highlighted item stays in place', async () => {
+        const onItemHighlighted = vi.fn();
+        const { setProps, input, onValueChange } = await highlightBeta(onItemHighlighted);
+
+        await setProps({
+          root: {
+            items: [...letters, { value: 'delta', label: 'Delta' }],
+            onItemHighlighted,
+            onValueChange,
+          },
+        });
+
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Beta' }).id,
+        );
+      });
+    });
+
     it('keeps the toggled item highlighted after a multiple select clears the query', async () => {
       const { user } = await render(<Virtualized root={{ multiple: true }} />);
       await user.click(screen.getByTestId('trigger'));
