@@ -3,6 +3,7 @@ import { describe, expect, it, onTestFinished, vi } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import type { UserEvent } from '@testing-library/user-event';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM, waitForPositioned, waitSingleFrame } from '#test-utils';
 import type { DetachedTriggersTestConfig } from './detachedTriggersConformanceTests';
@@ -812,36 +813,44 @@ function triggerSwitchTests({
               await activate(user, 'First');
             }
             const positioner = await screen.findByTestId('positioner');
+            const popup = screen.getByTestId('popup');
             await waitFor(() =>
               expect(positioner.style.transition).toBe(positionerStyling === 'style' ? 'none' : ''),
             );
-            await waitFor(() =>
-              expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0),
-            );
+            // The Positioner style callback keeps transition: none after mounting, so use the
+            // Popup to wait for the mount override to clear before checking its enter transition.
+            await waitFor(() => expect(popup.style.transition).toBe(''));
+            await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
             expect(positioner).toHaveAttribute('data-side', side);
             expect(positioner).toHaveAttribute('data-instant');
-            const popup = screen.getByTestId('popup');
             expect(popup.getBoundingClientRect()[dimension]).toBe(initialSize);
             expect(popup.getBoundingClientRect()[popupEdge]).toBeCloseTo(
               screen.getByText('First').getBoundingClientRect()[triggerEdge],
               0,
             );
 
-            await activate(user, 'Second');
-            await waitFor(() => expect(positioner.getAnimations().length).toBeGreaterThan(0));
+            // Record both transitions before switching, since either can finish before polling
+            // resumes on a busy browser worker.
+            const positionerTransitions: string[] = [];
+            const popupTransitions: string[] = [];
+            positioner.addEventListener('transitionrun', (event) => {
+              if (getTarget(event) === positioner) {
+                positionerTransitions.push(event.propertyName);
+              }
+            });
+            popup.addEventListener('transitionrun', (event) => {
+              if (getTarget(event) === popup) {
+                popupTransitions.push(event.propertyName);
+              }
+            });
 
-            expect(
-              positioner
-                .getAnimations()
-                .map((animation) => (animation as CSSTransition).transitionProperty),
-            ).toEqual(expect.arrayContaining([expect.stringMatching(transitionProperty)]));
+            await activate(user, 'Second');
             await waitFor(() =>
-              expect(
-                popup
-                  .getAnimations()
-                  .map((animation) => (animation as CSSTransition).transitionProperty),
-              ).toContain(dimension),
+              expect(positionerTransitions).toEqual(
+                expect.arrayContaining([expect.stringMatching(transitionProperty)]),
+              ),
             );
+            await waitFor(() => expect(popupTransitions).toContain(dimension));
             await waitFor(() => expect(popup.getBoundingClientRect()[dimension]).toBe(finalSize));
             await waitFor(() => expect(positioner.getAnimations()).toHaveLength(0));
             expect(popup.getBoundingClientRect()[popupEdge]).toBeCloseTo(
