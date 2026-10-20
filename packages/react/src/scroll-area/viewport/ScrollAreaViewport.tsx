@@ -68,30 +68,6 @@ function removeCSSVariableInheritance() {
   scrollAreaOverflowVarsRegistered = true;
 }
 
-type ThumbMeasurement = () => (() => void) | undefined;
-
-// Measurements scheduled in the same task, shared by every Scroll Area on the page.
-const pendingThumbMeasurements = new Set<ThumbMeasurement>();
-
-/**
- * Runs `measure` in a microtask together with every other measurement scheduled before it: all of
- * them read layout first, then all apply their writes. Interleaving reads and writes across
- * instances would force a synchronous layout per Scroll Area when many mount at once.
- */
-function scheduleThumbMeasurement(measure: ThumbMeasurement) {
-  if (pendingThumbMeasurements.size === 0) {
-    queueMicrotask(flushThumbMeasurements);
-  }
-  pendingThumbMeasurements.add(measure);
-}
-
-function flushThumbMeasurements() {
-  const measurements = Array.from(pendingThumbMeasurements);
-  pendingThumbMeasurements.clear();
-  const writes = measurements.map((measure) => measure());
-  writes.forEach((write) => write?.());
-}
-
 /**
  * The actual scrollable container of the scroll area.
  * Renders a `<div>` element.
@@ -139,11 +115,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   const scrollEndTimeout = useTimeout();
   const waitForAnimationsTimeout = useTimeout();
 
-  /**
-   * Reads the viewport's layout and returns the writes that apply it, so callers can read many
-   * Scroll Areas before writing to any.
-   */
-  const measureThumbPosition = useStableCallback((): (() => void) | undefined => {
+  const computeThumbPosition = useStableCallback(() => {
     const viewportEl = viewportRef.current;
     const scrollbarYEl = scrollbarYRef.current;
     const scrollbarXEl = scrollbarXRef.current;
@@ -152,7 +124,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const cornerEl = cornerRef.current;
 
     if (!viewportEl) {
-      return undefined;
+      return;
     }
 
     const scrollableContentHeight = viewportEl.scrollHeight;
@@ -169,8 +141,12 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     lastMeasuredViewportMetrics[2] = viewportWidth;
     lastMeasuredViewportMetrics[3] = scrollableContentWidth;
 
+    if (isFirstMeasurement) {
+      setHasMeasuredScrollbar(true);
+    }
+
     if (scrollableContentHeight === 0 || scrollableContentWidth === 0) {
-      return isFirstMeasurement ? () => setHasMeasuredScrollbar(true) : undefined;
+      return;
     }
 
     const nextHiddenState = getHiddenState(viewportEl);
@@ -230,90 +206,78 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const clampedNextWidth = Math.max(MIN_THUMB_SIZE, maxNextWidth * ratioX);
     const clampedNextHeight = Math.max(MIN_THUMB_SIZE, maxNextHeight * ratioY);
 
-    const maxThumbOffsetY = scrollbarYEl
-      ? scrollbarYEl.offsetHeight - clampedNextHeight - scrollbarYOffset - thumbYOffset
-      : 0;
-    const maxThumbOffsetX = scrollbarXEl
-      ? scrollbarXEl.offsetWidth - clampedNextWidth - scrollbarXOffset - thumbXOffset
-      : 0;
+    setThumbSize((prevSize) =>
+      pickState(prevSize, { width: clampedNextWidth, height: clampedNextHeight }),
+    );
 
-    return () => {
-      if (isFirstMeasurement) {
-        setHasMeasuredScrollbar(true);
-      }
+    // Handle Y (vertical) scroll
+    if (scrollbarYEl && thumbYEl) {
+      const maxThumbOffsetY =
+        scrollbarYEl.offsetHeight - clampedNextHeight - scrollbarYOffset - thumbYOffset;
 
-      setThumbSize((prevSize) =>
-        pickState(prevSize, { width: clampedNextWidth, height: clampedNextHeight }),
+      const thumbOffsetY = applyOverscrollThumb(
+        thumbYEl,
+        ScrollAreaScrollbarCssVars.scrollAreaThumbHeight,
+        scrollTop,
+        maxScrollTop,
+        scrollableContentHeight,
+        clampedNextHeight,
+        maxThumbOffsetY,
       );
+      thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
+    }
 
-      // Handle Y (vertical) scroll
-      if (scrollbarYEl && thumbYEl) {
-        const thumbOffsetY = applyOverscrollThumb(
-          thumbYEl,
-          ScrollAreaScrollbarCssVars.scrollAreaThumbHeight,
-          scrollTop,
-          maxScrollTop,
-          scrollableContentHeight,
-          clampedNextHeight,
-          maxThumbOffsetY,
-        );
-        thumbYEl.style.transform = `translate3d(0,${thumbOffsetY}px,0)`;
-      }
+    // Handle X (horizontal) scroll
+    if (scrollbarXEl && thumbXEl) {
+      const maxThumbOffsetX =
+        scrollbarXEl.offsetWidth - clampedNextWidth - scrollbarXOffset - thumbXOffset;
+      // RTL scrolls from 0 down to `-maxScrollLeft`; measure from the inline start edge so the
+      // overscroll math is direction-agnostic, then flip the resulting offset back below.
+      const scrollFromStart = direction === 'rtl' ? -scrollLeft : scrollLeft;
 
-      // Handle X (horizontal) scroll
-      if (scrollbarXEl && thumbXEl) {
-        // RTL scrolls from 0 down to `-maxScrollLeft`; measure from the inline start edge so the
-        // overscroll math is direction-agnostic, then flip the resulting offset back below.
-        const scrollFromStart = direction === 'rtl' ? -scrollLeft : scrollLeft;
+      const offsetX = applyOverscrollThumb(
+        thumbXEl,
+        ScrollAreaScrollbarCssVars.scrollAreaThumbWidth,
+        scrollFromStart,
+        maxScrollLeft,
+        scrollableContentWidth,
+        clampedNextWidth,
+        maxThumbOffsetX,
+      );
+      thumbXEl.style.transform = `translate3d(${direction === 'rtl' ? -offsetX : offsetX}px,0,0)`;
+    }
 
-        const offsetX = applyOverscrollThumb(
-          thumbXEl,
-          ScrollAreaScrollbarCssVars.scrollAreaThumbWidth,
-          scrollFromStart,
-          maxScrollLeft,
-          scrollableContentWidth,
-          clampedNextWidth,
-          maxThumbOffsetX,
-        );
-        thumbXEl.style.transform = `translate3d(${direction === 'rtl' ? -offsetX : offsetX}px,0,0)`;
-      }
+    const overflowMetricsPx = [
+      scrollLeftFromStart,
+      scrollLeftFromEnd,
+      scrollTopFromStart,
+      scrollTopFromEnd,
+    ];
 
-      const overflowMetricsPx = [
-        scrollLeftFromStart,
-        scrollLeftFromEnd,
-        scrollTopFromStart,
-        scrollTopFromEnd,
-      ];
+    OVERFLOW_EDGE_VARS.forEach((cssVar, index) => {
+      viewportEl.style.setProperty(cssVar, `${overflowMetricsPx[index]}px`);
+    });
 
-      OVERFLOW_EDGE_VARS.forEach((cssVar, index) => {
-        viewportEl.style.setProperty(cssVar, `${overflowMetricsPx[index]}px`);
-      });
+    if (cornerEl) {
+      // Bail when the size is unchanged (like `setThumbSize` above); otherwise a
+      // fresh object literal on every scroll frame rebuilds the root context and
+      // re-renders every scroll-area part.
+      // `nextCornerWidth`/`nextCornerHeight` stay 0 when either scrollbar is hidden.
+      setCornerSize((prevSize) =>
+        pickState(prevSize, { width: nextCornerWidth, height: nextCornerHeight }),
+      );
+    }
 
-      if (cornerEl) {
-        // Bail when the size is unchanged (like `setThumbSize` above); otherwise a
-        // fresh object literal on every scroll frame rebuilds the root context and
-        // re-renders every scroll-area part.
-        // `nextCornerWidth`/`nextCornerHeight` stay 0 when either scrollbar is hidden.
-        setCornerSize((prevSize) =>
-          pickState(prevSize, { width: nextCornerWidth, height: nextCornerHeight }),
-        );
-      }
+    setHiddenState((prevState) => pickState(prevState, nextHiddenState));
 
-      setHiddenState((prevState) => pickState(prevState, nextHiddenState));
-
-      const nextOverflowEdges = {
-        xStart: !scrollbarXHidden && scrollLeftFromStart > overflowEdgeThreshold.xStart,
-        xEnd: !scrollbarXHidden && scrollLeftFromEnd > overflowEdgeThreshold.xEnd,
-        yStart: !scrollbarYHidden && scrollTopFromStart > overflowEdgeThreshold.yStart,
-        yEnd: !scrollbarYHidden && scrollTopFromEnd > overflowEdgeThreshold.yEnd,
-      };
-
-      setOverflowEdges((prev) => pickState(prev, nextOverflowEdges));
+    const nextOverflowEdges = {
+      xStart: !scrollbarXHidden && scrollLeftFromStart > overflowEdgeThreshold.xStart,
+      xEnd: !scrollbarXHidden && scrollLeftFromEnd > overflowEdgeThreshold.xEnd,
+      yStart: !scrollbarYHidden && scrollTopFromStart > overflowEdgeThreshold.yStart,
+      yEnd: !scrollbarYHidden && scrollTopFromEnd > overflowEdgeThreshold.yEnd,
     };
-  });
 
-  const computeThumbPosition = useStableCallback(() => {
-    measureThumbPosition()?.();
+    setOverflowEdges((prev) => pickState(prev, nextOverflowEdges));
   });
 
   useIsoLayoutEffect(() => {
@@ -323,9 +287,9 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   useIsoLayoutEffect(() => {
     // Wait for scrollbar and thumb refs after hidden-state toggles, refresh math on direction
     // flips, and re-evaluate overflow edges when the threshold changes.
-    scheduleThumbMeasurement(measureThumbPosition);
+    queueMicrotask(computeThumbPosition);
   }, [
-    measureThumbPosition,
+    computeThumbPosition,
     hiddenState,
     direction,
     overflowEdgeThreshold.xStart,
