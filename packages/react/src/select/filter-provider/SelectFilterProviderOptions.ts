@@ -3,7 +3,7 @@ import type { SelectFilterProvider } from './SelectFilterProvider';
 /** The filtering props of `Select.FilterProvider`, applied to the root directly inside it. */
 export interface SelectFilterProviderOptions {
   /**
-   * Filter function used to match items against the query. Receives each item's `label` (or its
+   * Function used to match items against the query. Receives each item's `label` (or its
    * rendered text) and the trimmed query, and keeps the item when it returns `true`.
    * By default, items match when they contain the query, ignoring case, accents, and punctuation.
    * Pass `null` when rendering filtered items yourself.
@@ -15,9 +15,9 @@ export interface SelectFilterProviderOptions {
    * - `'always'`: highlight it even when the query is empty.
    *
    * Opening the select from the keyboard highlights the selected item either way, or, when none
-   * is selected, the first item (the last with ArrowUp). With either value, the arrow keys wrap within the list rather
-   * than returning to the input, and with `'always'` a pointer highlight stays when the pointer
-   * leaves.
+   * is selected, the first item (the last with ArrowUp). With either value, the arrow keys wrap
+   * within the list rather than returning to the input, and with `'always'` a pointer highlight
+   * stays when the pointer leaves.
    * @default false
    */
   autoHighlight?: boolean | 'always' | undefined;

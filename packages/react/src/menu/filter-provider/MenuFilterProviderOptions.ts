@@ -3,7 +3,7 @@ import type { MenuFilterProvider } from './MenuFilterProvider';
 /** The filtering props of `Menu.FilterProvider`, applied to the root directly inside it. */
 export interface MenuFilterProviderOptions {
   /**
-   * Filter function used to match items against the query. Receives each item's `label` (or its
+   * Function used to match items against the query. Receives each item's `label` (or its
    * rendered text) and the trimmed query, and keeps the item when it returns `true`.
    * By default, items match when they contain the query, ignoring case, accents, and punctuation.
    * Pass `null` when rendering filtered items yourself.

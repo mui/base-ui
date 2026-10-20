@@ -49,7 +49,7 @@ export function SelectFilterRoot<Value, Multiple extends boolean | undefined = f
         {...otherProps}
         onOpenChange={handleOpenChange}
         onValueChange={handleValueChange}
-        virtualFocus
+        filterable
         allowEscape={!autoHighlight}
         resetOnPointerLeave={autoHighlight !== 'always'}
       >

@@ -19,6 +19,10 @@ export function useSelectFilterKeyDown(hasValue: boolean) {
   const store = useSelectRootContext();
 
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    // Like a plain select, ignore keys while the popup animates out with the input still focused.
+    if (!store.state.open) {
+      return;
+    }
     const activeItem = store.state.highlightedItem;
     const action = getFilterKeyAction(event, {
       orientation: 'vertical',

@@ -130,7 +130,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, store, timeoutMouseDown, selectedDelayTimeout]);
 
-  const { virtualFocus } = store.context;
+  const { filterable } = store.context;
 
   const useFilterTriggerProps = useSelectFilterImpl()?.useTriggerProps ?? useUnfilteredTriggerProps;
   const filterTriggerProps = useFilterTriggerProps();
@@ -161,7 +161,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         // the items before `open === true`. We could sync those cycles better
         // without a timeout, but this is enough for now. A filterable select has no
         // closed-trigger typeahead to serve, so its popup mounts on open only.
-        if (!virtualFocus) {
+        if (!filterable) {
           timeoutFocus.start(0, () => {
             store.set('forceMounted', true);
           });
@@ -224,7 +224,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />
-  if (!virtualFocus) {
+  if (!filterable) {
     props.role = 'combobox';
   }
 

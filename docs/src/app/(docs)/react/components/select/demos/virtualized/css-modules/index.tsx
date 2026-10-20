@@ -5,15 +5,12 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import styles from './index.module.css';
 
 export default function ExampleVirtualizedSelect() {
-  const [open, setOpen] = React.useState(false);
   const virtualizerRef = React.useRef<Virtualizer | null>(null);
 
   return (
     <Select.FilterProvider virtualized>
       <Select.Root
         items={virtualizedItems}
-        open={open}
-        onOpenChange={setOpen}
         onItemHighlighted={(value, { reason, index }) => {
           const virtualizer = virtualizerRef.current;
 
@@ -53,7 +50,7 @@ export default function ExampleVirtualizedSelect() {
               </div>
               <Select.Empty className={styles.Empty}>No items found.</Select.Empty>
               <Select.List className={styles.List}>
-                <VirtualizedList open={open} virtualizerRef={virtualizerRef} />
+                <VirtualizedList virtualizerRef={virtualizerRef} />
               </Select.List>
             </Select.Popup>
           </Select.Positioner>
@@ -64,10 +61,8 @@ export default function ExampleVirtualizedSelect() {
 }
 
 function VirtualizedList({
-  open,
   virtualizerRef,
 }: {
-  open: boolean;
   virtualizerRef: React.RefObject<Virtualizer | null>;
 }) {
   const filteredItems = Select.useFilteredItems<VirtualizedItem>();
@@ -75,7 +70,6 @@ function VirtualizedList({
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
   const virtualizer = useVirtualizer({
-    enabled: open,
     count: filteredItems.length,
     getScrollElement: () => scrollElementRef.current,
     estimateSize: () => 28,
