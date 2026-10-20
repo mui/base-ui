@@ -47,12 +47,18 @@ export type CompositeGridNavigator = (state: CompositeGridNavigationState) => nu
  * leave the cell-map helpers out.
  */
 export function uniformGridNavigation(cols: number): CompositeGridNavigator {
-  return (state) =>
-    getGridNavigatedIndex(state.elementsRef.current, {
+  return (state) => {
+    // Every item is disabled, so there is no cell to move or loop to.
+    if (state.minIndex > state.maxIndex) {
+      return state.highlightedIndex;
+    }
+
+    return getGridNavigatedIndex(state.elementsRef.current, {
       ...state,
       cols,
       prevIndex: state.highlightedIndex > state.maxIndex ? state.minIndex : state.highlightedIndex,
     });
+  };
 }
 
 /**
