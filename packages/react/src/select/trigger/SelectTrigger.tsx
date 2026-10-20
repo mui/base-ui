@@ -24,6 +24,7 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../internals/useAnchorPositioning';
 import * as SelectTriggerDataAttributes from './SelectTriggerDataAttributes';
+import { useSelectFilterImpl, useUnfilteredTriggerProps } from '../filter-root/SelectFilterContext';
 
 const SELECTED_DELAY = 400;
 
@@ -129,6 +130,11 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, store, timeoutMouseDown, selectedDelayTimeout]);
 
+  const { virtualFocus } = store.context;
+
+  const useFilterTriggerProps = useSelectFilterImpl()?.useTriggerProps ?? useUnfilteredTriggerProps;
+  const filterTriggerProps = useFilterTriggerProps();
+
   const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
@@ -153,10 +159,13 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
         // Saves a re-render on initial click: `forceMounted === true` mounts
         // the items before `open === true`. We could sync those cycles better
-        // without a timeout, but this is enough for now.
-        timeoutFocus.start(0, () => {
-          store.set('forceMounted', true);
-        });
+        // without a timeout, but this is enough for now. A filterable select has no
+        // closed-trigger typeahead to serve, so its popup mounts on open only.
+        if (!virtualFocus) {
+          timeoutFocus.start(0, () => {
+            store.set('forceMounted', true);
+          });
+        }
       },
       onBlur(event) {
         // If focus is moving into the popup, don't count it as a blur.
@@ -207,6 +216,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         });
       },
     },
+    filterTriggerProps,
     elementProps,
     getButtonProps,
   );
@@ -214,7 +224,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />
-  props.role = 'combobox';
+  if (!virtualFocus) {
+    props.role = 'combobox';
+  }
 
   const state: SelectTriggerState = {
     ...fieldState,

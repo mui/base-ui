@@ -9,131 +9,11 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { MenuRoot } from '../root/MenuRoot';
 import { stopEvent } from '../../utils/popups/event';
 import { getMaxListIndex, getMinListIndex } from '../../internals/composite/listIndex';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
-import {
-  isCrossOrientationCloseKey,
-  isCrossOrientationOpenKey,
-  isMainOrientationKey,
-} from '../../utils/popups/interactions/useListNavigation';
-
-export type MenuFilterKeyAction =
-  /** Native text editing in the input; list navigation and parent handlers stay out of it. */
-  | 'edit'
-  /** The menu's list navigation handles the key. */
-  | 'navigate'
-  /** A horizontal list is entered from the input with a vertical arrow. */
-  | 'enter-list'
-  /** The highlighted item handles the key, which opens or closes its submenu. */
-  | 'submenu'
-  /** The highlighted item is activated. */
-  | 'activate'
-  /** The key does nothing, not even its default action. */
-  | 'block'
-  /** The popup closes and focus returns to where it came from. */
-  | 'close'
-  /** The key belongs to an IME composition or leaves the popup (Tab). */
-  | 'ignore';
-
-export interface MenuFilterKeyContext {
-  orientation: MenuRoot.Orientation;
-  rtl: boolean;
-  /** Whether an item is highlighted. */
-  hasActiveItem: boolean;
-  /** Whether the highlighted item opens a submenu. */
-  activeItemOpensSubmenu: boolean;
-  /** Whether the input has text. */
-  hasValue: boolean;
-  /** Whether the caret is collapsed at the start of the text. */
-  caretAtStart: boolean;
-  /** Whether the caret is collapsed at the end of the text. */
-  caretAtEnd: boolean;
-}
-
-/**
- * Decides what a key does while the filter input owns the keyboard.
- */
-export function getMenuFilterKeyAction(
-  event: React.KeyboardEvent,
-  context: MenuFilterKeyContext,
-): MenuFilterKeyAction {
-  const {
-    orientation,
-    rtl,
-    hasActiveItem,
-    activeItemOpensSubmenu,
-    hasValue,
-    caretAtStart,
-    caretAtEnd,
-  } = context;
-  const { key } = event;
-  // Enter that commits an IME composition belongs to the input, not the list.
-  if (event.which === 229) {
-    return 'ignore';
-  }
-  if (key === 'Tab') {
-    return event.shiftKey ? 'close' : 'ignore';
-  }
-  if (key === 'Enter') {
-    return hasActiveItem ? 'activate' : 'navigate';
-  }
-
-  const isArrow = key.startsWith('Arrow');
-  const isBoundary = key === 'Home' || key === 'End';
-
-  // Modified arrows and boundary keys are text-editing commands (extend the selection, move by
-  // word or to a text boundary), like a modified character.
-  if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
-    return isArrow || isBoundary || key.length === 1 ? 'edit' : 'navigate';
-  }
-  // Space types into a non-empty input, and otherwise acts on the highlighted item.
-  if (key === ' ' && !hasValue) {
-    return hasActiveItem ? 'activate' : 'block';
-  }
-  // Characters stay out of parent handlers such as typeahead.
-  if (key.length === 1) {
-    return 'edit';
-  }
-  // Home and End move the caret while the input has text, and jump to the ends of the list
-  // otherwise once an item is highlighted.
-  if (isBoundary) {
-    return hasActiveItem && !hasValue ? 'navigate' : 'edit';
-  }
-  if (!isArrow) {
-    return 'navigate';
-  }
-
-  if (isMainOrientationKey(key, orientation)) {
-    // Left and Right move the caret of a non-empty input while nothing is highlighted.
-    return orientation === 'horizontal' && !hasActiveItem && hasValue ? 'edit' : 'navigate';
-  }
-
-  const isOpenKey = isCrossOrientationOpenKey(key, orientation, rtl);
-
-  if (orientation === 'vertical') {
-    // Left and Right move the caret within the text. Past its edge they act as they would in an
-    // empty input: a highlighted submenu trigger takes them, and otherwise they can close a
-    // submenu.
-    if (hasValue && !(isOpenKey ? caretAtEnd : caretAtStart)) {
-      return 'edit';
-    }
-    return activeItemOpensSubmenu ? 'submenu' : 'navigate';
-  }
-
-  // A highlighted submenu trigger takes the cross-axis keys to open or close its submenu.
-  if (
-    activeItemOpensSubmenu &&
-    (isOpenKey || isCrossOrientationCloseKey(key, orientation, rtl, false))
-  ) {
-    return 'submenu';
-  }
-  if (!hasActiveItem) {
-    return 'enter-list';
-  }
-  return hasValue ? 'edit' : 'navigate';
-}
+import { isMainOrientationKey } from '../../utils/popups/interactions/useListNavigation';
+import { getFilterKeyAction } from '../../filter-dropdown/utils/getFilterKeyAction';
 
 /**
  * Routes keys for a filterable menu's input, which holds real focus while the list is navigated
@@ -155,12 +35,13 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
     const activeItem = store.state.highlightedItem;
     const input = store.context.virtualFocusRef?.current as HTMLInputElement | null | undefined;
     const caretCollapsed = input != null && input.selectionStart === input.selectionEnd;
-    const action = getMenuFilterKeyAction(event, {
+    const action = getFilterKeyAction(event, {
       orientation,
       rtl: direction === 'rtl',
       hasActiveItem: activeItem != null,
       activeItemOpensSubmenu: activeItem?.hasAttribute('aria-haspopup') ?? false,
       hasValue,
+      activateOnSpace: true,
       caretAtStart: caretCollapsed && input.selectionStart === 0,
       caretAtEnd: caretCollapsed && input.selectionEnd === input.value.length,
     });

@@ -16,6 +16,7 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 import type userEvent from '@testing-library/user-event';
 import {
   createRenderer,
+  filterablePopupConformanceTests,
   firePointer,
   isJSDOM,
   resetBrowserPointer,
@@ -84,6 +85,30 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
     });
     expect(input).toHaveFocus();
+  });
+
+  filterablePopupConformanceTests({
+    render,
+    itemRole: 'menuitem',
+    createComponent: (props) => (
+      <Menu.FilterProvider>
+        <Menu.Root {...props.rootProps}>
+          <Menu.Trigger data-testid="trigger">Letters</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup {...props.popupProps}>
+                <Menu.Input aria-label="Filter" onFocus={props.onInputFocus} />
+                <Menu.List {...props.listProps}>
+                  <Menu.Item>Alpha</Menu.Item>
+                  <Menu.Item>Beta</Menu.Item>
+                  <Menu.Item>Gamma</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>
+    ),
   });
 
   describe('opening with a query', () => {
@@ -2130,56 +2155,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         'custom-trigger',
       );
       expect(screen.getByRole('menu')).toHaveAttribute('aria-labelledby', 'custom-trigger');
-    });
-
-    it('uses an explicit popup label instead of the trigger label', async () => {
-      const { user } = await render(
-        <Menu.FilterProvider>
-          <Menu.Root>
-            <Menu.Trigger>Fruit</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup aria-label="Available commands">
-                  <Menu.Input aria-label="Filter fruit" />
-                  <Menu.List>
-                    <Menu.Item>Apple</Menu.Item>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </Menu.FilterProvider>,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'Fruit' }));
-
-      const popup = await screen.findByRole('dialog', { name: 'Available commands' });
-      expect(popup).not.toHaveAttribute('aria-labelledby');
-    });
-
-    it('uses an explicit label from the popup render element', async () => {
-      const { user } = await render(
-        <Menu.FilterProvider>
-          <Menu.Root>
-            <Menu.Trigger>Fruit</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup render={<section aria-label="Available commands" />}>
-                  <Menu.Input aria-label="Filter fruit" />
-                  <Menu.List>
-                    <Menu.Item>Apple</Menu.Item>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </Menu.FilterProvider>,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'Fruit' }));
-
-      const popup = await screen.findByRole('dialog', { name: 'Available commands' });
-      expect(popup).not.toHaveAttribute('aria-labelledby');
     });
 
     it('releases a popup id override when the prop is removed', async () => {
@@ -5344,30 +5319,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       const trigger = screen.getByRole('button', { name: 'Actions' });
       expect(screen.getByRole('menu')).toHaveAttribute('aria-labelledby', trigger.id);
-    });
-
-    it('keeps a list label supplied through a render element', async () => {
-      await render(
-        <Menu.FilterProvider>
-          <Menu.Root defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Input aria-label="Filter actions" />
-                  <Menu.List render={<div aria-label="Commands" />}>
-                    <Menu.Item>Rename</Menu.Item>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>
-        </Menu.FilterProvider>,
-      );
-
-      const list = screen.getByRole('menu');
-      expect(list).toHaveAttribute('aria-label', 'Commands');
-      expect(list).not.toHaveAttribute('aria-labelledby');
     });
 
     it('omits aria-controls when the list renders with an explicitly empty id', async () => {

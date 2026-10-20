@@ -17,3 +17,11 @@ export { SelectScrollUpArrow as ScrollUpArrow } from './scroll-up-arrow/SelectSc
 export { SelectGroup as Group } from './group/SelectGroup';
 export { SelectGroupLabel as GroupLabel } from './group-label/SelectGroupLabel';
 export { SelectSeparator as Separator } from './separator/SelectSeparator';
+
+// Filtering. The provider is the only part that bundles the filter implementation.
+export { SelectFilterProvider as FilterProvider } from './filter-provider/SelectFilterProvider';
+export { SelectInput as Input } from './input/SelectInput';
+export { SelectClear as Clear } from './clear/SelectClear';
+export { SelectEmpty as Empty } from './empty/SelectEmpty';
+export { getFilter as useFilter } from '../internals/filter';
+export { useFilteredItems } from './filter-root/SelectFilteredItemsContext';

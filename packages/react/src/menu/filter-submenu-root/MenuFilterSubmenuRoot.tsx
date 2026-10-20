@@ -11,7 +11,7 @@ import type { MenuRoot } from '../root/MenuRoot';
 import type { MenuFilterProviderOptions } from '../filter-provider/MenuFilterProviderOptions';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuFilterDropdown } from '../filter-root/MenuFilterDropdown';
-import { isKeyboardOpen } from '../utils/isKeyboardOpen';
+import { isKeyboardOpen } from '../../utils/isKeyboardOpen';
 import { useMenuFilterRoot } from '../filter-root/useMenuFilterRoot';
 import type { BaseUIEvent } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';

@@ -41,6 +41,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     getActiveIndex,
     setActiveIndex,
     focusOwnerRef: focusOwnerRefProp,
+    itemCount = null,
   } = props;
 
   const parentItemContext = React.useContext(FilterDropdownItemContext);
@@ -76,6 +77,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       store.set('registeredItemCount', liveItems.size);
     };
   });
+
+  store.useSyncedValue('itemCount', itemCount);
 
   const fallbackFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const lastFilterQueryRef = React.useRef<string | null>(null);
@@ -303,6 +306,11 @@ export interface FilterDropdownRootProps {
    * The host's ref for the input, which holds real focus while the list is navigated virtually.
    */
   focusOwnerRef?: React.RefObject<HTMLElement | null> | undefined;
+  /**
+   * The number of matching items when the list mounts only some of them, such as a virtualized
+   * list. Decides whether the list is empty in place of the mounted items.
+   */
+  itemCount?: number | null | undefined;
 }
 
 export namespace FilterDropdownRoot {
