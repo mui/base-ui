@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useBaseUIFloating } from '../../src/utils/popups/positioning/useFloating';
-import { useFloatingRootContext } from '../../src/utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../src/utils/popups/floating-root/useFloatingRootStore';
 import type { FloatingRootStore } from '../../src/utils/popups/floating-root/FloatingRootStore';
 import type {
   NarrowedElement,
@@ -17,10 +17,16 @@ import type {
  * only the ported Floating UI tests use this.
  */
 export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
-  const internalStore = useFloatingRootContext(options);
-  // The ported Floating UI tests only pass stores created by `useFloatingRootContext`.
-  const store = (options.rootContext as FloatingRootStore | undefined) || internalStore;
-  const domReferenceElement = store.useState('domReferenceElement');
+  const internalStore = useFloatingRootStore({
+    ...options,
+    elements: {
+      anchor: options.elements?.reference as Element | null | undefined,
+      positionerElement: options.elements?.floating,
+    },
+  });
+  // The ported Floating UI tests only pass stores created by `useFloatingRootStore`.
+  const store = (options.rootStore as FloatingRootStore | undefined) || internalStore;
+  const anchorElement = store.useState('anchorElement');
 
   const [localDomReference, setLocalDomReference] = React.useState<
     NarrowedElement<ReferenceType> | null | undefined
@@ -34,16 +40,15 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     : null;
 
   const syncedFloatingElement =
-    localFloatingElement === undefined ? store.state.floatingElement : localFloatingElement;
+    localFloatingElement === undefined ? store.state.positionerElement : localFloatingElement;
 
-  store.useSyncedValue('referenceElement', localDomReference ?? null);
   store.useSyncedValue(
-    'domReferenceElement',
-    localDomReference === undefined ? domReferenceElement : localDomReferenceElement,
+    'anchorElement',
+    localDomReference === undefined ? anchorElement : localDomReferenceElement,
   );
-  store.useSyncedValue('floatingElement', syncedFloatingElement);
+  store.useSyncedValue('positionerElement', syncedFloatingElement);
 
-  const floating = useBaseUIFloating({ ...options, rootContext: store });
+  const floating = useBaseUIFloating({ ...options, rootStore: store });
   const baseRefs = floating.refs;
 
   const setReference = React.useCallback(
@@ -59,7 +64,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
         isElement(baseRefs.reference.current) ||
         baseRefs.reference.current === null ||
         // Don't allow setting virtual elements using the old technique back to
-        // `null` to support `positionReference` + an unstable `reference`
+        // `null` to support `anchorOverride` + an unstable `reference`
         // callback ref.
         (node !== null && !isElement(node))
       ) {

@@ -61,6 +61,7 @@ describe('<Popover.Positioner />', () => {
     triggerSwitch: Popover,
     render,
     viewport: true,
+    defaultCollisionAvoidance: 'popup',
     createComponent: ({ root, trigger, positioner, popup, viewport }) => (
       <Popover.Root {...root}>
         <Trigger {...trigger}>Trigger</Trigger>

@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
@@ -18,7 +17,7 @@ import { platform } from '@base-ui/utils/platform';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
@@ -28,6 +27,15 @@ import { isReactEvent, isVirtualClick } from '../event';
 import { getNodeChildren } from '../tree/nodes';
 
 type PressType = 'intentional' | 'sloppy';
+
+// Floating elements number themselves when they open, during render, which reaches parents before
+// their children. An Escape that reaches the document (focus is on `body` after a backdrop press,
+// for example) bypasses the floating elements' own `onKeyDown` handlers, and `stopPropagation()`
+// can't stop the other document listeners. So each open floating element records its number for the
+// event in the capture phase, and the newest one that doesn't let Escape bubble handles it, along
+// with any newer ones that do.
+let openCount = 0;
+const escapeLayers = new WeakMap<Event, number>();
 
 function alwaysFalse() {
   return false;
@@ -100,6 +108,9 @@ export interface UseDismissProps {
   /**
    * Determines whether event listeners bubble upwards through a tree of
    * floating elements.
+   * `escapeKey` also determines whether an Escape that reaches the document, rather than a
+   * floating element, propagates to floating elements opened earlier, even when they share no
+   * `FloatingTree`.
    */
   bubbles?:
     boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
@@ -114,7 +125,10 @@ export interface UseDismissProps {
  * the user presses the `escape` key or outside of the floating element.
  * @see https://floating-ui.com/docs/useDismiss
  */
-export function useDismiss(store: FloatingRootContext, props: UseDismissProps = {}): ElementProps {
+export function useDismiss(
+  store: PopupInteractionStore,
+  props: UseDismissProps = {},
+): ElementProps {
   const {
     enabled = true,
     escapeKey = true,
@@ -126,8 +140,9 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
   } = props;
 
   const open = store.useState('open');
-  const floatingElement = store.useState('floatingElement');
-  const { dataRef, events } = store.context;
+  const positionerElement = store.useState('positionerElement');
+  const storeContext = store.context;
+  const { events } = storeContext;
 
   const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(
@@ -164,24 +179,24 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
   const clearInsideReactTree = useStableCallback(() => {
     clearInsideReactTreeTimeout.clear();
-    dataRef.current.insideReactTree = false;
+    storeContext.insideReactTree = false;
   });
 
   const hasBlockingChild = useStableCallback(
-    (bubbleKey: '__escapeKeyBubbles' | '__outsidePressBubbles') => {
-      const nodeId = dataRef.current.floatingContext?.nodeId;
+    (bubbleKey: 'escapeKeyBubbles' | 'outsidePressBubbles') => {
+      const nodeId = storeContext.positioning?.nodeId;
       const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
 
       return children.some(
-        (child) => child.context?.open && !child.context.dataRef.current[bubbleKey],
+        (child) => child.context?.open && !child.context.rootStore.context[bubbleKey],
       );
     },
   );
 
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
     return (
-      isEventTargetWithin(event, store.select('floatingElement')) ||
-      isEventTargetWithin(event, store.select('domReferenceElement'))
+      isEventTargetWithin(event, store.select('positionerElement')) ||
+      isEventTargetWithin(event, store.select('anchorElement'))
     );
   });
 
@@ -214,7 +229,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         return;
       }
 
-      if (!escapeKeyBubbles && hasBlockingChild('__escapeKeyBubbles')) {
+      if (!escapeKeyBubbles && hasBlockingChild('escapeKeyBubbles')) {
         return;
       }
 
@@ -232,8 +247,17 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     },
   );
 
+  // This popup's open number for an Escape that reaches the document (see `openCount`).
+  const layer = React.useMemo(() => {
+    if (!open) {
+      return 0;
+    }
+    openCount += 1;
+    return openCount;
+  }, [open]);
+
   const markInsideReactTree = useStableCallback(() => {
-    dataRef.current.insideReactTree = true;
+    storeContext.insideReactTree = true;
     clearInsideReactTreeTimeout.start(0, clearInsideReactTree);
   });
 
@@ -247,7 +271,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
       // Only treat presses that start within the floating DOM subtree as inside.
       // This avoids suppressing parent dismissal when interacting with nested portals.
-      if (!contains(store.select('floatingElement'), target)) {
+      if (!contains(store.select('positionerElement'), target)) {
         return;
       }
 
@@ -308,11 +332,11 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       return clearInsideReactTree;
     }
 
-    dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
-    dataRef.current.__outsidePressBubbles = outsidePressBubbles;
+    storeContext.escapeKeyBubbles = escapeKeyBubbles;
+    storeContext.outsidePressBubbles = outsidePressBubbles;
 
     const preventedPressSuppressionTimeout = new Timeout();
-    const doc = ownerDocument(floatingElement);
+    const doc = ownerDocument(positionerElement);
 
     function handleCompositionStart() {
       compositionTimeout.clear();
@@ -375,7 +399,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     }
 
     function isEventWithinFloatingTree(event: Event) {
-      const nodeId = dataRef.current.floatingContext?.nodeId;
+      const nodeId = storeContext.positioning?.nodeId;
       const targetIsInsideChildren =
         tree &&
         getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
@@ -397,7 +421,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         return;
       }
 
-      if (dataRef.current.insideReactTree) {
+      if (storeContext.insideReactTree) {
         clearInsideReactTree();
         return;
       }
@@ -408,7 +432,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       const markers = Array.from(
         (isShadowRoot(targetRoot)
           ? targetRoot
-          : ownerDocument(store.select('floatingElement'))
+          : ownerDocument(store.select('positionerElement'))
         ).querySelectorAll(inertSelector),
       );
 
@@ -440,7 +464,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         isElement(target) &&
         !isRootElement(target) &&
         // Clicked on a direct ancestor (e.g. FloatingOverlay).
-        !contains(target, store.select('floatingElement')) &&
+        !contains(target, store.select('positionerElement')) &&
         // If the target root element contains none of the markers, then the
         // element was injected after the floating element rendered.
         markers.every((marker) => !contains(targetRootAncestor, marker))
@@ -512,7 +536,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         return;
       }
 
-      if (hasBlockingChild('__outsidePressBubbles')) {
+      if (hasBlockingChild('outsidePressBubbles')) {
         return;
       }
 
@@ -719,7 +743,21 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     const unsubscribe = mergeCleanups(
       escapeKey &&
         mergeCleanups(
-          addEventListener(doc, 'keydown', closeOnEscapeKeyDown),
+          addEventListener(
+            doc,
+            'keydown',
+            (event) => {
+              if (!escapeKeyBubbles) {
+                escapeLayers.set(event, Math.max(escapeLayers.get(event) ?? 0, layer));
+              }
+            },
+            true,
+          ),
+          addEventListener(doc, 'keydown', (event) => {
+            if (layer >= (escapeLayers.get(event) ?? 0)) {
+              closeOnEscapeKeyDown(event);
+            }
+          }),
           addEventListener(doc, 'compositionstart', handleCompositionStart),
           addEventListener(doc, 'compositionend', handleCompositionEnd),
         ),
@@ -753,8 +791,8 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       suppressNextOutsideClickRef.current = false;
     };
   }, [
-    dataRef,
-    floatingElement,
+    storeContext,
+    positionerElement,
     escapeKey,
     outsidePressEnabled,
     outsidePress,
@@ -763,6 +801,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     escapeKeyBubbles,
     outsidePressBubbles,
     closeOnEscapeKeyDown,
+    layer,
     clearInsideReactTree,
     getOutsidePressEventProp,
     hasBlockingChild,

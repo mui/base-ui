@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
-import { NullStore } from '../../utils/NullStore';
+import { NullStore } from '../../utils/popups/NullStore';
 import type {
   PopupStoreContext,
   PopupTriggerDataStore,
@@ -48,8 +48,8 @@ const selectors = {
   titleElementId: (state: State<unknown>) => state.titleElementId,
   viewportElement: (state: State<unknown>) => state.viewportElement,
   role: (state: State<unknown>) => state.role,
-  // Dialogs have no positioner, so the interaction hooks treat the popup as the floating element.
-  floatingElement: (state: State<unknown>) => state.popupElement,
+  // Dialogs aren't anchored, so their popup acts as their positioner.
+  positionerElement: (state: State<unknown>) => state.popupElement,
 };
 
 /**
@@ -66,8 +66,11 @@ export class DialogStore<Payload> extends BasePopupStore<
   typeof selectors,
   DialogRoot.ChangeEventDetails
 > {
-  constructor(initialState: Partial<State<Payload>> | undefined, floatingId: string | undefined) {
-    const state = createInitialState<Payload>(initialState, floatingId);
+  constructor(
+    initialState: Partial<State<Payload>> | undefined,
+    defaultPopupId: string | undefined,
+  ) {
+    const state = createInitialState<Payload>(initialState, defaultPopupId);
 
     super(state, createInitialContext(), selectors);
   }
@@ -105,10 +108,10 @@ export function createNullDialogStore<Payload>(): DialogHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     modal: true,
     disablePointerDismissal: false,
     viewportElement: null,

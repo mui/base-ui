@@ -15,10 +15,10 @@ import {
   useFloatingParentNodeId,
 } from '../../utils/popups/tree/FloatingTree';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
@@ -31,12 +31,12 @@ import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
-import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
+import { useMixedToggleClickHandler } from './useMixedToggleClickHandler';
 import type { MenuHandle } from '../store/MenuHandle';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { mergeProps } from '../../merge-props';
 
 /**
@@ -173,7 +173,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
   const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
 
-  const hoverProps = useHoverReferenceInteraction(store, {
+  const hoverProps = useHoverTriggerInteraction(store, {
     enabled:
       openOnHover &&
       !disabled &&
