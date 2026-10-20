@@ -71,14 +71,16 @@ export function useTriggerSwitch(parameters: UseTriggerSwitchParameters): boolea
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
 
   useIsoLayoutEffect(() => {
-    if (open) {
+    if (open && domReference) {
       return;
     }
 
+    // Disabling a controlled Tooltip can clear its anchor while the store still reports open.
+    // Cancel the move then too, so re-enabling starts with instant tracking.
     pendingSwitchRef.current?.abort();
     pendingSwitchRef.current = null;
     setIsSwitching(false);
-  }, [open]);
+  }, [open, domReference]);
 
   useIsoLayoutEffect(() => {
     const currentTrigger = domReference;

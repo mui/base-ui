@@ -510,7 +510,13 @@ export function useAnchorPositioning(
       // mobile Chrome zoom the page out and reflow everything the popup is anchored to.
       base = { position: resolvedPosition, top: 0, left: 0 };
     } else if (adaptiveOrigin) {
-      base = { position: resolvedPosition, [sideX]: x, [sideY]: y };
+      // Resolve opposite-edge insets against the containing block in CSS. A change to its
+      // size then leaves the popup in place until the next positioning update.
+      base = {
+        position: resolvedPosition,
+        [sideX]: sideX === 'right' ? `calc(100% - ${x}px)` : x,
+        [sideY]: sideY === 'bottom' ? `calc(100% - ${y}px)` : y,
+      };
     } else {
       base = { ...originalFloatingStyles, position: resolvedPosition };
     }

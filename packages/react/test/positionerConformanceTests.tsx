@@ -467,69 +467,124 @@ function triggerSwitchTests({
     }
   }
 
+  const positionTransition =
+    'transform 200ms linear, top 200ms linear, right 200ms linear, bottom 200ms linear, left 200ms linear';
+
   function Fixture({
     handle,
     rootProps,
     keepMounted = false,
     withViewport = false,
     side = 'right',
+    positionerStyling = 'attribute',
+    resizeOnSwitch = false,
   }: {
     handle: ReturnType<typeof createHandle>;
     rootProps?: Record<string, unknown>;
     keepMounted?: boolean;
     withViewport?: boolean;
     side?: Side;
+    positionerStyling?: 'attribute' | 'className' | 'style';
+    resizeOnSwitch?: boolean;
   }) {
+    const positionerSizeStyle: React.CSSProperties | undefined = resizeOnSwitch
+      ? { width: 'var(--positioner-width)', height: 'var(--positioner-height)' }
+      : undefined;
+    const attributeClassName =
+      positionerStyling === 'attribute'
+        ? 'tracking-positioner tracking-positioner-attribute'
+        : undefined;
+
     return (
       <React.Fragment>
         <style>{`
           .tracking-positioner {
-            transition: transform 200ms linear, top 200ms linear, right 200ms linear,
-              bottom 200ms linear, left 200ms linear;
+            transition: ${positionTransition};
           }
-          .tracking-positioner[data-instant] { transition: none; }
+          .tracking-positioner-attribute[data-instant],
+          .tracking-positioner-instant { transition: none; }
           .tracking-popup { opacity: 1; transition: opacity 200ms linear; }
           .tracking-popup[data-starting-style], .tracking-popup[data-ending-style] { opacity: 0; }
           .tracking-popup[data-instant] { transition: none; }
+          .tracking-popup-resize {
+            transition: width 200ms linear, height 200ms linear, opacity 200ms linear;
+          }
         `}</style>
         <div data-testid="scroller" style={{ width: 400, height: 200, overflow: 'auto' }}>
           <div
             data-testid="layout"
             style={{
               display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-end',
+              flexDirection: side === 'left' ? 'row' : 'column',
+              alignItems: side === 'left' ? 'flex-start' : 'flex-end',
               gap: 40,
               paddingTop: 40,
+              paddingLeft: side === 'left' ? 120 : undefined,
               width: '25vw',
               height: 500,
             }}
           >
-            <Trigger handle={handle} id="first" {...triggerProps}>
+            <Trigger handle={handle} id="first" payload="first" {...triggerProps}>
               First
             </Trigger>
-            <Trigger handle={handle} id="second" {...triggerProps}>
+            <Trigger handle={handle} id="second" payload="second" {...triggerProps}>
               Second
             </Trigger>
           </div>
         </div>
         <Root handle={handle} modal={false} {...rootProps}>
-          <Portal keepMounted={keepMounted}>
-            <Positioner
-              data-testid="positioner"
-              className="tracking-positioner"
-              side={side}
-              align="start"
-            >
-              <Popup
-                data-testid="popup"
-                className="tracking-popup"
-                style={{ width: 80, height: 30 }}
+          {({ payload }: { payload: unknown }) => (
+            <Portal keepMounted={keepMounted}>
+              <Positioner
+                data-testid="positioner"
+                className={
+                  positionerStyling === 'className'
+                    ? (state: { instant?: string }) =>
+                        `tracking-positioner${state.instant ? ' tracking-positioner-instant' : ''}`
+                    : attributeClassName
+                }
+                style={
+                  positionerStyling === 'style'
+                    ? (state: { instant?: string }) => ({
+                        ...positionerSizeStyle,
+                        transition: state.instant ? 'none' : positionTransition,
+                      })
+                    : positionerSizeStyle
+                }
+                side={side}
+                align="start"
               >
-                {withViewport ? <Viewport>Popup</Viewport> : 'Popup'}
-              </Popup>
-            </Positioner>
-          </Portal>
+                <Popup
+                  data-testid="popup"
+                  className={`tracking-popup${resizeOnSwitch ? ' tracking-popup-resize' : ''}`}
+                  style={
+                    resizeOnSwitch
+                      ? { width: 'var(--popup-width, auto)', height: 'var(--popup-height, auto)' }
+                      : { width: 80, height: 30 }
+                  }
+                >
+                  {withViewport ? (
+                    <Viewport>
+                      <div
+                        style={
+                          resizeOnSwitch
+                            ? {
+                                width: side === 'left' && payload === 'second' ? 120 : 80,
+                                height: side === 'top' && payload === 'second' ? 50 : 30,
+                              }
+                            : undefined
+                        }
+                      >
+                        Popup
+                      </div>
+                    </Viewport>
+                  ) : (
+                    'Popup'
+                  )}
+                </Popup>
+              </Positioner>
+            </Portal>
+          )}
         </Root>
       </React.Fragment>
     );
@@ -709,38 +764,95 @@ function triggerSwitchTests({
     );
   });
 
-  it.each([
-    { name: 'initially open', initiallyOpen: true },
-    { name: 'opened from a trigger', initiallyOpen: false },
-  ])(
-    'animates the side axis of a switch to another row with side="top" when $name',
-    async ({ initiallyOpen }) => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-      const { user } = await render(
-        <Fixture
-          handle={createHandle()}
-          withViewport
-          side="top"
-          rootProps={{ defaultOpen: initiallyOpen, defaultTriggerId: 'first' }}
-        />,
-      );
-      if (!initiallyOpen) {
-        await activate(user, 'First');
-      }
-      const positioner = await screen.findByTestId('positioner');
-      await waitFor(() => expect(positioner.style.transition).toBe(''));
-      await waitFor(() => expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0));
+  describe.each([
+    { name: 'data attribute', positionerStyling: 'attribute' },
+    { name: 'className callback', positionerStyling: 'className' },
+    { name: 'style callback', positionerStyling: 'style' },
+  ] as const)('position transitions styled with a $name', ({ positionerStyling }) => {
+    describe.each([
+      {
+        side: 'top',
+        transitionProperty: /^(top|bottom)$/,
+        dimension: 'height',
+        initialSize: 30,
+        finalSize: 50,
+        popupEdge: 'bottom',
+        triggerEdge: 'top',
+      },
+      {
+        side: 'left',
+        transitionProperty: /^(left|right)$/,
+        dimension: 'width',
+        initialSize: 80,
+        finalSize: 120,
+        popupEdge: 'right',
+        triggerEdge: 'left',
+      },
+    ] as const)(
+      'side="$side"',
+      ({ side, transitionProperty, dimension, initialSize, finalSize, popupEdge, triggerEdge }) => {
+        it.each([
+          { name: 'initially open', initiallyOpen: true },
+          { name: 'opened from a trigger', initiallyOpen: false },
+        ])(
+          'animates the side axis of a trigger switch and resizes the popup when $name',
+          async ({ initiallyOpen }) => {
+            globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+            const { user } = await render(
+              <Fixture
+                handle={createHandle()}
+                withViewport
+                side={side}
+                positionerStyling={positionerStyling}
+                resizeOnSwitch
+                rootProps={{ defaultOpen: initiallyOpen, defaultTriggerId: 'first' }}
+              />,
+            );
+            if (!initiallyOpen) {
+              await activate(user, 'First');
+            }
+            const positioner = await screen.findByTestId('positioner');
+            await waitFor(() =>
+              expect(positioner.style.transition).toBe(positionerStyling === 'style' ? 'none' : ''),
+            );
+            await waitFor(() =>
+              expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0),
+            );
+            expect(positioner).toHaveAttribute('data-side', side);
+            expect(positioner).toHaveAttribute('data-instant');
+            const popup = screen.getByTestId('popup');
+            expect(popup.getBoundingClientRect()[dimension]).toBe(initialSize);
+            expect(popup.getBoundingClientRect()[popupEdge]).toBeCloseTo(
+              screen.getByText('First').getBoundingClientRect()[triggerEdge],
+              0,
+            );
 
-      await activate(user, 'Second');
-      await waitFor(() => expect(positioner.getAnimations().length).toBeGreaterThan(0));
+            await activate(user, 'Second');
+            await waitFor(() => expect(positioner.getAnimations().length).toBeGreaterThan(0));
 
-      expect(
-        positioner
-          .getAnimations()
-          .map((animation) => (animation as CSSTransition).transitionProperty),
-      ).toEqual(expect.arrayContaining([expect.stringMatching(/^(top|bottom)$/)]));
-    },
-  );
+            expect(
+              positioner
+                .getAnimations()
+                .map((animation) => (animation as CSSTransition).transitionProperty),
+            ).toEqual(expect.arrayContaining([expect.stringMatching(transitionProperty)]));
+            await waitFor(() =>
+              expect(
+                popup
+                  .getAnimations()
+                  .map((animation) => (animation as CSSTransition).transitionProperty),
+              ).toContain(dimension),
+            );
+            await waitFor(() => expect(popup.getBoundingClientRect()[dimension]).toBe(finalSize));
+            await waitFor(() => expect(positioner.getAnimations()).toHaveLength(0));
+            expect(popup.getBoundingClientRect()[popupEdge]).toBeCloseTo(
+              screen.getByText('Second').getBoundingClientRect()[triggerEdge],
+              0,
+            );
+          },
+        );
+      },
+    );
+  });
 
   it('keeps tracking instant after a canceled trigger switch', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
