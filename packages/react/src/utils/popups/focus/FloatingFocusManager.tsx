@@ -1025,8 +1025,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           onFocus={(event) => {
             if (modal) {
               const els = getTabbableContent();
-              // enqueueFocus returns a rAF-cancel function we don't need here.
-              void enqueueFocus(els[els.length - 1]);
+              els[els.length - 1]?.focus();
             } else if (portalContext?.portalNode) {
               preventReturnFocusRef.current = false;
               if (isOutsideEvent(event, portalContext.portalNode)) {
@@ -1046,8 +1045,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           ref={mergedAfterGuardRef}
           onFocus={(event) => {
             if (modal) {
-              // enqueueFocus returns a rAF-cancel function we don't need here.
-              void enqueueFocus(getTabbableContent()[0]);
+              getTabbableContent()[0]?.focus();
             } else if (portalContext?.portalNode) {
               if (closeOnFocusOut) {
                 preventReturnFocusRef.current = true;
