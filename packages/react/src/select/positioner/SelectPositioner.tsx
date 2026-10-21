@@ -150,10 +150,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       const prevSize = prevMapSizeRef.current;
       prevMapSizeRef.current = map.size;
 
-      const { value, multiple, isItemEqualToValue } = selection;
+      const { value, multiple } = selection;
+      const { isItemEqualToValue } = store.context;
       const eventDetails = createChangeEventDetails(REASONS.none);
 
-      if (prevSize !== 0 && !multiple && value !== null) {
+      if (prevSize !== 0 && !multiple && value != null) {
         const selectedValueIndex = findItemIndex(
           store.context.valuesRef.current,
           value,

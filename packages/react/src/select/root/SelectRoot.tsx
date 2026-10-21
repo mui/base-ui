@@ -177,6 +177,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           hasScrollArrows: false,
         },
         {
+          isItemEqualToValue,
           setValue: NOOP,
           setOpen: NOOP,
           handleScrollArrowVisibility: NOOP,
@@ -453,6 +454,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [itemProps, multiple, disabled, readOnly, isItemEqualToValue],
   );
 
+  store.useContextCallback('isItemEqualToValue', isItemEqualToValue);
   store.useContextCallback('setValue', setValue);
   store.useContextCallback('setOpen', setOpen);
   store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
@@ -514,10 +516,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   }, [multiple, value, form, name, itemToStringValue, disabled]);
 
-  const selection = React.useMemo(
-    () => ({ value, multiple, isItemEqualToValue }),
-    [value, multiple, isItemEqualToValue],
-  );
+  const selection = React.useMemo(() => ({ value, multiple }), [value, multiple]);
 
   return (
     <SelectRootContext.Provider value={store}>

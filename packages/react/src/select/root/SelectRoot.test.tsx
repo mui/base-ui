@@ -571,7 +571,7 @@ describe('<Select.Root />', () => {
       { name: 'single', multiple: false, initialValue: 'dave', nextValue: 'bob' },
       { name: 'multiple', multiple: true, initialValue: ['dave'], nextValue: ['bob'] },
     ])(
-      'keeps a new controlled value in $name mode when the previous item is removed in the same update',
+      'keeps a new controlled value and focus in $name mode when the previous item is removed in the same update',
       async ({ multiple, initialValue, nextValue }) => {
         const onValueChange = vi.fn();
 
@@ -626,11 +626,22 @@ describe('<Select.Root />', () => {
         expect(await screen.findByRole('option', { name: 'dave' })).toHaveAttribute(
           'data-selected',
         );
-        await user.click(screen.getByRole('button', { name: 'Update options and value' }));
+        const alice = screen.getByRole('option', { name: 'alice' });
+        await act(async () => alice.focus());
+        expect(alice).toHaveFocus();
+        expect(alice).toHaveAttribute('data-highlighted');
+
+        // Simulate an external update without moving focus away from the surviving item.
+        fireEvent.click(screen.getByRole('button', { name: 'Update options and value' }));
 
         expect(screen.getByTestId('value').textContent).toBe(JSON.stringify(nextValue));
         expect(screen.getByRole('option', { name: 'bob' })).toHaveAttribute('data-selected');
         expect(onValueChange).not.toHaveBeenCalled();
+        expect(alice).toHaveFocus();
+        expect(alice).toHaveAttribute('data-highlighted');
+
+        await user.keyboard('{ArrowDown}');
+        expect(screen.getByRole('option', { name: 'bob' })).toHaveFocus();
       },
     );
 
