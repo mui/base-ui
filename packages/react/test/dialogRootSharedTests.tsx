@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect, vi, describe, it } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import type { AlertDialog } from '@base-ui/react/alert-dialog';
-import type { Dialog } from '@base-ui/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import type { createRenderer } from '#test-utils';
 import { REASONS } from '../src/internals/reasons';
 
@@ -21,6 +21,57 @@ export function dialogRootSharedTests(config: DialogRootSharedTestsConfig) {
   const queryPopup = () => screen.queryByRole(popupRole);
 
   describe('Dialog root shared behavior', () => {
+    it.each([
+      { name: 'returns focus inside the parent when the trigger is removed', removeTrigger: true },
+      { name: 'returns focus to the mounted nested trigger', removeTrigger: false },
+    ])('$name', async ({ removeTrigger }) => {
+      function Test() {
+        const [showTrigger, setShowTrigger] = React.useState(true);
+        return (
+          <Dialog.Root>
+            <Dialog.Trigger>Open settings</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="parent-popup">
+                <Root>
+                  {showTrigger && <Trigger>Discard draft</Trigger>}
+                  <Portal>
+                    <Popup data-testid="child-popup">
+                      <Close onClick={() => setShowTrigger(!removeTrigger)}>Discard</Close>
+                    </Popup>
+                  </Portal>
+                </Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const parentTrigger = screen.getByRole('button', { name: 'Open settings' });
+      await user.click(parentTrigger);
+      const parentPopup = screen.getByTestId('parent-popup');
+      const childTrigger = screen.getByRole('button', { name: 'Discard draft' });
+      await waitFor(() => {
+        expect(childTrigger).toHaveFocus();
+      });
+      await user.click(childTrigger);
+      const close = screen.getByRole('button', { name: 'Discard' });
+      expect(screen.getByTestId('child-popup')).toContainElement(close);
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
+
+      await user.click(close);
+
+      await waitFor(() => {
+        expect(removeTrigger ? parentPopup : childTrigger).toHaveFocus();
+      });
+      expect(screen.queryByTestId('child-popup')).toBe(null);
+      expect(childTrigger.isConnected).toBe(!removeTrigger);
+      expect(parentPopup).toBeVisible();
+      expect(parentTrigger).not.toHaveFocus();
+    });
+
     describe('prop: onOpenChange', () => {
       it('reports the trigger and reason when opened by a trigger and closed by a close button', async () => {
         const handleOpenChange = vi.fn();
