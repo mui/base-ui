@@ -60,25 +60,34 @@ describe('getMenuFilterKeyAction', () => {
 
   it.each<{
     key: string;
+    rtl: boolean;
     caret: 'start' | 'middle' | 'end';
     submenu: boolean;
     expected: MenuFilterKeyAction;
   }>([
-    { key: 'ArrowRight', caret: 'end', submenu: true, expected: 'submenu' },
-    { key: 'ArrowRight', caret: 'middle', submenu: true, expected: 'edit' },
-    { key: 'ArrowRight', caret: 'start', submenu: true, expected: 'edit' },
-    { key: 'ArrowRight', caret: 'end', submenu: false, expected: 'navigate' },
-    { key: 'ArrowLeft', caret: 'start', submenu: false, expected: 'navigate' },
-    { key: 'ArrowLeft', caret: 'start', submenu: true, expected: 'submenu' },
-    { key: 'ArrowLeft', caret: 'middle', submenu: false, expected: 'edit' },
-    { key: 'ArrowLeft', caret: 'end', submenu: false, expected: 'edit' },
+    { rtl: false, key: 'ArrowRight', caret: 'end', submenu: true, expected: 'submenu' },
+    { rtl: false, key: 'ArrowRight', caret: 'middle', submenu: true, expected: 'edit' },
+    { rtl: false, key: 'ArrowRight', caret: 'start', submenu: true, expected: 'edit' },
+    { rtl: false, key: 'ArrowRight', caret: 'end', submenu: false, expected: 'navigate' },
+    { rtl: false, key: 'ArrowLeft', caret: 'start', submenu: false, expected: 'navigate' },
+    { rtl: false, key: 'ArrowLeft', caret: 'start', submenu: true, expected: 'submenu' },
+    { rtl: false, key: 'ArrowLeft', caret: 'middle', submenu: false, expected: 'edit' },
+    { rtl: false, key: 'ArrowLeft', caret: 'end', submenu: false, expected: 'edit' },
+    { rtl: true, key: 'ArrowLeft', caret: 'end', submenu: true, expected: 'submenu' },
+    { rtl: true, key: 'ArrowLeft', caret: 'middle', submenu: true, expected: 'edit' },
+    { rtl: true, key: 'ArrowLeft', caret: 'start', submenu: true, expected: 'edit' },
+    { rtl: true, key: 'ArrowLeft', caret: 'end', submenu: false, expected: 'navigate' },
+    { rtl: true, key: 'ArrowRight', caret: 'start', submenu: false, expected: 'navigate' },
+    { rtl: true, key: 'ArrowRight', caret: 'start', submenu: true, expected: 'submenu' },
+    { rtl: true, key: 'ArrowRight', caret: 'middle', submenu: false, expected: 'edit' },
+    { rtl: true, key: 'ArrowRight', caret: 'end', submenu: false, expected: 'edit' },
   ])(
-    'vertical with a query: $key with the caret at the $caret (submenu trigger: $submenu)',
-    ({ key: value, caret, submenu, expected }) => {
+    'vertical with a query (RTL: $rtl): $key with the caret at the $caret (submenu trigger: $submenu)',
+    ({ key: value, rtl, caret, submenu, expected }) => {
       expect(
         getMenuFilterKeyAction(key(value), {
           orientation: 'vertical',
-          rtl: false,
+          rtl,
           hasActiveItem: true,
           activeItemOpensSubmenu: submenu,
           hasValue: true,

@@ -762,6 +762,52 @@ describe('<Combobox.Input />', () => {
       expect(screen.getByRole('listbox')).not.toBe(null);
     });
 
+    it('toggles the highlighted item with Space in multiple mode while keeping the popup open', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen onValueChange={onValueChange}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+      const option = screen.getByRole('option', { name: 'apple' });
+      expect(option).toHaveAttribute('data-highlighted');
+      expect(option).not.toHaveAttribute('data-selected');
+      expect(input.value).toBe('');
+      expect(input).toHaveFocus();
+
+      await user.keyboard(' ');
+
+      expect(onValueChange.mock.lastCall?.[0]).toEqual(['apple']);
+      expect(option).toHaveAttribute('data-selected');
+      expect(option).toHaveAttribute('data-highlighted');
+      const listbox = screen.getByRole('listbox');
+      expect(listbox).toBeInTheDocument();
+      expect(input.value).toBe('');
+      expect(input).toHaveFocus();
+
+      await user.keyboard(' ');
+
+      expect(onValueChange.mock.lastCall?.[0]).toEqual([]);
+      expect(option).not.toHaveAttribute('data-selected');
+      const listboxAfterDeselection = screen.getByRole('listbox');
+      expect(listboxAfterDeselection).toBeInTheDocument();
+      expect(input.value).toBe('');
+      expect(input).toHaveFocus();
+    });
+
     it('ignores Space in an empty input without a highlighted item', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
