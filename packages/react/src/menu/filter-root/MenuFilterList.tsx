@@ -58,7 +58,12 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
         // Keep main-axis keys from reaching this popup's own list navigation, which lost its
         // place while the nested popup held focus. A plain submenu that closes on the key hands
         // focus back and lets it through, so move on from its trigger as a plain parent would.
+        // A key the input forwarded to its highlighted item instead moves the highlight through
+        // the input's handler, which resolves the focused input as its reference.
         event.stopPropagation();
+        if (ownerFocused && !fromNestedPopup) {
+          store.state.inputProps.onKeyDown?.(event);
+        }
         const trigger = fromNestedPopup && ownerFocused ? getNestedPopupTrigger(target) : undefined;
         if (trigger) {
           moveHighlightFrom(store, trigger, event, {
@@ -82,6 +87,9 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
     // focuses the highlighted item. Hand focus back and route the key as the input would; a
     // typing key's default action follows the moved focus into the input.
     refocusOwner(owner);
+    if (activeElement(ownerDocument(owner)) !== owner) {
+      return;
+    }
     handleInputKeyDown(event);
   });
 

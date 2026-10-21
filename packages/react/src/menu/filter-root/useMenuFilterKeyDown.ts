@@ -6,7 +6,6 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
-import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -14,10 +13,11 @@ import { stopEvent } from '../../utils/popups/event';
 import { getMaxListIndex, getMinListIndex } from '../../internals/composite/listIndex';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import {
-  isCrossOrientationCloseKey,
-  isCrossOrientationOpenKey,
   isMainOrientationKey,
+  isCrossOrientationOpenKey,
+  isCrossOrientationCloseKey,
 } from '../../utils/popups/interactions/useListNavigation';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 export type MenuFilterKeyAction =
   /** Native text editing in the input; list navigation and parent handlers stay out of it. */
@@ -26,8 +26,8 @@ export type MenuFilterKeyAction =
   | 'navigate'
   /** A horizontal list is entered from the input with a vertical arrow. */
   | 'enter-list'
-  /** The highlighted item handles the key, which opens or closes its submenu. */
-  | 'submenu'
+  /** The highlighted item handles Space or an arrow key. */
+  | 'item'
   /** The highlighted item is activated. */
   | 'activate'
   /** The popup closes and focus returns to where it came from. */
@@ -37,13 +37,12 @@ export type MenuFilterKeyAction =
 
 export interface MenuFilterKeyContext {
   orientation: MenuRoot.Orientation;
-  rtl: boolean;
   /** Whether an item is highlighted. */
   hasActiveItem: boolean;
-  /** Whether the highlighted item opens a submenu. */
-  activeItemOpensSubmenu: boolean;
   /** Whether the input has text. */
   hasValue: boolean;
+  /** Whether a horizontal arrow can navigate the list or a submenu at a collapsed caret boundary. */
+  isCaretAtBoundary: boolean;
 }
 
 /**
@@ -53,7 +52,7 @@ export function getMenuFilterKeyAction(
   event: React.KeyboardEvent,
   context: MenuFilterKeyContext,
 ): MenuFilterKeyAction {
-  const { orientation, rtl, hasActiveItem, activeItemOpensSubmenu, hasValue } = context;
+  const { orientation, hasActiveItem, hasValue, isCaretAtBoundary } = context;
   const { key } = event;
   // Enter that commits an IME composition belongs to the input, not the list.
   if (event.which === 229) {
@@ -74,6 +73,16 @@ export function getMenuFilterKeyAction(
   if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
     return isArrow || isBoundary || key.length === 1 ? 'edit' : 'navigate';
   }
+  if (
+    isArrow &&
+    (isCaretAtBoundary ||
+      (orientation === 'horizontal' && hasActiveItem && !isMainOrientationKey(key, orientation)))
+  ) {
+    return hasActiveItem ? 'item' : 'navigate';
+  }
+  if (!hasValue && (key === ' ' || (isArrow && hasActiveItem))) {
+    return hasActiveItem ? 'item' : 'navigate';
+  }
   // Characters stay out of parent handlers such as typeahead.
   if (key.length === 1) {
     return 'edit';
@@ -88,18 +97,10 @@ export function getMenuFilterKeyAction(
   }
 
   if (isMainOrientationKey(key, orientation)) {
-    // Left and Right move the caret of a non-empty input while nothing is highlighted.
-    return orientation === 'horizontal' && !hasActiveItem && hasValue ? 'edit' : 'navigate';
+    // Left and Right move the caret while inside the input text.
+    return orientation === 'horizontal' && hasValue ? 'edit' : 'navigate';
   }
 
-  // A highlighted submenu trigger takes the cross-axis keys to open or close its submenu.
-  if (
-    activeItemOpensSubmenu &&
-    (isCrossOrientationOpenKey(key, orientation, rtl) ||
-      isCrossOrientationCloseKey(key, orientation, rtl, false))
-  ) {
-    return 'submenu';
-  }
   if (orientation === 'horizontal' && !hasActiveItem) {
     return 'enter-list';
   }
@@ -126,12 +127,39 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
       return;
     }
     const activeItem = store.state.highlightedItem;
+    const input = store.context.virtualFocusRef?.current;
+    const inputWindow = ownerWindow(input);
+    const isTextInput =
+      input instanceof inputWindow.HTMLInputElement ||
+      input instanceof inputWindow.HTMLTextAreaElement;
+    const hasCollapsedCaret =
+      isTextInput && input.selectionStart !== null && input.selectionStart === input.selectionEnd;
+    const rtl = direction === 'rtl';
+    const canOpenSubmenu =
+      activeItem?.hasAttribute('aria-haspopup') &&
+      isCrossOrientationOpenKey(event.key, orientation, rtl);
+    const canCloseSubmenu =
+      store.state.parent.type === 'menu' &&
+      isCrossOrientationCloseKey(event.key, orientation, rtl, false);
+    const canNavigateAtBoundary =
+      (orientation === 'horizontal' && isMainOrientationKey(event.key, orientation)) ||
+      canOpenSubmenu ||
+      canCloseSubmenu;
+    const inputRtl =
+      hasCollapsedCaret &&
+      canNavigateAtBoundary &&
+      inputWindow.getComputedStyle(input).direction === 'rtl';
+    const isCaretAtBoundary =
+      canNavigateAtBoundary &&
+      hasCollapsedCaret &&
+      ((event.key === (inputRtl ? 'ArrowRight' : 'ArrowLeft') && input.selectionStart === 0) ||
+        (event.key === (inputRtl ? 'ArrowLeft' : 'ArrowRight') &&
+          input.selectionStart === input.value.length));
     const action = getMenuFilterKeyAction(event, {
       orientation,
-      rtl: direction === 'rtl',
       hasActiveItem: activeItem != null,
-      activeItemOpensSubmenu: activeItem?.hasAttribute('aria-haspopup') ?? false,
       hasValue,
+      isCaretAtBoundary,
     });
 
     switch (action) {
@@ -165,10 +193,9 @@ export function useMenuFilterKeyDown(hasValue: boolean) {
         }
         break;
       }
-      case 'submenu': {
-        // The highlighted item's own handlers decide, since opening depends on the item and on
-        // both menus' orientations, and they read `currentTarget`, so the key is dispatched on
-        // it. Its propagation reaches the popup, which closes a submenu.
+      case 'item': {
+        // Item handlers need their own target for activation and submenu navigation.
+        // Main-axis arrows continue through the list's navigation handler.
         stopEvent(event);
         const KeyboardEventConstructor = ownerWindow(activeItem).KeyboardEvent;
         activeItem!.dispatchEvent(new KeyboardEventConstructor(event.type, event.nativeEvent));

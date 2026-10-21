@@ -140,7 +140,14 @@ export function useMenuFilterPopup(
     },
     onKeyDown(event) {
       const target = getTarget(event.nativeEvent);
-      if (target === focusOwnerRef.current || isTypeableElement(target)) {
+      // Item-key relays still belong to this input; only nested-popup close keys need a handoff.
+      if (
+        target === focusOwnerRef.current ||
+        isTypeableElement(target) ||
+        (isElement(target) &&
+          activeElement(ownerDocument(event.currentTarget)) === focusOwnerRef.current &&
+          contains(event.currentTarget, target))
+      ) {
         return;
       }
 

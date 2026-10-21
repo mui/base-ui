@@ -2233,6 +2233,264 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       },
     );
 
+    describe('caret boundary submenu navigation', () => {
+      function Test({
+        disabled = false,
+        inputDirection,
+        triggerText = 'Share',
+        childText = 'Documents',
+      }: {
+        disabled?: boolean;
+        inputDirection?: 'rtl' | 'ltr';
+        triggerText?: string;
+        childText?: string;
+      }) {
+        return (
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" dir={inputDirection} />
+                    <Menu.List>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger disabled={disabled} openOnHover={false}>
+                            {triggerText}
+                          </Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.Input aria-label="Filter folders" dir={inputDirection} />
+                                <Menu.List>
+                                  <Menu.Item>{childText}</Menu.Item>
+                                </Menu.List>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      it.skipIf(isJSDOM).each([
+        { name: 'Hebrew', query: 'שלום' },
+        { name: 'Arabic', query: 'مرحبا' },
+        { name: 'Latin', query: 'Share' },
+      ])('uses the input direction for $name caret boundaries', async ({ query }) => {
+        const { user } = await render(
+          <DirectionProvider direction="rtl">
+            <Test inputDirection="rtl" triggerText={query} childText={query} />
+          </DirectionProvider>,
+        );
+        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard(`${query}[ArrowDown]`);
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: query }).id,
+        );
+        expect(input.selectionStart).toBe(query.length);
+        expect(screen.queryByRole('searchbox', { name: 'Filter folders' })).toBe(null);
+
+        await user.keyboard('[ArrowLeft]');
+
+        const child = await screen.findByRole<HTMLInputElement>('searchbox', {
+          name: 'Filter folders',
+        });
+        await waitFor(() => expect(child).toHaveFocus());
+        await user.keyboard(query);
+        child.setSelectionRange(0, 0);
+        expect(child.selectionStart).toBe(0);
+        expect(child).toHaveFocus();
+
+        await user.keyboard('[ArrowRight]');
+
+        expect(screen.queryByRole('searchbox', { name: 'Filter folders' })).toBe(null);
+        expect(input).toHaveFocus();
+      });
+
+      it.each([
+        {
+          direction: 'ltr',
+          name: 'end',
+          start: 3,
+          end: 3,
+          disabled: false,
+          key: '[ArrowRight]',
+          opens: true,
+        },
+        {
+          direction: 'ltr',
+          name: 'middle',
+          start: 1,
+          end: 1,
+          disabled: false,
+          key: '[ArrowRight]',
+          opens: false,
+        },
+        {
+          direction: 'ltr',
+          name: 'selection ending at the end',
+          start: 0,
+          end: 3,
+          disabled: false,
+          key: '[ArrowRight]',
+          opens: false,
+        },
+        {
+          direction: 'ltr',
+          name: 'modified end',
+          start: 3,
+          end: 3,
+          disabled: false,
+          key: '{Shift>}[ArrowRight]{/Shift}',
+          opens: false,
+        },
+        {
+          direction: 'ltr',
+          name: 'disabled trigger at the end',
+          start: 3,
+          end: 3,
+          disabled: true,
+          key: '[ArrowRight]',
+          opens: false,
+        },
+        {
+          direction: 'rtl',
+          name: 'RTL submenu-opening boundary',
+          start: 0,
+          end: 0,
+          disabled: false,
+          key: '[ArrowLeft]',
+          opens: true,
+        },
+      ] as const)(
+        'opens a submenu only at a collapsed caret boundary: $name',
+        async ({ direction, start, end, disabled, key, opens }) => {
+          const { user } = await render(
+            <DirectionProvider direction={direction}>
+              <Test disabled={disabled} />
+            </DirectionProvider>,
+          );
+          const input = screen.getByRole<HTMLInputElement>('searchbox', {
+            name: 'Filter actions',
+          });
+          await waitFor(() => expect(input).toHaveFocus());
+          await user.keyboard('Sha[ArrowDown]');
+          const trigger = screen.getByRole('menuitem', { name: 'Share' });
+          expect(input).toHaveAttribute('aria-activedescendant', trigger.id);
+          expect(input).toHaveValue('Sha');
+          input.setSelectionRange(start, end);
+          expect(input.selectionStart).toBe(start);
+          expect(input.selectionEnd).toBe(end);
+          expect(screen.queryByRole('searchbox', { name: 'Filter folders' })).toBe(null);
+
+          await user.keyboard(key);
+
+          expect(screen.queryByRole('searchbox', { name: 'Filter folders' }) !== null).toBe(opens);
+        },
+      );
+
+      it.each([
+        {
+          direction: 'ltr',
+          name: 'start without a highlight',
+          start: 0,
+          end: 0,
+          navigate: false,
+          key: '[ArrowLeft]',
+          closes: true,
+        },
+        {
+          direction: 'ltr',
+          name: 'start with a highlight',
+          start: 0,
+          end: 0,
+          navigate: true,
+          key: '[ArrowLeft]',
+          closes: true,
+        },
+        {
+          direction: 'ltr',
+          name: 'middle',
+          start: 1,
+          end: 1,
+          navigate: false,
+          key: '[ArrowLeft]',
+          closes: false,
+        },
+        {
+          direction: 'ltr',
+          name: 'selection starting at the start',
+          start: 0,
+          end: 3,
+          navigate: false,
+          key: '[ArrowLeft]',
+          closes: false,
+        },
+        {
+          direction: 'ltr',
+          name: 'modified start',
+          start: 0,
+          end: 0,
+          navigate: false,
+          key: '{Shift>}[ArrowLeft]{/Shift}',
+          closes: false,
+        },
+        {
+          direction: 'rtl',
+          name: 'RTL submenu-closing boundary',
+          start: 3,
+          end: 3,
+          navigate: false,
+          key: '[ArrowRight]',
+          closes: true,
+        },
+      ] as const)(
+        'closes a submenu only at a collapsed caret boundary: $name',
+        async ({ direction, start, end, navigate, key, closes }) => {
+          const { user } = await render(
+            <DirectionProvider direction={direction}>
+              <Test />
+            </DirectionProvider>,
+          );
+          const parentInput = screen.getByRole('searchbox', {
+            name: 'Filter actions',
+          });
+          await waitFor(() => expect(parentInput).toHaveFocus());
+          await user.keyboard(
+            direction === 'rtl' ? '[ArrowDown][ArrowLeft]' : '[ArrowDown][ArrowRight]',
+          );
+          const input = await screen.findByRole<HTMLInputElement>('searchbox', {
+            name: 'Filter folders',
+          });
+          await waitFor(() => expect(input).toHaveFocus());
+          await user.keyboard('doc');
+          if (navigate) {
+            await user.keyboard('[ArrowDown]');
+          }
+          expect(input.hasAttribute('aria-activedescendant')).toBe(navigate);
+          expect(input).toHaveValue('doc');
+          input.setSelectionRange(start, end);
+          expect(input.selectionStart).toBe(start);
+          expect(input.selectionEnd).toBe(end);
+          expect(input).toHaveFocus();
+
+          await user.keyboard(key);
+
+          expect(screen.queryByRole('searchbox', { name: 'Filter folders' }) === null).toBe(closes);
+        },
+      );
+    });
+
     it('uses RTL cross-axis keys to enter and leave a filterable submenu', async () => {
       const { user } = await render(
         <DirectionProvider direction="rtl">
@@ -2891,6 +3149,104 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
 
       expect(onClick).toHaveBeenCalledTimes(1);
     });
+
+    it.each([
+      { query: '', navigate: true, clicks: 1, value: '' },
+      { query: '', navigate: false, clicks: 0, value: '' },
+      { query: 'Rename', navigate: true, clicks: 0, value: 'Rename ' },
+    ])(
+      'routes Space with query "$query" and navigation=$navigate',
+      async ({ query, navigate, clicks, value }) => {
+        const onClick = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item onClick={onClick} closeOnClick={false}>
+                        Rename file
+                      </Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        if (query) {
+          await user.keyboard(query);
+        }
+        if (navigate) {
+          await user.keyboard('[ArrowDown]');
+        }
+        expect(input.hasAttribute('aria-activedescendant')).toBe(navigate);
+        expect(input).toHaveValue(query);
+        expect(onClick).not.toHaveBeenCalled();
+
+        await user.keyboard('[Space]');
+
+        expect(onClick).toHaveBeenCalledTimes(clicks);
+        expect(input).toHaveValue(value);
+        expect(input).toHaveFocus();
+      },
+    );
+
+    it.each([
+      { name: 'Space', key: '[Space]', query: '' },
+      { name: 'ArrowDown', key: '[ArrowDown]', query: '' },
+      { name: 'ArrowUp', key: '[ArrowUp]', query: '' },
+      { name: 'ArrowLeft', key: '[ArrowLeft]', query: '' },
+      { name: 'ArrowRight', key: '[ArrowRight]', query: '' },
+      { name: 'Space with text', key: '[Space]', query: 'Re' },
+      { name: 'ArrowDown with text', key: '[ArrowDown]', query: 'Re' },
+      { name: 'ArrowUp with text', key: '[ArrowUp]', query: 'Re' },
+      { name: 'ArrowLeft with text', key: '[ArrowLeft]', query: 'Re' },
+      { name: 'ArrowRight with text', key: '[ArrowRight]', query: 'Re' },
+    ])(
+      'routes $name to the highlighted item only when the input is empty',
+      async ({ key, query }) => {
+        const onItemKeyDown = vi.fn();
+        const { user } = await render(
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item onKeyDown={onItemKeyDown} closeOnClick={false}>
+                        Rename
+                      </Menu.Item>
+                      <Menu.Item>Remove</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
+        );
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard(`${query}[ArrowDown]`);
+        const item = screen.getByRole('menuitem', { name: 'Rename' });
+        expect(input).toHaveAttribute('aria-activedescendant', item.id);
+        expect(input).toHaveValue(query);
+        expect(onItemKeyDown).not.toHaveBeenCalled();
+
+        await user.keyboard(key);
+
+        expect(onItemKeyDown).toHaveBeenCalledTimes(query ? 0 : 1);
+        expect(input).toHaveFocus();
+      },
+    );
 
     it('does not activate the highlighted item when Enter commits an IME composition', async () => {
       const onClick = vi.fn();
@@ -4131,7 +4487,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     expect(input).toHaveAttribute('aria-activedescendant', rename.id);
   });
 
-  it('does not open a highlighted submenu with a modified cross-axis key from the input', async () => {
+  it('keeps cross-axis keys for text editing with modifiers or a query', async () => {
     const { user } = await render(
       <Menu.FilterProvider>
         <Menu.Root defaultOpen>
@@ -4172,6 +4528,22 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     fireEvent.keyDown(input, { key: 'ArrowRight', metaKey: true });
     expect(screen.queryByTestId('submenu-list')).toBe(null);
 
+    await user.keyboard('Sha[ArrowDown]');
+    expect(input).toHaveValue('Sha');
+    expect(input).toHaveAttribute(
+      'aria-activedescendant',
+      screen.getByRole('menuitem', { name: 'Share' }).id,
+    );
+    await user.keyboard('[ArrowLeft][ArrowRight]');
+    expect(screen.queryByTestId('submenu-list')).toBe(null);
+
+    await user.clear(input);
+    await user.keyboard('[ArrowDown]');
+    expect(input).toHaveValue('');
+    expect(input).toHaveAttribute(
+      'aria-activedescendant',
+      screen.getByRole('menuitem', { name: 'Share' }).id,
+    );
     await user.keyboard('[ArrowRight]');
     await screen.findByTestId('submenu-list');
   });
@@ -6249,16 +6621,23 @@ describe('filterable menu navigation regressions', () => {
 
   describe.each([false, true])('with a filtered submenu: %s', (filterSubmenu) => {
     it.each([
-      ['[ArrowRight]', '[ArrowLeft]'],
-      ['[ArrowRight]', '{Shift>}[Tab]{/Shift}'],
-      ['[Enter]', '[Escape]'],
-    ])(
-      'restores input focus after opening with %s and closing with %s',
-      async (openKey, closeKey) => {
+      { openKey: '[ArrowRight]', closeKey: '[ArrowLeft]', orientation: 'vertical', query: '' },
+      {
+        openKey: '[ArrowRight]',
+        closeKey: '{Shift>}[Tab]{/Shift}',
+        orientation: 'vertical',
+        query: '',
+      },
+      { openKey: '[Enter]', closeKey: '[Escape]', orientation: 'vertical', query: '' },
+      { openKey: '[Space]', closeKey: '[Escape]', orientation: 'vertical', query: '' },
+      { openKey: '[ArrowDown]', closeKey: '[Escape]', orientation: 'horizontal', query: 'More' },
+    ] as const)(
+      'restores input focus after opening $orientation submenu with $openKey and query "$query" and closing with $closeKey',
+      async ({ openKey, closeKey, orientation, query }) => {
         const Wrapper = filterSubmenu ? Menu.FilterProvider : React.Fragment;
         const { user } = await render(
           <Menu.FilterProvider>
-            <Menu.Root defaultOpen>
+            <Menu.Root defaultOpen orientation={orientation}>
               <Menu.Trigger>Actions</Menu.Trigger>
               <Menu.Portal>
                 <Menu.Positioner>
@@ -6296,7 +6675,14 @@ describe('filterable menu navigation regressions', () => {
         );
         const input = screen.getByRole('searchbox', { name: 'Filter actions' });
         await waitFor(() => expect(input).toHaveFocus());
-        await user.keyboard(`[ArrowDown]${openKey}`);
+        await user.keyboard(`${query}[ArrowDown]`);
+        expect(input).toHaveValue(query);
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'More' }).id,
+        );
+        expect(screen.queryByRole('menuitem', { name: 'Child action' })).toBe(null);
+        await user.keyboard(openKey);
         const child = filterSubmenu
           ? screen.getByRole('searchbox', { name: 'Filter child actions' })
           : screen.getByRole('menuitem', { name: 'Child action' });
@@ -6306,6 +6692,7 @@ describe('filterable menu navigation regressions', () => {
           expect(screen.queryByRole('menuitem', { name: 'Child action' })).toBe(null),
         );
         await waitFor(() => expect(input).toHaveFocus());
+        await user.clear(input);
         await user.keyboard('ren');
         expect(input).toHaveValue('ren');
         expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();

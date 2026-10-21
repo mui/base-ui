@@ -176,7 +176,11 @@ describe('<Menu.List />', () => {
   });
 
   describe('keys on a focused list', () => {
-    function App(props: { onPress?: (() => void) | undefined }) {
+    function App(props: {
+      onPress?: (() => void) | undefined;
+      inputDisabled?: boolean;
+      onItemKeyDown?: React.KeyboardEventHandler;
+    }) {
       return (
         <Menu.FilterProvider>
           <Menu.Root defaultOpen>
@@ -184,9 +188,11 @@ describe('<Menu.List />', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.Input aria-label="Filter fruit" />
+                  <Menu.Input aria-label="Filter fruit" disabled={props.inputDisabled} />
                   <Menu.List data-testid="list">
-                    <Menu.Item onClick={props.onPress}>Apple</Menu.Item>
+                    <Menu.Item onClick={props.onPress} onKeyDown={props.onItemKeyDown}>
+                      Apple
+                    </Menu.Item>
                     <Menu.Item>Banana</Menu.Item>
                   </Menu.List>
                 </Menu.Popup>
@@ -203,6 +209,37 @@ describe('<Menu.List />', () => {
       screen.getByRole('searchbox', { name: 'Filter fruit' }).blur();
       list.focus();
     }
+
+    it.each([
+      { inputDisabled: true, highlighted: 'Banana' },
+      { inputDisabled: false, highlighted: 'Banana' },
+    ])(
+      'only relays navigation after the input takes focus (disabled: $inputDisabled)',
+      async ({ inputDisabled, highlighted }) => {
+        const onItemKeyDown = vi.fn();
+        const { user } = await render(
+          <App inputDisabled={inputDisabled} onItemKeyDown={onItemKeyDown} />,
+        );
+        const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+        const list = screen.getByTestId('list');
+        const apple = screen.getByRole('menuitem', { name: 'Apple' });
+        await user.hover(apple);
+        await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', apple.id));
+        expect(input).toHaveProperty('disabled', inputDisabled);
+        await act(async () => focusList(list));
+        expect(list).toHaveFocus();
+        expect(apple).toHaveAttribute('data-highlighted');
+        expect(onItemKeyDown).not.toHaveBeenCalled();
+
+        await user.keyboard('[ArrowDown]');
+
+        expect(screen.getByRole('menuitem', { name: highlighted })).toHaveAttribute(
+          'data-highlighted',
+        );
+        expect(inputDisabled ? list : input).toHaveFocus();
+        expect(onItemKeyDown).toHaveBeenCalledTimes(inputDisabled ? 0 : 1);
+      },
+    );
 
     it('replays navigation keys on the input instead of scrolling', async () => {
       await render(<App />);
@@ -223,6 +260,22 @@ describe('<Menu.List />', () => {
       await waitFor(() => {
         expect(input).toHaveAttribute('aria-activedescendant', apple.id);
       });
+      expect(input).toHaveFocus();
+    });
+
+    it('ignores Space on an empty input when the list has focus and no item is highlighted', async () => {
+      const { user } = await render(<App />);
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      const list = screen.getByTestId('list');
+      await waitFor(() => expect(input).toHaveFocus());
+      await act(async () => focusList(list));
+      expect(list).toHaveFocus();
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      expect(input).toHaveValue('');
+
+      await user.keyboard('[Space]');
+
+      expect(input).toHaveValue('');
       expect(input).toHaveFocus();
     });
 
@@ -352,24 +405,40 @@ describe('filterable menu list semantics', () => {
       );
     }
 
-    it('enters the results with the vertical arrows after typing', async () => {
+    it('enters the results with vertical arrows and navigates at horizontal caret boundaries', async () => {
       const { user } = await render(<HorizontalMenu defaultOpen />);
-      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
       await waitFor(() => expect(input).toHaveFocus());
 
       await user.type(input, 'p');
       await waitFor(() => expect(screen.queryByText('Beta')).toBe(null));
 
-      // Left and Right keep moving the caret while nothing is highlighted.
+      // Left and Right move the caret before reaching the text boundary.
       await user.keyboard('[ArrowLeft]');
       expect(input).not.toHaveAttribute('aria-activedescendant');
+      expect(input.selectionStart).toBe(0);
 
       await user.keyboard('[ArrowDown]');
       expect(input).toHaveAttribute('aria-activedescendant', 'alpha');
       await user.keyboard('[ArrowRight]');
+      expect(input).toHaveAttribute('aria-activedescendant', 'alpha');
+      expect(input.selectionStart).toBe(1);
+      await user.keyboard('[ArrowLeft]');
+      expect(input).toHaveAttribute('aria-activedescendant', 'alpha');
+      expect(input.selectionStart).toBe(0);
+
+      await user.keyboard('[ArrowRight]');
+      expect(input).toHaveAttribute('aria-activedescendant', 'alpha');
+      expect(input.selectionStart).toBe(1);
+      await user.keyboard('[ArrowRight]');
+      expect(input).toHaveAttribute('aria-activedescendant', 'apple');
+      expect(input).toHaveFocus();
+      await user.keyboard('[ArrowLeft]');
+      expect(input.selectionStart).toBe(0);
       expect(input).toHaveAttribute('aria-activedescendant', 'apple');
       await user.keyboard('[ArrowLeft]');
       expect(input).toHaveAttribute('aria-activedescendant', 'alpha');
+      expect(input).toHaveFocus();
     });
 
     it('enters the results from the end with ArrowUp', async () => {
