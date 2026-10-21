@@ -857,6 +857,12 @@ Renders a `<div>` element.
 | style         | `React.CSSProperties \| ((state: Menu.RadioGroup.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render        | `ReactElement \| ((props: HTMLProps, state: Menu.RadioGroup.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**RadioGroup Data Attributes:**
+
+| Attribute     | Type | Description                                    |
+| :------------ | :--- | :--------------------------------------------- |
+| data-disabled | -    | Present when the menu radio group is disabled. |
+
 ### RadioGroup.Props
 
 Re-export of [RadioGroup](#radiogroup) props.
@@ -987,6 +993,7 @@ Renders a `<span>` element.
 | :------------------ | :--- | :---------------------------------------------------- |
 | data-checked        | -    | Present when the menu radio item is selected.         |
 | data-unchecked      | -    | Present when the menu radio item is not selected.     |
+| data-highlighted    | -    | Present when the menu radio item is highlighted.      |
 | data-disabled       | -    | Present when the menu radio item is disabled.         |
 | data-starting-style | -    | Present when the radio indicator begins animating in. |
 | data-ending-style   | -    | Present when the radio indicator is animating out.    |
@@ -1129,6 +1136,7 @@ Renders a `<span>` element.
 | :------------------ | :--- | :-------------------------------------------------- |
 | data-checked        | -    | Present when the menu checkbox item is checked.     |
 | data-unchecked      | -    | Present when the menu checkbox item is not checked. |
+| data-highlighted    | -    | Present when the menu checkbox item is highlighted. |
 | data-disabled       | -    | Present when the menu checkbox item is disabled.    |
 | data-starting-style | -    | Present when the indicator begins animating in.     |
 | data-ending-style   | -    | Present when the indicator is animating out.        |
@@ -1372,6 +1380,8 @@ declare namespace MenuCheckboxItemIndicatorDataAttributes {
   const checked: 'data-checked';
   /** Present when the menu checkbox item is not checked. */
   const unchecked: 'data-unchecked';
+  /** Present when the menu checkbox item is highlighted. */
+  const highlighted: 'data-highlighted';
   /** Present when the menu checkbox item is disabled. */
   const disabled: 'data-disabled';
   /** Present when the indicator begins animating in. */
@@ -1573,6 +1583,17 @@ declare namespace MenuPositionerDataAttributes {
 }
 ```
 
+### MenuRadioGroupDataAttributes
+
+Data attributes of [RadioGroup](#radiogroup).
+
+```typescript
+declare namespace MenuRadioGroupDataAttributes {
+  /** Present when the menu radio group is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
 ### MenuRadioItemDataAttributes
 
 Data attributes of [RadioItem](#radioitem).
@@ -1600,6 +1621,8 @@ declare namespace MenuRadioItemIndicatorDataAttributes {
   const checked: 'data-checked';
   /** Present when the menu radio item is not selected. */
   const unchecked: 'data-unchecked';
+  /** Present when the menu radio item is highlighted. */
+  const highlighted: 'data-highlighted';
   /** Present when the menu radio item is disabled. */
   const disabled: 'data-disabled';
   /** Present when the radio indicator begins animating in. */
@@ -1768,7 +1791,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.Clear`: `Menu.Clear`, `Menu.Clear.State`, `Menu.Clear.Props`
 - `Menu.Empty`: `Menu.Empty`, `Menu.Empty.State`, `Menu.Empty.Props`
 - `Menu.useFilter`
-- `Default`: `MenuFilter`, `MenuFilterOptions`, `MenuArrowDataAttributes`, `MenuBackdropDataAttributes`, `MenuCheckboxItemDataAttributes`, `MenuCheckboxItemIndicatorDataAttributes`, `MenuItemDataAttributes`, `MenuLinkItemDataAttributes`, `MenuPopupDataAttributes`, `MenuPositionerCssVariables`, `MenuPositionerDataAttributes`, `MenuRadioItemDataAttributes`, `MenuRadioItemIndicatorDataAttributes`, `MenuTriggerDataAttributes`, `MenuViewportCssVariables`, `MenuViewportDataAttributes`, `MenuSeparatorDataAttributes`, `MenuSubmenuTriggerDataAttributes`, `MenuInputDataAttributes`, `MenuClearDataAttributes`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderState`, `MenuFilterProviderProps`, `MenuFilterProviderChangeEventReason`, `MenuFilterProviderChangeEventDetails`, `MenuInputState`, `MenuInputProps`, `MenuListState`, `MenuListProps`, `MenuClearState`, `MenuClearProps`, `MenuEmptyState`, `MenuEmptyProps`
+- `Default`: `MenuFilter`, `MenuFilterOptions`, `MenuArrowDataAttributes`, `MenuBackdropDataAttributes`, `MenuCheckboxItemDataAttributes`, `MenuCheckboxItemIndicatorDataAttributes`, `MenuItemDataAttributes`, `MenuLinkItemDataAttributes`, `MenuPopupDataAttributes`, `MenuPositionerCssVariables`, `MenuPositionerDataAttributes`, `MenuRadioGroupDataAttributes`, `MenuRadioItemDataAttributes`, `MenuRadioItemIndicatorDataAttributes`, `MenuTriggerDataAttributes`, `MenuViewportCssVariables`, `MenuViewportDataAttributes`, `MenuSeparatorDataAttributes`, `MenuSubmenuTriggerDataAttributes`, `MenuInputDataAttributes`, `MenuClearDataAttributes`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootHighlightEventReason`, `MenuRootHighlightEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderState`, `MenuFilterProviderProps`, `MenuFilterProviderChangeEventReason`, `MenuFilterProviderChangeEventDetails`, `MenuInputState`, `MenuInputProps`, `MenuListState`, `MenuListProps`, `MenuClearState`, `MenuClearProps`, `MenuEmptyState`, `MenuEmptyProps`
 
 ## Canonical Types
 
