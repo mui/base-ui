@@ -75,7 +75,7 @@ const typesGenerationOptions = {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: false,
-  pageExtensions: ['mdx', 'tsx'],
+  pageExtensions: ['mdx', 'tsx', 'ts'],
   turbopack: {
     rules: {
       '*.mp4': {
