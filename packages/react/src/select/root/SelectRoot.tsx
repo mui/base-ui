@@ -39,6 +39,7 @@ import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Groups all parts of the select.
@@ -517,6 +518,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         readOnly={readOnly}
         ref={ref}
         style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
+        onInvalid={handleHiddenInputInvalid}
         tabIndex={-1}
         aria-hidden
         suppressHydrationWarning

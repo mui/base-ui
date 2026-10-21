@@ -34,6 +34,7 @@ import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEvent
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -206,6 +207,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       required,
       ref: mergedInputRef,
       style: name ? visuallyHiddenInput : visuallyHiddenInputPinned,
+      onInvalid: handleHiddenInputInvalid,
       tabIndex: -1,
       type: 'checkbox',
       'aria-hidden': true,

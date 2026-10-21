@@ -25,6 +25,7 @@ import { resolveRenderedAriaLabel } from '../../internals/resolveRenderedAriaLab
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { serializeValue } from '../../internals/serializeValue';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 import { RadioRootContext } from './RadioRootContext';
 
 /**
@@ -191,6 +192,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     name,
     tabIndex: -1,
     style: name ? visuallyHiddenInput : visuallyHiddenInputPinned,
+    onInvalid: handleHiddenInputInvalid,
     'aria-hidden': true,
     ...(value !== undefined ? { value: serializeValue(value) } : EMPTY_OBJECT),
     disabled,
