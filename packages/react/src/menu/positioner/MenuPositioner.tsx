@@ -20,7 +20,6 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuOpenEventDetails } from '../utils/types';
-import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
@@ -47,16 +46,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
-  const domReference = store.useState('anchorElement');
   const open = store.useState('open');
-  const instantType = store.useState('instantType');
-
-  const instantPosition = useTriggerSwitchTransition({
-    store,
-    domReference,
-    positionerElement,
-    open,
-  });
 
   const { side } = componentProps;
   let anchor = componentProps.anchor;
@@ -96,6 +86,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
+    instantTypeStore: store,
     positioning: {
       anchor,
       collisionAvoidance,
@@ -117,7 +108,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     },
     state: {
       nested: parent.type === 'menu',
-      instant: instantType ?? (instantPosition ? 'trigger-change' : undefined),
     },
   });
 

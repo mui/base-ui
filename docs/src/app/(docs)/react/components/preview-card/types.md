@@ -243,6 +243,7 @@ Renders a `<div>` element.
 | data-closed        | -                                                                          | Present when the preview card is closed.                              |
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-instant       | `'dismiss' \| 'focus' \| 'trigger-change'`                                 | Present when position transitions should be skipped.                  |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 **Positioner CSS Variables:**
@@ -597,6 +598,11 @@ declare namespace PreviewCardPositionerDataAttributes {
    * @type 'start' | 'center' | 'end'
    */
   const align: 'data-align';
+  /**
+   * Present when position transitions should be skipped.
+   * @type 'dismiss' | 'focus' | 'trigger-change'
+   */
+  const instant: 'data-instant';
 }
 ```
 

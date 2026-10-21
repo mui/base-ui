@@ -238,6 +238,7 @@ Renders a `<div>` element.
 | data-closed        | -                                                                          | Present when the tooltip is closed.                                   |
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-instant       | `'delay' \| 'dismiss' \| 'focus' \| 'trigger-change' \| 'tracking-cursor'` | Present when position transitions should be skipped.                  |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 **Positioner CSS Variables:**
@@ -340,7 +341,7 @@ Renders a `<div>` element.
 | data-closed     | -                                                                          | Present when the tooltip is closed.                                   |
 | data-uncentered | -                                                                          | Present when the tooltip arrow is uncentered.                         |
 | data-align      | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-instant    | `'delay' \| 'dismiss' \| 'focus'`                                          | Present if animations should be instant.                              |
+| data-instant    | `'delay' \| 'dismiss' \| 'focus' \| 'trigger-change' \| 'tracking-cursor'` | Present if animations should be instant.                              |
 | data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 ### Arrow.Props
@@ -360,7 +361,7 @@ type TooltipArrowState = {
   /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
   /** Whether transitions should be skipped. */
-  instant: 'delay' | 'dismiss' | 'focus' | undefined;
+  instant: string | undefined;
 };
 ```
 
@@ -483,7 +484,7 @@ declare namespace TooltipArrowDataAttributes {
   const uncentered: 'data-uncentered';
   /**
    * Present if animations should be instant.
-   * @type 'delay' | 'dismiss' | 'focus'
+   * @type 'delay' | 'dismiss' | 'focus' | 'trigger-change' | 'tracking-cursor'
    */
   const instant: 'data-instant';
 }
@@ -589,6 +590,11 @@ declare namespace TooltipPositionerDataAttributes {
    * @type 'start' | 'center' | 'end'
    */
   const align: 'data-align';
+  /**
+   * Present when position transitions should be skipped.
+   * @type 'delay' | 'dismiss' | 'focus' | 'trigger-change' | 'tracking-cursor'
+   */
+  const instant: 'data-instant';
 }
 ```
 

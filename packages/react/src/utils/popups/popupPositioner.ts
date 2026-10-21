@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { ReactStore } from '@base-ui/utils/store';
+import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
+import type { TriggerChangeStore } from '../../internals/useTriggerSwitchTransition';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import type {
@@ -45,6 +47,10 @@ type PopupPositionerStore = ReactStore<
 
 export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
   forwardedRef: React.ForwardedRef<HTMLDivElement>;
+  /** Menu and Popover also suppress Popup transitions after switching triggers. */
+  instantTypeStore?: TriggerChangeStore | undefined;
+  /** Overrides the instant reason, for example when Tooltip tracks the cursor. */
+  instant?: string | undefined;
   /**
    * Whether the popup stays mounted while closed.
    */
@@ -74,7 +80,7 @@ export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
 export interface UsePopupPositionerReturnValue {
   element: React.ReactElement;
   positioning: UseAnchorPositioningReturnValue;
-  open: boolean;
+  instant: string | undefined;
   mounted: boolean;
 }
 
@@ -114,6 +120,18 @@ export function usePopupPositioner<State extends PopupPositionerState>(
   const transitionStatus = store.useState('transitionStatus');
   const instantType = store.useState('instantType');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
+  const positionerElement = store.useState('positionerElement');
+  const domReference = store.useState('anchorElement');
+  const instantPosition = useTriggerSwitchTransition({
+    store,
+    instantTypeStore: options.instantTypeStore,
+    domReference,
+    positionerElement,
+    open,
+  });
+  // Keep this fallback local: sharing it with Popup would suppress enter and exit transitions.
+  const instant =
+    options.instant ?? instantType ?? (mounted && instantPosition ? 'trigger-change' : undefined);
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -144,7 +162,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
         side: positioning.side,
         align: positioning.align,
         anchorHidden: positioning.anchorHidden,
-        instant: instantType,
+        instant,
         ...partState,
       }) as State,
     // The part's state is a new object on every render, so it's compared by its values. A part
@@ -155,7 +173,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
       positioning.side,
       positioning.align,
       positioning.anchorHidden,
-      instantType,
+      instant,
       // eslint-disable-next-line react-hooks/exhaustive-deps
       ...partStateValues,
     ],
@@ -170,5 +188,5 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     inert: options.inert ?? !open,
   });
 
-  return { element, positioning, open, mounted };
+  return { element, positioning, instant, mounted };
 }

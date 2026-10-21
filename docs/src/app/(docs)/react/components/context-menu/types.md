@@ -251,6 +251,7 @@ Renders a `<div>` element.
 | data-closed        | -                                                                          | Present when the menu popup is closed.                               |
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                   |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to the specified side.   |
+| data-instant       | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present when position transitions should be skipped.                 |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the anchor. |
 
 **Positioner CSS Variables:**
@@ -1180,6 +1181,11 @@ declare namespace ContextMenuPositionerDataAttributes {
    * @type 'start' | 'center' | 'end'
    */
   const align: 'data-align';
+  /**
+   * Present when position transitions should be skipped.
+   * @type 'click' | 'dismiss' | 'group' | 'trigger-change'
+   */
+  const instant: 'data-instant';
 }
 ```
 

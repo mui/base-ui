@@ -24,6 +24,6 @@ export const align = CommonPopupDataAttributes.align;
 export const uncentered = 'data-uncentered';
 /**
  * Present if animations should be instant.
- * @type {'delay' | 'dismiss' | 'focus'}
+ * @type {'delay' | 'dismiss' | 'focus' | 'trigger-change' | 'tracking-cursor'}
  */
 export const instant = 'data-instant';

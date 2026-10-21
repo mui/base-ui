@@ -14,9 +14,8 @@ export const adaptiveOrigin: Middleware = {
 
     const side = getSide(placement);
 
-    // Keep the same inset when transitions are temporarily disabled. For top and left
-    // placements, pass the anchor-facing edge to the positioner, which converts it to
-    // a bottom or right inset relative to the containing block.
+    // Pin the anchor-facing edge while the popup resizes. The positioner converts top and
+    // left placements to bottom and right insets relative to the containing block.
     return {
       x: side === 'left' ? x + floating.width : x,
       y: side === 'top' ? y + floating.height : y,

@@ -5,7 +5,7 @@ import type { UseAnchorPositioningReturnValue } from '../../internals/useAnchorP
 export type TooltipPositionerContext = Pick<
   UseAnchorPositioningReturnValue,
   'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles'
->;
+> & { instant: string | undefined };
 
 export const TooltipPositionerContext = React.createContext<TooltipPositionerContext | undefined>(
   undefined,

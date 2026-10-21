@@ -7,6 +7,7 @@ import {
   isJSDOM,
   popupConformanceTests,
   resetBrowserPointer,
+  recordTransitions,
   waitSingleFrame,
 } from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -1138,7 +1139,7 @@ describe('<Tooltip.Root />', () => {
           return (
             <div data-testid="scroller" style={{ width: 400, height: 200, overflow: 'auto' }}>
               <style>{`
-                .disabled-tracking-positioner { transition: transform 1000ms linear; }
+                .disabled-tracking-positioner { transition: transform 60s linear; }
                 .disabled-tracking-positioner[data-instant] { transition: none; }
                 .disabled-tracking-popup { opacity: 1; transition: opacity 100ms linear; }
                 .disabled-tracking-popup[data-starting-style],
@@ -1183,12 +1184,12 @@ describe('<Tooltip.Root />', () => {
         expect(positioner).toHaveAttribute('data-instant');
 
         const trigger = screen.getByTestId(switchBeforeDisabling ? 'trigger-2' : 'trigger');
+        const move = recordTransitions(positioner, { pause: true });
         if (switchBeforeDisabling) {
           await setProps({ triggerId: trigger.id });
         }
-        await waitFor(() =>
-          expect(positioner.getAnimations()).toHaveLength(switchBeforeDisabling ? 1 : 0),
-        );
+        await waitFor(() => expect(move.started).toHaveLength(switchBeforeDisabling ? 1 : 0));
+        expect(positioner.getAnimations()).toHaveLength(switchBeforeDisabling ? 1 : 0);
         expect(positioner.hasAttribute('data-instant')).toBe(!switchBeforeDisabling);
 
         // Keep the controlled open prop true: disabling hides the tooltip without committing a
@@ -1201,12 +1202,7 @@ describe('<Tooltip.Root />', () => {
         expect(positioner).toHaveAttribute('data-instant');
         expect(positioner.getAnimations()).toHaveLength(0);
 
-        const transitionRun = vi.fn();
-        positioner.addEventListener('transitionrun', (event) => {
-          if (event.target === positioner) {
-            transitionRun();
-          }
-        });
+        const transitions = recordTransitions(positioner);
         const previousTop = positioner.getBoundingClientRect().top;
         expect(previousTop).toBeCloseTo(trigger.getBoundingClientRect().top, 0);
         await act(async () => {
@@ -1220,7 +1216,7 @@ describe('<Tooltip.Root />', () => {
           await waitSingleFrame();
         });
 
-        expect(transitionRun).not.toHaveBeenCalled();
+        expect(transitions.started).toEqual([]);
         expect(positioner.getBoundingClientRect().top).toBeCloseTo(
           trigger.getBoundingClientRect().top,
           0,

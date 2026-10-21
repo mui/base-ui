@@ -10,7 +10,7 @@
   transition-timing-function: var(--easing);
   transition-duration: var(--animation-duration);
 
-  /* Disable transitions when data-instant is set (used for the initial positioning of the popup) */
+  /* Keep anchor tracking instant outside transitions between triggers. */
   &[data-instant] {
     transition: none;
   }

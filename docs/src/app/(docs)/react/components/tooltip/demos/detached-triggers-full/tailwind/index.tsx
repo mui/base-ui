@@ -92,8 +92,8 @@ export default function TooltipDetachedTriggersFullDemo() {
                     data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0
                     data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-1/2
                     data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0
-                    [[data-instant]_&_[data-previous]]:transition-none
-                    [[data-instant]_&_[data-current]]:transition-none
+                    data-instant:[&_[data-previous]]:transition-none
+                    data-instant:[&_[data-current]]:transition-none
                     data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-1/2
                     data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2

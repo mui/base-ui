@@ -6,8 +6,11 @@ import {
   createRenderer,
   describeConformance,
   isJSDOM,
+  recordTransitions,
   viewportConformanceTests,
 } from '#test-utils';
+
+import demoStyles from 'docs/src/app/(docs)/react/components/tooltip/demos/detached-triggers-full/css-modules/index.module.css';
 
 describe('<Tooltip.Viewport />', () => {
   const { render } = createRenderer();
@@ -51,44 +54,76 @@ describe('<Tooltip.Viewport />', () => {
     ),
   });
 
-  it.skipIf(isJSDOM)('anchors the positioner from the far edge while it transitions', async () => {
-    await render(
-      <Tooltip.Root>
-        <style>{`[data-testid="positioner"] { transition: transform 100ms; }`}</style>
-        {/* Leave room on the left so the popup does not flip. */}
-        <Tooltip.Trigger
-          delay={0}
-          closeDelay={0}
-          style={{ position: 'fixed', top: 200, left: 300 }}
-        >
-          Trigger
-        </Tooltip.Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Positioner side="left" data-testid="positioner">
-            <Tooltip.Popup>
-              <Tooltip.Viewport>Content</Tooltip.Viewport>
-            </Tooltip.Popup>
-          </Tooltip.Positioner>
-        </Tooltip.Portal>
-      </Tooltip.Root>,
+  describe.skipIf(isJSDOM)('detached trigger demo transitions', () => {
+    it.each([{ stationary: true }, { stationary: false }])(
+      'finishes the content slide with stationary positioner=$stationary',
+      async ({ stationary }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        function Test({ triggerId = 'first' }) {
+          const anchorRef = React.useRef<HTMLDivElement>(null);
+          return (
+            <Tooltip.Root<string> open triggerId={triggerId}>
+              {({ payload }) => (
+                <React.Fragment>
+                  <div
+                    ref={anchorRef}
+                    style={{ position: 'fixed', top: 200, left: 200, width: 80, height: 20 }}
+                  />
+                  <Tooltip.Trigger
+                    id="first"
+                    payload="First"
+                    style={{ position: 'fixed', top: 200, left: 200, width: 80, height: 20 }}
+                  >
+                    First
+                  </Tooltip.Trigger>
+                  <Tooltip.Trigger
+                    id="second"
+                    payload="Second"
+                    style={{ position: 'fixed', top: 200, left: 300, width: 80, height: 20 }}
+                  >
+                    Second
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner
+                      data-testid="positioner"
+                      anchor={stationary ? anchorRef : undefined}
+                      className={demoStyles.Positioner}
+                      style={{ transitionDuration: '200ms' }}
+                    >
+                      <Tooltip.Popup data-testid="popup" className={demoStyles.Popup}>
+                        <Tooltip.Viewport data-testid="viewport" className={demoStyles.Viewport}>
+                          <div style={{ width: 100 }}>{payload}</div>
+                        </Tooltip.Viewport>
+                      </Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                </React.Fragment>
+              )}
+            </Tooltip.Root>
+          );
+        }
+        const { setProps } = await render(<Test />);
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => expect(popup.style.transition).toBe(''));
+        await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+        const positioner = screen.getByTestId('positioner');
+        const initialLeft = positioner.getBoundingClientRect().left;
+        const positionerTransitions = recordTransitions(positioner);
+        const viewport = screen.getByTestId('viewport');
+        const transitions = recordTransitions(viewport, { subtree: true });
+        expect(viewport).not.toHaveAttribute('data-instant');
+
+        await setProps({ triggerId: 'second' });
+        await waitFor(() => expect(transitions.started).toContain('translate'));
+        await waitFor(() => expect(transitions.finished).toContain('translate'));
+        expect(transitions.canceled).not.toContain('translate');
+        expect(positionerTransitions.started).toEqual(stationary ? [] : ['left']);
+        expect(positioner.getBoundingClientRect().left).toBeCloseTo(
+          initialLeft + (stationary ? 0 : 100),
+          0,
+        );
+      },
     );
-
-    const trigger = screen.getByRole('button', { name: 'Trigger' });
-
-    await act(async () => trigger.focus());
-
-    const positioner = await screen.findByTestId('positioner');
-
-    await waitFor(() => {
-      expect(positioner).toHaveAttribute('data-side', 'left');
-    });
-
-    // A transitioning popup on the left side is positioned from the right edge so a size change
-    // keeps its far edge in place.
-    await waitFor(() => {
-      expect(positioner.style.right).not.toBe('');
-    });
-    expect(positioner.style.left).toBe('');
   });
 
   it.skipIf(isJSDOM)('should mirror the instant animation type of the tooltip', async () => {

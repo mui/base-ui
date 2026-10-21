@@ -13,7 +13,6 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 import { REASONS } from '../../internals/reasons';
-import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
@@ -36,22 +35,13 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
-  const domReference = store.useState('anchorElement');
   const open = store.useState('open');
-  const instantType = store.useState('instantType');
-
-  const instantPosition = useTriggerSwitchTransition({
-    store,
-    domReference,
-    positionerElement,
-    open,
-  });
 
   const { element, positioning, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
+    instantTypeStore: store,
     positioning: { nodeId },
-    state: { instant: instantType ?? (instantPosition ? 'trigger-change' : undefined) },
   });
 
   const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;

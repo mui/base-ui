@@ -10,7 +10,6 @@ import type {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { usePopupPositioner } from '../../utils/popups/popupPositioner';
-import { useTriggerSwitch } from '../../internals/useTriggerSwitchTransition';
 
 /**
  * Positions the tooltip against the trigger.
@@ -28,32 +27,19 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const open = store.useState('open');
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
-  const instantType = store.useState('instantType');
-  const positionerElement = store.useState('positionerElement');
-  const domReference = store.useState('anchorElement');
 
-  const instantPosition = useTriggerSwitch({
-    store,
-    domReference,
-    positionerElement,
-    open,
-  });
-
-  const { element, positioning } = usePopupPositioner(store, componentProps, {
+  const { element, positioning, instant } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     positioning: { side: componentProps.side ?? 'top' },
-    state: {
-      instant:
-        trackCursorAxis !== 'none'
-          ? 'tracking-cursor'
-          : (instantType ?? (instantPosition ? 'trigger-change' : undefined)),
-    },
+    instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : undefined,
     inert: !open || trackCursorAxis === 'both' || disableHoverablePopup,
   });
 
+  const contextValue = React.useMemo(() => ({ ...positioning, instant }), [positioning, instant]);
+
   return (
-    <TooltipPositionerContext.Provider value={positioning}>
+    <TooltipPositionerContext.Provider value={contextValue}>
       {element}
     </TooltipPositionerContext.Provider>
   );

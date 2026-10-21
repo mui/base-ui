@@ -5,6 +5,7 @@ import {
   detachedTriggersConformanceTests,
   isJSDOM,
   resetBrowserPointer,
+  recordTransitions,
 } from '#test-utils';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -648,6 +649,7 @@ describe('<Popover.Root />', () => {
     async function renderHoverDetachedTriggers({
       popupChildren,
       settleTriggerChange = true,
+      holdExit = false,
       switchDuration = 120,
       exitDuration = 250,
     }: {
@@ -657,6 +659,7 @@ describe('<Popover.Root />', () => {
        * new trigger, so the delayed `trigger-change` restoration is still pending.
        */
       settleTriggerChange?: boolean;
+      holdExit?: boolean;
       /** How long the positioner takes to move to the new trigger. */
       switchDuration?: number;
       /** How long the popup takes to fade out. */
@@ -673,9 +676,9 @@ describe('<Popover.Root />', () => {
             {`
               .positioner {
                 transition:
-                  top ${switchDuration}ms linear,
-                  left ${switchDuration}ms linear,
-                  transform ${switchDuration}ms linear;
+                  top ${settleTriggerChange ? switchDuration : 60000}ms linear,
+                  left ${settleTriggerChange ? switchDuration : 60000}ms linear,
+                  transform ${settleTriggerChange ? switchDuration : 60000}ms linear;
               }
 
               .popup {
@@ -685,6 +688,7 @@ describe('<Popover.Root />', () => {
 
               .popup[data-ending-style] {
                 opacity: 0;
+                transition-duration: ${holdExit ? 60000 : exitDuration}ms;
               }
 
               .positioner[data-instant],
@@ -745,6 +749,10 @@ describe('<Popover.Root />', () => {
         expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
+      await waitFor(() => expect(screen.getByTestId('positioner').style.transition).toBe(''));
+      const move = recordTransitions(screen.getByTestId('positioner'), {
+        pause: !settleTriggerChange,
+      });
       await utils.user.hover(trigger2);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('2');
@@ -762,6 +770,7 @@ describe('<Popover.Root />', () => {
 
       return {
         ...utils,
+        move,
         trigger1,
         trigger2,
         instantsWhileEnding,
@@ -1108,27 +1117,27 @@ describe('<Popover.Root />', () => {
     });
 
     it('does not restore the trigger-change instant after a hover close has started', async () => {
-      const { user, trigger2, popup } = await renderHoverDetachedTriggers({
+      const { user, trigger2, popup, move } = await renderHoverDetachedTriggers({
         settleTriggerChange: false,
+        holdExit: true,
       });
-
       const positioner = screen.getByTestId('positioner');
-      await waitFor(() => {
-        expect(positioner.getAnimations().length).toBeGreaterThan(0);
-      });
-      const switchAnimations = positioner.getAnimations();
+      await waitFor(() => expect(move.started).toContain('transform'));
+      expect(positioner.getAnimations()[0].playState).toBe('paused');
+      // Capture the promises before closing: cancellation replaces Animation.finished.
+      const switchFinished = Promise.allSettled(
+        positioner.getAnimations().map((animation) => animation.finished),
+      );
+      const exit = recordTransitions(popup, { pause: true });
 
       await user.unhover(trigger2);
-      await waitFor(() => {
-        expect(popup).toHaveAttribute('data-ending-style');
-      });
-
+      await waitFor(() => expect(exit.started).toContain('opacity'));
+      expect(popup).toHaveAttribute('data-ending-style');
       await act(async () => {
-        await Promise.all(switchAnimations.map((animation) => animation.finished));
+        await switchFinished;
       });
 
-      // Still mid-exit: the stale callback must not have marked it instant and
-      // collapsed the transition.
+      expect(positioner).toHaveAttribute('data-instant');
       expect(screen.getByTestId('popup')).toBe(popup);
       expect(popup).toHaveAttribute('data-ending-style');
       expect(popup).not.toHaveAttribute('data-instant');
