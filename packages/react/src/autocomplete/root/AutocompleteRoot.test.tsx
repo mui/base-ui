@@ -394,6 +394,43 @@ describe('<Autocomplete.Root />', () => {
         expect(screen.queryByRole('listbox')).toBe(null);
       });
     });
+
+    it('fills the input with the highlighted item on Space while the input is empty', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'beta']} onValueChange={onValueChange}>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+      const alpha = await screen.findByRole('option', { name: 'alpha' });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(alpha).toHaveAttribute('data-highlighted');
+      });
+      expect(input.value).toBe('');
+
+      await user.keyboard(' ');
+
+      expect(input.value).toBe('alpha');
+      expect(onValueChange.mock.lastCall?.[0]).toBe('alpha');
+    });
   });
 
   describe('input inside popup composition', () => {

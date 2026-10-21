@@ -14,8 +14,6 @@ import { Menubar } from '@base-ui/react/menubar';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { activeElement, contains } from '@base-ui/utils/shadowDom';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { useMenubarContext } from './MenubarContext';
 
 describe('<Menubar />', () => {
@@ -1650,107 +1648,39 @@ describe('filterable menubar menus', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  function FilterableMenubar({
-    orientation = 'horizontal',
-  }: {
-    orientation?: Menubar.Props['orientation'];
-  }) {
-    return (
-      <Menubar orientation={orientation}>
-        <Menu.FilterProvider>
+  it.each(['horizontal', 'vertical'] as const)(
+    'preserves %s trigger navigation',
+    async (orientation) => {
+      const { user } = await render(
+        <Menubar orientation={orientation}>
+          <Menu.FilterProvider>
+            <Menu.Root>
+              <Menu.Trigger>File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter file actions" />
+                    <Menu.List>
+                      <Menu.Item>New file</Menu.Item>
+                      <Menu.Item>Open file</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
           <Menu.Root>
-            <Menu.Trigger>File</Menu.Trigger>
+            <Menu.Trigger>Edit</Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.Input aria-label="Filter file actions" />
-                  <Menu.List>
-                    <Menu.Item>New file</Menu.Item>
-                    <Menu.Item>Open file</Menu.Item>
-                  </Menu.List>
+                  <Menu.Item>Copy</Menu.Item>
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
           </Menu.Root>
-        </Menu.FilterProvider>
-        <Menu.Root>
-          <Menu.Trigger>Edit</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Copy</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-        <Menu.Root>
-          <Menu.Trigger>View</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Zoom</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      </Menubar>
-    );
-  }
-
-  it.each([
-    { direction: 'ltr', key: 'ArrowLeft', nextMenu: 'View', nextItem: 'Zoom' },
-    { direction: 'ltr', key: 'ArrowRight', nextMenu: 'Edit', nextItem: 'Copy' },
-    { direction: 'rtl', key: 'ArrowLeft', nextMenu: 'Edit', nextItem: 'Copy' },
-    { direction: 'rtl', key: 'ArrowRight', nextMenu: 'View', nextItem: 'Zoom' },
-  ] as const)(
-    'switches menus with $key from an empty $direction filter input',
-    async ({ direction, key, nextMenu, nextItem }) => {
-      const { user } = await render(
-        <DirectionProvider direction={direction}>
-          <FilterableMenubar />
-        </DirectionProvider>,
+        </Menubar>,
       );
-      // Real keys update the browser's :focus-visible state after native pointer tests.
-      async function pressKey(value: string) {
-        if (isJSDOM) {
-          await user.keyboard(value);
-          return;
-        }
-        const { userEvent: browserUser } = await import('vitest/browser');
-        await act(async () => {
-          await browserUser.keyboard(value);
-        });
-      }
-      const file = screen.getByRole('menuitem', { name: 'File' });
-      await act(async () => file.focus());
-      await pressKey('[ArrowDown]');
-      const input = await screen.findByRole('searchbox');
-      await waitFor(() => expect(input).toHaveFocus());
-      expect(input).toHaveValue('');
-      expect(screen.getByRole('menuitem', { name: 'New file' })).toHaveAttribute(
-        'data-highlighted',
-      );
-      expect(screen.queryByRole('menuitem', { name: nextItem })).toBe(null);
-
-      await pressKey(`[${key}]`);
-
-      await screen.findByRole('menuitem', { name: nextItem });
-      const nextPopup = screen.getByRole('menu', { name: nextMenu });
-      await waitFor(() =>
-        expect(contains(nextPopup, activeElement(ownerDocument(nextPopup)))).toBe(true),
-      );
-      expect(screen.getByRole('menuitem', { name: nextMenu })).toHaveAttribute(
-        'aria-expanded',
-        'true',
-      );
-      expect(screen.queryByRole('searchbox')).toBe(null);
-    },
-  );
-
-  it.each(['horizontal', 'vertical'] as const)(
-    'preserves %s trigger navigation and filter input navigation',
-    async (orientation) => {
-      const { user } = await render(<FilterableMenubar orientation={orientation} />);
       const file = screen.getByRole('menuitem', { name: 'File' });
       const edit = screen.getByRole('menuitem', { name: 'Edit' });
       const nextKey = orientation === 'vertical' ? '[ArrowDown]' : '[ArrowRight]';
@@ -1767,17 +1697,6 @@ describe('filterable menubar menus', () => {
       expect(screen.getByRole('menuitem', { name: 'New file' })).toHaveAttribute(
         'data-highlighted',
       );
-
-      await user.keyboard('[ArrowDown]');
-      expect(screen.getByRole('menuitem', { name: 'Open file' })).toHaveAttribute(
-        'data-highlighted',
-      );
-      expect(input).toHaveFocus();
-      await user.keyboard('[ArrowUp]');
-      expect(screen.getByRole('menuitem', { name: 'New file' })).toHaveAttribute(
-        'data-highlighted',
-      );
-      expect(input).toHaveFocus();
     },
   );
 });

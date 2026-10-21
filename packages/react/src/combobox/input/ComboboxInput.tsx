@@ -401,9 +401,16 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
-          const isEmptySpacePress = event.key === ' ' && input.value === '';
-          const hasActiveItem = store.state.activeIndex !== null;
-          if ((event.key === 'Enter' || (isEmptySpacePress && hasActiveItem)) && open) {
+          // Space types into a non-empty input, and otherwise selects the highlighted item.
+          if (event.key === ' ' && open && input.value === '') {
+            stopEvent(event);
+            if (store.state.activeIndex !== null) {
+              clickHighlightedItem(store, store.state.activeIndex, event.nativeEvent);
+            }
+            return;
+          }
+
+          if (event.key === 'Enter' && open) {
             const activeIndex = store.state.activeIndex;
             const nativeEvent = event.nativeEvent;
 

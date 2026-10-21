@@ -3,7 +3,7 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, useTestInteractions } from '#test-utils';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useClick } from './useClick';
 import { useDismiss } from './useDismiss';
 import { useListNavigation } from './useListNavigation';
@@ -90,37 +90,6 @@ function App(
     </React.Fragment>
   );
 }
-
-describe('reference Space handling', () => {
-  const { render: renderReference } = createRenderer();
-
-  it.each([
-    { name: 'empty input', tag: 'input', value: '', activeIndex: null, expected: '' },
-    { name: 'empty textarea', tag: 'textarea', value: '', activeIndex: null, expected: '' },
-    { name: 'non-empty input', tag: 'input', value: 'a', activeIndex: null, expected: 'a ' },
-    { name: 'non-empty textarea', tag: 'textarea', value: 'a', activeIndex: null, expected: 'a ' },
-    { name: 'highlighted item', tag: 'input', value: '', activeIndex: 0, expected: ' ' },
-  ] as const)('handles Space on $name', async ({ tag, value, activeIndex, expected }) => {
-    function Reference() {
-      const { refs, context } = useFloating();
-      const listRef = React.useRef<Array<HTMLElement | null>>([]);
-      const { getReferenceProps } = useTestInteractions([
-        useListNavigation(context.rootStore, { listRef, activeIndex }),
-      ]);
-      const Tag = tag;
-      return <Tag defaultValue={value} ref={refs.setReference} {...getReferenceProps()} />;
-    }
-
-    const { user } = await renderReference(<Reference />);
-    const reference = screen.getByRole('textbox');
-    await user.click(reference);
-    expect(reference).toHaveValue(value);
-
-    await user.keyboard('[Space]');
-
-    expect(reference).toHaveValue(expected);
-  });
-});
 
 function VirtualizedGridRows({
   totalItems = 100,

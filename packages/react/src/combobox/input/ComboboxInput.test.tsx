@@ -1,7 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { Autocomplete } from '@base-ui/react/autocomplete';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
@@ -16,74 +15,6 @@ describe('<Combobox.Input />', () => {
       return render(<Combobox.Root>{node}</Combobox.Root>);
     },
   }));
-
-  describe.each([
-    {
-      name: 'Combobox',
-      Root: (props: { children: React.ReactNode }) => <Combobox.Root defaultOpen {...props} />,
-      Item: Combobox.Item,
-      selectedInput: 'Apple',
-    },
-    {
-      name: 'multiple Combobox',
-      Root: (props: { children: React.ReactNode }) => (
-        <Combobox.Root defaultOpen multiple {...props} />
-      ),
-      Item: Combobox.Item,
-      selectedInput: '',
-    },
-    {
-      name: 'Autocomplete',
-      Root: (props: { children: React.ReactNode }) => <Autocomplete.Root defaultOpen {...props} />,
-      Item: Autocomplete.Item,
-      selectedInput: 'Apple',
-    },
-  ])('$name Space activation', ({ Root, Item, selectedInput }) => {
-    it.each([
-      { query: '', navigate: true, clicks: 1, value: 'Apple', key: '[Space]' },
-      { query: 'App', navigate: true, clicks: 0, value: 'App ', key: '[Space]' },
-      { query: '', navigate: false, clicks: 0, value: '', key: '[Space]' },
-      { query: '', navigate: true, clicks: 0, value: ' ', key: '{Shift>}[Space]{/Shift}' },
-    ])(
-      'routes $key with query "$query" and navigation=$navigate',
-      async ({ query, navigate, clicks, value, key }) => {
-        const onClick = vi.fn();
-        const { user } = await render(
-          <Root>
-            <Combobox.Input />
-            <Combobox.Portal>
-              <Combobox.Positioner>
-                <Combobox.Popup>
-                  <Combobox.List>
-                    <Item value="Apple" onClick={onClick}>
-                      Apple
-                    </Item>
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Root>,
-        );
-
-        const input = screen.getByRole('combobox');
-        await user.click(input);
-        if (query) {
-          await user.keyboard(query);
-        }
-        if (navigate) {
-          await user.keyboard('[ArrowDown]');
-        }
-        expect(input.hasAttribute('aria-activedescendant')).toBe(navigate);
-        expect(input).toHaveValue(query);
-        expect(onClick).not.toHaveBeenCalled();
-
-        await user.keyboard(key);
-
-        expect(onClick).toHaveBeenCalledTimes(clicks);
-        expect(input).toHaveValue(clicks ? selectedInput : value);
-      },
-    );
-  });
 
   describe('prop: disabled', () => {
     it('should render aria-disabled attribute when disabled', async () => {
@@ -829,6 +760,62 @@ describe('<Combobox.Input />', () => {
 
       await user.keyboard('{Control>}{ArrowDown}{/Control}');
       expect(screen.getByRole('listbox')).not.toBe(null);
+    });
+
+    it('ignores Space in an empty input without a highlighted item', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root defaultOpen onValueChange={onValueChange}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      expect(screen.getByRole('option')).not.toHaveAttribute('data-highlighted');
+
+      await user.keyboard(' ');
+
+      expect(input.value).toBe('');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('listbox')).not.toBe(null);
+    });
+
+    it('types Space into a non-empty input with a highlighted item', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root defaultOpen onValueChange={onValueChange}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.keyboard('a{ArrowDown}');
+      expect(screen.getByRole('option')).toHaveAttribute('data-highlighted');
+
+      await user.keyboard(' ');
+
+      expect(input.value).toBe('a ');
+      expect(onValueChange).not.toHaveBeenCalled();
     });
 
     it('does not select an item for an IME keydown without a highlight', async () => {

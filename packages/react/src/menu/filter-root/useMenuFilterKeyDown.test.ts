@@ -16,18 +16,17 @@ function key(value: string, init: Partial<React.KeyboardEvent> = {}) {
 }
 
 describe('getMenuFilterKeyAction', () => {
-  it.each<[string, React.KeyboardEvent, boolean, boolean, MenuFilterKeyAction]>([
+  it.each<[string, React.KeyboardEvent, boolean, boolean, MenuFilterKeyAction, boolean?]>([
     ['IME composition', key('Enter', { which: 229 }), true, true, 'ignore'],
     ['Tab', key('Tab'), true, false, 'ignore'],
     ['Shift+Tab', key('Tab', { shiftKey: true }), false, false, 'close'],
     ['Enter on a highlight', key('Enter'), true, false, 'activate'],
     ['Enter without a highlight', key('Enter'), false, true, 'navigate'],
     ['a character', key('a'), true, false, 'edit'],
-    ['Space on a highlight in an empty input', key(' '), true, false, 'item'],
-    ['Space on a highlight with text', key(' '), true, true, 'edit'],
-    ['Space without a highlight', key(' '), false, false, 'navigate'],
-    ['Shift+Space on a highlight', key(' ', { shiftKey: true }), true, false, 'edit'],
-    ['composing Space on a highlight', key(' ', { which: 229 }), true, false, 'ignore'],
+    ['Space on a highlight in an empty input', key(' '), true, false, 'activate'],
+    ['Space without a highlight in an empty input', key(' '), false, false, 'block'],
+    ['Space on a highlight in a non-empty input', key(' '), true, true, 'edit'],
+    ['Shift+Space in an empty input', key(' ', { shiftKey: true }), true, false, 'edit'],
     ['Shift+ArrowDown', key('ArrowDown', { shiftKey: true }), true, true, 'edit'],
     ['Ctrl+ArrowLeft', key('ArrowLeft', { ctrlKey: true }), true, true, 'edit'],
     ['Shift+Escape', key('Escape', { shiftKey: true }), true, true, 'navigate'],
@@ -35,40 +34,83 @@ describe('getMenuFilterKeyAction', () => {
     ['Home without a highlight', key('Home'), false, false, 'edit'],
     ['Home on a highlight in an empty input', key('Home'), true, false, 'navigate'],
     ['Home on a highlight in a non-empty input', key('Home'), true, true, 'edit'],
-    ['ArrowRight on a submenu trigger', key('ArrowRight'), true, true, 'edit'],
-    ['ArrowLeft on a submenu trigger', key('ArrowLeft'), true, false, 'item'],
+    ['ArrowRight on a submenu trigger', key('ArrowRight'), true, false, 'submenu', true],
+    ['ArrowLeft on a submenu trigger', key('ArrowLeft'), true, false, 'submenu', true],
     ['ArrowRight on an item in a non-empty input', key('ArrowRight'), true, true, 'edit'],
-    ['ArrowLeft on an item in an empty input', key('ArrowLeft'), true, false, 'item'],
+    ['ArrowLeft on an item in an empty input', key('ArrowLeft'), true, false, 'navigate'],
     ['ArrowLeft in a non-empty input', key('ArrowLeft'), false, true, 'edit'],
     ['ArrowLeft in an empty input', key('ArrowLeft'), false, false, 'navigate'],
     ['Escape', key('Escape'), true, true, 'navigate'],
-  ])('vertical: %s', (_, event, hasActiveItem, hasValue, expected) => {
-    expect(
-      getMenuFilterKeyAction(event, {
-        orientation: 'vertical',
-        hasActiveItem,
-        hasValue,
-        isCaretAtBoundary: false,
-      }),
-    ).toBe(expected);
-  });
+  ])(
+    'vertical: %s',
+    (_, event, hasActiveItem, hasValue, expected, activeItemOpensSubmenu = false) => {
+      expect(
+        getMenuFilterKeyAction(event, {
+          orientation: 'vertical',
+          rtl: false,
+          hasActiveItem,
+          activeItemOpensSubmenu,
+          hasValue,
+          caretAtStart: !hasValue,
+          caretAtEnd: !hasValue,
+        }),
+      ).toBe(expected);
+    },
+  );
 
-  it.each<[string, React.KeyboardEvent, boolean, boolean, MenuFilterKeyAction]>([
+  it.each<{
+    key: string;
+    caret: 'start' | 'middle' | 'end';
+    submenu: boolean;
+    expected: MenuFilterKeyAction;
+  }>([
+    { key: 'ArrowRight', caret: 'end', submenu: true, expected: 'submenu' },
+    { key: 'ArrowRight', caret: 'middle', submenu: true, expected: 'edit' },
+    { key: 'ArrowRight', caret: 'start', submenu: true, expected: 'edit' },
+    { key: 'ArrowRight', caret: 'end', submenu: false, expected: 'navigate' },
+    { key: 'ArrowLeft', caret: 'start', submenu: false, expected: 'navigate' },
+    { key: 'ArrowLeft', caret: 'start', submenu: true, expected: 'submenu' },
+    { key: 'ArrowLeft', caret: 'middle', submenu: false, expected: 'edit' },
+    { key: 'ArrowLeft', caret: 'end', submenu: false, expected: 'edit' },
+  ])(
+    'vertical with a query: $key with the caret at the $caret (submenu trigger: $submenu)',
+    ({ key: value, caret, submenu, expected }) => {
+      expect(
+        getMenuFilterKeyAction(key(value), {
+          orientation: 'vertical',
+          rtl: false,
+          hasActiveItem: true,
+          activeItemOpensSubmenu: submenu,
+          hasValue: true,
+          caretAtStart: caret === 'start',
+          caretAtEnd: caret === 'end',
+        }),
+      ).toBe(expected);
+    },
+  );
+
+  it.each<[string, React.KeyboardEvent, boolean, boolean, MenuFilterKeyAction, boolean?]>([
     ['ArrowDown without a highlight', key('ArrowDown'), false, true, 'enter-list'],
     ['ArrowUp without a highlight', key('ArrowUp'), false, false, 'enter-list'],
-    ['ArrowDown on a submenu trigger', key('ArrowDown'), true, true, 'item'],
-    ['ArrowDown on an item in a non-empty input', key('ArrowDown'), true, true, 'item'],
+    ['ArrowDown on a submenu trigger', key('ArrowDown'), true, true, 'submenu', true],
+    ['ArrowDown on an item in a non-empty input', key('ArrowDown'), true, true, 'edit'],
     ['ArrowRight in a non-empty input', key('ArrowRight'), false, true, 'edit'],
     ['ArrowRight in an empty input', key('ArrowRight'), false, false, 'navigate'],
-    ['ArrowRight on a highlight', key('ArrowRight'), true, true, 'edit'],
-  ])('horizontal: %s', (_, event, hasActiveItem, hasValue, expected) => {
-    expect(
-      getMenuFilterKeyAction(event, {
-        orientation: 'horizontal',
-        hasActiveItem,
-        hasValue,
-        isCaretAtBoundary: false,
-      }),
-    ).toBe(expected);
-  });
+    ['ArrowRight on a highlight', key('ArrowRight'), true, true, 'navigate'],
+  ])(
+    'horizontal: %s',
+    (_, event, hasActiveItem, hasValue, expected, activeItemOpensSubmenu = false) => {
+      expect(
+        getMenuFilterKeyAction(event, {
+          orientation: 'horizontal',
+          rtl: false,
+          hasActiveItem,
+          activeItemOpensSubmenu,
+          hasValue,
+          caretAtStart: !hasValue,
+          caretAtEnd: !hasValue,
+        }),
+      ).toBe(expected);
+    },
+  );
 });

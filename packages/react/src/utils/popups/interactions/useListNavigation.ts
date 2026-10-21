@@ -313,7 +313,6 @@ export function useListNavigation(
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
   const selectedIndexRef = useValueAsRef(selectedIndex);
-  const activeIndexRef = useValueAsRef(activeIndex);
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
 
   const focusFrame = useAnimationFrame();
@@ -838,33 +837,6 @@ export function useListNavigation(
         const currentOpen = store.select('open');
         isPointerModalityRef.current = false;
 
-        // A list can relay a key after moving real focus back to its own input. A submenu
-        // trigger must not mistake its parent's focused input for its own reference.
-        const focusedElement = activeElement(ownerDocument(event.currentTarget));
-        const reference =
-          isTypeableElement(event.currentTarget) ||
-          !contains(floatingFocusElementRef.current, focusedElement)
-            ? event.currentTarget
-            : focusedElement;
-        const isEmptySpacePress =
-          event.key === ' ' &&
-          reference !== null &&
-          isTypeableElement(reference) &&
-          'value' in reference &&
-          reference.value === '';
-        if (
-          isEmptySpacePress &&
-          activeIndexRef.current == null &&
-          event.which !== 229 &&
-          !event.shiftKey &&
-          !event.ctrlKey &&
-          !event.altKey &&
-          !event.metaKey
-        ) {
-          stopEvent(event);
-          return undefined;
-        }
-
         const isArrowKey = event.key.startsWith('Arrow');
         const isParentCrossOpenKey = isCrossOrientationOpenKey(
           event.key,
@@ -880,7 +852,7 @@ export function useListNavigation(
           event.key === 'Enter' ||
           event.key.trim() === '';
 
-        if (virtual && currentOpen && (!nested || isTypeableElement(reference))) {
+        if (virtual && currentOpen && (!nested || isTypeableElement(event.currentTarget))) {
           return commonOnKeyDown(event);
         }
 
@@ -949,7 +921,6 @@ export function useListNavigation(
       onClick: checkVirtualMouse,
     };
   }, [
-    activeIndexRef,
     commonOnKeyDown,
     focusItemOnOpen,
     getMinEnabledIndex,
