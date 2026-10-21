@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -147,6 +147,215 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       });
     }
   }
+
+  describe.skipIf(isJSDOM)('keyboard alignment scroll behavior', () => {
+    let visualViewport: ReturnType<typeof mockVisualViewport>;
+    let restoreInnerHeight: () => void;
+
+    beforeEach(() => {
+      restoreInnerHeight = mockWindowInnerHeight(800);
+      visualViewport = mockVisualViewport(800);
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      visualViewport.restore();
+      restoreInnerHeight();
+    });
+
+    function TestDrawer({ scrollBehavior }: Drawer.VirtualKeyboardProvider.Props) {
+      return (
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider scrollBehavior={scrollBehavior}>
+            <Drawer.Portal>
+              <Drawer.Viewport data-testid="viewport">
+                <Drawer.Popup initialFocus={false}>
+                  <Drawer.Content
+                    data-testid="scroll"
+                    style={{
+                      height: 420,
+                      overflowY: 'auto',
+                      paddingBottom: 20,
+                      scrollBehavior: 'smooth',
+                    }}
+                  >
+                    <div style={{ height: 900 }} />
+                    <textarea data-testid="textarea" />
+                  </Drawer.Content>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>
+      );
+    }
+
+    function mockScrollGeometry() {
+      const scroll = screen.getByTestId('scroll');
+      const textarea = screen.getByTestId('textarea');
+      Object.defineProperties(scroll, {
+        clientHeight: { configurable: true, value: 420 },
+        scrollHeight: { configurable: true, value: 1200 },
+      });
+      scroll.getBoundingClientRect = () => new DOMRect(0, 300, 320, 420);
+      textarea.getBoundingClientRect = () => new DOMRect(0, 650 - scroll.scrollTop, 320, 40);
+      return { scroll, textarea };
+    }
+
+    async function alignWithKeyboard(textarea: HTMLElement, height: number) {
+      await act(async () => {
+        textarea.focus({ preventScroll: true });
+        visualViewport.resize(height);
+        vi.advanceTimersToNextFrame();
+        vi.advanceTimersToNextFrame();
+      });
+    }
+
+    it.each<{
+      name: string;
+      scrollBehavior: ScrollBehavior | undefined;
+      reducedMotion: boolean;
+      expectedBehavior: ScrollBehavior;
+    }>([
+      {
+        name: 'the default',
+        scrollBehavior: undefined,
+        reducedMotion: false,
+        expectedBehavior: 'smooth',
+      },
+      {
+        name: 'the default with reduced motion',
+        scrollBehavior: undefined,
+        reducedMotion: true,
+        expectedBehavior: 'auto',
+      },
+      {
+        name: 'smooth',
+        scrollBehavior: 'smooth',
+        reducedMotion: false,
+        expectedBehavior: 'smooth',
+      },
+      {
+        name: 'smooth with reduced motion',
+        scrollBehavior: 'smooth',
+        reducedMotion: true,
+        expectedBehavior: 'auto',
+      },
+      {
+        name: 'instant',
+        scrollBehavior: 'instant',
+        reducedMotion: false,
+        expectedBehavior: 'instant',
+      },
+      {
+        name: 'instant with reduced motion',
+        scrollBehavior: 'instant',
+        reducedMotion: true,
+        expectedBehavior: 'instant',
+      },
+      {
+        name: 'auto',
+        scrollBehavior: 'auto',
+        reducedMotion: false,
+        expectedBehavior: 'auto',
+      },
+      {
+        name: 'auto with reduced motion',
+        scrollBehavior: 'auto',
+        reducedMotion: true,
+        expectedBehavior: 'auto',
+      },
+    ])(
+      'uses $expectedBehavior for $name',
+      async ({ scrollBehavior, reducedMotion, expectedBehavior }) => {
+        const matchMedia = window.matchMedia.bind(window);
+        const matchMediaSpy = vi.spyOn(window, 'matchMedia').mockImplementation((query) => {
+          const mediaQueryList = matchMedia(query);
+          if (query === '(prefers-reduced-motion: reduce)') {
+            Object.defineProperty(mediaQueryList, 'matches', { value: reducedMotion });
+          }
+          return mediaQueryList;
+        });
+
+        try {
+          await render(<TestDrawer scrollBehavior={scrollBehavior} />);
+          const { scroll, textarea } = mockScrollGeometry();
+          const scrollToSpy = vi.spyOn(scroll, 'scrollTo').mockImplementation(() => {});
+
+          await alignWithKeyboard(textarea, 500);
+
+          expect(scrollToSpy).toHaveBeenCalledWith({ top: 270, behavior: expectedBehavior });
+        } finally {
+          matchMediaSpy.mockRestore();
+        }
+      },
+    );
+
+    it('uses instant for repeated viewport corrections and restores keyboard adjustments', async () => {
+      await render(<TestDrawer scrollBehavior="instant" />);
+      const { scroll, textarea } = mockScrollGeometry();
+      const viewport = screen.getByTestId('viewport');
+      const scrollToSpy = vi.spyOn(scroll, 'scrollTo').mockImplementation(() => {});
+
+      expect(scroll.style.paddingBottom).toBe('20px');
+      expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('');
+
+      await alignWithKeyboard(textarea, 600);
+      await alignWithKeyboard(textarea, 550);
+      await alignWithKeyboard(textarea, 500);
+
+      expect(scrollToSpy.mock.calls).toEqual([
+        [{ top: 220, behavior: 'instant' }],
+        [{ top: 245, behavior: 'instant' }],
+        [{ top: 270, behavior: 'instant' }],
+      ]);
+      expect(scroll.style.paddingBottom).toBe('240px');
+      expect(scroll.style.scrollPaddingBottom).toBe('16px');
+      expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+
+      await act(async () => {
+        textarea.blur();
+        visualViewport.resize(800);
+        await vi.runAllTimersAsync();
+      });
+
+      expect(scroll.style.paddingBottom).toBe('20px');
+      expect(scroll.style.scrollPaddingBottom).toBe('');
+      expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+    });
+
+    it('uses the updated scroll behavior for subsequent corrections', async () => {
+      const { setProps } = await render(<TestDrawer scrollBehavior="instant" />);
+      const { scroll, textarea } = mockScrollGeometry();
+      const scrollToSpy = vi.spyOn(scroll, 'scrollTo').mockImplementation(() => {});
+
+      await alignWithKeyboard(textarea, 500);
+
+      expect(scrollToSpy).toHaveBeenLastCalledWith({ top: 270, behavior: 'instant' });
+      expect(scroll.style.paddingBottom).toBe('240px');
+
+      await setProps({ scrollBehavior: 'auto' });
+
+      expect(scroll.style.paddingBottom).toBe('240px');
+
+      await alignWithKeyboard(textarea, 450);
+
+      expect(scrollToSpy).toHaveBeenLastCalledWith({ top: 295, behavior: 'auto' });
+    });
+
+    it('scrolls immediately even when CSS scroll-behavior is smooth', async () => {
+      await render(<TestDrawer scrollBehavior="instant" />);
+      const { scroll, textarea } = mockScrollGeometry();
+
+      expect(scroll).toHaveStyle({ scrollBehavior: 'smooth' });
+      expect(scroll.scrollTop).toBe(0);
+
+      await alignWithKeyboard(textarea, 500);
+
+      expect(scroll.scrollTop).toBe(270);
+    });
+  });
 
   it.skipIf(isJSDOM)(
     'compensates for keyboard overlap without adding extra spacing and centers the focused input',
