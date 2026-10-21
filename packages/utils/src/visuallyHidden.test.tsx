@@ -24,7 +24,7 @@ describe.skipIf(isJSDOM)('visuallyHidden', () => {
             dir={scrollerDirection}
             style={{ width: 100, height: 100, overflow: 'auto' }}
           >
-            {/* Establish a containing block below the scroller's top edge. */}
+            {/* Establish a fixed-position containing block below the scroller's top edge. */}
             <div dir={contentDirection} style={{ transform: 'translateY(20px)' }}>
               <input type="radio" style={style} />
             </div>
@@ -35,5 +35,20 @@ describe.skipIf(isJSDOM)('visuallyHidden', () => {
         expect(scroller.scrollWidth).toBe(scroller.clientWidth);
       },
     );
+
+    // Label clicks and native validation focus hidden inputs.
+    it('does not scroll the page when focused', async ({ onTestFinished }) => {
+      onTestFinished(() => window.scrollTo(0, 0));
+      await render(
+        <div style={{ paddingTop: 2000, height: 5000 }}>
+          <input type="checkbox" data-testid="input" style={style} />
+        </div>,
+      );
+      window.scrollTo(0, 1500);
+      expect(window.scrollY).toBe(1500);
+
+      screen.getByTestId('input').focus();
+      expect(window.scrollY).toBe(1500);
+    });
   });
 });

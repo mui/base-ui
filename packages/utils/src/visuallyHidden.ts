@@ -24,11 +24,12 @@ export const visuallyHiddenInput: React.CSSProperties = {
   position: 'absolute',
 };
 
-// For hidden inputs without a `name` that no label points at: pinned to the containing block's
-// corner like `visuallyHidden`, but not `position: fixed`, as Chrome gives every fixed element its
-// own compositor layer on a scrollable page, which slows down every frame when many controls render.
-// A label click focuses its input and scrolls to it, so label targets keep `visuallyHidden`.
+// For hidden inputs without a `name`: `visuallyHidden` at zero size. On a scrollable page, Chrome
+// gives every 1px `position: fixed` element its own compositor layer, which slows down every frame
+// when many controls render. At zero size it skips the layer. `visuallyHidden` stays 1px because
+// screen readers can skip zero-size text, and these inputs are `aria-hidden`.
 export const visuallyHiddenInputPinned: React.CSSProperties = {
   ...visuallyHidden,
-  position: 'absolute',
+  width: 0,
+  height: 0,
 };
