@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -579,7 +579,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         required={required && !(multiple && hasSelectedValue)}
         readOnly={readOnly}
         ref={ref}
-        style={name ? visuallyHiddenInput : visuallyHidden}
+        style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
         tabIndex={-1}
         aria-hidden
         suppressHydrationWarning

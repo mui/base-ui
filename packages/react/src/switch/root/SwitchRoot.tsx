@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
@@ -165,7 +165,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     id: hiddenInputId,
     name,
     required,
-    style: name ? visuallyHiddenInput : visuallyHidden,
+    style: name ? visuallyHiddenInput : visuallyHiddenInputPinned,
     tabIndex: -1,
     type: 'checkbox',
     'aria-hidden': true,

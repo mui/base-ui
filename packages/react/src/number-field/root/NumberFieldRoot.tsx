@@ -7,7 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
 import { formatNumber } from '@base-ui/utils/formatNumber';
@@ -543,7 +543,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         required={required}
         aria-hidden
         tabIndex={-1}
-        style={name ? visuallyHiddenInput : visuallyHidden}
+        style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
         suppressHydrationWarning
       />
     </NumberFieldRootContext.Provider>

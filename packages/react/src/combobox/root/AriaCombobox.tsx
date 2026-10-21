@@ -6,7 +6,7 @@ import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput, visuallyHiddenInputPinned } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -1708,7 +1708,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         readOnly={readOnly}
         value={serializedValue}
         ref={hiddenInputRef}
-        style={hiddenInputName ? visuallyHiddenInput : visuallyHidden}
+        style={hiddenInputName ? visuallyHiddenInput : visuallyHiddenInputPinned}
         tabIndex={-1}
         aria-hidden
         suppressHydrationWarning

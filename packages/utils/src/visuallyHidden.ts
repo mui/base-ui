@@ -23,3 +23,11 @@ export const visuallyHiddenInput: React.CSSProperties = {
   ...visuallyHiddenBase,
   position: 'absolute',
 };
+
+// For hidden inputs without a `name`: pinned to the containing block's corner like
+// `visuallyHidden`, but not `position: fixed`, as Chrome gives every fixed element its own
+// compositor layer on a scrollable page, which slows down every frame when many controls render.
+export const visuallyHiddenInputPinned: React.CSSProperties = {
+  ...visuallyHidden,
+  position: 'absolute',
+};
