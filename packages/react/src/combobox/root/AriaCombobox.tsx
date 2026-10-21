@@ -75,6 +75,7 @@ import {
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 import { findCollectionItem } from '../items/itemCollection';
 import type { ComboboxItemCollection, ItemCollection } from '../items/itemCollection';
 
@@ -1709,6 +1710,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         value={serializedValue}
         ref={hiddenInputRef}
         style={hiddenInputName ? visuallyHiddenInput : visuallyHiddenInputPinned}
+        onInvalid={handleHiddenInputInvalid}
         tabIndex={-1}
         aria-hidden
         suppressHydrationWarning

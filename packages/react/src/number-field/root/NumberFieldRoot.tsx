@@ -48,6 +48,7 @@ import type {
   ReasonToEvent,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -544,6 +545,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         aria-hidden
         tabIndex={-1}
         style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
+        onInvalid={handleHiddenInputInvalid}
         suppressHydrationWarning
       />
     </NumberFieldRootContext.Provider>

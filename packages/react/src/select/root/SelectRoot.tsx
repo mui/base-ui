@@ -45,6 +45,7 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Groups all parts of the select.
@@ -580,6 +581,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         readOnly={readOnly}
         ref={ref}
         style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
+        onInvalid={handleHiddenInputInvalid}
         tabIndex={-1}
         aria-hidden
         suppressHydrationWarning

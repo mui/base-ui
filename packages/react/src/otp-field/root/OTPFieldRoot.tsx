@@ -30,6 +30,7 @@ import type {
   BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
@@ -473,6 +474,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
             aria-hidden
             tabIndex={-1}
             style={name ? visuallyHiddenInput : visuallyHiddenInputPinned}
+            onInvalid={handleHiddenInputInvalid}
           />
         )}
       </OTPFieldRootContext.Provider>

@@ -12,6 +12,7 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  hiddenInputSizeTests,
   hiddenInputTypeTests,
   isJSDOM,
   isScrollLocked,
@@ -11627,6 +11628,15 @@ describe('<Combobox.Root />', () => {
       </Combobox.Root>
     ),
     getFocusTarget: () => screen.getByTestId('input'),
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <Combobox.Root {...props}>
+        <Combobox.Input />
+      </Combobox.Root>
+    ),
   });
 
   describe('Form', () => {

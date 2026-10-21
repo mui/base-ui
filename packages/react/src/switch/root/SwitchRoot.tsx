@@ -25,6 +25,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Represents the switch itself.
@@ -166,6 +167,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     name,
     required,
     style: name ? visuallyHiddenInput : visuallyHiddenInputPinned,
+    onInvalid: handleHiddenInputInvalid,
     tabIndex: -1,
     type: 'checkbox',
     'aria-hidden': true,
