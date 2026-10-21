@@ -12,9 +12,9 @@ export default async function BlogPage() {
   return (
     <React.Fragment>
       <h1 className="Text sz-4 bp2:sz-5 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">{BLOG_TITLE}</h1>
-      <a className="Link Text sz-2 bui-gcs-1 bui-gce-9" href="/blog/rss.xml">
+      <Link className="Text sz-2 bui-gcs-1 bui-gce-9" href="/blog/rss.xml">
         RSS feed
-      </a>
+      </Link>
       <ul className="List bui-d-c">
         {posts.map((post, index) => (
           <li key={post.slug} className="bui-d-c">
@@ -56,6 +56,12 @@ export async function generateMetadata(
   return {
     title: 'Blog',
     description: BLOG_DESCRIPTION,
+    alternates: {
+      canonical: '/blog',
+      types: {
+        'application/rss+xml': [{ url: '/blog/rss.xml', title: `${BLOG_TITLE} · Base UI` }],
+      },
+    },
     openGraph: {
       ...(await parent).openGraph,
       type: 'website',

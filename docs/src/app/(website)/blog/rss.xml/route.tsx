@@ -23,7 +23,7 @@ export async function GET() {
       <title>${escapeXml(post.title)}</title>
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
-      <description>${escapeXml(post.description ?? '')}</description>
+      ${post.description ? `<description>${escapeXml(post.description)}</description>` : ''}
       <pubDate>${post.publishedAt.toUTCString()}</pubDate>
     </item>`;
   });

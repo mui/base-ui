@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getPosts } from '../posts';
 import { GET } from './route';
 
@@ -14,7 +14,7 @@ function getText(parent: Readonly<ParentNode>, selector: string) {
 }
 
 describe('blog RSS feed', () => {
-  it('serves summaries with escaped text, canonical URLs, stable GUIDs, and publication dates', async () => {
+  beforeEach(() => {
     vi.stubEnv('BASE_URL', 'https://base-ui.com');
     const mockedGetPosts = vi.mocked(getPosts);
     mockedGetPosts.mockResolvedValue([
@@ -37,61 +37,69 @@ describe('blog RSS feed', () => {
         Content: () => null,
       },
     ]);
+  });
 
+  async function getXml() {
     const response = await GET();
     const feedText = await response.text();
+    return new DOMParser().parseFromString(feedText, 'application/xml');
+  }
+
+  it('serves well-formed RSS XML with the RSS content type', async () => {
+    const response = await GET();
+    expect(response.headers.get('Content-Type')).toBe('application/rss+xml; charset=utf-8');
+    const feedText = await response.text();
     const xml = new DOMParser().parseFromString(feedText, 'application/xml');
+    expect(xml.querySelector('parsererror')).toBeNull();
+    expect(xml.querySelector('rss')?.getAttribute('version')).toBe('2.0');
+  });
 
-    const contentType = response.headers.get('Content-Type');
-    expect(contentType).toBe('application/rss+xml; charset=utf-8');
-    const parseError = xml.querySelector('parsererror');
-    expect(parseError).toBeNull();
-    const channelTitle = getText(xml, 'channel > title');
-    expect(channelTitle).toBe('Notes on interfaces · Base UI');
-    const channelLink = getText(xml, 'channel > link');
-    expect(channelLink).toBe('https://base-ui.com/blog');
+  it('includes the channel title and canonical feed URLs', async () => {
+    const xml = await getXml();
+    expect(getText(xml, 'channel > title')).toBe('Notes on interfaces · Base UI');
+    expect(getText(xml, 'channel > link')).toBe('https://base-ui.com/blog');
     const selfLink = xml.getElementsByTagNameNS('http://www.w3.org/2005/Atom', 'link')[0];
-    const selfHref = selfLink.getAttribute('href');
-    expect(selfHref).toBe('https://base-ui.com/blog/rss.xml');
-    const selfRel = selfLink.getAttribute('rel');
-    expect(selfRel).toBe('self');
+    expect(selfLink.getAttribute('href')).toBe('https://base-ui.com/blog/rss.xml');
+    expect(selfLink.getAttribute('rel')).toBe('self');
+  });
 
+  it('escapes item titles and summaries', async () => {
+    const xml = await getXml();
+    expect(xml.querySelector('parsererror')).toBeNull();
+    expect(getText(xml, 'item > title')).toBe('Design & <interfaces> "today"');
+    expect(getText(xml, 'item > description')).toBe("A summary with <markup> & 'quotes'.");
+  });
+
+  it('includes every post with canonical links and stable permalink GUIDs', async () => {
+    const xml = await getXml();
     const items = xml.querySelectorAll('item');
     expect(items).toHaveLength(2);
-    const firstTitle = getText(items[0], 'title');
-    expect(firstTitle).toBe('Design & <interfaces> "today"');
-    const firstSummary = getText(items[0], 'description');
-    expect(firstSummary).toBe("A summary with <markup> & 'quotes'.");
-    const firstLink = getText(items[0], 'link');
-    expect(firstLink).toBe('https://base-ui.com/blog/new-post');
-    const firstGuid = getText(items[0], 'guid');
-    expect(firstGuid).toBe('https://base-ui.com/blog/new-post');
-    const firstGuidPermalink = items[0].querySelector('guid')?.getAttribute('isPermaLink');
-    expect(firstGuidPermalink).toBe('true');
-    const firstPublishedAt = getText(items[0], 'pubDate');
-    expect(firstPublishedAt).toBe('Tue, 20 Oct 2026 00:00:00 GMT');
-    const secondTitle = getText(items[1], 'title');
-    expect(secondTitle).toBe('Older post');
-    const secondSummary = getText(items[1], 'description');
-    expect(secondSummary).toBe('');
+    expect(getText(items[0], 'link')).toBe('https://base-ui.com/blog/new-post');
+    expect(getText(items[0], 'guid')).toBe('https://base-ui.com/blog/new-post');
+    expect(items[0].querySelector('guid')?.getAttribute('isPermaLink')).toBe('true');
+    expect(getText(items[1], 'title')).toBe('Older post');
+    expect(getText(items[1], 'link')).toBe('https://base-ui.com/blog/older-post');
+    expect(getText(items[1], 'guid')).toBe('https://base-ui.com/blog/older-post');
+  });
+
+  it('includes publication dates in RFC 822 format', async () => {
+    const xml = await getXml();
+    expect(getText(xml, 'item > pubDate')).toBe('Tue, 20 Oct 2026 00:00:00 GMT');
+  });
+
+  it('omits descriptions for posts without a summary', async () => {
+    const xml = await getXml();
+    const items = xml.querySelectorAll('item');
+    expect(items[0].querySelector('description')).not.toBeNull();
+    expect(items[1].querySelector('description')).toBeNull();
   });
 
   it('serves a valid channel when there are no posts', async () => {
-    vi.stubEnv('BASE_URL', 'https://base-ui.com');
-    const mockedGetPosts = vi.mocked(getPosts);
-    mockedGetPosts.mockResolvedValue([]);
-
-    const response = await GET();
-    const feedText = await response.text();
-    const xml = new DOMParser().parseFromString(feedText, 'application/xml');
-
-    const emptyParseError = xml.querySelector('parsererror');
-    expect(emptyParseError).toBeNull();
-    const rssVersion = xml.querySelector('rss')?.getAttribute('version');
-    expect(rssVersion).toBe('2.0');
-    const emptyChannel = xml.querySelector('channel');
-    expect(emptyChannel).not.toBeNull();
-    const emptyItems = xml.querySelectorAll('item');
-    expect(emptyItems).toHaveLength(0);
+    vi.mocked(getPosts).mockResolvedValue([]);
+    const xml = await getXml();
+    expect(xml.querySelector('parsererror')).toBeNull();
+    expect(xml.querySelector('rss')?.getAttribute('version')).toBe('2.0');
+    expect(xml.querySelector('channel')).not.toBeNull();
+    expect(xml.querySelectorAll('item')).toHaveLength(0);
   });
 });
