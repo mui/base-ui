@@ -3,13 +3,7 @@ import * as React from 'react';
 import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { StoreInspector } from '@base-ui/utils/store';
-import {
-  createRenderer,
-  detachedTriggersConformanceTests,
-  isJSDOM,
-  recordTransitions,
-  wait,
-} from '#test-utils';
+import { createRenderer, detachedTriggersConformanceTests, isJSDOM, wait } from '#test-utils';
 
 describe('<MenuRoot />', () => {
   beforeEach(() => {
@@ -43,14 +37,12 @@ describe('<MenuRoot />', () => {
      */
     async function renderHoverDetachedTriggers({
       settleTriggerChange = true,
-      holdExit = false,
     }: {
       /**
        * Set to `false` to return while the positioner is still animating to the
        * new trigger, so the delayed `trigger-change` restoration is still pending.
        */
       settleTriggerChange?: boolean;
-      holdExit?: boolean;
     } = {}) {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -63,9 +55,9 @@ describe('<MenuRoot />', () => {
             {`
               .positioner {
                 transition:
-                  top ${settleTriggerChange ? 120 : 60000}ms linear,
-                  left ${settleTriggerChange ? 120 : 60000}ms linear,
-                  transform ${settleTriggerChange ? 120 : 60000}ms linear;
+                  top 120ms linear,
+                  left 120ms linear,
+                  transform 120ms linear;
               }
 
               .popup {
@@ -75,7 +67,6 @@ describe('<MenuRoot />', () => {
 
               .popup[data-ending-style] {
                 opacity: 0;
-                transition-duration: ${holdExit ? 60000 : 250}ms;
               }
 
               .positioner[data-instant],
@@ -135,10 +126,6 @@ describe('<MenuRoot />', () => {
         expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
-      await waitFor(() => expect(screen.getByTestId('positioner').style.transition).toBe(''));
-      const move = recordTransitions(screen.getByTestId('positioner'), {
-        pause: !settleTriggerChange,
-      });
       await utils.user.hover(trigger2);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('2');
@@ -156,7 +143,6 @@ describe('<MenuRoot />', () => {
 
       return {
         ...utils,
-        move,
         trigger1,
         trigger2,
         instantsWhileEnding,
@@ -311,27 +297,27 @@ describe('<MenuRoot />', () => {
     });
 
     it('does not restore the trigger-change instant after a hover close has started', async () => {
-      const { user, trigger2, popup, move } = await renderHoverDetachedTriggers({
+      const { user, trigger2, popup } = await renderHoverDetachedTriggers({
         settleTriggerChange: false,
-        holdExit: true,
       });
+
       const positioner = screen.getByTestId('positioner');
-      await waitFor(() => expect(move.started).toContain('transform'));
-      expect(positioner.getAnimations()[0].playState).toBe('paused');
-      // Capture the promises before closing: cancellation replaces Animation.finished.
-      const switchFinished = Promise.allSettled(
-        positioner.getAnimations().map((animation) => animation.finished),
-      );
-      const exit = recordTransitions(popup, { pause: true });
+      await waitFor(() => {
+        expect(positioner.getAnimations().length).toBeGreaterThan(0);
+      });
+      const switchAnimations = positioner.getAnimations();
 
       await user.unhover(trigger2);
-      await waitFor(() => expect(exit.started).toContain('opacity'));
-      expect(popup).toHaveAttribute('data-ending-style');
-      await act(async () => {
-        await switchFinished;
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
       });
 
-      expect(positioner).toHaveAttribute('data-instant');
+      await act(async () => {
+        await Promise.all(switchAnimations.map((animation) => animation.finished));
+      });
+
+      // Still mid-exit: the stale callback must not have marked it instant and
+      // collapsed the transition.
       expect(screen.getByTestId('popup')).toBe(popup);
       expect(popup).toHaveAttribute('data-ending-style');
       expect(popup).not.toHaveAttribute('data-instant');

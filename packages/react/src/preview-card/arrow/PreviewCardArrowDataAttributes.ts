@@ -22,3 +22,8 @@ export const align = CommonPopupDataAttributes.align;
  * Present when the preview card arrow is uncentered.
  */
 export const uncentered = 'data-uncentered';
+/**
+ * Present when position transitions should be skipped.
+ * @type {'dismiss' | 'focus' | 'trigger-change'}
+ */
+export const instant = 'data-instant';

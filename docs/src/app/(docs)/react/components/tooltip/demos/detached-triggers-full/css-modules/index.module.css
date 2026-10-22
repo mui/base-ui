@@ -201,11 +201,10 @@
     transition:
       translate 350ms cubic-bezier(0.22, 1, 0.36, 1),
       opacity 175ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
 
-  &[data-instant] [data-current],
-  &[data-instant] [data-previous] {
-    transition: none;
+    [data-instant] & {
+      transition: none;
+    }
   }
 
   &[data-activation-direction~='left'] [data-current][data-starting-style] {

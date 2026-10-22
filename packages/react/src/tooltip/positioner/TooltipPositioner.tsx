@@ -28,7 +28,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
 
-  const { element, positioning, instant } = usePopupPositioner(store, componentProps, {
+  const { element, positioning } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     positioning: { side: componentProps.side ?? 'top' },
@@ -36,10 +36,8 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     inert: !open || trackCursorAxis === 'both' || disableHoverablePopup,
   });
 
-  const contextValue = React.useMemo(() => ({ ...positioning, instant }), [positioning, instant]);
-
   return (
-    <TooltipPositionerContext.Provider value={contextValue}>
+    <TooltipPositionerContext.Provider value={positioning}>
       {element}
     </TooltipPositionerContext.Provider>
   );

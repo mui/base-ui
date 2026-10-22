@@ -218,6 +218,30 @@ describe('useAnchorPositioning', () => {
         expect(floating.getBoundingClientRect()).toMatchObject({ width: 80, height: 32 });
       });
 
+      it('keeps the anchor-facing edge in place when the popup grows', async () => {
+        await render(<TestAdaptiveOrigin side={side} />);
+        const anchor = screen.getByTestId('anchor');
+        const floating = screen.getByTestId('floating');
+        const content = floating.firstElementChild as HTMLElement;
+        const anchorBefore = anchor.getBoundingClientRect();
+
+        await waitFor(() =>
+          expect(floating.getBoundingClientRect()[floatingEdge]).toBeCloseTo(
+            anchorBefore[anchorEdge],
+            0,
+          ),
+        );
+
+        content.style[size] = '120px';
+
+        // Check before a positioning update can move the popup back against its anchor.
+        expect(floating.getBoundingClientRect()[size]).toBe(120);
+        expect(floating.getBoundingClientRect()[floatingEdge]).toBeCloseTo(
+          anchorBefore[anchorEdge],
+          0,
+        );
+      });
+
       it.each([
         { name: 'a positioned parent', positionMethod: 'absolute', transform: undefined },
         {

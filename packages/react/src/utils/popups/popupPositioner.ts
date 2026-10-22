@@ -67,9 +67,9 @@ export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
       >
     | undefined;
   /**
-   * State that the part adds to or changes in the shared state.
+   * State that the part adds to the shared state.
    */
-  state?: (Omit<State, keyof PopupPositionerState> & Partial<PopupPositionerState>) | undefined;
+  state?: Omit<State, keyof PopupPositionerState> | undefined;
   /**
    * Whether the positioner ignores pointer events.
    * @default !open
@@ -77,10 +77,20 @@ export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
   inert?: boolean | undefined;
 }
 
+/**
+ * The positioning that a Positioner provides to its parts, such as the Arrow.
+ */
+export interface PopupPositioning extends UseAnchorPositioningReturnValue {
+  /**
+   * The reason to skip position transitions, or `undefined` when they can run.
+   */
+  instant: string | undefined;
+}
+
 export interface UsePopupPositionerReturnValue {
   element: React.ReactElement;
-  positioning: UseAnchorPositioningReturnValue;
-  instant: string | undefined;
+  positioning: PopupPositioning;
+  open: boolean;
   mounted: boolean;
 }
 
@@ -188,5 +198,10 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     inert: options.inert ?? !open,
   });
 
-  return { element, positioning, instant, mounted };
+  const popupPositioning = React.useMemo(
+    () => ({ ...positioning, instant }),
+    [positioning, instant],
+  );
+
+  return { element, positioning: popupPositioning, open, mounted };
 }

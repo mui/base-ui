@@ -30,19 +30,18 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const openReason = store.useState('openChangeReason');
-  const triggerElement = store.useState('activeTriggerElement');
-  const modal = store.useState('modal');
-  const openMethod = store.useState('openMethod');
-  const positionerElement = store.useState('positionerElement');
-  const open = store.useState('open');
-
-  const { element, positioning, mounted } = usePopupPositioner(store, componentProps, {
+  const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     instantTypeStore: store,
     positioning: { nodeId },
   });
+
+  const openReason = store.useState('openChangeReason');
+  const triggerElement = store.useState('activeTriggerElement');
+  const modal = store.useState('modal');
+  const openMethod = store.useState('openMethod');
+  const positionerElement = store.useState('positionerElement');
 
   const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;
 

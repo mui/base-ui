@@ -367,6 +367,7 @@ Renders a `<div>` element.
 | data-closed     | -                                                                          | Present when the popup is closed.                                     |
 | data-uncentered | -                                                                          | Present when the popover arrow is uncentered.                         |
 | data-align      | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
+| data-instant    | `'click' \| 'dismiss' \| 'focus' \| 'trigger-change'`                      | Present when position transitions should be skipped.                  |
 | data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
 ### Arrow.Props
@@ -385,6 +386,8 @@ type PopoverArrowState = {
   align: Align;
   /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
+  /** Whether transitions should be skipped. */
+  instant: string | undefined;
 };
 ```
 
@@ -575,6 +578,11 @@ declare namespace PopoverArrowDataAttributes {
   const align: 'data-align';
   /** Present when the popover arrow is uncentered. */
   const uncentered: 'data-uncentered';
+  /**
+   * Present when position transitions should be skipped.
+   * @type 'click' | 'dismiss' | 'focus' | 'trigger-change'
+   */
+  const instant: 'data-instant';
 }
 ```
 

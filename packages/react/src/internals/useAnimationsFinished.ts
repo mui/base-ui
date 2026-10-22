@@ -19,12 +19,15 @@ const flushBeforePaint = createFlushBeforePaint();
  * @param batch - Whether completions ready in the same microtask may be coalesced into a single
  * commit. A batched callback runs before earlier callbacks' React updates have committed, so only
  * opt in when the callback doesn't read state that another completion can change.
+ * @param subtree - Whether to also wait for the animations of descendants, including descendants
+ * whose transitions start when their [data-starting-style] is removed.
  * @returns A function that takes a callback to execute once all animations have finished, and an optional AbortSignal to abort the callback
  */
 export function useAnimationsFinished(
   elementOrRef: React.RefObject<HTMLElement | null> | HTMLElement | null,
   waitForStartingStyleRemoved = false,
   batch = false,
+  subtree = false,
 ) {
   const frame = useAnimationFrame();
 
@@ -76,11 +79,40 @@ export function useAnimationsFinished(
         return;
       }
 
+      const startingStyleAttribute = TransitionStatusDataAttributes.startingStyle;
+      const startingStyleSelector = `[${startingStyleAttribute}]`;
+
       function exec() {
+        // Reading the animations updates styles. Descendants in their starting style then get
+        // that style before it is removed, so their transitions can start.
+        const animations = getFiniteAnimations(resolvedElement, { subtree });
+
+        if (subtree && resolvedElement.querySelector(startingStyleSelector)) {
+          if (signal?.aborted) {
+            return;
+          }
+
+          // A descendant's transition starts only after its starting style is removed.
+          const subtreeObserver = new MutationObserver(() => {
+            if (!resolvedElement.querySelector(startingStyleSelector)) {
+              subtreeObserver.disconnect();
+              exec();
+            }
+          });
+
+          subtreeObserver.observe(resolvedElement, {
+            attributes: true,
+            attributeFilter: [startingStyleAttribute],
+            childList: true,
+            subtree: true,
+          });
+
+          signal?.addEventListener('abort', () => subtreeObserver.disconnect(), { once: true });
+          return;
+        }
+
         // Discard fulfilled Animation values so unfinished animations cannot retain their targets.
-        Promise.all(
-          getFiniteAnimations(resolvedElement).map((animation) => animation.finished.then(NOOP)),
-        ).then(
+        Promise.all(animations.map((animation) => animation.finished.then(NOOP))).then(
           () => {
             if (!signal?.aborted) {
               done();
@@ -91,7 +123,7 @@ export function useAnimationsFinished(
               return;
             }
 
-            const currentAnimations = getFiniteAnimations(resolvedElement);
+            const currentAnimations = getFiniteAnimations(resolvedElement, { subtree });
 
             if (
               currentAnimations.some(
@@ -110,8 +142,6 @@ export function useAnimationsFinished(
       }
 
       if (waitForStartingStyleRemoved) {
-        const startingStyleAttribute = TransitionStatusDataAttributes.startingStyle;
-
         // If `[data-starting-style]` isn't present, fall back to waiting one more frame
         // to give "open" animations a chance to be registered.
         if (!resolvedElement.hasAttribute(startingStyleAttribute)) {

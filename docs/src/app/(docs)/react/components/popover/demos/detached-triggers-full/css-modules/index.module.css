@@ -108,6 +108,10 @@
   overflow: clip;
   transition: left calc(var(--animation-duration)) var(--easing);
 
+  &[data-instant] {
+    transition: none;
+  }
+
   &[data-side='top'] {
     bottom: -6px;
     rotate: 180deg;

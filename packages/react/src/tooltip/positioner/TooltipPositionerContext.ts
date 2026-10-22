@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { UseAnchorPositioningReturnValue } from '../../internals/useAnchorPositioning';
+import type { PopupPositioning } from '../../utils/popups/popupPositioner';
 
 export type TooltipPositionerContext = Pick<
-  UseAnchorPositioningReturnValue,
-  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles'
-> & { instant: string | undefined };
+  PopupPositioning,
+  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles' | 'instant'
+>;
 
 export const TooltipPositionerContext = React.createContext<TooltipPositionerContext | undefined>(
   undefined,

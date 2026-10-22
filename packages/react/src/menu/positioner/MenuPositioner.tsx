@@ -46,7 +46,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
-  const open = store.useState('open');
 
   const { side } = componentProps;
   let anchor = componentProps.anchor;
@@ -82,6 +81,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const {
     element,
     positioning: positioner,
+    open,
     mounted,
   } = usePopupPositioner(store, componentProps, {
     forwardedRef,
@@ -106,9 +106,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       externalTree: floatingTreeRoot,
       lazyFlip: virtualFocus ? 'placement' : false,
     },
-    state: {
-      nested: parent.type === 'menu',
-    },
+    state: { nested: parent.type === 'menu' },
   });
 
   React.useEffect(() => {
