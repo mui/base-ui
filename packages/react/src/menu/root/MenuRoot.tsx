@@ -381,6 +381,9 @@ export const MenuRootInternal = fastComponent(function MenuRootInternal<Payload>
     // on both menus' orientations; the generic arrow-key opening would also react to the parent's
     // forwarded cross-axis keys while closed.
     openOnArrowKeyDown: parent.type !== 'context-menu' && !(virtualFocus && isSubmenu),
+    // A root context menu is modal and has no tabbable items, so Tab stays inside.
+    // Shift+Tab stays inside too.
+    closeOnShiftTab: parent.type !== 'context-menu',
     externalTree: !virtualFocus && nested ? floatingTreeRoot : undefined,
     nestedReturnFocusRef: parentMenuStore?.context.virtualFocusRef,
     focusItemOnHover: highlightItemOnHover,
