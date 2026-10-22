@@ -814,16 +814,17 @@ describe('<Tooltip.Root />', () => {
       });
 
       it('keeps the tooltip disabled when the root is disabled and the trigger opts back in', async () => {
+        const onOpenChange = vi.fn();
         await render(
           <TestTooltip
-            rootProps={{ disabled: true }}
+            rootProps={{ disabled: true, onOpenChange }}
             triggerProps={{ disabled: false, delay: 0 }}
           />,
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-        expect(trigger).not.toHaveAttribute('data-trigger-disabled');
+        expect(trigger).toHaveAttribute('data-trigger-disabled');
 
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
@@ -832,6 +833,7 @@ describe('<Tooltip.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.queryByText('Content')).toBe(null);
+        expect(onOpenChange).not.toHaveBeenCalled();
       });
     });
 
