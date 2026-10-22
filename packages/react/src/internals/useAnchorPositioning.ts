@@ -241,10 +241,7 @@ export function useAnchorPositioning(
     padding: collisionPadding,
   } as const;
 
-  // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
-  // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
-  // presence.
-  const arrowRef = React.useRef<Element | null>(null);
+  const arrowElementRef = React.useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
   const sideOffsetRef = useValueAsRef(sideOffset);
@@ -286,23 +283,29 @@ export function useAnchorPositioning(
   const crossAxisShiftEnabled =
     !shiftDisabled && (sticky || shiftCrossAxis || collisionAvoidanceSide === 'shift');
 
+  const flipOptions = {
+    ...commonCollisionProps,
+    // Ensure the popup flips if it's been limited by its --available-height and it resizes.
+    // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
+    padding: {
+      top: collisionPadding.top + bias + biasTop,
+      right: collisionPadding.right + bias + biasRight,
+      bottom: collisionPadding.bottom + bias + biasBottom,
+      left: collisionPadding.left + bias + biasLeft,
+    },
+    mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
+    crossAxis: collisionAvoidanceAlign === 'flip' ? ('alignment' as const) : false,
+    fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
+  };
   const flipMiddleware =
     collisionAvoidanceSide === 'none'
       ? null
-      : flip({
-          ...commonCollisionProps,
-          // Ensure the popup flips if it's been limited by its --available-height and it resizes.
-          // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
-          padding: {
-            top: collisionPadding.top + bias + biasTop,
-            right: collisionPadding.right + bias + biasRight,
-            bottom: collisionPadding.bottom + bias + biasBottom,
-            left: collisionPadding.left + bias + biasLeft,
-          },
-          mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
-          crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
-          fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
-        });
+      : flip(
+          // Once size() has run in this pass (it may have raised the cap), accept its new cap.
+          ({ middlewareData }) =>
+            middlewareData.size ? { ...flipOptions, padding: collisionPadding } : flipOptions,
+          [flipOptions],
+        );
   const shiftMiddleware = shiftDisabled
     ? null
     : floatingShift(
@@ -316,10 +319,10 @@ export function useAnchorPositioning(
             sticky || shiftCrossAxis
               ? undefined
               : limitShift((limitData) => {
-                  if (!arrowRef.current) {
+                  if (!arrowElementRef.current) {
                     return {};
                   }
-                  const { width, height } = arrowRef.current.getBoundingClientRect();
+                  const { width, height } = arrowElementRef.current.getBoundingClientRect();
                   const sideAxis = getSideAxis(getSide(limitData.placement));
                   const arrowSize = sideAxis === 'y' ? width : height;
                   const offsetAmount =
@@ -380,9 +383,10 @@ export function useAnchorPositioning(
       (state) => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
-        element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
+        element:
+          arrowElementRef.current || ownerDocument(state.elements.floating).createElement('div'),
         // No padding for the fake arrow: it would displace aligned popups on narrow anchors.
-        padding: arrowRef.current ? arrowPadding : 0,
+        padding: arrowElementRef.current ? arrowPadding : 0,
       }),
       [arrowPadding],
     ),
@@ -401,7 +405,7 @@ export function useAnchorPositioning(
         const renderedSide = getSide(renderedPlacement);
         const renderedAlign = getAlignment(renderedPlacement);
         const isVertical = getSideAxis(renderedSide) === 'y';
-        const arrowEl = arrowRef.current;
+        const arrowEl = arrowElementRef.current;
 
         const sideOffsetValue =
           typeof sideOffset === 'function'
@@ -493,6 +497,18 @@ export function useAnchorPositioning(
       : (...args) => autoUpdate(...args, autoUpdateOptions),
     nodeId,
     externalTree,
+  });
+
+  // An arrow that mounts or unmounts after the popup is positioned doesn't resize the positioner, so
+  // reposition explicitly. Deferred so an anchor that changed in the same commit is registered first.
+  // `update` closes over the middleware, so queue the latest one: a stale one resolving last would
+  // apply outdated options such as `arrowPadding`.
+  const refresh = useStableCallback(update);
+  const arrowRef = useStableCallback((element: Element | null) => {
+    arrowElementRef.current = element;
+    if (isPositioned) {
+      queueMicrotask(refresh);
+    }
   });
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
@@ -836,7 +852,7 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
 export interface UseAnchorPositioningReturnValue {
   positionerStyles: React.CSSProperties;
   arrowStyles: React.CSSProperties;
-  arrowRef: React.RefObject<Element | null>;
+  arrowRef: React.RefCallback<Element>;
   arrowUncentered: boolean;
   side: Side;
   align: Align;

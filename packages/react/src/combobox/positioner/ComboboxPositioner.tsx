@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
@@ -107,9 +106,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     store.set('popupSide', positioning.side);
   }, [store, positioning.side]);
 
-  const setPositionerElement = useStableCallback((element) => {
-    store.set('positionerElement', element);
-  });
+  const setPositionerElement = store.useStateSetter('positionerElement');
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,
