@@ -190,7 +190,6 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       // focused state only when focus leaves the root, so slot-to-slot moves don't churn it.
       handleInputBlur(event);
     },
-    ...composition.props,
     onChange(event) {
       if (event.defaultPrevented || disabled || readOnly) {
         return;
@@ -318,7 +317,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, listItemRef, inputRef],
     state: inputState,
-    props: [inputProps, elementProps],
+    props: [inputProps, composition.props, elementProps],
     stateAttributesMapping: inputStateAttributesMapping,
   });
 

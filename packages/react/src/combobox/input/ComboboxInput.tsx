@@ -225,7 +225,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             validation.commit(valueToValidate);
           }
         },
-        ...composition.props,
         onChange(event) {
           const nativeEvent = event.nativeEvent;
           // Autofill may not provide `inputType` (Chrome) or may report
@@ -409,6 +408,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
         },
       },
+      composition.props,
       validationProps,
     ],
     stateAttributesMapping: triggerStateAttributesMapping,

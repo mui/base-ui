@@ -79,7 +79,6 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         'aria-autocomplete': undefined,
         'aria-controls': context.listId,
         value: composition.composingValue ?? value,
-        ...composition.props,
         onChange(event) {
           if (composition.bufferChange(event.currentTarget.value)) {
             return;
@@ -118,6 +117,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           context.setInputFocusVisible(false);
         },
       },
+      composition.props,
       elementProps,
     ],
   });
