@@ -106,7 +106,7 @@ function TestLazyFlip(props: {
   );
 }
 
-function TestLateArrow(props: { switchAnchor?: boolean }) {
+function TestLateArrow(props: { switchAnchor?: boolean; anchorLeft?: number }) {
   const [offscreenAnchor, setOffscreenAnchor] = React.useState<HTMLDivElement | null>(null);
   const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
   const [arrowMounted, setArrowMounted] = React.useState(false);
@@ -140,7 +140,13 @@ function TestLateArrow(props: { switchAnchor?: boolean }) {
       <div
         ref={setAnchor}
         data-testid="anchor"
-        style={{ position: 'fixed', left: 100, top: 100, width: 40, height: 20 }}
+        style={{
+          position: 'fixed',
+          left: props.anchorLeft ?? 100,
+          top: 100,
+          width: 40,
+          height: 20,
+        }}
       >
         anchor
       </div>
@@ -158,8 +164,8 @@ function TestLateArrow(props: { switchAnchor?: boolean }) {
           />
         )}
       </div>
-      <button type="button" onClick={() => setArrowMounted(true)}>
-        Mount arrow
+      <button type="button" onClick={() => setArrowMounted((mounted) => !mounted)}>
+        Toggle arrow
       </button>
     </React.Fragment>
   );
@@ -268,7 +274,7 @@ describe('useAnchorPositioning', () => {
       expect(screen.getByTestId('floating')).toHaveAttribute('data-positioned');
     });
 
-    await user.click(screen.getByRole('button', { name: 'Mount arrow' }));
+    await user.click(screen.getByRole('button', { name: 'Toggle arrow' }));
 
     const anchorRect = screen.getByTestId('anchor').getBoundingClientRect();
     const anchorCenter = anchorRect.left + anchorRect.width / 2;
@@ -290,11 +296,37 @@ describe('useAnchorPositioning', () => {
       });
       expect(floating.getBoundingClientRect().bottom).toBeLessThan(0);
 
-      await user.click(screen.getByRole('button', { name: 'Mount arrow' }));
+      await user.click(screen.getByRole('button', { name: 'Toggle arrow' }));
 
       const anchorTop = screen.getByTestId('anchor').getBoundingClientRect().top;
       await waitFor(() => {
         expect(floating.getBoundingClientRect().bottom).toBeCloseTo(anchorTop, 0);
+      });
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'repositions when the arrow unmounts after the popup is positioned',
+    async () => {
+      // The anchor's right edge sits at 5px, so the arrow's shift limit holds the popup at -5px
+      // while the arrow is mounted, and collision padding moves it to 5px once it's gone.
+      const { user } = await render(<TestLateArrow anchorLeft={-35} />);
+      const floating = screen.getByTestId('floating');
+      const toggle = screen.getByRole('button', { name: 'Toggle arrow' });
+
+      await waitFor(() => {
+        expect(floating).toHaveAttribute('data-positioned');
+      });
+
+      await user.click(toggle);
+      await waitFor(() => {
+        expect(floating.getBoundingClientRect().left).toBeCloseTo(-5, 0);
+      });
+
+      await user.click(toggle);
+      expect(screen.queryByTestId('arrow')).toBe(null);
+      await waitFor(() => {
+        expect(floating.getBoundingClientRect().left).toBeCloseTo(5, 0);
       });
     },
   );

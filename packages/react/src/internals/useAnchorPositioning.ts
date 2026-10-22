@@ -493,12 +493,15 @@ export function useAnchorPositioning(
     externalTree,
   });
 
-  // An arrow that mounts after the popup is positioned doesn't resize the positioner, so reposition
-  // explicitly. Deferred so an anchor that changed in the same commit is registered first.
+  // An arrow that mounts or unmounts after the popup is positioned doesn't resize the positioner, so
+  // reposition explicitly. Deferred so an anchor that changed in the same commit is registered first.
+  // `update` closes over the middleware, so queue the latest one: a stale one resolving last would
+  // apply outdated options such as `arrowPadding`.
+  const refresh = useStableCallback(update);
   const arrowRef = useStableCallback((element: Element | null) => {
     arrowElementRef.current = element;
-    if (element && isPositioned) {
-      queueMicrotask(update);
+    if (isPositioned) {
+      queueMicrotask(refresh);
     }
   });
 
