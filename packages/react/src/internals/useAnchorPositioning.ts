@@ -283,23 +283,29 @@ export function useAnchorPositioning(
   const crossAxisShiftEnabled =
     !shiftDisabled && (sticky || shiftCrossAxis || collisionAvoidanceSide === 'shift');
 
+  const flipOptions = {
+    ...commonCollisionProps,
+    // Ensure the popup flips if it's been limited by its --available-height and it resizes.
+    // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
+    padding: {
+      top: collisionPadding.top + bias + biasTop,
+      right: collisionPadding.right + bias + biasRight,
+      bottom: collisionPadding.bottom + bias + biasBottom,
+      left: collisionPadding.left + bias + biasLeft,
+    },
+    mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
+    crossAxis: collisionAvoidanceAlign === 'flip' ? ('alignment' as const) : false,
+    fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
+  };
   const flipMiddleware =
     collisionAvoidanceSide === 'none'
       ? null
-      : flip({
-          ...commonCollisionProps,
-          // Ensure the popup flips if it's been limited by its --available-height and it resizes.
-          // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
-          padding: {
-            top: collisionPadding.top + bias + biasTop,
-            right: collisionPadding.right + bias + biasRight,
-            bottom: collisionPadding.bottom + bias + biasBottom,
-            left: collisionPadding.left + bias + biasLeft,
-          },
-          mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
-          crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
-          fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
-        });
+      : flip(
+          // Once size() has run in this pass (it may have raised the cap), accept its new cap.
+          ({ middlewareData }) =>
+            middlewareData.size ? { ...flipOptions, padding: collisionPadding } : flipOptions,
+          [flipOptions],
+        );
   const shiftMiddleware = shiftDisabled
     ? null
     : floatingShift(

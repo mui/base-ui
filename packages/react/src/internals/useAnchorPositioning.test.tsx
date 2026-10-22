@@ -171,6 +171,65 @@ function TestLateArrow(props: { switchAnchor?: boolean; anchorLeft?: number }) {
   );
 }
 
+function TestCappedGrowth() {
+  const anchorRef = React.useRef<HTMLDivElement>(null);
+  const [grown, setGrown] = React.useState(false);
+
+  const rootStore = useFloatingRootStore({});
+  const positioning = useAnchorPositioning({
+    anchor: anchorRef,
+    mounted: true,
+    positionMethod: 'fixed',
+    side: 'bottom',
+    align: 'center',
+    sideOffset: 0,
+    alignOffset: 0,
+    collisionBoundary: 'clipping-ancestors',
+    collisionPadding: 5,
+    sticky: false,
+    arrowPadding: 5,
+    // Update manually: a ResizeObserver-driven flip can log a timing-dependent loop error.
+    disableAnchorTracking: true,
+    keepMounted: false,
+    collisionAvoidance: { fallbackAxisSide: 'none' },
+    interactionStore: rootStore,
+  });
+
+  const { update } = positioning;
+  React.useEffect(() => {
+    if (grown) {
+      update();
+    }
+  }, [grown, update]);
+
+  return (
+    <React.Fragment>
+      <div
+        ref={anchorRef}
+        style={{ position: 'fixed', top: '60vh', left: 100, width: 20, height: 20 }}
+      >
+        anchor
+      </div>
+      <div
+        ref={positioning.refs.setFloating}
+        data-testid="floating"
+        data-side={positioning.side}
+        style={{
+          ...positioning.positionerStyles,
+          width: 100,
+          maxHeight: 'var(--available-height)',
+          overflowY: 'auto',
+        }}
+      >
+        <div style={{ height: grown ? '200vh' : 20 }} />
+      </div>
+      <button type="button" onClick={() => setGrown(true)}>
+        Grow
+      </button>
+    </React.Fragment>
+  );
+}
+
 describe('useAnchorPositioning', () => {
   const { render } = createRenderer();
 
@@ -327,6 +386,25 @@ describe('useAnchorPositioning', () => {
       expect(screen.queryByTestId('arrow')).toBe(null);
       await waitFor(() => {
         expect(floating.getBoundingClientRect().left).toBeCloseTo(5, 0);
+      });
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'flips a capped popup to the larger side when it grows while open',
+    async () => {
+      const { user } = await render(<TestCappedGrowth />);
+      const floating = screen.getByTestId('floating');
+
+      await waitFor(() => {
+        expect(floating).toHaveAttribute('data-side', 'bottom');
+      });
+
+      // The content now fits neither side, and there is more space above the anchor.
+      await user.click(screen.getByRole('button', { name: 'Grow' }));
+
+      await waitFor(() => {
+        expect(floating).toHaveAttribute('data-side', 'top');
       });
     },
   );
