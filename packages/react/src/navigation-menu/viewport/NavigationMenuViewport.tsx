@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { contains } from '@base-ui/utils/shadowDom';
@@ -88,6 +89,50 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
 
   const positioning = useNavigationMenuPositionerContext(true);
   const hasPositioner = Boolean(positioning);
+
+  // A Suspense boundary above the root detaches refs (passing `null`) while it shows its fallback.
+  // Clearing the elements then would unmount the content, which lets the boundary reveal the tree
+  // again and re-suspend in a loop ("Maximum update depth exceeded"). Ignore `null` in the refs
+  // and sync the elements from passive effects instead, which stay mounted while hidden. The
+  // effects also set the elements, since React 18 StrictMode re-runs them without re-running refs.
+  const viewportElementRef = React.useRef<HTMLDivElement | null>(null);
+  const viewportTargetElementRef = React.useRef<HTMLDivElement | null>(null);
+
+  const handleViewportElementRef = useStableCallback((element: HTMLDivElement | null) => {
+    if (element !== null) {
+      viewportElementRef.current = element;
+      setViewportElement(element);
+    }
+  });
+
+  const handleViewportTargetElementRef = useStableCallback((element: HTMLDivElement | null) => {
+    if (element !== null) {
+      viewportTargetElementRef.current = element;
+      setViewportTargetElement(element);
+    }
+  });
+
+  React.useEffect(() => {
+    if (viewportElementRef.current) {
+      setViewportElement(viewportElementRef.current);
+    }
+    return () => {
+      setViewportElement(null);
+    };
+  }, [setViewportElement]);
+
+  React.useEffect(() => {
+    if (hasPositioner) {
+      return undefined;
+    }
+    if (viewportTargetElementRef.current) {
+      setViewportTargetElement(viewportTargetElementRef.current);
+    }
+    return () => {
+      setViewportTargetElement(null);
+    };
+  }, [hasPositioner, setViewportTargetElement]);
+
   const domReference = (floatingRootStore || EMPTY_ROOT_STORE).useState('anchorElement');
 
   useIsoLayoutEffect(() => {
@@ -97,7 +142,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   }, [domReference, prevTriggerElementRef]);
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, setViewportElement],
+    ref: [forwardedRef, handleViewportElementRef],
     props: [
       {
         id,
@@ -120,7 +165,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
           children
         ) : (
           <Guards>
-            <div ref={setViewportTargetElement}>{children}</div>
+            <div ref={handleViewportTargetElementRef}>{children}</div>
           </Guards>
         ),
       },
