@@ -1574,12 +1574,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
-      query,
       hasItems,
       filteredItems,
       flatFilteredValues,
     }),
-    [query, hasItems, filteredItems, flatFilteredValues],
+    [hasItems, filteredItems, flatFilteredValues],
   );
 
   const serializedValue = React.useMemo(() => {
