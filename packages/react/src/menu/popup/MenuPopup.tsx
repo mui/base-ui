@@ -15,6 +15,8 @@ import { popupTransitionStateMapping } from '../../utils/popups/popupStateMappin
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
+import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
@@ -48,6 +50,7 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
     useMenuRootContext();
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
+  const insideToolbar = useToolbarRootContext(true) != null;
 
   const open = store.useState('open');
   const transitionStatus = store.useState('transitionStatus');
@@ -160,6 +163,11 @@ export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
             }),
         onKeyDown(event) {
           submenuRootContext?.onPopupKeyDown?.(event);
+          // A portal `container` inside the toolbar puts the popup in its DOM, where the toolbar
+          // can't tell the popup's keys apart from its own.
+          if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
         },
         onFocus: handleFocus,
       },

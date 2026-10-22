@@ -13,6 +13,8 @@ import { popupTransitionStateMapping } from '../../utils/popups/popupStateMappin
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { REASONS } from '../../internals/reasons';
+import { COMPOSITE_KEYS } from '../../internals/composite/composite';
+import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { ClosePartContext, useClosePartCount } from '../utils/closePart';
 import {
@@ -35,6 +37,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const store = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
+  const insideToolbar = useToolbarRootContext(true) != null;
   const { context: closePartContext, hasClosePart } = useClosePartCount();
 
   const open = store.useState('open');
@@ -92,6 +95,13 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
         ...FOCUSABLE_POPUP_PROPS,
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
+        onKeyDown(event) {
+          // A portal `container` inside the toolbar puts the popup in its DOM, where the toolbar
+          // can't tell the popup's keys apart from its own.
+          if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
+        },
       },
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,

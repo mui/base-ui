@@ -430,47 +430,59 @@ describe('<Menu.Trigger />', () => {
   );
 
   // A trigger inside a composite other than a Menubar must not forward the keys pressed inside its
-  // menu to that composite.
-  it('does not move toolbar focus with arrow keys pressed inside the menu', async () => {
-    const { user } = await render(
-      <Toolbar.Root>
-        <Toolbar.Button>First</Toolbar.Button>
-        <Menu.Root modal={false}>
-          <Toolbar.Button render={<Menu.Trigger />}>Open</Toolbar.Button>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>Item</Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-        <Toolbar.Button>Last</Toolbar.Button>
-      </Toolbar.Root>,
-    );
+  // menu to that composite. A portal container inside the toolbar also puts the menu in its DOM.
+  it.each([
+    { name: 'portaled outside the toolbar', portalInsideToolbar: false },
+    { name: 'portaled inside the toolbar', portalInsideToolbar: true },
+  ])(
+    'does not move toolbar focus with arrow keys pressed inside the menu when $name',
+    async ({ portalInsideToolbar }) => {
+      function Test() {
+        const containerRef = React.useRef<HTMLDivElement>(null);
+        return (
+          <Toolbar.Root>
+            <Toolbar.Button>First</Toolbar.Button>
+            <Menu.Root modal={false}>
+              <Toolbar.Button render={<Menu.Trigger />}>Open</Toolbar.Button>
+              <Menu.Portal container={portalInsideToolbar ? containerRef : undefined}>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Toolbar.Button>Last</Toolbar.Button>
+            <div ref={containerRef} />
+          </Toolbar.Root>
+        );
+      }
 
-    // The toolbar navigates with ArrowRight itself, so the final assertion can't come from an
-    // inert toolbar.
-    await user.keyboard('[Tab]');
-    expect(screen.getByRole('button', { name: 'First' })).toHaveFocus();
-    await user.keyboard('[ArrowRight]');
-    const trigger = screen.getByRole('button', { name: 'Open' });
-    await waitFor(() => {
-      expect(trigger).toHaveFocus();
-    });
+      const { user } = await render(<Test />);
 
-    await user.keyboard('[Enter]');
-    const item = await screen.findByRole('menuitem', { name: 'Item' });
-    await waitFor(() => {
+      // The toolbar navigates with ArrowRight itself, so the final assertion can't come from an
+      // inert toolbar.
+      await user.keyboard('[Tab]');
+      expect(screen.getByRole('button', { name: 'First' })).toHaveFocus();
+      await user.keyboard('[ArrowRight]');
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+      const item = await screen.findByRole('menuitem', { name: 'Item' });
+      await waitFor(() => {
+        expect(item).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowRight]');
+      await flushMicrotasks();
+
       expect(item).toHaveFocus();
-    });
-
-    await user.keyboard('[ArrowRight]');
-    await flushMicrotasks();
-
-    expect(item).toHaveFocus();
-    expect(screen.getByRole('button', { name: 'Last' })).not.toHaveFocus();
-  });
+      expect(screen.getByRole('button', { name: 'Last' })).not.toHaveFocus();
+    },
+  );
 
   describe('preventBaseUIHandler', () => {
     it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {
