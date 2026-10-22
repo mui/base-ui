@@ -19,6 +19,10 @@ import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenu
 
 const EMPTY_ROOT_STORE = getEmptyRootStore();
 
+function keepIfConnected(element: HTMLElement | null) {
+  return element?.isConnected ? element : null;
+}
+
 function Guards({ children }: { children: React.ReactNode }) {
   const {
     beforeInsideRef,
@@ -90,48 +94,28 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   const positioning = useNavigationMenuPositionerContext(true);
   const hasPositioner = Boolean(positioning);
 
-  // A Suspense boundary above the root detaches refs (passing `null`) while it shows its fallback.
-  // Clearing the elements then would unmount the content, which lets the boundary reveal the tree
-  // again and re-suspend in a loop ("Maximum update depth exceeded"). Ignore `null` in the refs
-  // and sync the elements from passive effects instead, which stay mounted while hidden. The
-  // effects also set the elements, since React 18 StrictMode re-runs them without re-running refs.
-  const viewportElementRef = React.useRef<HTMLDivElement | null>(null);
-  const viewportTargetElementRef = React.useRef<HTMLDivElement | null>(null);
-
+  // A Suspense boundary above the root detaches refs while showing its fallback. Clearing the
+  // elements then unmounts the suspended content, which reveals the tree again in a loop.
   const handleViewportElementRef = useStableCallback((element: HTMLDivElement | null) => {
-    if (element !== null) {
-      viewportElementRef.current = element;
+    if (element) {
       setViewportElement(element);
     }
   });
-
   const handleViewportTargetElementRef = useStableCallback((element: HTMLDivElement | null) => {
-    if (element !== null) {
-      viewportTargetElementRef.current = element;
+    if (element) {
       setViewportTargetElement(element);
     }
   });
 
-  React.useEffect(() => {
-    if (viewportElementRef.current) {
-      setViewportElement(viewportElementRef.current);
-    }
-    return () => {
-      setViewportElement(null);
-    };
-  }, [setViewportElement]);
-
-  React.useEffect(() => {
-    if (hasPositioner) {
-      return undefined;
-    }
-    if (viewportTargetElementRef.current) {
-      setViewportTargetElement(viewportTargetElementRef.current);
-    }
-    return () => {
-      setViewportTargetElement(null);
-    };
-  }, [hasPositioner, setViewportTargetElement]);
+  // Clear them on unmount instead. Hidden trees and React 18 StrictMode's simulated unmount keep
+  // the elements in the DOM, so only drop the ones that left it.
+  React.useEffect(
+    () => () => {
+      setViewportElement(keepIfConnected);
+      setViewportTargetElement(keepIfConnected);
+    },
+    [setViewportElement, setViewportTargetElement],
+  );
 
   const domReference = (floatingRootStore || EMPTY_ROOT_STORE).useState('anchorElement');
 

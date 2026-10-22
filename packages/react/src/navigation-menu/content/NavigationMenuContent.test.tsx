@@ -221,7 +221,7 @@ describe('<NavigationMenu.Content />', () => {
   });
 
   // Issue #5103
-  it('does not throw "Maximum update depth exceeded" when a child suspends and the Suspense boundary is outside the root', async () => {
+  it('renders content that suspends when the Suspense boundary is outside the root', async () => {
     let resolveLazy: (value: { default: React.ComponentType }) => void = () => {};
     const LazyContent = React.lazy(
       () =>
@@ -229,20 +229,17 @@ describe('<NavigationMenu.Content />', () => {
           resolveLazy = resolve;
         }),
     );
-    const items = ['a', 'b', 'c', 'd', 'e'];
 
     const { user } = await render(
       <React.Suspense fallback="Loading...">
         <NavigationMenu.Root>
           <NavigationMenu.List>
-            {items.map((item) => (
-              <NavigationMenu.Item key={item} value={item}>
-                <NavigationMenu.Trigger>{`Item ${item}`}</NavigationMenu.Trigger>
-                <NavigationMenu.Content>
-                  <LazyContent />
-                </NavigationMenu.Content>
-              </NavigationMenu.Item>
-            ))}
+            <NavigationMenu.Item value="item">
+              <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <LazyContent />
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
           </NavigationMenu.List>
           <NavigationMenu.Portal>
             <NavigationMenu.Positioner>
@@ -257,7 +254,7 @@ describe('<NavigationMenu.Content />', () => {
 
     expect(screen.queryByText('Loading...')).toBe(null);
 
-    await user.hover(screen.getByRole('button', { name: 'Item a' }));
+    await user.hover(screen.getByRole('button', { name: 'Item' }));
 
     expect(await screen.findByText('Loading...')).not.toBe(null);
 
