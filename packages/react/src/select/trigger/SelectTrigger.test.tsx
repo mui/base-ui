@@ -102,13 +102,13 @@ describe('<Select.Trigger />', () => {
   });
 
   describe('releasing the opening press', () => {
-    async function pressTrigger() {
+    async function pressTrigger(container?: ShadowRoot) {
       await render(
         <Select.Root>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
-          <Select.Portal>
+          <Select.Portal container={container}>
             <Select.Positioner alignItemWithTrigger={false}>
               <Select.Popup>
                 <Select.Item value="a">a</Select.Item>
@@ -153,6 +153,27 @@ describe('<Select.Trigger />', () => {
       await waitFor(() => {
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
       });
+    });
+
+    it('keeps the popup open when the press is released inside a popup in a shadow root', async () => {
+      const host = document.createElement('div');
+      document.body.append(host);
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+
+      try {
+        const trigger = await pressTrigger(shadowRoot);
+        const popup = shadowRoot.querySelector('[role="listbox"]');
+        expect(popup).not.toBe(null);
+
+        fireEvent.mouseUp(popup!, { button: 0, clientX: 500, clientY: 500 });
+        await act(async () => {
+          await wait(20);
+        });
+
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      } finally {
+        host.remove();
+      }
     });
   });
 
