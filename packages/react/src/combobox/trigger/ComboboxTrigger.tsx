@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
@@ -143,9 +142,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     placeholder: selectionMode === 'none' ? false : !hasSelectedValue,
   };
 
-  const setTriggerElement = useStableCallback((element) => {
-    store.set('triggerElement', element);
-  });
+  const setTriggerElement = store.useStateSetter('triggerElement');
 
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef, triggerRef, setTriggerElement],
