@@ -6,7 +6,7 @@ import type { PopupPositioningContext } from '../../utils/popups/types';
 export interface PopoverPositionerContext {
   side: Side;
   align: Align;
-  arrowRef: React.RefObject<Element | null>;
+  arrowRef: React.RefCallback<Element>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
   context: PopupPositioningContext;
