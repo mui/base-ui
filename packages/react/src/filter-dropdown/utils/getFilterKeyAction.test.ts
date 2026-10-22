@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import type * as React from 'react';
-import { getMenuFilterKeyAction } from './useMenuFilterKeyDown';
-import type { MenuFilterKeyAction } from './useMenuFilterKeyDown';
+import { getFilterKeyAction } from './getFilterKeyAction';
+import type { FilterKeyAction } from './getFilterKeyAction';
 
 function key(value: string, init: Partial<React.KeyboardEvent> = {}) {
   return {
@@ -15,8 +15,8 @@ function key(value: string, init: Partial<React.KeyboardEvent> = {}) {
   } as React.KeyboardEvent;
 }
 
-describe('getMenuFilterKeyAction', () => {
-  it.each<[string, React.KeyboardEvent, boolean, boolean, MenuFilterKeyAction, boolean?]>([
+describe('getFilterKeyAction', () => {
+  it.each<[string, React.KeyboardEvent, boolean, boolean, FilterKeyAction, boolean?]>([
     ['IME composition', key('Enter', { which: 229 }), true, true, 'ignore'],
     ['Tab', key('Tab'), true, false, 'ignore'],
     ['Shift+Tab', key('Tab', { shiftKey: true }), false, false, 'close'],
@@ -42,7 +42,7 @@ describe('getMenuFilterKeyAction', () => {
     'vertical: %s',
     (_, event, hasActiveItem, hasValue, expected, activeItemOpensSubmenu = false) => {
       expect(
-        getMenuFilterKeyAction(event, {
+        getFilterKeyAction(event, {
           orientation: 'vertical',
           rtl: false,
           hasActiveItem,
@@ -53,7 +53,7 @@ describe('getMenuFilterKeyAction', () => {
     },
   );
 
-  it.each<[string, React.KeyboardEvent, boolean, boolean, MenuFilterKeyAction, boolean?]>([
+  it.each<[string, React.KeyboardEvent, boolean, boolean, FilterKeyAction, boolean?]>([
     ['ArrowDown without a highlight', key('ArrowDown'), false, true, 'enter-list'],
     ['ArrowUp without a highlight', key('ArrowUp'), false, false, 'enter-list'],
     ['ArrowDown on a submenu trigger', key('ArrowDown'), true, true, 'submenu', true],
@@ -65,7 +65,7 @@ describe('getMenuFilterKeyAction', () => {
     'horizontal: %s',
     (_, event, hasActiveItem, hasValue, expected, activeItemOpensSubmenu = false) => {
       expect(
-        getMenuFilterKeyAction(event, {
+        getFilterKeyAction(event, {
           orientation: 'horizontal',
           rtl: false,
           hasActiveItem,

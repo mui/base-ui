@@ -11,32 +11,33 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                                                                                        | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| :------------------- | :------------------------------------------------------------------------------------------ | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| name                 | `string`                                                                                    | -       | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                                                                                                                                                                    |
-| defaultValue         | `Value[] \| Value \| null`                                                                  | -       | The uncontrolled value of the select when it's initially rendered. To render a controlled select, use the `value` prop instead.                                                                                                                                                                                                                                                                                                                   |
-| value                | `Value[] \| Value \| null`                                                                  | -       | The value of the select. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                     |
-| onValueChange        | `((value: Value[] \| Value \| null, eventDetails: Select.Root.ChangeEventDetails) => void)` | -       | Event handler called when the value of the select changes.                                                                                                                                                                                                                                                                                                                                                                                        |
-| defaultOpen          | `boolean`                                                                                   | `false` | Whether the select popup is initially open. To render a controlled select popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                     |
-| open                 | `boolean`                                                                                   | -       | Whether the select popup is currently open.                                                                                                                                                                                                                                                                                                                                                                                                       |
-| onOpenChange         | `((open: boolean, eventDetails: Select.Root.OpenChangeEventDetails) => void)`               | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                   |
-| highlightItemOnHover | `boolean`                                                                                   | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                       |
-| actionsRef           | `React.RefObject<Select.Root.Actions \| null>`                                              | -       | A ref to imperative actions. `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the select imperatively when called.                                                               |
-| autoComplete         | `string`                                                                                    | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                      |
-| form                 | `string`                                                                                    | -       | Identifies the form that owns the hidden input.&#xA;Useful when the select is rendered outside the form.                                                                                                                                                                                                                                                                                                                                          |
-| isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                             | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                  |
-| itemToStringLabel    | `((itemValue: Value) => string)`                                                            | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                |
-| itemToStringValue    | `((itemValue: Value) => string)`                                                            | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.                                                                                                                                                       |
-| items                | `Record<string, React.ReactNode> \| ({ label: React.ReactNode; value: any })[] \| Group[]`  | -       | Data structure of the items rendered in the select popup.&#xA;When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.                                                                                                                                                                                                                                                                                   |
-| modal                | `boolean`                                                                                   | `true`  | Determines if the select enters a modal state when open. `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior. |
-| multiple             | `boolean`                                                                                   | `false` | Whether multiple items can be selected.                                                                                                                                                                                                                                                                                                                                                                                                           |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                                 | -       | Event handler called after any animations complete when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                     |
-| disabled             | `boolean`                                                                                   | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                                                                                             |
-| readOnly             | `boolean`                                                                                   | `false` | Whether the user should be unable to choose a different option from the select popup.                                                                                                                                                                                                                                                                                                                                                             |
-| required             | `boolean`                                                                                   | `false` | Whether the user must choose a value before submitting a form.                                                                                                                                                                                                                                                                                                                                                                                    |
-| inputRef             | `React.Ref<HTMLInputElement>`                                                               | -       | A ref to access the hidden input element.                                                                                                                                                                                                                                                                                                                                                                                                         |
-| id                   | `string`                                                                                    | -       | The id of the Select.                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| children             | `React.ReactNode`                                                                           | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Prop                 | Type                                                                                         | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| :------------------- | :------------------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                 | `string`                                                                                     | -       | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| defaultValue         | `Value[] \| Value \| null`                                                                   | -       | The uncontrolled value of the select when it's initially rendered. To render a controlled select, use the `value` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| value                | `Value[] \| Value \| null`                                                                   | -       | The value of the select. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| onValueChange        | `((value: Value[] \| Value \| null, eventDetails: Select.Root.ChangeEventDetails) => void)`  | -       | Event handler called when the value of the select changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| defaultOpen          | `boolean`                                                                                    | `false` | Whether the select popup is initially open. To render a controlled select popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| open                 | `boolean`                                                                                    | -       | Whether the select popup is currently open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| onOpenChange         | `((open: boolean, eventDetails: Select.Root.OpenChangeEventDetails) => void)`                | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| highlightItemOnHover | `boolean`                                                                                    | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| actionsRef           | `React.RefObject<Select.Root.Actions \| null>`                                               | -       | A ref to imperative actions. `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.&#xA;Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.&#xA;Whether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the select imperatively when called.                                                                                                                                                                                                                    |
+| autoComplete         | `string`                                                                                     | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| form                 | `string`                                                                                     | -       | Identifies the form that owns the hidden input.&#xA;Useful when the select is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                              | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                                                                                                                                                                       |
+| itemToStringLabel    | `((itemValue: Value) => string)`                                                             | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                                                     |
+| itemToStringValue    | `((itemValue: Value) => string)`                                                             | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                                                            |
+| items                | `Record<string, React.ReactNode> \| ({ label: React.ReactNode; value: any })[] \| Group[]`   | -       | Data structure of the items rendered in the select popup.&#xA;When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| modal                | `boolean`                                                                                    | `true`  | Determines if the select enters a modal state when open. `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.                                                                                                                                                      |
+| multiple             | `boolean`                                                                                    | `false` | Whether multiple items can be selected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| onItemHighlighted    | `((itemValue: Value \| undefined, eventDetails: Select.Root.HighlightEventDetails) => void)` | -       | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation or typeahead.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`&#xA;rather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as filtering, the item list&#xA;changing, or the popup opening or closing. |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                                  | -       | Event handler called after any animations complete when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| disabled             | `boolean`                                                                                    | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| readOnly             | `boolean`                                                                                    | `false` | Whether the user should be unable to choose a different option from the select popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| required             | `boolean`                                                                                    | `false` | Whether the user must choose a value before submitting a form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| inputRef             | `React.Ref<HTMLInputElement>`                                                                | -       | A ref to access the hidden input element.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| id                   | `string`                                                                                     | -       | The id of the Select.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| children             | `React.ReactNode`                                                                            | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
 **`items` Prop Example:**
 
@@ -90,16 +91,16 @@ type SelectRootChangeEventReason =
 
 ```typescript
 type SelectRootChangeEventDetails = (
-  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'none'; event: Event }
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | KeyboardEvent | TouchEvent }
   | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
-  | { reason: 'escape-key'; event: KeyboardEvent }
-  | { reason: 'window-resize'; event: UIEvent }
   | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
   | { reason: 'imperative-action'; event: Event }
-  | { reason: 'none'; event: Event }
+  | { reason: 'window-resize'; event: UIEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
@@ -114,20 +115,35 @@ type SelectRootChangeEventDetails = (
 };
 ```
 
+### Root.HighlightEventReason
+
+```typescript
+type SelectRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';
+```
+
+### Root.HighlightEventDetails
+
+```typescript
+type SelectRootHighlightEventDetails =
+  | { reason: 'pointer'; event: MouseEvent | PointerEvent; index: number }
+  | { reason: 'keyboard'; event: KeyboardEvent; index: number }
+  | { reason: 'none'; event: Event; index: number };
+```
+
 ### Root.OpenChangeEventDetails
 
 ```typescript
 type SelectRootOpenChangeEventDetails = (
-  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'none'; event: Event }
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | KeyboardEvent | TouchEvent }
   | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
-  | { reason: 'escape-key'; event: KeyboardEvent }
-  | { reason: 'window-resize'; event: UIEvent }
   | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'cancel-open'; event: MouseEvent }
   | { reason: 'imperative-action'; event: Event }
-  | { reason: 'none'; event: Event }
+  | { reason: 'window-resize'; event: UIEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
@@ -253,6 +269,42 @@ type SelectValueState = {
 };
 ```
 
+### Input
+
+A search field that filters the select items.
+Requires the select to be wrapped in `Select.FilterProvider`.
+Renders an `<input>` element.
+
+**Input Props:**
+
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Input.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Select.Input.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Input.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Input Data Attributes:**
+
+| Attribute        | Type | Description                                                                                            |
+| :--------------- | :--- | :----------------------------------------------------------------------------------------------------- |
+| data-highlighted | -    | Present while the input shows its focus ring.&#xA;Cleared when keyboard navigation highlights an item. |
+
+### Input.Props
+
+Re-export of [Input](#input) props.
+
+### Input.State
+
+```typescript
+type SelectInputState = {
+  /**
+   * Whether the input shows its focus ring.
+   * Cleared when keyboard navigation highlights an item.
+   */
+  highlighted: boolean;
+};
+```
+
 ### Icon
 
 An icon that indicates that the trigger button opens a select popup.
@@ -282,6 +334,41 @@ Re-export of [Icon](#icon) props.
 type SelectIconState = {
   /** Whether the select popup is currently open. */
   open: boolean;
+};
+```
+
+### Clear
+
+A button that clears the input text.
+Requires the select to be wrapped in `Select.FilterProvider`.
+Renders a `<button>` element when the input has text.
+
+**Clear Props:**
+
+| Prop         | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :----------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                  | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                  | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| className    | `string \| ((state: Select.Clear.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Select.Clear.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: Select.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Clear Data Attributes:**
+
+| Attribute     | Type | Description                          |
+| :------------ | :--- | :----------------------------------- |
+| data-disabled | -    | Present when the button is disabled. |
+
+### Clear.Props
+
+Re-export of [Clear](#clear) props.
+
+### Clear.State
+
+```typescript
+type SelectClearState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
 };
 ```
 
@@ -563,7 +650,7 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                      | Default | Description                                                                                                                                                                                   |
 | :----------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                  | -       | Specifies the text label to use when the item is matched during keyboard text navigation. Defaults to the item text content if not provided.                                                  |
+| label        | `string`                                                                                  | -       | Overrides the text used for keyboard text navigation and filtering inside `Select.FilterProvider`. Defaults to the item text content if not provided.                                         |
 | value        | `any`                                                                                     | `null`  | A unique value that identifies this select item.                                                                                                                                              |
 | nativeButton | `boolean`                                                                                 | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                 | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
@@ -712,6 +799,30 @@ type SelectLabelState = {
 };
 ```
 
+### Empty
+
+A message shown when the select has no matching items.
+Requires the select to be wrapped in `Select.FilterProvider`.
+Renders a `<div>` element.
+
+**Empty Props:**
+
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Empty.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Select.Empty.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Empty.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Empty.Props
+
+Re-export of [Empty](#empty) props.
+
+### Empty.State
+
+```typescript
+type SelectEmptyState = {};
+```
+
 ### ItemText
 
 A text label of the select item.
@@ -840,6 +951,94 @@ Re-export of [ScrollDownArrow](#scrolldownarrow) props.
 type SelectScrollDownArrowState = {};
 ```
 
+### FilterProvider
+
+Enables filtering for the select it wraps. Add `Select.Input` to the popup and place its items
+in `Select.List`.
+Doesn't render its own HTML element.
+
+**FilterProvider Props:**
+
+| Prop          | Type                                                                                | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| :------------ | :---------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `string`                                                                            | -       | The uncontrolled filter query when the select is initially rendered.&#xA;To render a controlled query, use the `value` prop instead.                                                                                                                                                                                                                                                                                                                                                                        |
+| value         | `string`                                                                            | -       | The filter query, not the selected value (`value` on `<Select.Root>`). Use when controlled.&#xA;Once the popup finishes closing, `onValueChange` is called with an empty query. The&#xA;controlled value changes only when the consumer updates this prop.                                                                                                                                                                                                                                                  |
+| onValueChange | `((value: string, eventDetails: Select.FilterProvider.ChangeEventDetails) => void)` | -       | Event handler called when the filter query changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| autoHighlight | `boolean \| 'always'`                                                               | `false` | Whether filtering highlights the first matching item automatically. `true`: highlight it while the query is not empty.`'always'`: highlight it even when the query is empty. Opening the select from the keyboard highlights the selected item either way, or, when none&#xA;is selected, the first item (the last with ArrowUp). With either value, the arrow keys wrap&#xA;within the list rather than returning to the input, and with `'always'` a pointer highlight&#xA;stays when the pointer leaves. |
+| filter        | `((text: string, query: string) => boolean) \| null`                                | -       | Function used to match items against the query. Receives each item's `label` (or its&#xA;rendered text) and the trimmed query, and keeps the item when it returns `true`.&#xA;By default, items match when they contain the query, ignoring case, accents, and punctuation.&#xA;Pass `null` when rendering filtered items yourself.                                                                                                                                                                         |
+| locale        | `Intl.LocalesArgument`                                                              | -       | The locale the default `filter` uses for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                      |
+| virtualized   | `boolean`                                                                           | `false` | Whether the items are being externally virtualized.&#xA;Requires `items` on `<Select.Root>`. Render the matching items from `Select.useFilteredItems()`.                                                                                                                                                                                                                                                                                                                                                    |
+| children      | `React.ReactNode`                                                                   | -       | The `<Select.Root>` to make filterable.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+
+### FilterProvider.Props
+
+Re-export of [FilterProvider](#filterprovider) props.
+
+### FilterProvider.State
+
+```typescript
+type SelectFilterProviderState = {};
+```
+
+### FilterProvider.ChangeEventReason
+
+```typescript
+type SelectFilterProviderChangeEventReason =
+  'input-change' | 'input-clear' | 'clear-press' | 'popup-close';
+```
+
+### FilterProvider.ChangeEventDetails
+
+```typescript
+type SelectFilterProviderChangeEventDetails = (
+  | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'input-change'; event: Event | InputEvent }
+  | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
+  | { reason: 'popup-close'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  /**
+   * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
+   * clear.
+   */
+  isItemPress?: boolean;
+};
+```
+
+### useFilter
+
+**Parameters:**
+
+| Parameter | Type                  | Default | Description |
+| :-------- | :-------------------- | :------ | :---------- |
+| options?  | `SelectFilterOptions` | `{}`    | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = SelectFilter;
+```
+
+### useFilteredItems
+
+Returns the `items` of a select wrapped in `Select.FilterProvider` that match the query.
+Call it in a component rendered inside `Select.Root`, and treat the result as read-only.
+
+**Return Value:**
+
+```tsx
+type ReturnValue = Item[];
+```
+
 ## Additional Types
 
 ### SelectArrowDataAttributes
@@ -884,6 +1083,42 @@ declare namespace SelectBackdropDataAttributes {
 }
 ```
 
+### SelectClearDataAttributes
+
+Data attributes of [Clear](#clear).
+
+```typescript
+declare namespace SelectClearDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
+### SelectFilter
+
+```typescript
+type SelectFilter = {
+  /** Returns whether the item matches the query anywhere. */
+  contains: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item starts with the query. */
+  startsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item ends with the query. */
+  endsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+};
+```
+
+### SelectFilterOptions
+
+```typescript
+type SelectFilterOptions = {
+  /**
+   * The locale to use for string comparison.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+};
+```
+
 ### SelectIconDataAttributes
 
 Data attributes of [Icon](#icon).
@@ -892,6 +1127,20 @@ Data attributes of [Icon](#icon).
 declare namespace SelectIconDataAttributes {
   /** Present when the corresponding popup is open. */
   const popupOpen: 'data-popup-open';
+}
+```
+
+### SelectInputDataAttributes
+
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace SelectInputDataAttributes {
+  /**
+   * Present while the input shows its focus ring.
+   * Cleared when keyboard navigation highlights an item.
+   */
+  const highlighted: 'data-highlighted';
 }
 ```
 
@@ -1161,7 +1410,7 @@ type Orientation = 'horizontal' | 'vertical';
 
 ## Export Groups
 
-- `Select.Root`: `Select.Root`, `Select.Root.Props`, `Select.Root.State`, `Select.Root.Actions`, `Select.Root.ChangeEventReason`, `Select.Root.ChangeEventDetails`, `Select.Root.OpenChangeEventDetails`
+- `Select.Root`: `Select.Root`, `Select.Root.Props`, `Select.Root.State`, `Select.Root.Actions`, `Select.Root.ChangeEventReason`, `Select.Root.ChangeEventDetails`, `Select.Root.OpenChangeEventDetails`, `Select.Root.HighlightEventReason`, `Select.Root.HighlightEventDetails`
 - `Select.Label`: `Select.Label`, `Select.Label.State`, `Select.Label.Props`
 - `Select.Trigger`: `Select.Trigger`, `Select.Trigger.State`, `Select.Trigger.Props`
 - `Select.Value`: `Select.Value`, `Select.Value.State`, `Select.Value.Props`
@@ -1180,7 +1429,13 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectTriggerDataAttributes`, `SelectValueDataAttributes`, `SelectIconDataAttributes`, `SelectBackdropDataAttributes`, `SelectPositionerCssVariables`, `SelectPositionerDataAttributes`, `SelectPopupDataAttributes`, `SelectItemDataAttributes`, `SelectItemIndicatorDataAttributes`, `SelectArrowDataAttributes`, `SelectScrollDownArrowDataAttributes`, `SelectScrollUpArrowDataAttributes`, `SelectSeparatorDataAttributes`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootOpenChangeEventDetails`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
+- `Select.FilterProvider`: `Select.FilterProvider`, `Select.FilterProvider.State`, `Select.FilterProvider.Props`, `Select.FilterProvider.ChangeEventReason`, `Select.FilterProvider.ChangeEventDetails`
+- `Select.Input`: `Select.Input`, `Select.Input.State`, `Select.Input.Props`
+- `Select.Clear`: `Select.Clear`, `Select.Clear.State`, `Select.Clear.Props`
+- `Select.Empty`: `Select.Empty`, `Select.Empty.State`, `Select.Empty.Props`
+- `Select.useFilter`
+- `Select.useFilteredItems`
+- `Default`: `SelectFilter`, `SelectFilterOptions`, `SelectTriggerDataAttributes`, `SelectValueDataAttributes`, `SelectIconDataAttributes`, `SelectBackdropDataAttributes`, `SelectPositionerCssVariables`, `SelectPositionerDataAttributes`, `SelectPopupDataAttributes`, `SelectItemDataAttributes`, `SelectItemIndicatorDataAttributes`, `SelectArrowDataAttributes`, `SelectScrollDownArrowDataAttributes`, `SelectScrollUpArrowDataAttributes`, `SelectInputDataAttributes`, `SelectClearDataAttributes`, `SelectSeparatorDataAttributes`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootOpenChangeEventDetails`, `SelectRootChangeEventDetails`, `SelectRootHighlightEventReason`, `SelectRootHighlightEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`, `SelectFilterProviderState`, `SelectFilterProviderProps`, `SelectFilterProviderChangeEventReason`, `SelectFilterProviderChangeEventDetails`, `SelectInputState`, `SelectInputProps`, `SelectClearState`, `SelectClearProps`, `SelectEmptyState`, `SelectEmptyProps`
 
 ## Canonical Types
 
@@ -1192,6 +1447,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Select.Root.ChangeEventReason`: `SelectRootChangeEventReason`
 - `Select.Root.ChangeEventDetails`: `SelectRootChangeEventDetails`
 - `Select.Root.OpenChangeEventDetails`: `SelectRootOpenChangeEventDetails`
+- `Select.Root.HighlightEventReason`: `SelectRootHighlightEventReason`
+- `Select.Root.HighlightEventDetails`: `SelectRootHighlightEventDetails`
 - `Select.Label.State`: `SelectLabelState`
 - `Select.Label.Props`: `SelectLabelProps`
 - `Select.Trigger.State`: `SelectTriggerState`
@@ -1228,3 +1485,13 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Select.GroupLabel.Props`: `SelectGroupLabelProps`
 - `Select.Separator.Props`: `SelectSeparatorProps`
 - `Select.Separator.State`: `SelectSeparatorState`
+- `Select.FilterProvider.State`: `SelectFilterProviderState`
+- `Select.FilterProvider.Props`: `SelectFilterProviderProps`
+- `Select.FilterProvider.ChangeEventReason`: `SelectFilterProviderChangeEventReason`
+- `Select.FilterProvider.ChangeEventDetails`: `SelectFilterProviderChangeEventDetails`
+- `Select.Input.State`: `SelectInputState`
+- `Select.Input.Props`: `SelectInputProps`
+- `Select.Clear.State`: `SelectClearState`
+- `Select.Clear.Props`: `SelectClearProps`
+- `Select.Empty.State`: `SelectEmptyState`
+- `Select.Empty.Props`: `SelectEmptyProps`

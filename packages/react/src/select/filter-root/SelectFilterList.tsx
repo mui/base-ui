@@ -1,0 +1,170 @@
+'use client';
+import * as React from 'react';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { NOOP } from '@base-ui/utils/empty';
+import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
+import {
+  useFilterDropdownItemContext,
+  useFilterDropdownRootContext,
+  useFilterDropdownValueContext,
+} from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { refocusOwner } from '../../filter-dropdown/utils/refocusOwner';
+import {
+  CompositeListContext,
+  useCompositeListContext,
+} from '../../internals/composite/list/CompositeListContext';
+import type { CompositeListContextValue } from '../../internals/composite/list/CompositeListContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
+import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
+import { styleDisableScrollbar } from '../../utils/styles';
+import { mergeProps } from '../../merge-props';
+import { useSelectRootContext } from '../root/SelectRootContext';
+import type { SelectListProps } from '../list/SelectList';
+import { useSelectFilterNavigationContext } from './SelectFilterContext';
+import { useSelectFilterKeyDown } from './useSelectFilterKeyDown';
+
+const DETACHED_LIST: CompositeListContextValue<unknown> = {
+  register: NOOP,
+  unregister: NOOP,
+  subscribeMapChange: () => NOOP,
+  nextIndexRef: { current: 0 },
+};
+
+/**
+ * The option list of a filterable select: a listbox inside the popup dialog that holds the
+ * input. Keys that land on it are handed back to the input.
+ */
+export const SelectFilterList = React.forwardRef(function SelectFilterList(
+  componentProps: SelectListProps,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const store = useSelectRootContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
+  const { onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
+  const { listRef } = useFilterDropdownItemContext();
+  const { syncActiveItem, virtualizedCount, syncVirtualList } = useSelectFilterNavigationContext();
+  const { subscribeMapChange } = useCompositeListContext();
+
+  const id = store.useState('id');
+  const labelId = store.useState('labelId');
+  const multiple = store.useState('multiple');
+  const readOnly = store.useState('readOnly');
+  const hasScrollArrows = store.useState('hasScrollArrows');
+  const openMethod = store.useState('openMethod');
+  const setListElement = store.useStateSetter('listElement');
+
+  const value = useFilterDropdownValueContext();
+  const handleInputKeyDown = useSelectFilterKeyDown(value !== '');
+
+  const handleKeyDown = useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    const owner = focusOwnerRef.current;
+    if (
+      owner == null ||
+      activeElement(ownerDocument(owner)) === owner ||
+      !contains(event.currentTarget, getTarget(event.nativeEvent) as Element) ||
+      // An option that already acted on the key keeps it.
+      event.defaultPrevented
+    ) {
+      return;
+    }
+
+    // Real focus can land inside the list while the input still owns the keyboard: a scrollbar
+    // press focuses the list itself, and a screen reader following `aria-activedescendant`
+    // focuses the highlighted option. Hand focus back and route the key as the input would; a
+    // typing key's default action follows the moved focus into the input.
+    refocusOwner(owner);
+    handleInputKeyDown(event);
+  });
+
+  // `null` distinguishes the initial registration from a list emptied by filtering.
+  const previousItemsRef = React.useRef<readonly (HTMLElement | null)[] | null>(null);
+
+  const handleItemMapChange = useStableCallback(() => {
+    if (virtualizedCount !== null) {
+      // The positioner's item list just reset the shared array.
+      syncVirtualList();
+      syncActiveItem();
+      return;
+    }
+
+    const items = [...listRef.current];
+    const previousItems = previousItemsRef.current;
+    const changed =
+      previousItems === null ||
+      previousItems.length !== items.length ||
+      items.some((item, index) => item !== previousItems[index]);
+    if (!changed) {
+      return;
+    }
+    previousItemsRef.current = items;
+
+    if (previousItems !== null) {
+      // A positional highlight must not silently move to another option when live items are
+      // inserted, removed, or reordered.
+      onItemsChange(previousItems);
+      // The list's scroll range changed with its content.
+      const listElement = store.state.listElement;
+      if (listElement) {
+        store.context.handleScrollArrowVisibility(listElement);
+      }
+    }
+    syncActiveItem();
+  });
+
+  useIsoLayoutEffect(() => {
+    return subscribeMapChange(handleItemMapChange);
+  }, [subscribeMapChange, handleItemMapChange]);
+
+  // The positioner's item list can reset the shared array again as it mounts, after every layout
+  // effect here has run, without reporting a change.
+  React.useEffect(() => {
+    if (virtualizedCount !== null) {
+      syncVirtualList();
+      syncActiveItem();
+    }
+  }, [virtualizedCount, syncVirtualList, syncActiveItem]);
+
+  const ariaLabelledBy = resolvePopupLabel(
+    componentProps,
+    null,
+    resolveAriaLabelledBy(fieldLabelId, labelId) ?? null,
+  );
+
+  const listProps = mergeProps<typeof FilterDropdownList>(
+    {
+      id: id === undefined ? undefined : `${id}-list`,
+      role: 'listbox',
+      'aria-multiselectable': multiple || undefined,
+      'aria-readonly': readOnly || undefined,
+      'aria-labelledby': ariaLabelledBy,
+      onKeyDown: handleKeyDown,
+      onScroll(event: React.UIEvent<HTMLDivElement>) {
+        store.context.scrollHandlerRef.current?.(event.currentTarget);
+      },
+      className:
+        hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
+    },
+    componentProps,
+  );
+
+  const ref = useMergedRefs(forwardedRef, setListElement);
+
+  return (
+    <FilterDropdownList {...listProps} ref={ref}>
+      {virtualizedCount === null ? (
+        listProps.children
+      ) : (
+        // A virtualized list mounts only some options, which register at their own indexes
+        // instead of their DOM positions.
+        <CompositeListContext.Provider value={DETACHED_LIST}>
+          {listProps.children}
+        </CompositeListContext.Provider>
+      )}
+    </FilterDropdownList>
+  );
+});
