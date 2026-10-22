@@ -52,6 +52,16 @@ describe('<Collapsible.Trigger />', () => {
     expect(onOpenChange).not.toHaveBeenCalled();
   });
 
+  it('adds data-disabled when only the trigger is disabled', async () => {
+    await render(
+      <Collapsible.Root>
+        <Collapsible.Trigger disabled>Trigger</Collapsible.Trigger>
+      </Collapsible.Root>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute('data-disabled');
+  });
+
   it('removes a disabled non-native trigger from the tab order', async () => {
     const { user } = await render(
       <Collapsible.Root disabled>

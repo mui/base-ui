@@ -49,7 +49,7 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   });
 
   const element = useRenderElement('button', componentProps, {
-    state,
+    state: { ...state, disabled },
     ref: [forwardedRef, buttonRef],
     props: [
       {
