@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
+import { clamp } from '@base-ui/utils/clamp';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -165,7 +166,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   useRegisterFieldControl(firstInputRef, id, value, undefined, !disabled, nameProp);
 
   const focusInput = useStableCallback((index: number) => {
-    const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
+    const targetIndex = clamp(index, 0, Math.max(inputRefs.current.length - 1, 0));
     const target = inputRefs.current[targetIndex];
     target?.focus();
     target?.select();
