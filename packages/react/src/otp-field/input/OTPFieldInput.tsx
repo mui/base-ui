@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
-import { platform } from '@base-ui/utils/platform';
 import { stopEvent } from '../../utils/popups/event';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useImeComposition } from '../../internals/useImeComposition';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -74,7 +74,11 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   // as an accumulating string (`d`, then `dd`, then `ddd`). Committing those intermediate values
   // would treat them as bulk input and fill too many slots, so the text is only buffered here
   // and committed once on `compositionend`.
-  const [composingValue, setComposingValue] = React.useState<string | null>(null);
+  const composition = useImeComposition((nextValue, event) => {
+    if (!disabled && !readOnly) {
+      commitValue(nextValue, REASONS.inputChange, event);
+    }
+  });
 
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
@@ -143,7 +147,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const inputProps: React.ComponentProps<'input'> = {
     id: getInputId(index),
-    value: composingValue ?? slotValue,
+    value: composition.composingValue ?? slotValue,
     type: mask ? 'password' : 'text',
     inputMode,
     autoComplete: index === 0 ? autoComplete : 'off',
@@ -186,31 +190,13 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       // focused state only when focus leaves the root, so slot-to-slot moves don't churn it.
       handleInputBlur(event);
     },
-    onCompositionStart() {
-      // Some Android keyboards report all text as always-composing, so Android keeps
-      // committing through `onChange`.
-      if (!platform.os.android) {
-        setComposingValue(slotValue);
-      }
-    },
-    onCompositionEnd(event) {
-      if (composingValue == null) {
-        return;
-      }
-
-      setComposingValue(null);
-
-      if (!disabled && !readOnly) {
-        commitValue(event.currentTarget.value, REASONS.inputChange, event);
-      }
-    },
+    ...composition.props,
     onChange(event) {
       if (event.defaultPrevented || disabled || readOnly) {
         return;
       }
 
-      if (composingValue != null) {
-        setComposingValue(event.currentTarget.value);
+      if (composition.bufferChange(event.currentTarget.value)) {
         return;
       }
 
@@ -219,7 +205,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     onKeyDown(event) {
       // Browsers deliver real key names (such as `Backspace`) for keydowns inside a composition.
       // The IME owns editing until `compositionend`, so OTP commands must not run on them.
-      if (event.defaultPrevented || disabled || composingValue != null) {
+      if (event.defaultPrevented || disabled || composition.isComposingRef.current) {
         return;
       }
 

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { platform } from '@base-ui/utils/platform';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useImeComposition } from '../../internals/useImeComposition';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -38,10 +38,6 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const { listRef } = useFilterDropdownItemContext();
   const value = useFilterDropdownValueContext();
 
-  // IME text isn't committed until the composition ends, so filtering waits for it.
-  const [composingValue, setComposingValue] = React.useState<string | null>(null);
-  const isComposingRef = React.useRef(false);
-
   function commitValue(nextValue: string, nativeEvent: Event) {
     // The input keeps focus until the popup unmounts. The query is held in place while it
     // animates out, so an edit made then would change the committed value behind it.
@@ -51,6 +47,11 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
     const reason = nextValue === '' ? REASONS.inputClear : REASONS.inputChange;
     context.onValueChange(nextValue, createChangeEventDetails(reason, nativeEvent));
   }
+
+  // IME text isn't committed until the composition ends, so filtering waits for it.
+  const composition = useImeComposition((nextValue, event) =>
+    commitValue(nextValue, event.nativeEvent),
+  );
 
   const state: FilterDropdownInputState = {
     highlighted: context.inputFocusVisible && (!context.keyboardModality || activeItemId == null),
@@ -77,26 +78,10 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         // https://w3c.github.io/aria/#aria-autocomplete
         'aria-autocomplete': undefined,
         'aria-controls': context.listId,
-        value: composingValue ?? value,
-        onCompositionStart(event) {
-          // Some Android keyboards treat all typing as one composition.
-          if (platform.os.android) {
-            return;
-          }
-          isComposingRef.current = true;
-          setComposingValue(event.currentTarget.value);
-        },
-        onCompositionEnd(event) {
-          if (!isComposingRef.current) {
-            return;
-          }
-          isComposingRef.current = false;
-          setComposingValue(null);
-          commitValue(event.currentTarget.value, event.nativeEvent);
-        },
+        value: composition.composingValue ?? value,
+        ...composition.props,
         onChange(event) {
-          if (isComposingRef.current) {
-            setComposingValue(event.currentTarget.value);
+          if (composition.bufferChange(event.currentTarget.value)) {
             return;
           }
           commitValue(event.currentTarget.value, event.nativeEvent);
