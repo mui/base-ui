@@ -103,7 +103,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       floatingTreeRoot,
       floatingNodeId,
       floatingParentNodeId,
-      keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
+      // Only a Menubar navigates between menus with keys pressed inside them.
+      keyboardEventRelay:
+        parent.type === 'menubar' ? compositeRootContext?.relayKeyboardEvent : undefined,
     },
   );
 

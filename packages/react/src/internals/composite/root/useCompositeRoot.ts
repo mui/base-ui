@@ -5,7 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { getTarget } from '@base-ui/utils/shadowDom';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
@@ -316,17 +316,28 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
   });
 
+  // Portaled children such as popups still bubble React events up to the root, but they aren't
+  // part of the composite. Like other React handlers, this reads React's `event.target` (#4516).
+  function isFromOutsideRoot(event: React.SyntheticEvent) {
+    return !contains(rootRef.current, event.target as Element);
+  }
+
   const props: HTMLProps = {
     ref: mergedRef,
     onFocus(event) {
       const element = rootRef.current;
       const target = getTarget(event.nativeEvent);
-      if (!element || target == null || !isNativeInput(target)) {
+      if (!element || target == null || !isNativeInput(target) || isFromOutsideRoot(event)) {
         return;
       }
       target.setSelectionRange(0, target.value.length);
     },
-    onKeyDown,
+    onKeyDown(event) {
+      if (isFromOutsideRoot(event)) {
+        return;
+      }
+      onKeyDown(event);
+    },
   };
 
   return {
