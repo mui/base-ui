@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import { BLOG_TITLE } from '../constants';
 import * as AuthorList from '../components/AuthorList';
 import { mdxComponents } from '../components/mdx-components';
 import { getPostBySlug, getPosts } from '../posts';
@@ -29,6 +30,12 @@ export async function generateMetadata(
     keywords: post.metadata.keywords,
     robots: post.metadata.robots,
     authors: post.authors.map(({ name, url }) => ({ name, url })),
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+      types: {
+        'application/rss+xml': [{ url: '/blog/rss.xml', title: `${BLOG_TITLE} · Base UI` }],
+      },
+    },
     openGraph: {
       ...(await parent).openGraph,
       type: 'article',

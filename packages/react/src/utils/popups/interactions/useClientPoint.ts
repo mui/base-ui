@@ -4,14 +4,14 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { getWindow } from '@floating-ui/utils/dom';
-import type { ContextData, ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionContext, PopupInteractionStore } from '../types';
 import { isMouseLikePointerType } from '../event';
 
 function createVirtualElement(
   domElement: Element | null | undefined,
   data: {
     axis: 'x' | 'y' | 'both';
-    dataRef: React.RefObject<ContextData>;
+    storeContext: Pick<PopupInteractionContext, 'openEvent'>;
     pointerType: string | undefined;
     x: number | null;
     y: number | null;
@@ -34,7 +34,7 @@ function createVirtualElement(
       const isXAxis = data.axis === 'x' || data.axis === 'both';
       const isYAxis = data.axis === 'y' || data.axis === 'both';
       const canTrackCursorOnAutoUpdate =
-        ['mouseenter', 'mousemove'].includes(data.dataRef.current.openEvent?.type || '') &&
+        ['mouseenter', 'mousemove'].includes(data.storeContext.openEvent?.type || '') &&
         data.pointerType !== 'touch';
 
       const width = data.axis === 'y' ? domRect.width : 0;
@@ -100,16 +100,16 @@ export interface UseClientPointProps {
  * @see https://floating-ui.com/docs/useClientPoint
  */
 export function useClientPoint(
-  store: FloatingRootContext,
+  store: PopupInteractionStore,
   props: UseClientPointProps = {},
 ): ElementProps {
   const { enabled = true, axis = 'both' } = props;
 
   const open = store.useState('open');
-  const floating = store.useState('floatingElement');
-  const domReference = store.useState('domReferenceElement');
+  const floating = store.useState('positionerElement');
+  const domReference = store.useState('anchorElement');
 
-  const dataRef = store.context.dataRef;
+  const storeContext = store.context;
 
   const initialRef = React.useRef(false);
   const cleanupListenerRef = React.useRef<null | (() => void)>(null);
@@ -118,7 +118,7 @@ export function useClientPoint(
   const [reactive, setReactive] = React.useState([]);
 
   const resetReference = useStableCallback((reference: Element | null) => {
-    store.set('positionReference', reference);
+    store.set('anchorOverride', reference);
   });
 
   const setReference = useStableCallback(
@@ -130,17 +130,17 @@ export function useClientPoint(
       // Prevent setting if the open event was not a mouse-like one
       // (e.g. focus to open, then hover over the reference element).
       // Only apply if the event exists.
-      if (dataRef.current.openEvent && !isMouseBasedEvent(dataRef.current.openEvent)) {
+      if (storeContext.openEvent && !isMouseBasedEvent(storeContext.openEvent)) {
         return;
       }
 
       store.set(
-        'positionReference',
+        'anchorOverride',
         createVirtualElement(referenceElement ?? domReference, {
           x: newX,
           y: newY,
           axis,
-          dataRef,
+          storeContext,
           pointerType,
         }),
       );
@@ -192,7 +192,7 @@ export function useClientPoint(
       }
     }
 
-    if (!dataRef.current.openEvent || isMouseBasedEvent(dataRef.current.openEvent)) {
+    if (!storeContext.openEvent || isMouseBasedEvent(storeContext.openEvent)) {
       cleanupListenerRef.current = addEventListener(win, 'mousemove', handleMouseMove);
     } else {
       resetReference(domReference);
@@ -203,7 +203,7 @@ export function useClientPoint(
     openCheck,
     enabled,
     floating,
-    dataRef,
+    storeContext,
     domReference,
     store,
     setReference,
@@ -214,7 +214,7 @@ export function useClientPoint(
   // Clear virtual cursor references when the hook unmounts. Enabled flips are handled above.
   React.useEffect(
     () => () => {
-      store.set('positionReference', null);
+      store.set('anchorOverride', null);
     },
     [store],
   );

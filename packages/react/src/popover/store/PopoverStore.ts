@@ -5,7 +5,7 @@ import { NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
-import { NullStore } from '../../utils/NullStore';
+import { NullStore } from '../../utils/popups/NullStore';
 import type {
   PopupStoreContext,
   PopupStoreState,
@@ -18,7 +18,7 @@ import {
   popupStoreSelectors,
 } from '../../utils/popups/store';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -100,8 +100,12 @@ export class PopoverStore<Payload> extends BasePopupStore<
   Selectors,
   PopoverRoot.ChangeEventDetails
 > {
-  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined) {
-    super(createInitialState<Payload>(initialState, floatingId), createInitialContext(), selectors);
+  constructor(initialState: Partial<State<Payload>>, defaultPopupId: string | undefined) {
+    super(
+      createInitialState<Payload>(initialState, defaultPopupId),
+      createInitialContext(),
+      selectors,
+    );
   }
 
   protected getCloseTrigger(eventDetails: PopoverRoot.ChangeEventDetails) {
@@ -171,10 +175,10 @@ export function createNullPopoverStore<Payload>(): PopoverHandleStore<Payload> {
 
 function createInitialState<Payload>(
   initialState: Partial<State<Payload>> | undefined,
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     modal: false,
     focusManagerModal: false,

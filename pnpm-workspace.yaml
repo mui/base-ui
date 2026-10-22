@@ -58,6 +58,9 @@ overrides:
 engineStrict: true
 updateNotifier: false
 autoDedupe: true
+# Record resolution settings like autoDedupe in the lockfile, so installs can trust it and skip resolution.
+lockfile:
+  includeResolutionSettings: true
 blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:

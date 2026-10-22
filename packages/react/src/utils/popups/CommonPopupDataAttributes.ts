@@ -1,4 +1,4 @@
-import * as TransitionStatusDataAttributes from '../internals/TransitionStatusDataAttributes';
+import * as TransitionStatusDataAttributes from '../../internals/TransitionStatusDataAttributes';
 
 /**
  * Present when the popup is open.

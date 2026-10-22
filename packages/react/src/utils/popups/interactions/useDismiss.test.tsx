@@ -166,7 +166,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       // cancellation.
       fireEvent.change(textbox, { target: { value: 'あ' } });
       fireEvent.compositionStart(textbox);
-      fireEvent.keyDown(textbox, { key: 'Escape' });
+      fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true });
       fireEvent.compositionEnd(textbox);
 
       // Wait for the compositionend timeout tick due to Safari
@@ -439,7 +439,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           <React.Fragment>
             <button {...getReferenceProps({ ref: refs.setReference })} />
             {isOpen && (
-              <FloatingFocusManager context={context.rootStore}>
+              <FloatingFocusManager store={context.rootStore}>
                 <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
               </FloatingFocusManager>
             )}
@@ -515,7 +515,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             <button {...getReferenceProps({ ref: refs.setReference })} />
             {isOpen && (
               <FloatingPortal container={shadowRoot}>
-                <FloatingFocusManager context={context.rootStore}>
+                <FloatingFocusManager store={context.rootStore}>
                   <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
                 </FloatingFocusManager>
               </FloatingPortal>
@@ -576,7 +576,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
                 {modal == null ? (
                   dialogJsx
                 ) : (
-                  <FloatingFocusManager context={context.rootStore} modal={modal}>
+                  <FloatingFocusManager store={context.rootStore} modal={modal}>
                     {dialogJsx}
                   </FloatingFocusManager>
                 )}
@@ -735,7 +735,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         <FloatingNode id={nodeId}>
           <button {...getReferenceProps({ ref: refs.setReference })} />
           {open && (
-            <FloatingFocusManager context={context.rootStore}>
+            <FloatingFocusManager store={context.rootStore}>
               <div {...getFloatingProps({ ref: refs.setFloating })} data-testid={testId}>
                 {children}
               </div>
@@ -1211,7 +1211,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           <button {...getReferenceProps({ ref: refs.setReference })} />
           {open && (
             <FloatingPortal>
-              <FloatingFocusManager context={context.rootStore}>
+              <FloatingFocusManager store={context.rootStore}>
                 <div {...getFloatingProps({ ref: refs.setFloating })}>
                   <span>{id}</span>
                   {children}
@@ -1800,7 +1800,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           </button>
           {open && (
             <FloatingPortal container={portalContainer}>
-              <FloatingFocusManager context={context.rootStore} modal={false}>
+              <FloatingFocusManager store={context.rootStore} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   {children}
                 </div>

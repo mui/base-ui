@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
-import type { FloatingContext } from '../types';
+import type { PopupPositioningContext } from '../types';
 import { getNodeAncestors, getNodeChildren } from './nodes';
 
-const contextOpen = { open: true } as FloatingContext;
-const contextClosed = { open: false } as FloatingContext;
+const contextOpen = { open: true } as PopupPositioningContext;
+const contextClosed = { open: false } as PopupPositioningContext;
 
 test('getNodeChildren returns an array of children, ignoring closed ones when onlyOpenChildren=true', () => {
   expect(

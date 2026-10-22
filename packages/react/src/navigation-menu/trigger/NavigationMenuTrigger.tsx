@@ -12,14 +12,10 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { closest, contains } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
-import {
-  applySafePolygonPointerEventsMutation,
-  clearSafePolygonPointerEventsMutation,
-  useHoverInteractionSharedState,
-} from '../../utils/popups/interactions/useHoverInteractionSharedState';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
+import { getHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import {
   getTabbableNearElement,
   getNextTabbable,
@@ -37,8 +33,8 @@ import {
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import { FocusGuard } from '../../utils/FocusGuard';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
@@ -83,7 +79,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     open,
     positionerElement,
     setActivationDirection,
-    setFloatingRootContext,
+    setFloatingRootStore,
     popupElement,
     viewportElement,
     transitionStatus,
@@ -123,8 +119,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
   const interactionsEnabled = (positionerElement != null || value == null) && !disabled;
-  const hoverFloatingElement = positionerElement || viewportElement;
-  const hoverInteractionsEnabled = (hoverFloatingElement != null || value == null) && !disabled;
+  const hoverPopupElement = positionerElement || viewportElement;
+  const hoverInteractionsEnabled = (hoverPopupElement != null || value == null) && !disabled;
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
@@ -470,39 +466,34 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }
 
-  const context = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     open,
     onOpenChange: handleOpenChange,
     elements: {
-      reference: triggerElement,
-      floating: hoverFloatingElement,
+      anchor: triggerElement,
+      positionerElement: hoverPopupElement,
     },
   });
 
-  const hoverInteractionState = useHoverInteractionSharedState(context);
+  const hoverIntent = getHoverIntent(floatingRootStore);
   const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
 
   React.useEffect(() => {
     if (!open) {
-      context.context.dataRef.current.openEvent = undefined;
-      hoverInteractionState.pointerType = undefined;
-      hoverInteractionState.interactedInside = false;
-      hoverInteractionState.restTimeoutPending = false;
-      hoverInteractionState.openChangeTimeout.clear();
-      hoverInteractionState.restTimeout.clear();
+      floatingRootStore.context.openEvent = undefined;
+      hoverIntent.reset();
+      hoverIntent.cancelPendingOpen();
     }
 
-    return () => {
-      clearSafePolygonPointerEventsMutation(hoverInteractionState);
-    };
-  }, [context, hoverInteractionState, open]);
+    return hoverIntent.restoreOutsidePointerEvents;
+  }, [floatingRootStore, hoverIntent, open]);
 
   const getInlineHandleCloseContext = useStableCallback(() => {
-    if (!nested || positionerElement || !triggerElementRef.current || !hoverFloatingElement) {
+    if (!nested || positionerElement || !triggerElementRef.current || !hoverPopupElement) {
       return null;
     }
 
-    return getHandleCloseContext(triggerElementRef.current, hoverFloatingElement, nodeId);
+    return getHandleCloseContext(triggerElementRef.current, hoverPopupElement, nodeId);
   });
 
   function getScope() {
@@ -513,7 +504,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return closest(triggerElementRef.current, 'ul');
   }
 
-  const hoverProps = useHoverReferenceInteraction(context, {
+  const hoverProps = useHoverTriggerInteraction(floatingRootStore, {
     enabled: hoverInteractionsEnabled,
     move: false,
     handleClose: safePolygon({
@@ -531,7 +522,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     [hoverProps],
   );
 
-  const click = useClick(context, {
+  const click = useClick(floatingRootStore, {
     enabled: interactionsEnabled,
     stickIfOpen,
     toggle: isActiveItem,
@@ -543,10 +534,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
-      setFloatingRootContext(context);
+      setFloatingRootStore(floatingRootStore);
       prevTriggerElementRef.current = triggerElement;
     }
-  }, [isActiveItem, context, setFloatingRootContext, prevTriggerElementRef, triggerElement]);
+  }, [
+    isActiveItem,
+    floatingRootStore,
+    setFloatingRootStore,
+    prevTriggerElementRef,
+    triggerElement,
+  ]);
 
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
@@ -569,7 +566,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
       // cause the popup to remain stuck open when leaving the old trigger.
       if (event.type !== 'click' && value != null) {
-        context.context.dataRef.current.openEvent = undefined;
+        floatingRootStore.context.openEvent = undefined;
       }
 
       if (pointerType === 'touch' && event.type !== 'click') {
@@ -592,15 +589,15 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         event.type === 'mouseenter' &&
         shouldBlockSafePolygonPointerEvents &&
         (!nested || !positionerElement) &&
-        hoverFloatingElement
+        hoverPopupElement
       ) {
         const applyPointerEventsMutation = () => {
           const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
 
-          applySafePolygonPointerEventsMutation(hoverInteractionState, {
+          hoverIntent.blockOutsidePointerEvents({
             scopeElement,
-            referenceElement: currentTarget,
-            floatingElement: hoverFloatingElement,
+            triggerElement: currentTarget,
+            positionerElement: hoverPopupElement,
           });
         };
 
@@ -647,7 +644,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleTriggerPointerDown(event: React.PointerEvent) {
     handleSetPointerType(event);
-    clearSafePolygonPointerEventsMutation(hoverInteractionState);
+    hoverIntent.restoreOutsidePointerEvents();
   }
 
   const defaultProps: HTMLProps = {
@@ -667,7 +664,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
     onMouseLeave() {
       if (value == null) {
-        clearSafePolygonPointerEventsMutation(hoverInteractionState);
+        hoverIntent.restoreOutsidePointerEvents();
       }
     },
     onKeyDown(event) {
@@ -711,7 +708,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     native: nativeButton,
   });
 
-  const referenceElement = hoverFloatingElement;
+  const referenceElement = hoverPopupElement;
 
   return (
     <React.Fragment>
@@ -807,11 +804,11 @@ export namespace NavigationMenuTrigger {
 }
 
 function getPlacementFromElements(
-  domReferenceElement: Element,
-  floatingElement: HTMLElement,
+  anchorElement: Element,
+  positionerElement: HTMLElement,
 ): HandleCloseContextBase['placement'] {
-  const referenceRect = domReferenceElement.getBoundingClientRect();
-  const floatingRect = floatingElement.getBoundingClientRect();
+  const referenceRect = anchorElement.getBoundingClientRect();
+  const floatingRect = positionerElement.getBoundingClientRect();
   const referenceCenterX = referenceRect.left + referenceRect.width / 2;
   const referenceCenterY = referenceRect.top + referenceRect.height / 2;
   const floatingCenterX = floatingRect.left + floatingRect.width / 2;
@@ -827,15 +824,15 @@ function getPlacementFromElements(
 }
 
 function getHandleCloseContext(
-  domReferenceElement: Element,
-  floatingElement: HTMLElement,
+  anchorElement: Element,
+  positionerElement: HTMLElement,
   nodeId: string | undefined,
 ): HandleCloseContextBase {
   return {
-    placement: getPlacementFromElements(domReferenceElement, floatingElement),
+    placement: getPlacementFromElements(anchorElement, positionerElement),
     elements: {
-      domReference: domReferenceElement,
-      floating: floatingElement,
+      domReference: anchorElement,
+      floating: positionerElement,
     },
     nodeId,
   };

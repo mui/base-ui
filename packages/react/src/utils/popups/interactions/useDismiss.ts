@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
@@ -18,7 +17,7 @@ import { platform } from '@base-ui/utils/platform';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
@@ -126,7 +125,10 @@ export interface UseDismissProps {
  * the user presses the `escape` key or outside of the floating element.
  * @see https://floating-ui.com/docs/useDismiss
  */
-export function useDismiss(store: FloatingRootContext, props: UseDismissProps = {}): ElementProps {
+export function useDismiss(
+  store: PopupInteractionStore,
+  props: UseDismissProps = {},
+): ElementProps {
   const {
     enabled = true,
     escapeKey = true,
@@ -138,8 +140,9 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
   } = props;
 
   const open = store.useState('open');
-  const floatingElement = store.useState('floatingElement');
-  const { dataRef, events } = store.context;
+  const positionerElement = store.useState('positionerElement');
+  const storeContext = store.context;
+  const { events } = storeContext;
 
   const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(
@@ -158,7 +161,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
   // A click whose press began before the floating element opened is the tail of that
   // gesture (e.g. the drag-release that opened it), not a new outside press.
   const sawPressWhileOpenRef = React.useRef(false);
-  const isComposingRef = React.useRef(false);
+  const compositionEndPendingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   const touchStateRef = React.useRef<{
@@ -171,29 +174,29 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
   const cancelDismissOnEndTimeout = useTimeout();
   const clearInsideReactTreeTimeout = useTimeout();
-  // Outlives effect re-runs so a pending reset can't leave `isComposingRef` stuck.
+  // Outlives effect re-runs so a pending reset can't leave `compositionEndPendingRef` stuck.
   const compositionTimeout = useTimeout();
 
   const clearInsideReactTree = useStableCallback(() => {
     clearInsideReactTreeTimeout.clear();
-    dataRef.current.insideReactTree = false;
+    storeContext.insideReactTree = false;
   });
 
   const hasBlockingChild = useStableCallback(
-    (bubbleKey: '__escapeKeyBubbles' | '__outsidePressBubbles') => {
-      const nodeId = dataRef.current.floatingContext?.nodeId;
+    (bubbleKey: 'escapeKeyBubbles' | 'outsidePressBubbles') => {
+      const nodeId = storeContext.positioning?.nodeId;
       const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
 
       return children.some(
-        (child) => child.context?.open && !child.context.dataRef.current[bubbleKey],
+        (child) => child.context?.open && !child.context.rootStore.context[bubbleKey],
       );
     },
   );
 
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
     return (
-      isEventTargetWithin(event, store.select('floatingElement')) ||
-      isEventTargetWithin(event, store.select('domReferenceElement'))
+      isEventTargetWithin(event, store.select('positionerElement')) ||
+      isEventTargetWithin(event, store.select('anchorElement'))
     );
   });
 
@@ -218,15 +221,17 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       }
 
       const native = isReactEvent(event) ? event.nativeEvent : event;
+      // Key code 229 indicates that an IME is processing the key event.
+      const isImeKey = native.keyCode === 229;
 
       // Wait until IME is settled. Pressing `Escape` while composing should
       // close the compose menu, but not the floating element. The ref covers Safari, which fires
-      // `compositionend` before `keydown`; `isComposing` covers compositions that began while closed.
-      if (isComposingRef.current || native.isComposing) {
+      // `compositionend` before `keydown`; the native event identifies an active composition.
+      if (compositionEndPendingRef.current || native.isComposing || isImeKey) {
         return;
       }
 
-      if (!escapeKeyBubbles && hasBlockingChild('__escapeKeyBubbles')) {
+      if (!escapeKeyBubbles && hasBlockingChild('escapeKeyBubbles')) {
         return;
       }
 
@@ -254,7 +259,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
   }, [open]);
 
   const markInsideReactTree = useStableCallback(() => {
-    dataRef.current.insideReactTree = true;
+    storeContext.insideReactTree = true;
     clearInsideReactTreeTimeout.start(0, clearInsideReactTree);
   });
 
@@ -268,7 +273,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
       // Only treat presses that start within the floating DOM subtree as inside.
       // This avoids suppressing parent dismissal when interacting with nested portals.
-      if (!contains(store.select('floatingElement'), target)) {
+      if (!contains(store.select('positionerElement'), target)) {
         return;
       }
 
@@ -322,36 +327,31 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       // changes mid-gesture.
       if (!open) {
         sawPressWhileOpenRef.current = false;
-        isComposingRef.current = false;
+        compositionEndPendingRef.current = false;
         currentPointerTypeRef.current = '';
         touchStateRef.current = null;
       }
       return clearInsideReactTree;
     }
 
-    dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
-    dataRef.current.__outsidePressBubbles = outsidePressBubbles;
+    storeContext.escapeKeyBubbles = escapeKeyBubbles;
+    storeContext.outsidePressBubbles = outsidePressBubbles;
 
     const preventedPressSuppressionTimeout = new Timeout();
-    const doc = ownerDocument(floatingElement);
-
-    function handleCompositionStart() {
-      compositionTimeout.clear();
-      isComposingRef.current = true;
-    }
+    const doc = ownerDocument(positionerElement);
 
     function handleCompositionEnd() {
       // Safari fires `compositionend` before `keydown`, so we need to wait
-      // until the next tick to set `isComposing` to `false`. Set it here too, since closing
-      // resets it while a composition can continue into the next open session.
+      // until the next tick before dismissing. Open this bounded window on compositionend
+      // even when the composition began while the popup was closed.
       // https://bugs.webkit.org/show_bug.cgi?id=165004
-      isComposingRef.current = true;
+      compositionEndPendingRef.current = true;
       compositionTimeout.start(
         // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
         // Only apply to WebKit for the test to remain 0ms.
         platform.engine.webkit ? 5 : 0,
         () => {
-          isComposingRef.current = false;
+          compositionEndPendingRef.current = false;
         },
       );
     }
@@ -396,7 +396,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     }
 
     function isEventWithinFloatingTree(event: Event) {
-      const nodeId = dataRef.current.floatingContext?.nodeId;
+      const nodeId = storeContext.positioning?.nodeId;
       const targetIsInsideChildren =
         tree &&
         getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
@@ -418,7 +418,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         return;
       }
 
-      if (dataRef.current.insideReactTree) {
+      if (storeContext.insideReactTree) {
         clearInsideReactTree();
         return;
       }
@@ -429,7 +429,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       const markers = Array.from(
         (isShadowRoot(targetRoot)
           ? targetRoot
-          : ownerDocument(store.select('floatingElement'))
+          : ownerDocument(store.select('positionerElement'))
         ).querySelectorAll(inertSelector),
       );
 
@@ -461,7 +461,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         isElement(target) &&
         !isRootElement(target) &&
         // Clicked on a direct ancestor (e.g. FloatingOverlay).
-        !contains(target, store.select('floatingElement')) &&
+        !contains(target, store.select('positionerElement')) &&
         // If the target root element contains none of the markers, then the
         // element was injected after the floating element rendered.
         markers.every((marker) => !contains(targetRootAncestor, marker))
@@ -533,7 +533,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         return;
       }
 
-      if (hasBlockingChild('__outsidePressBubbles')) {
+      if (hasBlockingChild('outsidePressBubbles')) {
         return;
       }
 
@@ -755,7 +755,6 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
               closeOnEscapeKeyDown(event);
             }
           }),
-          addEventListener(doc, 'compositionstart', handleCompositionStart),
           addEventListener(doc, 'compositionend', handleCompositionEnd),
         ),
       outsidePressEnabled &&
@@ -788,8 +787,8 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       suppressNextOutsideClickRef.current = false;
     };
   }, [
-    dataRef,
-    floatingElement,
+    storeContext,
+    positionerElement,
     escapeKey,
     outsidePressEnabled,
     outsidePress,

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import type { BaseUIComponentProps } from '../internals/types';
-import { useFloatingPortalNode } from './popups/portal/FloatingPortal';
+import type { BaseUIComponentProps } from '../../../internals/types';
+import { useFloatingPortalNode } from './FloatingPortal';
 
 type PortalContainer =
   HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null;
