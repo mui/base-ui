@@ -684,6 +684,57 @@ describe('<Dialog.Root />', () => {
         }
       });
 
+      it('closes when the outside press targets the document', async () => {
+        const handleOpenChange = vi.fn();
+
+        await render(
+          <TestDialog
+            rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: true }}
+          />,
+        );
+
+        fireEvent.click(document);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+        expect(handleOpenChange.mock.calls.length).toBe(1);
+        expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+      });
+
+      it('suppresses only the click of a press that starts inside and ends on the document', async () => {
+        const handleOpenChange = vi.fn();
+
+        await render(
+          <TestDialog
+            rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: true }}
+          />,
+        );
+
+        const popup = screen.getByTestId('dialog-popup');
+
+        fireEvent.pointerDown(popup, { pointerType: 'mouse', button: 0 });
+        fireEvent.mouseDown(popup, { button: 0 });
+        fireEvent.pointerUp(document, { pointerType: 'mouse', button: 0 });
+        fireEvent.mouseUp(document, { button: 0 });
+        fireEvent.click(document);
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+        expect(handleOpenChange.mock.calls.length).toBe(0);
+
+        fireEvent.pointerDown(document, { pointerType: 'mouse', button: 0 });
+        fireEvent.mouseDown(document, { button: 0 });
+        fireEvent.pointerUp(document, { pointerType: 'mouse', button: 0 });
+        fireEvent.mouseUp(document, { button: 0 });
+        fireEvent.click(document);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+        expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+      });
+
       it('closing via outside press: works when clicking outside the shadow root', async () => {
         const handleOpenChange = vi.fn();
 

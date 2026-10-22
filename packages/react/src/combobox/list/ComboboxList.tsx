@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
@@ -41,13 +40,8 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
 
-  const setPositionerElement = useStableCallback((element) => {
-    store.set('positionerElement', element);
-  });
-
-  const setListElement = useStableCallback((element) => {
-    store.set('listElement', element);
-  });
+  const setPositionerElement = store.useStateSetter('positionerElement');
+  const setListElement = store.useStateSetter('listElement');
 
   // Support "closed template" API: if children is a function, implicitly wrap it
   // with a Combobox.Collection that reads items from context/root.

@@ -116,7 +116,7 @@ export default function AnchorPositioning() {
       </div>
       {arrow && (
         <div
-          ref={arrowRef as React.RefObject<HTMLDivElement>}
+          ref={arrowRef}
           style={{
             ...arrowStyles,
             background: 'rgba(0, 0, 255, 0.5)',
