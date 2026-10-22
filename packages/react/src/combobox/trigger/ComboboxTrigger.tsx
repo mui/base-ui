@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -12,7 +12,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { stopEvent } from '../../utils/popups/event';
-import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
+import { isPressReleasedInside, usePressReleaseListener } from '../../utils/popups/pressRelease';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -74,6 +74,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const inputValue = useComboboxInputValueContext();
 
   const focusTimeout = useTimeout();
+  const listenForPressRelease = usePressReleaseListener();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = useListEmpty();
@@ -218,19 +219,16 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               return;
             }
 
-            const mouseUpTarget = getTarget(mouseEvent) as Element | null;
-            const positioner = store.state.positionerElement;
-            const list = store.state.listElement;
-
             if (
-              contains(currentTriggerElement, mouseUpTarget) ||
-              contains(positioner, mouseUpTarget) ||
-              contains(list, mouseUpTarget)
+              isPressReleasedInside(mouseEvent, {
+                elements: [
+                  currentTriggerElement,
+                  store.state.positionerElement,
+                  store.state.listElement,
+                ],
+                boundsElement: currentTriggerElement,
+              })
             ) {
-              return;
-            }
-
-            if (isMouseWithinBounds(mouseEvent, currentTriggerElement)) {
               return;
             }
 
@@ -238,7 +236,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           if (inputInsidePopup) {
-            doc.addEventListener('mouseup', handleMouseUp, { once: true });
+            void listenForPressRelease(doc, handleMouseUp);
           }
         },
         onKeyDown(event) {
