@@ -12,7 +12,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { REASONS } from '../../internals/reasons';
-import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
+import { isPressReleasedInside, usePressReleaseListener } from '../../utils/popups/pressRelease';
 
 const LONG_PRESS_DELAY = 500;
 
@@ -48,7 +48,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const longPressTimeout = useTimeout();
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
-  const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
+  const listenForPressRelease = usePressReleaseListener();
 
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
@@ -81,42 +81,22 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
-    const doc = ownerDocument(triggerRef.current);
+    void listenForPressRelease(ownerDocument(triggerRef.current), (mouseEvent) => {
+      allowMouseUpTriggerRef.current = false;
 
-    // Abort a listener from a previous trigger that never saw its mouseup, and scope this
-    // one to a fresh controller so it's removed on unmount if the mouseup never arrives.
-    mouseUpAbortControllerRef.current?.abort();
-    const mouseUpAbortController = new AbortController();
-    mouseUpAbortControllerRef.current = mouseUpAbortController;
-    doc.addEventListener(
-      'mouseup',
-      (mouseEvent) => {
-        allowMouseUpTriggerRef.current = false;
+      if (!allowMouseUpRef.current) {
+        return;
+      }
 
-        if (!allowMouseUpRef.current) {
-          return;
-        }
+      allowMouseUpTimeout.clear();
+      allowMouseUpRef.current = false;
 
-        allowMouseUpTimeout.clear();
-        allowMouseUpRef.current = false;
+      if (isPressReleasedInside(mouseEvent, { elements: [positionerRef.current], rootId })) {
+        return;
+      }
 
-        const mouseUpTarget = getTarget(mouseEvent) as Element | null;
-
-        if (contains(positionerRef.current, mouseUpTarget)) {
-          return;
-        }
-
-        if (rootId && mouseUpTarget && findRootOwnerId(mouseUpTarget) === rootId) {
-          return;
-        }
-
-        actionsRef.current?.setOpen(
-          false,
-          createChangeEventDetails(REASONS.cancelOpen, mouseEvent),
-        );
-      },
-      { once: true, signal: mouseUpAbortController.signal },
-    );
+      actionsRef.current?.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
+    });
   }
 
   function cancelLongPress() {
@@ -162,14 +142,6 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       }
     }
   }
-
-  React.useEffect(
-    () => () => {
-      // Abort a pending mouseup listener if the trigger unmounts before it fires.
-      mouseUpAbortControllerRef.current?.abort();
-    },
-    [],
-  );
 
   React.useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
