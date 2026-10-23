@@ -26,9 +26,9 @@ export function DemoFileSelector({
   const modifierKeysRef = React.useRef(false);
 
   const onValueChange = React.useCallback(
-    (value: string) => {
+    (value: string | null) => {
       // Don't change tab if modifier keys were pressed (user is opening in new tab)
-      if (modifierKeysRef.current) {
+      if (value === null || modifierKeysRef.current) {
         return;
       }
 
