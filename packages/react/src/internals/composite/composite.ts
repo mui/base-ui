@@ -1,4 +1,4 @@
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import { getComputedStyle, isHTMLElement } from '@floating-ui/utils/dom';
 import type { TextDirection } from '../direction-context/DirectionContext';
 
 export { stopEvent } from '../../utils/popups/event';
