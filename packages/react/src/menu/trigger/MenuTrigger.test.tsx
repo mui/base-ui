@@ -111,17 +111,21 @@ describe('<Menu.Trigger />', () => {
     });
   });
 
-  it('removes the hover mouseup listener when unmounted before mouseup', async () => {
-    const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
-    const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+  it.each([
+    { name: 'stays open when the mouseup lands inside the popup', insidePopup: true },
+    { name: 'closes when the mouseup lands outside the popup', insidePopup: false },
+  ])('a hover-opened menu in a shadow root $name', async ({ insidePopup }) => {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const shadowRoot = host.attachShadow({ mode: 'open' });
 
     try {
-      const { user, unmount } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger delay={0} openOnHover>
             Open
           </Menu.Trigger>
-          <Menu.Portal>
+          <Menu.Portal container={shadowRoot}>
             <Menu.Positioner>
               <Menu.Popup />
             </Menu.Positioner>
@@ -130,20 +134,20 @@ describe('<Menu.Trigger />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      addEventListenerSpy.mockClear();
       await user.hover(trigger);
-      await screen.findByRole('menu', { hidden: false });
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
 
-      const mouseUpListener = addEventListenerSpy.mock.calls.find(
-        (call) => call[0] === 'mouseup',
-      )?.[1];
-      expect(mouseUpListener).toBeTypeOf('function');
+      const popup = shadowRoot.querySelector('[role="menu"]');
+      expect(popup).not.toBe(null);
 
-      unmount();
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('mouseup', mouseUpListener);
+      fireEvent.mouseUp(insidePopup ? popup! : document.body, { clientX: 500, clientY: 500 });
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', String(insidePopup));
     } finally {
-      addEventListenerSpy.mockRestore();
-      removeEventListenerSpy.mockRestore();
+      host.remove();
     }
   });
 

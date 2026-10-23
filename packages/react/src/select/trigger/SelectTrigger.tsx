@@ -13,7 +13,7 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateM
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
+import { isPressReleasedInside, usePressReleaseListener } from '../../utils/popups/pressRelease';
 import { getFloatingFocusElement } from '../../utils/popups/element';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button';
@@ -100,6 +100,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
+  const listenForPressRelease = usePressReleaseListener();
   const selectedDelayTimeout = useTimeout();
 
   React.useEffect(() => {
@@ -183,18 +184,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          const mouseUpTarget = mouseEvent.target as Element | null;
-
-          // Don't treat the release as an outside press when it lands on the trigger or inside
-          // the popup positioner (or their children).
           if (
-            contains(triggerRef.current, mouseUpTarget) ||
-            contains(positionerRef.current, mouseUpTarget)
+            isPressReleasedInside(mouseEvent, {
+              elements: [triggerRef.current, positionerRef.current],
+              boundsElement: triggerRef.current,
+            })
           ) {
-            return;
-          }
-
-          if (isMouseWithinBounds(mouseEvent, triggerRef.current)) {
             return;
           }
 
@@ -203,7 +198,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
         // Firefox can fire this upon mousedown
         timeoutMouseDown.start(0, () => {
-          doc.addEventListener('mouseup', handleMouseUp, { once: true });
+          void listenForPressRelease(doc, handleMouseUp);
         });
       },
     },

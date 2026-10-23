@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { getComputedStyle } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
