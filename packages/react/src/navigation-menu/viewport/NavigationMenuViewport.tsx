@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { contains } from '@base-ui/utils/shadowDom';
@@ -17,6 +18,10 @@ import { getEmptyRootStore } from '../../utils/popups/floating-root/getEmptyRoot
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
 const EMPTY_ROOT_STORE = getEmptyRootStore();
+
+function keepIfConnected(element: HTMLElement | null) {
+  return element?.isConnected ? element : null;
+}
 
 function Guards({ children }: { children: React.ReactNode }) {
   const {
@@ -88,6 +93,30 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
 
   const positioning = useNavigationMenuPositionerContext(true);
   const hasPositioner = Boolean(positioning);
+
+  // A Suspense boundary above the root detaches refs while showing its fallback. Clearing the
+  // elements then unmounts the suspended content, which reveals the tree again in a loop.
+  const handleViewportElementRef = useStableCallback((element: HTMLDivElement | null) => {
+    if (element) {
+      setViewportElement(element);
+    }
+  });
+  const handleViewportTargetElementRef = useStableCallback((element: HTMLDivElement | null) => {
+    if (element) {
+      setViewportTargetElement(element);
+    }
+  });
+
+  // Clear them on unmount instead. Hidden trees and React 18 StrictMode's simulated unmount keep
+  // the elements in the DOM, so only drop the ones that left it.
+  React.useEffect(
+    () => () => {
+      setViewportElement(keepIfConnected);
+      setViewportTargetElement(keepIfConnected);
+    },
+    [setViewportElement, setViewportTargetElement],
+  );
+
   const domReference = (floatingRootStore || EMPTY_ROOT_STORE).useState('anchorElement');
 
   useIsoLayoutEffect(() => {
@@ -97,7 +126,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   }, [domReference, prevTriggerElementRef]);
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, setViewportElement],
+    ref: [forwardedRef, handleViewportElementRef],
     props: [
       {
         id,
@@ -120,7 +149,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
           children
         ) : (
           <Guards>
-            <div ref={setViewportTargetElement}>{children}</div>
+            <div ref={handleViewportTargetElementRef}>{children}</div>
           </Guards>
         ),
       },
