@@ -132,6 +132,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
   const adaptiveOrigin = store.useState('adaptiveOrigin');
   const positionerElement = store.useState('positionerElement');
   const popupElement = store.useState('popupElement');
+  const viewportElement = store.useState('viewportElement');
   const domReference = store.useState('anchorElement');
 
   const positioning = useAnchorPositioning({
@@ -161,6 +162,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     positionerElement,
     popupElement,
     arrowElementRef: positioning.arrowElementRef,
+    viewportElement,
     open,
   });
   // Keep this fallback local: sharing it with Popup would suppress enter and exit transitions.

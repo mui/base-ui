@@ -8,8 +8,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isFiniteAnimation } from '../utils/getFiniteAnimations';
 import * as CommonViewportDataAttributes from '../utils/popups/viewport/CommonViewportDataAttributes';
 
-const viewportTransitioningSelector = `[${CommonViewportDataAttributes.transitioning}]`;
-
 interface TriggerSwitchStore {
   select(key: 'open'): boolean;
 }
@@ -35,6 +33,7 @@ export interface UseTriggerSwitchTransitionParameters {
   positionerElement: HTMLElement | null;
   popupElement: HTMLElement | null;
   arrowElementRef: React.RefObject<Element | null>;
+  viewportElement: HTMLElement | null;
   open: boolean;
 }
 
@@ -57,6 +56,7 @@ export function useTriggerSwitchTransition(
     positionerElement,
     popupElement,
     arrowElementRef,
+    viewportElement,
     open,
   } = parameters;
 
@@ -65,17 +65,35 @@ export function useTriggerSwitchTransition(
   const closeCountRef = React.useRef(0);
   const frame = useAnimationFrame();
 
-  const waitForMove = useStableCallback((signal: AbortSignal, onEnd: () => void) => {
-    if (!positionerElement) {
-      frame.request(onEnd);
+  const waitForMove = useStableCallback((signal: AbortSignal, endMove: () => void) => {
+    if (
+      !positionerElement ||
+      typeof positionerElement.getAnimations !== 'function' ||
+      globalThis.BASE_UI_ANIMATIONS_DISABLED
+    ) {
+      endMove();
       return;
     }
+
     const positioner: HTMLElement = positionerElement;
+    const viewport = viewportElement;
+
+    function finishMove() {
+      ReactDOM.flushSync(endMove);
+    }
 
     function getPartAnimations() {
       return [positioner, popupElement, arrowElementRef.current]
         .flatMap((element) => element?.getAnimations() ?? [])
         .filter(isFiniteAnimation);
+    }
+
+    function isViewportTransitioning() {
+      return (
+        viewport != null &&
+        viewport.isConnected &&
+        viewport.hasAttribute(CommonViewportDataAttributes.transitioning)
+      );
     }
 
     function waitForParts() {
@@ -110,15 +128,16 @@ export function useTriggerSwitchTransition(
         return;
       }
 
-      if (!positioner.querySelector(viewportTransitioningSelector)) {
-        onEnd();
+      if (!isViewportTransitioning()) {
+        finishMove();
         return;
       }
 
+      // Only this popup's viewport counts; a nested popup can render its own inside the content.
       const observer = new MutationObserver(() => {
-        if (!positioner.querySelector(viewportTransitioningSelector)) {
+        if (!isViewportTransitioning()) {
           observer.disconnect();
-          waitForViewport();
+          finishMove();
         }
       });
 
@@ -174,13 +193,11 @@ export function useTriggerSwitchTransition(
     const abortController = new AbortController();
 
     waitForMove(abortController.signal, () => {
-      ReactDOM.flushSync(() => {
-        setIsSwitching(false);
-        // A popup that closed during the move must not get trigger-change, even after it reopens.
-        if (closeCountRef.current === closeCount && store.select('open')) {
-          instantTypeStore?.set('instantType', 'trigger-change');
-        }
-      });
+      setIsSwitching(false);
+      // A popup that closed during the move must not get trigger-change, even after it reopens.
+      if (closeCountRef.current === closeCount && store.select('open')) {
+        instantTypeStore?.set('instantType', 'trigger-change');
+      }
     });
 
     return () => {

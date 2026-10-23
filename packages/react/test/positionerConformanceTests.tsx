@@ -1019,6 +1019,7 @@ function triggerSwitchTests({
   it.each([
     { name: 'a hidden-until-found Collapsible panel', kind: 'collapsible' },
     { name: 'an unrelated content animation', kind: 'animation' },
+    { name: 'a nested Viewport transition', kind: 'viewport' },
   ] as const)('ends a switch without waiting for $name', async ({ kind }) => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
     const { user } = await render(
@@ -1026,13 +1027,16 @@ function triggerSwitchTests({
         handle={createHandle()}
         rootProps={{ defaultOpen: true, defaultTriggerId: 'first' }}
         content={
-          kind === 'collapsible' ? (
-            <Collapsible.Root>
-              <Collapsible.Panel hiddenUntilFound>Details</Collapsible.Panel>
-            </Collapsible.Root>
-          ) : (
-            <div className="tracking-content-animation" />
-          )
+          {
+            collapsible: (
+              <Collapsible.Root>
+                <Collapsible.Panel hiddenUntilFound>Details</Collapsible.Panel>
+              </Collapsible.Root>
+            ),
+            animation: <div className="tracking-content-animation" />,
+            // Stands in for the Viewport of a nested popup that renders inside this one.
+            viewport: <div data-transitioning="" />,
+          }[kind]
         }
       />,
     );
