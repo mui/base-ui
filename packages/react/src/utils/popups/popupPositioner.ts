@@ -62,7 +62,7 @@ export interface UsePopupPositionerOptions<State extends PopupPositionerState> {
     | Partial<
         Omit<
           UseAnchorPositioningParameters,
-          'interactionStore' | 'mounted' | 'keepMounted' | 'adaptiveOrigin'
+          'interactionStore' | 'mounted' | 'keepMounted' | 'adaptiveOrigin' | 'onAnchorTracking'
         >
       >
     | undefined;
@@ -134,6 +134,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
   const popupElement = store.useState('popupElement');
   const viewportElement = store.useState('viewportElement');
   const domReference = store.useState('anchorElement');
+  const onAnchorTracking = React.useRef<(() => void) | null>(null);
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -152,6 +153,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     keepMounted,
     collisionAvoidance: collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE,
     adaptiveOrigin,
+    onAnchorTracking,
     ...positioningOverrides,
   });
 
@@ -163,6 +165,7 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     popupElement,
     arrowElementRef: positioning.arrowElementRef,
     viewportElement,
+    onAnchorTracking,
     open,
   });
   // Keep this fallback local: sharing it with Popup would suppress enter and exit transitions.

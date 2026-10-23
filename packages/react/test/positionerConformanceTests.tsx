@@ -4,7 +4,7 @@ import { act, screen, waitFor } from '@mui/internal-test-utils';
 import type { UserEvent } from '@testing-library/user-event';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import type { createRenderer } from '#test-utils';
 import {
   isJSDOM,
@@ -499,7 +499,7 @@ function triggerSwitchTests({
           @keyframes tracking-content { to { opacity: 0.5; } }
           .tracking-content-animation { animation: tracking-content 60s linear; }
           .tracking-popup-resize {
-            transition: width 200ms linear, height 200ms linear, opacity 200ms linear;
+            transition: width ${duration} linear, height ${duration} linear, opacity 200ms linear;
           }
         `}</style>
         <div data-testid="scroller" style={{ width: 400, height: 200, overflow: 'auto' }}>
@@ -848,6 +848,7 @@ function triggerSwitchTests({
         ),
       );
       await waitFor(() => expect(popupTransitions.started).toContain(dimension));
+      expect(popup.getAnimations()[0].playState).toBe('paused');
       await act(async () => {
         positioner.getAnimations().forEach((animation) => animation.finish());
       });
@@ -1087,6 +1088,210 @@ function triggerSwitchTests({
       await waitSingleFrame();
       await waitSingleFrame();
     });
+    expect(transitions.started).toEqual([]);
+  });
+
+  it.each([
+    { anchorKind: 'element', keepMounted: false },
+    { anchorKind: 'virtual', keepMounted: true },
+  ] as const)(
+    'tracks a scrolling $anchorKind anchor outside the triggers during a switch (keepMounted=$keepMounted)',
+    async ({ anchorKind, keepMounted }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      function Test({ triggerId = 'first' }) {
+        const [anchorElement, setAnchorElement] = React.useState<HTMLDivElement | null>(null);
+        const anchor = React.useMemo(() => {
+          if (!anchorElement || anchorKind === 'element') {
+            return anchorElement;
+          }
+          return {
+            getBoundingClientRect: () => anchorElement.getBoundingClientRect(),
+            contextElement: anchorElement,
+          };
+        }, [anchorElement]);
+
+        return (
+          <Root open triggerId={triggerId} modal={false}>
+            {({ payload }: { payload: unknown }) => (
+              <React.Fragment>
+                <style>{`
+                  .override-tracking-positioner { transition: transform 60s linear; }
+                  .override-tracking-popup { transition: width 60s linear; }
+                  .override-tracking-positioner[data-instant], .override-tracking-popup[data-instant] { transition: none; }
+                `}</style>
+                <Trigger id="first" payload="first" {...triggerProps}>
+                  First
+                </Trigger>
+                <Trigger id="second" payload="second" {...triggerProps}>
+                  Second
+                </Trigger>
+                <div
+                  data-testid="anchor-scroller"
+                  style={{
+                    position: 'fixed',
+                    left: 200,
+                    top: 100,
+                    width: 300,
+                    height: 200,
+                    overflow: 'auto',
+                  }}
+                >
+                  <div style={{ height: 600, paddingTop: 80 }}>
+                    <div
+                      ref={setAnchorElement}
+                      data-testid="anchor"
+                      style={{ width: 80, height: 20 }}
+                    />
+                  </div>
+                </div>
+                <Portal keepMounted={keepMounted}>
+                  <Positioner
+                    anchor={anchor}
+                    side="bottom"
+                    align="start"
+                    data-testid="positioner"
+                    className="override-tracking-positioner"
+                  >
+                    <Popup
+                      data-testid="popup"
+                      className="override-tracking-popup"
+                      style={{ width: payload === 'second' ? 120 : 80, height: 40 }}
+                    >
+                      Popup
+                    </Popup>
+                  </Positioner>
+                </Portal>
+              </React.Fragment>
+            )}
+          </Root>
+        );
+      }
+
+      const { setProps } = await render(<Test />);
+      const positioner = screen.getByTestId('positioner');
+      const popup = screen.getByTestId('popup');
+      const anchor = screen.getByTestId('anchor');
+      await waitFor(() => expect(positioner.style.transition).toBe(''));
+      await waitFor(() => expect(popup.style.transition).toBe(''));
+      await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+      expect(positioner.getBoundingClientRect().top).toBeCloseTo(
+        anchor.getBoundingClientRect().bottom,
+        0,
+      );
+
+      const sizeMove = recordTransitions(popup, { pause: true });
+      const moves = recordTransitions(positioner);
+      await setProps({ triggerId: 'second' });
+      await waitFor(() => expect(sizeMove.started).toContain('width'));
+      expect(positioner).not.toHaveAttribute('data-instant');
+      expect(popup.getAnimations()[0].playState).toBe('paused');
+      const previousAnchorTop = anchor.getBoundingClientRect().top;
+
+      await act(async () => {
+        screen.getByTestId('anchor-scroller').scrollTop = 40;
+        await waitSingleFrame();
+        await waitSingleFrame();
+      });
+      expect(anchor.getBoundingClientRect().top).toBe(previousAnchorTop - 40);
+      await waitFor(() =>
+        expect(new (ownerWindow(positioner).DOMMatrix)(positioner.style.transform).m42).toBeCloseTo(
+          anchor.getBoundingClientRect().bottom,
+          0,
+        ),
+      );
+      await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+      expect(positioner.getBoundingClientRect().top).toBeCloseTo(
+        anchor.getBoundingClientRect().bottom,
+        0,
+      );
+      expect(moves.started).toEqual([]);
+    },
+  );
+
+  it('tracks a parent resize instantly during a switch', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const handle = createHandle();
+    const triggerStyle = triggerProps?.style as React.CSSProperties | undefined;
+    const { user } = await render(
+      <React.Fragment>
+        <style>{`
+          .resize-tracking-positioner { transition: transform 60s linear; }
+          .resize-tracking-positioner[data-instant] { transition: none; }
+        `}</style>
+        <div
+          data-testid="anchor-container"
+          style={{
+            position: 'fixed',
+            left: 100,
+            top: 100,
+            width: 400,
+            height: 120,
+            overflow: 'auto',
+          }}
+        >
+          <Trigger
+            handle={handle}
+            id="first"
+            {...triggerProps}
+            style={{ ...triggerStyle, position: 'absolute', left: 0, top: 20, width: 80 }}
+          >
+            First
+          </Trigger>
+          <Trigger
+            handle={handle}
+            id="second"
+            {...triggerProps}
+            style={{ ...triggerStyle, position: 'absolute', left: '50%', top: 20, width: '25%' }}
+          >
+            Second
+          </Trigger>
+        </div>
+        <Root handle={handle} defaultOpen defaultTriggerId="first" modal={false}>
+          <Portal>
+            <Positioner
+              data-testid="positioner"
+              className="resize-tracking-positioner"
+              side="bottom"
+              align="start"
+              collisionAvoidance={{ side: 'none', align: 'none' }}
+            >
+              <Popup style={{ width: 80, height: 40 }}>Popup</Popup>
+            </Positioner>
+          </Portal>
+        </Root>
+      </React.Fragment>,
+    );
+    const positioner = screen.getByTestId('positioner');
+    const anchor = screen.getByText('Second');
+    await waitFor(() => expect(positioner.style.transition).toBe(''));
+    await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+    const move = recordTransitions(positioner, { pause: true });
+    await activate(user, 'Second');
+    await waitFor(() => expect(move.started).toContain('transform'));
+    expect(positioner).not.toHaveAttribute('data-instant');
+    expect(positioner.getAnimations()[0].playState).toBe('paused');
+    move.stop();
+
+    const previousAnchorLeft = anchor.getBoundingClientRect().left;
+    const transitions = recordTransitions(positioner);
+    await act(async () => {
+      screen.getByTestId('anchor-container').style.width = '600px';
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+    expect(anchor.getBoundingClientRect().left).toBe(previousAnchorLeft + 100);
+    await waitFor(() =>
+      expect(new (ownerWindow(positioner).DOMMatrix)(positioner.style.transform).m41).toBeCloseTo(
+        anchor.getBoundingClientRect().left,
+        0,
+      ),
+    );
+    await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+    expect(positioner.getBoundingClientRect().left).toBeCloseTo(
+      anchor.getBoundingClientRect().left,
+      0,
+    );
     expect(transitions.started).toEqual([]);
   });
 

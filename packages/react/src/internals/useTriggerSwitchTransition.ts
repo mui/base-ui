@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { getOverflowAncestors } from '@floating-ui/utils/dom';
 import { NOOP } from '@base-ui/utils/empty';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -35,6 +34,7 @@ export interface UseTriggerSwitchTransitionParameters {
   popupElement: HTMLElement | null;
   arrowElementRef: React.RefObject<Element | null>;
   viewportElement: HTMLElement | null;
+  onAnchorTracking: { current: (() => void) | null };
   open: boolean;
 }
 
@@ -59,6 +59,7 @@ export function useTriggerSwitchTransition(
     popupElement,
     arrowElementRef,
     viewportElement,
+    onAnchorTracking,
     open,
   } = parameters;
 
@@ -91,23 +92,14 @@ export function useTriggerSwitchTransition(
       ReactDOM.flushSync(endMove);
     }
 
-    // Anchor tracking moves the popup when an ancestor scrolls or resizes, so the move ends and
-    // tracking stays instant.
-    const ancestors = [
-      ...(domReference ? getOverflowAncestors(domReference) : []),
-      ...getOverflowAncestors(positioner),
-    ];
-    ancestors.forEach((ancestor) => {
-      ancestor.addEventListener('scroll', finishMove);
-      ancestor.addEventListener('resize', finishMove);
-    });
+    // Positioning owns the resolved anchor and its tracking observers.
+    onAnchorTracking.current = finishMove;
     moveSignal.addEventListener(
       'abort',
       () => {
-        ancestors.forEach((ancestor) => {
-          ancestor.removeEventListener('scroll', finishMove);
-          ancestor.removeEventListener('resize', finishMove);
-        });
+        if (onAnchorTracking.current === finishMove) {
+          onAnchorTracking.current = null;
+        }
       },
       { once: true },
     );
