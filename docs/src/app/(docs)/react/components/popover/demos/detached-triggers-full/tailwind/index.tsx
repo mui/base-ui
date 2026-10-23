@@ -10,16 +10,12 @@ const triggerClassName =
 export default function PopoverDetachedTriggersFullDemo() {
   return (
     <div className="flex gap-2">
-      <Popover.Trigger
-        className={triggerClassName}
-        handle={demoPopover}
-        payload={NotificationsPanel}
-      >
-        Notifications
+      <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ShippingPanel}>
+        Shipping
       </Popover.Trigger>
 
-      <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ActivityPanel}>
-        Activity
+      <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ReturnsPanel}>
+        Returns
       </Popover.Trigger>
 
       <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ProfilePanel}>
@@ -62,6 +58,13 @@ export default function PopoverDetachedTriggersFullDemo() {
                 >
                   {Payload !== undefined && <Payload />}
                 </Popover.Viewport>
+
+                <Popover.Close
+                  aria-label="Close"
+                  className="absolute top-1 right-1 flex size-7 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+                >
+                  <XIcon />
+                </Popover.Close>
               </Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
@@ -71,12 +74,12 @@ export default function PopoverDetachedTriggersFullDemo() {
   );
 }
 
-function NotificationsPanel() {
+function ShippingPanel() {
   return (
     <div className="flex flex-col gap-1">
-      <Popover.Title className="text-sm font-bold">Notifications</Popover.Title>
+      <Popover.Title className="pr-8 text-sm font-bold">Free shipping</Popover.Title>
       <Popover.Description className="text-sm text-neutral-600 dark:text-neutral-400">
-        You are all caught up. Good job!
+        Orders over $50 arrive in 3–5 business days at no extra cost.
       </Popover.Description>
     </div>
   );
@@ -85,7 +88,7 @@ function NotificationsPanel() {
 function ProfilePanel() {
   return (
     <div className="grid w-max grid-cols-[auto_auto] gap-x-2">
-      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 text-sm font-bold">
+      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 pr-8 text-sm font-bold">
         Jason Eventon
       </Popover.Title>
       <img
@@ -116,13 +119,31 @@ function ProfilePanel() {
   );
 }
 
-function ActivityPanel() {
+function ReturnsPanel() {
   return (
     <div className="flex flex-col gap-1">
-      <Popover.Title className="text-sm font-bold">Activity</Popover.Title>
+      <Popover.Title className="pr-8 text-sm font-bold">Free returns</Popover.Title>
       <Popover.Description className="text-sm text-neutral-600 dark:text-neutral-400">
-        Nothing interesting happened recently.
+        Return any item within 30 days for a full refund.
       </Popover.Description>
     </div>
+  );
+}
+
+function XIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m4.5 4.5 7 7m-7 0 7-7" />
+    </svg>
   );
 }
