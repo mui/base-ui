@@ -75,7 +75,7 @@ const KEYBOARD_TAP_BLOCKED = Symbol('KeyboardTapBlocked');
  * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
  */
 export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvider.Props) {
-  const { children } = props;
+  const { children, scrollBehavior = 'smooth' } = props;
 
   const store = useDialogRootContext();
 
@@ -156,9 +156,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
   const animateKeyboardScroll = useStableCallback((element: HTMLElement, scrollTop: number) => {
     const win = ownerWindow(element);
-    const behavior: ScrollBehavior = win.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
-      ? 'auto'
-      : 'smooth';
+    const behavior =
+      scrollBehavior === 'smooth' && win.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+        ? 'auto'
+        : scrollBehavior;
 
     element.scrollTo({ top: scrollTop, behavior });
   });
@@ -724,6 +725,12 @@ export interface DrawerVirtualKeyboardProviderState {}
 
 export interface DrawerVirtualKeyboardProviderProps {
   children?: React.ReactNode;
+  /**
+   * The scroll behavior used to keep the focused field visible above the software keyboard.
+   * When reduced motion is preferred, `'smooth'` is treated as `'auto'`.
+   * @default 'smooth'
+   */
+  scrollBehavior?: ScrollBehavior | undefined;
 }
 
 export namespace DrawerVirtualKeyboardProvider {
