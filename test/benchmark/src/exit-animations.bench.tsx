@@ -2,9 +2,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Popover } from '@base-ui/react/popover';
-import { benchmark, ScalarMetric } from '@mui/internal-benchmark';
-import { cdp } from 'vitest/browser';
-import type { CDPSession } from '@vitest/browser-playwright';
+import { reactBenchmark, ScalarMetric } from '@mui/internal-benchmark/page';
+import type { BenchmarkCdp, InteractionContext } from '@mui/internal-benchmark/page';
 import { createRows } from './shared';
 
 const completeDuration = new ScalarMetric({
@@ -38,8 +37,10 @@ function resetCompleted() {
   });
 }
 
-async function getScriptDuration(session: CDPSession) {
-  const { metrics } = await session.send('Performance.getMetrics');
+async function getScriptDuration(cdp: BenchmarkCdp) {
+  const { metrics } = (await cdp.send('Performance.getMetrics')) as {
+    metrics: Array<{ name: string; value: number }>;
+  };
   return metrics.find((metric) => metric.name === 'ScriptDuration')!.value * 1000;
 }
 
@@ -47,21 +48,20 @@ async function getScriptDuration(session: CDPSession) {
  * Closes the rendered case and records the time until every close completion has run, and the
  * main-thread script time spent until then.
  */
-async function closeAndMeasure() {
+async function closeAndMeasure({ cdp }: InteractionContext) {
   // Let the mount settle so its work isn't attributed to the close.
   await new Promise((resolve) => {
     setTimeout(resolve, 100);
   });
-  const session: CDPSession = cdp();
-  await session.send('Performance.enable');
-  const scriptStart = await getScriptDuration(session);
+  await cdp.send('Performance.enable');
+  const scriptStart = await getScriptDuration(cdp);
   const start = performance.now();
   ReactDOM.flushSync(close);
   await completed;
   completeDuration.record(performance.now() - start);
-  scriptDuration.record((await getScriptDuration(session)) - scriptStart);
-  // The domain stays enabled across benchmark files and slows down their paint otherwise.
-  await session.send('Performance.disable');
+  scriptDuration.record((await getScriptDuration(cdp)) - scriptStart);
+  // The domain stays enabled on the tab and slows down the paint of the cases sampled after.
+  await cdp.send('Performance.disable');
 }
 
 function CheckboxIndicators(props: { count: number; className: string }) {
@@ -133,7 +133,7 @@ const checkboxCases = [
 ];
 
 checkboxCases.forEach(({ label, className }) => {
-  benchmark(
+  reactBenchmark(
     `Checkbox.Indicator exit (500 instances), ${label}`,
     () => {
       resetCompleted();
@@ -144,7 +144,7 @@ checkboxCases.forEach(({ label, className }) => {
 });
 
 [0, 2000].forEach((animations) => {
-  benchmark(
+  reactBenchmark(
     `Popover exit among ${animations} running animations`,
     () => {
       resetCompleted();
