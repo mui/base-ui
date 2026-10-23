@@ -35,6 +35,18 @@ describe('<Slider.Thumb />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('adds data-disabled when only the thumb is disabled', async () => {
+    await render(
+      <Slider.Root defaultValue={50}>
+        <Slider.Control>
+          <Slider.Thumb disabled data-testid="thumb" />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    expect(screen.getByTestId('thumb')).toHaveAttribute('data-disabled');
+  });
+
   it('sets the thumb index data attribute', async () => {
     await render(
       <Slider.Root defaultValue={50}>
