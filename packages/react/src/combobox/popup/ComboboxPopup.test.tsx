@@ -150,4 +150,84 @@ describe('<Combobox.Popup />', () => {
       expect(screen.getByRole('button', { name: 'final focus' })).toHaveFocus();
     });
   });
+
+  it('applies data-instant="dismiss" when closed with Escape', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const style = `
+      @keyframes combobox-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .animation-test-popup[data-ending-style] {
+        animation: combobox-close-test 10s linear;
+      }
+    `;
+
+    const { user } = await render(
+      <React.Fragment>
+        {/* eslint-disable-next-line react/no-danger */}
+        <style dangerouslySetInnerHTML={{ __html: style }} />
+        <Combobox.Root defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+        ,
+      </React.Fragment>,
+    );
+
+    const popup = await screen.findByTestId('popup');
+    expect(popup).not.toHaveAttribute('data-instant');
+
+    await user.keyboard('{Escape}');
+
+    // The close animation is long so the popup stays mounted during the exit transition.
+    await waitFor(() => {
+      expect(popup).toHaveAttribute('data-ending-style');
+    });
+    expect(popup).toHaveAttribute('data-instant', 'dismiss');
+  });
+
+  it('clears data-instant when the popup is reopened', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const { user } = await render(
+      <Combobox.Root>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup">
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    await user.click(input);
+    const popup = await screen.findByTestId('popup');
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+
+    await user.click(input);
+    const reopenedPopup = await screen.findByTestId('popup');
+    expect(reopenedPopup).not.toHaveAttribute('data-instant');
+    expect(popup).not.toBe(reopenedPopup);
+  });
 });
