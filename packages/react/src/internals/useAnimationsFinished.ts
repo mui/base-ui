@@ -5,9 +5,73 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { NOOP } from '@base-ui/utils/empty';
 import { resolveRef } from '../utils/resolveRef';
-import { getFiniteAnimations } from '../utils/getFiniteAnimations';
+import { isFiniteAnimation } from '../utils/getFiniteAnimations';
 import * as TransitionStatusDataAttributes from './TransitionStatusDataAttributes';
 import { createFlushBeforePaint } from './createFlushBeforePaint';
+
+/**
+ * Returns a function that queues items and flushes them together in a microtask.
+ */
+function createMicrotaskQueue<T>(flush: (items: T[]) => void) {
+  let pending: T[] = [];
+  return (item: T) => {
+    if (!pending.length) {
+      queueMicrotask(() => {
+        const items = pending;
+        pending = [];
+        flush(items);
+      });
+    }
+    pending.push(item);
+  };
+}
+
+/**
+ * Passes each element's animations to its callback in a microtask.
+ * In Blink, `element.getAnimations()` returns early for an element without animations, but
+ * otherwise sorts every animation in the tree. Once an element with animations is found, the
+ * remaining elements of its tree are served by a single `getAnimations()` call on the tree's root.
+ * A root scan for a single remaining element cannot save a sort, so it is skipped.
+ */
+const getAnimationsBatched = createMicrotaskQueue<
+  [element: Element, callback: (animations: Animation[]) => void]
+>((lookups) => {
+  const animationsByElement = new Map<Element, Animation[] | undefined>();
+  for (const [element] of lookups) {
+    animationsByElement.set(element, undefined);
+  }
+  let remaining = animationsByElement.size;
+  let animatedRoot: (Node & Partial<DocumentOrShadowRoot>) | undefined;
+  let animationsByTarget: Map<Element | null, Animation[]> | undefined;
+
+  for (const [element, callback] of lookups) {
+    let animations = animationsByElement.get(element);
+    if (!animations) {
+      remaining -= 1;
+      const root: Node & Partial<DocumentOrShadowRoot> = element.getRootNode();
+      if (root === animatedRoot && !animationsByTarget) {
+        animationsByTarget = new Map();
+        for (const animation of root.getAnimations!()) {
+          const effect = animation.effect as KeyframeEffect;
+          // `element.getAnimations()` excludes animations of the element's pseudo-elements.
+          if (!effect.pseudoElement) {
+            animationsByTarget.set(effect.target, [
+              ...(animationsByTarget.get(effect.target) ?? []),
+              animation,
+            ]);
+          }
+        }
+      }
+      animations =
+        root === animatedRoot ? (animationsByTarget!.get(element) ?? []) : element.getAnimations();
+      if (remaining > 1 && animations.length && element.isConnected && root.getAnimations) {
+        animatedRoot ??= root;
+      }
+      animationsByElement.set(element, animations);
+    }
+    callback(animations);
+  }
+});
 
 const flushBeforePaint = createFlushBeforePaint();
 
@@ -77,9 +141,13 @@ export function useAnimationsFinished(
       }
 
       function exec() {
+        getAnimationsBatched([resolvedElement, waitForAnimations]);
+      }
+
+      function waitForAnimations(animations: Animation[]) {
         // Discard fulfilled Animation values so unfinished animations cannot retain their targets.
         Promise.all(
-          getFiniteAnimations(resolvedElement).map((animation) => animation.finished.then(NOOP)),
+          animations.filter(isFiniteAnimation).map((animation) => animation.finished.then(NOOP)),
         ).then(
           () => {
             if (!signal?.aborted) {
@@ -87,24 +155,12 @@ export function useAnimationsFinished(
             }
           },
           () => {
-            if (signal?.aborted) {
-              return;
-            }
-
-            const currentAnimations = getFiniteAnimations(resolvedElement);
-
-            if (
-              currentAnimations.some(
-                (animation) => animation.pending || animation.playState !== 'finished',
-              )
-            ) {
-              // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
-              // In such cases, we need to re-check if any new animations have started.
+            // Sometimes animations can be aborted because a property they depend on changes while
+            // the animation plays. Wait for the element's current animations, which include any
+            // replacement.
+            if (!signal?.aborted) {
               exec();
-              return;
             }
-
-            done();
           },
         );
       }

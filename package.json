@@ -62,7 +62,7 @@
     "typescript": "tsc -b tsconfig.json",
     "types:check": "pnpm --filter @base-ui/react build && pnpm --filter @base-ui/react types:check",
     "inline-scripts": "tsx ./scripts/inlineScripts.mts",
-    "test:benchmark": "pnpm -F ./test/performance benchmark",
+    "test:benchmark": "pnpm -F ./test/benchmark benchmark",
     "use-react-18": "code-infra set-version-overrides --pkg react@18"
   },
   "devDependencies": {
@@ -120,6 +120,6 @@
   "packageManager": "pnpm@12.11.2",
   "engines": {
     "pnpm": "12.11.2",
-    "node": ">=22.23.3"
+    "node": ">=22.23.4"
   }
 }
