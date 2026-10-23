@@ -2,12 +2,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Popover } from '@base-ui/react/popover';
-import {
-  reactBenchmark,
-  ScalarMetric,
-  type BenchmarkCdp,
-  type InteractionContext,
-} from '@mui/internal-benchmark/page';
+import { reactBenchmark, ScalarMetric } from '@mui/internal-benchmark/page';
+import type { BenchmarkCdp, InteractionContext } from '@mui/internal-benchmark/page';
 import { createRows } from './shared';
 
 const completeDuration = new ScalarMetric({
