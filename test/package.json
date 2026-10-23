@@ -17,7 +17,7 @@
     "is-wsl": "3.1.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "react-router": "8.4.0",
+    "react-router": "8.5.0",
     "util": "0.12.5",
     "webpack": "5.111.1",
     "yargs": "18.2.0"
