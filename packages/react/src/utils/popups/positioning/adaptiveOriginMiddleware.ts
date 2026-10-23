@@ -17,17 +17,8 @@ export const adaptiveOrigin: Middleware = {
     } = state;
 
     const win = ownerWindow(floating);
-    const styles = win.getComputedStyle(floating);
-    const hasTransition = styles.transitionDuration !== '0s' && styles.transitionDuration !== '';
-
-    if (!hasTransition) {
-      return {
-        x: rawX,
-        y: rawY,
-        data: DEFAULT_SIDES,
-      };
-    }
-
+    // Keep the anchor-facing inset stable when position transitions are toggled.
+    // Switching between top/left and bottom/right would make the next move jump.
     const offsetParent = await platform.getOffsetParent?.(floating);
 
     let offsetDimensions = { width: 0, height: 0 };

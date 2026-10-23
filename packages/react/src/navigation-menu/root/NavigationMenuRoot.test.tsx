@@ -3827,7 +3827,7 @@ describe('<NavigationMenu.Root />', () => {
 
           clock.tick(100);
           await flushMicrotasks();
-          expect(positioner).not.toHaveAttribute('data-instant');
+          expect(positioner).toHaveAttribute('data-instant');
 
           await waitFor(() => {
             expect(getPopupSizeVars(popupRoot, positioner)).toEqual({
@@ -4289,24 +4289,22 @@ describe('<NavigationMenu.Root />', () => {
 });
 
 describe('initial open', () => {
-  // A dedicated renderer without `shouldAdvanceTime` so the one-frame instant reset
-  // (scheduled via a zero-delay timeout) can be observed deterministically rather
-  // than racing the assertion.
+  // Keep the clock controlled to verify that settling the initial open does not
+  // re-enable position transitions for ordinary anchor updates.
   const { render, clock } = createRenderer();
 
   clock.withFakeTimers();
 
-  it('suppresses the positioner transition for the first frame while initially open', async () => {
+  it('keeps position transitions suppressed after the initial open settles', async () => {
     await render(<TestNavigationMenu defaultValue="item-1" />);
 
-    // While initially open, the positioner starts with its transition suppressed so a
-    // default value does not animate in from the unpositioned portal state.
+    // Initially open popups must not animate in from the unpositioned portal state.
     const positioner = screen.getByTestId('top-level-positioner');
     expect(positioner).toHaveAttribute('data-instant');
 
-    // The suppression is released on the next tick.
+    // Settling the initial open must leave anchor tracking instant.
     clock.tick(0);
     await flushMicrotasks();
-    expect(positioner).not.toHaveAttribute('data-instant');
+    expect(positioner).toHaveAttribute('data-instant');
   });
 });
