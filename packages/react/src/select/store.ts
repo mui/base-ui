@@ -82,8 +82,9 @@ export type SelectStoreContext = {
   readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   readonly initialValueRef: React.RefObject<any>;
 
-  // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
+  // Callbacks. Initialized when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
+  isItemEqualToValue: State['isItemEqualToValue'];
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;

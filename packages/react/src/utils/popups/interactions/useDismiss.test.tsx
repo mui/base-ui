@@ -166,7 +166,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       // cancellation.
       fireEvent.change(textbox, { target: { value: 'あ' } });
       fireEvent.compositionStart(textbox);
-      fireEvent.keyDown(textbox, { key: 'Escape' });
+      fireEvent.keyDown(textbox, { key: 'Escape', isComposing: true });
       fireEvent.compositionEnd(textbox);
 
       // Wait for the compositionend timeout tick due to Safari
