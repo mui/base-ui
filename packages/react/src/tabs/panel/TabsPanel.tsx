@@ -32,7 +32,15 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
   componentProps: TabsPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, value, render, keepMounted = false, style, ...elementProps } = componentProps;
+  const {
+    className,
+    value,
+    render,
+    keepMounted = false,
+    style,
+    id: idProp,
+    ...elementProps
+  } = componentProps;
 
   const {
     value: selectedValue,
@@ -42,7 +50,7 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
     registerMountedTabPanel,
   } = useTabsRootContext();
 
-  const id = useBaseUiId();
+  const id = useBaseUiId(idProp);
 
   const { ref: listItemRef, index } = useCompositeListItem();
 
