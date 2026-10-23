@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { getOverflowAncestors } from '@floating-ui/utils/dom';
 import { NOOP } from '@base-ui/utils/empty';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -42,7 +43,8 @@ export interface UseTriggerSwitchTransitionParameters {
  * can animate the move and keep anchor tracking instant otherwise.
  *
  * The move ends when the parts it animates settle: the positioner, the popup size, the arrow,
- * and the viewport content. It continues if the popup closes during the move.
+ * and the viewport content. It ends earlier when an ancestor scrolls or resizes. It continues if
+ * the popup closes during the move.
  *
  * Returns whether the positioner should disable transitions for anchor tracking.
  */
@@ -77,10 +79,38 @@ export function useTriggerSwitchTransition(
 
     const positioner: HTMLElement = positionerElement;
     const viewport = viewportElement;
+    const moveController = new AbortController();
+    const moveSignal = moveController.signal;
+    signal.addEventListener('abort', () => moveController.abort(), { once: true });
 
     function finishMove() {
+      if (moveSignal.aborted) {
+        return;
+      }
+      moveController.abort();
       ReactDOM.flushSync(endMove);
     }
+
+    // Anchor tracking moves the popup when an ancestor scrolls or resizes, so the move ends and
+    // tracking stays instant.
+    const ancestors = [
+      ...(domReference ? getOverflowAncestors(domReference) : []),
+      ...getOverflowAncestors(positioner),
+    ];
+    ancestors.forEach((ancestor) => {
+      ancestor.addEventListener('scroll', finishMove);
+      ancestor.addEventListener('resize', finishMove);
+    });
+    moveSignal.addEventListener(
+      'abort',
+      () => {
+        ancestors.forEach((ancestor) => {
+          ancestor.removeEventListener('scroll', finishMove);
+          ancestor.removeEventListener('resize', finishMove);
+        });
+      },
+      { once: true },
+    );
 
     function getPartAnimations() {
       return [positioner, popupElement, arrowElementRef.current]
@@ -97,7 +127,7 @@ export function useTriggerSwitchTransition(
     }
 
     function waitForParts() {
-      if (signal.aborted) {
+      if (moveSignal.aborted) {
         return;
       }
 
@@ -118,13 +148,13 @@ export function useTriggerSwitchTransition(
           }
           waitForViewport();
         },
-        // A canceled animation can have a replacement, such as when the anchor moves again.
+        // A canceled animation can have a replacement, such as when the popup resizes again.
         waitForParts,
       );
     }
 
     function waitForViewport() {
-      if (signal.aborted) {
+      if (moveSignal.aborted) {
         return;
       }
 
@@ -136,7 +166,6 @@ export function useTriggerSwitchTransition(
       // Only this popup's viewport counts; a nested popup can render its own inside the content.
       const observer = new MutationObserver(() => {
         if (!isViewportTransitioning()) {
-          observer.disconnect();
           finishMove();
         }
       });
@@ -147,7 +176,7 @@ export function useTriggerSwitchTransition(
         subtree: true,
       });
 
-      signal.addEventListener('abort', () => observer.disconnect(), { once: true });
+      moveSignal.addEventListener('abort', () => observer.disconnect(), { once: true });
     }
 
     frame.request(waitForParts);

@@ -1050,6 +1050,81 @@ function triggerSwitchTests({
     await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
   });
 
+  it('resumes instant tracking when the anchor scrolls during a switch', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const { user } = await render(
+      <Fixture
+        handle={createHandle()}
+        holdSwitch
+        rootProps={{ defaultOpen: true, defaultTriggerId: 'first' }}
+      />,
+    );
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => expect(positioner.style.transition).toBe(''));
+    await waitFor(() => expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0));
+
+    const move = recordTransitions(positioner, { pause: true });
+    await activate(user, 'Second');
+    await waitFor(() => expect(move.started).toContain('transform'));
+    expect(positioner).not.toHaveAttribute('data-instant');
+    move.stop();
+
+    await act(async () => {
+      screen.getByTestId('scroller').scrollTop += 20;
+    });
+    await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+    // Let the events of the canceled move dispatch before recording.
+    await act(async () => {
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+
+    const transitions = recordTransitions(positioner);
+    await act(async () => {
+      screen.getByTestId('scroller').scrollTop += 20;
+    });
+    await act(async () => {
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+    expect(transitions.started).toEqual([]);
+  });
+
+  it('keeps a switch running while the popup content scrolls', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const { user } = await render(
+      <Fixture
+        handle={createHandle()}
+        holdSwitch
+        rootProps={{ defaultOpen: true, defaultTriggerId: 'first' }}
+        content={
+          <div data-testid="popup-scroller" style={{ height: 10, overflow: 'auto' }}>
+            <div style={{ height: 100 }} />
+          </div>
+        }
+      />,
+    );
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => expect(positioner.style.transition).toBe(''));
+    await waitFor(() => expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0));
+
+    const move = recordTransitions(positioner, { pause: true });
+    await activate(user, 'Second');
+    await waitFor(() => expect(move.started).toContain('transform'));
+
+    await act(async () => {
+      screen.getByTestId('popup-scroller').scrollTop += 20;
+    });
+    await act(async () => {
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+
+    expect(screen.getByTestId('popup-scroller').scrollTop).toBe(20);
+    expect(positioner).not.toHaveAttribute('data-instant');
+    expect(move.canceled).toEqual([]);
+  });
+
   it('resumes instant tracking when a closing popup returns to its previous trigger', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
     const { setProps } = await render(
