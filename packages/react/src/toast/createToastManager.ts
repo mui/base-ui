@@ -13,7 +13,7 @@ export function createToastManager<Data extends object = any>(): ToastManager<Da
   const listeners = new Set<(data: ToastManagerEvent) => void>();
   // Events emitted while no provider is subscribed: before its subscription effect runs, or while
   // it sits in a hidden `<Activity>` (which runs effect cleanups). Replayed to the next subscriber.
-  let pendingEvents: ToastManagerEvent[] = [];
+  const pendingEvents: ToastManagerEvent[] = [];
 
   function emit(data: ToastManagerEvent) {
     if (listeners.size === 0) {
@@ -33,9 +33,16 @@ export function createToastManager<Data extends object = any>(): ToastManager<Da
     ' subscribe': function subscribe(listener: (data: ToastManagerEvent) => void) {
       listeners.add(listener);
 
-      const events = pendingEvents;
-      pendingEvents = [];
-      events.forEach((event) => listener(event));
+      try {
+        while (pendingEvents.length > 0) {
+          listener(pendingEvents.shift()!);
+        }
+      } catch (error) {
+        // React gets no cleanup from an effect that throws, so unsubscribe here. The events not
+        // replayed yet stay queued for the next subscriber.
+        listeners.delete(listener);
+        throw error;
+      }
 
       return () => {
         listeners.delete(listener);

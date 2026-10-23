@@ -904,6 +904,61 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       expect(screen.getByTestId('title')).toHaveTextContent('added on mount');
     });
 
+    it('keeps later calls queued when a replayed call throws', async () => {
+      // React logs the error caught by the boundary.
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const toastManager = Toast.createToastManager();
+
+      class ErrorBoundary extends React.Component<
+        { children: React.ReactNode },
+        { hasError: boolean }
+      > {
+        state = { hasError: false };
+
+        static getDerivedStateFromError() {
+          return { hasError: true };
+        }
+
+        render() {
+          return this.state.hasError ? <div data-testid="fallback" /> : this.props.children;
+        }
+      }
+
+      function App(props: { attempt: number }) {
+        return (
+          <ErrorBoundary key={props.attempt}>
+            <Toast.Provider toastManager={toastManager}>
+              <Toast.Viewport>
+                <List />
+              </Toast.Viewport>
+            </Toast.Provider>
+          </ErrorBoundary>
+        );
+      }
+
+      const throwingId = toastManager.add({ title: 'throwing', timeout: 0 });
+      toastManager.update(throwingId, () => {
+        throw new Error('updater failed');
+      });
+      toastManager.add({ title: 'queued after the error', timeout: 0 });
+
+      // StrictMode re-runs the throwing effect, and that second subscription drains the queue into
+      // the provider that is about to be replaced.
+      const { setProps } = await render(<App attempt={0} />, { strict: false });
+
+      expect(screen.getByTestId('fallback')).toBeInTheDocument();
+
+      await act(async () => {
+        toastManager.add({ title: 'added during the fallback', timeout: 0 });
+      });
+      await act(async () => setProps({ attempt: 1 }));
+
+      const titles = screen.getAllByTestId('title');
+      expect(titles).toHaveLength(2);
+      expect(titles[0]).toHaveTextContent('added during the fallback');
+      expect(titles[1]).toHaveTextContent('queued after the error');
+    });
+
     it('does not queue calls made on the server', async () => {
       const toastManager = Toast.createToastManager();
 
