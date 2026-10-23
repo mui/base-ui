@@ -95,7 +95,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   store.useSyncedValue('isInstantPhase', isInstantPhase);
 
   const rootDisabled = store.useState('disabled');
-  const disabled = disabledProp ?? rootDisabled;
+  const disabled = disabledProp || rootDisabled;
   const disabledRef = useValueAsRef(disabled);
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');

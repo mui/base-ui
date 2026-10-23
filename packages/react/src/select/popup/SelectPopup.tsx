@@ -14,13 +14,11 @@ import type { ClientRectObject } from '@floating-ui/react-dom';
 import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
-import { popupStateMapping } from '../../utils/popups/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { styleDisableScrollbar } from '../../utils/styles';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
@@ -33,11 +31,6 @@ import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scroll
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import * as SelectPositionerCssVars from '../positioner/SelectPositionerCssVars';
-
-const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
-  ...popupStateMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * A container for the select list.
@@ -465,7 +458,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, store.context.popupRef],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
     props: [
       popupProps,
       defaultProps,
