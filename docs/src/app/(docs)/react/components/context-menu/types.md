@@ -251,6 +251,7 @@ Renders a `<div>` element.
 | data-closed        | -                                                                          | Present when the menu popup is closed.                               |
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                   |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to the specified side.   |
+| data-nested        | -                                                                          | Present when the menu is a submenu.                                  |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the anchor. |
 
 **Positioner CSS Variables:**
@@ -311,6 +312,7 @@ Renders a `<div>` element.
 | data-closed         | -                                                                          | Present when the menu is closed.                                     |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.       |
 | data-instant        | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present if animations should be instant.                             |
+| data-nested         | -                                                                          | Present when the menu is a submenu.                                  |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the anchor. |
 | data-starting-style | -                                                                          | Present when the menu begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the menu is animating out.                              |
@@ -647,6 +649,12 @@ Renders a `<div>` element.
 | style         | `React.CSSProperties \| ((state: ContextMenu.RadioGroup.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render        | `ReactElement \| ((props: HTMLProps, state: ContextMenu.RadioGroup.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**RadioGroup Data Attributes:**
+
+| Attribute     | Type | Description                                    |
+| :------------ | :--- | :--------------------------------------------- |
+| data-disabled | -    | Present when the menu radio group is disabled. |
+
 ### RadioGroup.Props
 
 Re-export of [RadioGroup](#radiogroup) props.
@@ -777,6 +785,7 @@ Renders a `<span>` element.
 | :------------------ | :--- | :---------------------------------------------------- |
 | data-checked        | -    | Present when the menu radio item is selected.         |
 | data-unchecked      | -    | Present when the menu radio item is not selected.     |
+| data-highlighted    | -    | Present when the menu radio item is highlighted.      |
 | data-disabled       | -    | Present when the menu radio item is disabled.         |
 | data-starting-style | -    | Present when the radio indicator begins animating in. |
 | data-ending-style   | -    | Present when the radio indicator is animating out.    |
@@ -919,6 +928,7 @@ Renders a `<span>` element.
 | :------------------ | :--- | :-------------------------------------------------- |
 | data-checked        | -    | Present when the menu checkbox item is checked.     |
 | data-unchecked      | -    | Present when the menu checkbox item is not checked. |
+| data-highlighted    | -    | Present when the menu checkbox item is highlighted. |
 | data-disabled       | -    | Present when the menu checkbox item is disabled.    |
 | data-starting-style | -    | Present when the indicator begins animating in.     |
 | data-ending-style   | -    | Present when the indicator is animating out.        |
@@ -1047,6 +1057,8 @@ declare namespace ContextMenuCheckboxItemIndicatorDataAttributes {
   const checked: 'data-checked';
   /** Present when the menu checkbox item is not checked. */
   const unchecked: 'data-unchecked';
+  /** Present when the menu checkbox item is highlighted. */
+  const highlighted: 'data-highlighted';
   /** Present when the menu checkbox item is disabled. */
   const disabled: 'data-disabled';
   /** Present when the indicator begins animating in. */
@@ -1090,6 +1102,8 @@ declare namespace ContextMenuPopupDataAttributes {
   const open: 'data-open';
   /** Present when the menu is closed. */
   const closed: 'data-closed';
+  /** Present when the menu is a submenu. */
+  const nested: 'data-nested';
   /** Present when the menu begins animating in. */
   const startingStyle: 'data-starting-style';
   /** Present when the menu is animating out. */
@@ -1168,6 +1182,8 @@ declare namespace ContextMenuPositionerDataAttributes {
   const open: 'data-open';
   /** Present when the menu popup is closed. */
   const closed: 'data-closed';
+  /** Present when the menu is a submenu. */
+  const nested: 'data-nested';
   /** Present when the anchor is hidden. */
   const anchorHidden: 'data-anchor-hidden';
   /**
@@ -1180,6 +1196,17 @@ declare namespace ContextMenuPositionerDataAttributes {
    * @type 'start' | 'center' | 'end'
    */
   const align: 'data-align';
+}
+```
+
+### ContextMenuRadioGroupDataAttributes
+
+Data attributes of [RadioGroup](#radiogroup).
+
+```typescript
+declare namespace ContextMenuRadioGroupDataAttributes {
+  /** Present when the menu radio group is disabled. */
+  const disabled: 'data-disabled';
 }
 ```
 
@@ -1210,6 +1237,8 @@ declare namespace ContextMenuRadioItemIndicatorDataAttributes {
   const checked: 'data-checked';
   /** Present when the menu radio item is not selected. */
   const unchecked: 'data-unchecked';
+  /** Present when the menu radio item is highlighted. */
+  const highlighted: 'data-highlighted';
   /** Present when the menu radio item is disabled. */
   const disabled: 'data-disabled';
   /** Present when the radio indicator begins animating in. */
@@ -1319,7 +1348,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 - `ContextMenu.SubmenuRoot`: `ContextMenu.SubmenuRoot`, `ContextMenu.SubmenuRoot.Props`, `ContextMenu.SubmenuRoot.State`, `ContextMenu.SubmenuRoot.ChangeEventReason`, `ContextMenu.SubmenuRoot.ChangeEventDetails`
 - `ContextMenu.SubmenuTrigger`: `ContextMenu.SubmenuTrigger`, `ContextMenu.SubmenuTrigger.Props`, `ContextMenu.SubmenuTrigger.State`
 - `ContextMenu.Separator`: `ContextMenu.Separator`, `ContextMenu.Separator.Props`, `ContextMenu.Separator.State`
-- `Default`: `ContextMenuBackdropProps`, `ContextMenuBackdropState`, `ContextMenuPortalProps`, `ContextMenuPortalState`, `ContextMenuPopupProps`, `ContextMenuPopupState`, `ContextMenuArrowProps`, `ContextMenuArrowState`, `ContextMenuGroupProps`, `ContextMenuGroupState`, `ContextMenuGroupLabelProps`, `ContextMenuGroupLabelState`, `ContextMenuItemProps`, `ContextMenuItemState`, `ContextMenuLinkItemProps`, `ContextMenuLinkItemState`, `ContextMenuCheckboxItemProps`, `ContextMenuCheckboxItemState`, `ContextMenuCheckboxItemIndicatorProps`, `ContextMenuCheckboxItemIndicatorState`, `ContextMenuRadioGroupProps`, `ContextMenuRadioGroupState`, `ContextMenuRadioItemProps`, `ContextMenuRadioItemState`, `ContextMenuRadioItemIndicatorProps`, `ContextMenuRadioItemIndicatorState`, `ContextMenuSubmenuRootProps`, `ContextMenuSubmenuRootState`, `ContextMenuSubmenuTriggerProps`, `ContextMenuSubmenuTriggerState`, `ContextMenuTriggerDataAttributes`, `ContextMenuBackdropDataAttributes`, `ContextMenuPositionerCssVariables`, `ContextMenuPositionerDataAttributes`, `ContextMenuPopupDataAttributes`, `ContextMenuArrowDataAttributes`, `ContextMenuItemDataAttributes`, `ContextMenuCheckboxItemDataAttributes`, `ContextMenuCheckboxItemIndicatorDataAttributes`, `ContextMenuLinkItemDataAttributes`, `ContextMenuRadioItemDataAttributes`, `ContextMenuRadioItemIndicatorDataAttributes`, `ContextMenuSubmenuTriggerDataAttributes`, `ContextMenuSeparatorDataAttributes`, `ContextMenuRootState`, `ContextMenuRootProps`, `ContextMenuRootActions`, `ContextMenuRootChangeEventReason`, `ContextMenuRootChangeEventDetails`, `ContextMenuTriggerState`, `ContextMenuTriggerProps`, `ContextMenuPositionerState`, `ContextMenuPositionerProps`
+- `Default`: `ContextMenuBackdropProps`, `ContextMenuBackdropState`, `ContextMenuPortalProps`, `ContextMenuPortalState`, `ContextMenuPopupProps`, `ContextMenuPopupState`, `ContextMenuArrowProps`, `ContextMenuArrowState`, `ContextMenuGroupProps`, `ContextMenuGroupState`, `ContextMenuGroupLabelProps`, `ContextMenuGroupLabelState`, `ContextMenuItemProps`, `ContextMenuItemState`, `ContextMenuLinkItemProps`, `ContextMenuLinkItemState`, `ContextMenuCheckboxItemProps`, `ContextMenuCheckboxItemState`, `ContextMenuCheckboxItemIndicatorProps`, `ContextMenuCheckboxItemIndicatorState`, `ContextMenuRadioGroupProps`, `ContextMenuRadioGroupState`, `ContextMenuRadioItemProps`, `ContextMenuRadioItemState`, `ContextMenuRadioItemIndicatorProps`, `ContextMenuRadioItemIndicatorState`, `ContextMenuSubmenuRootProps`, `ContextMenuSubmenuRootState`, `ContextMenuSubmenuTriggerProps`, `ContextMenuSubmenuTriggerState`, `ContextMenuTriggerDataAttributes`, `ContextMenuBackdropDataAttributes`, `ContextMenuPositionerCssVariables`, `ContextMenuPositionerDataAttributes`, `ContextMenuPopupDataAttributes`, `ContextMenuArrowDataAttributes`, `ContextMenuItemDataAttributes`, `ContextMenuCheckboxItemDataAttributes`, `ContextMenuCheckboxItemIndicatorDataAttributes`, `ContextMenuLinkItemDataAttributes`, `ContextMenuRadioGroupDataAttributes`, `ContextMenuRadioItemDataAttributes`, `ContextMenuRadioItemIndicatorDataAttributes`, `ContextMenuSubmenuTriggerDataAttributes`, `ContextMenuSeparatorDataAttributes`, `ContextMenuRootState`, `ContextMenuRootProps`, `ContextMenuRootActions`, `ContextMenuRootChangeEventReason`, `ContextMenuRootChangeEventDetails`, `ContextMenuTriggerState`, `ContextMenuTriggerProps`, `ContextMenuPositionerState`, `ContextMenuPositionerProps`
 
 ## Canonical Types
 
