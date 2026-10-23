@@ -42,7 +42,7 @@ jobs:
       - name: Prepare for publishing
         uses: mui/mui-public/.github/actions/publish-prepare@0a555da875ab03199afe8f28dbb4c723f853a52d # master
         with:
-          node-version: '22.23.3'
+          node-version: '22.23.4'
       - name: Publish packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
