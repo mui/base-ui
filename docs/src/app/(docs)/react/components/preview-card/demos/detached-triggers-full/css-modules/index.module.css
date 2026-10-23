@@ -9,6 +9,10 @@
   transition-property: top, left, right, bottom, transform;
   transition-timing-function: var(--easing);
   transition-duration: var(--animation-duration);
+
+  &[data-instant] {
+    transition: none;
+  }
 }
 
 .Popup {

@@ -158,6 +158,7 @@ export function useAnchorPositioning(
     shift,
     nodeId,
     adaptiveOrigin,
+    onAnchorTracking,
     lazyFlip = false,
     externalTree,
   } = params;
@@ -475,6 +476,43 @@ export function useAnchorPositioning(
     [disableAnchorTracking],
   );
 
+  const autoUpdatePosition = useStableCallback(
+    (reference: Element | VirtualElement, floating: HTMLElement, updatePosition: () => void) => {
+      if (!onAnchorTracking) {
+        return autoUpdate(reference, floating, updatePosition, autoUpdateOptions);
+      }
+
+      let previousRect: Rect | undefined;
+      let previousTrigger = interactionStore.select('anchorElement');
+      return autoUpdate(
+        reference,
+        floating,
+        (event?: Event) => {
+          const { x, y, width, height } = reference.getBoundingClientRect();
+          const trigger = interactionStore.select('anchorElement');
+          // A trigger switch can move a stable virtual reference. Start a new geometry baseline
+          // for each trigger, while still interrupting explicit scroll and resize events.
+          if (
+            previousRect &&
+            (event?.type === 'scroll' ||
+              event?.type === 'resize' ||
+              (trigger === previousTrigger &&
+                (x !== previousRect.x ||
+                  y !== previousRect.y ||
+                  width !== previousRect.width ||
+                  height !== previousRect.height)))
+          ) {
+            onAnchorTracking.current?.();
+          }
+          previousRect = { x, y, width, height };
+          previousTrigger = trigger;
+          updatePosition();
+        },
+        autoUpdateOptions,
+      );
+    },
+  );
+
   const {
     refs,
     elements,
@@ -492,9 +530,7 @@ export function useAnchorPositioning(
     placement,
     middleware,
     strategy: positionMethod,
-    whileElementsMounted: keepMounted
-      ? undefined
-      : (...args) => autoUpdate(...args, autoUpdateOptions),
+    whileElementsMounted: keepMounted ? undefined : autoUpdatePosition,
     nodeId,
     externalTree,
   });
@@ -526,7 +562,13 @@ export function useAnchorPositioning(
       // mobile Chrome zoom the page out and reflow everything the popup is anchored to.
       base = { position: resolvedPosition, top: 0, left: 0 };
     } else if (adaptiveOrigin) {
-      base = { position: resolvedPosition, [sideX]: x, [sideY]: y };
+      // Resolve opposite-edge insets against the containing block in CSS. A change to its
+      // size then leaves the popup in place until the next positioning update.
+      base = {
+        position: resolvedPosition,
+        [sideX]: sideX === 'right' ? `calc(100% - ${x}px)` : x,
+        [sideY]: sideY === 'bottom' ? `calc(100% - ${y}px)` : y,
+      };
     } else {
       base = { ...originalFloatingStyles, position: resolvedPosition };
     }
@@ -589,10 +631,10 @@ export function useAnchorPositioning(
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.reference && elements.floating) {
-      return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
+      return autoUpdatePosition(elements.reference, elements.floating, update);
     }
     return undefined;
-  }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
+  }, [keepMounted, mounted, elements, update, autoUpdateOptions, autoUpdatePosition]);
 
   const renderedSide = getSide(renderedPlacement);
   const logicalRenderedSide = getLogicalSide(sideParam, renderedSide, isRtl);
@@ -638,6 +680,7 @@ export function useAnchorPositioning(
       positionerStyles: floatingStyles,
       arrowStyles,
       arrowRef,
+      arrowElementRef,
       arrowUncentered,
       side: logicalRenderedSide,
       align: renderedAlign,
@@ -652,6 +695,7 @@ export function useAnchorPositioning(
       floatingStyles,
       arrowStyles,
       arrowRef,
+      arrowElementRef,
       arrowUncentered,
       logicalRenderedSide,
       renderedAlign,
@@ -821,6 +865,8 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
+  /** Runs before an external anchor-tracking update, without interrupting popup size animations. */
+  onAnchorTracking?: React.RefObject<(() => void) | null> | undefined;
   /**
    * The interaction store the popup is positioned with. Components without a popup store create
    * one with `useFloatingRootStore`.
@@ -853,6 +899,10 @@ export interface UseAnchorPositioningReturnValue {
   positionerStyles: React.CSSProperties;
   arrowStyles: React.CSSProperties;
   arrowRef: React.RefCallback<Element>;
+  /**
+   * The arrow element, while one is mounted.
+   */
+  arrowElementRef: React.RefObject<Element | null>;
   arrowUncentered: boolean;
   side: Side;
   align: Align;
