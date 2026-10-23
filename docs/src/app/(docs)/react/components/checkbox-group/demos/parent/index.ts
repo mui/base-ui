@@ -1,4 +1,8 @@
 import { createDemoWithVariants } from 'docs/src/utils/createDemo';
 import CssModules from './css-modules';
+import Tailwind from './tailwind';
 
-export const DemoCheckboxGroupParent = createDemoWithVariants(import.meta.url, { CssModules });
+export const DemoCheckboxGroupParent = createDemoWithVariants(import.meta.url, {
+  CssModules,
+  Tailwind,
+});
