@@ -343,6 +343,9 @@ type ComboboxInputState = {
 An icon that indicates that the trigger button opens the popup.
 Renders a `<span>` element.
 
+To render this without the default arrow glyph when using `render`, also pass
+`children={null}` — for example `<Combobox.Icon children={null} render={<CustomIcon />} />`.
+
 **Icon Props:**
 
 | Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
@@ -365,6 +368,9 @@ type ComboboxIconState = {};
 
 Clears the value when clicked.
 Renders a `<button>` element.
+
+To render this without the default "x" glyph when using `render`, also pass
+`children={null}` — for example `<Combobox.Clear children={null} render={<CustomIcon />} />`.
 
 **Clear Props:**
 
@@ -1032,6 +1038,9 @@ type ComboboxChipRemoveState = {
 
 Indicates whether the item is selected.
 Renders a `<span>` element.
+
+To render this without the default checkmark glyph when using `render`, also pass
+`children={null}` — for example `<Combobox.ItemIndicator children={null} render={<CustomIcon />} />`.
 
 **ItemIndicator Props:**
 

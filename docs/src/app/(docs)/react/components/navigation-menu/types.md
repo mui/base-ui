@@ -139,6 +139,9 @@ type NavigationMenuTriggerState = {
 
 An icon that indicates that the trigger button opens a menu.
 
+To render this without the default arrow glyph when using `render`, also pass
+`children={null}` — for example `<NavigationMenu.Icon children={null} render={<CustomIcon />} />`.
+
 **Icon Props:**
 
 | Prop      | Type                                                                                              | Default | Description                                                                                                                                                                                   |
