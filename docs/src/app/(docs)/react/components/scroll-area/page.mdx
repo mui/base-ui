@@ -39,6 +39,26 @@ import { DemoScrollAreaBoth } from './demos/both';
 
 <DemoScrollAreaBoth />
 
+### Hover and active states
+
+The scrollbar and thumb are regular elements, so they can be styled with the standard `:hover` and `:active` pseudo-classes, which native scrollbars only support through the non-standard `::-webkit-scrollbar-thumb` pseudo-element.
+
+```css title="scroll-area.module.css"
+.Thumb:hover {
+  background-color: oklch(26.9% 0 0deg);
+}
+
+.Thumb:active {
+  background-color: oklch(14.5% 0 0deg);
+}
+```
+
+The `data-hovering` attribute on `<ScrollArea.Scrollbar>` is present while the pointer is anywhere over the scroll area, so use it to reveal the scrollbar, and use `:hover` to respond to the pointer over the thumb itself.
+
+import { DemoScrollAreaHoverActive } from './demos/hover-active';
+
+<DemoScrollAreaHoverActive />
+
 ### Gradient scroll fade
 
 import { DemoScrollAreaScrollFade } from './demos/scroll-fade';
