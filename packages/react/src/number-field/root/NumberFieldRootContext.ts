@@ -9,6 +9,7 @@ export interface NumberFieldRootContext {
   minWithDefault: number;
   maxWithDefault: number;
   id: string | undefined;
+  form: string | undefined;
   setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
   getStepAmount: (event?: EventWithOptionalKeyState) => number;
   incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
