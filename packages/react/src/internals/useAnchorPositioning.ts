@@ -644,6 +644,7 @@ export function useAnchorPositioning(
       positionerStyles: floatingStyles,
       arrowStyles,
       arrowRef,
+      arrowElementRef,
       arrowUncentered,
       side: logicalRenderedSide,
       align: renderedAlign,
@@ -658,6 +659,7 @@ export function useAnchorPositioning(
       floatingStyles,
       arrowStyles,
       arrowRef,
+      arrowElementRef,
       arrowUncentered,
       logicalRenderedSide,
       renderedAlign,
@@ -859,6 +861,10 @@ export interface UseAnchorPositioningReturnValue {
   positionerStyles: React.CSSProperties;
   arrowStyles: React.CSSProperties;
   arrowRef: React.RefCallback<Element>;
+  /**
+   * The arrow element, while one is mounted.
+   */
+  arrowElementRef: React.RefObject<Element | null>;
   arrowUncentered: boolean;
   side: Side;
   align: Align;

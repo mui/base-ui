@@ -2,6 +2,7 @@ import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import type { UserEvent } from '@testing-library/user-event';
+import { Collapsible } from '@base-ui/react/collapsible';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { createRenderer } from '#test-utils';
@@ -469,6 +470,7 @@ function triggerSwitchTests({
     resizeOnSwitch = false,
     holdSwitch = false,
     holdExit = false,
+    content,
   }: {
     handle: ReturnType<typeof createHandle>;
     rootProps?: Record<string, unknown>;
@@ -478,6 +480,7 @@ function triggerSwitchTests({
     resizeOnSwitch?: boolean;
     holdSwitch?: boolean;
     holdExit?: boolean;
+    content?: React.ReactNode;
   }) {
     // Held transitions are paused on transitionrun and finished or canceled by the test.
     const duration = holdSwitch ? '60s' : '200ms';
@@ -493,6 +496,8 @@ function triggerSwitchTests({
           .tracking-popup[data-starting-style], .tracking-popup[data-ending-style] { opacity: 0; }
           .tracking-popup[data-ending-style]:not([data-instant]) { transition-duration: ${holdExit ? '60s' : '200ms'}; }
           .tracking-popup[data-instant] { transition: none; }
+          @keyframes tracking-content { to { opacity: 0.5; } }
+          .tracking-content-animation { animation: tracking-content 60s linear; }
           .tracking-popup-resize {
             transition: width 200ms linear, height 200ms linear, opacity 200ms linear;
           }
@@ -559,6 +564,7 @@ function triggerSwitchTests({
                   ) : (
                     'Popup'
                   )}
+                  {content}
                 </Popup>
               </Positioner>
             </Portal>
@@ -788,7 +794,7 @@ function triggerSwitchTests({
   });
 
   it.each([{ side: 'top' }, { side: 'left' }] as const)(
-    'animates the side axis and popup size with side=$side',
+    'animates the side axis and popup size together with side=$side',
     async ({ side }) => {
       const { transitionProperty, dimension, initialSize, finalSize, popupEdge, triggerEdge } =
         side === 'top'
@@ -833,7 +839,7 @@ function triggerSwitchTests({
       );
 
       const positionerTransitions = recordTransitions(positioner, { pause: true });
-      const popupTransitions = recordTransitions(popup);
+      const popupTransitions = recordTransitions(popup, { pause: true });
 
       await activate(user, 'Second');
       await waitFor(() =>
@@ -842,11 +848,18 @@ function triggerSwitchTests({
         ),
       );
       await waitFor(() => expect(popupTransitions.started).toContain(dimension));
-      await waitFor(() => expect(popup.getBoundingClientRect()[dimension]).toBe(finalSize));
       await act(async () => {
         positioner.getAnimations().forEach((animation) => animation.finish());
       });
       await waitFor(() => expect(positioner.getAnimations()).toHaveLength(0));
+      // The switch also waits for the popup size transition.
+      expect(positioner).not.toHaveAttribute('data-instant');
+
+      await act(async () => {
+        popup.getAnimations().forEach((animation) => animation.finish());
+      });
+      await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+      expect(popup.getBoundingClientRect()[dimension]).toBe(finalSize);
       expect(popup.getBoundingClientRect()[popupEdge]).toBeCloseTo(
         screen.getByText('Second').getBoundingClientRect()[triggerEdge],
         0,
@@ -1001,5 +1014,69 @@ function triggerSwitchTests({
     expect(arrowTransitions.canceled).toEqual([]);
     expect(positionerTransitions.started).toEqual([]);
     expect(positioner.getBoundingClientRect().left).toBe(positionerLeft);
+  });
+
+  it.each([
+    { name: 'a hidden-until-found Collapsible panel', kind: 'collapsible' },
+    { name: 'an unrelated content animation', kind: 'animation' },
+  ] as const)('ends a switch without waiting for $name', async ({ kind }) => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const { user } = await render(
+      <Fixture
+        handle={createHandle()}
+        rootProps={{ defaultOpen: true, defaultTriggerId: 'first' }}
+        content={
+          kind === 'collapsible' ? (
+            <Collapsible.Root>
+              <Collapsible.Panel hiddenUntilFound>Details</Collapsible.Panel>
+            </Collapsible.Root>
+          ) : (
+            <div className="tracking-content-animation" />
+          )
+        }
+      />,
+    );
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => expect(positioner.style.transition).toBe(''));
+    await waitFor(() => expect(screen.getByTestId('popup').getAnimations()).toHaveLength(0));
+    const transitions = recordTransitions(positioner);
+
+    await activate(user, 'Second');
+    await waitFor(() => expect(transitions.finished).toContain('transform'));
+    await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+  });
+
+  it('resumes instant tracking when a closing popup returns to its previous trigger', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    const { setProps } = await render(
+      <Fixture
+        handle={createHandle()}
+        holdSwitch
+        holdExit
+        rootProps={{ open: true, triggerId: 'first' }}
+      />,
+    );
+    const positioner = screen.getByTestId('positioner');
+    const popup = screen.getByTestId('popup');
+    await waitFor(() => expect(positioner.style.transition).toBe(''));
+    await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+
+    const move = recordTransitions(positioner, { pause: true });
+    await setProps({ rootProps: { open: true, triggerId: 'second' } });
+    await waitFor(() => expect(move.started).toContain('transform'));
+    expect(positioner).not.toHaveAttribute('data-instant');
+    move.stop();
+
+    const exit = recordTransitions(popup, { pause: true });
+    await setProps({ rootProps: { open: false, triggerId: 'first' } });
+    await waitFor(() => expect(exit.started).toContain('opacity'));
+    exit.stop();
+    await setProps({ rootProps: { open: true, triggerId: 'first' } });
+    await act(async () => {
+      positioner.getAnimations().forEach((animation) => animation.finish());
+    });
+    await waitFor(() => expect(popup.getAnimations()).toHaveLength(0));
+
+    await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
   });
 }

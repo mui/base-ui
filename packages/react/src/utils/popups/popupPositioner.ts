@@ -131,17 +131,8 @@ export function usePopupPositioner<State extends PopupPositionerState>(
   const instantType = store.useState('instantType');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
   const positionerElement = store.useState('positionerElement');
+  const popupElement = store.useState('popupElement');
   const domReference = store.useState('anchorElement');
-  const instantPosition = useTriggerSwitchTransition({
-    store,
-    instantTypeStore: options.instantTypeStore,
-    domReference,
-    positionerElement,
-    open,
-  });
-  // Keep this fallback local: sharing it with Popup would suppress enter and exit transitions.
-  const instant =
-    options.instant ?? instantType ?? (mounted && instantPosition ? 'trigger-change' : undefined);
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -162,6 +153,19 @@ export function usePopupPositioner<State extends PopupPositionerState>(
     adaptiveOrigin,
     ...positioningOverrides,
   });
+
+  const instantPosition = useTriggerSwitchTransition({
+    store,
+    instantTypeStore: options.instantTypeStore,
+    domReference,
+    positionerElement,
+    popupElement,
+    arrowElementRef: positioning.arrowElementRef,
+    open,
+  });
+  // Keep this fallback local: sharing it with Popup would suppress enter and exit transitions.
+  const instant =
+    options.instant ?? instantType ?? (mounted && instantPosition ? 'trigger-change' : undefined);
 
   const partState = options.state;
   const partStateValues = partState ? Object.values(partState) : EMPTY_ARRAY;
