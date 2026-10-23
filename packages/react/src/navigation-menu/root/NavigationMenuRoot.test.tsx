@@ -4136,28 +4136,22 @@ describe('<NavigationMenu.Root />', () => {
           const productContentAnimations = mockAnimations(productContent);
           const productContentCloseAnimation = productContentAnimations.start();
 
-          fireEvent.click(triggerLearn);
-          await flushMicrotasks();
-
-          await waitFor(() => {
-            expect(triggerLearn).toHaveAttribute('aria-expanded', 'true');
-          });
-          expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
           const popupRoot = screen.getByTestId('popup-root');
-
+          // Keep the trigger switch and its animation-completion updates inside act.
           await act(async () => {
+            triggerLearn.click();
+            await flushMicrotasks();
             await waitForAnimationFrame();
             await flushMicrotasks();
             await productContentAnimations.finish(productContentCloseAnimation);
             await flushMicrotasks();
+            await Promise.all(
+              popupRoot.getAnimations({ subtree: true }).map((animation) => animation.finished),
+            );
           });
 
-          await waitFor(() => {
-            const hasRunningAnimations = popupRoot
-              .getAnimations()
-              .some((animation) => animation.playState !== 'finished');
-            expect(hasRunningAnimations).toBe(false);
-          });
+          expect(triggerLearn).toHaveAttribute('aria-expanded', 'true');
+          expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
 
           await act(async () => triggerLearn.focus());
 
