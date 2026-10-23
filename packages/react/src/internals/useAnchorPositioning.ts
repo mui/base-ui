@@ -483,25 +483,29 @@ export function useAnchorPositioning(
       }
 
       let previousRect: Rect | undefined;
+      let previousTrigger = interactionStore.select('anchorElement');
       return autoUpdate(
         reference,
         floating,
         (event?: Event) => {
           const { x, y, width, height } = reference.getBoundingClientRect();
-          // A new reference starts its own baseline. Popup size animations with an unchanged
-          // anchor must not interrupt the trigger switch.
+          const trigger = interactionStore.select('anchorElement');
+          // A trigger switch can move a stable virtual reference. Start a new geometry baseline
+          // for each trigger, while still interrupting explicit scroll and resize events.
           if (
             previousRect &&
             (event?.type === 'scroll' ||
               event?.type === 'resize' ||
-              x !== previousRect.x ||
-              y !== previousRect.y ||
-              width !== previousRect.width ||
-              height !== previousRect.height)
+              (trigger === previousTrigger &&
+                (x !== previousRect.x ||
+                  y !== previousRect.y ||
+                  width !== previousRect.width ||
+                  height !== previousRect.height)))
           ) {
             onAnchorTracking.current?.();
           }
           previousRect = { x, y, width, height };
+          previousTrigger = trigger;
           updatePosition();
         },
         autoUpdateOptions,

@@ -1209,6 +1209,121 @@ function triggerSwitchTests({
     },
   );
 
+  it('animates a switch with a stable virtual anchor until its container resizes', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    function Test({ triggerId = 'first' }) {
+      const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
+      const anchor = React.useMemo(
+        () =>
+          container && {
+            getBoundingClientRect: () =>
+              (container.querySelector('[data-selected]') ?? container).getBoundingClientRect(),
+            contextElement: container,
+          },
+        [container],
+      );
+
+      return (
+        <Root open triggerId={triggerId} modal={false}>
+          {({ payload }: { payload: unknown }) => (
+            <React.Fragment>
+              <style>{`
+                .virtual-tracking-positioner { transition: transform 60s linear; }
+                .virtual-tracking-popup { transition: width 60s linear; }
+                .virtual-tracking-positioner[data-instant], .virtual-tracking-popup[data-instant] { transition: none; }
+              `}</style>
+              <Trigger id="first" payload="first" {...triggerProps}>
+                First
+              </Trigger>
+              <Trigger id="second" payload="second" {...triggerProps}>
+                Second
+              </Trigger>
+              <div
+                ref={setContainer}
+                data-testid="anchor-container"
+                style={{ position: 'fixed', left: 40, top: 200, width: 240, height: 100 }}
+              >
+                <div
+                  data-selected={triggerId === 'first' ? '' : undefined}
+                  style={{ position: 'absolute', left: 0, top: 0, width: 20, height: 20 }}
+                />
+                <div
+                  data-testid="second-point"
+                  data-selected={triggerId === 'second' ? '' : undefined}
+                  style={{ position: 'absolute', left: '50%', top: 0, width: 20, height: 20 }}
+                />
+              </div>
+              <Portal>
+                <Positioner
+                  anchor={anchor}
+                  side="bottom"
+                  align="start"
+                  collisionAvoidance={{ side: 'none', align: 'none' }}
+                  data-testid="positioner"
+                  className="virtual-tracking-positioner"
+                >
+                  <Popup
+                    data-testid="popup"
+                    className="virtual-tracking-popup"
+                    style={{ width: payload === 'second' ? 120 : 80, height: 40 }}
+                  >
+                    Popup
+                  </Popup>
+                </Positioner>
+              </Portal>
+            </React.Fragment>
+          )}
+        </Root>
+      );
+    }
+
+    const { setProps } = await render(<Test />);
+    const positioner = screen.getByTestId('positioner');
+    const popup = screen.getByTestId('popup');
+    const container = screen.getByTestId('anchor-container');
+    const secondPoint = screen.getByTestId('second-point');
+    await waitFor(() => expect(positioner.style.transition).toBe(''));
+    await waitFor(() => expect(popup.style.transition).toBe(''));
+    await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+    expect(positioner.getBoundingClientRect().left).toBe(container.getBoundingClientRect().left);
+
+    const move = recordTransitions(positioner, { pause: true });
+    const sizeMove = recordTransitions(popup, { pause: true });
+    await setProps({ triggerId: 'second' });
+    await waitFor(() => expect(sizeMove.started).toContain('width'));
+    // Advance the held size transition so ResizeObserver sees a real size change.
+    await act(async () => {
+      popup.getAnimations()[0].currentTime = 1000;
+      await waitSingleFrame();
+    });
+    await waitFor(() => expect(move.started).toContain('transform'));
+    await act(async () => {
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+    expect(positioner).not.toHaveAttribute('data-instant');
+    expect(positioner.getAnimations()[0].playState).toBe('paused');
+    expect(popup.getAnimations()[0].playState).toBe('paused');
+    expect(move.canceled).toEqual([]);
+    expect(sizeMove.canceled).toEqual([]);
+    const previousPointLeft = secondPoint.getBoundingClientRect().left;
+
+    await act(async () => {
+      container.style.width = '400px';
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+    expect(secondPoint.getBoundingClientRect().left).toBe(previousPointLeft + 80);
+    await waitFor(() => expect(positioner).toHaveAttribute('data-instant'));
+    await waitFor(() =>
+      expect(positioner.getBoundingClientRect().left).toBe(
+        secondPoint.getBoundingClientRect().left,
+      ),
+    );
+    expect(move.started).toEqual(['transform']);
+  });
+
   it('tracks a parent resize instantly during a switch', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
     const handle = createHandle();
