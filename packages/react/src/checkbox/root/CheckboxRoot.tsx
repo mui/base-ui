@@ -109,7 +109,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
     if (parent) {
-      groupProps = parentContext.getParentProps();
+      groupProps = parentContext.getParentProps(indeterminate);
     } else if (value !== undefined) {
       groupProps = parentContext.getChildProps(value);
     }
