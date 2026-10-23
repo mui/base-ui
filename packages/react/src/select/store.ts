@@ -82,8 +82,9 @@ export type SelectStoreContext = {
   readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   readonly initialValueRef: React.RefObject<any>;
 
-  // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
+  // Callbacks. Initialized when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
+  isItemEqualToValue: State['isItemEqualToValue'];
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
@@ -131,6 +132,7 @@ export const selectors = {
   activeIndex: (state: State) => state.activeIndex,
   selectedIndex: (state: State) => state.selectedIndex,
   isActive: (state: State, index: number) => state.activeIndex === index,
+  isActiveWhileOpen: (state: State, index: number) => state.open && state.activeIndex === index,
 
   isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;

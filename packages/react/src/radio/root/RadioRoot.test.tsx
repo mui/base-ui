@@ -149,6 +149,21 @@ describe('<Radio.Root />', () => {
     expect(radio).toHaveAccessibleName('Apple');
   });
 
+  it("prefers a render element's `aria-label` over an associated label", async () => {
+    await render(
+      <RadioGroup>
+        <label>
+          <Radio.Root value="a" render={<span aria-label="Apple" />} />
+          Apple
+        </label>
+      </RadioGroup>,
+    );
+
+    const radio = screen.getByRole('radio');
+    expect(radio).not.toHaveAttribute('aria-labelledby');
+    expect(radio).toHaveAccessibleName('Apple');
+  });
+
   describe('prop: onClick', () => {
     it.each([false, true])(
       'propagates a single click event to ancestors per user click (nativeButton=%s)',
@@ -248,6 +263,18 @@ describe('<Radio.Root />', () => {
 
       expect(radio).toHaveFocus();
       expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+    });
+
+    it('keeps the tab stop on a checked radio that is disabled', async () => {
+      await render(
+        <RadioGroup defaultValue="a">
+          <Radio.Root value="a" disabled data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '-1');
     });
   });
 

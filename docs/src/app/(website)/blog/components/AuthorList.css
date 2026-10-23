@@ -1,0 +1,70 @@
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
+@layer components {
+  .BlogAuthorList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .BlogAuthorListItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+  }
+
+  .BlogAuthorListLink {
+    color: inherit;
+    text-decoration: none;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: 2px;
+      border-radius: var(--radius-4);
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .BlogAuthorListAvatar {
+    display: grid;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: var(--gray-c2);
+  }
+
+  .BlogAuthorListImage {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    &[data-loading],
+    &[data-error] {
+      visibility: hidden;
+    }
+  }
+
+  .BlogAuthorListFallback {
+    grid-area: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-13);
+    font-weight: bold;
+    color: white;
+  }
+}

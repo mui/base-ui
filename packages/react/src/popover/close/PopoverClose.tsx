@@ -6,7 +6,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useClosePartRegistration } from '../../utils/closePart';
+import { useClosePartRegistration } from '../utils/closePart';
 
 /**
  * A button that closes the popover.

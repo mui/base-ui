@@ -1,7 +1,15 @@
 import * as React from 'react';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement } from '@base-ui/utils/shadowDom';
 import type { UserEvent } from '@testing-library/user-event';
 import { expect, vi, describe, it, afterEach, beforeEach } from 'vitest';
-import { flushMicrotasks, randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  flushMicrotasks,
+  randomStringValue,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import type { createRenderer } from '#test-utils';
 import { enterWithMouse, isJSDOM } from '#test-utils';
 import { REASONS } from '../src/internals/reasons';
@@ -59,6 +67,48 @@ export function popupConformanceTests(config: PopupTestConfig) {
   };
 
   describe('Popup conformance', () => {
+    describe('IME dismissal', () => {
+      it('dismisses after a composition is dropped without compositionend', async () => {
+        const handleOpenChange = vi.fn();
+        const { user } = await render(
+          prepareComponent({ root: { defaultOpen: true, onOpenChange: handleOpenChange } }),
+        );
+        const popup = getPopup()!;
+        expect(popup).toBeVisible();
+
+        fireEvent.compositionStart(popup);
+        await user.keyboard('[Escape]');
+
+        await waitFor(expectPopupClosed);
+        expect(handleOpenChange).toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ reason: REASONS.escapeKey }),
+        );
+      });
+
+      it.each([
+        { name: 'isComposing', isComposing: true, keyCode: 27 },
+        { name: 'keyCode 229', isComposing: false, keyCode: 229 },
+      ])('preserves the popup for an IME Escape identified by $name', async (event) => {
+        const handleOpenChange = vi.fn();
+        await render(
+          prepareComponent({ root: { defaultOpen: true, onOpenChange: handleOpenChange } }),
+        );
+        const popup = getPopup()!;
+        expect(popup).toBeVisible();
+
+        fireEvent.keyDown(activeElement(ownerDocument(popup))!, {
+          key: 'Escape',
+          isComposing: event.isComposing,
+          keyCode: event.keyCode,
+        });
+        await flushMicrotasks();
+
+        expect(popup).toBeVisible();
+        expect(handleOpenChange).not.toHaveBeenCalled();
+      });
+    });
+
     describe('controlled mode', () => {
       it('opens the popup with the `open` prop', async () => {
         const { rerender } = await render(prepareComponent({ root: { open: false } }));
@@ -206,6 +256,43 @@ export function popupConformanceTests(config: PopupTestConfig) {
         }
       });
     }
+
+    describe('prop: onOpenChangeComplete without animations', () => {
+      it('is called on open in the commit that mounts the popup', async () => {
+        let commits = 0;
+        let mountCommit: number | null = null;
+        let completeCommit: number | null = null;
+
+        function handleCommit() {
+          commits += 1;
+          if (mountCommit === null && getPopup() !== null) {
+            mountCommit = commits;
+          }
+        }
+
+        function onOpenChangeComplete(open: boolean) {
+          if (open) {
+            completeCommit = commits;
+          }
+        }
+
+        function App(props: { open: boolean }) {
+          return (
+            <React.Profiler id="popup" onRender={handleCommit}>
+              {prepareComponent({ root: { open: props.open, onOpenChangeComplete } })}
+            </React.Profiler>
+          );
+        }
+
+        const { rerender } = await render(<App open={false} />, NON_STRICT);
+        await rerender(<App open />);
+        await waitFor(() => {
+          expect(completeCommit).not.toBe(null);
+        });
+
+        expect(completeCommit).toBe(mountCommit);
+      });
+    });
 
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
       afterEach(() => {

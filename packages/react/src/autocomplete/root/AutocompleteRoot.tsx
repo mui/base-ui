@@ -55,11 +55,21 @@ export function AutocompleteRoot<ItemValue>(
   // inline input value.
   const isControlled = value !== undefined;
   const [internalValue, setInternalValue] = React.useState(defaultValue ?? '');
-  const [inlineInputValue, setInlineInputValue] = React.useState('');
+  const [inlineInputValue, setInlineInputValueState] = React.useState('');
+  // The latest requested inline value, including updates that haven't rendered yet.
+  const pendingInlineInputValueRef = React.useRef(inlineInputValue);
+
+  function setInlineInputValue(nextValue: string) {
+    pendingInlineInputValueRef.current = nextValue;
+    setInlineInputValueState(nextValue);
+  }
 
   React.useEffect(() => {
-    if (isControlled || !enableInline) {
-      setInlineInputValue('');
+    // Skip no-op updates: each one keeps the fiber dirty, so bursts of controlled
+    // updates exceed React's nested update limit.
+    if ((isControlled || !enableInline) && pendingInlineInputValueRef.current !== '') {
+      pendingInlineInputValueRef.current = '';
+      setInlineInputValueState('');
     }
   }, [value, isControlled, enableInline]);
 

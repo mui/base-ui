@@ -14,6 +14,7 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  hiddenInputTypeTests,
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
@@ -564,6 +565,196 @@ describe('<Select.Root />', () => {
       expect(screen.getByRole('option', { name: 'a', hidden: false })).not.toHaveAttribute(
         'data-selected',
       );
+    });
+
+    it.each([
+      { name: 'single', multiple: false, initialValue: 'dave', nextValue: 'bob' },
+      { name: 'multiple', multiple: true, initialValue: ['dave'], nextValue: ['bob'] },
+    ])(
+      'keeps a new controlled value and focus in $name mode when the previous item is removed in the same update',
+      async ({ multiple, initialValue, nextValue }) => {
+        const onValueChange = vi.fn();
+
+        function Test() {
+          const [options, setOptions] = React.useState(['alice', 'bob', 'carol', 'dave']);
+          const [value, setValue] = React.useState<string | string[] | null>(initialValue);
+
+          return (
+            <div>
+              <Select.Root<string, boolean>
+                multiple={multiple}
+                value={value}
+                onValueChange={(next, details) => {
+                  onValueChange(next, details);
+                  setValue(next);
+                }}
+                open
+                modal={false}
+              >
+                <Select.Trigger>
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.List>
+                        {options.map((option) => (
+                          <Select.Item key={option} value={option}>
+                            {option}
+                          </Select.Item>
+                        ))}
+                      </Select.List>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+              <button
+                type="button"
+                onClick={() => {
+                  setOptions(['alice', 'bob']);
+                  setValue(nextValue);
+                }}
+              >
+                Update options and value
+              </button>
+              <output data-testid="value">{JSON.stringify(value)}</output>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        expect(await screen.findByRole('option', { name: 'dave' })).toHaveAttribute(
+          'data-selected',
+        );
+        const alice = screen.getByRole('option', { name: 'alice' });
+        await act(async () => alice.focus());
+        expect(alice).toHaveFocus();
+        expect(alice).toHaveAttribute('data-highlighted');
+
+        // Simulate an external update without moving focus away from the surviving item.
+        fireEvent.click(screen.getByRole('button', { name: 'Update options and value' }));
+
+        expect(screen.getByTestId('value').textContent).toBe(JSON.stringify(nextValue));
+        expect(screen.getByRole('option', { name: 'bob' })).toHaveAttribute('data-selected');
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(alice).toHaveFocus();
+        expect(alice).toHaveAttribute('data-highlighted');
+
+        await user.keyboard('{ArrowDown}');
+        expect(screen.getByRole('option', { name: 'bob' })).toHaveFocus();
+      },
+    );
+
+    it('uses the current multiple setting when options and value change together', async () => {
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [multiple, setMultiple] = React.useState(false);
+        const [value, setValue] = React.useState<string | string[]>('alice');
+        const [options, setOptions] = React.useState(['alice', 'bob', 'carol']);
+
+        return (
+          <div>
+            <Select.Root<string, boolean>
+              multiple={multiple}
+              value={value}
+              onValueChange={onValueChange}
+              open
+              modal={false}
+            >
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {options.map((option) => (
+                      <Select.Item key={option} value={option}>
+                        {option}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setMultiple(true);
+                setValue(['alice']);
+                setOptions(['alice', 'bob']);
+              }}
+            >
+              Update selection
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      expect(screen.getByRole('listbox')).not.toHaveAttribute('aria-multiselectable');
+      expect(screen.getByRole('option', { name: 'carol' })).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Update selection' }));
+
+      expect(screen.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true');
+      expect(screen.queryByRole('option', { name: 'carol' })).not.toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'alice' })).toHaveAttribute('data-selected', '');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('uses the current comparator when options and value change together', async () => {
+      const onValueChange = vi.fn();
+      const alice = { id: 'alice' };
+      const bob = { id: 'bob' };
+      const carol = { id: 'carol' };
+
+      function Test() {
+        const [compareById, setCompareById] = React.useState(false);
+        const [value, setValue] = React.useState(alice);
+        const [options, setOptions] = React.useState([alice, bob, carol]);
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              isItemEqualToValue={
+                compareById ? (item, selected) => item.id === selected.id : Object.is
+              }
+              onValueChange={onValueChange}
+              open
+              modal={false}
+            >
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {options.map((option) => (
+                      <Select.Item key={option.id} value={option}>
+                        {option.id}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setCompareById(true);
+                setValue({ id: 'bob' });
+                setOptions([alice, bob]);
+              }}
+            >
+              Update selection
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      await user.click(screen.getByRole('button', { name: 'Update selection' }));
+
+      expect(screen.getByRole('option', { name: 'bob' })).toHaveAttribute('data-selected', '');
+      expect(onValueChange).not.toHaveBeenCalled();
     });
 
     it('should not update the internal value if the controlled value prop does not change', async () => {
@@ -3175,7 +3366,7 @@ describe('<Select.Root />', () => {
     });
 
     it('sets a hidden input id when name is not provided', async () => {
-      await render(
+      const { container } = await render(
         <Select.Root id="test-id">
           <Select.Trigger>
             <Select.Value />
@@ -3183,7 +3374,8 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
+      const hiddenInput = container.querySelector('input');
       expect(hiddenInput).toHaveAttribute('id', 'test-id-hidden-input');
       expect(hiddenInput).not.toHaveAttribute('name');
     });
@@ -3201,6 +3393,18 @@ describe('<Select.Root />', () => {
       expect(hiddenInput).toHaveAttribute('name', 'country');
       expect(hiddenInput).not.toHaveAttribute('id');
     });
+  });
+
+  hiddenInputTypeTests({
+    render,
+    createComponent: (props) => (
+      <Select.Root {...props}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+      </Select.Root>
+    ),
+    getFocusTarget: () => screen.getByTestId('trigger'),
   });
 
   describe('with Field.Root parent', () => {

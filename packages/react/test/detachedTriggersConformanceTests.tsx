@@ -54,6 +54,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
       nesting = 0,
       positionerProps,
       withViewport = false,
+      triggerProps: fixtureTriggerProps,
     } = props;
     const detached = mode === 'detached';
 
@@ -63,6 +64,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
         <Trigger
           key={number}
           {...triggerProps}
+          {...fixtureTriggerProps}
           {...(detached ? { handle } : {})}
           id={`trigger-${number}`}
           data-testid={`trigger-${number}`}
@@ -534,6 +536,39 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
           }
         });
 
+        it.skipIf(!openInteractions.includes('hover'))(
+          'drops a hover open pending when the root mounts and opens on the next hover',
+          async () => {
+            const delay = 50;
+            const { setProps } = await render(
+              <Fixture
+                mode="detached"
+                handle={createHandle()}
+                rootMounted={false}
+                triggerProps={{ delay }}
+              />,
+            );
+            const trigger = getTrigger(1);
+
+            fireEvent.mouseEnter(trigger);
+            fireEvent.mouseMove(trigger);
+            await setProps({ rootMounted: true });
+
+            await act(async () => {
+              await new Promise((resolve) => {
+                setTimeout(resolve, delay * 2);
+              });
+            });
+            expect(screen.queryByTestId('popup')).toBe(null);
+
+            fireEvent.mouseLeave(trigger);
+            fireEvent.mouseEnter(trigger);
+            fireEvent.mouseMove(trigger);
+            await waitForContent('1');
+            expectActiveTrigger(1);
+          },
+        );
+
         it('registers a detached trigger declared after the root', async () => {
           const { user } = await render(
             <Fixture mode="detached" handle={createHandle()} rootFirst />,
@@ -762,4 +797,8 @@ interface FixtureProps {
   nesting?: number;
   positionerProps?: Record<string, unknown>;
   withViewport?: boolean;
+  /**
+   * Props applied to every trigger, over the config's `triggerProps`.
+   */
+  triggerProps?: Record<string, unknown>;
 }

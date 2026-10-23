@@ -19,6 +19,7 @@ import {
   firePointer,
   isJSDOM,
   resetBrowserPointer,
+  wait,
   waitSingleFrame,
 } from '#test-utils';
 
@@ -46,6 +47,44 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   const { render, renderToString } = createRenderer();
   // Strict Mode's double render would hide an extra commit from a render count.
   const { render: renderNonStrict } = createRenderer({ strict: false });
+
+  it.skipIf(isJSDOM)('keeps input focus after selecting an item by drag release', async () => {
+    ignoreActWarnings();
+    await render(
+      <Menu.FilterProvider>
+        <Menu.Root highlightItemOnHover={false}>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.CheckboxItem>Two</Menu.CheckboxItem>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
+    );
+
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Actions' }));
+
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    const checkbox = screen.getByRole('menuitemcheckbox', { name: 'Two' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    await wait(200);
+    fireEvent.mouseUp(checkbox);
+
+    await waitFor(() => {
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+    expect(input).toHaveFocus();
+  });
 
   describe('opening with a query', () => {
     it('keeps the matching items mounted', async () => {
@@ -1220,6 +1259,164 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await user.keyboard('[End]');
       expect(input.selectionStart).toBe(2);
       expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+    });
+
+    describe('Space', () => {
+      function SpaceTest(props: { onRenameClick: () => void }) {
+        return (
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.Item onClick={props.onRenameClick}>Rename</Menu.Item>
+                      <Menu.Item>Remove</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      it('activates the highlighted item while the input is empty', async () => {
+        const onRenameClick = vi.fn();
+        const { user } = await render(<SpaceTest onRenameClick={onRenameClick} />);
+
+        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+        await user.click(input);
+        await user.keyboard('[ArrowDown]');
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'Rename' }).id,
+        );
+
+        await user.keyboard(' ');
+
+        expect(onRenameClick).toHaveBeenCalledTimes(1);
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).toBe(null);
+        });
+      });
+
+      it('does nothing while the input is empty and no item is highlighted', async () => {
+        const onRenameClick = vi.fn();
+        const { user } = await render(<SpaceTest onRenameClick={onRenameClick} />);
+
+        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+        await user.click(input);
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+
+        await user.keyboard(' ');
+
+        expect(input.value).toBe('');
+        expect(onRenameClick).not.toHaveBeenCalled();
+        expect(screen.getByRole('menu')).not.toBe(null);
+      });
+
+      it('types into a non-empty input with a highlighted item', async () => {
+        const onRenameClick = vi.fn();
+        const { user } = await render(<SpaceTest onRenameClick={onRenameClick} />);
+
+        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+        await user.click(input);
+        await user.keyboard('re[ArrowDown]');
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'Rename' }).id,
+        );
+
+        await user.keyboard(' ');
+
+        expect(input.value).toBe('re ');
+        expect(onRenameClick).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('cross-axis arrow keys with a query', () => {
+      function SubmenuTest() {
+        return (
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.Input aria-label="Filter folders" />
+                                <Menu.List>
+                                  <Menu.Item>Archive</Menu.Item>
+                                </Menu.List>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
+        );
+      }
+
+      it('opens the highlighted submenu with ArrowRight only from the end of the text', async () => {
+        const { user } = await render(<SubmenuTest />);
+
+        const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Filter actions' });
+        await user.click(input);
+        await user.keyboard('mo[ArrowDown]');
+        const trigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+        expect(input).toHaveAttribute('aria-activedescendant', trigger.id);
+        input.setSelectionRange(1, 1);
+
+        await user.keyboard('[ArrowRight]');
+        expect(input.selectionStart).toBe(2);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+        await user.keyboard('[ArrowRight]');
+        const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        await waitFor(() => {
+          expect(submenuInput).toHaveFocus();
+        });
+      });
+
+      it('closes the submenu with ArrowLeft only from the start of the text', async () => {
+        const { user } = await render(<SubmenuTest />);
+
+        const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await user.click(parentInput);
+        await user.keyboard('[ArrowDown][ArrowRight]');
+        const submenuInput = await screen.findByRole<HTMLInputElement>('searchbox', {
+          name: 'Filter folders',
+        });
+        await waitFor(() => {
+          expect(submenuInput).toHaveFocus();
+        });
+        await user.keyboard('ar');
+
+        await user.keyboard('[ArrowLeft][ArrowLeft]');
+        expect(submenuInput.selectionStart).toBe(0);
+        expect(submenuInput).toHaveFocus();
+
+        await user.keyboard('[ArrowLeft]');
+        await waitFor(() => {
+          expect(screen.queryByRole('searchbox', { name: 'Filter folders' })).toBe(null);
+        });
+        expect(parentInput).toHaveFocus();
+      });
     });
 
     it('uses Home and End for list navigation after an item is highlighted', async () => {
