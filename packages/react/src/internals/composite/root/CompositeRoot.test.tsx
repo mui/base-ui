@@ -1,5 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
@@ -153,6 +154,30 @@ describe('Composite', () => {
       );
 
       expect(onHighlightedIndexChange).toHaveBeenCalledWith(2);
+    });
+
+    // Portaled children still bubble React events to the root, but they aren't part of it.
+    it('ignores focus and arrow keys from children portaled outside the root', async () => {
+      await render(
+        <CompositeRoot>
+          <CompositeItem data-testid="1">1</CompositeItem>
+          <CompositeItem data-testid="2">2</CompositeItem>
+          {ReactDOM.createPortal(<input data-testid="portaled" defaultValue="ab" />, document.body)}
+        </CompositeRoot>,
+      );
+
+      const item2 = screen.getByTestId('2');
+      const input = screen.getByTestId<HTMLInputElement>('portaled');
+      input.setSelectionRange(2, 2);
+      act(() => input.focus());
+
+      expect(input.selectionStart).toBe(2);
+
+      fireEvent.keyDown(input, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(input).toHaveFocus();
+      expect(item2).toHaveAttribute('tabindex', '-1');
     });
 
     it('keeps native input behavior when the native target differs from the synthetic target', async () => {

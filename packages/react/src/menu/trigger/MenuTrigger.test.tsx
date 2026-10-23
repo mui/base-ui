@@ -10,6 +10,9 @@ import {
 } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
@@ -427,6 +430,105 @@ describe('<Menu.Trigger />', () => {
       expect(screen.queryByRole('menu')).not.toBe(null);
     },
   );
+
+  // A portal container inside the toolbar puts the menu in the toolbar's DOM.
+  it.each([
+    { name: 'portaled outside the toolbar', portalInsideToolbar: false },
+    { name: 'portaled inside the toolbar', portalInsideToolbar: true },
+  ])(
+    'does not move toolbar focus with arrow keys pressed inside the menu when $name',
+    async ({ portalInsideToolbar }) => {
+      function Test() {
+        const containerRef = React.useRef<HTMLDivElement>(null);
+        return (
+          <Toolbar.Root>
+            <Toolbar.Button>First</Toolbar.Button>
+            <Menu.Root modal={false}>
+              <Toolbar.Button render={<Menu.Trigger />}>Open</Toolbar.Button>
+              <Menu.Portal container={portalInsideToolbar ? containerRef : undefined}>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Toolbar.Button>Last</Toolbar.Button>
+            <div ref={containerRef} />
+          </Toolbar.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      // The toolbar navigates with ArrowRight itself, so the final assertion can't come from an
+      // inert toolbar.
+      await user.keyboard('[Tab]');
+      expect(screen.getByRole('button', { name: 'First' })).toHaveFocus();
+      await user.keyboard('[ArrowRight]');
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+      const item = await screen.findByRole('menuitem', { name: 'Item' });
+      await waitFor(() => {
+        expect(item).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowRight]');
+      await flushMicrotasks();
+
+      expect(item).toHaveFocus();
+      expect(screen.getByRole('button', { name: 'Last' })).not.toHaveFocus();
+    },
+  );
+
+  // Unlike a Toolbar, a ToggleGroup doesn't stop keys at the popup, so only the Menubar-only relay
+  // keeps them out of the group.
+  it('does not move toggle group focus with arrow keys pressed inside the menu', async () => {
+    const { user } = await render(
+      <ToggleGroup>
+        <Toggle value="first">First</Toggle>
+        <Menu.Root modal={false}>
+          <Toggle value="open" render={<Menu.Trigger nativeButton />}>
+            Open
+          </Toggle>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+        <Toggle value="last">Last</Toggle>
+      </ToggleGroup>,
+    );
+
+    // The toggle group navigates with ArrowRight itself, so the final assertion can't come from
+    // an inert group.
+    await user.keyboard('[Tab]');
+    expect(screen.getByRole('button', { name: 'First' })).toHaveFocus();
+    await user.keyboard('[ArrowRight]');
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await waitFor(() => {
+      expect(trigger).toHaveFocus();
+    });
+
+    await user.keyboard('[Enter]');
+    const item = await screen.findByRole('menuitem', { name: 'Item' });
+    await waitFor(() => {
+      expect(item).toHaveFocus();
+    });
+
+    await user.keyboard('[ArrowRight]');
+    await flushMicrotasks();
+
+    expect(item).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Last' })).not.toHaveFocus();
+  });
 
   describe('preventBaseUIHandler', () => {
     it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {
