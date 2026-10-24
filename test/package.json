@@ -19,7 +19,7 @@
     "react-dom": "19.3.0",
     "react-router": "8.4.0",
     "util": "0.12.5",
-    "webpack": "5.111.1",
+    "webpack": "5.112.0",
     "yargs": "18.2.0"
   }
 }
