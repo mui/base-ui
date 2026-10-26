@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
@@ -15,9 +14,9 @@ import type {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { usePositioner } from '../../utils/usePositioner';
-import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
+import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
 /**
  * Positions the popup against the trigger.
@@ -40,18 +39,18 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     align,
     sideOffset,
     alignOffset,
-    collisionBoundary = 'clipping-ancestors',
+    collisionBoundary,
     collisionPadding,
     arrowPadding,
     sticky,
-    disableAnchorTracking = false,
+    disableAnchorTracking,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style: styleProp,
     ...elementProps
   } = componentProps;
 
   const store = useComboboxRootContext();
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
   const modal = store.useState('modal');
@@ -71,7 +70,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   const positioning = useAnchorPositioning({
     anchor: resolvedAnchor,
-    floatingRootContext,
+    interactionStore: floatingRootStore,
     positionMethod,
     mounted,
     side,
@@ -107,9 +106,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     store.set('popupSide', positioning.side);
   }, [store, positioning.side]);
 
-  const setPositionerElement = useStableCallback((element) => {
-    store.set('positionerElement', element);
-  });
+  const setPositionerElement = store.useStateSetter('positionerElement');
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,

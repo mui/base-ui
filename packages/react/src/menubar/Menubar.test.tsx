@@ -888,33 +888,39 @@ describe('<Menubar />', () => {
     });
 
     describe.skipIf(isJSDOM)('scroll locking', () => {
-      it('applies scroll lock when a touch-opened submenu covers the viewport width', async () => {
-        await render(
-          <Menubar modal style={{ display: 'flex' }}>
-            <Menu.Root>
-              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner data-testid="file-menu" style={{ width: 'calc(100vw - 10px)' }}>
-                  <Menu.Popup>
-                    <Menu.Item>Open</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </Menubar>,
-        );
+      it.each([
+        { name: 'unmounted while closed', keepMounted: false },
+        { name: 'kept mounted while closed', keepMounted: true },
+      ])(
+        'applies scroll lock when a touch-opened submenu $name covers the viewport width',
+        async ({ keepMounted }) => {
+          await render(
+            <Menubar modal style={{ display: 'flex' }}>
+              <Menu.Root>
+                <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+                <Menu.Portal keepMounted={keepMounted}>
+                  <Menu.Positioner data-testid="file-menu" style={{ width: 'calc(100vw - 10px)' }}>
+                    <Menu.Popup>
+                      <Menu.Item>Open</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menubar>,
+          );
 
-        const trigger = screen.getByTestId('file-trigger');
+          const trigger = screen.getByTestId('file-trigger');
 
-        pressWithTouch(trigger);
+          pressWithTouch(trigger);
 
-        const menu = await screen.findByRole('menu');
-        const doc = menu.ownerDocument;
+          const menu = await screen.findByRole('menu');
+          const doc = menu.ownerDocument;
 
-        await waitFor(() => {
-          expect(isScrollLocked(doc)).toBe(true);
-        });
-      });
+          await waitFor(() => {
+            expect(isScrollLocked(doc)).toBe(true);
+          });
+        },
+      );
 
       it('does not apply scroll lock when a touch-opened submenu is narrower than the viewport', async () => {
         await render(

@@ -7,22 +7,15 @@ import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusMana
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import { getComboboxPopupId } from '../root/utils';
 import { useListEmpty } from '../utils/parts';
-
-const stateAttributesMapping: StateAttributesMapping<ComboboxPopupState> = {
-  ...popupStateMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * A container for the list.
@@ -38,7 +31,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
 
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -101,7 +94,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
   });
 
   // Default initial focus logic:
@@ -126,7 +119,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      store={floatingRootStore}
       disabled={!mounted}
       modal={focusManagerModal}
       openInteractionType={openMethod}

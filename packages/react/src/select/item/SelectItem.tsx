@@ -60,7 +60,7 @@ export const SelectItem = React.memo(
     } = store.useState('itemRoot');
     const disabled = selectDisabled || disabledProp;
     const highlighted = store.useState('isActive', listItem.index);
-    const open = store.useState('open');
+    const activeWhileOpen = store.useState('isActiveWhileOpen', listItem.index);
     const selected = store.useState('isSelected', itemValue);
     const selectedByFocus = store.useState('isSelectedByFocus', listItem.index);
 
@@ -157,7 +157,7 @@ export const SelectItem = React.memo(
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      tabIndex: open && highlighted ? 0 : -1,
+      tabIndex: activeWhileOpen ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         store.set('activeIndex', index);
 

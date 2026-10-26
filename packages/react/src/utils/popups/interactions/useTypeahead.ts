@@ -7,7 +7,7 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { contains } from '@base-ui/utils/shadowDom';
 import { isElementVisible, isListIndexDisabled } from '../../../internals/composite/listIndex';
 import type { DisabledIndices } from '../../../internals/composite/listIndex';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionStore } from '../types';
 import { stopEvent } from '../event';
 
 export interface UseTypeaheadProps {
@@ -69,7 +69,7 @@ export interface UseTypeaheadProps {
  * types, often used in tandem with `useListNavigation()`.
  * @see https://floating-ui.com/docs/useTypeahead
  */
-export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
+export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadProps): ElementProps {
   const {
     listRef,
     elementsRef,
@@ -205,8 +205,8 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
 
   const onBlur = useStableCallback((event: React.FocusEvent) => {
     const next = event.relatedTarget as Element | null;
-    const currentDomReferenceElement = store.select('domReferenceElement');
-    const currentFloatingElement = store.select('floatingElement');
+    const currentDomReferenceElement = store.select('anchorElement');
+    const currentFloatingElement = store.select('positionerElement');
     const withinComposite =
       contains(currentDomReferenceElement, next) || contains(currentFloatingElement, next);
 

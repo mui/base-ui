@@ -75,12 +75,9 @@ const typesGenerationOptions = {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: false,
-  pageExtensions: ['mdx', 'tsx'],
+  pageExtensions: ['mdx', 'tsx', 'ts'],
   turbopack: {
     rules: {
-      '*.mp4': {
-        type: 'asset',
-      },
       './src/app/**/types.ts': {
         as: '*.ts',
         loaders: [
@@ -109,15 +106,7 @@ const nextConfig = {
       },
     },
   },
-  webpack: (config, { defaultLoaders, dir, config: { distDir } }) => {
-    // for production builds
-    config.module.rules.push({
-      test: /\.mp4$/i,
-      type: 'asset/resource',
-      generator: {
-        outputPath: () => path.relative(config.output.path, path.resolve(dir, distDir)),
-      },
-    });
+  webpack: (config, { defaultLoaders }) => {
     config.module.rules.push({
       test: /[/\\\\]src[/\\\\]app[/\\\\].*[/\\\\]types\.ts$/,
       use: [

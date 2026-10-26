@@ -15,7 +15,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { getOverflowAncestors } from '@floating-ui/react-dom';
 import type { ElementProps } from '../../utils/popups/types';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { gridNavigation } from '../../utils/popups/interactions/gridNavigation';
@@ -50,7 +50,7 @@ import { createCollatorItemFilter } from './utils';
 import type { FilterItemToString } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenInteractionType';
 import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
@@ -252,6 +252,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const hiddenInputElementRef = React.useRef<HTMLInputElement | null>(null);
   const startDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const endDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
@@ -945,7 +946,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   );
 
   const requestSubmit = useStableCallback(() => {
-    const formElement = validation.inputRef.current?.form ?? store.state.inputElement?.form;
+    // Not `validation.inputRef`: outside a Field, every control shares it.
+    const formElement = hiddenInputElementRef.current?.form ?? store.state.inputElement?.form;
     if (formElement && typeof formElement.requestSubmit === 'function') {
       formElement.requestSubmit();
     }
@@ -1332,12 +1334,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useValueChanged(items, syncInputAfterItemsOrLabelChange);
   useValueChanged(inputValue, handleInputValueChanged);
 
-  const floatingRootContext = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     open: inline ? true : open,
     onOpenChange: setOpen,
     elements: {
-      reference: inputInsidePopup ? triggerElement : inputElement,
-      floating: positionerElement,
+      anchor: inputInsidePopup ? triggerElement : inputElement,
+      positionerElement,
     },
   });
 
@@ -1383,7 +1385,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // `readOnly` locks the value, not the interaction: the popup opens and can be browsed.
   // Value changes stay blocked in `ComboboxItem`, `ComboboxInput`'s keydown, `ComboboxTrigger`'s
   // typeahead, the clear/remove parts, and the hidden input's autofill handler.
-  const click = useClick(floatingRootContext, {
+  const click = useClick(floatingRootStore, {
     enabled: !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
@@ -1393,7 +1395,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     reason: REASONS.inputPress,
   });
 
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(floatingRootStore, {
     enabled: !disabled && !inline,
     outsidePressEvent: {
       mouse: 'sloppy',
@@ -1415,7 +1417,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     },
   });
 
-  const listNavigation = useListNavigation(floatingRootContext, {
+  const listNavigation = useListNavigation(floatingRootStore, {
     enabled: !disabled,
     id,
     listRef,
@@ -1568,16 +1570,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, ...Object.values(syncedValues)]);
 
-  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
+  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef, hiddenInputElementRef);
 
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
-      query,
       hasItems,
       filteredItems,
       flatFilteredValues,
     }),
-    [query, hasItems, filteredItems, flatFilteredValues],
+    [hasItems, filteredItems, flatFilteredValues],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1717,7 +1718,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   return (
     <ComboboxRootContext.Provider value={store}>
-      <ComboboxFloatingContext.Provider value={floatingRootContext}>
+      <ComboboxFloatingContext.Provider value={floatingRootStore}>
         <ComboboxHasItemsContext.Provider value={hasItems}>
           <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
             <ComboboxInputValueContext.Provider value={inputValue}>

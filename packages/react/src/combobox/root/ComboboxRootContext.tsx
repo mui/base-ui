@@ -4,7 +4,6 @@ import type { ComboboxStore } from '../store';
 import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 
 export interface ComboboxDerivedItemsContext {
-  query: string;
   hasItems: boolean;
   filteredItems: any[];
   /**
