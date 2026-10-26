@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { reactMajor, screen } from '@mui/internal-test-utils';
@@ -7,12 +7,125 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<NavigationMenu.Viewport />', () => {
   const { render } = createRenderer();
 
+  function TestMenu({
+    children,
+    content = 'Menu content',
+  }: {
+    children: React.ReactNode;
+    content?: React.ReactNode;
+  }) {
+    return (
+      <NavigationMenu.Root defaultValue="item">
+        <NavigationMenu.List>
+          <NavigationMenu.Item value="item">
+            <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
+            <NavigationMenu.Content>{content}</NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+        {children}
+      </NavigationMenu.Root>
+    );
+  }
+
   describeConformance(<NavigationMenu.Viewport />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(<NavigationMenu.Root>{node}</NavigationMenu.Root>);
     },
   }));
+
+  it('preserves trigger ownership when its ref changes in a detached container', async () => {
+    const container = document.createElement('div');
+    const firstRef = React.createRef<HTMLDivElement>();
+    const secondRef = React.createRef<HTMLDivElement>();
+
+    function TestCase({ viewportRef }: { viewportRef: React.Ref<HTMLDivElement> }) {
+      return (
+        <TestMenu>
+          <NavigationMenu.Viewport id="viewport" ref={viewportRef} />
+        </TestMenu>
+      );
+    }
+
+    const { rerender } = await render(<TestCase viewportRef={firstRef} />, {
+      container,
+      strict: false,
+    });
+    const viewport = firstRef.current;
+    expect(viewport?.isConnected).toBe(false);
+    expect(viewport).toHaveTextContent('Menu content');
+    expect(container.querySelector('[aria-owns="viewport"]')).not.toBe(null);
+
+    await rerender(<TestCase viewportRef={secondRef} />);
+    expect(firstRef.current).toBe(null);
+    expect(secondRef.current).toBe(viewport);
+    expect(container.querySelector('[aria-owns="viewport"]')).not.toBe(null);
+    expect(viewport).toHaveTextContent('Menu content');
+  });
+
+  describe('prop: render', () => {
+    it('keeps menu content visible when render element children change', async () => {
+      function TestCase({ header }: { header: boolean }) {
+        return (
+          <TestMenu>
+            <NavigationMenu.Viewport
+              data-testid="viewport"
+              render={
+                header ? (
+                  <div>
+                    <span>Custom header</span>
+                  </div>
+                ) : (
+                  <div />
+                )
+              }
+            />
+          </TestMenu>
+        );
+      }
+
+      const { rerender } = await render(<TestCase header={false} />, { strict: false });
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).toHaveTextContent('Menu content');
+
+      await rerender(<TestCase header />);
+      expect(screen.getByText('Custom header')).toBeVisible();
+      expect(viewport).toHaveTextContent('Menu content');
+    });
+
+    it('unmounts content when a custom component removes its viewport element', async () => {
+      const onUnmount = vi.fn();
+      const CustomViewport = React.forwardRef<
+        HTMLDivElement,
+        React.ComponentPropsWithoutRef<'div'> & { show: boolean }
+      >(function CustomViewport({ show, ...props }, ref) {
+        return show ? <div {...props} ref={ref} /> : null;
+      });
+
+      function Content() {
+        React.useEffect(() => onUnmount, []);
+        return <p>Menu content</p>;
+      }
+
+      function TestCase({ show }: { show: boolean }) {
+        return (
+          <TestMenu content={<Content />}>
+            <NavigationMenu.Viewport render={<CustomViewport show={show} />} />
+          </TestMenu>
+        );
+      }
+
+      const { rerender } = await render(<TestCase show />, { strict: false });
+      expect(screen.getByText('Menu content')).toBeVisible();
+      const initialUnmountCount = onUnmount.mock.calls.length;
+
+      await rerender(<TestCase show={false} />);
+      expect(onUnmount).toHaveBeenCalledTimes(initialUnmountCount + 1);
+
+      await rerender(<TestCase show />);
+      expect(screen.getByText('Menu content')).toBeVisible();
+    });
+  });
 
   it.each([
     {
@@ -66,13 +179,7 @@ describe('<NavigationMenu.Viewport />', () => {
 
       function TestCase({ suspend }: { suspend: boolean }) {
         return (
-          <NavigationMenu.Root defaultValue="item">
-            <NavigationMenu.List>
-              <NavigationMenu.Item value="item">
-                <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
-                <NavigationMenu.Content>Menu content</NavigationMenu.Content>
-              </NavigationMenu.Item>
-            </NavigationMenu.List>
+          <TestMenu>
             <React.Suspense
               fallback={<Viewport positioned={fallbackPositioned} testId="fallback" />}
             >
@@ -80,7 +187,7 @@ describe('<NavigationMenu.Viewport />', () => {
                 {suspend && <LazyChild />}
               </Viewport>
             </React.Suspense>
-          </NavigationMenu.Root>
+          </TestMenu>
         );
       }
 
@@ -105,16 +212,47 @@ describe('<NavigationMenu.Viewport />', () => {
       }
     ).Activity;
 
+    it('reveals content after render children change while hidden', async () => {
+      function TestCase({ visible, header }: { visible: boolean; header: boolean }) {
+        return (
+          <TestMenu>
+            <Activity mode={visible ? 'visible' : 'hidden'}>
+              <NavigationMenu.Viewport
+                data-testid="viewport"
+                render={
+                  header ? (
+                    <div>
+                      <span>Custom header</span>
+                    </div>
+                  ) : (
+                    <div />
+                  )
+                }
+              />
+            </Activity>
+          </TestMenu>
+        );
+      }
+
+      const { rerender } = await render(<TestCase visible header={false} />, { strict: false });
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).toHaveTextContent('Menu content');
+
+      await rerender(<TestCase visible={false} header={false} />);
+      expect(viewport).not.toBeVisible();
+
+      await rerender(<TestCase visible={false} header />);
+      expect(viewport).toHaveTextContent('Custom header');
+
+      await rerender(<TestCase visible header />);
+      expect(viewport).toBeVisible();
+      expect(viewport).toHaveTextContent('Menu content');
+    });
+
     it('moves content to a replacement viewport after removing a hidden inline viewport', async () => {
       function TestCase({ stage }: { stage: 'inline' | 'hidden' | 'positioned' }) {
         return (
-          <NavigationMenu.Root defaultValue="item">
-            <NavigationMenu.List>
-              <NavigationMenu.Item value="item">
-                <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
-                <NavigationMenu.Content>Menu content</NavigationMenu.Content>
-              </NavigationMenu.Item>
-            </NavigationMenu.List>
+          <TestMenu>
             {stage === 'positioned' ? (
               <NavigationMenu.Portal>
                 <NavigationMenu.Positioner>
@@ -128,7 +266,7 @@ describe('<NavigationMenu.Viewport />', () => {
                 <NavigationMenu.Viewport data-testid="inline-viewport" />
               </Activity>
             )}
-          </NavigationMenu.Root>
+          </TestMenu>
         );
       }
 
