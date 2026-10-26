@@ -1,40 +1,9 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { benchmark, ElementTiming } from '@mui/internal-benchmark';
-import { createRows, MountList } from './shared';
+import { ElementTiming, reactBenchmark } from '@mui/internal-benchmark/page';
+import { createRows } from './shared';
 
-const selectRows = createRows(200, 'Select');
-const selectItems = createRows(5, 'Option');
 const largeSelectItems = createRows(500, 'Option');
-
-function SelectMountList() {
-  return (
-    <MountList rows={selectRows}>
-      {(row) => (
-        <Select.Root key={row.id} items={selectItems}>
-          <Select.Trigger aria-label={`Open ${row.label}`}>
-            <Select.Value placeholder={row.label} />
-            <Select.Icon>v</Select.Icon>
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner sideOffset={8}>
-              <Select.Popup>
-                <Select.List>
-                  {selectItems.map((item) => (
-                    <Select.Item key={item.id} value={item.value}>
-                      <Select.ItemIndicator />
-                      <Select.ItemText>{item.label}</Select.ItemText>
-                    </Select.Item>
-                  ))}
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>
-      )}
-    </MountList>
-  );
-}
 
 function LargeSelect() {
   return (
@@ -64,9 +33,7 @@ function LargeSelect() {
   );
 }
 
-benchmark('Select mount (200 instances)', () => <SelectMountList />);
-
-benchmark(
+reactBenchmark(
   'Select open (500 options)',
   () => <LargeSelect />,
   async ({ waitForElementTiming }) => {

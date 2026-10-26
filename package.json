@@ -62,7 +62,7 @@
     "typescript": "tsc -b tsconfig.json",
     "types:check": "pnpm --filter @base-ui/react build && pnpm --filter @base-ui/react types:check",
     "inline-scripts": "tsx ./scripts/inlineScripts.mts",
-    "test:benchmark": "pnpm -F ./test/performance benchmark",
+    "test:benchmark": "pnpm -F ./test/benchmark benchmark",
     "use-react-18": "code-infra set-version-overrides --pkg react@18"
   },
   "devDependencies": {
@@ -77,21 +77,21 @@
     "@mui/internal-netlify-cache": "0.1.1-canary.2",
     "@mui/internal-test-utils": "2.1.1-canary.3",
     "@netlify/types": "3.2.0",
-    "@next/eslint-plugin-next": "16.4.0",
-    "@playwright/test": "1.64.0",
+    "@next/eslint-plugin-next": "16.4.2",
+    "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "4.3.3",
     "@testing-library/jest-dom": "7.0.1",
     "@types/node": "22.20.5",
     "@types/react": "19.3.0",
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitejs/plugin-react": "6.1.2",
-    "@vitest/browser-playwright": "5.0.4",
-    "@vitest/coverage-istanbul": "5.0.4",
-    "@vitest/ui": "5.0.4",
+    "@vitest/browser-playwright": "5.0.5",
+    "@vitest/coverage-istanbul": "5.0.5",
+    "@vitest/ui": "5.0.5",
     "concurrently": "10.0.6",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
-    "eslint": "10.12.0",
+    "eslint": "10.13.0",
     "globby": "16.2.4",
     "jsdom": "27.4.0",
     "lerna": "10.1.1",
@@ -100,8 +100,8 @@
     "prettier": "3.9.10",
     "pretty-quick": "4.2.2",
     "publint": "0.3.25",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "remark-mdx": "3.1.1",
     "rimraf": "6.1.3",
     "serve": "14.2.6",
@@ -111,15 +111,15 @@
     "terser": "5.51.2",
     "tsx": "4.23.15",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vite": "8.3.4",
-    "vitest": "5.0.4"
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
   },
   "config": {
-    "valeVersion": "3.24.0"
+    "valeVersion": "3.25.1"
   },
-  "packageManager": "pnpm@12.11.2",
+  "packageManager": "pnpm@12.15.0",
   "engines": {
-    "pnpm": "12.11.2",
-    "node": ">=22.23.3"
+    "pnpm": "12.15.0",
+    "node": ">=22.23.4"
   }
 }
