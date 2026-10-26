@@ -78,3 +78,5 @@ trustPolicy: no-downgrade
 # TODO: drop once the dependency tree no longer contains @octokit/endpoint@9.0.6, semver@5.7.2,
 # semver@6.3.1, or undici-types@6.21.0.
 trustPolicyIgnoreAfter: 525600
+patchedDependencies:
+  eslint-plugin-react-hooks@7.1.1: patches/eslint-plugin-react-hooks@7.1.1.patch
