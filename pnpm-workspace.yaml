@@ -67,6 +67,8 @@ minimumReleaseAgeExclude:
   - '@base-ui/*'
   - '@mui/internal-*'
   - next@16.4.1
+  # Renovate security update: vite@8.3.3
+  - vite@8.3.3
 # Drop exemptions from minimumReleaseAgeExclude once the lockfile stops resolving them,
 # so the security-update entries Renovate adds do not accumulate.
 minimumReleaseAgeExcludePrune: true
