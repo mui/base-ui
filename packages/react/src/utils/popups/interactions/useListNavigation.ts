@@ -533,7 +533,7 @@ export function useListNavigation(
   });
 
   const getParentOrientation = useStableCallback(() => {
-    return parentOrientation ?? tree?.getNode(parentId)?.context?.rootStore.context.orientation;
+    return parentOrientation ?? tree?.getNode(parentId)?.context?.interaction.orientation;
   });
 
   const getMinEnabledIndex = useStableCallback(() => {

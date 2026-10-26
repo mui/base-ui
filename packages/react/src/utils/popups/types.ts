@@ -241,10 +241,30 @@ export type PopupPositioningContext = Omit<
   rootStore: PopupInteractionStore;
 };
 
+/**
+ * What a popup tree member shares with the other members about its interactions.
+ */
+export type FloatingNodeInteraction = Pick<
+  PopupInteractionContext,
+  'orientation' | 'escapeKeyBubbles' | 'outsidePressBubbles'
+>;
+
+/**
+ * What a popup tree member publishes about itself for the other members: whether it is open, its
+ * elements, and the interaction fields the other members read. It is a snapshot taken in a layout
+ * effect after the member renders, not live state, so a node the member no longer updates keeps
+ * its last snapshot.
+ */
+export interface FloatingNodeSnapshot {
+  open: boolean;
+  elements: Pick<ExtendedElements, 'floating' | 'domReference'>;
+  interaction: FloatingNodeInteraction;
+}
+
 export interface FloatingNodeType {
   id: string | undefined;
   parentId: string | null;
-  context?: PopupPositioningContext | undefined;
+  context?: FloatingNodeSnapshot | undefined;
 }
 
 export type FloatingTreeType = FloatingTreeStore;
