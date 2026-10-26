@@ -14,6 +14,58 @@ describe('<NavigationMenu.Viewport />', () => {
     },
   }));
 
+  it.each([
+    { name: 'inline', positioned: false },
+    { name: 'positioned', positioned: true },
+  ])(
+    'moves content back from a fallback to the revealed $name viewport',
+    async ({ positioned }) => {
+      const LazyChild = React.lazy(() => new Promise<{ default: React.ComponentType }>(() => {}));
+
+      function TestCase({ suspend }: { suspend: boolean }) {
+        const viewports = (
+          <React.Suspense fallback={<NavigationMenu.Viewport data-testid="fallback" />}>
+            <NavigationMenu.Viewport data-testid="primary">
+              {suspend && <LazyChild />}
+            </NavigationMenu.Viewport>
+          </React.Suspense>
+        );
+
+        return (
+          <NavigationMenu.Root defaultValue="item">
+            <NavigationMenu.List>
+              <NavigationMenu.Item value="item">
+                <NavigationMenu.Trigger>Item</NavigationMenu.Trigger>
+                <NavigationMenu.Content>Menu content</NavigationMenu.Content>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+            {positioned ? (
+              <NavigationMenu.Portal>
+                <NavigationMenu.Positioner>
+                  <NavigationMenu.Popup>{viewports}</NavigationMenu.Popup>
+                </NavigationMenu.Positioner>
+              </NavigationMenu.Portal>
+            ) : (
+              viewports
+            )}
+          </NavigationMenu.Root>
+        );
+      }
+
+      const { rerender } = await render(<TestCase suspend={false} />, { strict: false });
+      const primaryViewport = screen.getByTestId('primary');
+      expect(primaryViewport).toHaveTextContent('Menu content');
+
+      await rerender(<TestCase suspend />);
+      expect(primaryViewport).not.toBeVisible();
+      expect(screen.getByTestId('fallback')).toHaveTextContent('Menu content');
+
+      await rerender(<TestCase suspend={false} />);
+      expect(primaryViewport).toBeVisible();
+      expect(primaryViewport).toHaveTextContent('Menu content');
+    },
+  );
+
   describe.skipIf(reactMajor < 19)('React.Activity', () => {
     const Activity = (
       React as typeof React & {

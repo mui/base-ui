@@ -116,7 +116,9 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
       setViewportElement(viewportElementRef.current);
     }
     return () => {
-      setViewportElement(null);
+      // Another viewport can attach before passive cleanup, so only clear our own node.
+      const element = viewportElementRef.current;
+      setViewportElement((currentElement) => (currentElement === element ? null : currentElement));
     };
   }, [setViewportElement]);
 
@@ -128,7 +130,10 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
       setViewportTargetElement(viewportTargetElementRef.current);
     }
     return () => {
-      setViewportTargetElement(null);
+      const element = viewportTargetElementRef.current;
+      setViewportTargetElement((currentElement) =>
+        currentElement === element ? null : currentElement,
+      );
     };
   }, [hasPositioner, setViewportTargetElement]);
 
