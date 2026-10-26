@@ -37,7 +37,7 @@ overrides:
   # via lerna -> make-fetch-happen -> socks (GHSA-mwp4-54f8-5fhr, -22jq-vg5j-6vgg, -4xrf-jv44-h6hh)
   ip-address: '^10.7.4'
   # via lerna/stylelint -> cosmiconfig (GHSA-5p4m-2wfm-xmqj, -52cp-r559-cp3m, -h67p-54hq-rp68)
-  js-yaml@4: '^5.4.3'
+  js-yaml@4: '^5.5.0'
   # via postcss (GHSA-2v37-7h3g-55p8)
   nanoid@3: '^6.0.2'
   # via lerna; also picks up the fixed axios and tmp (GHSA-vp3h-ghgh-jr7g)
@@ -67,6 +67,8 @@ minimumReleaseAgeExclude:
   - '@base-ui/*'
   - '@mui/internal-*'
   - next@16.4.1
+  # Renovate security update: vite@8.3.3
+  - vite@8.3.3
 # Drop exemptions from minimumReleaseAgeExclude once the lockfile stops resolving them,
 # so the security-update entries Renovate adds do not accumulate.
 minimumReleaseAgeExcludePrune: true
@@ -78,3 +80,5 @@ trustPolicy: no-downgrade
 # TODO: drop once the dependency tree no longer contains @octokit/endpoint@9.0.6, semver@5.7.2,
 # semver@6.3.1, or undici-types@6.21.0.
 trustPolicyIgnoreAfter: 525600
+patchedDependencies:
+  eslint-plugin-react-hooks@7.1.1: patches/eslint-plugin-react-hooks@7.1.1.patch
