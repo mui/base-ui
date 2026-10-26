@@ -3,24 +3,28 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
+import {
+  useSelectFloatingContext,
+  useSelectRootContext,
+  useSelectSelectionContext,
+} from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
-import {
-  useAnchorPositioning,
-  type Align,
-  type Side,
-  type UseAnchorPositioningSharedParameters,
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import type {
+  Align,
+  Side,
+  UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { clearStyles } from '../popup/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { findItemIndex } from '../../internals/itemEquality';
-import { usePositioner } from '../../utils/usePositioner';
-import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -45,7 +49,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     align,
     sideOffset,
     alignOffset,
-    collisionBoundary = 'clipping-ancestors',
+    collisionBoundary,
     collisionPadding,
     arrowPadding,
     sticky,
@@ -57,16 +61,15 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   } = componentProps;
 
   const store = useSelectRootContext();
-  const floatingRootContext = useSelectFloatingContext();
+  const selection = useSelectSelectionContext();
+  const floatingRootStore = useSelectFloatingContext();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const modal = store.useState('modal');
-  const value = store.useState('value');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const triggerElement = store.useState('triggerElement');
-  const isItemEqualToValue = store.useState('isItemEqualToValue');
   const transitionStatus = store.useState('transitionStatus');
 
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
@@ -95,7 +98,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const positioning = useAnchorPositioning({
     anchor,
-    floatingRootContext,
+    interactionStore: floatingRootStore,
     positionMethod,
     mounted,
     side,
@@ -147,9 +150,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       const prevSize = prevMapSizeRef.current;
       prevMapSizeRef.current = map.size;
 
+      const { value, multiple } = selection;
+      const { isItemEqualToValue } = store.context;
       const eventDetails = createChangeEventDetails(REASONS.none);
 
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
+      if (prevSize !== 0 && !multiple && value != null) {
         const selectedValueIndex = findItemIndex(
           store.context.valuesRef.current,
           value,
@@ -174,7 +179,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         }
       }
 
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
+      if (prevSize !== 0 && multiple && Array.isArray(value)) {
         const nextValue = value.filter(
           (selectedItemValue) =>
             findItemIndex(

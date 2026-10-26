@@ -2,7 +2,8 @@ import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
 import TestViewer from './TestViewer';
-import { fixtures, type Fixture } from './fixtures';
+import { fixtures } from './fixtures';
+import type { Fixture } from './fixtures';
 import 'docs/src/css/index.css';
 
 const viewerRoot = document.getElementById('test-viewer');

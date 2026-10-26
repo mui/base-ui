@@ -6,23 +6,24 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
 import * as DrawerPopupCssVars from './DrawerPopupCssVars';
 import * as DrawerPopupDataAttributes from './DrawerPopupDataAttributes';
 import { useDialogPortalContext } from '../../dialog/portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
-import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
+import { useDrawerRootContext } from '../root/DrawerRootContext';
+import type { DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Drawer components are mounted.
@@ -134,7 +135,6 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   const descriptionElementId = store.useState('descriptionElementId');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
-  const floatingRootContext = store.useState('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
@@ -145,9 +145,9 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
-  const floatingId = floatingRootContext.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
-  const popupId = elementProps.id ?? floatingId;
+  const popupId = elementProps.id ?? defaultPopupId;
 
   const swipe = useDrawerViewportContext();
   useDialogPortalContext();
@@ -394,7 +394,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      store={store}
       openInteractionType={openMethod}
       disabled={!mounted}
       closeOnFocusOut={!disablePointerDismissal}

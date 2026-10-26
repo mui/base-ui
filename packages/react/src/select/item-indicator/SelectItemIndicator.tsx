@@ -2,10 +2,8 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectItemContext } from '../item/SelectItemContext';
-import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { useRenderElement } from '../../internals/useRenderElement';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { ItemIndicator } from '../../utils/ItemIndicator';
 
 /**
  * Indicates whether the select item is selected.
@@ -24,59 +22,8 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
     return null;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  return <Inner {...componentProps} ref={forwardedRef} />;
+  return <ItemIndicator {...componentProps} selected={selected} ref={forwardedRef} />;
 });
-
-// Split the core implementation to avoid paying the hook costs unless the element needs to mount.
-const Inner = React.memo(
-  React.forwardRef(
-    (
-      componentProps: SelectItemIndicator.Props,
-      forwardedRef: React.ForwardedRef<HTMLSpanElement>,
-    ) => {
-      const { render, className, style, keepMounted, ...elementProps } = componentProps;
-
-      const { selected } = useSelectItemContext();
-
-      const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-
-      const { transitionStatus, setMounted } = useTransitionStatus(selected);
-
-      const state: SelectItemIndicatorState = {
-        selected,
-        transitionStatus,
-      };
-
-      const element = useRenderElement('span', componentProps, {
-        ref: [forwardedRef, indicatorRef],
-        state,
-        props: [
-          {
-            'aria-hidden': true,
-            children: '✔️',
-          },
-          elementProps,
-        ],
-        stateAttributesMapping: transitionStatusMapping,
-      });
-
-      useOpenChangeComplete({
-        batch: true,
-        enabled: !selected,
-        open: selected,
-        ref: indicatorRef,
-        onComplete() {
-          if (!selected) {
-            setMounted(false);
-          }
-        },
-      });
-
-      return element;
-    },
-  ),
-);
 
 export interface SelectItemIndicatorState {
   /**

@@ -11,10 +11,8 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, firePointer, isJSDOM } from '#test-utils';
-import {
-  type DrawerProviderContext,
-  useDrawerProviderContext,
-} from '../provider/DrawerProviderContext';
+import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
+import type { DrawerProviderContext } from '../provider/DrawerProviderContext';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import type { DialogStore } from '../../dialog/store/DialogStore';
 
@@ -33,9 +31,9 @@ vi.mock('@base-ui/utils/useId', async () => {
   };
 });
 
-vi.mock('../../floating-ui-react/utils/event', async () => {
-  const actual = await vi.importActual<typeof import('../../floating-ui-react/utils/event')>(
-    '../../floating-ui-react/utils/event',
+vi.mock('../../utils/popups/event', async () => {
+  const actual = await vi.importActual<typeof import('../../utils/popups/event')>(
+    '../../utils/popups/event',
   );
   return {
     ...actual,

@@ -245,6 +245,102 @@ type ToolbarLinkState = {
 type ToolbarOrientation = 'horizontal' | 'vertical';
 ```
 
+### ToolbarButtonDataAttributes
+
+Data attributes of [Button](#button).
+
+```typescript
+declare namespace ToolbarButtonDataAttributes {
+  /** Present when the button is disabled. */
+  const disabled: 'data-disabled';
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the button remains focusable when disabled. */
+  const focusable: 'data-focusable';
+}
+```
+
+### ToolbarGroupDataAttributes
+
+Data attributes of [Group](#group).
+
+```typescript
+declare namespace ToolbarGroupDataAttributes {
+  /** Present when the group is disabled. */
+  const disabled: 'data-disabled';
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
+### ToolbarInputDataAttributes
+
+Data attributes of [Input](#input).
+
+```typescript
+declare namespace ToolbarInputDataAttributes {
+  /** Present when the input is disabled. */
+  const disabled: 'data-disabled';
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the input remains focusable when disabled. */
+  const focusable: 'data-focusable';
+}
+```
+
+### ToolbarLinkDataAttributes
+
+Data attributes of [Link](#link).
+
+```typescript
+declare namespace ToolbarLinkDataAttributes {
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
+### ToolbarRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace ToolbarRootDataAttributes {
+  /** Present when the toolbar is disabled. */
+  const disabled: 'data-disabled';
+  /**
+   * Indicates the orientation of the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
+### ToolbarSeparatorDataAttributes
+
+Data attributes of [Separator](#separator).
+
+```typescript
+declare namespace ToolbarSeparatorDataAttributes {
+  /**
+   * Indicates the orientation of the separator, which is perpendicular to the toolbar.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
 ## Export Groups
 
 - `Toolbar.Separator`: `Toolbar.Separator`, `Toolbar.Separator.State`, `Toolbar.Separator.Props`
@@ -253,7 +349,7 @@ type ToolbarOrientation = 'horizontal' | 'vertical';
 - `Toolbar.Button`: `Toolbar.Button`, `Toolbar.Button.State`, `Toolbar.Button.Props`
 - `Toolbar.Link`: `Toolbar.Link`, `Toolbar.Link.State`, `Toolbar.Link.Props`
 - `Toolbar.Input`: `Toolbar.Input`, `Toolbar.Input.State`, `Toolbar.Input.Props`
-- `Default`: `Toolbar.Orientation`, `Orientation`, `ToolbarRootItemMetadata`, `ToolbarRootOrientation`, `ToolbarRootState`, `ToolbarRootProps`, `ToolbarGroupState`, `ToolbarGroupProps`, `ToolbarButtonState`, `ToolbarButtonProps`, `ToolbarLinkState`, `ToolbarLinkProps`, `ToolbarInputState`, `ToolbarInputProps`, `ToolbarSeparatorState`, `ToolbarSeparatorProps`
+- `Default`: `Toolbar.Orientation`, `Orientation`, `ToolbarSeparatorDataAttributes`, `ToolbarRootDataAttributes`, `ToolbarGroupDataAttributes`, `ToolbarButtonDataAttributes`, `ToolbarLinkDataAttributes`, `ToolbarInputDataAttributes`, `ToolbarRootItemMetadata`, `ToolbarRootOrientation`, `ToolbarRootState`, `ToolbarRootProps`, `ToolbarGroupState`, `ToolbarGroupProps`, `ToolbarButtonState`, `ToolbarButtonProps`, `ToolbarLinkState`, `ToolbarLinkProps`, `ToolbarInputState`, `ToolbarInputProps`, `ToolbarSeparatorState`, `ToolbarSeparatorProps`
 
 ## Canonical Types
 

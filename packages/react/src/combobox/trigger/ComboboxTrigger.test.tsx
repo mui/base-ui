@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, pressWithScreenReader } from '#test-utils';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
@@ -479,6 +479,36 @@ describe('<Combobox.Trigger />', () => {
       });
       expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
       expect(onOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.triggerPress);
+    });
+
+    it.skipIf(isJSDOM)('keeps focus on the input after a screen reader press', async () => {
+      await render(
+        <Combobox.Root items={['Apple', 'Banana']}>
+          <Combobox.Input />
+          <Combobox.Trigger data-testid="trigger" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      pressWithScreenReader(trigger);
+
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+      await waitFor(() => {
+        expect(screen.getByRole('combobox')).toHaveFocus();
+      });
     });
   });
 
@@ -1194,24 +1224,40 @@ describe('<Combobox.Trigger />', () => {
 
     it('toggles data-list-empty when the filtered list is empty', async () => {
       const { user } = await render(
-        <Combobox.Root items={[]}>
+        <Combobox.Root items={['apple', 'banana']}>
+          <Combobox.Input data-testid="input" />
           <Combobox.Trigger data-testid="trigger">Trigger</Combobox.Trigger>
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
-                <Combobox.List />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
           </Combobox.Portal>
         </Combobox.Root>,
       );
 
+      const input = screen.getByTestId('input');
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
 
       await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(trigger).not.toHaveAttribute('data-list-empty');
+
+      await user.type(input, 'zzz');
+
       expect(trigger).toHaveAttribute('data-list-empty');
+
+      await user.clear(input);
+
+      expect(trigger).not.toHaveAttribute('data-list-empty');
     });
 
     it('has data-placeholder when no value is selected', async () => {

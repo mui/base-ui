@@ -2,7 +2,7 @@ import createDescribe from '@mui/internal-test-utils/createDescribe';
 import { testComputations } from './testComputations';
 import { testLocalization } from './testLocalization';
 import { testFormats } from './testFormats';
-import { DescribeGregorianAdapterParameters } from './describeGregorianAdapter.types';
+import type { DescribeGregorianAdapterParameters } from './describeGregorianAdapter.types';
 
 function innerGregorianDescribeAdapter(parameters: DescribeGregorianAdapterParameters) {
   describe(parameters.adapter.lib, () => {

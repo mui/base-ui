@@ -3,7 +3,9 @@ import * as React from 'react';
 import { useTestInteractions } from '#test-utils';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { useFloating, useListNavigation, useTypeahead } from '../../src/floating-ui-react';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
+import { useFloating } from './useFloating';
 
 interface SelectContextValue {
   activeIndex: number | null;
@@ -34,14 +36,14 @@ function Listbox({ children }: { children: React.ReactNode }) {
     setActiveIndex(index);
   }
 
-  const listNav = useListNavigation(context, {
+  const listNav = useListNavigation(context.rootStore, {
     listRef: elementsRef,
     activeIndex,
     selectedIndex,
     onNavigate: setActiveIndex,
     focusItemOnHover: false,
   });
-  const typeahead = useTypeahead(context, {
+  const typeahead = useTypeahead(context.rootStore, {
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
@@ -64,7 +66,12 @@ function Listbox({ children }: { children: React.ReactNode }) {
       <button onClick={() => setSelectedIndex(1)} data-testid="reference" type="button">
         Select
       </button>
-      <div ref={refs.setFloating} id={context.floatingId} role="listbox" {...getFloatingProps()}>
+      <div
+        ref={refs.setFloating}
+        id={context.defaultPopupId}
+        role="listbox"
+        {...getFloatingProps()}
+      >
         <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
           {children}
         </CompositeList>

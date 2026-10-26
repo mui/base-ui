@@ -1,4 +1,4 @@
-import { TemporalTimezone, TemporalSupportedObject, TemporalSupportedValue } from './temporal';
+import type { TemporalTimezone, TemporalSupportedObject, TemporalSupportedValue } from './temporal';
 
 export interface TemporalAdapterFormats {
   /**
@@ -384,4 +384,9 @@ export interface TemporalAdapter {
    * The value is 1-based, 1 - first day of the week, 7 - last day of the week.
    */
   getDayOfWeek(value: TemporalSupportedObject): number;
+  /**
+   * Checks if the given date is a weekend day in the locale of the adapter.
+   * The weekend days come from the runtime's `Intl.Locale` week info, with Saturday and Sunday as fallback.
+   */
+  isWeekend(value: TemporalSupportedObject): boolean;
 }

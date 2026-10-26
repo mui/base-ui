@@ -97,11 +97,10 @@ A dialog that requires a user response to proceed.
 - Sections:
   - Anatomy
   - Examples
-    - Open from a menu
-    - Close confirmation
     - Detached triggers
     - Multiple triggers
     - Controlled mode with multiple triggers
+    - Open from a menu
   - API reference
     - Root
     - Trigger
@@ -167,8 +166,6 @@ An input that suggests options as you type.
     - Fuzzy matching
     - Limit results
     - Auto highlight
-    - Command palette
-    - Grid layout
     - Virtualized
       - Memoizing items
   - API reference
@@ -233,11 +230,11 @@ An input that suggests options as you type.
     - Data Attributes: data-disabled, data-highlighted
   - Autocomplete - Group
     - Props: className, items, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Autocomplete - GroupLabel
     - Props: className, render, style
   - Autocomplete - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Autocomplete - Status
     - Props: className, render, style
   - Autocomplete - Empty
@@ -252,7 +249,7 @@ An input that suggests options as you type.
   - Autocomplete - useFilter
     - Parameters: options
   - Autocomplete - useFilteredItems
-- Types: Autocomplete.Arrow.Props, Autocomplete.Arrow.State, Autocomplete.Backdrop.Props, Autocomplete.Backdrop.State, Autocomplete.Clear.Props, Autocomplete.Clear.State, Autocomplete.Collection.Props, Autocomplete.Collection.State, Autocomplete.Empty.Props, Autocomplete.Empty.State, Autocomplete.Group.Props, Autocomplete.Group.State, Autocomplete.GroupLabel.Props, Autocomplete.GroupLabel.State, Autocomplete.Icon.Props, Autocomplete.Icon.State, Autocomplete.Input.Props, Autocomplete.Input.State, Autocomplete.InputGroup.Props, Autocomplete.InputGroup.State, Autocomplete.Item.Props, Autocomplete.Item.State, Autocomplete.List.Props, Autocomplete.List.State, Autocomplete.Popup.Props, Autocomplete.Popup.State, Autocomplete.Portal.Props, Autocomplete.Portal.State, Autocomplete.Positioner.Props, Autocomplete.Positioner.State, Autocomplete.Root.Actions, Autocomplete.Root.ChangeEventDetails, Autocomplete.Root.ChangeEventReason, Autocomplete.Root.HighlightEventDetails, Autocomplete.Root.HighlightEventReason, Autocomplete.Root.Props, Autocomplete.Root.State, Autocomplete.Row.Props, Autocomplete.Row.State, Autocomplete.Separator.Props, Autocomplete.Separator.State, Autocomplete.Status.Props, Autocomplete.Status.State, Autocomplete.Trigger.Props, Autocomplete.Trigger.State, Autocomplete.Value.Props, Autocomplete.Value.State
+- Types: Autocomplete.Arrow.Props, Autocomplete.Arrow.State, Autocomplete.Backdrop.Props, Autocomplete.Backdrop.State, Autocomplete.Clear.Props, Autocomplete.Clear.State, Autocomplete.Collection.Props, Autocomplete.Collection.State, Autocomplete.Empty.Props, Autocomplete.Empty.State, Autocomplete.Group.Props, Autocomplete.Group.State, Autocomplete.GroupLabel.Props, Autocomplete.GroupLabel.State, Autocomplete.Icon.Props, Autocomplete.Icon.State, Autocomplete.Input.Props, Autocomplete.Input.State, Autocomplete.InputGroup.Props, Autocomplete.InputGroup.State, Autocomplete.Item.Props, Autocomplete.Item.State, Autocomplete.List.Props, Autocomplete.List.State, Autocomplete.Popup.Props, Autocomplete.Popup.State, Autocomplete.Portal.Props, Autocomplete.Portal.State, Autocomplete.Positioner.Props, Autocomplete.Positioner.State, Autocomplete.Root.Actions, Autocomplete.Root.ChangeEventDetails, Autocomplete.Root.ChangeEventReason, Autocomplete.Root.HighlightEventDetails, Autocomplete.Root.HighlightEventReason, Autocomplete.Root.OpenChangeEventDetails, Autocomplete.Root.Props, Autocomplete.Root.State, Autocomplete.Row.Props, Autocomplete.Row.State, Autocomplete.Separator.Props, Autocomplete.Separator.State, Autocomplete.Status.Props, Autocomplete.Status.State, Autocomplete.Trigger.Props, Autocomplete.Trigger.State, Autocomplete.Value.Props, Autocomplete.Value.State
 
 </details>
 
@@ -312,7 +309,7 @@ A button component that can be rendered as another tag or focusable when disable
   - Button
     - Props: className, focusableWhenDisabled, nativeButton, render, style
     - Data Attributes: data-disabled
-- Types: Button.Props, Button.State
+- Types: Button.Props, Button.State, ButtonDataAttributes
 
 </details>
 
@@ -333,7 +330,6 @@ An easily stylable checkbox component.
   - Examples
     - Labeling a checkbox
     - Rendering as a native button
-    - Form integration
   - API reference
     - Root
     - Indicator
@@ -365,7 +361,6 @@ Provides shared state to a series of checkboxes.
   - Examples
     - Labeling a checkbox group
     - Rendering as a native button
-    - Form integration
     - Parent checkbox
     - Nested parent checkbox
   - API reference
@@ -373,7 +368,7 @@ Provides shared state to a series of checkboxes.
   - CheckboxGroup
     - Props: allValues, className, defaultValue, disabled, onValueChange, render, style, value
     - Data Attributes: data-disabled
-- Types: CheckboxGroup.ChangeEventDetails, CheckboxGroup.ChangeEventReason, CheckboxGroup.Props, CheckboxGroup.State
+- Types: CheckboxGroup.ChangeEventDetails, CheckboxGroup.ChangeEventReason, CheckboxGroup.Props, CheckboxGroup.State, CheckboxGroupDataAttributes
 
 </details>
 
@@ -435,7 +430,6 @@ An input combined with a list of predefined items to select.
     - Grouped
     - Async search (single)
     - Async search (multiple)
-    - Creatable
     - Virtualized
       - Memoizing items
   - API reference
@@ -506,11 +500,11 @@ An input combined with a list of predefined items to select.
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Combobox - Group
     - Props: className, items, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Combobox - GroupLabel
     - Props: className, render, style
   - Combobox - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Combobox - Label
     - Props: className, render, style
   - Combobox - Status
@@ -539,7 +533,7 @@ An input combined with a list of predefined items to select.
     - Parameters: options
   - Combobox - useFilteredItems
   - ComboboxItemCollection
-- Types: Combobox.Arrow.Props, Combobox.Arrow.State, Combobox.Backdrop.Props, Combobox.Backdrop.State, Combobox.Chip.Props, Combobox.Chip.State, Combobox.ChipRemove.Props, Combobox.ChipRemove.State, Combobox.Chips.Props, Combobox.Chips.State, Combobox.Clear.Props, Combobox.Clear.State, Combobox.Collection.Props, Combobox.Collection.State, Combobox.Empty.Props, Combobox.Empty.State, Combobox.Group.Props, Combobox.Group.State, Combobox.GroupLabel.Props, Combobox.GroupLabel.State, Combobox.Icon.Props, Combobox.Icon.State, Combobox.Input.Props, Combobox.Input.State, Combobox.InputGroup.Props, Combobox.InputGroup.State, Combobox.Item.Props, Combobox.Item.State, Combobox.ItemIndicator.Props, Combobox.ItemIndicator.State, Combobox.Label.Props, Combobox.Label.State, Combobox.List.Props, Combobox.List.State, Combobox.Popup.Props, Combobox.Popup.State, Combobox.Portal.Props, Combobox.Portal.State, Combobox.Positioner.Props, Combobox.Positioner.State, Combobox.Root.Actions, Combobox.Root.ChangeEventDetails, Combobox.Root.ChangeEventReason, Combobox.Root.HighlightEventDetails, Combobox.Root.HighlightEventReason, Combobox.Root.Props, Combobox.Root.State, Combobox.Row.Props, Combobox.Row.State, Combobox.Separator.Props, Combobox.Separator.State, Combobox.Status.Props, Combobox.Status.State, Combobox.Trigger.Props, Combobox.Trigger.State, Combobox.Value.Props, Combobox.Value.State
+- Types: Combobox.Arrow.Props, Combobox.Arrow.State, Combobox.Backdrop.Props, Combobox.Backdrop.State, Combobox.Chip.Props, Combobox.Chip.State, Combobox.ChipRemove.Props, Combobox.ChipRemove.State, Combobox.Chips.Props, Combobox.Chips.State, Combobox.Clear.Props, Combobox.Clear.State, Combobox.Collection.Props, Combobox.Collection.State, Combobox.Empty.Props, Combobox.Empty.State, Combobox.Group.Props, Combobox.Group.State, Combobox.GroupLabel.Props, Combobox.GroupLabel.State, Combobox.Icon.Props, Combobox.Icon.State, Combobox.Input.Props, Combobox.Input.State, Combobox.InputGroup.Props, Combobox.InputGroup.State, Combobox.Item.Props, Combobox.Item.State, Combobox.ItemIndicator.Props, Combobox.ItemIndicator.State, Combobox.Label.Props, Combobox.Label.State, Combobox.List.Props, Combobox.List.State, Combobox.Popup.Props, Combobox.Popup.State, Combobox.Portal.Props, Combobox.Portal.State, Combobox.Positioner.Props, Combobox.Positioner.State, Combobox.Root.Actions, Combobox.Root.ChangeEventDetails, Combobox.Root.ChangeEventReason, Combobox.Root.HighlightEventDetails, Combobox.Root.HighlightEventReason, Combobox.Root.OpenChangeEventDetails, Combobox.Root.Props, Combobox.Root.State, Combobox.Row.Props, Combobox.Row.State, Combobox.Separator.Props, Combobox.Separator.State, Combobox.Status.Props, Combobox.Status.State, Combobox.Trigger.Props, Combobox.Trigger.State, Combobox.Value.Props, Combobox.Value.State
 
 </details>
 
@@ -558,7 +552,6 @@ A menu that appears at the pointer on right click or long press.
   - Usage guidelines
   - Anatomy
   - Examples
-    - Using with Menu
     - Nested menu
   - API reference
     - Root
@@ -582,7 +575,7 @@ A menu that appears at the pointer on right click or long press.
     - Separator
 - Exports:
   - Context Menu - Root
-    - Props: actionsRef, children, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, defaultOpen, disabled, highlightItemOnHover, loopFocus, onItemHighlighted, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - Trigger
     - Props: className, render, style
     - Data Attributes: data-popup-open, data-pressed
@@ -610,8 +603,9 @@ A menu that appears at the pointer on right click or long press.
     - Props: className, render, style
   - Context Menu - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Context Menu - SubmenuRoot
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onItemHighlighted, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
@@ -652,9 +646,7 @@ A popup that opens on top of the entire page.
   - Anatomy
   - Examples
     - State
-    - Open from a menu
     - Nested dialogs
-    - Close confirmation
     - Custom focus management
     - Outside scroll dialog
     - Inside scroll dialog
@@ -662,6 +654,7 @@ A popup that opens on top of the entire page.
     - Detached triggers
     - Multiple triggers
     - Controlled mode with multiple triggers
+    - Open from a menu
   - API reference
     - Root
     - Trigger
@@ -727,10 +720,7 @@ A panel that slides in from the edge of the screen.
     - Virtual keyboard aware
     - Indent effect
     - Non-modal
-    - Mobile navigation
     - Swipe to open
-    - Close confirmation
-    - Action sheet with separate destructive action
     - Detached triggers
     - Stacking and animations
   - API reference
@@ -758,6 +748,7 @@ A panel that slides in from the edge of the screen.
     - Props: children
   - Drawer - Trigger
     - Props: className, handle, id, nativeButton, payload, render, style
+    - Data Attributes: data-disabled, data-popup-open
   - Drawer - Portal
     - Props: className, container, keepMounted, render, style
   - Drawer - Backdrop
@@ -776,6 +767,7 @@ A panel that slides in from the edge of the screen.
     - Props: className, render, style
   - Drawer - Close
     - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
   - Drawer - Viewport
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-nested, data-open, data-starting-style
@@ -862,6 +854,7 @@ A native fieldset element with an easily stylable legend.
     - Props: className, render, style
   - Fieldset - Legend
     - Props: className, render, style
+    - Data Attributes: data-disabled
 - Types: Fieldset.Legend.Props, Fieldset.Legend.State, Fieldset.Root.Props, Fieldset.Root.State
 
 </details>
@@ -910,7 +903,7 @@ A native input element that automatically works with [Field](/react/components/f
   - Input
     - Props: className, defaultValue, onValueChange, render, style, value
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
-- Types: Input.ChangeEventDetails, Input.ChangeEventReason, Input.Props, Input.State
+- Types: Input.ChangeEventDetails, Input.ChangeEventReason, Input.Props, Input.State, InputDataAttributes
 
 </details>
 
@@ -935,7 +928,6 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Group labels
     - Nested menu
     - Navigate to another page
-    - Open a dialog
     - Detached triggers
     - Multiple triggers
     - Controlled mode with multiple triggers
@@ -943,7 +935,15 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Animating the Menu
       - Position and Size
       - Content
+    - Filtering [Preview]
+      - Matching items
+      - Controlling the query
+      - Highlighting
+      - Focus and keyboard
+      - Submenus
+      - Filtering with detached triggers
   - API reference
+    - FilterProvider [Preview]
     - Root
     - Trigger
     - Portal
@@ -952,6 +952,10 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Popup
     - Viewport
     - Arrow
+    - Input
+    - Clear
+    - Empty
+    - List
     - Item
     - LinkItem
     - SubmenuRoot
@@ -964,14 +968,23 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - CheckboxItem
     - CheckboxItemIndicator
     - Separator
+  - useFilter
   - createHandle
     - Handle
 - Exports:
   - Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, modal, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, modal, onItemHighlighted, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Menu - Trigger
     - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
     - Data Attributes: data-disabled, data-popup-open, data-pressed
+  - Menu - Input
+    - Props: className, render, style
+    - Data Attributes: data-highlighted
+  - Menu - Clear
+    - Props: className, disabled, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Menu - List
+    - Props: className, render, style
   - Menu - Portal
     - Props: className, container, keepMounted, render, style
   - Menu - Backdrop
@@ -1000,8 +1013,11 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: className, render, style
   - Menu - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
+  - Menu - Empty
+    - Props: className, render, style
   - Menu - SubmenuRoot
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onItemHighlighted, onOpenChange, onOpenChangeComplete, open, orientation
   - Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
@@ -1020,11 +1036,15 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
   - Menu - createHandle
+  - Menu - FilterProvider
+    - Props: autoHighlight, children, defaultValue, filter, locale, onValueChange, value
   - Menu - Handle
   - Menu - LinkItem
     - Props: className, closeOnClick, label, render, style
     - Data Attributes: data-highlighted
-- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
+  - Menu - useFilter
+    - Parameters: options
+- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.Clear.Props, Menu.Clear.State, Menu.Empty.Props, Menu.Empty.State, Menu.FilterProvider.ChangeEventDetails, Menu.FilterProvider.ChangeEventReason, Menu.FilterProvider.Props, Menu.FilterProvider.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Input.Props, Menu.Input.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.List.Props, Menu.List.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.HighlightEventDetails, Menu.Root.HighlightEventReason, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
 
 </details>
 
@@ -1046,7 +1066,7 @@ A menu bar providing commands and options for your application.
   - Menubar
     - Props: className, disabled, loopFocus, modal, orientation, render, style
     - Data Attributes: data-has-submenu-open, data-modal, data-orientation
-- Types: Menubar.Props, Menubar.State
+- Types: Menubar.Props, Menubar.State, MenubarDataAttributes
 
 </details>
 
@@ -1102,6 +1122,7 @@ A collection of links and menus for website navigation.
     - Nested inline submenus
     - Custom links
     - Large menus
+  - Closing animations
   - API reference
     - Root
     - List
@@ -1221,10 +1242,9 @@ A one-time password input composed of individual character slots.
   - Anatomy
   - Examples
     - Labeling an OTP field
-    - Form integration
+    - Submitting on completion
     - Alphanumeric verification codes
     - Grouped layouts
-    - Placeholder hints
     - Custom normalization
     - Masked entry
   - API reference
@@ -1240,6 +1260,7 @@ A one-time password input composed of individual character slots.
     - Data Attributes: data-complete, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-valid
   - OTP Field - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
 - Types: OTPField.Input.Props, OTPField.Input.State, OTPField.Root.ChangeEventDetails, OTPField.Root.ChangeEventReason, OTPField.Root.CompleteEventDetails, OTPField.Root.CompleteEventReason, OTPField.Root.InvalidEventDetails, OTPField.Root.InvalidEventReason, OTPField.Root.Props, OTPField.Root.State, OTPField.Root.ValidationType, OTPField.Separator.Props, OTPField.Separator.State
 
 </details>
@@ -1436,7 +1457,6 @@ Provides shared state to a series of radio buttons.
   - Examples
     - Labeling a radio group
     - Rendering as a native button
-    - Form integration
   - API reference
     - RadioGroup
     - Root
@@ -1451,7 +1471,7 @@ Provides shared state to a series of radio buttons.
   - RadioGroup
     - Props: className, defaultValue, disabled, form, inputRef, name, onValueChange, readOnly, render, required, style, value
     - Data Attributes: data-disabled
-- Types: Radio.Indicator.Props, Radio.Indicator.State, Radio.Root.Props, Radio.Root.State, RadioGroup.ChangeEventDetails, RadioGroup.ChangeEventReason, RadioGroup.Props, RadioGroup.State
+- Types: Radio.Indicator.Props, Radio.Indicator.State, Radio.Root.Props, Radio.Root.State, RadioGroup.ChangeEventDetails, RadioGroup.ChangeEventReason, RadioGroup.Props, RadioGroup.State, RadioGroupDataAttributes
 
 </details>
 
@@ -1471,7 +1491,6 @@ A native scroll container with custom scrollbars.
   - Examples
     - Both scrollbars
     - Gradient scroll fade
-    - Combining with Tabs
   - API reference
     - Root
     - Viewport
@@ -1585,6 +1604,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Props: className, render, style
   - Select - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Select - Label
     - Props: className, render, style
   - Select - ItemText
@@ -1598,7 +1618,7 @@ A common form component for choosing a predefined value in a dropdown menu.
   - Select - ScrollDownArrow
     - Props: className, keepMounted, render, style
     - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
-- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
+- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.OpenChangeEventDetails, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
 
 </details>
 
@@ -1620,7 +1640,7 @@ A separator element accessible to screen readers.
   - Separator
     - Props: className, orientation, render, style
     - Data Attributes: data-orientation
-- Types: Separator.Props, Separator.State
+- Types: Separator.Props, Separator.State, SeparatorDataAttributes
 
 </details>
 
@@ -1645,7 +1665,6 @@ An easily stylable range input.
     - Marks
     - Thumb alignment
     - Vertical
-    - Form integration
   - API reference
     - Root
     - Label
@@ -1696,7 +1715,6 @@ A control that indicates whether a setting is on or off.
   - Examples
     - Labeling a switch
     - Rendering as a native button
-    - Form integration
   - API reference
     - Root
     - Thumb
@@ -1855,7 +1873,7 @@ A two-state button that can be on or off.
   - Toggle
     - Props: className, defaultPressed, disabled, nativeButton, onPressedChange, pressed, render, style, value
     - Data Attributes: data-disabled, data-pressed
-- Types: Toggle.ChangeEventDetails, Toggle.ChangeEventReason, Toggle.Props, Toggle.State
+- Types: Toggle.ChangeEventDetails, Toggle.ChangeEventReason, Toggle.Props, Toggle.State, ToggleDataAttributes
 
 </details>
 
@@ -1879,7 +1897,7 @@ Provides a shared state to a series of toggle buttons.
   - ToggleGroup
     - Props: className, defaultValue, disabled, loopFocus, multiple, onValueChange, orientation, render, style, value
     - Data Attributes: data-disabled, data-multiple, data-orientation
-- Types: ToggleGroup.ChangeEventDetails, ToggleGroup.ChangeEventReason, ToggleGroup.Props, ToggleGroup.State
+- Types: ToggleGroup.ChangeEventDetails, ToggleGroup.ChangeEventReason, ToggleGroup.Props, ToggleGroup.State, ToggleGroupDataAttributes
 
 </details>
 
@@ -1898,9 +1916,7 @@ A container for grouping a set of buttons and controls.
   - Usage guidelines
   - Anatomy
   - Examples
-    - Using with Menu
-    - Using with Tooltip
-    - Using with NumberField
+    - Using with other components
   - API reference
     - Root
     - Button

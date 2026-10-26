@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useSelectRootContext, useSelectRootPropsContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
@@ -19,7 +19,7 @@ import {
   removeItem,
   resolveSelectedIndex,
 } from '../../internals/itemEquality';
-import { isVirtualClick } from '../../floating-ui-react/utils/event';
+import { isVirtualClick } from '../../utils/popups/event';
 
 /**
  * An individual option in the select popup.
@@ -51,13 +51,18 @@ export const SelectItem = React.memo(
     });
 
     const store = useSelectRootContext();
-    const { itemProps, multiple, disabled: selectDisabled, readOnly } = useSelectRootPropsContext();
+    const {
+      props: itemProps,
+      multiple,
+      disabled: selectDisabled,
+      readOnly,
+      isItemEqualToValue,
+    } = store.useState('itemRoot');
     const disabled = selectDisabled || disabledProp;
     const highlighted = store.useState('isActive', listItem.index);
-    const open = store.useState('open');
+    const activeWhileOpen = store.useState('isActiveWhileOpen', listItem.index);
     const selected = store.useState('isSelected', itemValue);
     const selectedByFocus = store.useState('isSelectedByFocus', listItem.index);
-    const isItemEqualToValue = store.useState('isItemEqualToValue');
 
     const index = listItem.index;
 
@@ -152,7 +157,7 @@ export const SelectItem = React.memo(
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      tabIndex: open && highlighted ? 0 : -1,
+      tabIndex: activeWhileOpen ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         store.set('activeIndex', index);
 
@@ -226,6 +231,9 @@ export const SelectItem = React.memo(
         }
 
         allowMouseSelectionRef.current = true;
+        // Drag selection has no mousedown on the item. Focus it before the synthetic click so
+        // arrow-key navigation continues from the selected item.
+        itemRef.current?.focus({ preventScroll: true });
         itemRef.current?.click();
         allowMouseSelectionRef.current = false;
       },

@@ -1,10 +1,11 @@
-import { ReactStore } from '@base-ui/utils/store';
-import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { ReactStore } from '@base-ui/utils/store';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
-import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
+import { hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
+import type { Group } from '../internals/resolveValueLabel';
 import type { SelectRoot } from './root/SelectRoot';
 
 export type State = {
@@ -12,6 +13,10 @@ export type State = {
   labelId: string | undefined;
   modal: boolean;
   multiple: boolean;
+  disabled: boolean;
+  readOnly: boolean;
+  required: boolean;
+  highlightItemOnHover: boolean;
 
   items:
     | Record<string, React.ReactNode>
@@ -35,6 +40,14 @@ export type State = {
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
+  // Root values every item reads, combined so each item needs a single subscription for them.
+  itemRoot: {
+    props: HTMLProps;
+    multiple: boolean;
+    disabled: boolean;
+    readOnly: boolean;
+    isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
+  };
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
@@ -69,8 +82,9 @@ export type SelectStoreContext = {
   readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   readonly initialValueRef: React.RefObject<any>;
 
-  // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
+  // Callbacks. Initialized when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
+  isItemEqualToValue: State['isItemEqualToValue'];
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
@@ -81,6 +95,11 @@ export const selectors = {
   id: (state: State) => state.id,
   labelId: (state: State) => state.labelId,
   modal: (state: State) => state.modal,
+  multiple: (state: State) => state.multiple,
+  disabled: (state: State) => state.disabled,
+  readOnly: (state: State) => state.readOnly,
+  required: (state: State) => state.required,
+  highlightItemOnHover: (state: State) => state.highlightItemOnHover,
 
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
@@ -113,6 +132,7 @@ export const selectors = {
   activeIndex: (state: State) => state.activeIndex,
   selectedIndex: (state: State) => state.selectedIndex,
   isActive: (state: State, index: number) => state.activeIndex === index,
+  isActiveWhileOpen: (state: State, index: number) => state.open && state.activeIndex === index,
 
   isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
@@ -136,6 +156,7 @@ export const selectors = {
 
   popupProps: (state: State) => state.popupProps,
   triggerProps: (state: State) => state.triggerProps,
+  itemRoot: (state: State) => state.itemRoot,
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,
   listElement: (state: State) => state.listElement,
