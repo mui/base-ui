@@ -108,13 +108,13 @@ export interface MenuRadioGroupProps<Value = any> extends BaseUIComponentProps<
    *
    * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
-  value?: Value;
+  value?: Value | undefined;
   /**
    * The uncontrolled value of the radio item that should be initially selected.
    *
    * To render a controlled radio group, use the `value` prop instead.
    */
-  defaultValue?: Value;
+  defaultValue?: Value | undefined;
   /**
    * Function called when the selected value changes.
    */
