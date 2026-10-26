@@ -25,10 +25,11 @@ export interface UseUnmountAfterCloseParameters {
    */
   setPreventUnmountOnClose: (preventUnmountOnClose: boolean) => void;
   /**
-   * Subscribes to the element behind `ref` attaching, and returns the unsubscribe function. A popup
-   * that closes before its element attaches waits for it, then for its closing animations.
+   * Subscribes to updates that can attach the element behind `ref`, and returns the unsubscribe
+   * function. A popup that closes before its element attaches waits for it, then for its closing
+   * animations.
    */
-  subscribeToAttach?: ((onAttach: () => void) => () => void) | undefined;
+  subscribeToAttach?: ((listener: () => void) => () => void) | undefined;
   /**
    * Runs once per unmount, whether it completed automatically or through `forceUnmount`.
    */
@@ -134,7 +135,13 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
     if (!waitsForClose || ref.current != null || !subscribeToAttach) {
       return undefined;
     }
-    return subscribeToAttach(() => setAttachCount((count) => count + 1));
+    const unsubscribe = subscribeToAttach(() => {
+      if (ref.current != null) {
+        unsubscribe();
+        setAttachCount((count) => count + 1);
+      }
+    });
+    return unsubscribe;
   }, [waitsForClose, ref, subscribeToAttach]);
 
   useOpenChangeComplete({
