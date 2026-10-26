@@ -80,8 +80,6 @@ export type ComboboxStoreContext = ValuePopupContext<AriaCombobox.OpenChangeEven
   // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
   // first render, so they are not `readonly`.
 
-  /** Calls `onOpenChange` with the Root's own handling of an open change around it. */
-  handleOpenChange: (open: boolean, eventDetails: AriaCombobox.OpenChangeEventDetails) => void;
   /** Clears what the open session left behind once the popup unmounts. */
   handleUnmount: () => void;
   /** Sets the input value. */
@@ -181,10 +179,6 @@ export class ComboboxStore extends ValuePopupStore<
   // The input requests an open on every keystroke and press; only an actual change is one.
   protected isOpenChangeIgnored(nextOpen: boolean) {
     return nextOpen === this.select('open');
-  }
-
-  protected callOnOpenChange(nextOpen: boolean, eventDetails: AriaCombobox.OpenChangeEventDetails) {
-    this.context.handleOpenChange(nextOpen, eventDetails);
   }
 
   protected prepareUnmount() {

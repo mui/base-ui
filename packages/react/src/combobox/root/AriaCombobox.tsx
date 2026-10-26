@@ -341,7 +341,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     {
       open: openProp,
       defaultOpen,
-      onOpenChange: props.onOpenChange,
+      // `handleOpenChange` calls `props.onOpenChange` with the Root's own handling around it.
+      onOpenChange: (nextOpen: boolean, eventDetails: AriaCombobox.OpenChangeEventDetails) =>
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        handleOpenChange(nextOpen, eventDetails),
       onOpenChangeComplete: onOpenChangeCompleteProp,
       actionsRef: props.actionsRef,
     },
@@ -400,7 +403,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         {
           ...createPopupStoreContext(),
           // Placeholder callbacks replaced on first render
-          handleOpenChange: NOOP,
           handleUnmount: NOOP,
           setInputValue: NOOP,
           setSelectedValue: NOOP,
@@ -761,8 +763,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   });
 
-  // Runs for every open change that isn't ignored, around `onOpenChange` and before the store
-  // commits it.
+  // Calls `onOpenChange` for every open change that isn't ignored, with the combobox's own handling
+  // around it, before the store commits the change.
   const handleOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: AriaCombobox.OpenChangeEventDetails) => {
       // If the `Empty` component is not used, the positioner or popup should be hidden
@@ -777,7 +779,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         eventDetails.allowPropagation();
       }
 
-      store.context.onOpenChange?.(nextOpen, eventDetails);
+      props.onOpenChange?.(nextOpen, eventDetails);
 
       // A typed request must not highlight a later open: discard it when its own open is
       // rejected, or when any other open change goes through.
@@ -1470,7 +1472,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     };
   }, [listNavigation.item, id, selectionMode, disabled, readOnly, isItemEqualToValue]);
 
-  store.useContextCallback('handleOpenChange', handleOpenChange);
   store.useContextCallback('handleUnmount', handleUnmount);
   store.useContextCallback('setInputValue', setInputValue);
   store.useContextCallback('setSelectedValue', setSelectedValue);

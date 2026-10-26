@@ -369,7 +369,7 @@ type PopupUnmountKey =
  * 1. `isOpenChangeIgnored` can drop the change before anything is notified.
  * 2. `getCloseTrigger` can name the trigger a close request without one reports.
  * 3. `attachPreventUnmountOnClose` adds `preventUnmountOnClose()` to the event details.
- * 4. `callOnOpenChange` calls `onOpenChange`, which can cancel the change.
+ * 4. `onOpenChange` is called and can cancel the change.
  * 5. A cancelled change goes no further.
  * 6. The interactions are notified.
  * 7. `isOpenChangeDropped` can drop the change before it is committed.
@@ -427,7 +427,7 @@ export abstract class BasePopupStore<
 
     const shouldPreventUnmountOnClose = this.attachPreventUnmountOnClose(details);
 
-    this.callOnOpenChange(nextOpen, details);
+    this.context.onOpenChange?.(nextOpen, details);
 
     if (details.isCanceled) {
       return;
@@ -482,14 +482,6 @@ export abstract class BasePopupStore<
    */
   protected attachPreventUnmountOnClose(eventDetails: ChangeEventDetails): () => boolean {
     return attachPreventUnmountOnClose(eventDetails);
-  }
-
-  /**
-   * Calls `onOpenChange`. A store can wrap the call with work that has to see the change before or
-   * after the consumer does.
-   */
-  protected callOnOpenChange(nextOpen: boolean, eventDetails: ChangeEventDetails): void {
-    this.context.onOpenChange?.(nextOpen, eventDetails);
   }
 
   /**
