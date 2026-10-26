@@ -19,10 +19,6 @@ import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenu
 
 const EMPTY_ROOT_STORE = getEmptyRootStore();
 
-function keepIfConnected(element: HTMLElement | null) {
-  return element?.isConnected ? element : null;
-}
-
 function Guards({ children }: { children: React.ReactNode }) {
   const {
     beforeInsideRef,
@@ -94,28 +90,47 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   const positioning = useNavigationMenuPositionerContext(true);
   const hasPositioner = Boolean(positioning);
 
-  // A Suspense boundary above the root detaches refs while showing its fallback. Clearing the
-  // elements then unmounts the suspended content, which reveals the tree again in a loop.
+  // Suspense detaches refs while hiding content. Clearing the portal containers then would
+  // unmount the suspended content and repeatedly reveal and suspend the tree.
+  // Retain the nodes and clear registrations in passive cleanup, which runs on actual unmount
+  // or Activity hiding. Register them in setup too, since React 18 StrictMode replays effects
+  // without replaying refs.
+  const viewportElementRef = React.useRef<HTMLDivElement | null>(null);
+  const viewportTargetElementRef = React.useRef<HTMLDivElement | null>(null);
+
   const handleViewportElementRef = useStableCallback((element: HTMLDivElement | null) => {
     if (element) {
+      viewportElementRef.current = element;
       setViewportElement(element);
     }
   });
   const handleViewportTargetElementRef = useStableCallback((element: HTMLDivElement | null) => {
     if (element) {
+      viewportTargetElementRef.current = element;
       setViewportTargetElement(element);
     }
   });
 
-  // Clear them on unmount instead. Hidden trees and React 18 StrictMode's simulated unmount keep
-  // the elements in the DOM, so only drop the ones that left it.
-  React.useEffect(
-    () => () => {
-      setViewportElement(keepIfConnected);
-      setViewportTargetElement(keepIfConnected);
-    },
-    [setViewportElement, setViewportTargetElement],
-  );
+  React.useEffect(() => {
+    if (viewportElementRef.current) {
+      setViewportElement(viewportElementRef.current);
+    }
+    return () => {
+      setViewportElement(null);
+    };
+  }, [setViewportElement]);
+
+  React.useEffect(() => {
+    if (hasPositioner) {
+      return undefined;
+    }
+    if (viewportTargetElementRef.current) {
+      setViewportTargetElement(viewportTargetElementRef.current);
+    }
+    return () => {
+      setViewportTargetElement(null);
+    };
+  }, [hasPositioner, setViewportTargetElement]);
 
   const domReference = (floatingRootStore || EMPTY_ROOT_STORE).useState('anchorElement');
 
