@@ -2486,6 +2486,116 @@ describe('<Popover.Root />', () => {
     expect(onPopoverOpenChange).not.toHaveBeenCalled();
   });
 
+  describe('outside press in a dialog outside its React tree', () => {
+    it.each([
+      {
+        name: 'clicking a button',
+        submits: false,
+        press: async (user: Awaited<ReturnType<typeof render>>['user']) => {
+          await user.click(screen.getByRole('button', { name: 'Inside dialog' }));
+        },
+      },
+      {
+        // Implicit form submission dispatches a click on the submit button.
+        name: 'pressing Enter in a form input',
+        submits: true,
+        press: async (user: Awaited<ReturnType<typeof render>>['user']) => {
+          await waitFor(() => {
+            expect(screen.getByTestId('input')).toHaveFocus();
+          });
+          await user.keyboard('[Enter]');
+        },
+      },
+    ])(
+      'stays open when $name inside a modal dialog opened after it',
+      async ({ press, submits }) => {
+        const dialogHandle = Dialog.createHandle();
+        const onPopoverOpenChange = vi.fn();
+        const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+
+        const { user } = await render(
+          <React.Fragment>
+            <Popover.Root defaultOpen onOpenChange={onPopoverOpenChange}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popover">
+                    <Dialog.Trigger handle={dialogHandle}>Open dialog</Dialog.Trigger>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+            <Dialog.Root handle={dialogHandle}>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog">
+                  <form onSubmit={onSubmit}>
+                    <input data-testid="input" />
+                    <button type="submit">Submit</button>
+                  </form>
+                  <button type="button">Inside dialog</button>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Open dialog' }));
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog')).not.toBe(null);
+        });
+        expect(screen.queryByTestId('popover')).not.toBe(null);
+
+        await press(user);
+
+        expect(onSubmit.mock.calls.length).toBe(submits ? 1 : 0);
+        expect(screen.queryByTestId('dialog')).not.toBe(null);
+        expect(screen.queryByTestId('popover')).not.toBe(null);
+        expect(onPopoverOpenChange).not.toHaveBeenCalled();
+      },
+    );
+
+    it('closes when pressing inside a modal dialog opened before it', async () => {
+      const popoverHandle = Popover.createHandle();
+      const onPopoverOpenChange = vi.fn();
+
+      const { user } = await render(
+        <React.Fragment>
+          <Dialog.Root defaultOpen>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="dialog">
+                <Popover.Trigger handle={popoverHandle}>Open popover</Popover.Trigger>
+                {/* Keeps focus where it is, so only the outside press can close the popover. */}
+                <button type="button" onMouseDown={(event) => event.preventDefault()}>
+                  Inside dialog
+                </button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <Popover.Root handle={popoverHandle} onOpenChange={onPopoverOpenChange}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover" />
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open popover' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover')).not.toBe(null);
+      });
+      onPopoverOpenChange.mockClear();
+
+      await user.click(screen.getByRole('button', { name: 'Inside dialog' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover')).toBe(null);
+      });
+      expect(onPopoverOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+      expect(screen.queryByTestId('dialog')).not.toBe(null);
+    });
+  });
+
   describe('preventUnmountOnClose()', () => {
     it('does not leak from a canceled close into a synchronous second close', async () => {
       const popover = Popover.createHandle();
