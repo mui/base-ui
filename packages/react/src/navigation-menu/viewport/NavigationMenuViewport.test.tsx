@@ -15,22 +15,56 @@ describe('<NavigationMenu.Viewport />', () => {
   }));
 
   it.each([
-    { name: 'inline', positioned: false },
-    { name: 'positioned', positioned: true },
+    {
+      name: 'inline primary and inline fallback',
+      primaryPositioned: false,
+      fallbackPositioned: false,
+    },
+    {
+      name: 'positioned primary and positioned fallback',
+      primaryPositioned: true,
+      fallbackPositioned: true,
+    },
+    {
+      name: 'inline primary and positioned fallback',
+      primaryPositioned: false,
+      fallbackPositioned: true,
+    },
+    {
+      name: 'positioned primary and inline fallback',
+      primaryPositioned: true,
+      fallbackPositioned: false,
+    },
   ])(
-    'moves content back from a fallback to the revealed $name viewport',
-    async ({ positioned }) => {
+    'moves content between $name through Suspense',
+    async ({ primaryPositioned, fallbackPositioned }) => {
       const LazyChild = React.lazy(() => new Promise<{ default: React.ComponentType }>(() => {}));
 
-      function TestCase({ suspend }: { suspend: boolean }) {
-        const viewports = (
-          <React.Suspense fallback={<NavigationMenu.Viewport data-testid="fallback" />}>
-            <NavigationMenu.Viewport data-testid="primary">
-              {suspend && <LazyChild />}
-            </NavigationMenu.Viewport>
-          </React.Suspense>
+      function Viewport({
+        testId,
+        positioned,
+        children,
+      }: {
+        testId: string;
+        positioned: boolean;
+        children?: React.ReactNode;
+      }) {
+        const viewport = (
+          <NavigationMenu.Viewport data-testid={testId}>{children}</NavigationMenu.Viewport>
         );
 
+        return positioned ? (
+          <NavigationMenu.Portal>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>{viewport}</NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        ) : (
+          viewport
+        );
+      }
+
+      function TestCase({ suspend }: { suspend: boolean }) {
         return (
           <NavigationMenu.Root defaultValue="item">
             <NavigationMenu.List>
@@ -39,15 +73,13 @@ describe('<NavigationMenu.Viewport />', () => {
                 <NavigationMenu.Content>Menu content</NavigationMenu.Content>
               </NavigationMenu.Item>
             </NavigationMenu.List>
-            {positioned ? (
-              <NavigationMenu.Portal>
-                <NavigationMenu.Positioner>
-                  <NavigationMenu.Popup>{viewports}</NavigationMenu.Popup>
-                </NavigationMenu.Positioner>
-              </NavigationMenu.Portal>
-            ) : (
-              viewports
-            )}
+            <React.Suspense
+              fallback={<Viewport positioned={fallbackPositioned} testId="fallback" />}
+            >
+              <Viewport positioned={primaryPositioned} testId="primary">
+                {suspend && <LazyChild />}
+              </Viewport>
+            </React.Suspense>
           </NavigationMenu.Root>
         );
       }

@@ -102,6 +102,10 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
     if (element) {
       viewportElementRef.current = element;
       setViewportElement(element);
+      if (hasPositioner) {
+        // A suspended inline viewport may have left its inner target registered.
+        setViewportTargetElement(null);
+      }
     }
   });
   const handleViewportTargetElementRef = useStableCallback((element: HTMLDivElement | null) => {
