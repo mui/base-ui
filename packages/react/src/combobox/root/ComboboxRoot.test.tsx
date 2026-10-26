@@ -10898,6 +10898,36 @@ describe('<Combobox.Root />', () => {
     );
   });
 
+  describe('prop: defaultOpen', () => {
+    it('mounts the popup on the first render', async () => {
+      const mountedOnRender: boolean[] = [];
+
+      function MountedProbe() {
+        const store = useComboboxRootContext();
+        mountedOnRender.push(store.useState('mounted'));
+        return null;
+      }
+
+      await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Input />
+          <MountedProbe />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(mountedOnRender[0]).toBe(true);
+    });
+  });
+
   describe('prop: onOpenChange', () => {
     it('fires when opening and closing', async () => {
       const onOpenChange = vi.fn();
@@ -10931,6 +10961,55 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
       });
+    });
+
+    it('ignores a request to open an open popup before anything is notified', async () => {
+      const onOpenChange = vi.fn();
+      const handleInteractionOpenChange = vi.fn();
+
+      function InteractionOpenChangeListener() {
+        const store = useComboboxRootContext();
+        React.useEffect(() => {
+          store.context.events.on('openchange', handleInteractionOpenChange);
+          return () => {
+            store.context.events.off('openchange', handleInteractionOpenChange);
+          };
+        }, [store]);
+        return null;
+      }
+
+      const { user } = await render(
+        <Combobox.Root onOpenChange={onOpenChange}>
+          <Combobox.Input />
+          <InteractionOpenChangeListener />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="apricot">apricot</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('a');
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(handleInteractionOpenChange).toHaveBeenCalledTimes(1);
+
+      // Each keystroke and press on the input requests an open.
+      await user.keyboard('p');
+      await user.click(input);
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(handleInteractionOpenChange).toHaveBeenCalledTimes(1);
     });
   });
 

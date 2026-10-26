@@ -27,6 +27,7 @@ import {
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { REASONS } from '../../internals/reasons';
+import { useSelectRootContext } from './SelectRootContext';
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -7376,6 +7377,50 @@ describe('<Select.Root />', () => {
   });
 
   describe('closing', () => {
+    it('does not notify the interactions of a close that onOpenChange cancels', async () => {
+      const onOpenChange = vi.fn((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => {
+        if (!open) {
+          eventDetails.cancel();
+        }
+      });
+      const handleInteractionOpenChange = vi.fn();
+
+      function InteractionOpenChangeListener() {
+        const store = useSelectRootContext();
+        React.useEffect(() => {
+          store.context.events.on('openchange', handleInteractionOpenChange);
+          return () => {
+            store.context.events.off('openchange', handleInteractionOpenChange);
+          };
+        }, [store]);
+        return null;
+      }
+
+      const { user } = await render(
+        <Select.Root defaultOpen onOpenChange={onOpenChange}>
+          <InteractionOpenChangeListener />
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+
+      await user.keyboard('{Escape}');
+
+      expect(onOpenChange).toHaveBeenLastCalledWith(false, expect.anything());
+      expect(screen.getByRole('listbox')).not.toBe(null);
+      expect(handleInteractionOpenChange).not.toHaveBeenCalled();
+    });
+
     it.skipIf(isJSDOM)(
       'keeps the highlight on the item while the popup animates out',
       async ({ onTestFinished }) => {
