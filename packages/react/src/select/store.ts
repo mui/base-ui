@@ -121,6 +121,10 @@ export class SelectStore extends ValuePopupStore<
   typeof selectors,
   SelectRoot.OpenChangeEventDetails
 > {
+  protected getAnchorElement(state: Readonly<State>) {
+    return state.triggerElement;
+  }
+
   protected isOpenChangeIgnored(
     nextOpen: boolean,
     eventDetails: SelectRoot.OpenChangeEventDetails,

@@ -83,9 +83,9 @@ export const valuePopupSelectors = {
 };
 
 /**
- * The store of a popup that picks a value from a list of items. It has a single anchor, which the
- * Root keeps in `anchorElement` (see `useValuePopupAnchor`), and no trigger registry. Each close
- * decides on its own whether the popup stays mounted.
+ * The store of a popup that picks a value from a list of items. It has a single anchor (see
+ * `getAnchorElement`) and no trigger registry. Each close decides on its own whether the popup
+ * stays mounted.
  */
 export abstract class ValuePopupStore<
   State extends ValuePopupState,
@@ -94,6 +94,28 @@ export abstract class ValuePopupStore<
   ChangeEventDetails extends PopupOpenChangeEventDetails,
 > extends BasePopupStore<State, Context, Selectors, ChangeEventDetails> {
   private readonly unmountPrevented = new WeakMap<ChangeEventDetails, () => boolean>();
+
+  /**
+   * Returns the element the popup belongs to, which the interaction hooks see as its anchor.
+   */
+  protected abstract getAnchorElement(state: Readonly<State>): Element | null;
+
+  override setState(newState: Readonly<State>): void {
+    const previous = this.state;
+    // A press on another element and positioning both change `anchorElement`, so it's restored
+    // whenever the anchor, the open state or the positioner changes. Deriving it here rather than
+    // in an effect keeps it in the same commit as the change.
+    const anchorElement = this.getAnchorElement(newState);
+    if (
+      anchorElement !== this.getAnchorElement(previous) ||
+      popupStoreSelectors.open(newState) !== popupStoreSelectors.open(previous) ||
+      newState.positionerElement !== previous.positionerElement
+    ) {
+      super.setState({ ...newState, anchorElement });
+      return;
+    }
+    super.setState(newState);
+  }
 
   protected anchorsToActiveTrigger() {
     return false;

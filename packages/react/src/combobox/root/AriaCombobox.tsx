@@ -15,7 +15,6 @@ import { getOverflowAncestors } from '@floating-ui/react-dom';
 import type { ElementProps } from '../../utils/popups/types';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
-import { useValuePopupAnchor } from '../../utils/popups/value-popup/useValuePopupAnchor';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useClick } from '../../utils/popups/interactions/useClick';
@@ -1309,15 +1308,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useValueChanged(selectedLabelString, syncInputAfterItemsOrLabelChange);
   useValueChanged(items, syncInputAfterItemsOrLabelChange);
   useValueChanged(inputValue, handleInputValueChanged);
-
-  // The interaction hooks anchor to the input, or to the trigger when the input is inside the
-  // popup.
-  useValuePopupAnchor(
-    store,
-    open || inline,
-    inputInsidePopup ? triggerElement : inputElement,
-    positionerElement,
-  );
 
   const ariaHasPopup = grid ? 'grid' : 'listbox';
   // An inline list isn't gated on `open`: it renders for as long as it's in the tree, so the

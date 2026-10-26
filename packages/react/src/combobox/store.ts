@@ -173,6 +173,11 @@ export class ComboboxStore extends ValuePopupStore<
    */
   readonly interactions: PositioningInteractionStore = createInteractionView(this);
 
+  // The input, or the trigger when the input is inside the popup.
+  protected getAnchorElement(state: Readonly<State>) {
+    return state.inputInsidePopup ? state.triggerElement : state.inputElement;
+  }
+
   // The input requests an open on every keystroke and press; only an actual change is one.
   protected isOpenChangeIgnored(nextOpen: boolean) {
     return nextOpen === this.select('open');
