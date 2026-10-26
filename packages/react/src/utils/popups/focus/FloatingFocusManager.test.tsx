@@ -29,6 +29,7 @@ import {
 import { FloatingPortal } from '../portal/FloatingPortal';
 import { useClick } from '../interactions/useClick';
 import { useDismiss } from '../interactions/useDismiss';
+import { getPopupDismissal } from '../interactions/popupDismissal';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
 import { Main as Navigation } from '../../../../test/floating-ui-tests/Navigation';
@@ -1941,7 +1942,7 @@ describe('FloatingFocusManager', () => {
             onOpenChange: setIsOpen,
           });
 
-          readInsideReactTree = () => context.rootStore.context.insideReactTree;
+          readInsideReactTree = () => getPopupDismissal(context.rootStore).isInsideReactTree();
 
           const click = useClick(context.rootStore);
           const dismiss = useDismiss(context.rootStore);

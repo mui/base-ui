@@ -89,12 +89,6 @@ export interface PopupInteractionContext {
    */
   orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
   /**
-   * Whether the current event passed through the popup's React tree, such as from a portaled
-   * child, so native listeners that see it as outside ignore it. Set by `useDismiss` and the focus
-   * manager, and cleared on the next tick.
-   */
-  insideReactTree?: boolean | undefined;
-  /**
    * Whether an Escape key press bubbles to the parent popup. Written by `useDismiss` and never
    * cleared.
    */

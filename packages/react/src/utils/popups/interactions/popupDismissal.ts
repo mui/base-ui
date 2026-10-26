@@ -61,9 +61,10 @@ export interface DismissSession {
    */
   sawPressWhileOpen: boolean;
   /**
-   * Whether an IME composition is in progress.
+   * Whether a `compositionend` fired within the last tick. Safari fires it before the `keydown` that
+   * ends the composition, so an Escape in that window doesn't dismiss.
    */
-  isComposing: boolean;
+  compositionEndPending: boolean;
   /**
    * The pointer type of the last press.
    */
@@ -143,7 +144,7 @@ export class PopupDismissal {
       pressStartPrevented: false,
       suppressNextOutsideClick: false,
       sawPressWhileOpen: false,
-      isComposing: false,
+      compositionEndPending: false,
       currentPointerType: '',
       touchState: null,
     };
