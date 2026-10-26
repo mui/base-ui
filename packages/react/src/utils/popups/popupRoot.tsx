@@ -509,9 +509,20 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     }
   }, [openProp, store]);
 
+  const subscribeToAttach = React.useCallback(
+    (onAttach: () => void) =>
+      store.observe('popupElement', (popupElement) => {
+        if (popupElement) {
+          onAttach();
+        }
+      }),
+    [store],
+  );
+
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
     ref: popupRef,
+    subscribeToAttach,
     preventUnmountOnClose: store.useState('preventUnmountingOnClose'),
     setPreventUnmountOnClose: (preventUnmountOnClose) =>
       store.set('preventUnmountingOnClose', preventUnmountOnClose),

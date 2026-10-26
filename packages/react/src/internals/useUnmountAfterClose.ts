@@ -25,6 +25,11 @@ export interface UseUnmountAfterCloseParameters {
    */
   setPreventUnmountOnClose: (preventUnmountOnClose: boolean) => void;
   /**
+   * Subscribes to the element behind `ref` attaching, and returns the unsubscribe function. A popup
+   * that closes before its element attaches waits for it, then for its closing animations.
+   */
+  subscribeToAttach?: ((onAttach: () => void) => () => void) | undefined;
+  /**
    * Runs once per unmount, whether it completed automatically or through `forceUnmount`.
    */
   onUnmount: () => void;
@@ -52,6 +57,7 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
     setPreventUnmountOnClose: setPreventUnmountOnCloseParam,
     onUnmount,
     animateInitialOpen,
+    subscribeToAttach,
   } = parameters;
   const setPreventUnmountOnClose = useStableCallback(setPreventUnmountOnCloseParam);
 
@@ -119,10 +125,23 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
     unmount();
   });
 
+  const waitsForClose = mounted && !open && !preventUnmountingOnClose;
+
+  // The portal renders the popup a few commits after it mounts. A close within that window starts
+  // waiting before the element exists, so the wait restarts once it attaches.
+  const [attachCount, setAttachCount] = React.useState(0);
+  React.useEffect(() => {
+    if (!waitsForClose || ref.current != null || !subscribeToAttach) {
+      return undefined;
+    }
+    return subscribeToAttach(() => setAttachCount((count) => count + 1));
+  }, [waitsForClose, ref, subscribeToAttach]);
+
   useOpenChangeComplete({
-    enabled: mounted && !open && !preventUnmountingOnClose,
+    enabled: waitsForClose,
     open,
     ref,
+    restartKey: attachCount,
     onComplete() {
       if (!open) {
         forceUnmount();

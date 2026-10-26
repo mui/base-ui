@@ -74,7 +74,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     props: [
       popupProps,
       {

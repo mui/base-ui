@@ -455,7 +455,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   };
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, store.context.popupRef],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     state,
     stateAttributesMapping: popupTransitionStateMapping,
     props: [
