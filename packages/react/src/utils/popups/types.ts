@@ -1,4 +1,5 @@
 import type {
+  Placement,
   UseFloatingOptions as UsePositionOptions,
   UseFloatingReturn as UsePositionFloatingReturn,
   VirtualElement,
@@ -124,6 +125,18 @@ export interface FloatingTreeEventMap {
 export type FloatingTreeEvents = FloatingEventEmitter<FloatingTreeEventMap>;
 
 /**
+ * What `useFloating()` publishes about a positioned popup for the interaction hooks: its placement
+ * and elements, and the id of its node in the popup tree. Written in a layout effect after every
+ * render.
+ */
+export interface FloatingPositioningData {
+  placement: Placement;
+  elements: ExtendedElements;
+  nodeId: string | undefined;
+  refs: { floating: React.RefObject<HTMLElement | null> };
+}
+
+/**
  * Reads the interaction state of a popup by key.
  */
 export interface PopupInteractionReader {
@@ -166,7 +179,7 @@ export interface PopupInteractionContext {
   /**
    * The popup's positioning. Written by `useFloating()`.
    */
-  positioning?: PopupPositioningContext | undefined;
+  positioning?: FloatingPositioningData | undefined;
   /**
    * The popup's list navigation orientation, which nested lists read from their parent. Written by
    * `useListNavigation`.
