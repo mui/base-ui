@@ -5,14 +5,14 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import {
   FloatingNode,
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-react';
-import type { FloatingRootContext } from '../../floating-ui-react';
-import { activeElement, contains } from '../../floating-ui-react/utils';
+} from '../../utils/popups/tree/FloatingTree';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,
@@ -101,9 +101,9 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   );
   const [activationDirection, setActivationDirection] =
     React.useState<NavigationMenuRootContext['activationDirection']>(null);
-  const [floatingRootContext, setFloatingRootContext] = React.useState<
-    FloatingRootContext | undefined
-  >(undefined);
+  const [floatingRootStore, setFloatingRootStore] = React.useState<FloatingRootStore | undefined>(
+    undefined,
+  );
   const [viewportInert, setViewportInert] = React.useState(false);
 
   const prevTriggerElementRef = React.useRef<Element | null | undefined>(null);
@@ -150,7 +150,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
 
       onOpenChangeComplete?.(false);
       setActivationDirection(null);
-      setFloatingRootContext(undefined);
+      setFloatingRootStore(undefined);
 
       currentContentRef.current = null;
       closeReasonRef.current = undefined;
@@ -226,7 +226,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
           setPreventUnmountOnClose(shouldPreventUnmountOnClose());
         }
         setActivationDirection(null);
-        setFloatingRootContext(undefined);
+        setFloatingRootStore(undefined);
       }
 
       setValueUnwrapped(nextValue);
@@ -270,8 +270,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       setViewportTargetElement,
       activationDirection: contextActivationDirection,
       setActivationDirection,
-      floatingRootContext,
-      setFloatingRootContext,
+      floatingRootStore,
+      setFloatingRootStore,
       currentContentRef,
       nested,
       rootRef,
@@ -298,7 +298,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       viewportElement,
       viewportTargetElement,
       contextActivationDirection,
-      floatingRootContext,
+      floatingRootStore,
       nested,
       delay,
       closeDelay,

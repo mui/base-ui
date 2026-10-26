@@ -18,7 +18,7 @@ import { useSetFieldFocused } from '../../internals/field-root-context/useSetFie
 import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../internals/field-constants/constants';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../utils/popups/event';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -398,6 +398,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
           // event.isComposing
           if (event.which === 229) {
+            return;
+          }
+
+          // Space types into a non-empty input, and otherwise selects the highlighted item.
+          if (event.key === ' ' && open && input.value === '') {
+            stopEvent(event);
+            if (store.state.activeIndex !== null) {
+              clickHighlightedItem(store, store.state.activeIndex, event.nativeEvent);
+            }
             return;
           }
 
