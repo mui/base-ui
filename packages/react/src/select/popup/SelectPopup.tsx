@@ -13,7 +13,7 @@ import { platform as floatingPlatform } from '@floating-ui/react-dom';
 import type { ClientRectObject } from '@floating-ui/react-dom';
 import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -48,7 +48,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const multiple = store.useState('multiple');
   const readOnly = store.useState('readOnly');
   const highlightItemOnHover = store.useState('highlightItemOnHover');
-  const floatingRootStore = useSelectFloatingContext();
   const {
     side,
     align,
@@ -174,7 +173,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        store.context.onOpenChangeComplete(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -420,7 +419,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const win = ownerWindow(positionerElement);
 
     function handleResize(event: UIEvent) {
-      store.context.setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
+      store.setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
     }
 
     return addEventListener(win, 'resize', handleResize);
@@ -456,7 +455,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   };
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, store.context.popupRef],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     state,
     stateAttributesMapping: popupTransitionStateMapping,
     props: [
@@ -471,7 +470,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     <React.Fragment>
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
-        store={floatingRootStore}
+        store={store}
         modal={false}
         disabled={!mounted}
         openInteractionType={openMethod}
