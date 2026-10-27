@@ -1463,6 +1463,81 @@ describe('<Drawer.SwipeArea />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'places a swipe-opened popup under the pointer in the commit that mounts it',
+    async () => {
+      await render(
+        <Drawer.Root>
+          <Drawer.SwipeArea data-testid="swipe-area" />
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup" style={{ height: 200 }}>
+                <Drawer.Close>Close</Drawer.Close>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const swipeArea = screen.getByTestId('swipe-area');
+
+      // The second open matters: the first one also re-renders the swipe area once the popup's
+      // height is first measured, which hides a missed commit.
+      for (let openCount = 0; openCount < 2; openCount += 1) {
+        expect(screen.queryByTestId('popup')).toBe(null);
+
+        firePointer.down(swipeArea, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 10,
+          clientY: 120,
+          pointerType: 'mouse',
+          timeStamp: 1,
+        });
+        // A single move opens the drawer; no later move re-applies the movement.
+        firePointer.move(swipeArea, {
+          pointerId: 1,
+          clientX: 10,
+          clientY: 90,
+          buttons: 1,
+          pointerType: 'mouse',
+          timeStamp: 17,
+        });
+        // eslint-disable-next-line no-await-in-loop
+        await flushMicrotasks();
+
+        const popup = screen.getByTestId('popup');
+        expect(popup).toHaveAttribute('data-swiping');
+        expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('170px');
+
+        firePointer.move(swipeArea, {
+          pointerId: 1,
+          clientX: 10,
+          clientY: -100,
+          buttons: 1,
+          pointerType: 'mouse',
+          timeStamp: 33,
+        });
+        firePointer.up(swipeArea, {
+          pointerId: 1,
+          clientX: 10,
+          clientY: -100,
+          pointerType: 'mouse',
+          timeStamp: 49,
+        });
+        // eslint-disable-next-line no-await-in-loop
+        await act(async () => {
+          screen.getByRole('button', { name: 'Close' }).click();
+        });
+        // eslint-disable-next-line no-await-in-loop
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+      }
+    },
+  );
+
   it('opens on a quick flick whose only move is already released (buttons: 0)', async () => {
     // On a fast flick — especially on a low-refresh-rate display — the pointer can be lifted before
     // the first `pointermove` is sampled, so the single move arrives with `buttons: 0` and no

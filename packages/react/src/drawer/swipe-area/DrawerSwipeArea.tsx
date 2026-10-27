@@ -120,6 +120,9 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   }, [registerTrigger, swipeAreaId, store]);
 
   const open = store.useState('open');
+  // The popup mounts a commit after `open` flips; re-render then so a swipe-opened popup is
+  // placed under the pointer before it paints.
+  store.useState('popupElement');
 
   const resetDragDelta = useStableCallback(() => {
     dragDeltaRef.current.x = 0;
@@ -401,10 +404,11 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const resetSwipe = swipe.reset;
 
   // The commit that opens the drawer re-renders the popup, resetting `--swipe-movement-*` to `0px`
-  // (the viewport isn't swiping). Re-assert after the DOM mutation but before paint. No deps: must
-  // run on every commit the swipe area participates in.
+  // (the viewport isn't swiping), and a popup the swipe just mounted has no movement yet. Apply it
+  // after the DOM mutation but before paint. No deps: must run on every commit the swipe area
+  // participates in.
   useIsoLayoutEffect(() => {
-    if (swipeActive && appliedSwipeStylesRef.current) {
+    if (swipeActive && (appliedSwipeStylesRef.current || openedBySwipeRef.current)) {
       applySwipeMovement();
     }
   });
