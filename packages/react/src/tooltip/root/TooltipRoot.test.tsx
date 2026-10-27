@@ -2,13 +2,7 @@ import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import {
-  createRenderer,
-  isJSDOM,
-  popupConformanceTests,
-  resetBrowserPointer,
-  wait,
-} from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests, resetBrowserPointer } from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../internals/reasons';
@@ -637,6 +631,7 @@ describe('<Tooltip.Root />', () => {
 
       it('unmounts an exiting tooltip when another tooltip opens', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const handleFirstOpenChange = vi.fn();
 
         const style = `
           .tooltip[data-ending-style] {
@@ -654,7 +649,10 @@ describe('<Tooltip.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             {['First', 'Second'].map((name, index) => (
-              <Tooltip.Root key={name}>
+              <Tooltip.Root
+                key={name}
+                onOpenChange={index === 0 ? handleFirstOpenChange : undefined}
+              >
                 <Tooltip.Trigger data-testid={`trigger-${index + 1}`} delay={0}>
                   {name}
                 </Tooltip.Trigger>
@@ -689,6 +687,11 @@ describe('<Tooltip.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('popup-1')).toBe(null);
         });
+        // The first tooltip was already closing, so it doesn't report a second close.
+        expect(handleFirstOpenChange).not.toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ reason: REASONS.none }),
+        );
       });
 
       it('inline opacity: 0 is removed before user CSS transitions run', async () => {
@@ -1641,7 +1644,9 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  describe('close requests', () => {
+  describe('open delay', () => {
+    clock.withFakeTimers();
+
     it('does not report leaving the trigger before the open delay ends', async () => {
       const onOpenChange = vi.fn();
       await render(
@@ -1660,12 +1665,15 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
       fireEvent.mouseLeave(trigger);
-      await wait(300);
+      clock.tick(300);
+      await flushMicrotasks();
 
       expect(screen.queryByText('Content')).toBe(null);
       expect(onOpenChange).not.toHaveBeenCalled();
     });
+  });
 
+  describe('close requests', () => {
     it('reports the active trigger for an Escape close', async () => {
       const onOpenChange = vi.fn();
       const { user } = await render(

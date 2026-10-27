@@ -59,9 +59,9 @@ type Selectors = typeof selectors;
  * The store view that detached handle-backed triggers read from. Both the real `TooltipStore` and
  * the inert fallback store satisfy it, so a trigger can read from whichever store the handle
  * currently exposes. Narrowed to the members a trigger actually uses — the trigger-data members plus
- * `setOpen`/`cancelPendingOpen`/`closeForSibling` (called directly by the trigger) and `useSyncedValue` — so the
- * exposed surface can't bypass the open-change pipeline; on the detached fallback store every one of
- * these mutations is a no-op.
+ * `setOpen`/`cancelPendingOpen` (called by the trigger), `closeForSibling` (called by the delay group)
+ * and `useSyncedValue` — so the exposed surface can't bypass the open-change pipeline; on the
+ * detached fallback store every one of these mutations is a no-op.
  */
 export type TooltipHandleStore<Payload> = Pick<
   TooltipStore<Payload>,
@@ -91,11 +91,10 @@ export class TooltipStore<Payload> extends BasePopupStore<
    * closing records the reason instead, so `Tooltip.Root` skips the rest of its exit transition.
    */
   closeForSibling = () => {
-    if (this.select('open')) {
-      this.setOpen(false, createChangeEventDetails(REASONS.none));
-    } else if (this.state.mounted) {
+    if (!this.select('open') && this.state.mounted) {
       this.set('openChangeReason', REASONS.none);
     }
+    this.setOpen(false, createChangeEventDetails(REASONS.none));
   };
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
@@ -112,9 +111,9 @@ export class TooltipStore<Payload> extends BasePopupStore<
 /**
  * Creates the inert fallback store used by detached handle-backed triggers while no `Tooltip.Root`
  * is attached. It preserves a tooltip-specific trigger registry in context so detached triggers can
- * register before migrating to the live root store. `setOpen`/`cancelPendingOpen`/`closeForSibling` are no-ops
- * (matching the inert reads/writes of `NullStore`), so a trigger can call them from hover/click
- * handlers while detached without any effect.
+ * register before migrating to the live root store. `setOpen`, `cancelPendingOpen` and
+ * `closeForSibling` are no-ops (matching the inert reads/writes of `NullStore`), so a trigger can call
+ * them from hover/click handlers while detached without any effect.
  */
 export function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload> {
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(

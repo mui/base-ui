@@ -278,7 +278,8 @@ export class MenuStore<Payload> extends BasePopupStore<
   }
 
   protected getCloseTrigger() {
-    // Keep the previous trigger so exit animations play and focus is returned correctly.
+    // Reports the trigger the Root last rendered, which repeated requests are compared against.
+    // The store can already hold a newer trigger from a request that hasn't rendered yet.
     return this.context.getCommittedOpenState!().activeTriggerElement ?? undefined;
   }
 

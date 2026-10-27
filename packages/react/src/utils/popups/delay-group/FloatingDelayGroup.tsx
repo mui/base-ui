@@ -5,8 +5,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../interactions/useHoverShared';
 import type { PopupInteractionStore, Delay } from '../types';
-import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../../internals/reasons';
 
 interface ContextValue {
   hasProvider: boolean;
@@ -109,10 +107,9 @@ interface UseDelayGroupOptions {
    */
   open: boolean;
   /**
-   * Closes the popup because another popup in the group opened. Defaults to a close request with
-   * the `none` reason.
+   * Closes the popup because another popup in the group opened.
    */
-  closeForSibling?: (() => void) | undefined;
+  closeForSibling: () => void;
 }
 
 interface UseDelayGroupReturn {
@@ -142,9 +139,9 @@ interface UseDelayGroupReturn {
  */
 export function useDelayGroup(
   store: PopupInteractionStore,
-  options: UseDelayGroupOptions = { open: false },
+  options: UseDelayGroupOptions,
 ): UseDelayGroupReturn {
-  const { open, closeForSibling: closeForSiblingProp } = options;
+  const { open, closeForSibling } = options;
 
   const defaultPopupId = store.useState('defaultPopupId');
 
@@ -228,11 +225,7 @@ export function useDelayGroup(
     // A new tooltip is opening, so cancel any pending timeout that would reset
     // the group's delay back to the initial value.
     timeout.clear();
-    currentContextRef.current = {
-      closeForSibling:
-        closeForSiblingProp ?? (() => store.setOpen(false, createChangeEventDetails(REASONS.none))),
-      setIsInstantPhase,
-    };
+    currentContextRef.current = { closeForSibling, setIsInstantPhase };
     currentIdRef.current = defaultPopupId;
     delayRef.current = {
       open: 0,
@@ -250,8 +243,7 @@ export function useDelayGroup(
   }, [
     open,
     defaultPopupId,
-    store,
-    closeForSiblingProp,
+    closeForSibling,
     currentIdRef,
     delayRef,
     initialDelayRef,

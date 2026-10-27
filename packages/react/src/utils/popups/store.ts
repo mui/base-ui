@@ -303,13 +303,8 @@ export function createPopupOpenState(
   trigger: Element | undefined,
   preventUnmountOnClose = false,
 ): PopupOpenState {
-  let preventUnmountingOnClose = state.preventUnmountingOnClose;
-  if (open) {
-    // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
-    preventUnmountingOnClose = false;
-  } else if (preventUnmountOnClose) {
-    preventUnmountingOnClose = true;
-  }
+  // Each close decides on its own whether the popup stays mounted, and opening clears the request.
+  const preventUnmountingOnClose = !open && preventUnmountOnClose;
 
   const triggerId = trigger?.id ?? null;
   let activeTriggerId = state.activeTriggerId;
@@ -366,7 +361,8 @@ type PopupUnmountKey =
  * the same order:
  *
  * 1. A close request while the popup is closed is dropped, and `isOpenChangeIgnored` can drop any
- *    other change, before anything is notified.
+ *    other change, before `onOpenChange` hears about it. A dropped close still reaches the
+ *    interactions, so a pending open such as a hover delay is cancelled.
  * 2. `getCloseTrigger` can name the trigger a close request without one reports.
  * 3. `preventUnmountOnClose()` is added to the event details.
  * 4. `onOpenChange` is called and can cancel the change.
@@ -390,7 +386,7 @@ export abstract class BasePopupStore<
   Selectors extends Record<string, (state: Readonly<State>, ...args: any[]) => any>,
   ChangeEventDetails extends PopupOpenChangeEventDetails,
 > extends ReactStore<Readonly<State>, Context, Selectors> {
-  private lastOpenChange: ChangeEventDetails | undefined = undefined;
+  private lastOpenChange: ChangeEventDetails | undefined;
 
   override setState(newState: Readonly<State>): void {
     super.setState(
@@ -420,31 +416,31 @@ export abstract class BasePopupStore<
   ): void => {
     const details = eventDetails as ChangeEventDetails;
 
-    if (
-      (!nextOpen && !popupStoreSelectors.open(this.state)) ||
-      this.isOpenChangeIgnored(nextOpen, details)
-    ) {
+    // A controlled popup can hold a request the `open` prop hasn't caught up with yet, so a close
+    // is dropped only when both are closed.
+    if (!nextOpen && !this.state.open && !popupStoreSelectors.open(this.state)) {
+      dispatchOpenChange(this.context, false, false, details);
+      return;
+    }
+
+    if (this.isOpenChangeIgnored(nextOpen, details)) {
       return;
     }
 
     if (!nextOpen && details.trigger == null) {
-      details.trigger = this.getCloseTrigger(details);
+      details.trigger = this.getCloseTrigger();
     }
 
     let preventUnmountOnClose = false;
-    let committed = false;
     details.preventUnmountOnClose = () => {
-      if (!committed) {
+      if (this.lastOpenChange !== details) {
         preventUnmountOnClose = true;
         return;
       }
-      // A call made after the change is committed, such as after an `await` in `onOpenChange`,
-      // still applies while this close is the latest change and the popup is still closing.
-      if (
-        this.lastOpenChange === details &&
-        !popupStoreSelectors.open(this.state) &&
-        this.state.mounted
-      ) {
+      // A call made once the close is committed, such as after an `await` in `onOpenChange`, still
+      // applies while this close is the latest change and the popup hasn't unmounted. A controlled
+      // `open` prop may not have caught up with the close yet.
+      if (this.state.mounted) {
         this.set('preventUnmountingOnClose', true);
       }
     };
@@ -467,14 +463,13 @@ export abstract class BasePopupStore<
       } as Pick<State, keyof State>);
     };
 
+    this.lastOpenChange = details;
+
     if (this.isCommittedSynchronously(details)) {
       ReactDOM.flushSync(commit);
     } else {
       commit();
     }
-
-    committed = true;
-    this.lastOpenChange = details;
   };
 
   /**
@@ -488,7 +483,7 @@ export abstract class BasePopupStore<
    * Returns the trigger to report for a close request that carries none: the trigger the popup is
    * open from.
    */
-  protected getCloseTrigger(_eventDetails: ChangeEventDetails): Element | undefined {
+  protected getCloseTrigger(): Element | undefined {
     const activeTriggerId = popupStoreSelectors.activeTriggerId(this.state);
     if (activeTriggerId == null) {
       return undefined;
@@ -537,6 +532,7 @@ export abstract class BasePopupStore<
       unmountState.activeTriggerId = null;
       unmountState.activeTriggerElement = null;
     }
+    this.lastOpenChange = undefined;
     this.update({ ...this.prepareUnmount(), ...unmountState } as Pick<State, keyof State>);
   }
 

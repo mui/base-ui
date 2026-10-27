@@ -12,7 +12,7 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import type { createRenderer } from '#test-utils';
-import { enterWithMouse, isJSDOM } from '#test-utils';
+import { enterWithMouse, isJSDOM, wait } from '#test-utils';
 import { REASONS } from '../src/internals/reasons';
 
 // StrictMode replays effects in development, which reports an instant open completion twice.
@@ -144,6 +144,27 @@ export function popupConformanceTests(config: PopupTestConfig) {
         await flushMicrotasks();
         expect(getPopup()).toBeVisible();
       });
+
+      it('reports every close request while `open={true}` keeps the popup open', async () => {
+        const handleOpenChange = vi.fn();
+        const { user } = await render(
+          prepareComponent({ root: { open: true, onOpenChange: handleOpenChange } }),
+        );
+
+        await user.keyboard('[Escape]');
+        await flushMicrotasks();
+        expect(getPopup()).toBeVisible();
+        await user.keyboard('[Escape]');
+
+        await waitFor(() => {
+          expect(handleOpenChange).toHaveBeenCalledTimes(2);
+        });
+        expect(handleOpenChange).toHaveBeenNthCalledWith(
+          2,
+          false,
+          expect.objectContaining({ reason: REASONS.escapeKey }),
+        );
+      });
     });
 
     describe('prop: onOpenChange', () => {
@@ -217,7 +238,53 @@ export function popupConformanceTests(config: PopupTestConfig) {
         });
 
         expect(handleOpenChange).not.toHaveBeenCalled();
+        expect(getTrigger()).not.toHaveAttribute('data-popup-open');
       });
+
+      it('is called when the `close` action is called while open', async () => {
+        const handleOpenChange = vi.fn();
+        const actionsRef = React.createRef<{ close: () => void; unmount: () => void }>();
+        await render(
+          prepareComponent({
+            root: { actionsRef, defaultOpen: true, onOpenChange: handleOpenChange },
+          }),
+        );
+        expect(getPopup()).toBeVisible();
+
+        await act(async () => {
+          actionsRef.current!.close();
+        });
+
+        expect(handleOpenChange).toHaveBeenCalledTimes(1);
+        expect(handleOpenChange).toHaveBeenNthCalledWith(
+          1,
+          false,
+          expect.objectContaining({ reason: REASONS.imperativeAction }),
+        );
+        await waitFor(expectPopupClosed);
+      });
+
+      if (triggerMouseAction === 'hover') {
+        it('cancels a pending hover open when the `close` action is called', async () => {
+          const handleOpenChange = vi.fn();
+          const actionsRef = React.createRef<{ close: () => void; unmount: () => void }>();
+          await render(
+            prepareComponent({
+              root: { actionsRef, onOpenChange: handleOpenChange },
+              trigger: { delay: 100 },
+            }),
+          );
+
+          enterWithMouse(getTrigger());
+          await act(async () => {
+            actionsRef.current!.close();
+          });
+          await wait(200);
+
+          expect(handleOpenChange).not.toHaveBeenCalled();
+          expect(getPopup()).toBe(null);
+        });
+      }
 
       it('closes normally after a canceled close that asked to keep the popup mounted', async () => {
         let closeCount = 0;
@@ -232,8 +299,15 @@ export function popupConformanceTests(config: PopupTestConfig) {
             }
           },
         );
+        const handleOpenChangeComplete = vi.fn();
         const { user } = await render(
-          prepareComponent({ root: { defaultOpen: true, onOpenChange: handleOpenChange } }),
+          prepareComponent({
+            root: {
+              defaultOpen: true,
+              onOpenChange: handleOpenChange,
+              onOpenChangeComplete: handleOpenChangeComplete,
+            },
+          }),
         );
 
         await user.keyboard('[Escape]');
@@ -241,8 +315,14 @@ export function popupConformanceTests(config: PopupTestConfig) {
         expect(getPopup()).toBeVisible();
 
         await user.keyboard('[Escape]');
-        expect(closeCount).toBe(2);
+        await waitFor(() => {
+          expect(closeCount).toBe(2);
+        });
         await waitFor(expectPopupClosed);
+        // A popup kept mounted doesn't finish closing until the `unmount` action is called.
+        await waitFor(() => {
+          expect(handleOpenChangeComplete).toHaveBeenCalledWith(false);
+        });
       });
     });
 
