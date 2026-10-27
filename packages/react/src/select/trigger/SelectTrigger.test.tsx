@@ -145,6 +145,47 @@ describe('<Select.Trigger />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
+    it('does not close on a later mouseup when the opening click already ended', async () => {
+      const onOpenChange = vi.fn();
+      await render(
+        <Select.Root onOpenChange={onOpenChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      trigger.getBoundingClientRect = () =>
+        DOMRect.fromRect({ x: 100, y: 100, width: 100, height: 40 });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(trigger, { button: 0 });
+      fireEvent.mouseUp(trigger, { button: 0, clientX: 120, clientY: 120 });
+
+      await act(async () => {
+        await wait(20);
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      onOpenChange.mockClear();
+
+      fireEvent.mouseUp(document.body, { button: 0, clientX: 94, clientY: 120 });
+      await act(async () => {
+        await wait(20);
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
     it('closes the popup when the press is dragged off the trigger and released', async () => {
       const trigger = await pressTrigger();
 

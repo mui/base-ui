@@ -101,6 +101,19 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
   const selectedDelayTimeout = useTimeout();
+  const openingReleaseListenerRef = React.useRef<{
+    doc: Document;
+    markReleased: () => void;
+  } | null>(null);
+
+  const detachOpeningReleaseListener = React.useCallback(() => {
+    const pending = openingReleaseListenerRef.current;
+    if (pending == null) {
+      return;
+    }
+    pending.doc.removeEventListener('mouseup', pending.markReleased, { capture: true });
+    openingReleaseListenerRef.current = null;
+  }, []);
 
   React.useEffect(() => {
     if (open) {
@@ -125,9 +138,14 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     };
 
     timeoutMouseDown.clear();
+    detachOpeningReleaseListener();
 
     return undefined;
-  }, [open, store, timeoutMouseDown, selectedDelayTimeout]);
+  }, [open, store, timeoutMouseDown, selectedDelayTimeout, detachOpeningReleaseListener]);
+
+  React.useEffect(() => {
+    return detachOpeningReleaseListener;
+  }, [detachOpeningReleaseListener]);
 
   const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
@@ -201,8 +219,22 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           store.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
         }
 
-        // Firefox can fire this upon mousedown
+        // Firefox can fire `mouseup` during `mousedown`. Arm the close listener on the
+        // next task, and skip it when this press was already released.
+        let released = false;
+        function markReleased() {
+          released = true;
+        }
+
+        detachOpeningReleaseListener();
+        doc.addEventListener('mouseup', markReleased, { capture: true });
+        openingReleaseListenerRef.current = { doc, markReleased };
+
         timeoutMouseDown.start(0, () => {
+          detachOpeningReleaseListener();
+          if (released) {
+            return;
+          }
           doc.addEventListener('mouseup', handleMouseUp, { once: true });
         });
       },
