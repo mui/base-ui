@@ -108,20 +108,6 @@ export class PopoverStore<Payload> extends BasePopupStore<
     );
   }
 
-  protected getCloseTrigger(eventDetails: PopoverRoot.ChangeEventDetails) {
-    // Only a close button reports the trigger the popover is closing from.
-    const activeTriggerId = this.select('activeTriggerId');
-    if (eventDetails.reason !== REASONS.closePress || activeTriggerId == null) {
-      return undefined;
-    }
-
-    return (
-      this.context.triggerElements.getById(activeTriggerId) ??
-      this.select('activeTriggerElement') ??
-      undefined
-    );
-  }
-
   protected prepareOpenChange(nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
     const reason = eventDetails.reason;
 

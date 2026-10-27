@@ -1666,7 +1666,7 @@ describe('<Tooltip.Root />', () => {
       expect(onOpenChange).not.toHaveBeenCalled();
     });
 
-    it('does not report a trigger for an Escape close', async () => {
+    it('reports the active trigger for an Escape close', async () => {
       const onOpenChange = vi.fn();
       const { user } = await render(
         <Tooltip.Root defaultOpen onOpenChange={onOpenChange}>
@@ -1684,7 +1684,9 @@ describe('<Tooltip.Root />', () => {
 
       expect(onOpenChange).toHaveBeenCalledTimes(1);
       expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
-      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(
+        screen.getByRole('button', { name: 'Trigger' }),
+      );
     });
   });
 

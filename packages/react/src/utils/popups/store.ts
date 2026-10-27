@@ -485,10 +485,20 @@ export abstract class BasePopupStore<
   }
 
   /**
-   * Returns the trigger to report for a close request that carries none.
+   * Returns the trigger to report for a close request that carries none: the trigger the popup is
+   * open from.
    */
   protected getCloseTrigger(_eventDetails: ChangeEventDetails): Element | undefined {
-    return undefined;
+    const activeTriggerId = popupStoreSelectors.activeTriggerId(this.state);
+    if (activeTriggerId == null) {
+      return undefined;
+    }
+
+    return (
+      this.context.triggerElements.getById(activeTriggerId) ??
+      popupStoreSelectors.activeTriggerElement(this.state) ??
+      undefined
+    );
   }
 
   /**

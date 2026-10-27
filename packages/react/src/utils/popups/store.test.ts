@@ -251,8 +251,8 @@ class TestPopupStore extends BasePopupStore<
     return this.ignoreOpenChange;
   }
 
-  protected getCloseTrigger() {
-    return this.closeTrigger;
+  protected getCloseTrigger(eventDetails: PopupOpenChangeEventDetails) {
+    return this.closeTrigger ?? super.getCloseTrigger(eventDetails);
   }
 
   protected prepareOpenChange() {
@@ -337,7 +337,7 @@ describe('BasePopupStore', () => {
       expect(store.steps).toEqual(['notify', 'prepare', 'commit']);
     });
 
-    it('reports no trigger for a close request that carries none by default', () => {
+    it('reports the active trigger for a close request that carries none by default', () => {
       const onOpenChange = vi.fn();
       const trigger = document.createElement('button');
       trigger.id = 'trigger';
@@ -351,8 +351,18 @@ describe('BasePopupStore', () => {
 
       store.setOpen(false, createDetails(REASONS.escapeKey));
 
-      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(trigger);
       expect(store.state.activeTriggerElement).toBe(trigger);
+    });
+
+    it('reports no trigger for a close request that carries none while no trigger is active', () => {
+      const onOpenChange = vi.fn();
+      const store = new TestPopupStore(onOpenChange, { open: true, mounted: true });
+      store.context.triggerElements.add('trigger', document.createElement('button'));
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
     });
 
     it('reports the close trigger the store names for a close request that carries none', () => {

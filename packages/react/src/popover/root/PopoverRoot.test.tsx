@@ -1412,7 +1412,6 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
-          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
         } finally {
           await act(async () => {
             host.remove();
@@ -1445,7 +1444,6 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
-          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
         } finally {
           await act(async () => {
             host.remove();
@@ -2770,6 +2768,36 @@ describe('<Popover.Root />', () => {
     });
   });
   describe('close requests', () => {
+    it('reports the active trigger for an outside press close', async () => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <div>
+          <button type="button">Outside</button>
+          <Popover.Root onOpenChange={onOpenChange}>
+            <Popover.Trigger>Trigger A</Popover.Trigger>
+            <Popover.Trigger>Trigger B</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+      const triggerB = screen.getByRole('button', { name: 'Trigger B' });
+
+      await user.click(triggerB);
+      expect(screen.queryByText('Content')).not.toBe(null);
+      fireEvent.click(screen.getByRole('button', { name: 'Outside' }));
+      await waitFor(() => {
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      expect(onOpenChange).toHaveBeenCalledTimes(2);
+      expect(onOpenChange.mock.calls[1][1].reason).toBe(REASONS.outsidePress);
+      expect(onOpenChange.mock.calls[1][1].trigger).toBe(triggerB);
+    });
+
     it('marks a close without a reason as a dismissal', async () => {
       const handle = Popover.createHandle();
       await render(

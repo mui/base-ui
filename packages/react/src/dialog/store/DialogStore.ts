@@ -74,14 +74,6 @@ export class DialogStore<Payload> extends BasePopupStore<
 
     super(state, createInitialContext(), selectors);
   }
-
-  protected getCloseTrigger() {
-    // When closing the dialog, pass the old trigger to the onOpenChange event
-    // so it's not reset too early (potentially causing focus issues in controlled scenarios).
-    return this.state.activeTriggerId != null
-      ? (this.state.activeTriggerElement ?? undefined)
-      : undefined;
-  }
 }
 
 /**
