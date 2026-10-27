@@ -4597,4 +4597,168 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       },
     );
   });
+
+  describe('alignment on Android', () => {
+    // Visible band above a 500px keyboard: [300, 500].
+    async function renderAlignmentDrawer(inputTop: number, textareaHeight?: number) {
+      const inputHeight = textareaHeight ?? 40;
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <Drawer.Content data-testid="scroll" style={{ height: 420, overflowY: 'auto' }}>
+                    <div style={{ height: 900 }} />
+                    {textareaHeight === undefined ? (
+                      <input data-testid="input" type="text" />
+                    ) : (
+                      <textarea data-testid="input" />
+                    )}
+                  </Drawer.Content>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
+
+      const scroll = screen.getByTestId('scroll');
+      const input = screen.getByTestId('input');
+
+      Object.defineProperties(scroll, {
+        clientHeight: { configurable: true, value: 420 },
+        scrollHeight: { configurable: true, value: 1200 },
+      });
+      scroll.getBoundingClientRect = () =>
+        ({
+          top: 300,
+          bottom: 720,
+          height: 420,
+          left: 0,
+          right: 320,
+          width: 320,
+          x: 0,
+          y: 300,
+          toJSON: () => {},
+        }) as DOMRect;
+      input.getBoundingClientRect = () => {
+        const top = inputTop - scroll.scrollTop;
+        return {
+          top,
+          bottom: top + inputHeight,
+          height: inputHeight,
+          left: 0,
+          right: 320,
+          width: 320,
+          x: 0,
+          y: top,
+          toJSON: () => {},
+        } as DOMRect;
+      };
+
+      return { scroll, input };
+    }
+
+    it.skipIf(isJSDOM).each([
+      { name: 'leaves a visible field in place on Android', android: true, expected: [] },
+      { name: 'centers a visible field elsewhere', android: false, expected: [50] },
+      {
+        name: 'reveals a covered field by the minimum distance on Android',
+        android: true,
+        inputTop: 650,
+        expected: [206],
+      },
+      { name: 'centers a covered field elsewhere', android: false, inputTop: 650, expected: [270] },
+      {
+        name: 'leaves a tall textarea that fits the visible band in place on Android',
+        android: true,
+        inputTop: 320,
+        textareaHeight: 175,
+        expected: [],
+      },
+      {
+        name: 'reveals a covered tall textarea without hiding its bottom on Android',
+        android: true,
+        inputTop: 350,
+        textareaHeight: 190,
+        expected: [45],
+      },
+      {
+        name: 'aligns the top of a textarea taller than the visible band on Android',
+        android: true,
+        inputTop: 350,
+        textareaHeight: 300,
+        expected: [50],
+      },
+    ])('$name', async ({ android, inputTop = 430, textareaHeight, expected }) => {
+      platformMock.android = android;
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        const { scroll, input } = await renderAlignmentDrawer(inputTop, textareaHeight);
+        const scrollToSpy = vi.fn((options?: ScrollToOptions | number) => {
+          if (typeof options === 'object' && options !== null && options.top !== undefined) {
+            scroll.scrollTop = options.top;
+          }
+        });
+        scroll.scrollTo = scrollToSpy as unknown as typeof scroll.scrollTo;
+        expect(scroll.scrollTop).toBe(0);
+
+        await act(async () => {
+          input.focus({ preventScroll: true });
+          visualViewport.resize(500);
+        });
+        await act(async () => {
+          await flushAnimationFrames(10);
+        });
+
+        expect(scrollToSpy.mock.calls.map(([options]) => (options as ScrollToOptions).top)).toEqual(
+          expected,
+        );
+      } finally {
+        platformMock.android = false;
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    });
+
+    it.skipIf(isJSDOM)('re-issues a canceled alignment scroll within a few frames', async () => {
+      platformMock.android = true;
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      vi.useFakeTimers();
+
+      try {
+        const { scroll, input } = await renderAlignmentDrawer(650);
+        // The mock never moves, standing in for a smooth scroll canceled by Chrome's
+        // focused-editable reveal.
+        const scrollToSpy = vi.fn();
+        scroll.scrollTo = scrollToSpy as unknown as typeof scroll.scrollTo;
+        expect(scroll.scrollTop).toBe(0);
+
+        await act(async () => {
+          input.focus({ preventScroll: true });
+          visualViewport.resize(500);
+          vi.advanceTimersToNextFrame();
+          vi.advanceTimersToNextFrame();
+        });
+        expect(scrollToSpy).toHaveBeenCalledTimes(1);
+
+        await act(async () => {
+          for (let i = 0; i < 4; i += 1) {
+            vi.advanceTimersToNextFrame();
+          }
+        });
+        expect(scrollToSpy).toHaveBeenCalledTimes(2);
+        expect(scrollToSpy).toHaveBeenLastCalledWith(expect.objectContaining({ top: 206 }));
+      } finally {
+        vi.useRealTimers();
+        platformMock.android = false;
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    });
+  });
 });

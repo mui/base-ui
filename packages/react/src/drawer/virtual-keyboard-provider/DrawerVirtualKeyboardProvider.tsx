@@ -28,6 +28,10 @@ const KEYBOARD_REALIGN_MAX_PASSES = 4;
 // Frames the alignment waits for the scroll destination to stop moving (layout reacting to
 // the focus change, e.g. a footer resizing over a CSS transition) before scrolling anyway.
 const KEYBOARD_SETTLE_FRAME_LIMIT = 60;
+// Android: frames an issued alignment scroll may sit still before it counts as canceled and
+// is re-issued, and how many times it is re-issued before alignment gives up on it.
+const KEYBOARD_SCROLL_STALL_FRAMES = 3;
+const KEYBOARD_SCROLL_MAX_REISSUES = 3;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
 const INPUT_TAP_HIT_SLOP = 16;
 const KEYBOARD_INPUT_TYPES = new Set([
@@ -192,6 +196,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     let keyboardScrollDestination = 0;
     let keyboardScrollChecks = 0;
     let keyboardScrollObserved = -1;
+    let keyboardScrollStalledFrames = 0;
+    let keyboardScrollReissues = 0;
     // Visual viewport height last seen while the keyboard overlapped the layout viewport.
     let keyboardVisualHeight = -1;
     let smallViewportProbe: HTMLElement | null = null;
@@ -346,11 +352,38 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         return;
       }
 
+      // The field is centered in the visible band, matching iOS. Android scroll views instead
+      // reveal a covered field by the minimum distance and leave a visible one in place;
+      // centering there re-scrolls on every focus move and every IME suggestion-strip toggle,
+      // which older Chrome turns into overshoot and pull-back against its own viewport pan.
+      const android = platform.os.android;
       const targetRect = target.getBoundingClientRect();
-      const nextScrollTop =
-        scrollTarget.scrollTop +
-        (targetRect.top + targetRect.bottom - visibleTop - visibleBottom) / 2;
-      const destination = Math.round(clamp(nextScrollTop, 0, maxScrollTop));
+      let offset = (targetRect.top + targetRect.bottom - visibleTop - visibleBottom) / 2;
+      if (android) {
+        // The margin shrinks to the slack a tall field leaves so revealing it never pushes
+        // its far edge out of view.
+        const margin = clamp(
+          (clippedBottom - clippedTop - targetRect.height) / 2,
+          0,
+          KEYBOARD_VISIBILITY_MARGIN,
+        );
+        offset = 0;
+        if (targetRect.top < clippedTop) {
+          offset = targetRect.top - clippedTop - margin;
+        } else if (targetRect.bottom > clippedBottom) {
+          // A field taller than the visible band aligns its top.
+          offset = Math.min(
+            targetRect.bottom - clippedBottom + margin,
+            targetRect.top - clippedTop - margin,
+          );
+        }
+      }
+      const destination = Math.round(clamp(scrollTarget.scrollTop + offset, 0, maxScrollTop));
+
+      if (android && Math.abs(scrollTarget.scrollTop - destination) <= 1) {
+        keyboardScrollElement = null;
+        return;
+      }
 
       // WebKit restarts a smooth scroll re-issued while the layout viewport resizes.
       const settled =
@@ -370,6 +403,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         keyboardScrollDestination = destination;
         keyboardScrollChecks = checks;
         keyboardScrollObserved = -1;
+        keyboardScrollReissues = 0;
         // Re-check next frame; give up and scroll anyway if layout never settles.
         if (checks <= KEYBOARD_SETTLE_FRAME_LIMIT) {
           keyboardFocusFrame.request(alignFocusedKeyboardTarget);
@@ -382,12 +416,33 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         // stalled short (WebKit cancels in-flight smooth scrolls when its native reveal
         // for the focus resolves).
         const current = scrollTarget.scrollTop;
-        if (Math.abs(current - destination) <= 1) {
-          return;
-        }
-        if (current !== keyboardScrollObserved) {
-          keyboardScrollObserved = current;
-          return;
+        if (!android) {
+          if (Math.abs(current - destination) <= 1) {
+            return;
+          }
+          if (current !== keyboardScrollObserved) {
+            keyboardScrollObserved = current;
+            return;
+          }
+        } else {
+          // Chrome cancels it the same way when its focused-editable reveal lands after a
+          // native focus move. Watch it every frame so a stall is re-issued within a few
+          // frames instead of on the next delayed pass, ~300ms later.
+          if (current !== keyboardScrollObserved) {
+            keyboardScrollObserved = current;
+            keyboardScrollStalledFrames = 0;
+            keyboardFocusFrame.request(alignFocusedKeyboardTarget);
+            return;
+          }
+          keyboardScrollStalledFrames += 1;
+          if (keyboardScrollStalledFrames < KEYBOARD_SCROLL_STALL_FRAMES) {
+            keyboardFocusFrame.request(alignFocusedKeyboardTarget);
+            return;
+          }
+          if (keyboardScrollReissues >= KEYBOARD_SCROLL_MAX_REISSUES) {
+            return;
+          }
+          keyboardScrollReissues += 1;
         }
       }
 
@@ -395,7 +450,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       keyboardScrollDestination = destination;
       keyboardScrollChecks = 0;
       keyboardScrollObserved = scrollTarget.scrollTop;
+      keyboardScrollStalledFrames = 0;
       animateKeyboardScroll(scrollTarget, destination);
+      if (android) {
+        keyboardFocusFrame.request(alignFocusedKeyboardTarget);
+      }
     };
 
     const scheduleKeyboardFocusAlignment = () => {
