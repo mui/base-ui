@@ -31,8 +31,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const keepMounted = useComboboxPortalContext();
 
   const modal = store.useState('modal');
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const triggerElement = store.useState('triggerElement');
@@ -42,10 +40,8 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   const empty = useListEmpty();
 
-  const { element, positioning } = usePopupPositioner<ComboboxPositionerInternalState>(
-    store,
-    componentProps,
-    {
+  const { element, positioning, open, mounted } =
+    usePopupPositioner<ComboboxPositionerInternalState>(store, componentProps, {
       forwardedRef,
       keepMounted,
       positioning: {
@@ -56,8 +52,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
         lazyFlip: true,
       },
       state: { empty },
-    },
-  );
+    });
 
   useAnchoredPopupScrollLock(
     open && modal,
