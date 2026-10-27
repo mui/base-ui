@@ -2510,6 +2510,107 @@ describe('<Menu.Root />', () => {
         expect(screen.queryByRole('menu')).toBe(null);
       });
 
+      it('reports a close after the parent declined a hover open without canceling it', async () => {
+        const handleOpenChange = vi.fn();
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <Menu.Root
+              open={open}
+              onOpenChange={(nextOpen, eventDetails) => {
+                handleOpenChange(nextOpen, eventDetails.reason);
+                if (eventDetails.reason !== REASONS.triggerHover) {
+                  setOpen(nextOpen);
+                }
+              }}
+            >
+              <Menu.Trigger openOnHover delay={0}>
+                Toggle
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          );
+        }
+        await render(<App />);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        enterWithMouse(trigger);
+        await waitFor(() => {
+          expect(handleOpenChange).toHaveBeenCalledWith(true, REASONS.triggerHover);
+        });
+        expect(screen.queryByRole('menu')).toBe(null);
+        moveMouse(trigger, document.body);
+
+        // The store can't tell a declined open from one the parent applies later, so the close is
+        // reported.
+        await waitFor(() => {
+          expect(handleOpenChange).toHaveBeenLastCalledWith(false, REASONS.triggerHover);
+        });
+      });
+
+      it('keeps a pending hover open on a closed, kept-mounted submenu when a sibling opens', async () => {
+        const handleSecondOpenChange = vi.fn();
+        const openFirstRef: { current: (() => void) | null } = { current: null };
+
+        function App() {
+          const [firstOpen, setFirstOpen] = React.useState(false);
+          openFirstRef.current = () => setFirstOpen(true);
+          return (
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Toggle</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.SubmenuRoot open={firstOpen} onOpenChange={setFirstOpen}>
+                      <Menu.SubmenuTrigger>First</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="first-popup">
+                            <Menu.Item>First item</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                    <Menu.SubmenuRoot onOpenChange={handleSecondOpenChange}>
+                      <Menu.SubmenuTrigger delay={100}>Second</Menu.SubmenuTrigger>
+                      <Menu.Portal keepMounted>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="second-popup">
+                            <Menu.Item>Second item</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          );
+        }
+
+        await render(<App />);
+        expect(screen.getByTestId('second-popup')).not.toHaveAttribute('data-open');
+        expect(screen.queryByTestId('first-popup')).toBe(null);
+
+        enterWithMouse(screen.getByRole('menuitem', { name: 'Second' }));
+        await act(async () => {
+          openFirstRef.current!();
+        });
+        expect(screen.getByTestId('first-popup')).not.toBe(null);
+        await act(async () => {
+          await wait(200);
+        });
+
+        expect(handleSecondOpenChange).toHaveBeenCalledWith(true, expect.anything());
+        expect(screen.getByTestId('second-popup')).toHaveAttribute('data-open');
+      });
+
       it('opens the submenu on hover with zero delay', async () => {
         await render(
           <ContainedTriggerMenu

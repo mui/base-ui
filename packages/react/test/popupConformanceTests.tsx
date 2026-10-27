@@ -118,6 +118,27 @@ export function popupConformanceTests(config: PopupTestConfig) {
         await rerender(prepareComponent({ root: { open: true } }));
         expect(getPopup()).not.toBe(null);
       });
+
+      it('reports every close request while `open={true}` keeps the popup open', async () => {
+        const handleOpenChange = vi.fn();
+        const { user } = await render(
+          prepareComponent({ root: { open: true, onOpenChange: handleOpenChange } }),
+        );
+
+        await user.keyboard('[Escape]');
+        await flushMicrotasks();
+        expect(getPopup()).toBeVisible();
+        await user.keyboard('[Escape]');
+
+        await waitFor(() => {
+          expect(handleOpenChange).toHaveBeenCalledTimes(2);
+        });
+        expect(handleOpenChange).toHaveBeenNthCalledWith(
+          2,
+          false,
+          expect.objectContaining({ reason: REASONS.escapeKey }),
+        );
+      });
     });
 
     describe('prop: defaultOpen', () => {
@@ -143,27 +164,6 @@ export function popupConformanceTests(config: PopupTestConfig) {
         await user.keyboard('[Escape]');
         await flushMicrotasks();
         expect(getPopup()).toBeVisible();
-      });
-
-      it('reports every close request while `open={true}` keeps the popup open', async () => {
-        const handleOpenChange = vi.fn();
-        const { user } = await render(
-          prepareComponent({ root: { open: true, onOpenChange: handleOpenChange } }),
-        );
-
-        await user.keyboard('[Escape]');
-        await flushMicrotasks();
-        expect(getPopup()).toBeVisible();
-        await user.keyboard('[Escape]');
-
-        await waitFor(() => {
-          expect(handleOpenChange).toHaveBeenCalledTimes(2);
-        });
-        expect(handleOpenChange).toHaveBeenNthCalledWith(
-          2,
-          false,
-          expect.objectContaining({ reason: REASONS.escapeKey }),
-        );
       });
     });
 
@@ -315,6 +315,36 @@ export function popupConformanceTests(config: PopupTestConfig) {
 
           expect(handleOpenChange).not.toHaveBeenCalled();
           expect(getPopup()).not.toHaveAttribute('data-open');
+        });
+
+        it('reopens a popup that is still mounted once the hover delay ends without a `close` action', async () => {
+          const handleOpenChange = vi.fn(
+            (nextOpen: boolean, eventDetails: OpenChangeEventDetails) => {
+              if (!nextOpen) {
+                eventDetails.preventUnmountOnClose();
+              }
+            },
+          );
+          const { user } = await render(
+            prepareComponent({
+              root: { defaultOpen: true, onOpenChange: handleOpenChange },
+              trigger: { delay: 100 },
+            }),
+          );
+
+          await user.keyboard('[Escape]');
+          await flushMicrotasks();
+          expect(getPopup()).not.toBe(null);
+          expect(getPopup()).not.toHaveAttribute('data-open');
+          handleOpenChange.mockClear();
+
+          enterWithMouse(getTrigger());
+          await act(async () => {
+            await wait(200);
+          });
+
+          expect(handleOpenChange).toHaveBeenCalledWith(true, expect.anything());
+          expect(getPopup()).toHaveAttribute('data-open');
         });
 
         it('opens once the hover delay ends without a `close` action', async () => {

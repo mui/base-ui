@@ -687,11 +687,8 @@ describe('<Tooltip.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('popup-1')).toBe(null);
         });
-        // The first tooltip was already closing, so it doesn't report a second close.
-        expect(handleFirstOpenChange).not.toHaveBeenCalledWith(
-          false,
-          expect.objectContaining({ reason: REASONS.none }),
-        );
+        // The first tooltip was already closing, so it reports only its open and its hover close.
+        expect(handleFirstOpenChange).toHaveBeenCalledTimes(2);
       });
 
       it('inline opacity: 0 is removed before user CSS transitions run', async () => {

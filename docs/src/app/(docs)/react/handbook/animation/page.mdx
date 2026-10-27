@@ -190,6 +190,8 @@ Use this when Base UI can't detect your closing animation, for example when it 
 Call `eventDetails.preventUnmountOnClose()` in `onOpenChange` when the component closes, then call `unmount()` on the `actionsRef` passed to the `<Root>` once the animation finishes.
 This ends the closing phase, and `onOpenChangeComplete(false)` fires. Whether the popup leaves the DOM is still decided by `keepMounted`.
 
+If you need to wait for something before closing, control `open` and keep it `true` while you wait. After the `await`, call `eventDetails.preventUnmountOnClose()` and then set `open` to `false`. Each close decides for itself, so a later close replaces the request: call `eventDetails.cancel()` on close requests that arrive while you're waiting.
+
 ```jsx title="manual-unmount.tsx"
 function App() {
   const [open, setOpen] = React.useState(false);

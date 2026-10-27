@@ -116,9 +116,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         if (details.parentNodeId === floatingNodeId) {
           store.set('hoverEnabled', false);
         }
+        // A submenu that is already closed has nothing to close, and a dropped close would cancel
+        // a hover open it has pending. This mirrors the drop rule in `setOpen`.
         if (
           details.nodeId !== floatingNodeId &&
-          details.parentNodeId === store.select('floatingParentNodeId')
+          details.parentNodeId === store.select('floatingParentNodeId') &&
+          (store.state.open || store.state.openProp)
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }

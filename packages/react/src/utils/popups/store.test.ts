@@ -505,7 +505,27 @@ describe('BasePopupStore', () => {
       expect(store.state.preventUnmountingOnClose).toBe(false);
     });
 
-    it('ignores a late request to keep the popup mounted once it has unmounted', () => {
+    it('ignores a late request from a close once a later close commits under a lagging prop', () => {
+      const closeDetails: PopupOpenChangeEventDetails[] = [];
+      const store = new TestPopupStore(
+        (open, eventDetails) => {
+          if (!open) {
+            closeDetails.push(eventDetails);
+          }
+        },
+        { open: true, openProp: true, mounted: true },
+      );
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+      // The prop still says open, so the second close isn't dropped.
+      store.setOpen(false, createDetails(REASONS.outsidePress));
+      expect(closeDetails).toHaveLength(2);
+      closeDetails[0].preventUnmountOnClose();
+
+      expect(store.state.preventUnmountingOnClose).toBe(false);
+    });
+
+    it('lets the next open clear a late request made after the popup unmounted', () => {
       let closeDetails: PopupOpenChangeEventDetails | undefined;
       const store = new TestPopupStore(
         (open, eventDetails) => {
@@ -518,10 +538,30 @@ describe('BasePopupStore', () => {
 
       store.setOpen(false, createDetails(REASONS.escapeKey));
       store.resetOnUnmount();
-      store.update({ mounted: true });
       closeDetails!.preventUnmountOnClose();
+      expect(store.state.preventUnmountingOnClose).toBe(true);
+      store.setOpen(true, createDetails(REASONS.triggerPress));
 
       expect(store.state.preventUnmountingOnClose).toBe(false);
+    });
+
+    it('keeps a late request from a close when a later close is dropped', () => {
+      const closeDetails: PopupOpenChangeEventDetails[] = [];
+      const store = new TestPopupStore(
+        (open, eventDetails) => {
+          if (!open) {
+            closeDetails.push(eventDetails);
+          }
+        },
+        { open: true, mounted: true },
+      );
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+      store.setOpen(false, createDetails(REASONS.outsidePress));
+      expect(closeDetails).toHaveLength(1);
+      closeDetails[0].preventUnmountOnClose();
+
+      expect(store.state.preventUnmountingOnClose).toBe(true);
     });
 
     it('ignores a late request to keep the popup mounted from an open change', () => {

@@ -373,7 +373,9 @@ type PopupUnmountKey =
  *    default only hover changes are, and a store can turn that off, as Menu does.
  *
  * `onOpenChange` only hears about changes that can happen. A change the store would not commit
- * belongs in step 1, so it is dropped before it is reported.
+ * belongs in step 1, so it is dropped before it is reported. A controlled popup's last request
+ * counts as its state until the `open` prop changes, so a close after an open the parent declined
+ * without `cancel()` is still reported.
  *
  * Once the popup has finished closing and unmounts, `resetOnUnmount` clears what the open session
  * left behind, along with the store's own fields from `prepareUnmount`.
@@ -389,8 +391,9 @@ export abstract class BasePopupStore<
   private lastOpenChange: ChangeEventDetails | undefined;
 
   override setState(newState: Readonly<State>): void {
-    // Opening, through `setOpen` or the `open` prop, ends what the last close could still request.
-    if (!popupStoreSelectors.open(this.state) && popupStoreSelectors.open(newState)) {
+    // Opening through the `open` prop ends what the last close could still request. An open
+    // through `setOpen` replaces `lastOpenChange` itself.
+    if (!this.state.openProp && newState.openProp) {
       this.lastOpenChange = undefined;
     }
     super.setState(
@@ -446,8 +449,9 @@ export abstract class BasePopupStore<
         return;
       }
       // A call made once the close is committed, such as after an `await` in `onOpenChange`, still
-      // applies until the popup opens again or unmounts. A controlled `open` prop may not have
-      // caught up with the close yet.
+      // applies until the popup opens again. A controlled `open` prop may not have caught up with
+      // the close yet. After the popup unmounts, the flag has no effect until the next open clears
+      // it.
       this.set('preventUnmountingOnClose', true);
     };
 
@@ -538,7 +542,6 @@ export abstract class BasePopupStore<
       unmountState.activeTriggerId = null;
       unmountState.activeTriggerElement = null;
     }
-    this.lastOpenChange = undefined;
     this.update({ ...this.prepareUnmount(), ...unmountState } as Pick<State, keyof State>);
   }
 
