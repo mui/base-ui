@@ -11,3 +11,13 @@ export type * from './title/PopoverTitle';
 export type * from './description/PopoverDescription';
 export type * from './close/PopoverClose';
 export type * from './viewport/PopoverViewport';
+
+export * as PopoverTriggerDataAttributes from './trigger/PopoverTriggerDataAttributes';
+export * as PopoverPositionerCssVariables from './positioner/PopoverPositionerCssVars';
+export * as PopoverPositionerDataAttributes from './positioner/PopoverPositionerDataAttributes';
+export * as PopoverPopupCssVariables from './popup/PopoverPopupCssVars';
+export * as PopoverPopupDataAttributes from './popup/PopoverPopupDataAttributes';
+export * as PopoverArrowDataAttributes from './arrow/PopoverArrowDataAttributes';
+export * as PopoverBackdropDataAttributes from './backdrop/PopoverBackdropDataAttributes';
+export * as PopoverViewportCssVariables from './viewport/PopoverViewportCssVars';
+export * as PopoverViewportDataAttributes from './viewport/PopoverViewportDataAttributes';

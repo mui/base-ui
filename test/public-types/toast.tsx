@@ -1,9 +1,9 @@
-import {
-  Toast,
-  type UseToastManagerReturnValue,
-  type ToastManagerAddOptions as BaseToastManagerAddOptions,
-  type ToastManagerPromiseOptions as BaseToastManagerPromiseOptions,
-  type ToastManagerUpdateOptions as BaseToastManagerUpdateOptions,
+import { Toast } from '@base-ui/react/toast';
+import type {
+  UseToastManagerReturnValue,
+  ToastManagerAddOptions as BaseToastManagerAddOptions,
+  ToastManagerPromiseOptions as BaseToastManagerPromiseOptions,
+  ToastManagerUpdateOptions as BaseToastManagerUpdateOptions,
 } from '@base-ui/react/toast';
 
 export type ToastProviderProps = Toast.Provider.Props;

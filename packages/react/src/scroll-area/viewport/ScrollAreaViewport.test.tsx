@@ -20,6 +20,19 @@ describe('<ScrollArea.Viewport />', () => {
     },
   }));
 
+  it('does not use a presentational role on the focusable viewport', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Viewport tabIndex={0} data-testid="viewport" />
+      </ScrollArea.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+
+    expect(viewport).not.toHaveAttribute('role', 'presentation');
+    expect(viewport).toHaveAttribute('tabindex', '0');
+  });
+
   it('handles a user scroll callback unmounting the viewport', async () => {
     function App() {
       const [mounted, setMounted] = React.useState(true);
@@ -393,16 +406,23 @@ describe('<ScrollArea.Viewport />', () => {
 
       const viewport = screen.getByTestId('viewport');
 
-      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
       await waitFor(() => {
-        expect(viewport).toHaveAttribute('data-has-overflow-x');
-        expect(viewport).toHaveAttribute('data-has-overflow-y');
-        expect(viewport).not.toHaveAttribute('data-overflow-x-start');
-        expect(viewport).toHaveAttribute('data-overflow-x-end');
-        expect(viewport).not.toHaveAttribute('data-overflow-y-start');
-        expect(viewport).toHaveAttribute('data-overflow-y-end');
+        expect({
+          hasOverflowX: viewport.hasAttribute('data-has-overflow-x'),
+          hasOverflowY: viewport.hasAttribute('data-has-overflow-y'),
+          overflowXStart: viewport.hasAttribute('data-overflow-x-start'),
+          overflowXEnd: viewport.hasAttribute('data-overflow-x-end'),
+          overflowYStart: viewport.hasAttribute('data-overflow-y-start'),
+          overflowYEnd: viewport.hasAttribute('data-overflow-y-end'),
+        }).toEqual({
+          hasOverflowX: true,
+          hasOverflowY: true,
+          overflowXStart: false,
+          overflowXEnd: true,
+          overflowYStart: false,
+          overflowYEnd: true,
+        });
       });
-      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
     });
   });
 

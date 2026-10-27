@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import { ComboboxStore } from '../store';
-import type { FloatingRootContext } from '../../floating-ui-react';
+import type { ComboboxStore } from '../store';
 
 export interface ComboboxDerivedItemsContext {
-  query: string;
   hasItems: boolean;
   filteredItems: any[];
   /**
@@ -15,9 +13,6 @@ export interface ComboboxDerivedItemsContext {
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);
-export const ComboboxFloatingContext = React.createContext<FloatingRootContext | undefined>(
-  undefined,
-);
 export const ComboboxDerivedItemsContext = React.createContext<
   ComboboxDerivedItemsContext | undefined
 >(undefined);
@@ -32,16 +27,6 @@ export function useComboboxRootContext() {
   if (!context) {
     throw new Error(
       'Base UI: ComboboxRootContext is missing. Combobox parts must be placed within <Combobox.Root>.',
-    );
-  }
-  return context;
-}
-
-export function useComboboxFloatingContext() {
-  const context = React.useContext(ComboboxFloatingContext);
-  if (!context) {
-    throw new Error(
-      'Base UI: ComboboxFloatingContext is missing. Combobox parts must be placed within <Combobox.Root>.',
     );
   }
   return context;

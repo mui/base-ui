@@ -19,7 +19,7 @@ Renders a `<div>` element.
 | onValueChange          | `((value: number \| number[], eventDetails: Slider.Root.ChangeEventDetails) => void)`     | -              | Callback function that is fired when the slider's value changed.&#xA;Receives the new value as the first argument; the originating event is&#xA;available as `eventDetails.event`. The value is also reflected on&#xA;`eventDetails.event.target.value` for form integration. The `eventDetails.reason` indicates what triggered the change: `'input-change'` when the hidden range input emits a change event (for example, via form integration)`'track-press'` when the control track is pressed`'drag'` while dragging a thumb`'keyboard'` for keyboard input`'none'` when the change is triggered without a specific interaction |
 | onValueCommitted       | `((value: number \| number[], eventDetails: Slider.Root.CommitEventDetails) => void)`     | -              | Callback function that is fired when a value change is committed.&#xA;Does not fire if the value did not change, or if the change was canceled.&#xA;**Warning**: This is a generic event, not a change event. The `eventDetails.reason` indicates what triggered the commit: `'drag'` while dragging a thumb`'track-press'` when the control track is pressed`'keyboard'` for keyboard input`'input-change'` when the hidden range input emits a change event (for example, via form integration)`'none'` when the commit occurs without a specific interaction                                                                       |
 | form                   | `string`                                                                                  | -              | Identifies the form that owns the slider inputs.&#xA;Useful when the slider is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| locale                 | `Intl.LocalesArgument`                                                                    | -              | The locale used by `Intl.NumberFormat` when formatting the value.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| locale                 | `Intl.LocalesArgument`                                                                    | -              | The locale used by `Intl.NumberFormat` when formatting the value.&#xA;Defaults to the user's runtime locale.&#xA;When server rendering, `en-US` is used until hydration.                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | thumbAlignment         | `'center' \| 'edge' \| 'edge-client-only'`                                                | `'center'`     | How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`: `center`: The center of the thumb is aligned with the control edge`edge`: The thumb is inset within the control such that its edge is aligned with the control edge`edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return                                                                                                                                                                                                                                                  |
 | thumbCollisionBehavior | `'push' \| 'swap' \| 'none'`                                                              | `'push'`       | Controls how thumbs behave when they collide during pointer interactions. `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.`'swap'`: Thumbs swap places when dragged past each other.`'none'`: Thumbs cannot move past each other; excess movement is ignored.                                                                                                                                                                                                                                                                                                                 |
 | step                   | `number`                                                                                  | `1`            | The granularity with which the slider can step through values. (A "discrete" slider.)&#xA;The `min` prop serves as the origin for the valid values.&#xA;We recommend (max - min) to be evenly divisible by the step.                                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -583,6 +583,62 @@ type SliderLabelState = {
 
 ## Additional Types
 
+### SliderControlDataAttributes
+
+Data attributes of [Control](#control).
+
+```typescript
+declare namespace SliderControlDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### SliderIndicatorDataAttributes
+
+Data attributes of [Indicator](#indicator).
+
+```typescript
+declare namespace SliderIndicatorDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
 ### SliderRootChangeEventCustomProperties
 
 ```typescript
@@ -590,6 +646,120 @@ type SliderRootChangeEventCustomProperties = {
   /** The index of the active thumb at the time of the change. */
   activeThumbIndex: number;
 };
+```
+
+### SliderRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace SliderRootDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### SliderThumbDataAttributes
+
+Data attributes of [Thumb](#thumb).
+
+```typescript
+declare namespace SliderThumbDataAttributes {
+  /** Indicates the index of the thumb in range sliders. */
+  const index: 'data-index';
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### SliderTrackDataAttributes
+
+Data attributes of [Track](#track).
+
+```typescript
+declare namespace SliderTrackDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
+```
+
+### SliderValueDataAttributes
+
+Data attributes of [Value](#value).
+
+```typescript
+declare namespace SliderValueDataAttributes {
+  /** Present while the user is dragging. */
+  const dragging: 'data-dragging';
+  /**
+   * Indicates the orientation of the slider.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the slider is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the slider is in a valid state (when wrapped in Field.Root). */
+  const valid: 'data-valid';
+  /** Present when the slider is in an invalid state (when wrapped in Field.Root). */
+  const invalid: 'data-invalid';
+  /** Present when the slider has been touched (when wrapped in Field.Root). */
+  const touched: 'data-touched';
+  /** Present when the slider's value has changed (when wrapped in Field.Root). */
+  const dirty: 'data-dirty';
+  /** Present when the slider is focused (when wrapped in Field.Root). */
+  const focused: 'data-focused';
+}
 ```
 
 ### ThumbMetadata
@@ -615,7 +785,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Slider.Track`: `Slider.Track`, `Slider.Track.State`, `Slider.Track.Props`
 - `Slider.Thumb`: `Slider.Thumb`, `Slider.Thumb.State`, `Slider.Thumb.Props`
 - `Slider.Indicator`: `Slider.Indicator`, `Slider.Indicator.State`, `Slider.Indicator.Props`
-- `Default`: `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderLabelState`, `SliderLabelProps`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
+- `Default`: `SliderRootDataAttributes`, `SliderValueDataAttributes`, `SliderControlDataAttributes`, `SliderTrackDataAttributes`, `SliderThumbDataAttributes`, `SliderIndicatorDataAttributes`, `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderLabelState`, `SliderLabelProps`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
 
 ## Canonical Types
 

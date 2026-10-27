@@ -1,10 +1,10 @@
 import { expect, vi, describe, it } from 'vitest';
 import { Meter } from '@base-ui/react/meter';
 import { screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, mockRuntimeLocale } from '#test-utils';
 
 describe('<Meter.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   function formatPercent(value: number) {
     return value.toLocaleString(undefined, { style: 'percent' });
@@ -295,6 +295,26 @@ describe('<Meter.Root />', () => {
       );
 
       expect(screen.getByTestId('value').textContent).toBe(expectedValue);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('formats with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(
+        <Meter.Root value={1234.5} max={2000} format={format} />,
+      );
+      expect(screen.getByRole('meter').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('en-US', format),
+      );
+
+      await hydrate();
+      expect(screen.getByRole('meter').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('de-DE', format),
+      );
     });
   });
 });

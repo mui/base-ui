@@ -72,6 +72,21 @@ type ToggleChangeEventDetails = {
 };
 ```
 
+## Additional Types
+
+### ToggleDataAttributes
+
+Data attributes of [Toggle](#toggle).
+
+```typescript
+declare namespace ToggleDataAttributes {
+  /** Present when the toggle button is pressed. */
+  const pressed: 'data-pressed';
+  /** Present when the toggle button is disabled. */
+  const disabled: 'data-disabled';
+}
+```
+
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
