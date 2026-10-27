@@ -361,8 +361,8 @@ type PopupUnmountKey =
  * the same order:
  *
  * 1. A close request while the popup is closed is dropped, and `isOpenChangeIgnored` can drop any
- *    other change, before `onOpenChange` hears about it. A close dropped while the popup isn't
- *    mounted still reaches the interactions, so a pending open such as a hover delay is cancelled.
+ *    other change, before `onOpenChange` hears about it. A dropped close still cancels a pending
+ *    hover open.
  * 2. `getCloseTrigger` can name the trigger a close request without one reports.
  * 3. `preventUnmountOnClose()` is added to the event details.
  * 4. `onOpenChange` is called and can cancel the change.
@@ -421,12 +421,10 @@ export abstract class BasePopupStore<
     const details = eventDetails as ChangeEventDetails;
 
     // A controlled popup can hold a request the `open` prop hasn't caught up with yet, so a close
-    // is dropped only when both are closed. A popup that isn't mounted may still have an open
-    // pending, such as a hover delay, so its interactions hear about the close to cancel it.
+    // is dropped only when both are closed. A hover open may still be pending, so the hover
+    // interaction hears about the dropped close to cancel it.
     if (!nextOpen && !this.state.open && !this.state.openProp) {
-      if (!this.state.mounted) {
-        dispatchOpenChange(this.context, false, false, details);
-      }
+      this.context.events.emit('droppedclose');
       return;
     }
 

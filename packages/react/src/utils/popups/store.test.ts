@@ -317,24 +317,20 @@ describe('BasePopupStore', () => {
       expect(store.steps).toEqual([]);
     });
 
-    it('drops a close request while closed, notifying only the interactions', () => {
+    it.each([
+      { name: 'closed', mounted: false },
+      { name: 'still closing', mounted: true },
+    ])('drops a close request while $name, reporting only that it was dropped', ({ mounted }) => {
       const onOpenChange = vi.fn();
-      const store = new TestPopupStore(onOpenChange);
-
-      store.setOpen(false, createDetails(REASONS.escapeKey));
-
-      expect(onOpenChange).not.toHaveBeenCalled();
-      expect(store.steps).toEqual(['notify']);
-    });
-
-    it('drops a close request while the popup is closing without notifying anyone', () => {
-      const onOpenChange = vi.fn();
-      const store = new TestPopupStore(onOpenChange, { mounted: true });
+      const onDroppedClose = vi.fn();
+      const store = new TestPopupStore(onOpenChange, { mounted });
+      store.context.events.on('droppedclose', onDroppedClose);
 
       store.setOpen(false, createDetails(REASONS.triggerHover));
 
       expect(onOpenChange).not.toHaveBeenCalled();
       expect(store.steps).toEqual([]);
+      expect(onDroppedClose).toHaveBeenCalledTimes(1);
     });
 
     it('runs a close request while a controlled popup is open but its last request closed it', () => {

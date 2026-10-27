@@ -2490,6 +2490,26 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it('cancels a pending hover open when the `close` action is called', async () => {
+        const handleOpenChange = vi.fn();
+        const actionsRef = React.createRef<Menu.Root.Actions>();
+        await render(
+          <TestMenu
+            rootProps={{ actionsRef, onOpenChange: handleOpenChange }}
+            triggerProps={{ openOnHover: true, delay: 100 }}
+          />,
+        );
+
+        enterWithMouse(screen.getByRole('button', { name: 'Toggle' }));
+        await act(async () => {
+          actionsRef.current!.close();
+          await wait(200);
+        });
+
+        expect(handleOpenChange).not.toHaveBeenCalled();
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
       it('opens the submenu on hover with zero delay', async () => {
         await render(
           <ContainedTriggerMenu

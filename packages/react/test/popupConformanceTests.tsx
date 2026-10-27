@@ -285,6 +285,38 @@ export function popupConformanceTests(config: PopupTestConfig) {
           expect(getPopup()).toBe(null);
         });
 
+        it('cancels a pending hover open when the `close` action is called while the popup is still mounted', async () => {
+          const handleOpenChange = vi.fn(
+            (nextOpen: boolean, eventDetails: OpenChangeEventDetails) => {
+              if (!nextOpen) {
+                eventDetails.preventUnmountOnClose();
+              }
+            },
+          );
+          const actionsRef = React.createRef<{ close: () => void; unmount: () => void }>();
+          const { user } = await render(
+            prepareComponent({
+              root: { actionsRef, defaultOpen: true, onOpenChange: handleOpenChange },
+              trigger: { delay: 100 },
+            }),
+          );
+
+          await user.keyboard('[Escape]');
+          await flushMicrotasks();
+          expect(getPopup()).not.toBe(null);
+          expect(getPopup()).not.toHaveAttribute('data-open');
+          handleOpenChange.mockClear();
+
+          enterWithMouse(getTrigger());
+          await act(async () => {
+            actionsRef.current!.close();
+            await wait(200);
+          });
+
+          expect(handleOpenChange).not.toHaveBeenCalled();
+          expect(getPopup()).not.toHaveAttribute('data-open');
+        });
+
         it('opens once the hover delay ends without a `close` action', async () => {
           const handleOpenChange = vi.fn();
           await render(
