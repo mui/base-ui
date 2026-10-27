@@ -108,6 +108,8 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
       });
+      // React 18 commits the end of the transition after the callback runs.
+      await flushMicrotasks();
       // The press mounts the list while closed so its items can register; it isn't left closing.
       expect(screen.getByRole('listbox', { hidden: true })).not.toHaveAttribute(
         'data-ending-style',
