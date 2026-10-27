@@ -260,10 +260,6 @@ class TestPopupStore extends BasePopupStore<
     return { extra: 1 };
   }
 
-  protected completeOpenChange() {
-    this.steps.push('complete');
-  }
-
   protected prepareUnmount() {
     return { extra: -1 };
   }
@@ -275,14 +271,14 @@ function createDetails(reason: string, trigger?: Element) {
 
 describe('BasePopupStore', () => {
   describe('setOpen', () => {
-    it('calls onOpenChange, notifies interactions, prepares, commits once and completes, in that order', () => {
+    it('calls onOpenChange, notifies interactions, prepares and commits once, in that order', () => {
       const store = new TestPopupStore(() => {
         store.steps.push('onOpenChange');
       });
 
       store.setOpen(true, createDetails(REASONS.triggerPress));
 
-      expect(store.steps).toEqual(['onOpenChange', 'notify', 'prepare', 'commit', 'complete']);
+      expect(store.steps).toEqual(['onOpenChange', 'notify', 'prepare', 'commit']);
     });
 
     it('commits the open state, the reason and the extra state together', () => {

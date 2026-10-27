@@ -122,8 +122,10 @@ export class PopoverStore<Payload> extends BasePopupStore<
     );
   }
 
-  protected prepareOpenChange(_nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
-    if (eventDetails.reason === REASONS.triggerHover) {
+  protected prepareOpenChange(nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
+    const reason = eventDetails.reason;
+
+    if (reason === REASONS.triggerHover) {
       // Only allow "patient" clicks to close the popover if it's open.
       // If they clicked within 500ms of the popover opening, keep it open.
       this.context.stickIfOpen = true;
@@ -131,13 +133,6 @@ export class PopoverStore<Payload> extends BasePopupStore<
         this.context.stickIfOpen = false;
       });
     }
-
-    return {};
-  }
-
-  // `instantType` is committed in its own update, after the open change.
-  protected completeOpenChange(nextOpen: boolean, eventDetails: PopoverRoot.ChangeEventDetails) {
-    const reason = eventDetails.reason;
 
     let instantType: State<Payload>['instantType'];
     if (reason === REASONS.triggerPress && (eventDetails.event as MouseEvent).detail === 0) {
@@ -148,7 +143,7 @@ export class PopoverStore<Payload> extends BasePopupStore<
       instantType = 'focus';
     }
 
-    this.set('instantType', instantType);
+    return { instantType };
   }
 
   protected prepareUnmount() {

@@ -375,7 +375,6 @@ type PopupUnmountKey =
  * 7. `prepareOpenChange` runs the store's own side effects and returns its extra state.
  * 8. One update commits the change, synchronously when `isCommittedSynchronously` says so. By
  *    default only hover changes are, and a store can turn that off, as Menu does.
- * 9. `completeOpenChange` runs once the change is committed.
  *
  * Once the popup has finished closing and unmounts, `resetOnUnmount` clears what the open session
  * left behind, along with the store's own fields from `prepareUnmount`.
@@ -454,8 +453,6 @@ export abstract class BasePopupStore<
     } else {
       commit();
     }
-
-    this.completeOpenChange(nextOpen, details);
   };
 
   /**
@@ -497,11 +494,6 @@ export abstract class BasePopupStore<
   protected isCommittedSynchronously(eventDetails: ChangeEventDetails): boolean {
     return eventDetails.reason === REASONS.triggerHover;
   }
-
-  /**
-   * Runs the store's own side effects once an open change is committed.
-   */
-  protected completeOpenChange(_nextOpen: boolean, _eventDetails: ChangeEventDetails): void {}
 
   /**
    * Clears what the open session left behind once the popup has finished closing and unmounted.

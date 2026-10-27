@@ -2818,7 +2818,7 @@ describe('<Popover.Root />', () => {
   });
 
   describe('hover open after a dismissal', () => {
-    it('renders the open popup with the dismissal instant type before clearing it', async () => {
+    it('renders the open popup without the dismissal instant type', async () => {
       const renders: { open: boolean; instant: string | undefined }[] = [];
 
       const { user } = await render(
@@ -2862,10 +2862,7 @@ describe('<Popover.Root />', () => {
         expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       });
 
-      expect(renders.find((entry) => entry.open)).toEqual({ open: true, instant: 'dismiss' });
-      await waitFor(() => {
-        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
-      });
+      expect(renders.find((entry) => entry.open)).toEqual({ open: true, instant: undefined });
     });
   });
   describe('after a close from a trigger', () => {
