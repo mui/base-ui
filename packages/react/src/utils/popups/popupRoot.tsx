@@ -142,7 +142,12 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
   const payload = store.useState('payload') as Store['state']['payload'];
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount });
-  const transitionStatus = usePopupRootTransitions(store, transitionOpen, props, animateInitialOpen);
+  const transitionStatus = usePopupRootTransitions(
+    store,
+    transitionOpen,
+    props,
+    animateInitialOpen,
+  );
 
   return { store, open, mounted, payload, transitionStatus };
 }
@@ -490,8 +495,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *   only mounts in response to something the user did, such as a submenu inside a menu popup.
  * @param popupRef The element whose closing animations are awaited before unmounting.
  *
- * @returns A function to forcibly unmount the popup. It is a no-op once the popup is already
- *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
+ * @returns The transition status, and a function to forcibly unmount the popup. That function is a
+ *   no-op once the popup is already unmounted, so calling it after the automatic unmount doesn't
+ *   repeat the completion callback.
  */
 function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,

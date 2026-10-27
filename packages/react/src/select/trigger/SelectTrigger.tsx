@@ -151,7 +151,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           store.setOpen(false, createChangeEventDetails(REASONS.none, event.nativeEvent));
         }
 
-        // Saves a re-render on initial click: `forceMount === true` mounts
+        // Saves a re-render on initial click: `forceMounted === true` mounts
         // the items before `open === true`. We could sync those cycles better
         // without a timeout, but this is enough for now.
         timeoutFocus.start(0, () => {

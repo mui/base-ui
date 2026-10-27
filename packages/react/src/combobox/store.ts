@@ -29,7 +29,8 @@ export type State = ValuePopupState & {
   };
 
   /**
-   * The id the input and trigger point at with `aria-controls`.
+   * The id of the popup element, which the trigger points at with `aria-controls` while the input
+   * is inside the popup.
    */
   popupElementId: string | undefined;
   inputElement: HTMLInputElement | null;
@@ -143,12 +144,10 @@ export const selectors = {
   popupElementId: (state: State) => state.popupElementId,
   inputElement: (state: State) => state.inputElement,
   inputGroupElement: (state: State) => state.inputGroupElement,
-  // An inline list renders for as long as it's in the tree, so the interaction hooks treat it as
-  // open even while the open state is `false`.
+  // See `interactions`.
   interactionOpen: (state: State) => popupStoreSelectors.open(state) || state.inline,
-  // The interaction hooks see a kept-mounted positioner for as long as it's mounted. The shared
-  // selector hides it while an opening popup mounts, which list navigation reads as the list going
-  // away and resets the highlight that typing just set.
+  // The shared selector hides the positioner while an opening popup mounts, which list navigation
+  // reads as the list going away, resetting the highlight that typing just set.
   interactionPositionerElement: (state: State) => state.positionerElement,
 
   inputInsidePopup: (state: State) => state.inputInsidePopup,
@@ -170,8 +169,9 @@ export class ComboboxStore extends ValuePopupStore<
   AriaCombobox.OpenChangeEventDetails
 > {
   /**
-   * The store the interaction hooks read. It reads `open` as `interactionOpen`, so an inline list
-   * stays navigable while closed; everything else is the store itself.
+   * The store the interaction hooks read. An inline list renders for as long as it's in the tree,
+   * so the hooks see it as open (`interactionOpen`) even while the open state is `false`. They also
+   * see a kept-mounted positioner for as long as it's mounted. Everything else is the store itself.
    */
   readonly interactions: PositioningInteractionStore = createInteractionView(this);
 

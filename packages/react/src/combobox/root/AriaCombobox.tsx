@@ -328,8 +328,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   // Support composing the Dialog component around an inline combobox: its transitions wait for
-  // the dialog's animations. The Root's transitions start before the list element is known, so they
-  // read the element through this ref, which follows `resolvedPopupRef` below.
+  // the dialog's animations. The Root hook runs before `resolvedPopupRef` below can be computed, so
+  // the transitions read the element through this ref, which a layout effect points at it.
   const animatedPopupRef = useRefWithInit(() => ({
     target: popupRef as React.RefObject<HTMLElement | null>,
     get current() {
@@ -1312,8 +1312,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useValueChanged(inputValue, handleInputValueChanged);
 
   const ariaHasPopup = grid ? 'grid' : 'listbox';
-  // An inline list isn't gated on `open`: it renders for as long as it's in the tree, so the
-  // combobox is permanently expanded even while the internal open state is `false`.
+  // An inline list is permanently expanded (see `ComboboxStore.interactions`).
   const expanded = open || inline;
   const ariaExpanded = expanded ? 'true' : 'false';
 
