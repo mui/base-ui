@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { formatNumber } from '../../utils/formatNumber';
+import { clamp } from '@base-ui/utils/clamp';
+import { formatRangeValue } from '../../utils/formatRangeValue';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { clamp } from '../../internals/clamp';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
-import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 
 /**
  * Groups all parts of the progress bar and provides the task completion status to screen readers.
@@ -34,6 +35,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
+  const formatLocale = useFormatLocale(locale);
 
   // `value === null` (or any non-finite value) keeps Progress indeterminate. Otherwise compute a
   // single clamped value and normalized percentage so completion status, `aria-valuenow`, the
@@ -51,11 +53,9 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     percentageValue = clamp(Number.isNaN(rawPercentage) ? 0 : rawPercentage, 0, 100);
     clampedValue = clamp(value, min, max);
     status = clampedValue === max ? 'complete' : 'progressing';
-    // Without an explicit `format`, the value is displayed as its position within the range so the
-    // text stays in sync with the indicator fill.
-    formattedValue = format
-      ? formatNumber(clampedValue, locale, format)
-      : formatNumber(percentageValue / 100, locale, { style: 'percent' });
+    // Format the clamped value so visible and accessible text stay in sync with `aria-valuenow` and
+    // the indicator fill. The raw value remains available as the second `getAriaValueText` argument.
+    formattedValue = formatRangeValue(clampedValue, percentageValue, formatLocale, format);
     defaultAriaValueText = formattedValue;
   }
 
@@ -82,13 +82,15 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const contextValue: ProgressRootContext = React.useMemo(
     () => ({
-      formattedValue,
+      clampedValue,
+      format,
+      locale,
       percentageValue,
       setLabelId,
       state,
       value,
     }),
-    [formattedValue, percentageValue, setLabelId, state, value],
+    [clampedValue, format, locale, percentageValue, setLabelId, state, value],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -128,6 +130,7 @@ export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressR
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
+   * When server rendering, `en-US` is used until hydration.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**

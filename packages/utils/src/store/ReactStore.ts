@@ -1,5 +1,3 @@
-/* False positives - ESLint thinks we're calling a hook from a class component. */
-/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 import * as React from 'react';
 import { Store } from './Store';
@@ -32,9 +30,9 @@ export class ReactStore<
   /**
    * Non-reactive values such as refs, callbacks, etc.
    */
-  readonly context: Context;
+  declare readonly context: Context;
 
-  private selectors: Selectors | undefined;
+  declare private selectors: Selectors | undefined;
 
   /**
    * Synchronizes a single external value into the store.
@@ -42,10 +40,7 @@ export class ReactStore<
    * Note that the while the value in `state` is updated immediately, the value returned
    * by `useState` is updated before the next render (similarly to React's `useState`).
    */
-  useSyncedValue<Key extends keyof State, Value extends State[Key]>(
-    key: keyof State,
-    value: Value,
-  ) {
+  useSyncedValue<Key extends keyof State>(key: Key, value: State[Key]) {
     React.useDebugValue(key);
     // eslint-disable-next-line consistent-this
     const store = this;
@@ -82,16 +77,23 @@ export class ReactStore<
 
   /**
    * Synchronizes multiple external values into the store.
+   * Each value must match its state key. Pass an exact known subset rather than a broad
+   * `Partial<State>`, which may contain `undefined` for required state fields.
    *
    * Note that the while the values in `state` are updated immediately, the values returned
    * by `useState` are updated before the next render (similarly to React's `useState`).
+   *
+   * @param statePart An exact subset of state fields to synchronize. Unknown keys are not accepted.
    */
-  public useSyncedValues(statePart: Partial<State>) {
+  public useSyncedValues<const Key extends keyof State>(statePart: Pick<State, Key>) {
     // eslint-disable-next-line consistent-this
     const store = this;
     if (process.env.NODE_ENV !== 'production') {
       // Check that an object with the same shape is passed on every render
+      // The condition is a build-time constant, so the hook order is the same on every render.
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       React.useDebugValue(statePart, (p) => Object.keys(p));
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const keys = React.useRef<Array<keyof State>>(
         Object.keys(statePart) as Array<keyof State>,
       ).current;
@@ -116,10 +118,7 @@ export class ReactStore<
    * Registers a controllable prop pair (`controlled`, `defaultValue`) for a specific key. If `controlled`
    * is non-undefined, the store's state at `key` is updated to match `controlled`.
    */
-  useControlledProp<Key extends keyof State, Value extends State[Key]>(
-    key: keyof State,
-    controlled: Value | undefined,
-  ): void {
+  useControlledProp<Key extends keyof State>(key: Key, controlled: State[Key] | undefined): void {
     React.useDebugValue(key);
     // eslint-disable-next-line consistent-this
     const store = this;
@@ -142,8 +141,8 @@ export class ReactStore<
       if (previouslyControlled !== undefined && previouslyControlled !== isControlled) {
         console.error(
           `A component is changing the ${
-            isControlled ? '' : 'un'
-          }controlled state of ${key.toString()} to be ${isControlled ? 'un' : ''}controlled. Elements should not switch from uncontrolled to controlled (or vice versa).`,
+            previouslyControlled ? '' : 'un'
+          }controlled state of ${key.toString()} to be ${previouslyControlled ? 'un' : ''}controlled. Elements should not switch from uncontrolled to controlled (or vice versa).`,
         );
       }
     }
@@ -202,10 +201,10 @@ export class ReactStore<
    *
    * @param key Key of the state to set.
    */
-  useStateSetter<const Key extends keyof State, Value extends State[Key]>(key: keyof State) {
-    const ref = React.useRef<(v: Value) => void>(undefined as any);
+  useStateSetter<const Key extends keyof State>(key: Key) {
+    const ref = React.useRef<(value: State[Key]) => void>(undefined as any);
     if (ref.current === undefined) {
-      ref.current = (value: Value) => {
+      ref.current = (value: State[Key]) => {
         this.set(key, value);
       };
     }

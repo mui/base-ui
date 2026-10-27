@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { TabsRootState } from '../root/TabsRoot';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -122,7 +122,7 @@ export const TabsList = React.forwardRef(function TabsList(
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
-        disabledIndices={EMPTY_ARRAY as number[]}
+        disabledIndices={EMPTY_ARRAY}
       />
     </TabsListContext.Provider>
   );

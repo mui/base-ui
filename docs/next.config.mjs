@@ -16,45 +16,36 @@ const baseDir = path.dirname(url.fileURLToPath(import.meta.url));
  */
 const localPlugin = (relativePath) => path.join(baseDir, relativePath);
 
+/** @type {NonNullable<import('@next/mdx').NextMDXOptions['options']>['remarkPlugins']} */
+export const remarkPlugins = [
+  'remark-gfm',
+  [
+    '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
+    {
+      titleSuffix: ' · Base UI',
+      extractToIndex: {
+        include: ['src/app/react'],
+        exclude: [
+          'src/app/careers',
+          'src/app/production-error',
+          'src/app/test',
+          'src/app/experiments',
+          'src/app/playground',
+        ],
+        baseDir,
+        useVisibleDescription: true,
+      },
+    },
+  ],
+  // Extract metadata before rendering transforms modify the source content.
+  // For example, docs pipeline's remarkHeadingTags strips `[Preview]` / `[New]`, which must stay in the page index.
+  [localPlugin('src/mdx/pipeline/remarkPipeline.mjs'), { baseDir }],
+];
+
 const withMdx = nextMdx({
   options: {
-    remarkPlugins: [
-      'remark-gfm',
-      [
-        '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
-        {
-          titleSuffix: ' · Base UI',
-          extractToIndex: {
-            include: ['src/app/react'],
-            exclude: [
-              'src/app/careers',
-              'src/app/production-error',
-              'src/app/test',
-              'src/app/experiments',
-              'src/app/playground',
-            ],
-            baseDir,
-            useVisibleDescription: true,
-          },
-        },
-      ],
-      'remark-typography',
-      localPlugin('src/components/QuickNav/remarkQuickNavExcludeHeading.mjs'),
-      '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths',
-      '@mui/internal-docs-infra/pipeline/transformMarkdownCode',
-    ],
-    rehypePlugins: [
-      '@mui/internal-docs-infra/pipeline/transformHtmlCodeBlock',
-      localPlugin('src/components/CodeBlock/rehypeEagerCodeBlocks.mjs'),
-      '@mui/internal-docs-infra/pipeline/transformHtmlCodeInline',
-      '@mui/internal-docs-infra/pipeline/enhanceCodeInline',
-      localPlugin('src/components/QuickNav/rehypeSlug.mjs'),
-      localPlugin('src/components/QuickNav/rehypeConcatHeadings.mjs'),
-      '@stefanprobst/rehype-extract-toc',
-      localPlugin('src/components/QuickNav/rehypeQuickNav.mjs'),
-      localPlugin('src/components/Subtitle/rehypeSubtitle.mjs'),
-      localPlugin('src/components/Kbd/rehypeKbd.mjs'),
-    ],
+    remarkPlugins,
+    rehypePlugins: [[localPlugin('src/mdx/pipeline/rehypePipeline.mjs'), { baseDir }]],
   },
 });
 
@@ -70,7 +61,6 @@ const rootPackage = loadPackageJson();
 
 /** @type {import('@mui/internal-docs-infra/pipeline/loadPrecomputedTypes').LoaderOptions} */
 const typesGenerationOptions = {
-  socketDir: '.next/docs-infra',
   updateParentIndex: {
     baseDir,
     onlyUpdateIndexes: true,
@@ -85,7 +75,7 @@ const typesGenerationOptions = {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: false,
-  pageExtensions: ['mdx', 'tsx'],
+  pageExtensions: ['mdx', 'tsx', 'ts'],
   turbopack: {
     rules: {
       './src/app/**/types.ts': {
@@ -117,7 +107,6 @@ const nextConfig = {
     },
   },
   webpack: (config, { defaultLoaders }) => {
-    // for production builds
     config.module.rules.push({
       test: /[/\\\\]src[/\\\\]app[/\\\\].*[/\\\\]types\.ts$/,
       use: [
@@ -163,6 +152,9 @@ const nextConfig = {
   experimental: {
     globalNotFound: true,
     turbopackFileSystemCacheForBuild: true,
+    // The TS7 side-by-side alias (@typescript/typescript6) ships no `tsc` bin,
+    // which the Next.js >= 16.3 CLI checker requires. Use the TS6 JS API instead.
+    useTypeScriptCli: false,
   },
 };
 

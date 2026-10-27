@@ -1,9 +1,14 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { Combobox } from '@base-ui/react/combobox';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  positionerConformanceTests,
+} from '#test-utils';
 
 describe('<Combobox.Positioner />', () => {
   const { render } = createRenderer();
@@ -73,6 +78,21 @@ describe('<Combobox.Positioner />', () => {
       );
     },
   }));
+
+  positionerConformanceTests({
+    render,
+    stableState: false,
+    createComponent: ({ root, trigger, positioner, popup }) => (
+      <Combobox.Root {...root}>
+        <Combobox.Input {...trigger} />
+        <Combobox.Portal>
+          <Combobox.Positioner {...positioner}>
+            <Combobox.Popup {...popup}>Popup</Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    ),
+  });
 
   // https://github.com/mui/base-ui/issues/5118
   it.skipIf(isJSDOM)(
@@ -145,8 +165,8 @@ describe('<Combobox.Positioner />', () => {
 
       await waitFor(() => {
         expect(anchorWidth).toBeCloseTo(inputRef.current!.getBoundingClientRect().width, 0);
-        expect(anchorWidth).not.toBeCloseTo(triggerWidth, 0);
       });
+      expect(anchorWidth).not.toBeCloseTo(triggerWidth, 0);
     });
 
     it('uses the input group when present', async () => {

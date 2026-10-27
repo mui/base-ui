@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { contains } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -10,8 +11,9 @@ import { getOffset } from '../utils/getOffset';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
-import { contains } from '../../floating-ui-react/utils';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
+import * as ScrollAreaRootCssVars from './ScrollAreaRootCssVars';
+import * as ScrollAreaScrollbarDataAttributes from '../scrollbar/ScrollAreaScrollbarDataAttributes';
 
 const DEFAULT_COORDS = { x: 0, y: 0 };
 const DEFAULT_SIZE = { width: 0, height: 0 };
@@ -136,12 +138,9 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     activePointerIdRef.current = event.pointerId;
     startYRef.current = event.clientY;
     startXRef.current = event.clientX;
-    // Literal instead of `ScrollAreaScrollbarDataAttributes.orientation`: referencing an
-    // enum member retains its whole object in the bundle, so the strings are inlined and
-    // the enums kept for docs only.
-    currentOrientationRef.current = event.currentTarget.getAttribute('data-orientation') as
-      | 'vertical'
-      | 'horizontal';
+    currentOrientationRef.current = event.currentTarget.getAttribute(
+      ScrollAreaScrollbarDataAttributes.orientation,
+    ) as 'vertical' | 'horizontal';
 
     const viewportEl = viewportRef.current;
     if (viewportEl) {
@@ -273,8 +272,8 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     },
     style: {
       position: 'relative',
-      ['--scroll-area-corner-height' as string]: `${cornerSize.height}px`,
-      ['--scroll-area-corner-width' as string]: `${cornerSize.width}px`,
+      [ScrollAreaRootCssVars.scrollAreaCornerHeight as string]: `${cornerSize.height}px`,
+      [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
     },
   };
 

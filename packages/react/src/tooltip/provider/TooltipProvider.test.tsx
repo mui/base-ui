@@ -1,10 +1,14 @@
-import { expect } from 'vitest';
+import { expect, describe, beforeEach, it } from 'vitest';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
-import { advanceReactClock, createRenderer } from '#test-utils';
+import { advanceReactClock, createRenderer, resetBrowserPointer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 describe('<Tooltip.Provider />', () => {
+  // These tests drive hover with synthetic events, so a real pointer left resting on a trigger by
+  // an earlier test would open a tooltip the fake clock never accounts for.
+  beforeEach(resetBrowserPointer);
+
   const { render, clock } = createRenderer();
 
   async function tick(ms: number) {
@@ -194,12 +198,20 @@ describe('<Tooltip.Provider />', () => {
   describe('prop: timeout', () => {
     clock.withFakeTimers();
 
-    function TwoTooltips({ timeout }: { timeout: number }) {
+    function TwoTooltips({
+      timeout,
+      providerDelay = 100,
+      triggerDelay,
+    }: {
+      timeout: number;
+      providerDelay?: number;
+      triggerDelay?: number;
+    }) {
       return (
-        <Tooltip.Provider delay={100} timeout={timeout}>
+        <Tooltip.Provider delay={providerDelay} timeout={timeout}>
           {['One', 'Two'].map((name) => (
             <Tooltip.Root key={name}>
-              <Tooltip.Trigger>{name}</Tooltip.Trigger>
+              <Tooltip.Trigger delay={triggerDelay}>{name}</Tooltip.Trigger>
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup>{`Content ${name}`}</Tooltip.Popup>
@@ -232,6 +244,46 @@ describe('<Tooltip.Provider />', () => {
 
       expect(screen.queryByText('Content Two')).not.toBe(null);
       expect(screen.queryByText('Content One')).toBe(null);
+    });
+
+    it('respects a trigger delay over delay=0 outside the instant phase', async () => {
+      await render(<TwoTooltips timeout={400} providerDelay={0} triggerDelay={100} />);
+
+      const first = screen.getByRole('button', { name: 'One' });
+      const second = screen.getByRole('button', { name: 'Two' });
+
+      fireEvent.mouseEnter(first);
+      fireEvent.mouseMove(first);
+      await flushMicrotasks();
+
+      await tick(99);
+      expect(screen.queryByText('Content One')).toBe(null);
+
+      await tick(1);
+      expect(screen.queryByText('Content One')).not.toBe(null);
+
+      fireEvent.mouseLeave(first);
+      fireEvent.mouseEnter(second);
+      fireEvent.mouseMove(second);
+      await flushMicrotasks();
+      await tick(0);
+
+      expect(screen.queryByText('Content Two')).not.toBe(null);
+      expect(screen.queryByText('Content One')).toBe(null);
+
+      fireEvent.mouseLeave(second);
+      await flushMicrotasks();
+      await tick(400);
+
+      fireEvent.mouseEnter(first);
+      fireEvent.mouseMove(first);
+      await flushMicrotasks();
+
+      await tick(99);
+      expect(screen.queryByText('Content One')).toBe(null);
+
+      await tick(1);
+      expect(screen.queryByText('Content One')).not.toBe(null);
     });
 
     it('requires the full delay again once the timeout elapses', async () => {

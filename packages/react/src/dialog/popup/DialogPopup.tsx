@@ -1,15 +1,19 @@
 'use client';
 import * as React from 'react';
-import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { type BaseUIComponentProps } from '../../internals/types';
-import { type TransitionStatus } from '../../internals/useTransitionStatus';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
-import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
+import {
+  FOCUSABLE_POPUP_PROPS,
+  createDefaultInitialFocus,
+} from '../../utils/popups/popupStoreUtils';
+import * as DialogPopupCssVars from './DialogPopupCssVars';
 import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
@@ -28,7 +32,6 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const descriptionElementId = store.useState('descriptionElementId');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
-  const floatingRootContext = store.useState('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
@@ -39,7 +42,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
   const role = store.useState('role');
-  const floatingId = floatingRootContext.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
   useDialogPortalContext();
 
@@ -72,7 +75,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     props: [
       rootPopupProps,
       {
-        id: floatingId,
+        id: defaultPopupId,
         'aria-labelledby': titleElementId,
         'aria-describedby': descriptionElementId,
         role,
@@ -84,7 +87,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
           }
         },
         style: {
-          '--nested-dialogs': nestedOpenDialogCount,
+          [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
         } as React.CSSProperties,
       },
       elementProps,
@@ -95,7 +98,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      store={store}
       openInteractionType={openMethod}
       disabled={!mounted}
       closeOnFocusOut={!disablePointerDismissal}

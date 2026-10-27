@@ -53,10 +53,7 @@ type TabsRootChangeEventReason = 'none' | 'disabled' | 'missing' | 'initial';
 
 ```typescript
 type TabsRootChangeEventDetails = (
-  | { reason: 'none' }
-  | { reason: 'disabled' }
-  | { reason: 'missing' }
-  | { reason: 'initial' }
+  { reason: 'none' } | { reason: 'disabled' } | { reason: 'missing' } | { reason: 'initial' }
 ) & {
   /** The native event associated with the custom event. */
   event: Event;
@@ -297,6 +294,154 @@ type TabsTabPosition = { left: number; right: number; top: number; bottom: numbe
 type TabsTabSize = { width: number; height: number };
 ```
 
+## Additional Types
+
+### TabsIndicatorCssVariables
+
+CSS variables of [Indicator](#indicator).
+
+```typescript
+declare namespace TabsIndicatorCssVariables {
+  /**
+   * Indicates the distance on the left side from the parent's container if the tab is active.
+   * @type number
+   */
+  const activeTabLeft: '--active-tab-left';
+  /**
+   * Indicates the distance on the right side from the parent's container if the tab is active.
+   * @type number
+   */
+  const activeTabRight: '--active-tab-right';
+  /**
+   * Indicates the distance on the top side from the parent's container if the tab is active.
+   * @type number
+   */
+  const activeTabTop: '--active-tab-top';
+  /**
+   * Indicates the distance on the bottom side from the parent's container if the tab is active.
+   * @type number
+   */
+  const activeTabBottom: '--active-tab-bottom';
+  /**
+   * Indicates the width of the tab if it is active.
+   * @type number
+   */
+  const activeTabWidth: '--active-tab-width';
+  /**
+   * Indicates the height of the tab if it is active.
+   * @type number
+   */
+  const activeTabHeight: '--active-tab-height';
+}
+```
+
+### TabsIndicatorDataAttributes
+
+Data attributes of [Indicator](#indicator).
+
+```typescript
+declare namespace TabsIndicatorDataAttributes {
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
+  const activationDirection: 'data-activation-direction';
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
+### TabsListDataAttributes
+
+Data attributes of [List](#list).
+
+```typescript
+declare namespace TabsListDataAttributes {
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
+  const activationDirection: 'data-activation-direction';
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
+### TabsPanelDataAttributes
+
+Data attributes of [Panel](#panel).
+
+```typescript
+declare namespace TabsPanelDataAttributes {
+  /** Indicates the index of the tab panel. */
+  const index: 'data-index';
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
+  const activationDirection: 'data-activation-direction';
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the panel is hidden. */
+  const hidden: 'data-hidden';
+  /** Present when the panel begins animating in. */
+  const startingStyle: 'data-starting-style';
+  /** Present when the panel is animating out. */
+  const endingStyle: 'data-ending-style';
+}
+```
+
+### TabsRootDataAttributes
+
+Data attributes of [Root](#root).
+
+```typescript
+declare namespace TabsRootDataAttributes {
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
+  const activationDirection: 'data-activation-direction';
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+}
+```
+
+### TabsTabDataAttributes
+
+Data attributes of [Tab](#tab).
+
+```typescript
+declare namespace TabsTabDataAttributes {
+  /**
+   * Indicates the direction of the activation (based on the previous active tab).
+   * @type 'left' | 'right' | 'up' | 'down' | 'none'
+   */
+  const activationDirection: 'data-activation-direction';
+  /**
+   * Indicates the orientation of the tabs.
+   * @type 'horizontal' | 'vertical'
+   */
+  const orientation: 'data-orientation';
+  /** Present when the tab is disabled. */
+  const disabled: 'data-disabled';
+  /** Present when the tab is active. */
+  const active: 'data-active';
+}
+```
+
 ## Export Groups
 
 - `Tabs.Root`: `Tabs.Root`, `Tabs.Root.State`, `Tabs.Root.Props`, `Tabs.Root.Orientation`, `Tabs.Root.ChangeEventReason`, `Tabs.Root.ChangeEventDetails`
@@ -304,7 +449,7 @@ type TabsTabSize = { width: number; height: number };
 - `Tabs.Indicator`: `Tabs.Indicator`, `Tabs.Indicator.State`, `Tabs.Indicator.Props`
 - `Tabs.Panel`: `Tabs.Panel`, `Tabs.Panel.Metadata`, `Tabs.Panel.State`, `Tabs.Panel.Props`
 - `Tabs.List`: `Tabs.List`, `Tabs.List.State`, `Tabs.List.Props`
-- `Default`: `TabsRootOrientation`, `TabsRootState`, `TabsRootProps`, `TabsRootChangeEventReason`, `TabsRootChangeEventDetails`, `TabsIndicatorState`, `TabsIndicatorProps`, `TabsTabValue`, `TabsTabActivationDirection`, `TabsTabPosition`, `TabsTabSize`, `TabsTabMetadata`, `TabsTabState`, `TabsTabProps`, `TabsPanelMetadata`, `TabsPanelState`, `TabsPanelProps`, `TabsListState`, `TabsListProps`
+- `Default`: `TabsRootDataAttributes`, `TabsTabDataAttributes`, `TabsIndicatorCssVariables`, `TabsIndicatorDataAttributes`, `TabsPanelDataAttributes`, `TabsListDataAttributes`, `TabsRootOrientation`, `TabsRootState`, `TabsRootProps`, `TabsRootChangeEventReason`, `TabsRootChangeEventDetails`, `TabsIndicatorState`, `TabsIndicatorProps`, `TabsTabValue`, `TabsTabActivationDirection`, `TabsTabPosition`, `TabsTabSize`, `TabsTabMetadata`, `TabsTabState`, `TabsTabProps`, `TabsPanelMetadata`, `TabsPanelState`, `TabsPanelProps`, `TabsListState`, `TabsListProps`
 
 ## Canonical Types
 

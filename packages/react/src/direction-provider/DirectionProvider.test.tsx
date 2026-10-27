@@ -1,10 +1,7 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import * as React from 'react';
-import {
-  DirectionProvider,
-  useDirection,
-  type TextDirection,
-} from '@base-ui/react/direction-provider';
+import { DirectionProvider, useDirection } from '@base-ui/react/direction-provider';
+import type { TextDirection } from '@base-ui/react/direction-provider';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 

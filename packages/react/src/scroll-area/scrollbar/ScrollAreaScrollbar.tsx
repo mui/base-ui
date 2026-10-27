@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -10,6 +10,8 @@ import { getOffset } from '../utils/getOffset';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
+import * as ScrollAreaRootCssVars from '../root/ScrollAreaRootCssVars';
+import * as ScrollAreaScrollbarCssVars from './ScrollAreaScrollbarCssVars';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.
@@ -117,6 +119,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const props: HTMLProps = {
     ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
+    'aria-hidden': true,
     onPointerDown(event) {
       if (event.button !== 0) {
         return;
@@ -184,6 +187,11 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
       handlePointerDown(event);
     },
+    // Native scrollbars don't move focus when pressed, whichever button is used.
+    // Handled here rather than on the thumb so the bubbled press covers both.
+    onMouseDown(event) {
+      event.preventDefault();
+    },
     onPointerUp: handlePointerUp,
     // Mirror `onPointerUp` so a browser-cancelled gesture on the track (no thumb
     // child captures the pointer) still clears the drag state.
@@ -197,15 +205,15 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       ...(vertical
         ? {
             top: 0,
-            bottom: 'var(--scroll-area-corner-height)',
+            bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
             insetInlineEnd: 0,
-            ['--scroll-area-thumb-height' as string]: `${thumbSize.height}px`,
+            [ScrollAreaScrollbarCssVars.scrollAreaThumbHeight as string]: `${thumbSize.height}px`,
           }
         : {
             insetInlineStart: 0,
-            insetInlineEnd: 'var(--scroll-area-corner-width)',
+            insetInlineEnd: `var(${ScrollAreaRootCssVars.scrollAreaCornerWidth})`,
             bottom: 0,
-            ['--scroll-area-thumb-width' as string]: `${thumbSize.width}px`,
+            [ScrollAreaScrollbarCssVars.scrollAreaThumbWidth as string]: `${thumbSize.width}px`,
           }),
     },
   };

@@ -2,14 +2,14 @@ import { ReactStore } from '@base-ui/utils/store';
 import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import {
+import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
+import type {
   ToastManagerAddOptions,
   ToastManagerPromiseOptions,
   ToastManagerUpdateOptions,
   ToastObject,
 } from './useToastManager';
 import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
-import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<
@@ -101,6 +101,12 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
   private areTimersPaused = false;
 
+  /**
+   * Whether the provider's effects are torn down, e.g. while it's inside a hidden `<Activity>`.
+   * Timers don't run while suspended, independently of the hover/focus pause in `areTimersPaused`.
+   */
+  private areTimersSuspended = false;
+
   constructor(initialState: InitialState) {
     super(
       {
@@ -123,10 +129,10 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
-    const updates: Partial<State> = {
-      timeout,
-      limit,
-    };
+    const updates = { timeout, limit } as Pick<
+      State,
+      'timeout' | 'limit' | 'toasts' | 'toastMetadata'
+    >;
 
     if (limitChanged) {
       const newToasts = applyLimited(this.state.toasts, limit);
@@ -138,11 +144,18 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   disposeEffect = () => {
+    // The cleanup also runs while a hidden `<Activity>` keeps the store alive, so when the effect
+    // runs again, resume the timers with their remaining time unless an interaction pauses them.
+    if (this.areTimersSuspended) {
+      this.areTimersSuspended = false;
+      if (!this.areTimersPaused) {
+        this.startTimers();
+      }
+    }
+
     return () => {
-      this.timers.forEach((timer) => {
-        timer.timeout?.clear();
-      });
-      this.timers.clear();
+      this.areTimersSuspended = true;
+      this.stopTimers();
     };
   };
 
@@ -202,8 +215,26 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     return id;
   };
 
-  updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    this.updateToastInternal(id, updates, false, true);
+  updateToast = <Data extends object>(
+    id: string,
+    updates:
+      | ToastManagerUpdateOptions<Data>
+      | ((prevToast: ToastObject<Data>) => ToastManagerUpdateOptions<Data>),
+  ) => {
+    const prevToast = selectors.toast(this.state, id);
+    // Never run the updater for an update the store is going to ignore.
+    if (!prevToast || prevToast.transitionStatus === 'ending') {
+      return;
+    }
+
+    // The updater may have called back into the store, so the internal update
+    // reads the current state again.
+    this.updateToastInternal(
+      id,
+      typeof updates === 'function' ? updates(prevToast) : updates,
+      false,
+      true,
+    );
   };
 
   updateToastInternal = <Data extends object>(
@@ -348,10 +379,24 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
     this.areTimersPaused = true;
+    this.stopTimers();
+  }
+
+  resumeTimers() {
+    if (!this.areTimersPaused) {
+      return;
+    }
+    this.areTimersPaused = false;
+    if (!this.areTimersSuspended) {
+      this.startTimers();
+    }
+  }
+
+  private stopTimers() {
     this.timers.forEach((timer) => {
-      // Timers added while already paused have no running timeout, so their
-      // `remaining` is still the full delay and must be left alone.
-      if (timer.timeout) {
+      // Timers added while stopped never ran, and stopped timers already
+      // recorded their remaining time, so leave both alone.
+      if (timer.timeout?.isStarted()) {
         timer.timeout.clear();
         // `start` is stamped on every resume, so subtracting from `remaining`
         // (rather than from the original delay) keeps repeated pause/resume
@@ -361,11 +406,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     });
   }
 
-  resumeTimers() {
-    if (!this.areTimersPaused) {
-      return;
-    }
-    this.areTimersPaused = false;
+  private startTimers() {
     this.timers.forEach((timer, id) => {
       timer.remaining = timer.remaining > 0 ? timer.remaining : timer.delay;
       timer.timeout ??= Timeout.create();
@@ -378,7 +419,22 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   restoreFocusToPrevElement() {
-    this.state.prevFocusElement?.focus({ preventScroll: true });
+    const prevFocusElement = this.state.prevFocusElement;
+    const doc = ownerDocument(prevFocusElement);
+    // `body` can't be focused, so return focus to it by blurring whatever has it.
+    if (prevFocusElement === doc.body) {
+      (activeElement(doc) as HTMLElement | null)?.blur();
+    } else {
+      prevFocusElement?.focus({ preventScroll: true });
+    }
+    const restored = !contains(this.state.viewport, activeElement(doc));
+    // Clear the F6 origin so later visits don't restore stale focus. Keep it if focus couldn't
+    // leave: clearing it unmounts the focus guards, and a focused guard would drop focus without
+    // a blur, leaving the viewport `focused`.
+    if (restored) {
+      this.set('prevFocusElement', null);
+    }
+    return restored;
   }
 
   handleDocumentPointerDown = (event: PointerEvent) => {
@@ -399,7 +455,8 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
   private scheduleTimer(id: string, delay: number, callback: () => void) {
     const start = Date.now();
-    const shouldStartActive = !selectors.expandedOrOutOfFocus(this.state);
+    const shouldStartActive =
+      !this.areTimersSuspended && !selectors.expandedOrOutOfFocus(this.state);
     const currentTimeout = shouldStartActive ? Timeout.create() : undefined;
 
     currentTimeout?.start(delay, () => {
@@ -446,14 +503,16 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   private setToasts(newToasts: StoredToast[], clearInteraction: boolean = newToasts.length === 0) {
-    const updates: Partial<State> = {
+    const updates = {
       toasts: newToasts,
       toastMetadata: createToastMetadata(newToasts),
-    };
+    } as Pick<State, 'toasts' | 'toastMetadata' | 'hovering' | 'focused'>;
+
     if (clearInteraction) {
       updates.hovering = false;
       updates.focused = false;
     }
+
     this.update(updates);
   }
 
@@ -475,20 +534,22 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const toasts = selectors.toasts(this.state);
     const currentIndex = selectors.toastIndex(this.state, toastId);
 
+    // A toast that was `limited` stays `inert` until React commits, so it can't take focus yet.
     const scan = (from: number, step: number) => {
       for (let index = from; index >= 0 && index < toasts.length; index += step) {
-        if (toasts[index].transitionStatus !== 'ending') {
-          return toasts[index];
+        const element = toasts[index].ref?.current;
+        if (toasts[index].transitionStatus !== 'ending' && element && !element.inert) {
+          return element;
         }
       }
       return null;
     };
 
-    // Try to find the next toast that isn't animating out, then fall back to the previous one.
-    const nextToast = scan(currentIndex + 1, 1) ?? scan(currentIndex - 1, -1);
+    // Try to find the next toast that can hold focus, then fall back to the previous one.
+    const nextElement = scan(currentIndex + 1, 1) ?? scan(currentIndex - 1, -1);
 
-    if (nextToast) {
-      nextToast.ref?.current?.focus();
+    if (nextElement) {
+      nextElement.focus();
     } else {
       this.restoreFocusToPrevElement();
     }

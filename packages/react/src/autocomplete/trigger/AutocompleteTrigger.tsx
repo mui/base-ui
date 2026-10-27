@@ -30,6 +30,10 @@ export interface AutocompleteTriggerState extends FieldRootState {
    * Present when the corresponding items list is empty.
    */
   listEmpty: boolean;
+  /**
+   *  Whether the component should ignore user edits.
+   */
+  readOnly: boolean;
 }
 
 export interface AutocompleteTriggerProps

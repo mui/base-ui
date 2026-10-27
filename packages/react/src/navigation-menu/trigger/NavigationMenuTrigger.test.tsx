@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { screen, flushMicrotasks, waitFor, act } from '@mui/internal-test-utils';
+import { screen, flushMicrotasks, waitFor, act, fireEvent } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 
 const rapidHoverAnimationStyles = `
@@ -122,7 +122,7 @@ describe('<NavigationMenu.Trigger />', () => {
 
   describeConformance(<NavigationMenu.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render(node) {
       return render(
@@ -134,6 +134,35 @@ describe('<NavigationMenu.Trigger />', () => {
       );
     },
   }));
+
+  it('applies the data-disabled style hook only when disabled', async () => {
+    function App() {
+      const [disabled, setDisabled] = React.useState(true);
+      return (
+        <div>
+          <NavigationMenu.Root>
+            <NavigationMenu.List>
+              <NavigationMenu.Item>
+                <NavigationMenu.Trigger disabled={disabled} data-testid="trigger">
+                  Overview
+                </NavigationMenu.Trigger>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+          </NavigationMenu.Root>
+          <button type="button" onClick={() => setDisabled(false)}>
+            enable
+          </button>
+        </div>
+      );
+    }
+
+    await render(<App />);
+    const trigger = screen.getByTestId('trigger');
+    expect(trigger).toHaveAttribute('data-disabled', '');
+
+    fireEvent.click(screen.getByText('enable'));
+    expect(trigger).not.toHaveAttribute('data-disabled');
+  });
 
   it('opens a vertical menu with the mirrored arrow key in RTL mode', async () => {
     await render(
@@ -166,6 +195,44 @@ describe('<NavigationMenu.Trigger />', () => {
     await waitFor(() => {
       expect(screen.getByRole('link', { name: 'Quick Start' })).toBeVisible();
     });
+  });
+
+  it.skipIf(isJSDOM).each([
+    ['ArrowDown', '{ArrowDown}'],
+    ['Enter', '{Enter}'],
+    ['Space', ' '],
+  ])('keeps focus on the trigger when opened with %s', async (_keyName, key) => {
+    await render(
+      <NavigationMenu.Root>
+        <NavigationMenu.List>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger>Overview</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="#quick-start">Quick Start</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner>
+            <NavigationMenu.Popup>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Overview' });
+    trigger.focus();
+
+    await userEvent.keyboard(key);
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Quick Start' })).toBeVisible();
+    });
+    await act(async () => new Promise(requestAnimationFrame));
+
+    expect(trigger).toHaveFocus();
   });
 
   it.skipIf(isJSDOM)('handles focus and positioner height', async () => {
@@ -217,6 +284,12 @@ describe('<NavigationMenu.Trigger />', () => {
 
     const overviewLink = screen.getByRole('link', { name: 'Quick Start' });
     await waitFor(() => {
+      expect(overviewButton).toHaveFocus();
+    });
+
+    await userEvent.tab();
+
+    await waitFor(() => {
       expect(overviewLink).toHaveFocus();
     });
 
@@ -245,6 +318,12 @@ describe('<NavigationMenu.Trigger />', () => {
 
     const handbookLink = screen.getByRole('link', { name: 'Styling Base UI components' });
     await waitFor(() => {
+      expect(handbookButton).toHaveFocus();
+    });
+
+    await userEvent.tab();
+
+    await waitFor(() => {
       expect(handbookLink).toHaveFocus();
     });
 
@@ -266,6 +345,9 @@ describe('<NavigationMenu.Trigger />', () => {
           parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10) - 18,
         ),
       ).toBeLessThanOrEqual(1);
+    });
+    await waitFor(() => {
+      expect(overviewButton).toHaveFocus();
     });
   });
 
@@ -320,9 +402,7 @@ describe('<NavigationMenu.Trigger />', () => {
   });
 
   it.skipIf(isJSDOM)('repositions the positioner when switching triggers via hover', async () => {
-    const user = userEvent.setup({ pointerEventsCheck: 0 });
-
-    await render(
+    const { user: rendererUser } = await render(
       <NavigationMenu.Root>
         <NavigationMenu.List style={{ display: 'flex' }}>
           <NavigationMenu.Item>
@@ -347,6 +427,9 @@ describe('<NavigationMenu.Trigger />', () => {
         </NavigationMenu.Portal>
       </NavigationMenu.Root>,
     );
+
+    // The safe-polygon lock sets `pointer-events: none` on the list while hovering.
+    const user = rendererUser.setup({ pointerEventsCheck: 0 });
 
     const overviewButton = screen.getByRole('button', { name: 'Overview' });
     const handbookButton = screen.getByRole('button', { name: 'Handbook' });
@@ -373,9 +456,10 @@ describe('<NavigationMenu.Trigger />', () => {
   it.skipIf(isJSDOM)(
     'does not let a previously hovered trigger reapply popup sizes after a later switch',
     async () => {
-      const user = userEvent.setup({ pointerEventsCheck: 0 });
+      const { user: rendererUser } = await render(<TestNavigationMenuRapidHoverSizing />);
 
-      await render(<TestNavigationMenuRapidHoverSizing />);
+      // The safe-polygon lock sets `pointer-events: none` on the list while hovering.
+      const user = rendererUser.setup({ pointerEventsCheck: 0 });
 
       await user.hover(screen.getByRole('button', { name: 'Product' }));
 
@@ -401,16 +485,17 @@ describe('<NavigationMenu.Trigger />', () => {
       });
 
       await waitFor(() => {
-        const popupWidthCallsAfterSwitch = getWidthCallsSince(callsBeforeSolutionsHover);
-        const solutionsWidthIndex = popupWidthCallsAfterSwitch.indexOf('500px');
-
-        expect(solutionsWidthIndex).toBeGreaterThan(-1);
-        expect(popupWidthCallsAfterSwitch.slice(solutionsWidthIndex + 1)).not.toContain('700px');
+        expect(getWidthCallsSince(callsBeforeSolutionsHover)).toContain('500px');
       });
 
       await waitFor(() => {
         expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
       });
+
+      // Once the switch has settled, Product's stale size must not have been applied after Solutions'.
+      const popupWidthCallsAfterSwitch = getWidthCallsSince(callsBeforeSolutionsHover);
+      const solutionsWidthIndex = popupWidthCallsAfterSwitch.indexOf('500px');
+      expect(popupWidthCallsAfterSwitch.slice(solutionsWidthIndex + 1)).not.toContain('700px');
 
       setPropertySpy.mockRestore();
     },
@@ -419,9 +504,10 @@ describe('<NavigationMenu.Trigger />', () => {
   it.skipIf(isJSDOM)(
     'does not let interrupted mutation resizing reapply popup sizes after a later switch',
     async () => {
-      const user = userEvent.setup({ pointerEventsCheck: 0 });
+      const { user: rendererUser } = await render(<TestNavigationMenuRapidHoverSizing />);
 
-      await render(<TestNavigationMenuRapidHoverSizing />);
+      // The safe-polygon lock sets `pointer-events: none` on the list while hovering.
+      const user = rendererUser.setup({ pointerEventsCheck: 0 });
 
       await user.hover(screen.getByRole('button', { name: 'Product' }));
 
@@ -477,19 +563,19 @@ describe('<NavigationMenu.Trigger />', () => {
       });
 
       await waitFor(() => {
-        const positionerWidthCallsAfterSwitch =
-          getPositionerWidthCallsSince(callsBeforeSolutionsHover);
-        const solutionsWidthIndex = positionerWidthCallsAfterSwitch.indexOf('500px');
-
-        expect(solutionsWidthIndex).toBeGreaterThan(-1);
-        expect(positionerWidthCallsAfterSwitch.slice(solutionsWidthIndex + 1)).not.toContain(
-          '760px',
-        );
+        expect(getPositionerWidthCallsSince(callsBeforeSolutionsHover)).toContain('500px');
       });
 
       await waitFor(() => {
         expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
       });
+
+      // Once the switch has settled, the interrupted 760px resize must not have been applied after
+      // Solutions' size.
+      const positionerWidthCallsAfterSwitch =
+        getPositionerWidthCallsSince(callsBeforeSolutionsHover);
+      const solutionsWidthIndex = positionerWidthCallsAfterSwitch.indexOf('500px');
+      expect(positionerWidthCallsAfterSwitch.slice(solutionsWidthIndex + 1)).not.toContain('760px');
 
       setPositionerPropertySpy.mockRestore();
     },
@@ -498,16 +584,18 @@ describe('<NavigationMenu.Trigger />', () => {
   it.skipIf(isJSDOM)(
     'releases the pointer-events lock on the list when the open trigger unmounts',
     async () => {
-      const user = userEvent.setup({ pointerEventsCheck: 0 });
       let navigate = () => {};
 
-      await render(
+      const { user: rendererUser } = await render(
         <TestActiveItemDropsTrigger
           registerNavigate={(fn) => {
             navigate = fn;
           }}
         />,
       );
+
+      // The safe-polygon lock sets `pointer-events: none` on the list while hovering.
+      const user = rendererUser.setup({ pointerEventsCheck: 0 });
 
       const list = screen.getByTestId('list');
       const triggerA = screen.getByRole('button', { name: 'A' });
@@ -531,6 +619,54 @@ describe('<NavigationMenu.Trigger />', () => {
       await waitFor(() => {
         expect(list.style.pointerEvents).toBe('');
       });
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'releases the pointer-events lock when the pointer sweeps across a trigger without the menu opening',
+    async () => {
+      const { user: rendererUser } = await render(
+        <NavigationMenu.Root>
+          <NavigationMenu.List data-testid="list">
+            <NavigationMenu.Item value="a">
+              <NavigationMenu.Trigger>A</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#a">A link</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+            <NavigationMenu.Item value="b">
+              <NavigationMenu.Trigger>B</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#b">B link</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal keepMounted>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
+
+      // The safe-polygon lock sets `pointer-events: none` on the list while hovering.
+      const user = rendererUser.setup({ pointerEventsCheck: 0 });
+
+      const list = screen.getByTestId('list');
+      const triggerA = screen.getByRole('button', { name: 'A' });
+
+      // Sweep across the trigger and leave before the rest delay elapses, so the menu
+      // never opens. `mouseenter` applies the safe-polygon pointer-events lock on the
+      // list eagerly (the Portal is `keepMounted`, so the floating element exists while
+      // closed); without an open -> close cycle nothing releases it.
+      await user.pointer([{ target: triggerA }, { target: document.body }]);
+
+      await waitFor(() => {
+        expect(list.style.pointerEvents).toBe('');
+      });
+      expect(screen.queryByRole('link', { name: 'A link' })).toBe(null);
     },
   );
 });

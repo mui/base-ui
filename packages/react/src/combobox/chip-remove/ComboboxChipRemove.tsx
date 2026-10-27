@@ -1,15 +1,14 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../internals/use-button';
-import { stopEvent } from '../../floating-ui-react/utils';
-import { selectors } from '../store';
+import { stopEvent } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { getHighlightReason } from '../../utils/getHighlightReason';
 import { findItemIndex } from '../../internals/itemEquality';
 
 /**
@@ -34,10 +33,10 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   const store = useComboboxRootContext();
   const { index } = useComboboxChipContext();
 
-  const comboboxDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const selectedValue = useStore(store, selectors.selectedValue);
-  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const comboboxDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const selectedValue = store.useState('selectedValue');
+  const isItemEqualToValue = store.useState('isItemEqualToValue');
 
   const disabled = comboboxDisabled || disabledProp;
 
@@ -51,7 +50,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     disabled,
   };
 
-  function clearActiveIndexForRemovedItem(removedItem: any) {
+  function clearActiveIndexForRemovedItem(removedItem: any, event: Event) {
     const activeIndex = store.state.activeIndex;
 
     if (activeIndex == null) {
@@ -61,14 +60,15 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     // Try current visible list first; if not found, it's filtered out.
     // No need to clear highlight in that case since it can't equal activeIndex.
     const removedIndex = findItemIndex(
-      store.state.valuesRef.current,
+      store.context.valuesRef.current,
       removedItem,
       isItemEqualToValue,
     );
     if (removedIndex !== -1 && activeIndex === removedIndex) {
-      store.state.setIndices({
+      store.context.setIndices({
         activeIndex: null,
-        type: store.state.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
+        type: getHighlightReason(event),
+        event,
       });
     }
   }
@@ -79,14 +79,14 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
     const removedItem = selectedValue[index];
 
-    clearActiveIndexForRemovedItem(removedItem);
+    clearActiveIndexForRemovedItem(removedItem, event.nativeEvent);
 
-    store.state.setSelectedValue(
+    store.context.setSelectedValue(
       selectedValue.filter((_: any, i: number) => i !== index),
       eventDetails,
     );
 
-    store.state.inputRef.current?.focus();
+    store.context.inputRef.current?.focus();
     return eventDetails;
   }
 

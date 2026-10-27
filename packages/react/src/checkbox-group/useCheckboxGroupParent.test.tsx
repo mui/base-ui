@@ -1,6 +1,7 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
+import { createRenderer } from '#test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
 
@@ -8,7 +9,7 @@ describe('useCheckboxGroupParent', () => {
   const { render } = createRenderer();
   const allValues = ['a', 'b', 'c'];
 
-  it('should control child checkboxes', () => {
+  it('should control child checkboxes', async () => {
     const parentCheckedChange = vi.fn();
     const childCheckedChange = vi.fn();
     function App() {
@@ -23,7 +24,7 @@ describe('useCheckboxGroupParent', () => {
       );
     }
 
-    render(<App />);
+    await render(<App />);
 
     const checkboxes = screen
       .getAllByRole('checkbox')
@@ -55,7 +56,7 @@ describe('useCheckboxGroupParent', () => {
     expect(childCheckedChange.mock.calls.length).toBe(0);
   });
 
-  it('parent should be marked as mixed if some children are checked', () => {
+  it('parent should be marked as mixed if some children are checked', async () => {
     const childCheckedChange = vi.fn();
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
@@ -69,7 +70,7 @@ describe('useCheckboxGroupParent', () => {
       );
     }
 
-    render(<App />);
+    await render(<App />);
 
     const checkboxes = screen
       .getAllByRole('checkbox')
@@ -84,10 +85,10 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'mixed');
   });
 
-  it('updates uncontrolled parent-enabled groups from child clicks without duplicate callbacks', () => {
+  it('updates uncontrolled parent-enabled groups from child clicks without duplicate callbacks', async () => {
     const handleValueChange = vi.fn();
 
-    render(
+    await render(
       <CheckboxGroup allValues={allValues} onValueChange={handleValueChange}>
         <Checkbox.Root parent data-testid="parent" />
         <Checkbox.Root value="a" data-testid="checkboxA" />
@@ -128,7 +129,7 @@ describe('useCheckboxGroupParent', () => {
     expect(checkboxC).toHaveAttribute('aria-checked', 'false');
   });
 
-  it('should correctly initialize the values array', () => {
+  it('should correctly initialize the values array', async () => {
     function App() {
       const [value, setValue] = React.useState<string[]>(['a']);
       return (
@@ -141,14 +142,14 @@ describe('useCheckboxGroupParent', () => {
       );
     }
 
-    render(<App />);
+    await render(<App />);
 
     expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'mixed');
 
     expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('should update the values array when a child checkbox is clicked', () => {
+  it('should update the values array when a child checkbox is clicked', async () => {
     function App() {
       const [value, setValue] = React.useState<string[]>(['a']);
       return (
@@ -161,7 +162,7 @@ describe('useCheckboxGroupParent', () => {
       );
     }
 
-    render(<App />);
+    await render(<App />);
 
     expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'mixed');
 
@@ -181,29 +182,143 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('should apply space-separated aria-controls attribute with child names', () => {
+  it('should apply space-separated aria-controls attribute with child names', async () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root value="a" />
-          <Checkbox.Root value="b" />
-          <Checkbox.Root value="c" />
+          {allValues.map((v) => (
+            <Checkbox.Root key={v} value={v} data-testid={v} />
+          ))}
         </CheckboxGroup>
       );
     }
 
-    render(<App />);
+    await render(<App />);
 
-    const parent = screen.getByTestId('parent');
-    const id = parent.getAttribute('id');
-
-    expect(parent).toHaveAttribute('aria-controls', allValues.map((v) => `${id}-${v}`).join(' '));
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      allValues.map((v) => screen.getByTestId(v).id).join(' '),
+    );
   });
 
-  it('does not select a child without an identifying value', () => {
-    render(
+  it('keeps a custom child id in aria-controls', async () => {
+    await render(
+      <CheckboxGroup allValues={['a']}>
+        <Checkbox.Root parent data-testid="parent" nativeButton render={<button />} />
+        <Checkbox.Root id="custom" value="a" data-testid="a" nativeButton render={<button />} />
+      </CheckboxGroup>,
+    );
+
+    expect(screen.getByTestId('a')).toHaveAttribute('id', 'custom');
+    expect(screen.getByTestId('parent')).toHaveAttribute('aria-controls', 'custom');
+  });
+
+  it.each([false, true])(
+    'keeps a rendered child id in aria-controls (nativeButton=%s)',
+    async (nativeButton) => {
+      await render(
+        <CheckboxGroup allValues={['a']}>
+          <Checkbox.Root
+            parent
+            data-testid="parent"
+            nativeButton={nativeButton}
+            render={nativeButton ? <button /> : undefined}
+          />
+          <Checkbox.Root
+            value="a"
+            nativeButton={nativeButton}
+            render={nativeButton ? <button id="rendered" /> : <span id="rendered" />}
+          />
+        </CheckboxGroup>,
+      );
+
+      expect(screen.getByTestId('parent')).toHaveAttribute('aria-controls', 'rendered');
+    },
+  );
+
+  it('references the exposed child rather than its custom-id input without nativeButton', async () => {
+    await render(
+      <CheckboxGroup allValues={['a']}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root id="custom" value="a" data-testid="a" />
+      </CheckboxGroup>,
+    );
+
+    // The custom `id` lands on the hidden input, so `aria-controls` has to name the exposed
+    // element instead.
+    expect(document.querySelector('input[type="checkbox"][id="custom"]')).not.toBe(null);
+    expect(screen.getByTestId('a').id).not.toBe('custom');
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('a').id,
+    );
+  });
+
+  it('does not read aria-controls ids off Object.prototype', async () => {
+    await render(
+      <CheckboxGroup allValues={['a', 'constructor']}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" data-testid="a" />
+      </CheckboxGroup>,
+    );
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('a').id,
+    );
+  });
+
+  it('drops an unmounted child from aria-controls', async () => {
+    function App(props: { showB: boolean }) {
+      return (
+        <CheckboxGroup allValues={allValues}>
+          <Checkbox.Root parent data-testid="parent" />
+          <Checkbox.Root value="a" data-testid="a" />
+          {props.showB && <Checkbox.Root value="b" data-testid="b" />}
+        </CheckboxGroup>
+      );
+    }
+
+    const { rerender } = await render(<App showB />);
+    await rerender(<App showB={false} />);
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('a').id,
+    );
+  });
+
+  it('keeps both ids for checkboxes sharing a value and retains the survivor', async () => {
+    function App(props: { showSecondB: boolean }) {
+      return (
+        <CheckboxGroup allValues={allValues}>
+          <Checkbox.Root parent data-testid="parent" />
+          <Checkbox.Root value="a" data-testid="a" />
+          <Checkbox.Root value="b" data-testid="b" />
+          {props.showSecondB && <Checkbox.Root value="b" data-testid="second-b" />}
+        </CheckboxGroup>
+      );
+    }
+
+    const { rerender } = await render(<App showSecondB />);
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      `${screen.getByTestId('a').id} ${screen.getByTestId('b').id} ${screen.getByTestId('second-b').id}`,
+    );
+
+    await rerender(<App showSecondB={false} />);
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      `${screen.getByTestId('a').id} ${screen.getByTestId('b').id}`,
+    );
+  });
+
+  it('does not select a child without an identifying value', async () => {
+    await render(
       <CheckboxGroup allValues={['a']}>
         <Checkbox.Root parent data-testid="parent" />
         <Checkbox.Root id="standalone" data-testid="no-value" />
@@ -223,7 +338,7 @@ describe('useCheckboxGroupParent', () => {
     expect(noValue.nextElementSibling).toHaveAttribute('id', 'standalone');
   });
 
-  it('preserves initial state if mixed when parent is clicked', () => {
+  it('preserves initial state if mixed when parent is clicked', async () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
@@ -236,7 +351,7 @@ describe('useCheckboxGroupParent', () => {
       );
     }
 
-    render(<App />);
+    await render(<App />);
 
     const checkboxes = screen
       .getAllByRole('checkbox')
@@ -265,19 +380,17 @@ describe('useCheckboxGroupParent', () => {
     expect(parent).toHaveAttribute('aria-checked', 'mixed');
     expect(checkboxA).toHaveAttribute('aria-checked', 'true');
     checkboxes.forEach((checkbox) => {
-      if (checkbox !== checkboxA) {
-        expect(checkbox).toHaveAttribute('aria-checked', 'false');
-      }
+      expect(checkbox).toHaveAttribute('aria-checked', checkbox === checkboxA ? 'true' : 'false');
     });
   });
 
-  it('lets a parent checkbox cancel a parent-enabled group change', () => {
+  it('lets a parent checkbox cancel a parent-enabled group change', async () => {
     const handleValueChange = vi.fn();
     const handleParentChange = vi.fn((_, eventDetails: Checkbox.Root.ChangeEventDetails) => {
       eventDetails.cancel();
     });
 
-    render(
+    await render(
       <CheckboxGroup allValues={allValues} onValueChange={handleValueChange}>
         <Checkbox.Root parent data-testid="parent" onCheckedChange={handleParentChange} />
         <Checkbox.Root value="a" data-testid="checkboxA" />
@@ -296,13 +409,13 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('checkboxC')).toHaveAttribute('aria-checked', 'false');
   });
 
-  it('lets a child checkbox cancel a parent-enabled group change', () => {
+  it('lets a child checkbox cancel a parent-enabled group change', async () => {
     const handleValueChange = vi.fn();
     const handleChildChange = vi.fn((_, eventDetails: Checkbox.Root.ChangeEventDetails) => {
       eventDetails.cancel();
     });
 
-    render(
+    await render(
       <CheckboxGroup allValues={allValues} onValueChange={handleValueChange}>
         <Checkbox.Root parent data-testid="parent" />
         <Checkbox.Root value="a" data-testid="checkboxA" onCheckedChange={handleChildChange} />
@@ -319,12 +432,12 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'false');
   });
 
-  it('does not advance the parent toggle cycle when the group cancels a parent change', () => {
+  it('does not advance the parent toggle cycle when the group cancels a parent change', async () => {
     const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
       eventDetails.cancel();
     });
 
-    render(
+    await render(
       <CheckboxGroup value={['a']} allValues={allValues} onValueChange={handleValueChange}>
         <Checkbox.Root parent data-testid="parent" />
         <Checkbox.Root value="a" />
@@ -347,12 +460,12 @@ describe('useCheckboxGroupParent', () => {
     expect(handleValueChange.mock.calls[1][0]).toEqual(allValues);
   });
 
-  it('does not pollute the parent snapshot when the group cancels a child change', () => {
+  it('does not pollute the parent snapshot when the group cancels a child change', async () => {
     const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
       eventDetails.cancel();
     });
 
-    render(
+    await render(
       <CheckboxGroup value={allValues} allValues={allValues} onValueChange={handleValueChange}>
         <Checkbox.Root parent data-testid="parent" />
         <Checkbox.Root value="a" data-testid="checkboxA" />
@@ -373,7 +486,7 @@ describe('useCheckboxGroupParent', () => {
     expect(handleValueChange.mock.calls[1][0]).toEqual([]);
   });
 
-  it('handles unchecked disabled checkboxes', () => {
+  it('handles unchecked disabled checkboxes', async () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
@@ -386,7 +499,7 @@ describe('useCheckboxGroupParent', () => {
       );
     }
 
-    render(<App />);
+    await render(<App />);
 
     const parent = screen.getByTestId('parent');
     fireEvent.click(parent);
@@ -395,7 +508,7 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'false');
   });
 
-  it('handles checked disabled checkboxes', () => {
+  it('handles checked disabled checkboxes', async () => {
     function App() {
       const [value, setValue] = React.useState<string[]>(['a']);
       return (
@@ -408,7 +521,7 @@ describe('useCheckboxGroupParent', () => {
       );
     }
 
-    render(<App />);
+    await render(<App />);
 
     const checkboxA = screen.getByTestId('checkboxA');
     const checkboxB = screen.getByTestId('checkboxB');

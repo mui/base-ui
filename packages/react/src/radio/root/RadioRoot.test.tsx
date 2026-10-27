@@ -1,8 +1,9 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { Field } from '@base-ui/react/field';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Radio.Root />', () => {
@@ -10,10 +11,24 @@ describe('<Radio.Root />', () => {
 
   describeConformance(<Radio.Root value="" />, () => ({
     refInstanceof: window.HTMLSpanElement,
-    testComponentPropWith: 'span',
+    testRenderPropWith: 'span',
     button: true,
     render,
   }));
+
+  it('sets checked and unchecked data attributes', async () => {
+    await render(
+      <RadioGroup defaultValue="checked">
+        <Radio.Root value="checked" data-testid="checked" />
+        <Radio.Root value="unchecked" data-testid="unchecked" />
+      </RadioGroup>,
+    );
+
+    expect(screen.getByTestId('checked')).toHaveAttribute('data-checked');
+    expect(screen.getByTestId('checked')).not.toHaveAttribute('data-unchecked');
+    expect(screen.getByTestId('unchecked')).toHaveAttribute('data-unchecked');
+    expect(screen.getByTestId('unchecked')).not.toHaveAttribute('data-checked');
+  });
 
   it('does not forward `value` prop', async () => {
     await render(
@@ -110,89 +125,94 @@ describe('<Radio.Root />', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
 
-    await waitFor(() => {
-      const labelB = screen.getByText('Label B');
+    const labelB = screen.getByText('Label B');
 
-      expect(labelB.id).not.toBe('');
-      expect(labelA.id).not.toBe(labelB.id);
+    await waitFor(() => {
       expect(radio).toHaveAttribute('aria-labelledby', labelB.id);
     });
+    expect(labelB.id).not.toBe('');
+    expect(labelB.id).not.toBe(labelA.id);
+  });
+
+  it('prefers `aria-label` over an associated label', async () => {
+    await render(
+      <RadioGroup>
+        <label>
+          <Radio.Root value="a" aria-label="Apple" />
+          Apple
+        </label>
+      </RadioGroup>,
+    );
+
+    const radio = screen.getByRole('radio');
+    expect(radio).not.toHaveAttribute('aria-labelledby');
+    expect(radio).toHaveAccessibleName('Apple');
+  });
+
+  it("prefers a render element's `aria-label` over an associated label", async () => {
+    await render(
+      <RadioGroup>
+        <label>
+          <Radio.Root value="a" render={<span aria-label="Apple" />} />
+          Apple
+        </label>
+      </RadioGroup>,
+    );
+
+    const radio = screen.getByRole('radio');
+    expect(radio).not.toHaveAttribute('aria-labelledby');
+    expect(radio).toHaveAccessibleName('Apple');
   });
 
   describe('prop: onClick', () => {
-    it('propagates a single click event to ancestors per user click', async () => {
-      const handleParentClick = vi.fn();
-      await render(
-        <RadioGroup>
-          <div onClick={handleParentClick}>
-            <Radio.Root value="a" data-testid="radio" />
-          </div>
-        </RadioGroup>,
-      );
+    it.each([false, true])(
+      'propagates a single click event to ancestors per user click (nativeButton=%s)',
+      async (nativeButton) => {
+        const handleParentClick = vi.fn();
+        await render(
+          <RadioGroup>
+            <div onClick={handleParentClick}>
+              <Radio.Root
+                value="a"
+                nativeButton={nativeButton}
+                render={nativeButton ? <button /> : undefined}
+                data-testid="radio"
+              />
+            </div>
+          </RadioGroup>,
+        );
 
-      fireEvent.click(screen.getByTestId('radio'));
+        fireEvent.click(screen.getByTestId('radio'));
 
-      expect(handleParentClick).toHaveBeenCalledTimes(1);
-      expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
-    });
+        expect(handleParentClick).toHaveBeenCalledTimes(1);
+        expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
+      },
+    );
 
-    it('does not propagate to ancestors when stopPropagation() is called', async () => {
-      const handleParentClick = vi.fn();
-      await render(
-        <RadioGroup>
-          <div onClick={handleParentClick}>
-            <Radio.Root
-              value="a"
-              data-testid="radio"
-              onClick={(event) => event.stopPropagation()}
-            />
-          </div>
-        </RadioGroup>,
-      );
+    it.each([false, true])(
+      'does not propagate to ancestors when stopPropagation() is called (nativeButton=%s)',
+      async (nativeButton) => {
+        const handleParentClick = vi.fn();
+        await render(
+          <RadioGroup>
+            <div onClick={handleParentClick}>
+              <Radio.Root
+                value="a"
+                nativeButton={nativeButton}
+                render={nativeButton ? <button /> : undefined}
+                data-testid="radio"
+                onClick={(event) => event.stopPropagation()}
+              />
+            </div>
+          </RadioGroup>,
+        );
 
-      fireEvent.click(screen.getByTestId('radio'));
+        fireEvent.click(screen.getByTestId('radio'));
 
-      expect(handleParentClick).toHaveBeenCalledTimes(0);
-      expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
-    });
-
-    it('propagates a single click event to ancestors with a native button', async () => {
-      const handleParentClick = vi.fn();
-      await render(
-        <RadioGroup>
-          <div onClick={handleParentClick}>
-            <Radio.Root value="a" nativeButton render={<button />} data-testid="radio" />
-          </div>
-        </RadioGroup>,
-      );
-
-      fireEvent.click(screen.getByTestId('radio'));
-
-      expect(handleParentClick).toHaveBeenCalledTimes(1);
-      expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
-    });
-
-    it('does not propagate to ancestors when stopPropagation() is called with a native button', async () => {
-      const handleParentClick = vi.fn();
-      await render(
-        <RadioGroup>
-          <div onClick={handleParentClick}>
-            <Radio.Root
-              value="a"
-              nativeButton
-              render={<button />}
-              data-testid="radio"
-              onClick={(event) => event.stopPropagation()}
-            />
-          </div>
-        </RadioGroup>,
-      );
-
-      fireEvent.click(screen.getByTestId('radio'));
-
-      expect(handleParentClick).toHaveBeenCalledTimes(0);
-      expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
-    });
+        expect(handleParentClick).toHaveBeenCalledTimes(0);
+        expect(screen.getByTestId('radio')).toHaveAttribute('aria-checked', 'true');
+      },
+    );
 
     it('does not propagate a click to ancestors when selecting with arrow keys', async () => {
       const handleParentClick = vi.fn();
@@ -226,6 +246,51 @@ describe('<Radio.Root />', () => {
       const radio = screen.getByTestId('radio');
       expect(radio).not.toHaveAttribute('disabled');
       expect(radio).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('does not acquire the field focused state when focused programmatically', async () => {
+      await render(
+        <Field.Root data-testid="field">
+          <Radio.Root value="a" disabled data-testid="radio" />
+        </Field.Root>,
+      );
+
+      const radio = screen.getByTestId('radio');
+
+      act(() => {
+        radio.focus();
+      });
+
+      expect(radio).toHaveFocus();
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+    });
+
+    it('keeps the tab stop on a checked radio that is disabled', async () => {
+      await render(
+        <RadioGroup defaultValue="a">
+          <Radio.Root value="a" disabled data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '-1');
+    });
+  });
+
+  describe('prop: readOnly', () => {
+    it('acquires the field focused state on focus', async () => {
+      await render(
+        <Field.Root data-testid="field">
+          <Radio.Root value="a" readOnly data-testid="radio" />
+        </Field.Root>,
+      );
+
+      act(() => {
+        screen.getByTestId('radio').focus();
+      });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
     });
   });
 });

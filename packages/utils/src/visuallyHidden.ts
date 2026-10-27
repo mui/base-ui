@@ -1,4 +1,4 @@
-import * as React from 'react';
+import type * as React from 'react';
 
 const visuallyHiddenBase: React.CSSProperties = {
   clipPath: 'inset(50%)',
@@ -14,6 +14,7 @@ const visuallyHiddenBase: React.CSSProperties = {
 export const visuallyHidden: React.CSSProperties = {
   ...visuallyHiddenBase,
   position: 'fixed',
+  margin: 0,
   top: 0,
   left: 0,
 };

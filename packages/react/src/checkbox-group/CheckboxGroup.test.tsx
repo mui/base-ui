@@ -1,33 +1,32 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
+import { screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<CheckboxGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<CheckboxGroup />, () => ({
-    inheritComponent: 'div',
     refInstanceof: window.HTMLDivElement,
     render,
   }));
 
   describe('prop: id', () => {
-    it('is forwarded to the root element', () => {
-      render(<CheckboxGroup id="group-id" />);
+    it('is forwarded to the root element', async () => {
+      await render(<CheckboxGroup id="group-id" />);
 
       expect(screen.getByRole('group')).toHaveAttribute('id', 'group-id');
     });
   });
 
   describe('prop: value', () => {
-    it('should control the value', () => {
+    it('should control the value', async () => {
       function App() {
         const [value, setValue] = React.useState(['red']);
         return (
@@ -39,7 +38,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const red = screen.getByTestId('red');
       const green = screen.getByTestId('green');
@@ -68,7 +67,7 @@ describe('<CheckboxGroup />', () => {
       expect(blue).toHaveAttribute('aria-checked', 'true');
     });
 
-    it('supports an empty string item value', () => {
+    it('supports an empty string item value', async () => {
       function App() {
         const [value, setValue] = React.useState(['']);
         return (
@@ -79,7 +78,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const empty = screen.getByTestId('empty');
       const other = screen.getByTestId('other');
@@ -92,7 +91,7 @@ describe('<CheckboxGroup />', () => {
       expect(empty).toHaveAttribute('aria-checked', 'false');
     });
 
-    it('treats a controlled value that becomes undefined as an empty array', () => {
+    it('treats a controlled value that becomes undefined as an empty array', async () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       function App() {
@@ -110,7 +109,7 @@ describe('<CheckboxGroup />', () => {
       }
 
       try {
-        render(<App />);
+        await render(<App />);
 
         expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'true');
 
@@ -124,7 +123,7 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    it('should be called when the value changes', () => {
+    it('should be called when the value changes', async () => {
       const handleValueChange = vi.fn();
 
       function App() {
@@ -144,7 +143,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const red = screen.getByTestId('red');
       const green = screen.getByTestId('green');
@@ -166,10 +165,10 @@ describe('<CheckboxGroup />', () => {
       expect(handleValueChange.mock.calls[2][0]).toEqual(['red', 'green', 'blue']);
     });
 
-    it('should treat an omitted defaultValue as an empty array', () => {
+    it('should treat an omitted defaultValue as an empty array', async () => {
       const handleValueChange = vi.fn();
 
-      render(
+      await render(
         <CheckboxGroup onValueChange={handleValueChange}>
           <Checkbox.Root name="red" data-testid="red" />
           <Checkbox.Root name="green" data-testid="green" />
@@ -193,12 +192,12 @@ describe('<CheckboxGroup />', () => {
       expect(handleValueChange.mock.calls[2][0]).toEqual(['green']);
     });
 
-    it('does not update the group when onValueChange cancels the event', () => {
+    it('does not update the group when onValueChange cancels the event', async () => {
       const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
         eventDetails.cancel();
       });
 
-      render(
+      await render(
         <CheckboxGroup onValueChange={handleValueChange}>
           <Checkbox.Root value="red" data-testid="red" />
           <Checkbox.Root value="green" data-testid="green" />
@@ -218,7 +217,16 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('prop: defaultValue', () => {
-    it('should set the initial value', () => {
+    it('treats null as an empty array', async () => {
+      // @ts-expect-error Simulates a JavaScript consumer passing an unsupported value.
+      const group = <CheckboxGroup defaultValue={null} />;
+
+      await render(group);
+
+      expect(screen.getByRole('group')).toBeInTheDocument();
+    });
+
+    it('should set the initial value', async () => {
       function App() {
         return (
           <CheckboxGroup defaultValue={['red']}>
@@ -229,7 +237,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const red = screen.getByTestId('red');
       const green = screen.getByTestId('green');
@@ -247,7 +255,7 @@ describe('<CheckboxGroup />', () => {
     });
 
     it('keeps omitted defaults isolated between groups in Strict Mode', async () => {
-      const { user } = render(
+      const { user } = await render(
         <React.StrictMode>
           <CheckboxGroup allValues={['a-1', 'a-2']}>
             <Checkbox.Root parent data-testid="a-parent" />
@@ -293,7 +301,7 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('disables all checkboxes when `true`', () => {
+    it('disables all checkboxes when `true`', async () => {
       function App() {
         return (
           <CheckboxGroup disabled>
@@ -304,7 +312,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const red = screen.getByTestId('red');
       const green = screen.getByTestId('green');
@@ -315,7 +323,7 @@ describe('<CheckboxGroup />', () => {
       expect(blue).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('does not disable all checkboxes when `false`', () => {
+    it('does not disable all checkboxes when `false`', async () => {
       function App() {
         return (
           <CheckboxGroup disabled={false}>
@@ -326,7 +334,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const red = screen.getByTestId('red');
       const green = screen.getByTestId('green');
@@ -337,7 +345,7 @@ describe('<CheckboxGroup />', () => {
       expect(blue).not.toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('takes precedence over individual checkboxes', () => {
+    it('takes precedence over individual checkboxes', async () => {
       function App() {
         return (
           <CheckboxGroup disabled>
@@ -348,7 +356,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const red = screen.getByTestId('red');
       const green = screen.getByTestId('green');
@@ -361,8 +369,58 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field', () => {
+    it('[data-dirty]', async () => {
+      await render(
+        <Field.Root name="fruits">
+          <CheckboxGroup defaultValue={['apple']}>
+            <Field.Item>
+              <Checkbox.Root value="apple" data-testid="apple" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="banana" data-testid="banana" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('group');
+      const banana = screen.getByTestId('banana');
+
+      expect(group).not.toHaveAttribute('data-dirty');
+
+      fireEvent.click(banana);
+
+      expect(group).toHaveAttribute('data-dirty', '');
+
+      fireEvent.click(banana);
+
+      expect(group).not.toHaveAttribute('data-dirty');
+    });
+
+    it('[data-filled] follows the group value even without a matching rendered checkbox', async () => {
+      await render(
+        <Field.Root name="fruits">
+          <CheckboxGroup defaultValue={['cherry']}>
+            <Field.Item>
+              <Checkbox.Root value="apple" data-testid="apple" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('group');
+      const apple = screen.getByTestId('apple');
+
+      expect(group).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(apple);
+      fireEvent.click(apple);
+
+      expect(group).toHaveAttribute('data-filled', '');
+    });
+
     it('keeps a required error while another required checkbox in the group is unchecked', async () => {
-      const { user } = render(
+      const { user } = await render(
         <Form onSubmit={(event) => event.preventDefault()}>
           <Field.Root name="protocols">
             <CheckboxGroup defaultValue={[]}>
@@ -397,7 +455,7 @@ describe('<CheckboxGroup />', () => {
     });
 
     it('ignores a disabled required checkbox when validating the group', async () => {
-      const { user } = render(
+      const { user } = await render(
         <Form onSubmit={(event) => event.preventDefault()}>
           <Field.Root name="protocols">
             <CheckboxGroup defaultValue={[]}>
@@ -455,7 +513,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByText('submit'));
       expect(screen.getByTestId('error')).toHaveTextContent('required');
@@ -474,7 +532,7 @@ describe('<CheckboxGroup />', () => {
     });
 
     it('validationMode=onChange keeps the error until every required checkbox is ticked', async () => {
-      const { user } = render(
+      const { user } = await render(
         <Field.Root name="protocols" validationMode="onChange">
           <CheckboxGroup defaultValue={[]}>
             <Field.Item>
@@ -501,7 +559,7 @@ describe('<CheckboxGroup />', () => {
     });
 
     it('validationMode=onBlur keeps the error until every required checkbox is ticked', async () => {
-      const { user } = render(
+      const { user } = await render(
         <Field.Root name="protocols" validationMode="onBlur">
           <CheckboxGroup defaultValue={[]}>
             <Field.Item>
@@ -529,7 +587,7 @@ describe('<CheckboxGroup />', () => {
 
     it('does not leave a stale custom error when toggling checkboxes in a group', async () => {
       const validateSpy = vi.fn((value) => ((value as string[]).length < 2 ? 'pick two' : null));
-      render(
+      await render(
         <Field.Root name="protocols" validationMode="onChange" validate={validateSpy}>
           <CheckboxGroup defaultValue={[]}>
             <Field.Item>
@@ -583,7 +641,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByTestId('cb-http'));
 
@@ -612,7 +670,7 @@ describe('<CheckboxGroup />', () => {
         }
         return null;
       });
-      const { user } = render(
+      const { user } = await render(
         <Form>
           <Field.Root validate={validateSpy} name="test">
             <CheckboxGroup defaultValue={[]}>
@@ -655,7 +713,7 @@ describe('<CheckboxGroup />', () => {
         const v = value as string[];
         return v.includes('one') ? 'error' : null;
       });
-      render(
+      await render(
         <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
           <CheckboxGroup defaultValue={['one']}>
             <Field.Item>
@@ -698,7 +756,7 @@ describe('<CheckboxGroup />', () => {
     it('validates with the group value when toggling the parent checkbox', async () => {
       const validateSpy = vi.fn((_value: unknown) => null);
 
-      const { user } = render(
+      const { user } = await render(
         <Field.Root validationMode="onChange" validate={validateSpy} name="fruits">
           <CheckboxGroup allValues={['apple', 'orange']}>
             <Checkbox.Root parent data-testid="parent" />
@@ -747,7 +805,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const checkboxes = screen.getAllByTestId('checkbox');
       const toggle = screen.getByText('Select externally');
@@ -767,7 +825,7 @@ describe('<CheckboxGroup />', () => {
         const v = value as string[];
         return v.includes('one') ? 'error' : null;
       });
-      render(
+      await render(
         <Field.Root validationMode="onBlur" validate={validateSpy} name="apple">
           <CheckboxGroup defaultValue={['one']}>
             <Field.Item>
@@ -816,9 +874,202 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field.Label', () => {
+    function SharedFieldRootGroup(props: { nativeButton: boolean }) {
+      const { nativeButton } = props;
+      const checkboxProps = { nativeButton, render: nativeButton ? <button /> : undefined };
+
+      return (
+        <Field.Root name="apples">
+          <Field.Label>Apples</Field.Label>
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <Checkbox.Root parent data-testid="parent" {...checkboxProps} />
+            <Checkbox.Root value="fuji" data-testid="fuji" {...checkboxProps} />
+            <Checkbox.Root value="gala" data-testid="gala" {...checkboxProps} />
+          </CheckboxGroup>
+        </Field.Root>
+      );
+    }
+
+    // `expectedCount` is required: a set of unique ids is trivially unique when it is empty,
+    // so a regression that drops every id would otherwise pass.
+    function expectUniqueIds(expectedCount: number) {
+      const ids = Array.from(document.querySelectorAll('[id]'), (element) => element.id);
+      expect(ids).toHaveLength(expectedCount);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+
+    it.each([false, true])(
+      'keeps checkbox ids unique when the group shares one Field.Root (nativeButton=%s)',
+      async (nativeButton) => {
+        await render(<SharedFieldRootGroup nativeButton={nativeButton} />);
+
+        expectUniqueIds(nativeButton ? 4 : 7);
+        // Queried without `hidden`, so the relationship has to reach the exposed checkboxes
+        // rather than the hidden inputs behind them.
+        expect(screen.getByTestId('parent').getAttribute('aria-controls')!.split(' ')).toEqual([
+          screen.getByTestId('fuji').id,
+          screen.getByTestId('gala').id,
+        ]);
+      },
+    );
+
+    it.each([false, true])(
+      'keeps checkbox ids unique in a shared Field.Root during SSR (nativeButton=%s)',
+      (nativeButton) => {
+        renderToString(<SharedFieldRootGroup nativeButton={nativeButton} />);
+        expectUniqueIds(nativeButton ? 4 : 7);
+      },
+    );
+
+    it.each([false, true])(
+      'keeps ids unique without allValues in a shared Field.Root (nativeButton=%s)',
+      async (nativeButton) => {
+        const checkboxProps = { nativeButton, render: nativeButton ? <button /> : undefined };
+
+        await render(
+          <Field.Root name="apples">
+            <Field.Label>Apples</Field.Label>
+            <CheckboxGroup>
+              <Checkbox.Root value="fuji" {...checkboxProps} />
+              <Checkbox.Root value="gala" {...checkboxProps} />
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        expectUniqueIds(nativeButton ? 3 : 5);
+      },
+    );
+
+    // The suppression runs in a layout effect, so server markup still carries the `htmlFor`
+    // the provider resolved before the group registered.
+    it('labels the group rather than pointing Field.Label at one checkbox inside it', async () => {
+      const { hydrate } = renderToString(<SharedFieldRootGroup nativeButton={false} />);
+
+      expect(screen.getByText('Apples')).toHaveAttribute('for');
+
+      hydrate();
+
+      const label = screen.getByText('Apples');
+      await waitFor(() => {
+        expect(label).not.toHaveAttribute('for');
+      });
+      expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', label.id);
+    });
+
+    it('gives each checkbox in a shared Field.Root its own accessible name', async () => {
+      await render(
+        <Field.Root name="apples">
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <label>
+              <Checkbox.Root parent data-testid="parent" />
+              All
+            </label>
+            <label>
+              <Checkbox.Root value="fuji" data-testid="fuji" />
+              Fuji
+            </label>
+            <label>
+              <Checkbox.Root value="gala" data-testid="gala" />
+              Gala
+            </label>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      ['All', 'Fuji', 'Gala'].forEach((name, index) => {
+        const testId = ['parent', 'fuji', 'gala'][index];
+        const labelId = screen.getByTestId(testId).getAttribute('aria-labelledby')!;
+        expect(document.getElementById(labelId)).toHaveTextContent(name);
+      });
+    });
+
+    it.each([
+      { nativeButton: false, parent: false },
+      { nativeButton: true, parent: false },
+      { nativeButton: false, parent: true },
+      { nativeButton: true, parent: true },
+    ])(
+      'associates Field.Label with a grouped Checkbox during SSR (nativeButton=$nativeButton, parent=$parent)',
+      ({ nativeButton, parent }) => {
+        renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  parent={parent}
+                  value={parent ? undefined : 'fuji'}
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const control = nativeButton
+          ? screen.getByRole('checkbox')
+          : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        expect(control.id).not.toBe('');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'points parent aria-controls at the children once they register (nativeButton=%s)',
+      async (nativeButton) => {
+        const { hydrate } = renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">All</Field.Label>
+                <Checkbox.Root
+                  parent
+                  data-testid="parent"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  value="fuji"
+                  data-testid="fuji"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        // Server markup claims nothing: the parent can't control a child that hasn't mounted.
+        expect(screen.getByTestId('parent')).not.toHaveAttribute('aria-controls');
+
+        // Each label must reach its own item's labelable element: the button itself with
+        // `nativeButton`, the hidden input rendered next to it otherwise.
+        [screen.getByTestId('parent'), screen.getByTestId('fuji')].forEach((control, index) => {
+          const labelable = nativeButton ? control : control.nextElementSibling;
+          expect(labelable).not.toBe(null);
+          expect(screen.getAllByTestId('label')[index]).toHaveAttribute('for', labelable!.id);
+        });
+
+        hydrate();
+
+        // Queried without `hidden`, so the relationship has to reach the exposed checkbox
+        // rather than the hidden input behind it.
+        await waitFor(() => {
+          expect(screen.getByTestId('parent')).toHaveAttribute(
+            'aria-controls',
+            screen.getByTestId('fuji').id,
+          );
+        });
+      },
+    );
+
     it('implicit association', async () => {
       const changeSpy = vi.fn();
-      render(
+      await render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
             <Field.Item>
@@ -945,7 +1196,7 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Form values', () => {
-    it('projects selected enabled checkboxes while preserving the logical validation value', () => {
+    it('projects selected enabled checkboxes while preserving the logical validation value', async () => {
       const handleSubmit = vi.fn();
       const validateGroup = vi.fn((_value: unknown, _formValues: Form.Values) => null);
       const validateOther = vi.fn((_value: unknown, _formValues: Form.Values) => null);
@@ -972,7 +1223,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       fireEvent.click(screen.getByText('Submit'));
 
@@ -994,7 +1245,7 @@ describe('<CheckboxGroup />', () => {
       expect(handleSubmit.mock.lastCall?.[0].fruits).toEqual(['apple', 'banana']);
     });
 
-    it('omits selected unmounted checkboxes while retaining group state across remounts', () => {
+    it('omits selected unmounted checkboxes while retaining group state across remounts', async () => {
       const handleSubmit = vi.fn();
 
       function App() {
@@ -1016,7 +1267,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       fireEvent.click(screen.getByText('Toggle'));
       fireEvent.click(screen.getByText('Submit'));
@@ -1029,10 +1280,10 @@ describe('<CheckboxGroup />', () => {
       expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple', 'banana'] });
     });
 
-    it('preserves the logical field-name value when Checkbox.Root has no value prop', () => {
+    it('preserves the logical field-name value when Checkbox.Root has no value prop', async () => {
       const handleSubmit = vi.fn();
 
-      render(
+      await render(
         <Form onFormSubmit={handleSubmit}>
           <Field.Root name="fruits">
             <CheckboxGroup defaultValue={['fruits']}>
@@ -1048,7 +1299,7 @@ describe('<CheckboxGroup />', () => {
       expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['fruits'] });
     });
 
-    it('updates duplicate-value registrations before a parent layout effect submits', () => {
+    it('updates duplicate-value registrations before a parent layout effect submits', async () => {
       const handleSubmit = vi.fn();
 
       function App() {
@@ -1077,17 +1328,17 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       fireEvent.click(screen.getByText('Trim'));
 
       expect(handleSubmit.mock.lastCall?.[0]).toEqual({ items: ['two'] });
     });
 
-    it('omits selected checkboxes associated with another form', () => {
+    it('omits selected checkboxes associated with another form', async () => {
       const handleSubmit = vi.fn();
 
-      render(
+      await render(
         <React.Fragment>
           <form id="external-form" />
           <Form onFormSubmit={handleSubmit}>
@@ -1107,12 +1358,12 @@ describe('<CheckboxGroup />', () => {
       expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
     });
 
-    it('includes a context-portaled checkbox without native form association', () => {
+    it('includes a context-portaled checkbox without native form association', async () => {
       const handleSubmit = vi.fn();
       const portalContainer = document.createElement('div');
       document.body.append(portalContainer);
 
-      render(
+      await render(
         <Form onFormSubmit={handleSubmit}>
           <Field.Root name="fruits">
             <CheckboxGroup defaultValue={['apple']}>
@@ -1131,12 +1382,12 @@ describe('<CheckboxGroup />', () => {
       portalContainer.remove();
     });
 
-    it('includes a group fully portaled outside the form element', () => {
+    it('includes a group fully portaled outside the form element', async () => {
       const handleSubmit = vi.fn();
       const portalContainer = document.createElement('div');
       document.body.append(portalContainer);
 
-      render(
+      await render(
         <Form onFormSubmit={handleSubmit}>
           {ReactDOM.createPortal(
             <Field.Root name="fruits">
@@ -1157,12 +1408,12 @@ describe('<CheckboxGroup />', () => {
       portalContainer.remove();
     });
 
-    it('includes a portaled checkbox explicitly associated with the Form', () => {
+    it('includes a portaled checkbox explicitly associated with the Form', async () => {
       const handleSubmit = vi.fn();
       const portalContainer = document.createElement('div');
       document.body.append(portalContainer);
 
-      render(
+      await render(
         <Form id="current-form" onFormSubmit={handleSubmit}>
           <Field.Root name="fruits">
             <CheckboxGroup defaultValue={['apple']}>
@@ -1182,11 +1433,11 @@ describe('<CheckboxGroup />', () => {
       portalContainer.remove();
     });
 
-    it('omits checkboxes disabled by a fieldset', () => {
+    it('omits checkboxes disabled by a fieldset', async () => {
       const handleSubmit = vi.fn();
       const validate = vi.fn((_value: unknown, _formValues: Form.Values) => null);
 
-      render(
+      await render(
         <Form onFormSubmit={handleSubmit}>
           <Field.Root name="fruits">
             <CheckboxGroup defaultValue={['apple', 'banana']}>
@@ -1212,7 +1463,7 @@ describe('<CheckboxGroup />', () => {
 
   describe.skipIf(isJSDOM)('Form', () => {
     it('includes the checkbox group value in form submission', async () => {
-      render(
+      await render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
@@ -1244,7 +1495,7 @@ describe('<CheckboxGroup />', () => {
     it('is validated as a group upon form submission', async () => {
       const validateSpy = vi.fn();
 
-      render(
+      await render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
@@ -1300,7 +1551,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
       expect(screen.queryByTestId('error')).toBe(null);
       const submit = screen.getByText('Submit');
       await user.click(submit);
@@ -1312,7 +1563,7 @@ describe('<CheckboxGroup />', () => {
     });
 
     it('focuses the invalid checkbox when a later checkbox in the group fails validation', async () => {
-      const { user } = render(
+      const { user } = await render(
         <Form>
           <Field.Root name="group">
             <CheckboxGroup defaultValue={['one']}>
@@ -1342,7 +1593,7 @@ describe('<CheckboxGroup />', () => {
     it('ignores required checkboxes associated with a different form', async () => {
       const handleSubmit = vi.fn();
 
-      const { user } = render(
+      const { user } = await render(
         <React.Fragment>
           <form id="external-form" />
           <Form onFormSubmit={handleSubmit}>
@@ -1390,7 +1641,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByText('Submit'));
       expect(handleSubmit).not.toHaveBeenCalled();
@@ -1406,7 +1657,7 @@ describe('<CheckboxGroup />', () => {
       const portalContainer = document.createElement('div');
       document.body.append(portalContainer);
 
-      const { user } = render(
+      const { user } = await render(
         <Form onFormSubmit={handleSubmit}>
           <Field.Root name="group">
             <CheckboxGroup defaultValue={[]}>
@@ -1438,7 +1689,7 @@ describe('<CheckboxGroup />', () => {
       const externalForm = document.createElement('form');
       document.body.append(externalForm);
 
-      const { user } = render(
+      const { user } = await render(
         <Form onFormSubmit={handleSubmit}>
           <Field.Root name="group">
             <CheckboxGroup defaultValue={[]}>
@@ -1481,7 +1732,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByText('Submit'));
 
@@ -1515,7 +1766,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByText('Submit'));
 
@@ -1544,7 +1795,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByText('Submit'));
       expect(handleSubmit).not.toHaveBeenCalled();
@@ -1579,7 +1830,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByText('Remove'));
 
@@ -1621,7 +1872,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByText('Submit'));
       expect(screen.getByText('required')).not.toBe(null);
@@ -1662,7 +1913,7 @@ describe('<CheckboxGroup />', () => {
           );
         }
 
-        const { user } = render(<App />);
+        const { user } = await render(<App />);
 
         await user.click(screen.getByText('Remove'));
         validate.mockClear();
@@ -1672,8 +1923,7 @@ describe('<CheckboxGroup />', () => {
 
         await user.click(screen.getByText('Submit'));
 
-        expect(validate).toHaveBeenCalledOnce();
-        expect(validate).toHaveBeenCalledWith(['one'], { group: [] });
+        expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: [] });
       },
     );
 
@@ -1701,7 +1951,7 @@ describe('<CheckboxGroup />', () => {
           );
         }
 
-        const { user } = render(<App />);
+        const { user } = await render(<App />);
 
         validate.mockClear();
         await user.click(screen.getByText('Select one'));
@@ -1710,8 +1960,7 @@ describe('<CheckboxGroup />', () => {
 
         await user.click(screen.getByText('Submit'));
 
-        expect(validate).toHaveBeenCalledOnce();
-        expect(validate).toHaveBeenCalledWith(['one'], { group: [] });
+        expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: [] });
 
         await user.click(screen.getByText('Select two'));
 
@@ -1735,13 +1984,12 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
       validate.mockClear();
 
       await user.click(screen.getByText('Select'));
 
-      expect(validate).toHaveBeenCalledOnce();
-      expect(validate).toHaveBeenCalledWith(['one'], { group: ['one'] });
+      expect(validate).toHaveBeenCalledExactlyOnceWith(['one'], { group: ['one'] });
     });
 
     it('validates an initially empty group through the imperative action', async () => {
@@ -1760,13 +2008,12 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
       validate.mockClear();
 
       await user.click(screen.getByText('Validate'));
 
-      expect(validate).toHaveBeenCalledOnce();
-      expect(validate).toHaveBeenCalledWith([], { group: [] });
+      expect(validate).toHaveBeenCalledExactlyOnceWith([], { group: [] });
     });
 
     it('skips a disabled representative checkbox on a later focus attempt', async () => {
@@ -1797,7 +2044,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByText('Submit'));
       expect(screen.getByTestId('first')).toHaveFocus();
@@ -1833,7 +2080,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       await user.click(screen.getByText('Submit'));
 
@@ -1842,7 +2089,7 @@ describe('<CheckboxGroup />', () => {
     });
 
     it('focuses a later invalid field when an inputless group is invalid without a control', async () => {
-      const { user } = render(
+      const { user } = await render(
         <Form>
           <Field.Root name="group" validate={() => 'Invalid group'}>
             <CheckboxGroup value={[]} />
@@ -1861,7 +2108,7 @@ describe('<CheckboxGroup />', () => {
     });
 
     it('focuses a later invalid field when every checkbox in an invalid group is disabled', async () => {
-      const { user } = render(
+      const { user } = await render(
         <Form>
           <Field.Root name="group" validate={() => 'Invalid group'}>
             <CheckboxGroup defaultValue={[]}>
@@ -1918,7 +2165,7 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = render(<App />);
+      const { user } = await render(<App />);
 
       const [parentCheckbox, , , checkbox3] = screen.getAllByRole('checkbox');
 

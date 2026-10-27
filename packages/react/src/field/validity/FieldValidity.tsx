@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import type { FieldValidityData } from '../root/FieldRoot';
-import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 /**
  * Used to display a custom message based on the field's validity.

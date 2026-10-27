@@ -1,18 +1,18 @@
 import { isElement } from '@floating-ui/utils/dom';
 import type * as React from 'react';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getTarget, isInteractiveElement } from '../../floating-ui-react/utils/element';
+import { isInteractiveElement } from '../../utils/popups/element';
 import type { ComboboxStore } from '../store';
 
 export function handleInputPress(
   event: React.MouseEvent<HTMLElement> & { baseUIHandlerPrevented?: boolean | undefined },
   store: ComboboxStore,
   disabled: boolean,
-  readOnly: boolean,
   shouldIgnoreTarget?: ((target: Element | null) => boolean) | undefined,
 ) {
-  if (event.baseUIHandlerPrevented || readOnly) {
+  if (event.baseUIHandlerPrevented) {
     return;
   }
 
@@ -31,9 +31,9 @@ export function handleInputPress(
     return;
   }
 
-  store.state.inputRef.current?.focus();
+  store.context.inputRef.current?.focus();
 
   if (store.state.openOnInputClick) {
-    store.state.setOpen(true, createChangeEventDetails(REASONS.inputPress, event.nativeEvent));
+    store.setOpen(true, createChangeEventDetails(REASONS.inputPress, event.nativeEvent));
   }
 }

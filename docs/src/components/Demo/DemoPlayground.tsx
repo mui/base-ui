@@ -11,14 +11,13 @@ export function DemoPlayground({ component, variant }: DemoPlaygroundProps) {
   return (
     <ErrorBoundary FallbackComponent={DemoErrorFallback}>
       <div className="DemoPlayground">
-        <div
-          role="figure"
+        <figure
           aria-label="Component demo"
           data-demo={kebabCase(variant)}
           className="DemoPlaygroundInner"
         >
           {component}
-        </div>
+        </figure>
       </div>
     </ErrorBoundary>
   );

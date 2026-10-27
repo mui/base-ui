@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useCollapsibleRoot, type UseCollapsibleRootReturnValue } from './useCollapsibleRoot';
+import { useCollapsibleRoot } from './useCollapsibleRoot';
+import type { UseCollapsibleRootReturnValue } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import type { REASONS } from '../../internals/reasons';
 
 /**
  * Groups all parts of the collapsible.
@@ -94,8 +95,7 @@ export interface CollapsibleRootProps extends BaseUIComponentProps<'div', Collap
    * Event handler called when the panel is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void) | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false

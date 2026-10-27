@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { clamp } from '@base-ui/utils/clamp';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -10,20 +11,19 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { NOOP } from '../../internals/noop';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import {
-  getDisplacement,
-  getElementTransform,
-  useSwipeDismiss,
-  type SwipeDirection,
-} from '../../utils/useSwipeDismiss';
-import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
-import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
-import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
-import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
+import { getDisplacement, useSwipeDismiss } from '../../utils/useSwipeDismiss';
+import type { SwipeDirection } from '../../utils/useSwipeDismiss';
+import { getElementTransform } from '../../utils/getElementTransform';
+import * as DrawerPopupCssVars from '../popup/DrawerPopupCssVars';
+import * as DrawerPopupDataAttributes from '../popup/DrawerPopupDataAttributes';
+import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
+import { useDrawerRootContext } from '../root/DrawerRootContext';
+import type { DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useTriggerRegistration } from '../../utils/popups';
+import { useTriggerRegistration } from '../../utils/popups/popupStoreUtils';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import { DrawerSwipeAreaDataAttributes } from './DrawerSwipeAreaDataAttributes';
+import { isVirtualClick } from '../../utils/popups/event';
+import * as DrawerSwipeAreaDataAttributes from './DrawerSwipeAreaDataAttributes';
 
 const DEFAULT_SWIPE_OPEN_RATIO = 0.5;
 const MIN_SWIPE_START_DISTANCE = 1;
@@ -111,6 +111,14 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const swipeAreaId = useBaseUiId(componentProps.id);
   const registerTrigger = useTriggerRegistration(swipeAreaId, store);
 
+  // `registerTrigger` is stable, so the ref does not re-fire when the id changes: re-register the
+  // rendered element here instead. On React 17 the id also starts out `undefined`, so this is what
+  // registers the swipe area at all.
+  useIsoLayoutEffect(() => {
+    registerTrigger(swipeAreaRef.current);
+    return () => registerTrigger(null);
+  }, [registerTrigger, swipeAreaId, store]);
+
   const open = store.useState('open');
 
   const resetDragDelta = useStableCallback(() => {
@@ -127,30 +135,39 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     store.context.outsidePressEnabledRef.current = false;
   }
 
-  function enableDismissAfterRelease() {
+  const enableDismissAfterRelease = useStableCallback(() => {
     releaseGuardCleanupRef.current();
 
     const doc = ownerDocument(swipeAreaRef.current);
 
-    function restore() {
+    function restore(event?: MouseEvent) {
+      // The gesture's trailing release click is the one physical click with no `pointerdown` of
+      // its own. Ignore it and keep waiting, so it cannot dismiss the drawer it just opened,
+      // while a click-only activation (keyboard or assistive tech) still re-enables in time.
+      if (event?.type === 'click' && event.detail !== 0 && !isVirtualClick(event)) {
+        return;
+      }
+
       releaseGuardCleanupRef.current = NOOP;
       doc.removeEventListener('pointerdown', restore, true);
+      doc.removeEventListener('click', restore, true);
       store.context.outsidePressEnabledRef.current = true;
     }
 
     // The pointerup that ends a swipe-open gesture synthesizes a `click`. When the drag released
     // outside the popup (e.g. it was dragged past the popup's size), that click would be treated as
     // an outside press and immediately dismiss the drawer that was just opened. Keep outside-press
-    // dismissal disabled until the next *fresh* pointer interaction: the synthesized click has no
-    // pointerdown of its own, so it is ignored, while a deliberate outside press always starts with
-    // a pointerdown and re-enables dismissal in time to close the drawer. This is deterministic,
-    // unlike re-enabling on a timer that can race the synthesized click and dismiss at random.
+    // dismissal disabled until the next interaction that isn't that release click: a deliberate
+    // outside press starts with a `pointerdown`, and a click-only activation (keyboard or
+    // assistive tech) is distinguishable from a physical release. This is deterministic, unlike
+    // re-enabling on a timer that can race the synthesized click and dismiss at random.
     //
     // `restore` runs in document capture, ahead of floating-ui's own outside-press check (which
     // happens on the event target, after capture), so the triggering press still dismisses.
     releaseGuardCleanupRef.current = restore;
     doc.addEventListener('pointerdown', restore, true);
-  }
+    doc.addEventListener('click', restore, true);
+  });
 
   function getPopupSize(popupElement: HTMLElement) {
     const isHorizontal = dismissDirection === 'left' || dismissDirection === 'right';
@@ -224,8 +241,8 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     const isHorizontal = dismissDirection === 'left' || dismissDirection === 'right';
     const movementX = isHorizontal ? movement : 0;
     const movementY = isHorizontal ? 0 : movement;
-    const openProgress = Math.max(0, Math.min(1, clampedDisplacement / closedOffset));
-    const backdropProgress = Math.max(0, Math.min(1, 1 - openProgress));
+    const openProgress = clamp(clampedDisplacement / closedOffset, 0, 1);
+    const backdropProgress = clamp(1 - openProgress, 0, 1);
 
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementX, `${movementX}px`);
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementY, `${movementY}px`);
@@ -394,12 +411,22 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   useIsoLayoutEffect(() => {
     if (!enabled) {
+      if (swipeActive) {
+        enableDismissAfterRelease();
+      }
       resetSwipe();
       resetDragDelta();
       clearSwipeStyles();
       resetSwipeInteractionState();
     }
-  }, [clearSwipeStyles, enabled, resetDragDelta, resetSwipe]);
+  }, [
+    clearSwipeStyles,
+    enableDismissAfterRelease,
+    enabled,
+    resetDragDelta,
+    resetSwipe,
+    swipeActive,
+  ]);
 
   React.useEffect(() => {
     return () => {

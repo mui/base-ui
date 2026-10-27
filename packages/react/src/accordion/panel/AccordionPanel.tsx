@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { resolveStyle } from '../../utils/resolveStyle';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
@@ -11,7 +11,7 @@ import type { AccordionRoot } from '../root/AccordionRoot';
 import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
-import { AccordionPanelCssVars } from './AccordionPanelCssVars';
+import * as AccordionPanelCssVars from './AccordionPanelCssVars';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 

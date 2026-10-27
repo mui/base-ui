@@ -25,8 +25,25 @@ export type * from './chip-remove/ComboboxChipRemove';
 export type * from './clear/ComboboxClear';
 export type * from './status/ComboboxStatus';
 export type * from './collection/ComboboxCollection';
+export type * from './separator/ComboboxSeparator';
 
 export type {
   Filter as ComboboxFilter,
   UseComboboxFilterOptions as ComboboxFilterOptions,
-} from '../combobox/root/utils/useFilter';
+} from './root/utils/useFilter';
+
+export type { ComboboxPrimitiveValue, CreateComboboxItemsOptions } from './items/createItems';
+export type { ComboboxItemCollection } from './items/itemCollection';
+
+export * as ComboboxInputDataAttributes from './input/ComboboxInputDataAttributes';
+export * as ComboboxInputGroupDataAttributes from './input-group/ComboboxInputGroupDataAttributes';
+export * as ComboboxTriggerDataAttributes from './trigger/ComboboxTriggerDataAttributes';
+export * as ComboboxBackdropDataAttributes from './backdrop/ComboboxBackdropDataAttributes';
+export * as ComboboxPositionerCssVariables from './positioner/ComboboxPositionerCssVars';
+export * as ComboboxPositionerDataAttributes from './positioner/ComboboxPositionerDataAttributes';
+export * as ComboboxPopupDataAttributes from './popup/ComboboxPopupDataAttributes';
+export * as ComboboxArrowDataAttributes from './arrow/ComboboxArrowDataAttributes';
+export * as ComboboxItemDataAttributes from './item/ComboboxItemDataAttributes';
+export * as ComboboxItemIndicatorDataAttributes from './item-indicator/ComboboxItemIndicatorDataAttributes';
+export * as ComboboxClearDataAttributes from './clear/ComboboxClearDataAttributes';
+export * as ComboboxSeparatorDataAttributes from '../separator/SeparatorDataAttributes';

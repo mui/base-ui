@@ -30,6 +30,7 @@ beforeAll(async () => {
 afterEach(() => {
   vi.resetAllMocks();
   globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  // `warn` and `error` share one log-once store, so this also clears deduplicated warnings.
   resetBuiltError();
   resetSourceError();
   // Drop animation frame callbacks that were scheduled but never ran (e.g. under fake timers torn

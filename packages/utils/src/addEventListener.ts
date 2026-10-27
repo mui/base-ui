@@ -29,8 +29,7 @@ type EventMap<Target> = Target extends Window
                 : never;
 
 type TypedEventListener<Target, Event> =
-  | { handleEvent(event: Event): void }
-  | ((this: Target, event: Event) => void);
+  { handleEvent(event: Event): void } | ((this: Target, event: Event) => void);
 
 /**
  * Adds an event listener and returns a cleanup function to remove it.

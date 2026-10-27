@@ -1,17 +1,10 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
-import {
-  act,
-  createRenderer,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
-import { isJSDOM } from '#test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
-import { type CompositeMetadata } from '../list/CompositeList';
+import type { CompositeMetadata } from '../list/CompositeList';
 import { useCompositeListItem } from '../list/useCompositeListItem';
 import { CompositeRoot } from './CompositeRoot';
 import { gridNavigation } from './gridNavigation';
@@ -72,7 +65,7 @@ describe('Composite', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const item1 = screen.getByTestId('1');
       const item2 = screen.getByTestId('2');
@@ -108,7 +101,7 @@ describe('Composite', () => {
     });
 
     it('uncontrolled mode', async () => {
-      render(
+      await render(
         <CompositeRoot>
           <CompositeItem data-testid="1">1</CompositeItem>
           <CompositeItem data-testid="2">2</CompositeItem>
@@ -163,7 +156,7 @@ describe('Composite', () => {
     });
 
     it('keeps native input behavior when the native target differs from the synthetic target', async () => {
-      render(
+      await render(
         <CompositeRoot orientation="horizontal">
           <CompositeItem data-testid="1">1</CompositeItem>
           <div data-testid="host" />
@@ -253,8 +246,8 @@ describe('Composite', () => {
           </CompositeRoot>
         );
       }
-      const { user, rerender } = render(<App items={['1', '2', '3']} />);
-      rerender(<App items={['1', '3', '2']} />);
+      const { user, rerender } = await render(<App items={['1', '2', '3']} />);
+      await rerender(<App items={['1', '3', '2']} />);
 
       const item1 = screen.getByTestId('1');
       const item3 = screen.getByTestId('3');
@@ -280,8 +273,10 @@ describe('Composite', () => {
         }
         // StrictMode masks the bug: it re-runs the item registration effects when
         // the containers move, which re-sorts the indices even without the fix.
-        const { user, rerender } = render(<App groups={['a', 'b', 'c']} />, { strict: false });
-        rerender(<App groups={['b', 'a', 'c']} />);
+        const { user, rerender } = await render(<App groups={['a', 'b', 'c']} />, {
+          strict: false,
+        });
+        await rerender(<App groups={['b', 'a', 'c']} />);
 
         const itemA = screen.getByTestId('a');
         const itemB = screen.getByTestId('b');
@@ -301,7 +296,7 @@ describe('Composite', () => {
 
     describe('Home and End keys', () => {
       it('Home key moves focus to the first item', async () => {
-        render(
+        await render(
           <CompositeRoot enableHomeAndEndKeys>
             <CompositeItem data-testid="1">1</CompositeItem>
             <CompositeItem data-testid="2">2</CompositeItem>
@@ -322,7 +317,7 @@ describe('Composite', () => {
       });
 
       it('End key moves focus to the last item', async () => {
-        render(
+        await render(
           <CompositeRoot enableHomeAndEndKeys>
             <CompositeItem data-testid="1">1</CompositeItem>
             <CompositeItem data-testid="2">2</CompositeItem>
@@ -407,7 +402,7 @@ describe('Composite', () => {
 
     describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
-        render(
+        await render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot orientation="horizontal">
@@ -461,7 +456,7 @@ describe('Composite', () => {
       });
 
       it('both horizontal and vertical orientation', async () => {
-        render(
+        await render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot orientation="both">
@@ -800,7 +795,7 @@ describe('Composite', () => {
 
     describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
-        render(
+        await render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot grid={threeColsGrid} orientation="horizontal" enableHomeAndEndKeys>
@@ -978,7 +973,7 @@ describe('Composite', () => {
         );
       }
 
-      render(<App />);
+      await render(<App />);
 
       const item1 = screen.getByTestId('1');
       const item3 = screen.getByTestId('3');
@@ -1011,17 +1006,17 @@ describe('Composite', () => {
               data-testid="1"
               // TS doesn't like the disabled attribute on non-interactive elements
               // but testing library refuses to focus disabled interactive elements
-              // @ts-ignore
+              // @ts-expect-error A span has no disabled prop; exercise focus on an aria-disabled non-interactive element.
               render={<span data-disabled aria-disabled="true" disabled />}
             />
             <CompositeItem
               data-testid="2"
-              // @ts-ignore
+              // @ts-expect-error A span has no disabled prop; exercise focus on an aria-disabled non-interactive element.
               render={<span data-disabled aria-disabled="true" disabled />}
             />
             <CompositeItem
               data-testid="3"
-              // @ts-ignore
+              // @ts-expect-error A span has no disabled prop; exercise focus on an aria-disabled non-interactive element.
               render={<span data-disabled aria-disabled="true" disabled />}
             />
           </CompositeRoot>
@@ -1062,9 +1057,162 @@ describe('Composite', () => {
     });
   });
 
+  describe('item removal', () => {
+    it('keeps the tab stop on the highlighted item when an earlier item is removed', async () => {
+      function App({ showFirst }: { showFirst: boolean }) {
+        return (
+          <CompositeRoot>
+            {showFirst && <CompositeItem data-testid="1" />}
+            <CompositeItem data-testid="2" />
+            <CompositeItem data-testid="3" />
+            <CompositeItem data-testid="4" />
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showFirst />);
+
+      const item1 = screen.getByTestId('1');
+      act(() => item1.focus());
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      fireEvent.keyDown(screen.getByTestId('2'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      const item3 = screen.getByTestId('3');
+      expect(item3).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showFirst: false });
+
+      expect(item3).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '-1');
+
+      // navigation continues from the item that holds the tab stop
+      fireEvent.keyDown(item3, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('4')).toHaveFocus();
+    });
+
+    it('moves the tab stop back into range when the highlighted item is removed', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <CompositeRoot>
+            <CompositeItem data-testid="1" />
+            <CompositeItem data-testid="2" />
+            {showLast && <CompositeItem data-testid="3" />}
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showLast />);
+
+      const item1 = screen.getByTestId('1');
+      act(() => item1.focus());
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      fireEvent.keyDown(screen.getByTestId('2'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('moves the tab stop to the active item when the highlighted item is removed', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <CompositeRoot>
+            <CompositeItem data-testid="1" />
+            <CompositeItem data-testid="2" />
+            <CompositeItem data-testid="3" data-composite-item-active="" />
+            {showLast && <CompositeItem data-testid="4" />}
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showLast />);
+
+      const item3 = screen.getByTestId('3');
+      expect(item3).toHaveAttribute('tabindex', '0');
+
+      act(() => item3.focus());
+
+      fireEvent.keyDown(item3, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+      expect(item3).toHaveAttribute('tabindex', '0');
+    });
+
+    it('skips items that cannot hold the tab stop', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <CompositeRoot>
+            <CompositeItem data-testid="1" style={{ display: 'none' }} />
+            <CompositeItem data-testid="2" aria-disabled="true" />
+            <CompositeItem data-testid="3" />
+            {showLast && <CompositeItem data-testid="4" />}
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showLast />);
+
+      const item3 = screen.getByTestId('3');
+      expect(item3).toHaveAttribute('tabindex', '0');
+
+      act(() => item3.focus());
+
+      fireEvent.keyDown(item3, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+      expect(item3).toHaveAttribute('tabindex', '0');
+    });
+
+    it('keeps the tab stop in range when no item can hold it', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <CompositeRoot>
+            <CompositeItem data-testid="1" aria-disabled="true" />
+            <CompositeItem data-testid="2" aria-disabled="true" />
+            {showLast && <CompositeItem data-testid="3" />}
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showLast />);
+
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+  });
+
   describe('prop: modifierKeys', () => {
     it('prevents arrow key navigation when any modifier key is pressed by default', async () => {
-      render(
+      await render(
         <CompositeRoot>
           <CompositeItem data-testid="1">1</CompositeItem>
           <CompositeItem data-testid="2">2</CompositeItem>
@@ -1095,7 +1243,7 @@ describe('Composite', () => {
     });
 
     it('specifies allowed modifier keys that do not prevent arrow key navigation when pressed', async () => {
-      render(
+      await render(
         <CompositeRoot modifierKeys={['Alt', 'Meta']}>
           <CompositeItem data-testid="1">1</CompositeItem>
           <CompositeItem data-testid="2">2</CompositeItem>

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { PreviewCardStore } from '../store/PreviewCardStore';
+import type { PreviewCardStore } from '../store/PreviewCardStore';
 
 export type PreviewCardRootContext<Payload = unknown> = PreviewCardStore<Payload>;
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Progress } from '@base-ui/react/progress';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';

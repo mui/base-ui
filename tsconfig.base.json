@@ -21,5 +21,12 @@
       "docs/*": ["./docs/*"]
     }
   },
-  "exclude": ["**/.*/", "**/build", "**/build-tests", "**/node_modules", "docs/export"]
+  "exclude": [
+    "**/.*/",
+    "**/build",
+    "**/build-tests",
+    "**/build-typecheck",
+    "**/node_modules",
+    "docs/export"
+  ]
 }

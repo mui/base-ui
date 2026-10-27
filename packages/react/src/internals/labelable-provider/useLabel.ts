@@ -1,9 +1,9 @@
 'use client';
-import * as React from 'react';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import type * as React from 'react';
+import { isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { getTarget } from '../../floating-ui-react/utils';
+import { closest, getTarget } from '@base-ui/utils/shadowDom';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useLabelableContext } from './LabelableContext';
 
@@ -37,7 +37,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
       return;
     }
 
-    const controlElement = ownerDocument(event.currentTarget).getElementById(resolvedControlId);
+    const controlElement = getControlById(event.currentTarget, resolvedControlId);
     if (isHTMLElement(controlElement)) {
       focusElementWithVisible(controlElement);
     }
@@ -45,7 +45,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
 
   function handleInteraction(event: React.MouseEvent) {
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
-    if (target?.closest('button,input,select,textarea')) {
+    if (closest(target, 'button,input,select,textarea')) {
       return;
     }
 
@@ -64,7 +64,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
   return native
     ? {
         id,
-        htmlFor: resolvedControlId ?? undefined,
+        htmlFor: resolvedControlId,
         onMouseDown: handleInteraction,
       }
     : {
@@ -81,7 +81,7 @@ export interface UseLabelParameters {
   /**
    * Control id used when no labelable context control id exists.
    */
-  fallbackControlId?: string | null | undefined;
+  fallbackControlId?: string | undefined;
   /**
    * Whether the rendered element is a native `<label>`.
    * @default false
@@ -95,12 +95,22 @@ export interface UseLabelParameters {
    * Custom focus handler for non-native labels.
    * If omitted, focus behavior targets the resolved control id.
    */
-  focusControl?:
-    | ((event: React.MouseEvent, controlId: string | null | undefined) => void)
-    | undefined;
+  focusControl?: ((event: React.MouseEvent, controlId: string | undefined) => void) | undefined;
 }
 
 export type UseLabelReturnValue = React.HTMLAttributes<any> & React.LabelHTMLAttributes<any>;
+
+export function getControlById(label: Element, id: string) {
+  let root = label.getRootNode();
+  while (isShadowRoot(root)) {
+    const element = root.getElementById(id);
+    if (element) {
+      return element;
+    }
+    root = root.host.getRootNode();
+  }
+  return ownerDocument(label).getElementById(id);
+}
 
 export function focusElementWithVisible(element: HTMLElement) {
   element.focus({

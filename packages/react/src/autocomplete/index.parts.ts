@@ -19,7 +19,7 @@ export { ComboboxRow as Row } from '../combobox/row/ComboboxRow';
 export { ComboboxCollection as Collection } from '../combobox/collection/ComboboxCollection';
 export { ComboboxEmpty as Empty } from '../combobox/empty/ComboboxEmpty';
 
-export { Separator } from '../separator/Separator';
+export { AutocompleteSeparator as Separator } from './separator/AutocompleteSeparator';
 
 export { useCoreFilter as useFilter } from '../combobox/root/utils/useFilter';
 export { useFilteredItems } from '../combobox/root/utils/useFilteredItems';

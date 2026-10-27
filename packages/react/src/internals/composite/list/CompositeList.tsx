@@ -4,7 +4,8 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { CompositeListContext, type CompositeListRegistration } from './CompositeListContext';
+import { CompositeListContext } from './CompositeListContext';
+import type { CompositeListRegistration } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = {
   index: number;
@@ -24,13 +25,13 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   const onMapChange = useStableCallback(onMapChangeProp);
 
-  const [, setMapTick] = React.useState(false);
+  const [, setMapTick] = React.useState(0);
 
   const listeners = useRefWithInit(createListeners).current;
   const map = useRefWithInit(createMap<Metadata>).current;
   const nextIndexRef = React.useRef(0);
   const isDirtyRef = React.useRef(true);
-  const itemsRef = React.useRef<readonly CompositeListItem<Metadata>[]>([]);
+  const itemsRef = React.useRef<readonly CompositeListItem<Metadata>[] | null>(null);
   const mutationObserverRef = React.useRef<MutationObserver | null>(null);
 
   // Item effects can run without their parent rendering. Schedule one synchronous
@@ -42,7 +43,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     }
 
     isDirtyRef.current = true;
-    setMapTick((tick) => !tick);
+    setMapTick((tick) => tick + 1);
   });
 
   const register = useStableCallback(
@@ -143,9 +144,27 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     const [items, automaticNodes] = getCompositeListSnapshot(map);
     const nextMap = syncRefs(items);
 
+    const previousItems = itemsRef.current;
+    const changed =
+      !previousItems ||
+      previousItems.length !== items.length ||
+      items.some((item, index) => {
+        const previousItem = previousItems[index];
+        return (
+          item.index !== previousItem.index ||
+          item.element !== previousItem.element ||
+          item.registration.index !== previousItem.registration.index ||
+          item.registration.metadata !== previousItem.registration.metadata
+        );
+      });
+
     observe(automaticNodes);
     itemsRef.current = items;
     isDirtyRef.current = false;
+
+    if (!changed) {
+      return;
+    }
 
     listeners.forEach((listener) => listener(nextMap));
     onMapChange(nextMap);
@@ -154,7 +173,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   useIsoLayoutEffect(() => {
     // Re-copy the last committed snapshot when the ref objects change or Strict Mode replays
     // effects without reattaching callback refs.
-    if (!isDirtyRef.current) {
+    if (!isDirtyRef.current && itemsRef.current) {
       syncRefs(itemsRef.current);
     }
 
@@ -278,6 +297,15 @@ function hasMovedNode(entries: MutationRecord[]) {
 }
 
 function sortByDocumentPosition(a: Element, b: Element) {
+  // Adjacent siblings are the common case for lists that are already in order, and
+  // `compareDocumentPosition` scans siblings from the parent's first child, so sorting
+  // a long flat list would otherwise be quadratic.
+  if (a.nextElementSibling === b) {
+    return -1;
+  }
+  if (b.nextElementSibling === a) {
+    return 1;
+  }
   // `DOCUMENT_POSITION_CONTAINED_BY` is always reported alongside `FOLLOWING`, and `CONTAINS`
   // alongside `PRECEDING`, so testing `FOLLOWING` alone orders siblings and nested items alike.
   return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;

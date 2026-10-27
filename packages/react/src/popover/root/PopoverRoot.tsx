@@ -1,60 +1,38 @@
 'use client';
 import * as React from 'react';
-import { useDismiss, FloatingTree } from '../../floating-ui-react';
+import { fastComponent } from '@base-ui/utils/fastHooks';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
-import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
-import { PopoverHandle } from '../store/PopoverHandle';
+import { PopoverStore } from '../store/PopoverStore';
+import type { PopoverHandle } from '../store/PopoverHandle';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { REASONS } from '../../internals/reasons';
 import {
-  createChangeEventDetails,
-  type BaseUIChangeEventDetails,
-} from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
-import {
-  PopupHandleAttachment,
-  useImplicitActiveTrigger,
-  usePopupRootStore,
-  useOpenStateTransitions,
-  usePopupInteractionProps,
+  renderPopupRootChildren,
+  usePopupRoot,
   usePopupRootSync,
-  type PayloadChildRenderFunction,
-} from '../../utils/popups';
+} from '../../utils/popups/popupRoot';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 
-function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
-  const {
-    children,
-    open: openProp,
-    defaultOpen = false,
-    onOpenChange,
-    onOpenChangeComplete,
-    modal = false,
-    handle,
-    triggerId: triggerIdProp,
-    defaultTriggerId: defaultTriggerIdProp = null,
-  } = props;
+const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload>({
+  props,
+}: {
+  props: PopoverRoot.Props<Payload>;
+}) {
+  const { children, modal = false, handle } = props;
 
-  const store = usePopoverRootStore(handle, {
-    modal,
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-  });
+  const { store, open, mounted, payload } = usePopupRoot(
+    props,
+    (initialState, defaultPopupId) =>
+      new PopoverStore<Payload>({ ...initialState, modal }, defaultPopupId),
+  );
 
-  store.useControlledProp('openProp', openProp);
-  store.useControlledProp('triggerIdProp', triggerIdProp);
-
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const payload = store.useState('payload') as Payload | undefined;
-
-  store.useContextCallback('onOpenChange', onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
+  // Dispose the patient-click timeout held in the store's context on unmount.
+  React.useEffect(() => store.context.stickIfOpenTimeout.disposeEffect(), [store]);
 
   usePopupRootSync(store, open);
-  useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.update({ stickIfOpen: true, openChangeReason: null });
-  });
 
   store.useSyncedValues({
     modal,
@@ -66,25 +44,25 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [store, open]);
 
-  React.useImperativeHandle(
-    props.actionsRef,
-    () => ({
-      unmount: forceUnmount,
-      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-    }),
-    [forceUnmount, store],
-  );
-
-  const shouldRenderInteractions = open || mounted;
+  // Detached triggers share this one Root, so mounting its interactions eagerly is cheap. The
+  // trigger props they publish then stay stable, so opening and closing doesn't re-render inactive
+  // triggers.
+  const shouldRenderInteractions = open || mounted || handle != null;
 
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
-      {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
-      {typeof children === 'function' ? children({ payload }) : children}
+      {renderPopupRootChildren({
+        store,
+        handle,
+        interactions: shouldRenderInteractions && (
+          <PopoverInteractions store={store} modal={modal} />
+        ),
+        children,
+        payload,
+      })}
     </PopoverRootContext.Provider>
   );
-}
+});
 
 /**
  * Groups all parts of the popover.
@@ -102,23 +80,6 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
       <PopoverRootComponent props={props} />
     </FloatingTree>
   );
-}
-
-function usePopoverRootStore<Payload>(
-  handle: PopoverHandle<Payload> | undefined,
-  initialState: Partial<PopoverStoreState<Payload>>,
-) {
-  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
-  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
-  // Default values are only initial values; controlled values and root state are synced after creation.
-  const store = usePopupRootStore(
-    (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
-  );
-
-  // Popover-specific: dispose the patient-click timeout held in the store's context on unmount.
-  React.useEffect(() => store.context.stickIfOpenTimeout.disposeEffect(), [store]);
-
-  return store;
 }
 
 export interface PopoverRootState {}
@@ -139,16 +100,16 @@ export interface PopoverRootProps<Payload = unknown> {
    * Event handler called when the popover is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the popover is opened or closed.
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the popover.
-   * Call this after any externally controlled closing animation finishes.
+   * - `unmount`: Ends the closing phase of the popover after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the popover completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the popover imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;
@@ -209,7 +170,8 @@ export type PopoverRootChangeEventReason =
   | typeof REASONS.none;
 export type PopoverRootChangeEventDetails =
   BaseUIChangeEventDetails<PopoverRoot.ChangeEventReason> & {
-    preventUnmountOnClose(): void;
+    /** Prevents the popup from unmounting until the `unmount` action is called. */
+    preventUnmountOnClose: () => void;
   };
 
 export namespace PopoverRoot {
@@ -227,9 +189,7 @@ function PopoverInteractions({
   store: PopoverStore<any>;
   modal: boolean | 'trap-focus';
 }) {
-  const floatingRootContext = store.useState('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(store, {
     outsidePressEvent: {
       // Ensure `aria-hidden` on outside elements is removed immediately
       // on outside press when trapping focus.

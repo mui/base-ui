@@ -1,4 +1,4 @@
-import { type Metadata } from 'next';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,9 +26,13 @@ export default async function Page(props: Props) {
     const experimentModule = await import(`../${slug.join('/')}.tsx`);
     const Experiment = experimentModule.default;
     const settingsMetadata = experimentModule.settingsMetadata;
+    const applySettingsAfterHydration = experimentModule.applySettingsAfterHydration;
 
     return (
-      <ExperimentSettingsProvider metadata={settingsMetadata}>
+      <ExperimentSettingsProvider
+        metadata={settingsMetadata}
+        applySettingsAfterHydration={applySettingsAfterHydration}
+      >
         <ExperimentRoot
           sidebar={
             <Sidebar

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { type BaseUIComponentProps } from '../../internals/types';
-import { type TransitionStatus } from '../../internals/useTransitionStatus';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';

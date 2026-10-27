@@ -11,6 +11,9 @@
   gap: 2px;
   justify-content: center;
   align-items: center;
+  transition:
+    box-shadow 150ms,
+    outline-color 150ms;
 
   &::before,
   &::after {
@@ -20,29 +23,42 @@
     height: 2px;
     background-color: var(--color-gray-500);
     border-radius: 1px;
+    transition: background-color 150ms;
+  }
+
+  /* The icon carries most of the hover feedback, with the tinted surface backing it up. */
+  &:hover::before,
+  &:hover::after {
+    background-color: var(--color-gray-900);
   }
 
   @media (prefers-color-scheme: light) {
     outline: 1px solid var(--color-gray-200);
+
+    /* The inset layer tints the surface while keeping it opaque, since the button sits on top
+       of the experiment once the sidebar is out of the way. */
     box-shadow:
+      inset 0 0 0 32px transparent,
       0 10px 15px -3px var(--color-gray-200),
       0 4px 6px -4px var(--color-gray-200);
 
     &:hover {
+      outline-color: var(--color-gray-400);
       box-shadow:
-        0 15px 20px -3px var(--color-gray-200),
-        0 6px 9px -4px var(--color-gray-200);
+        inset 0 0 0 32px var(--color-gray-200),
+        0 10px 20px -3px var(--color-gray-300),
+        0 4px 8px -4px var(--color-gray-300);
     }
-
-    transition: box-shadow 200ms;
   }
 
   @media (prefers-color-scheme: dark) {
     outline: 1px solid var(--color-gray-300);
     outline-offset: -1px;
+    box-shadow: inset 0 0 0 32px transparent;
 
     &:hover {
-      outline: 2px solid var(--color-gray-200);
+      outline-color: var(--color-gray-600);
+      box-shadow: inset 0 0 0 32px var(--color-gray-300);
     }
   }
 }

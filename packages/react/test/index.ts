@@ -1,13 +1,33 @@
 export * from '@base-ui/utils/testUtils';
 export { advanceReactClock } from './advanceReactClock';
+export { pasteText } from './clipboard';
+export { createFormDataSpy } from './formData';
 export { createRenderer } from './createRenderer';
-export { describeConformance } from './describeConformance';
-export { enterWithMouse, moveMouse } from './pointer';
-export { popupConformanceTests } from './popupConformanceTests';
+export { mergeRefs } from './mergeRefs';
+export { mockRuntimeLocale } from './mockRuntimeLocale';
+export {
+  enterWithMouse,
+  firePointer,
+  moveMouse,
+  pressWithScreenReader,
+  pressWithTouch,
+} from './pointer';
 export { resetBrowserPointer } from './resetBrowserPointer';
+export { isScrollLocked } from './scrollLock';
 export { useTestInteractions } from './useTestInteractions';
 export * from './wait';
 export { waitForPositioned } from './waitForPositioned';
+
+// Shared suites
+export { describeConformance } from './describeConformance';
+export { detachedTriggersConformanceTests } from './detachedTriggersConformanceTests';
+export { dialogRootSharedTests } from './dialogRootSharedTests';
+export { hiddenInputTypeTests } from './hiddenInputTypeTests';
+export { popupConformanceTests } from './popupConformanceTests';
+export { popupFocusPropsTests } from './popupFocusPropsTests';
+export { popupListConformanceTests } from './popupListConformanceTests';
+export { positionerConformanceTests } from './positionerConformanceTests';
+export { viewportConformanceTests } from './viewportConformanceTests';
 
 // Temporal
 export { describeGregorianAdapter } from './describeGregorianAdapter';

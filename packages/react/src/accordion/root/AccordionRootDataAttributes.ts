@@ -1,10 +1,8 @@
-export enum AccordionRootDataAttributes {
-  /**
-   * Present when the accordion is disabled.
-   */
-  disabled = 'data-disabled',
-  /**
-   * Indicates the orientation of the accordion.
-   */
-  orientation = 'data-orientation',
-}
+/**
+ * Present when the accordion is disabled.
+ */
+export const disabled = 'data-disabled';
+/**
+ * Indicates the orientation of the accordion.
+ */
+export const orientation = 'data-orientation';

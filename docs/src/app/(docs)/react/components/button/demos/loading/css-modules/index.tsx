@@ -5,12 +5,14 @@ import styles from './index.module.css';
 
 export default function ExampleButton() {
   const [loading, setLoading] = React.useState(false);
+  const labelId = React.useId();
 
   return (
     <Button
       className={styles.Button}
       disabled={loading}
       focusableWhenDisabled
+      aria-labelledby={labelId}
       onClick={() => {
         setLoading(true);
         setTimeout(() => {
@@ -18,7 +20,7 @@ export default function ExampleButton() {
         }, 4000);
       }}
     >
-      {loading ? 'Submitting' : 'Submit'}
+      <span id={labelId}>{loading ? 'Submitting' : 'Submit'}</span>
     </Button>
   );
 }

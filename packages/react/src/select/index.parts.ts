@@ -16,4 +16,4 @@ export { SelectScrollDownArrow as ScrollDownArrow } from './scroll-down-arrow/Se
 export { SelectScrollUpArrow as ScrollUpArrow } from './scroll-up-arrow/SelectScrollUpArrow';
 export { SelectGroup as Group } from './group/SelectGroup';
 export { SelectGroupLabel as GroupLabel } from './group-label/SelectGroupLabel';
-export { Separator } from '../separator/Separator';
+export { SelectSeparator as Separator } from './separator/SelectSeparator';

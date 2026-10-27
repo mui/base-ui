@@ -1,20 +1,94 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { NOOP } from '@base-ui/utils/empty';
 import { resolveRef } from '../utils/resolveRef';
+import { isFiniteAnimation } from '../utils/getFiniteAnimations';
+import * as TransitionStatusDataAttributes from './TransitionStatusDataAttributes';
+import { createFlushBeforePaint } from './createFlushBeforePaint';
+
+/**
+ * Returns a function that queues items and flushes them together in a microtask.
+ */
+function createMicrotaskQueue<T>(flush: (items: T[]) => void) {
+  let pending: T[] = [];
+  return (item: T) => {
+    if (!pending.length) {
+      queueMicrotask(() => {
+        const items = pending;
+        pending = [];
+        flush(items);
+      });
+    }
+    pending.push(item);
+  };
+}
+
+/**
+ * Passes each element's animations to its callback in a microtask.
+ * In Blink, `element.getAnimations()` returns early for an element without animations, but
+ * otherwise sorts every animation in the tree. Once an element with animations is found, the
+ * remaining elements of its tree are served by a single `getAnimations()` call on the tree's root.
+ * A root scan for a single remaining element cannot save a sort, so it is skipped.
+ */
+const getAnimationsBatched = createMicrotaskQueue<
+  [element: Element, callback: (animations: Animation[]) => void]
+>((lookups) => {
+  const animationsByElement = new Map<Element, Animation[] | undefined>();
+  for (const [element] of lookups) {
+    animationsByElement.set(element, undefined);
+  }
+  let remaining = animationsByElement.size;
+  let animatedRoot: (Node & Partial<DocumentOrShadowRoot>) | undefined;
+  let animationsByTarget: Map<Element | null, Animation[]> | undefined;
+
+  for (const [element, callback] of lookups) {
+    let animations = animationsByElement.get(element);
+    if (!animations) {
+      remaining -= 1;
+      const root: Node & Partial<DocumentOrShadowRoot> = element.getRootNode();
+      if (root === animatedRoot && !animationsByTarget) {
+        animationsByTarget = new Map();
+        for (const animation of root.getAnimations!()) {
+          const effect = animation.effect as KeyframeEffect;
+          // `element.getAnimations()` excludes animations of the element's pseudo-elements.
+          if (!effect.pseudoElement) {
+            animationsByTarget.set(effect.target, [
+              ...(animationsByTarget.get(effect.target) ?? []),
+              animation,
+            ]);
+          }
+        }
+      }
+      animations =
+        root === animatedRoot ? (animationsByTarget!.get(element) ?? []) : element.getAnimations();
+      if (remaining > 1 && animations.length && element.isConnected && root.getAnimations) {
+        animatedRoot ??= root;
+      }
+      animationsByElement.set(element, animations);
+    }
+    callback(animations);
+  }
+});
+
+const flushBeforePaint = createFlushBeforePaint();
 
 /**
  * Executes a function once all animations have finished on the provided element.
  * If an animation is canceled, waits for any replacement animations before executing.
  * @param elementOrRef - The element to watch for animations.
  * @param waitForStartingStyleRemoved - Whether to wait for [data-starting-style] to be removed before checking for animations.
+ * @param batch - Whether completions ready in the same microtask may be coalesced into a single
+ * commit. A batched callback runs before earlier callbacks' React updates have committed, so only
+ * opt in when the callback doesn't read state that another completion can change.
  * @returns A function that takes a callback to execute once all animations have finished, and an optional AbortSignal to abort the callback
  */
 export function useAnimationsFinished(
   elementOrRef: React.RefObject<HTMLElement | null> | HTMLElement | null,
   waitForStartingStyleRemoved = false,
+  batch = false,
 ) {
   const frame = useAnimationFrame();
 
@@ -41,9 +115,21 @@ export function useAnimationsFinished(
       const resolvedElement = element;
 
       const done = () => {
-        // Synchronously flush the unmounting of the component so that the browser doesn't
-        // paint: https://github.com/mui/base-ui/issues/979
-        ReactDOM.flushSync(fnToExecute);
+        if (!batch) {
+          // Synchronously flush the unmounting of the component so that the browser doesn't
+          // paint: https://github.com/mui/base-ui/issues/979
+          // Each callback gets its own commit so that later completions observe the React
+          // updates caused by earlier ones.
+          ReactDOM.flushSync(fnToExecute);
+          return;
+        }
+
+        flushBeforePaint(() => {
+          // Re-check at flush time: the signal may abort between queueing and the flush.
+          if (!signal?.aborted) {
+            fnToExecute();
+          }
+        });
       };
 
       if (
@@ -55,37 +141,32 @@ export function useAnimationsFinished(
       }
 
       function exec() {
-        Promise.all(resolvedElement.getAnimations().map((animation) => animation.finished)).then(
+        getAnimationsBatched([resolvedElement, waitForAnimations]);
+      }
+
+      function waitForAnimations(animations: Animation[]) {
+        // Discard fulfilled Animation values so unfinished animations cannot retain their targets.
+        Promise.all(
+          animations.filter(isFiniteAnimation).map((animation) => animation.finished.then(NOOP)),
+        ).then(
           () => {
             if (!signal?.aborted) {
               done();
             }
           },
           () => {
-            if (signal?.aborted) {
-              return;
-            }
-
-            const currentAnimations = resolvedElement.getAnimations();
-
-            if (
-              currentAnimations.some(
-                (animation) => animation.pending || animation.playState !== 'finished',
-              )
-            ) {
-              // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
-              // In such cases, we need to re-check if any new animations have started.
+            // Sometimes animations can be aborted because a property they depend on changes while
+            // the animation plays. Wait for the element's current animations, which include any
+            // replacement.
+            if (!signal?.aborted) {
               exec();
-              return;
             }
-
-            done();
           },
         );
       }
 
       if (waitForStartingStyleRemoved) {
-        const startingStyleAttribute = 'data-starting-style';
+        const startingStyleAttribute = TransitionStatusDataAttributes.startingStyle;
 
         // If `[data-starting-style]` isn't present, fall back to waiting one more frame
         // to give "open" animations a chance to be registered.

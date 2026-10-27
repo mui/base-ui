@@ -1,7 +1,7 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Progress } from '@base-ui/react/progress';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, mockRuntimeLocale } from '#test-utils';
 import type { ProgressRoot } from './ProgressRoot';
 
 function formatPercent(value: number) {
@@ -21,7 +21,7 @@ function TestProgress(props: ProgressRoot.Props) {
 }
 
 describe('<Progress.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Progress.Root value={50} />, () => ({
     render,
@@ -206,7 +206,7 @@ describe('<Progress.Root />', () => {
 
         const progressbar = screen.getByRole('progressbar');
         expect(progressbar).toHaveAttribute('aria-valuenow', String(expectedValue));
-        expect(screen.getByTestId('value')).toHaveTextContent(expected);
+        expect(screen.getByTestId('value').textContent).toBe(expected);
         expect(getAriaValueText).toHaveBeenLastCalledWith(expected, value);
         expect(progressbar).toHaveAttribute('aria-valuetext', `${expected} (raw: ${value})`);
       },
@@ -350,6 +350,26 @@ describe('<Progress.Root />', () => {
       );
 
       expect(screen.getByTestId('value')).toHaveTextContent(expectedValue);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('formats with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(
+        <Progress.Root value={1234.5} max={2000} format={format} />,
+      );
+      expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('en-US', format),
+      );
+
+      await hydrate();
+      expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('de-DE', format),
+      );
     });
   });
 });

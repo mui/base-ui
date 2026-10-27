@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Switch } from '@base-ui/react/switch';
 import { createRenderer, describeConformance } from '#test-utils';
 import { SwitchRootContext } from '../root/SwitchRootContext';

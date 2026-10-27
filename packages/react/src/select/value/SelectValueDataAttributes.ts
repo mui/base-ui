@@ -1,6 +1,4 @@
-export enum SelectValueDataAttributes {
-  /**
-   * Present when the select doesn't have a value.
-   */
-  placeholder = 'data-placeholder',
-}
+/**
+ * Present when the select doesn't have a value.
+ */
+export const placeholder = 'data-placeholder';

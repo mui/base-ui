@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it, afterEach } from 'vitest';
 import * as React from 'react';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
@@ -408,16 +408,13 @@ describe('<Field.Error />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
       expect(screen.getByTestId('error')).not.toBe(null);
 
-      await user.click(screen.getByText('Hide'));
+      // `user.click` can yield a frame, which is long enough for the 1ms animation to finish.
+      fireEvent.click(screen.getByText('Hide'));
 
-      await waitFor(() => {
-        const error = screen.queryByTestId('error');
-        expect(error).not.toBe(null);
-        expect(error).toHaveAttribute('data-ending-style');
-      });
+      expect(screen.getByTestId('error')).toHaveAttribute('data-ending-style');
 
       await waitFor(() => {
         expect(screen.queryByTestId('error')).toBe(null);

@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Progress } from '@base-ui/react/progress';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';

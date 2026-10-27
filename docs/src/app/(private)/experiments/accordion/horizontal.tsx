@@ -63,7 +63,6 @@ export default function App() {
             className={styles.Root}
             aria-label="Controlled Horizontal RTL Accordion"
             multiple={false}
-            orientation="horizontal"
             value={val}
             onValueChange={(newValue: Accordion.Root.Props['value']) => {
               if (Array.isArray(newValue) && newValue.length > 0) {

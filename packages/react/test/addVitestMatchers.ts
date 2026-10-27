@@ -1,12 +1,9 @@
 import { expect } from 'vitest';
 
 declare module 'vitest' {
-  // Augment the base `Matchers` interface (which `Assertion` extends) rather than
-  // re-opening `Assertion` directly. `tsgo` re-validates the full extends list of a
-  // re-opened `Assertion`, surfacing an unrelated vitest/jest-dom matcher conflict that
-  // `tsc` tolerates.
-  interface Matchers<T = any> {
-    toEqualDateTime(expected: any): T;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Match Vitest's type parameters for declaration merging.
+  interface Matchers<R extends void | Promise<void> = void | Promise<void>, T = unknown> {
+    toEqualDateTime(expected: any): R;
   }
 
   interface AsymmetricMatchersContaining {

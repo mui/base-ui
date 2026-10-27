@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { Dialog } from '@base-ui/react/dialog';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -8,7 +8,7 @@ describe('<Dialog.Trigger />', () => {
 
   describeConformance(<Dialog.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+    testRenderPropWith: 'button',
     button: true,
     render: (node) => {
       return render(

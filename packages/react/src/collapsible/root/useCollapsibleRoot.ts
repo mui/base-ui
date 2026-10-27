@@ -5,13 +5,14 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useTransitionStatus, TransitionStatus } from '../../internals/useTransitionStatus';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import type { CollapsibleRoot } from './CollapsibleRoot';
 
 export function useCollapsibleRoot(
   parameters: UseCollapsibleRootParameters,
 ): UseCollapsibleRootReturnValue {
-  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
+  const { open: openParam, defaultOpen = false, onOpenChange, disabled } = parameters;
 
   const [open, setOpen] = useControlled({
     controlled: openParam,

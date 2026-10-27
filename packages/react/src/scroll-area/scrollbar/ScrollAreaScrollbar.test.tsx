@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
-import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { expect, vi, describe, it } from 'vitest';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import type { TextDirection } from '@base-ui/react/direction-provider';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { screen, fireEvent, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
@@ -15,6 +16,36 @@ describe('<ScrollArea.Scrollbar />', () => {
       return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
     },
   }));
+
+  it('is hidden from the accessibility tree by default', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Scrollbar keepMounted data-testid="scrollbar" />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('allows overriding aria-hidden', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Scrollbar keepMounted data-testid="scrollbar" aria-hidden={undefined} />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).not.toHaveAttribute('aria-hidden');
+  });
+
+  it('sets the orientation data attribute', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Scrollbar orientation="horizontal" keepMounted data-testid="scrollbar" />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).toHaveAttribute('data-orientation', 'horizontal');
+  });
 
   it('supports a custom scrollbar renderer that does not forward its ref', async () => {
     const ScrollbarWithoutRef = React.forwardRef<
@@ -442,6 +473,47 @@ describe('<ScrollArea.Scrollbar />', () => {
       fireEvent.pointerMove(thumb, { clientY: 180, pointerId: 1, buttons: 1 });
 
       expect(viewport.scrollTop).toBe(scrollTopAfterTrackPress);
+    });
+  });
+
+  // jsdom doesn't implement the focus side of a mouse press, so these assert the
+  // cancellation that suppresses it rather than the resulting `activeElement`.
+  describe('track mouse down', () => {
+    async function renderScrollbarWithThumb() {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" />
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted>
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+    }
+
+    // Native scrollbars keep focus for every button, not just the primary one.
+    it.each([
+      { name: 'primary', button: 0 },
+      { name: 'middle', button: 1 },
+      { name: 'secondary', button: 2 },
+    ])(
+      'cancels a $name press on the track so focus stays on the active element',
+      async ({ button }) => {
+        await renderScrollbarWithThumb();
+
+        const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button });
+        screen.getByTestId('scrollbar').dispatchEvent(event);
+
+        expect(event.defaultPrevented).toBe(true);
+      },
+    );
+
+    it('cancels the press on the thumb so focus stays on the active element', async () => {
+      await renderScrollbarWithThumb();
+
+      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 });
+      screen.getByTestId('thumb').dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(true);
     });
   });
 
@@ -878,17 +950,23 @@ describe('<ScrollArea.Scrollbar />', () => {
       const vScrollbar = screen.getByTestId('scrollbar-vertical');
       const hScrollbar = screen.getByTestId('scrollbar-horizontal');
 
-      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
       await waitFor(() => {
-        expect(vScrollbar).toHaveAttribute('data-has-overflow-y');
-        expect(vScrollbar).not.toHaveAttribute('data-overflow-y-start');
-        expect(vScrollbar).toHaveAttribute('data-overflow-y-end');
-
-        expect(hScrollbar).toHaveAttribute('data-has-overflow-x');
-        expect(hScrollbar).not.toHaveAttribute('data-overflow-x-start');
-        expect(hScrollbar).toHaveAttribute('data-overflow-x-end');
+        expect({
+          vHasOverflowY: vScrollbar.hasAttribute('data-has-overflow-y'),
+          vOverflowYStart: vScrollbar.hasAttribute('data-overflow-y-start'),
+          vOverflowYEnd: vScrollbar.hasAttribute('data-overflow-y-end'),
+          hHasOverflowX: hScrollbar.hasAttribute('data-has-overflow-x'),
+          hOverflowXStart: hScrollbar.hasAttribute('data-overflow-x-start'),
+          hOverflowXEnd: hScrollbar.hasAttribute('data-overflow-x-end'),
+        }).toEqual({
+          vHasOverflowY: true,
+          vOverflowYStart: false,
+          vOverflowYEnd: true,
+          hHasOverflowX: true,
+          hOverflowXStart: false,
+          hOverflowXEnd: true,
+        });
       });
-      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
 
       // Scroll to middle
       const halfY = (viewport.scrollHeight - viewport.clientHeight) / 2;

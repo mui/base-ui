@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
+import { getSide, getAlignment, getSideAxis } from '@floating-ui/utils';
+import type { Rect } from '@floating-ui/utils';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -12,27 +13,37 @@ import {
   offset,
   shift as floatingShift,
   size,
-  type UseFloatingOptions,
-  type UseFloatingReturn,
-  type Placement,
-  type FloatingRootContext,
-  type VirtualElement,
-  type Padding,
-  type FloatingContext,
-  type Side as PhysicalSide,
-  type MiddlewareState,
-  type AutoUpdateOptions,
-  type Middleware,
-  type FloatingTreeStore,
-} from '../floating-ui-react';
-import { useBaseUIFloating } from '../floating-ui-react/hooks/useFloating';
+} from '@floating-ui/react-dom';
+import type {
+  Placement,
+  VirtualElement,
+  Padding,
+  Side as PhysicalSide,
+  MiddlewareState,
+  AutoUpdateOptions,
+  Middleware,
+} from '@floating-ui/react-dom';
+import type {
+  UseFloatingOptions,
+  UseFloatingReturn,
+  PositioningInteractionStore,
+  PopupPositioningContext,
+} from '../utils/popups/types';
+import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
+import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
-import { arrow } from '../floating-ui-react/middleware/arrow';
-import { hide } from '../utils/hideMiddleware';
-import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
+import { arrow } from '../utils/popups/positioning/arrow';
+import { hide } from '../utils/popups/positioning/hideMiddleware';
+import { DEFAULT_SIDES } from '../utils/popups/positioning/adaptiveOriginConstants';
+import * as CommonPositionerCssVars from '../utils/popups/positioning/CommonPositionerCssVars';
 
-const AVAILABLE_WIDTH_VAR = '--available-width';
-const AVAILABLE_HEIGHT_VAR = '--available-height';
+export { useFloatingRootStore } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { UseFloatingRootStoreOptions } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
+export type { PositioningInteractionStore } from '../utils/popups/types';
+
+const AVAILABLE_WIDTH_VAR = CommonPositionerCssVars.availableWidth;
+const AVAILABLE_HEIGHT_VAR = CommonPositionerCssVars.availableHeight;
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -118,21 +129,12 @@ interface SideShiftMode {
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 
-type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
-
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
-): UseAnchorPositioningReturnValue {
-  return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
-}
-
-export function useAnchorPositioningWithHook(
   params: UseAnchorPositioningParameters,
-  useFloatingHook: UseFloatingHook,
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -142,7 +144,7 @@ export function useAnchorPositioningWithHook(
     sideOffset = 0,
     align = 'center',
     alignOffset = 0,
-    collisionBoundary,
+    collisionBoundary = 'clipping-ancestors',
     collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
@@ -150,7 +152,7 @@ export function useAnchorPositioningWithHook(
     inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
-    floatingRootContext,
+    interactionStore,
     mounted,
     collisionAvoidance,
     shift,
@@ -159,12 +161,6 @@ export function useAnchorPositioningWithHook(
     lazyFlip = false,
     externalTree,
   } = params;
-
-  const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
-
-  if (!mounted && mountSide !== null) {
-    setMountSide(null);
-  }
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
@@ -181,6 +177,15 @@ export function useAnchorPositioningWithHook(
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
+  const [mountPlacement, setMountPlacement] = React.useState<Placement | null>(null);
+
+  if (!mounted && mountPlacement !== null) {
+    setMountPlacement(null);
+  }
+
+  const lockAlign = lazyFlip === 'placement';
+  const mountSide = mountPlacement ? getSide(mountPlacement) : null;
+  const mountAlign = mountPlacement && lockAlign ? getAlignment(mountPlacement) || 'center' : null;
   const side =
     mountSide ||
     (
@@ -194,7 +199,8 @@ export function useAnchorPositioningWithHook(
       } satisfies Record<Side, PhysicalSide>
     )[sideParam];
 
-  const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
+  const placementAlign = mountAlign || align;
+  const placement = placementAlign === 'center' ? side : (`${side}-${placementAlign}` as Placement);
 
   let collisionPadding = collisionPaddingParam as {
     top: number;
@@ -235,10 +241,7 @@ export function useAnchorPositioningWithHook(
     padding: collisionPadding,
   } as const;
 
-  // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
-  // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
-  // presence.
-  const arrowRef = React.useRef<Element | null>(null);
+  const arrowElementRef = React.useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
   const sideOffsetRef = useValueAsRef(sideOffset);
@@ -280,23 +283,29 @@ export function useAnchorPositioningWithHook(
   const crossAxisShiftEnabled =
     !shiftDisabled && (sticky || shiftCrossAxis || collisionAvoidanceSide === 'shift');
 
+  const flipOptions = {
+    ...commonCollisionProps,
+    // Ensure the popup flips if it's been limited by its --available-height and it resizes.
+    // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
+    padding: {
+      top: collisionPadding.top + bias + biasTop,
+      right: collisionPadding.right + bias + biasRight,
+      bottom: collisionPadding.bottom + bias + biasBottom,
+      left: collisionPadding.left + bias + biasLeft,
+    },
+    mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
+    crossAxis: collisionAvoidanceAlign === 'flip' ? ('alignment' as const) : false,
+    fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
+  };
   const flipMiddleware =
     collisionAvoidanceSide === 'none'
       ? null
-      : flip({
-          ...commonCollisionProps,
-          // Ensure the popup flips if it's been limited by its --available-height and it resizes.
-          // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
-          padding: {
-            top: collisionPadding.top + bias + biasTop,
-            right: collisionPadding.right + bias + biasRight,
-            bottom: collisionPadding.bottom + bias + biasBottom,
-            left: collisionPadding.left + bias + biasLeft,
-          },
-          mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
-          crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
-          fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
-        });
+      : flip(
+          // Once size() has run in this pass (it may have raised the cap), accept its new cap.
+          ({ middlewareData }) =>
+            middlewareData.size ? { ...flipOptions, padding: collisionPadding } : flipOptions,
+          [flipOptions],
+        );
   const shiftMiddleware = shiftDisabled
     ? null
     : floatingShift(
@@ -310,10 +319,10 @@ export function useAnchorPositioningWithHook(
             sticky || shiftCrossAxis
               ? undefined
               : limitShift((limitData) => {
-                  if (!arrowRef.current) {
+                  if (!arrowElementRef.current) {
                     return {};
                   }
-                  const { width, height } = arrowRef.current.getBoundingClientRect();
+                  const { width, height } = arrowElementRef.current.getBoundingClientRect();
                   const sideAxis = getSideAxis(getSide(limitData.placement));
                   const arrowSize = sideAxis === 'y' ? width : height;
                   const offsetAmount =
@@ -336,10 +345,12 @@ export function useAnchorPositioningWithHook(
       );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
+  // Keyed on the alignment actually being requested, not the raw prop: a locked alignment can
+  // differ from `align`, and the ordering has to match the placement that is asked for.
   if (
     collisionAvoidanceSide === 'shift' ||
     collisionAvoidanceAlign === 'shift' ||
-    align === 'center'
+    placementAlign === 'center'
   ) {
     middleware.push(shiftMiddleware, flipMiddleware);
   } else {
@@ -364,55 +375,80 @@ export function useAnchorPositioningWithHook(
         const anchorWidth = (Math.round((x + width) * dpr) - Math.round(x * dpr)) / dpr;
         const anchorHeight = (Math.round((y + height) * dpr) - Math.round(y * dpr)) / dpr;
 
-        floatingStyle.setProperty('--anchor-width', `${anchorWidth}px`);
-        floatingStyle.setProperty('--anchor-height', `${anchorHeight}px`);
+        floatingStyle.setProperty(CommonPositionerCssVars.anchorWidth, `${anchorWidth}px`);
+        floatingStyle.setProperty(CommonPositionerCssVars.anchorHeight, `${anchorHeight}px`);
       },
     }),
     arrow(
       (state) => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
-        element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
-        padding: arrowPadding,
-        offsetParent: 'floating',
+        element:
+          arrowElementRef.current || ownerDocument(state.elements.floating).createElement('div'),
+        // No padding for the fake arrow: it would displace aligned popups on narrow anchors.
+        padding: arrowElementRef.current ? arrowPadding : 0,
       }),
       [arrowPadding],
     ),
     {
       name: 'transformOrigin',
       fn(state) {
-        const { elements, middlewareData, placement: renderedPlacement, rects, y } = state;
+        const {
+          elements: { floating },
+          middlewareData,
+          placement: renderedPlacement,
+          platform,
+          rects,
+          y,
+        } = state;
 
-        const currentRenderedSide = getSide(renderedPlacement);
-        const currentRenderedAxis = getSideAxis(currentRenderedSide);
-        const arrowEl = arrowRef.current;
-        const arrowX = middlewareData.arrow?.x || 0;
-        const arrowY = middlewareData.arrow?.y || 0;
-        const arrowWidth = arrowEl?.clientWidth || 0;
-        const arrowHeight = arrowEl?.clientHeight || 0;
-        const transformX = arrowX + arrowWidth / 2;
-        const transformY = arrowY + arrowHeight / 2;
-        const shiftY = Math.abs(middlewareData.shift?.y || 0);
-        const halfAnchorHeight = rects.reference.height / 2;
+        const renderedSide = getSide(renderedPlacement);
+        const renderedAlign = getAlignment(renderedPlacement);
+        const isVertical = getSideAxis(renderedSide) === 'y';
+        const arrowEl = arrowElementRef.current;
+
         const sideOffsetValue =
           typeof sideOffset === 'function'
             ? sideOffset(getOffsetData(state, sideParam, isRtl))
             : sideOffset;
-        const isOverlappingAnchor = shiftY > sideOffsetValue;
 
-        const adjacentTransformOrigin = {
-          top: `${transformX}px calc(100% + ${sideOffsetValue}px)`,
-          bottom: `${transformX}px ${-sideOffsetValue}px`,
-          left: `calc(100% + ${sideOffsetValue}px) ${transformY}px`,
-          right: `${-sideOffsetValue}px ${transformY}px`,
-        }[currentRenderedSide];
-        const overlapTransformOrigin = `${transformX}px ${rects.reference.y + halfAnchorHeight - y}px`;
+        // An aligned arrowless popup grows from its aligned edge, until a shift (beyond subpixel)
+        // breaks its alignment with the anchor. Everything else grows from the arrow, real or fake.
+        let crossOrigin: string;
+        if (
+          !arrowEl &&
+          renderedAlign &&
+          Math.abs(isVertical ? middlewareData.shift?.x || 0 : middlewareData.shift?.y || 0) <= 1
+        ) {
+          // The platform direction, not `isRtl`: it must match what Floating UI placed with.
+          crossOrigin =
+            (renderedAlign === 'start') === (isVertical && platform.isRTL?.(floating) === true)
+              ? '100%'
+              : '0%';
+        } else {
+          const arrowOffset = isVertical
+            ? middlewareData.arrow?.x || 0
+            : middlewareData.arrow?.y || 0;
+          const arrowSize = isVertical ? arrowEl?.clientWidth || 0 : arrowEl?.clientHeight || 0;
+          crossOrigin = `${arrowOffset + arrowSize / 2}px`;
+        }
 
-        elements.floating.style.setProperty(
-          '--transform-origin',
-          crossAxisShiftEnabled && currentRenderedAxis === 'y' && isOverlappingAnchor
-            ? overlapTransformOrigin
-            : adjacentTransformOrigin,
+        // Side axis: the anchor-facing edge, or the anchor's center when the popup overlaps it.
+        let sideOrigin =
+          renderedSide === 'top' || renderedSide === 'left'
+            ? `calc(100% + ${sideOffsetValue}px)`
+            : `${-sideOffsetValue}px`;
+        if (
+          crossAxisShiftEnabled &&
+          isVertical &&
+          Math.abs(middlewareData.shift?.y || 0) > sideOffsetValue
+        ) {
+          sideOrigin = `${rects.reference.y + rects.reference.height / 2 - y}px`;
+        }
+
+        floating.style.setProperty(
+          CommonPositionerCssVars.transformOrigin,
+          isVertical ? `${crossOrigin} ${sideOrigin}` : `${sideOrigin} ${crossOrigin}`,
         );
 
         return {};
@@ -425,18 +461,14 @@ export function useAnchorPositioningWithHook(
   useIsoLayoutEffect(() => {
     // Ensure positioning doesn't run initially for `keepMounted` elements that
     // aren't initially open.
-    if (!mounted && floatingRootContext) {
-      floatingRootContext.update({
-        referenceElement: null,
-        floatingElement: null,
-        domReferenceElement: null,
-        positionReference: null,
-      });
+    if (!mounted) {
+      interactionStore.clearPositioning();
     }
-  }, [mounted, floatingRootContext]);
+  }, [mounted, interactionStore]);
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
+      ancestorScroll: !disableAnchorTracking,
       elementResize: !disableAnchorTracking && typeof ResizeObserver !== 'undefined',
       layoutShift: !disableAnchorTracking && typeof IntersectionObserver !== 'undefined',
     }),
@@ -454,8 +486,8 @@ export function useAnchorPositioningWithHook(
     context,
     isPositioned,
     floatingStyles: originalFloatingStyles,
-  } = useFloatingHook({
-    rootContext: floatingRootContext,
+  } = useBaseUIFloating({
+    rootStore: interactionStore,
     open: keepMounted ? mounted : undefined,
     placement,
     middleware,
@@ -465,6 +497,18 @@ export function useAnchorPositioningWithHook(
       : (...args) => autoUpdate(...args, autoUpdateOptions),
     nodeId,
     externalTree,
+  });
+
+  // An arrow that mounts or unmounts after the popup is positioned doesn't resize the positioner, so
+  // reposition explicitly. Deferred so an anchor that changed in the same commit is registered first.
+  // `update` closes over the middleware, so queue the latest one: a stale one resolving last would
+  // apply outdated options such as `arrowPadding`.
+  const refresh = useStableCallback(update);
+  const arrowRef = useStableCallback((element: Element | null) => {
+    arrowElementRef.current = element;
+    if (isPositioned) {
+      queueMicrotask(refresh);
+    }
   });
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
@@ -555,14 +599,28 @@ export function useAnchorPositioningWithHook(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  // Locks the flip (makes it "sticky") so it doesn't prefer a given placement
-  // and flips back lazily, not eagerly. Ideal for filtered lists that change
-  // the size of the popup dynamically to avoid unwanted flipping when typing.
+  // Locks the flipped side, and the alignment too when the consumer opts in, while filtering
+  // resizes the popup.
   useIsoLayoutEffect(() => {
-    if (lazyFlip && mounted && isPositioned && renderedSide !== side) {
-      setMountSide(renderedSide);
+    if (
+      lazyFlip &&
+      mounted &&
+      isPositioned &&
+      (renderedSide !== side || (lockAlign && renderedAlign !== placementAlign))
+    ) {
+      setMountPlacement(renderedPlacement);
     }
-  }, [lazyFlip, mounted, isPositioned, renderedSide, side]);
+  }, [
+    lazyFlip,
+    lockAlign,
+    mounted,
+    isPositioned,
+    renderedPlacement,
+    renderedSide,
+    renderedAlign,
+    side,
+    placementAlign,
+  ]);
 
   const arrowStyles = React.useMemo(
     () => ({
@@ -763,9 +821,12 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: FloatingRootContext | undefined;
+  /**
+   * The interaction store the popup is positioned with. Components without a popup store create
+   * one with `useFloatingRootStore`.
+   */
+  interactionStore: PositioningInteractionStore;
   mounted: boolean;
-  disableAnchorTracking: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
@@ -775,7 +836,11 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
         rootBoundary?: 'layoutViewport' | undefined;
       }
     | undefined;
-  lazyFlip?: boolean | undefined;
+  /**
+   * Locks a flipped placement so it doesn't flip back eagerly while filtering resizes the
+   * popup. `true` locks the side only; `'placement'` also locks the alignment.
+   */
+  lazyFlip?: boolean | 'placement' | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**
    * Optional middleware that can replace the measured reference rect before offsets and collision
@@ -787,14 +852,14 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
 export interface UseAnchorPositioningReturnValue {
   positionerStyles: React.CSSProperties;
   arrowStyles: React.CSSProperties;
-  arrowRef: React.RefObject<Element | null>;
+  arrowRef: React.RefCallback<Element>;
   arrowUncentered: boolean;
   side: Side;
   align: Align;
   physicalSide: PhysicalSide;
   anchorHidden: boolean;
   refs: UseFloatingReturn['refs'];
-  context: FloatingContext;
+  context: PopupPositioningContext;
   isPositioned: boolean;
   update: () => void;
 }

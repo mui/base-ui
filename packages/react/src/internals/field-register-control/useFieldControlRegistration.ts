@@ -16,6 +16,7 @@ export interface FieldControlRegistration {
 
 export function useFieldControlRegistration(params: UseFieldControlRegistrationParameters) {
   const {
+    change,
     commit,
     invalid,
     markedDirtyRef,
@@ -134,6 +135,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       if (!registration) {
         if (activeFieldControlSourceRef.current === source) {
           activeFieldControlSourceRef.current = null;
+          change(undefined, true);
           deleteRegistration();
           registrationRef.current = null;
           setRegisteredFieldName(undefined);
@@ -143,6 +145,12 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       }
 
       const previousId = registrationRef.current?.id;
+      const previousSource = activeFieldControlSourceRef.current;
+
+      // Drop work owned by a replaced control, but not on first registration.
+      if (previousSource && previousSource !== source) {
+        change(undefined, true);
+      }
 
       activeFieldControlSourceRef.current = source;
       registrationRef.current = registration;
@@ -164,6 +172,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 }
 
 export interface UseFieldControlRegistrationParameters {
+  change: (value: unknown, cancelPending?: boolean) => void;
   commit: (value: unknown) => void;
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;

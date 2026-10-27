@@ -1,6 +1,7 @@
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { CheckboxRootState } from '../root/CheckboxRoot';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import * as CheckboxRootDataAttributes from '../root/CheckboxRootDataAttributes';
 
 export function getCheckboxStateAttributesMapping(
   state: CheckboxRootState,
@@ -13,10 +14,10 @@ export function getCheckboxStateAttributesMapping(
       }
 
       if (value) {
-        return { 'data-checked': '' };
+        return { [CheckboxRootDataAttributes.checked]: '' };
       }
 
-      return { 'data-unchecked': '' };
+      return { [CheckboxRootDataAttributes.unchecked]: '' };
     },
     ...fieldValidityMapping,
   };

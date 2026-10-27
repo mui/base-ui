@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
@@ -12,12 +11,15 @@ import type {
 } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
-import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { compareItemEquality, removeItem } from '../../internals/itemEquality';
-import { isVirtualClick } from '../../floating-ui-react/utils/event';
+import {
+  compareItemEquality,
+  removeItem,
+  resolveSelectedIndex,
+} from '../../internals/itemEquality';
+import { isVirtualClick } from '../../utils/popups/event';
 
 /**
  * An individual option in the select popup.
@@ -48,63 +50,69 @@ export const SelectItem = React.memo(
       textRef,
     });
 
+    const store = useSelectRootContext();
     const {
-      store,
-      itemProps,
-      setOpen,
-      setValue,
-      selectionRef,
-      typingRef,
-      valuesRef,
+      props: itemProps,
       multiple,
-      selectedItemTextRef,
       disabled: selectDisabled,
       readOnly,
-    } = useSelectRootContext();
-
+      isItemEqualToValue,
+    } = store.useState('itemRoot');
     const disabled = selectDisabled || disabledProp;
-    const highlighted = useStore(store, selectors.isActive, listItem.index);
-    const open = useStore(store, selectors.open);
-    const selected = useStore(store, selectors.isSelected, itemValue);
-    const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
-    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+    const highlighted = store.useState('isActive', listItem.index);
+    const activeWhileOpen = store.useState('isActiveWhileOpen', listItem.index);
+    const selected = store.useState('isSelected', itemValue);
+    const selectedByFocus = store.useState('isSelectedByFocus', listItem.index);
 
     const index = listItem.index;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
 
     useIsoLayoutEffect(() => {
-      const values = valuesRef.current;
+      const values = store.context.valuesRef.current;
       values[index] = itemValue;
 
       return () => {
         delete values[index];
       };
-    }, [index, itemValue, valuesRef]);
+    }, [index, itemValue, store]);
 
     useIsoLayoutEffect(() => {
-      const selectedValue = store.state.value;
+      const selectedValue = store.state.selectedValue;
 
-      let selectedCandidate = selectedValue;
+      const currentIndex = store.state.selectedIndex;
+      let nextIndex = currentIndex;
+      let claims: boolean;
       if (multiple && Array.isArray(selectedValue)) {
-        // Compare against the last selected item, or `undefined` when nothing is selected — never
-        // the raw array, which a custom `isItemEqualToValue` isn't expected to receive.
-        selectedCandidate =
-          selectedValue.length > 0 ? selectedValue[selectedValue.length - 1] : undefined;
-      }
-
-      if (
-        selectedCandidate !== undefined &&
-        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
-      ) {
-        store.set('selectedIndex', index);
-        // Make sure SelectPopup can measure the selected item on first open.
-        // SelectItemText can still update this ref later when focus moves.
-        if (textRef.current) {
-          selectedItemTextRef.current = textRef.current;
+        // The claiming item also owns the text ref that aligns the popup.
+        nextIndex = resolveSelectedIndex(
+          index,
+          itemValue,
+          store.context.valuesRef.current,
+          selectedValue,
+          isItemEqualToValue,
+          currentIndex,
+        );
+        claims = nextIndex === index;
+        if (index === currentIndex && !claims) {
+          store.context.selectedItemTextRef.current = null;
+        }
+      } else {
+        claims =
+          selectedValue !== undefined &&
+          compareItemEquality(itemValue, selectedValue, isItemEqualToValue);
+        if (claims) {
+          nextIndex = index;
         }
       }
-    }, [index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
+      store.set('selectedIndex', nextIndex);
+
+      // Make sure SelectPopup can measure the selected item on first open.
+      // SelectItemText can still update this ref later when focus moves.
+      if (claims && textRef.current) {
+        store.context.selectedItemTextRef.current = textRef.current;
+      }
+    }, [index, multiple, isItemEqualToValue, store, itemValue]);
 
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const allowMouseSelectionRef = React.useRef(false);
@@ -129,31 +137,31 @@ export const SelectItem = React.memo(
         return;
       }
 
-      const selectedValue = store.state.value;
+      const selectedValue = store.state.selectedValue;
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
         const nextValue = selected
           ? removeItem(currentValue, itemValue, isItemEqualToValue)
           : [...currentValue, itemValue];
-        setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
+        store.context.setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
       } else {
-        setValue(itemValue, createChangeEventDetails(REASONS.itemPress, event));
-        setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
+        store.context.setValue(itemValue, createChangeEventDetails(REASONS.itemPress, event));
+        store.setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
       }
     }
 
     function resetDragMovement() {
-      selectionRef.current.dragY = 0;
+      store.context.selectionRef.current.dragY = 0;
     }
 
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      tabIndex: open && highlighted ? 0 : -1,
+      tabIndex: activeWhileOpen ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         store.set('activeIndex', index);
 
-        if (event.key === ' ' && typingRef.current) {
+        if (event.key === ' ' && store.context.typingRef.current) {
           // `useButton` skips Space activation for `role="option"` items when the keydown
           // is `defaultPrevented`, keeping typeahead spaces from committing a selection.
           event.preventDefault();
@@ -188,7 +196,7 @@ export const SelectItem = React.memo(
       },
       onPointerMove(event) {
         if (event.pointerType === 'mouse' && event.buttons === 1) {
-          const selection = selectionRef.current;
+          const selection = store.context.selectionRef.current;
           selection.dragY += event.movementY;
 
           if (selection.dragY ** 2 >= 64) {
@@ -213,14 +221,19 @@ export const SelectItem = React.memo(
           return;
         }
 
-        const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
-        const disallowUnselectedMouseUp = !selectionRef.current.allowUnselectedMouseUp && !selected;
+        const disallowSelectedMouseUp =
+          !store.context.selectionRef.current.allowSelectedMouseUp && selected;
+        const disallowUnselectedMouseUp =
+          !store.context.selectionRef.current.allowUnselectedMouseUp && !selected;
 
         if (disallowSelectedMouseUp || disallowUnselectedMouseUp) {
           return;
         }
 
         allowMouseSelectionRef.current = true;
+        // Drag selection has no mousedown on the item. Focus it before the synthetic click so
+        // arrow-key navigation continues from the selected item.
+        itemRef.current?.focus({ preventScroll: true });
         itemRef.current?.click();
         allowMouseSelectionRef.current = false;
       },
