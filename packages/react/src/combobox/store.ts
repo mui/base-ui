@@ -146,6 +146,10 @@ export const selectors = {
   // An inline list renders for as long as it's in the tree, so the interaction hooks treat it as
   // open even while the open state is `false`.
   interactionOpen: (state: State) => popupStoreSelectors.open(state) || state.inline,
+  // The interaction hooks see a kept-mounted positioner for as long as it's mounted. The shared
+  // selector hides it while an opening popup mounts, which list navigation reads as the list going
+  // away and resets the highlight that typing just set.
+  interactionPositionerElement: (state: State) => state.positionerElement,
 
   inputInsidePopup: (state: State) => state.inputInsidePopup,
   inputOwnsFormValue: (state: State) => state.inputOwnsFormValue,
@@ -191,8 +195,12 @@ type InteractionKey =
   'open' | 'transitionStatus' | 'anchorElement' | 'anchor' | 'positionerElement' | 'defaultPopupId';
 
 function createInteractionView(store: ComboboxStore): PositioningInteractionStore {
-  const getKey = (key: InteractionKey): keyof typeof selectors =>
-    key === 'open' ? 'interactionOpen' : key;
+  const getKey = (key: InteractionKey): keyof typeof selectors => {
+    if (key === 'open') {
+      return 'interactionOpen';
+    }
+    return key === 'positionerElement' ? 'interactionPositionerElement' : key;
+  };
 
   return {
     select: ((key: InteractionKey) => store.select(getKey(key))) as PopupInteractionReader,

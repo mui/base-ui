@@ -9297,6 +9297,42 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: autoHighlight', () => {
+    it('keeps the first highlight when typing opens a kept-mounted list', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'apricot', 'banana']} autoHighlight>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal keepMounted>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('a');
+
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      // The highlight used to be set and then cleared a frame later, as the list opened.
+      await act(async () => {
+        await new Promise((resolve) => {
+          requestAnimationFrame(resolve);
+        });
+      });
+      expect(apple).toHaveAttribute('data-highlighted');
+    });
+
     describe('asynchronous items', () => {
       function AsyncCombobox({
         items = [],
