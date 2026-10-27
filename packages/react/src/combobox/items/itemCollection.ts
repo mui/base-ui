@@ -1,9 +1,6 @@
 import type { Group } from '../../internals/resolveValueLabel';
-import {
-  compareItemEquality,
-  defaultItemEquality,
-  type ItemEqualityComparer,
-} from '../../internals/itemEquality';
+import { compareItemEquality, defaultItemEquality } from '../../internals/itemEquality';
+import type { ItemEqualityComparer } from '../../internals/itemEquality';
 
 export function findCollectionItem<Item, Value>(
   valueToItem: Map<Value, Item>,

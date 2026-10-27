@@ -28,19 +28,11 @@ export function useCheckboxGroupParent(
 
   const registerChildId = useStableCallback((childValue: string, childId: string) => {
     const childIds = childIdsState.registry;
-    const ids = childIds.get(childValue);
-    if (!ids?.includes(childId)) {
-      childIds.set(childValue, ids ? ids.concat(childId) : [childId]);
-      setChildIdsState({ registry: childIds });
-    }
+    childIds.set(childValue, (childIds.get(childValue) ?? EMPTY_ARRAY).concat(childId));
+    setChildIdsState({ registry: childIds });
 
     return () => {
-      const registeredIds = childIds.get(childValue);
-      if (!registeredIds?.includes(childId)) {
-        return;
-      }
-
-      const nextIds = registeredIds.filter((id) => id !== childId);
+      const nextIds = (childIds.get(childValue) ?? EMPTY_ARRAY).filter((id) => id !== childId);
       if (nextIds.length === 0) {
         childIds.delete(childValue);
       } else {

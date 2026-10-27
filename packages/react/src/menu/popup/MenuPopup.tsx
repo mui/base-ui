@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
+import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
+import type { FloatingFocusManagerProps } from '../../utils/popups/focus/FloatingFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -9,27 +11,44 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { useRenderedId } from '../../internals/resolveRenderedId';
+import { resolvePopupLabel } from '../../internals/resolvePopupLabel';
+import { MenuFilterImplContext, useMenuFilterImpl } from '../filter-root/MenuFilterContext';
+import type { MenuFilterParentHandoff } from '../filter-root/MenuFilterContext';
+
+interface MenuPopupPlainProps extends MenuPopup.Props {
+  /** A filter root's own initial focus target; the plain default focuses the popup or its list. */
+  initialFocus?: FloatingFocusManagerProps['initialFocus'] | undefined;
+}
 
 /**
- * A container for the menu items.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * @internal
  */
-export const MenuPopup = React.forwardRef(function MenuPopup(
-  componentProps: MenuPopup.Props,
+export const MenuPopupPlain = React.forwardRef(function MenuPopupPlain(
+  componentProps: MenuPopupPlainProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, finalFocus, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    finalFocus,
+    id: idProp,
+    initialFocus: initialFocusProp,
+    ...elementProps
+  } = componentProps;
 
-  const { store } = useMenuRootContext();
+  const { store, generatedPopupId, setRenderedPopupId, virtualFocus, orientation } =
+    useMenuRootContext();
+  const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
 
@@ -42,14 +61,35 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const openMethod = store.useState('openMethod');
+  const activeTriggerId = store.useState('activeTriggerId');
+  const listElement = store.useState('listElement');
 
+  const [id, registerIdRef] = useRenderedId(componentProps, generatedPopupId, setRenderedPopupId);
+
+  const ariaLabelledBy = resolvePopupLabel(componentProps, activeTriggerElement, activeTriggerId);
+
+  // A dialog's menu can render under a submenu provider; only the actual submenu inherits it.
+  const submenuRootContext = parent.type === 'menu' ? inheritedSubmenuRootContext : undefined;
   const isContextMenu = parent.type === 'context-menu';
+
+  let initialFocus: FloatingFocusManagerProps['initialFocus'] =
+    initialFocusProp ?? parent.type !== 'menu';
+  if (initialFocusProp === undefined && listElement && parent.type !== 'menu') {
+    initialFocus = () => {
+      // A keyboard or screen reader open highlights an item, which list navigation focuses.
+      if (store.state.activeIndex !== null) {
+        return false;
+      }
+      // The list holds the `menu` role, so a pointer open lands focus on it rather than on the
+      // presentational popup.
+      return listElement;
+    };
+  }
 
   useOpenChangeComplete({
     open,
@@ -76,12 +116,23 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     };
   }, [floatingTreeRoot.events, store]);
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverPopupInteraction(store, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
   });
 
   const setPopupElement = store.useStateSetter('popupElement');
+
+  // Only a menu under a filter root bundles the handoff to a filterable parent. Whether one is
+  // above is fixed for a mounted popup, so the hook doesn't change between renders.
+  const useParentHandoff =
+    React.useContext(MenuFilterImplContext)?.useParentHandoff ?? useNoParentHandoff;
+  const { parentVirtualFocusRef, handleFocus } = useParentHandoff(
+    store,
+    parent,
+    open,
+    virtualFocus,
+  );
 
   const state: MenuPopupState = {
     transitionStatus,
@@ -94,16 +145,29 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef, setPopupElement],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement, registerIdRef],
     stateAttributesMapping: popupTransitionStateMapping,
     props: [
       popupProps,
       {
+        id,
+        // A rendered `Menu.List` carries the `menu` semantics instead.
+        ...(listElement
+          ? { role: 'presentation' }
+          : {
+              role: 'menu',
+              // `menu` is implicitly vertical, so only the non-default value needs to be
+              // rendered.
+              'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
+              'aria-labelledby': ariaLabelledBy,
+            }),
         onKeyDown(event) {
+          submenuRootContext?.onPopupKeyDown?.(event);
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
           }
         },
+        onFocus: handleFocus,
       },
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
@@ -119,27 +183,57 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     returnFocus = true;
   }
 
+  // Internal defaults rather than consumer targets, so focus that already moved is respected.
+  const dynamicReturnFocus = submenuRootContext?.getReturnElement ?? parentVirtualFocusRef;
+
   return (
     <FloatingFocusManager
-      context={floatingContext}
+      store={store}
       openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}
-      returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
-      initialFocus={parent.type !== 'menu'}
+      returnFocus={finalFocus ?? dynamicReturnFocus ?? returnFocus}
+      explicitReturnFocus={finalFocus === undefined && dynamicReturnFocus ? false : undefined}
+      initialFocus={initialFocus}
       restoreFocus
+      getInsideElements={
+        parent.type === undefined
+          ? () => [store.context.beforeTriggerFocusGuardRef.current]
+          : undefined
+      }
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
       nextFocusableElement={
         parent.type === undefined ? store.context.triggerFocusTargetRef : undefined
       }
-      beforeContentFocusGuardRef={
-        parent.type === undefined ? store.context.beforeContentFocusGuardRef : undefined
-      }
+      beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
       {element}
     </FloatingFocusManager>
   );
+});
+
+const NO_PARENT_HANDOFF: MenuFilterParentHandoff = {
+  parentVirtualFocusRef: undefined,
+  handleFocus: undefined,
+};
+
+function useNoParentHandoff() {
+  return NO_PARENT_HANDOFF;
+}
+
+/**
+ * A container for the menu items.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuPopup = React.forwardRef(function MenuPopup(
+  props: MenuPopup.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const Popup = useMenuFilterImpl()?.Popup ?? MenuPopupPlain;
+  return <Popup {...props} ref={forwardedRef} />;
 });
 
 export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupState> {

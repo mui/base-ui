@@ -6,7 +6,7 @@ import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
-import { type Orientation } from '../../internals/types';
+import type { Orientation } from '../../internals/types';
 import { CompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../../internals/composite/composite';
 
@@ -38,18 +38,6 @@ describe('<Toolbar.Input />', () => {
       );
     },
   }));
-
-  describe('ARIA attributes', () => {
-    it('renders a textbox', async () => {
-      await render(
-        <Toolbar.Root>
-          <Toolbar.Input data-testid="input" />
-        </Toolbar.Root>,
-      );
-
-      expect(screen.getByTestId('input')).toBe(screen.getByRole('textbox'));
-    });
-  });
 
   describe('pointer interactions', () => {
     it('does not steal focus while disabled and becomes pointer-focusable when enabled', async () => {
@@ -149,46 +137,42 @@ describe('<Toolbar.Input />', () => {
     // when navigating through RTL text in real browsers the arrow keys for
     // moving the text insertion cursor is also reversed from LTR but this doesn't
     // work with testing library
-    [
-      ['horizontal', ARROW_RIGHT, ARROW_LEFT],
-      ['vertical', ARROW_DOWN, ARROW_UP],
-    ].forEach((entry) => {
-      const [orientation, nextKey, prevKey] = entry;
+    it.each<{ orientation: Orientation; nextKey: string; prevKey: string }>([
+      { orientation: 'horizontal', nextKey: ARROW_RIGHT, prevKey: ARROW_LEFT },
+      { orientation: 'vertical', nextKey: ARROW_DOWN, prevKey: ARROW_UP },
+    ])('orientation: $orientation', async ({ orientation, nextKey, prevKey }) => {
+      const { user } = await render(
+        <Toolbar.Root orientation={orientation}>
+          <Toolbar.Button />
+          <Toolbar.Input defaultValue="abcd" />
+          <Toolbar.Button />
+        </Toolbar.Root>,
+      );
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+      const [button1, button2] = screen.getAllByRole('button');
 
-      it(`orientation: ${orientation}`, async () => {
-        const { user } = await render(
-          <Toolbar.Root orientation={orientation as Orientation}>
-            <Toolbar.Button />
-            <Toolbar.Input defaultValue="abcd" />
-            <Toolbar.Button />
-          </Toolbar.Root>,
-        );
-        const input = screen.getByRole('textbox') as HTMLInputElement;
-        const [button1, button2] = screen.getAllByRole('button');
+      await user.keyboard('[Tab]');
+      expect(button1).toHaveFocus();
 
-        await user.keyboard('[Tab]');
-        expect(button1).toHaveFocus();
+      await user.keyboard(`[${nextKey}]`);
+      expect(input).toHaveFocus();
 
-        await user.keyboard(`[${nextKey}]`);
-        expect(input).toHaveFocus();
+      // Firefox doesn't support document.getSelection() in inputs
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(4);
 
-        // Firefox doesn't support document.getSelection() in inputs
-        expect(input.selectionStart).toBe(0);
-        expect(input.selectionEnd).toBe(4);
+      await user.keyboard(`[${ARROW_RIGHT}]`);
+      await user.keyboard(`[${nextKey}]`);
 
-        await user.keyboard(`[${ARROW_RIGHT}]`);
-        await user.keyboard(`[${nextKey}]`);
+      expect(button2).toHaveFocus();
 
-        expect(button2).toHaveFocus();
+      await user.keyboard(`[${prevKey}]`);
+      expect(input).toHaveFocus();
 
-        await user.keyboard(`[${prevKey}]`);
-        expect(input).toHaveFocus();
+      await user.keyboard(`[${ARROW_LEFT}]`);
+      await user.keyboard(`[${prevKey}]`);
 
-        await user.keyboard(`[${ARROW_LEFT}]`);
-        await user.keyboard(`[${prevKey}]`);
-
-        expect(button1).toHaveFocus();
-      });
+      expect(button1).toHaveFocus();
     });
   });
 

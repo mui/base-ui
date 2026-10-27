@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { getSearchResultCount, type GroupedSearchResults } from './searchUtils';
+import { getSearchResultCount } from './searchUtils';
+import type { GroupedSearchResults } from './searchUtils';
 
 interface UseDeferredEmptySearchResultsParameters<Results extends GroupedSearchResults> {
   active?: boolean;

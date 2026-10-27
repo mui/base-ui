@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal } from '../../floating-ui-react';
-import { type BaseUIComponentProps } from '../../internals/types';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
 

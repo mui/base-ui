@@ -10,6 +10,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import * as path from 'node:path';
 import { fileURLToPath } from 'url';
 import remarkConfig from './.remarkrc.mjs';
+import baseUiTestRules from './scripts/eslint/testRules.mjs';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -18,6 +19,7 @@ const playgroundRootDir = path.join(dirname, 'playground', 'vite-app');
 const baseConfig = createBaseConfig({
   baseDirectory: dirname,
   markdown: true,
+  consistentTypeImports: true,
 });
 
 // Flat config replaces rule options rather than merging them, so any block that sets
@@ -155,10 +157,23 @@ export default defineConfig(
     files: [
       // matching the pattern of the test runner
       `**/*${EXTENSION_TEST_FILE}`,
+      // shared suites that test files call
+      'packages/react/test/describeConformance.tsx',
+      'packages/react/test/conformanceTests/*.tsx',
+      'packages/react/test/*Tests.tsx',
     ],
     extends: createTestConfig(),
+    plugins: {
+      'base-ui-test': baseUiTestRules,
+    },
     rules: {
       'mui/add-undef-to-optional': 'off',
+      // Tests type lazily-loaded modules with `typeof import('./x')`, which the rule's
+      // `disallowTypeAnnotations` default rejects. Top-level type imports stay enforced.
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { fixStyle: 'separate-type-imports', disallowTypeAnnotations: false },
+      ],
       // These helpers assert internally (shared between multiple tests).
       'vitest/expect-expect': [
         'error',
@@ -192,6 +207,13 @@ export default defineConfig(
             'touch events have no equivalent helper yet.',
         },
       ],
+      'base-ui-test/no-chai-style': 'error',
+      'base-ui-test/no-event-init-spies': 'error',
+      'base-ui-test/no-standalone-user-event-setup': 'error',
+      'base-ui-test/no-tests-in-foreach': 'error',
+      'base-ui-test/wait-for-single-expect': 'error',
+      'vitest/no-conditional-expect': 'error',
+      'vitest/no-disabled-tests': 'error',
     },
   },
   {
@@ -200,6 +222,41 @@ export default defineConfig(
       // The e2e suite asserts with Playwright's `expect` (initPlaywrightMatchers),
       // which the scope-naive vitest globals rule mistakes for the vitest global.
       'vitest/prefer-importing-vitest-globals': 'off',
+    },
+  },
+  {
+    name: 'Base UI React tests',
+    // `#test-utils` exists only in @base-ui/react; @base-ui/utils tests can't depend on it.
+    files: [
+      `packages/react/**/*${EXTENSION_TEST_FILE}`,
+      'packages/react/test/describeConformance.tsx',
+      'packages/react/test/conformanceTests/*.tsx',
+      'packages/react/test/*Tests.tsx',
+    ],
+    rules: {
+      // Assumes the async `#test-utils` renderer: awaiting the synchronous
+      // `@mui/internal-test-utils` renderer (used by @base-ui/utils tests) flushes nothing.
+      'base-ui-test/no-flush-after-render': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@mui/internal-test-utils',
+              importNames: ['createRenderer', 'describeConformance'],
+              message:
+                "Import from '#test-utils': its `render` is async and wrapped in act, and its conformance suite is the Base UI one.",
+            },
+          ],
+          patterns: [
+            ...NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED,
+            {
+              regex: '(^|/)test/(createRenderer|describeConformance)$',
+              message: "Import test utilities from '#test-utils'.",
+            },
+          ],
+        },
+      ],
     },
   },
   baseSpecRules,

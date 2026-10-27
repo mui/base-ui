@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { type SearchSitemapLoader } from './searchSitemap';
+import type { SearchSitemapLoader } from './searchSitemap';
 import { slugifyWithParentContext } from './searchUtils';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';

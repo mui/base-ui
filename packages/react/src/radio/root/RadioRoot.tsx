@@ -17,9 +17,11 @@ import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { resolveRenderedAriaLabel } from '../../internals/resolveRenderedAriaLabel';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { serializeValue } from '../../internals/serializeValue';
@@ -83,6 +85,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const checked = groupContext ? checkedValue === value : value === '';
 
   const radioRef = React.useRef<HTMLElement>(null);
+  const setFieldFocused = useSetFieldFocused(disabled, radioRef);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const registerFieldInput = validation?.registerInput;
@@ -121,6 +124,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     inputRef,
     !nativeButton,
     hiddenInputId,
+    resolveRenderedAriaLabel(componentProps),
   );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
@@ -129,6 +133,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     'aria-labelledby': ariaLabelledBy,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id: nativeButton ? inputId : id,
+    // Only a fully disabled group leaves the tab order. A single disabled radio
+    // keeps the composite tab index.
+    ...(disabledGroup && { tabIndex: -1 }),
     onKeyDown(event) {
       if (event.key === 'Enter') {
         // Radio only activates with Space. Preventing the keydown's default
@@ -151,6 +158,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       dispatchClickWithModifiers(input, event);
     },
     onFocus(event) {
+      setFieldFocused(true);
+
       if (event.defaultPrevented || disabled || readOnly || !touched) {
         return;
       }
@@ -158,6 +167,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       inputRef.current?.click();
 
       setTouched(false);
+    },
+    onBlur() {
+      // A grouped radio's exit is cleared by the group's `contains`-guarded blur handler, so
+      // radio-to-radio moves inside the group don't churn the focused state.
+      if (!groupContext) {
+        setFieldFocused(false);
+      }
     },
   };
 

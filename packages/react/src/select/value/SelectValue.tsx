@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 
 const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
   value: () => null,
@@ -31,7 +31,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
   const store = useSelectRootContext();
 
-  const value = store.useState('value');
+  const value = store.useState('selectedValue');
   const items = store.useState('items');
   const itemToStringLabel = store.useState('itemToStringLabel');
   const hasSelectedValue = store.useState('hasSelectedValue');

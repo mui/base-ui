@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { TooltipStore } from '../store/TooltipStore';
+import type { TooltipStore } from '../store/TooltipStore';
 
 export type TooltipRootContext<Payload = unknown> = TooltipStore<Payload>;
 

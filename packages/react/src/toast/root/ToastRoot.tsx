@@ -6,7 +6,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, closest, contains, getTarget } from '@base-ui/utils/shadowDom';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastAnnouncer } from '../announcer/ToastAnnouncer';
@@ -14,7 +14,7 @@ import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import {

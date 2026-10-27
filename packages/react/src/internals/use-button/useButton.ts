@@ -7,7 +7,7 @@ import { SafeReact } from '@base-ui/utils/safeReact';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
-import { BaseUIEvent, HTMLProps } from '../types';
+import type { BaseUIEvent, HTMLProps } from '../types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 
