@@ -2111,7 +2111,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const announcer = screen
         .getAllByRole('status')
         .find((node) => node.getAttribute('aria-live') === 'assertive');
-      expect(announcer).toHaveTextContent('High priority toastThis is urgent');
+      expect(announcer).toHaveTextContent('High priority toast This is urgent');
     });
   });
 });

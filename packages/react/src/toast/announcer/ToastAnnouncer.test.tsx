@@ -4,6 +4,7 @@ import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-util
 import { createRenderer } from '#test-utils';
 import { Toast } from '@base-ui/react/toast';
 import { Dialog } from '@base-ui/react/dialog';
+import { closest } from '@base-ui/utils/shadowDom';
 
 function List({ children }: { children?: React.ReactNode }) {
   const { toasts } = Toast.useToastManager();
@@ -55,18 +56,18 @@ describe('Toast announcements', () => {
     expect(screen.getByRole('alertdialog')).not.toHaveAttribute('aria-hidden');
     expect(screen.getAllByRole('button', { name: 'Dismiss notification' })).toHaveLength(2);
 
-    expect(polite).toHaveTextContent('SavedYour changes');
-    expect(assertive).toHaveTextContent('Upload failedTry again');
+    expect(polite).toHaveTextContent('Saved Your changes');
+    expect(assertive).toHaveTextContent('Upload failed Try again');
     expect(polite).not.toHaveTextContent('Dismiss notification');
-    expect(polite).toHaveTextContent('SavedYour changes');
+    expect(polite).toHaveTextContent('Saved Your changes');
     expect(polite.children).toHaveLength(1);
 
     clock.tick(1000);
 
     expect(getAnnouncer('polite')).toBe(polite);
     expect(getAnnouncer('assertive')).toBe(assertive);
-    expect(polite).toHaveTextContent('SavedYour changes');
-    expect(assertive).toHaveTextContent('Upload failedTry again');
+    expect(polite).toHaveTextContent('Saved Your changes');
+    expect(assertive).toHaveTextContent('Upload failed Try again');
     expect(screen.getByRole('alertdialog')).toHaveTextContent('Upload failed');
 
     await act(async () => manager.close());
@@ -283,10 +284,32 @@ describe('Toast announcement content', () => {
       expect(screen.queryByRole('button', { name: 'Outside' })).toBe(null);
       const announcer = getAnnouncer('assertive');
       expect(announcer).toHaveTextContent('Saved in dialog');
+      expect(closest(announcer, '[aria-hidden="true"], [inert]')).toBe(null);
 
       expect(screen.getByRole('button', { name: 'Close dialog' })).toBeVisible();
     },
   );
+
+  it('separates message parts and block content without splitting inline words', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Root toast={{ id: 'boundaries' }}>
+          <Toast.Title>
+            Save<strong>d</strong>
+          </Toast.Title>
+          <Toast.Description render={<div />}>
+            <p>First</p>
+            <p>
+              Second
+              <br />
+              line
+            </p>
+          </Toast.Description>
+        </Toast.Root>
+      </Toast.Provider>,
+    );
+    expect(getAnnouncer('polite')).toHaveTextContent('Saved First Second line');
+  });
 
   it.each(['low', 'high'] as const)(
     'snapshots only title and description text for %s priority',
@@ -340,10 +363,7 @@ describe('Toast announcement content', () => {
 
       const announcer = getAnnouncer(priority === 'high' ? 'assertive' : 'polite');
       expect(announcer).toHaveTextContent(
-        'Rendered titleWorkingAnother paragraphIncludedSuccess icon',
-      );
-      expect(announcer).toHaveTextContent(
-        'Rendered titleWorkingAnother paragraphIncludedSuccess icon',
+        'Rendered title Working Another paragraph Included Success icon',
       );
       expect(announcer.children).toHaveLength(1);
       expect(announcer).not.toHaveTextContent('Other toast content');
@@ -358,7 +378,7 @@ describe('Toast announcement content', () => {
         'Complete',
       );
       expect(announcer).toHaveTextContent(
-        'Rendered titleWorkingAnother paragraphIncludedSuccess icon',
+        'Rendered title Working Another paragraph Included Success icon',
       );
     },
   );

@@ -33,14 +33,19 @@ function getAnnouncementText(element: Readonly<Element> | null): string {
     return '';
   }
   if (element.localName === 'img') {
-    return element.getAttribute('alt') ?? '';
+    return ` ${element.getAttribute('alt') ?? ''} `;
   }
-  return Array.from(element.childNodes, (node) => {
+  if (element.localName === 'br') {
+    return ' ';
+  }
+  const text = Array.from(element.childNodes, (node) => {
     if (isElement(node)) {
       return getAnnouncementText(node);
     }
     return node.nodeType === 3 ? (node.textContent ?? '') : '';
   }).join('');
+  // Block layout separates words that textContent would otherwise concatenate.
+  return /^(block|flow-root|flex|grid|table|list-item)/.test(style.display) ? ` ${text} ` : text;
 }
 
 export function ToastAnnouncer(props: ToastAnnouncerProps) {
@@ -82,8 +87,8 @@ export function ToastAnnouncer(props: ToastAnnouncerProps) {
     const root = isShadowRoot(treeRoot) ? treeRoot : ownerDocument(element);
     const titleElement = titleId ? root.getElementById(titleId) : null;
     const descriptionElement = descriptionId ? root.getElementById(descriptionId) : null;
-    const title = getAnnouncementText(titleElement);
-    const description = getAnnouncementText(descriptionElement);
+    const title = getAnnouncementText(titleElement).replace(/\s+/g, ' ').trim();
+    const description = getAnnouncementText(descriptionElement).replace(/\s+/g, ' ').trim();
     const text = [title, description].filter(Boolean);
     setSnapshot((previous) => {
       if (
@@ -101,6 +106,9 @@ export function ToastAnnouncer(props: ToastAnnouncerProps) {
   }, [rootRef, target, limited, titleId, descriptionId, toastId, updateKey, transitionStatus]);
 
   return snapshot && snapshot.text.length > 0
-    ? ReactDOM.createPortal(<div key={snapshot.key}>{snapshot.text}</div>, snapshot.target)
+    ? ReactDOM.createPortal(
+        <div key={snapshot.key}>{snapshot.text.join(' ')}</div>,
+        snapshot.target,
+      )
     : null;
 }

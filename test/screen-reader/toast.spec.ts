@@ -17,7 +17,7 @@ test('announces toast title and description once at each priority', async ({
     .toContain('Changes saved');
   await expect
     .poll(async () => (await screenReader.spokenPhraseLog()).join(' '))
-    .toContain('Your document is up to date');
+    .toContain('Changes saved Your document is up to date');
   const politeSpeech = (await screenReader.spokenPhraseLog()).join(' ');
   expect(politeSpeech.match(/Changes saved/g)).toHaveLength(1);
   expect(politeSpeech.match(/Your document is up to date/g)).toHaveLength(1);
@@ -30,7 +30,7 @@ test('announces toast title and description once at each priority', async ({
     .toContain('Upload failed');
   await expect
     .poll(async () => (await screenReader.spokenPhraseLog()).join(' '))
-    .toContain('Please try again');
+    .toContain('Upload failed Please try again');
   const urgentSpeech = (await screenReader.spokenPhraseLog()).join(' ');
   expect(urgentSpeech.match(/Upload failed/g)).toHaveLength(1);
   expect(urgentSpeech.match(/Please try again/g)).toHaveLength(1);
