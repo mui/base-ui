@@ -24,6 +24,57 @@ describe('<Tooltip.Root />', () => {
 
   const { render, clock } = createRenderer();
 
+  it('keeps the payload while a controlled reopen moves to another trigger', async () => {
+    const handle = Tooltip.createHandle<string>();
+    const payloads: Array<string | undefined> = [];
+    let setState!: (state: { open: boolean; triggerId: string | null }) => void;
+
+    function App() {
+      const [state, setStateInternal] = React.useState<{ open: boolean; triggerId: string | null }>(
+        {
+          open: true,
+          triggerId: 'first',
+        },
+      );
+      setState = setStateInternal;
+      return (
+        <React.Fragment>
+          <Tooltip.Trigger handle={handle} id="first" payload="First">
+            First
+          </Tooltip.Trigger>
+          <Tooltip.Trigger handle={handle} id="second" payload="Second">
+            Second
+          </Tooltip.Trigger>
+          <Tooltip.Root handle={handle} open={state.open} triggerId={state.triggerId}>
+            {({ payload }) => {
+              payloads.push(payload);
+              return (
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup>{payload}</Tooltip.Popup>
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              );
+            }}
+          </Tooltip.Root>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+    await act(async () => {
+      setState({ open: false, triggerId: null });
+    });
+
+    payloads.length = 0;
+    await act(async () => {
+      setState({ open: true, triggerId: 'second' });
+    });
+
+    expect(payloads).not.toContain(undefined);
+    expect(payloads.at(-1)).toBe('Second');
+  });
+
   popupConformanceTests({
     createComponent: (props) => (
       <Tooltip.Root {...props.root}>

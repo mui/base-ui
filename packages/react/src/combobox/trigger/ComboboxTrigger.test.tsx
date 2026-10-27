@@ -374,6 +374,37 @@ describe('<Combobox.Trigger />', () => {
       });
     });
 
+    it('closes a popup opened with an arrow key', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Input />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+    });
+
     it('should call onOpenChange when toggling', async () => {
       const handleOpenChange = vi.fn();
       const { user } = await render(

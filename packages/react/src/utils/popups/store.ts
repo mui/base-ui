@@ -390,7 +390,17 @@ export abstract class BasePopupStore<
   ChangeEventDetails extends PopupOpenChangeEventDetails,
 > extends ReactStore<Readonly<State>, Context, Selectors> {
   override setState(newState: Readonly<State>): void {
-    super.setState(syncAnchorState(this.state, newState));
+    super.setState(
+      this.anchorsToActiveTrigger() ? syncAnchorState(this.state, newState) : newState,
+    );
+  }
+
+  /**
+   * Whether the popup anchors to the trigger that opened it. A store that keeps its anchor in
+   * `anchorElement` itself turns this off.
+   */
+  protected anchorsToActiveTrigger(): boolean {
+    return true;
   }
 
   /**
