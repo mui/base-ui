@@ -100,7 +100,7 @@ describe('Toast announcements', () => {
     expect(polite).toHaveTextContent('Initially mounted');
   });
 
-  it('announces each toast once, including repeated messages while focused', async () => {
+  it('announces changed text while keeping unchanged updates silent', async () => {
     const manager = Toast.createToastManager();
     await render(
       <Toast.Provider toastManager={manager} timeout={0}>
@@ -127,14 +127,104 @@ describe('Toast announcements', () => {
       manager.update('first', { title: 'Finished', priority: 'high' });
     });
 
-    expect(getAnnouncer('polite').childNodes).toHaveLength(2);
-    expect(getAnnouncer('assertive')).toBeEmptyDOMElement();
-    expect(firstMessage).toHaveTextContent('Saved');
+    expect(getAnnouncer('polite').childNodes).toHaveLength(1);
+    expect(getAnnouncer('assertive')).toHaveTextContent('Finished');
+    expect(firstMessage?.isConnected).toBe(false);
+    const updatedMessage = getAnnouncer('assertive').firstChild;
 
     await act(async () => {
       manager.update('first', { timeout: 10000 });
     });
-    expect(getAnnouncer('assertive')).toBeEmptyDOMElement();
+    expect(getAnnouncer('assertive').firstChild).toBe(updatedMessage);
+  });
+
+  it('announces promise completion with a newly inserted message', async () => {
+    const manager = Toast.createToastManager();
+    await render(
+      <Toast.Provider toastManager={manager} timeout={0}>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+    let finish = () => {};
+    const promise = new Promise<void>((resolve) => {
+      finish = resolve;
+    });
+    await act(async () => {
+      void manager.promise(promise, { loading: 'Uploading', success: 'Uploaded', error: 'Failed' });
+    });
+    const region = getAnnouncer('polite');
+    expect(region).toHaveTextContent('Uploading');
+    const loadingMessage = region.firstChild;
+    await act(async () => {
+      finish();
+      await promise;
+    });
+    expect(region).toHaveTextContent('Uploaded');
+    expect(region.firstChild).not.toBe(loadingMessage);
+    expect(region.childNodes).toHaveLength(1);
+  });
+
+  it('announces same-id add updates in the existing root', async () => {
+    const manager = Toast.createToastManager();
+    await render(
+      <Toast.Provider toastManager={manager} timeout={0}>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+    await act(async () => {
+      manager.add({ id: 'save', title: 'Saving' });
+    });
+    const root = screen.getByRole('dialog');
+    const region = getAnnouncer('polite');
+    expect(region).toHaveTextContent('Saving');
+    const firstMessage = region.firstChild;
+    await act(async () => {
+      manager.add({ id: 'save', title: 'Saved' });
+    });
+    expect(screen.getByRole('dialog')).toBe(root);
+    expect(region).toHaveTextContent('Saved');
+    expect(region.firstChild).not.toBe(firstMessage);
+  });
+
+  it.each([
+    { name: 'changed text', title: 'Saved' },
+    { name: 'identical text', title: 'Saving' },
+  ])('announces re-add with $name while the previous root is still exiting', async ({ title }) => {
+    const manager = Toast.createToastManager();
+    await render(
+      <Toast.Provider toastManager={manager} timeout={0}>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+    await act(async () => {
+      manager.add({ id: 'save', title: 'Saving' });
+    });
+    const root = screen.getByRole('dialog');
+    const region = getAnnouncer('polite');
+    expect(region).toHaveTextContent('Saving');
+    const firstMessage = region.firstChild;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    Object.defineProperty(root, 'getAnimations', {
+      configurable: true,
+      value: () => [{ finished: new Promise(() => {}) }],
+    });
+    await act(async () => {
+      manager.close('save');
+    });
+    expect(root).toHaveAttribute('data-ending-style');
+    expect(root.isConnected).toBe(true);
+    await act(async () => {
+      manager.add({ id: 'save', title });
+    });
+    expect(screen.getByRole('dialog')).toBe(root);
+    expect(region).toHaveTextContent(title);
+    expect(region.firstChild).not.toBe(firstMessage);
   });
 
   it('does not announce a toast added and dismissed in the same update', async () => {
@@ -250,16 +340,16 @@ describe('Toast announcement content', () => {
 
       const announcer = getAnnouncer(priority === 'high' ? 'assertive' : 'polite');
       expect(announcer).toHaveTextContent(
-        'Rendered titleWorkingAnother paragraphHiddenIncludedAlso hiddenNot displayed',
+        'Rendered titleWorkingAnother paragraphIncludedSuccess icon',
       );
       expect(announcer).toHaveTextContent(
-        'Rendered titleWorkingAnother paragraphHiddenIncludedAlso hiddenNot displayed',
+        'Rendered titleWorkingAnother paragraphIncludedSuccess icon',
       );
       expect(announcer.children).toHaveLength(1);
       expect(announcer).not.toHaveTextContent('Other toast content');
       expect(announcer).not.toHaveTextContent('Update');
       expect(announcer).not.toHaveTextContent('Unused manager');
-      expect(announcer).not.toHaveTextContent('Success icon');
+      expect(announcer).toHaveTextContent('Success icon');
       expect(screen.getByRole('button', { name: 'Dismiss notification' })).toBeVisible();
 
       fireEvent.click(screen.getByRole('button', { name: 'Update' }));
@@ -268,7 +358,7 @@ describe('Toast announcement content', () => {
         'Complete',
       );
       expect(announcer).toHaveTextContent(
-        'Rendered titleWorkingAnother paragraphHiddenIncludedAlso hiddenNot displayed',
+        'Rendered titleWorkingAnother paragraphIncludedSuccess icon',
       );
     },
   );

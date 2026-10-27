@@ -10,6 +10,7 @@ import { ToastStore } from '../store';
 
 /**
  * Provides a context for creating and managing toasts.
+ * Renders two visually hidden live regions used to announce toasts.
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */

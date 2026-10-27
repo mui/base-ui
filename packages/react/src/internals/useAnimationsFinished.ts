@@ -3,7 +3,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { NOOP } from '@base-ui/utils/empty';
 import { resolveRef } from '../utils/resolveRef';
+import { getFiniteAnimations } from '../utils/getFiniteAnimations';
 import * as TransitionStatusDataAttributes from './TransitionStatusDataAttributes';
 
 let pendingCallbacks: Array<() => void> | null = null;
@@ -97,7 +99,10 @@ export function useAnimationsFinished(
       }
 
       function exec() {
-        Promise.all(resolvedElement.getAnimations().map((animation) => animation.finished)).then(
+        // Discard fulfilled Animation values so unfinished animations cannot retain their targets.
+        Promise.all(
+          getFiniteAnimations(resolvedElement).map((animation) => animation.finished.then(NOOP)),
+        ).then(
           () => {
             if (!signal?.aborted) {
               done();
@@ -108,7 +113,7 @@ export function useAnimationsFinished(
               return;
             }
 
-            const currentAnimations = resolvedElement.getAnimations();
+            const currentAnimations = getFiniteAnimations(resolvedElement);
 
             if (
               currentAnimations.some(

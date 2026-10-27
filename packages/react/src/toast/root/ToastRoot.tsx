@@ -514,6 +514,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       {element}
       <ToastAnnouncer
         rootRef={rootRef}
+        toastId={toast.id}
+        updateKey={toast.updateKey}
+        transitionStatus={toast.transitionStatus}
         titleId={titleId}
         descriptionId={descriptionId}
         priority={toast.priority}

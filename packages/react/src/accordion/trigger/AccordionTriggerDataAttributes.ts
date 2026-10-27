@@ -1,4 +1,9 @@
 /**
+ * Indicates the index of the accordion item.
+ * @type {number}
+ */
+export const index = 'data-index';
+/**
  * Present when the accordion panel is open.
  */
 export const panelOpen = 'data-panel-open';
