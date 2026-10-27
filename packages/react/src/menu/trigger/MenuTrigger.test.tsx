@@ -428,6 +428,40 @@ describe('<Menu.Trigger />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'keeps the menu open when pressed on a descendant that extends past the trigger',
+    async () => {
+      await render(
+        <Menu.Root>
+          <Menu.Trigger
+            style={{ position: 'relative', width: 40, height: 20, display: 'block', margin: 40 }}
+          >
+            Open
+            <span data-testid="hit-area" style={{ position: 'absolute', inset: -16 }} />
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      const rect = trigger.getBoundingClientRect();
+      // within the hit area, but outside the trigger's own bounds
+      const point = { clientX: rect.left - 10, clientY: rect.top + rect.height / 2 };
+
+      fireEvent.mouseDown(screen.getByTestId('hit-area'), point);
+      await screen.findByRole('menu');
+
+      fireEvent.mouseUp(document.body, point);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
+    },
+  );
+
   describe('preventBaseUIHandler', () => {
     it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {
       const { user } = await render(
