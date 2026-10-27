@@ -1463,38 +1463,42 @@ describe('<Drawer.SwipeArea />', () => {
     },
   );
 
+  // Matches the documented transition styles, where the starting style's transform would
+  // override the swipe movement.
+  const swipeOpenStyle = `
+    .swipe-open-popup {
+      height: 200px;
+      transform: translateY(var(--drawer-swipe-movement-y));
+    }
+
+    .swipe-open-popup[data-starting-style] {
+      transform: translateY(100%);
+    }
+  `;
+
+  function renderSwipeOpenDrawer() {
+    return render(
+      <div>
+        {/* eslint-disable-next-line react/no-danger */}
+        <style dangerouslySetInnerHTML={{ __html: swipeOpenStyle }} />
+        <Drawer.Root>
+          <Drawer.SwipeArea data-testid="swipe-area" />
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup className="swipe-open-popup" data-testid="popup">
+                <Drawer.Close>Close</Drawer.Close>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </div>,
+    );
+  }
+
   it.skipIf(isJSDOM)(
     'places a swipe-opened popup under the pointer in the commit that mounts it',
     async () => {
-      // Matches the documented transition styles, where the starting style's transform would
-      // override the swipe movement.
-      const style = `
-        .swipe-open-popup {
-          height: 200px;
-          transform: translateY(var(--drawer-swipe-movement-y));
-        }
-
-        .swipe-open-popup[data-starting-style] {
-          transform: translateY(100%);
-        }
-      `;
-
-      await render(
-        <div>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: style }} />
-          <Drawer.Root>
-            <Drawer.SwipeArea data-testid="swipe-area" />
-            <Drawer.Portal>
-              <Drawer.Viewport>
-                <Drawer.Popup className="swipe-open-popup" data-testid="popup">
-                  <Drawer.Close>Close</Drawer.Close>
-                </Drawer.Popup>
-              </Drawer.Viewport>
-            </Drawer.Portal>
-          </Drawer.Root>
-        </div>,
-      );
+      await renderSwipeOpenDrawer();
 
       const swipeArea = screen.getByTestId('swipe-area');
 
@@ -1551,6 +1555,39 @@ describe('<Drawer.SwipeArea />', () => {
           expect(screen.queryByTestId('popup')).toBe(null);
         });
       }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'keeps the starting style when a quick flick opens the drawer on release',
+    async () => {
+      await renderSwipeOpenDrawer();
+
+      const swipeArea = screen.getByTestId('swipe-area');
+
+      firePointer.down(swipeArea, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 10,
+        clientY: 120,
+        pointerType: 'mouse',
+        timeStamp: 1,
+      });
+      // The only move is already released, so the drawer opens without the swipe placing the
+      // popup, and it must transition in from its starting style instead.
+      firePointer.move(swipeArea, {
+        pointerId: 1,
+        clientX: 10,
+        clientY: 40,
+        buttons: 0,
+        pointerType: 'mouse',
+        timeStamp: 16,
+      });
+
+      const popup = screen.getByTestId('popup');
+      expect(popup).toHaveAttribute('data-starting-style');
+      expect(getComputedStyle(popup).transform).toBe('matrix(1, 0, 0, 1, 0, 200)');
     },
   );
 
