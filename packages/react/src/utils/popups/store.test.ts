@@ -327,6 +327,16 @@ describe('BasePopupStore', () => {
       expect(store.steps).toEqual(['notify']);
     });
 
+    it('drops a close request while the popup is closing without notifying anyone', () => {
+      const onOpenChange = vi.fn();
+      const store = new TestPopupStore(onOpenChange, { mounted: true });
+
+      store.setOpen(false, createDetails(REASONS.triggerHover));
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(store.steps).toEqual([]);
+    });
+
     it('runs a close request while a controlled popup is open but its last request closed it', () => {
       const onOpenChange = vi.fn();
       const store = new TestPopupStore(onOpenChange, { open: false, openProp: true });
@@ -518,7 +528,25 @@ describe('BasePopupStore', () => {
       expect(store.state.preventUnmountingOnClose).toBe(false);
     });
 
-    it('ignores a late request to keep the popup mounted once the popup is not mounted', () => {
+    it('ignores a late request to keep the popup mounted from an open change', () => {
+      let openDetails: PopupOpenChangeEventDetails | undefined;
+      const store = new TestPopupStore(
+        (open, eventDetails) => {
+          if (open) {
+            openDetails = eventDetails;
+          }
+        },
+        { open: false, openProp: false, mounted: false },
+      );
+
+      // A controlled open: the prop hasn't caught up, so the open change stays the latest one.
+      store.setOpen(true, createDetails(REASONS.triggerPress));
+      openDetails!.preventUnmountOnClose();
+
+      expect(store.state.preventUnmountingOnClose).toBe(false);
+    });
+
+    it('ignores a late request to keep the popup mounted once the open prop reopens it', () => {
       let closeDetails: PopupOpenChangeEventDetails | undefined;
       const store = new TestPopupStore(
         (open, eventDetails) => {
@@ -526,10 +554,12 @@ describe('BasePopupStore', () => {
             closeDetails = eventDetails;
           }
         },
-        { open: true, mounted: false },
+        { open: true, openProp: true, mounted: true },
       );
 
       store.setOpen(false, createDetails(REASONS.escapeKey));
+      store.update({ openProp: false });
+      store.update({ openProp: true });
       closeDetails!.preventUnmountOnClose();
 
       expect(store.state.preventUnmountingOnClose).toBe(false);
@@ -764,7 +794,7 @@ describe('createPopupOpenState', () => {
     const state = createInitialPopupStoreState();
     state.preventUnmountingOnClose = true;
 
-    const nextState = createPopupOpenState(state, true, undefined);
+    const nextState = createPopupOpenState(state, true, undefined, false);
 
     expect(nextState.preventUnmountingOnClose).toBe(false);
     expect(state.preventUnmountingOnClose).toBe(true);
@@ -784,7 +814,7 @@ describe('createPopupOpenState', () => {
     state.activeTriggerId = 'trigger-id';
     state.activeTriggerElement = trigger;
 
-    const nextState = createPopupOpenState(state, false, undefined);
+    const nextState = createPopupOpenState(state, false, undefined, false);
 
     expect(nextState.activeTriggerId).toBe('trigger-id');
     expect(nextState.activeTriggerElement).toBe(trigger);
@@ -795,8 +825,8 @@ describe('createPopupOpenState', () => {
     const trigger = document.createElement('button');
     trigger.id = 'trigger-id';
 
-    expect(createPopupOpenState(state, true, undefined).openedWithoutTrigger).toBe(true);
-    expect(createPopupOpenState(state, true, trigger).openedWithoutTrigger).toBe(false);
+    expect(createPopupOpenState(state, true, undefined, false).openedWithoutTrigger).toBe(true);
+    expect(createPopupOpenState(state, true, trigger, false).openedWithoutTrigger).toBe(false);
   });
 
   it('keeps the trigger-less open flag through a close request', () => {
@@ -805,6 +835,6 @@ describe('createPopupOpenState', () => {
     const state = createInitialPopupStoreState();
     state.openedWithoutTrigger = true;
 
-    expect(createPopupOpenState(state, false, undefined).openedWithoutTrigger).toBe(true);
+    expect(createPopupOpenState(state, false, undefined, false).openedWithoutTrigger).toBe(true);
   });
 });

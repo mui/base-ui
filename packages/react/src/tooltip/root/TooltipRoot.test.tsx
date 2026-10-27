@@ -1644,6 +1644,49 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
+  it('closes a tooltip that is still open when another tooltip in the group opens', async () => {
+    const handleFirstOpenChange = vi.fn();
+    const { user } = await render(
+      <Tooltip.Provider>
+        <Tooltip.Root onOpenChange={handleFirstOpenChange}>
+          <Tooltip.Trigger delay={0} closeDelay={10000}>
+            First
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>First tooltip</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+        <Tooltip.Root>
+          <Tooltip.Trigger delay={0}>Second</Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Second tooltip</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip.Provider>,
+    );
+
+    await user.hover(screen.getByRole('button', { name: 'First' }));
+    await screen.findByText('First tooltip');
+    // The close delay keeps the first tooltip open after the pointer leaves.
+    await user.unhover(screen.getByRole('button', { name: 'First' }));
+    expect(screen.queryByText('First tooltip')).not.toBe(null);
+
+    await user.hover(screen.getByRole('button', { name: 'Second' }));
+    await screen.findByText('Second tooltip');
+
+    await waitFor(() => {
+      expect(screen.queryByText('First tooltip')).toBe(null);
+    });
+    expect(handleFirstOpenChange).toHaveBeenLastCalledWith(
+      false,
+      expect.objectContaining({ reason: REASONS.none }),
+    );
+  });
+
   describe('open delay', () => {
     clock.withFakeTimers();
 

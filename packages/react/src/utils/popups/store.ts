@@ -301,7 +301,7 @@ export function createPopupOpenState(
   state: PopupOpenState,
   open: boolean,
   trigger: Element | undefined,
-  preventUnmountOnClose = false,
+  preventUnmountOnClose: boolean,
 ): PopupOpenState {
   // Each close decides on its own whether the popup stays mounted, and opening clears the request.
   const preventUnmountingOnClose = !open && preventUnmountOnClose;
@@ -361,8 +361,8 @@ type PopupUnmountKey =
  * the same order:
  *
  * 1. A close request while the popup is closed is dropped, and `isOpenChangeIgnored` can drop any
- *    other change, before `onOpenChange` hears about it. A dropped close still reaches the
- *    interactions, so a pending open such as a hover delay is cancelled.
+ *    other change, before `onOpenChange` hears about it. A close dropped while the popup isn't
+ *    mounted still reaches the interactions, so a pending open such as a hover delay is cancelled.
  * 2. `getCloseTrigger` can name the trigger a close request without one reports.
  * 3. `preventUnmountOnClose()` is added to the event details.
  * 4. `onOpenChange` is called and can cancel the change.
@@ -389,6 +389,10 @@ export abstract class BasePopupStore<
   private lastOpenChange: ChangeEventDetails | undefined;
 
   override setState(newState: Readonly<State>): void {
+    // Opening, through `setOpen` or the `open` prop, ends what the last close could still request.
+    if (!popupStoreSelectors.open(this.state) && popupStoreSelectors.open(newState)) {
+      this.lastOpenChange = undefined;
+    }
     super.setState(
       this.anchorsToActiveTrigger() ? syncAnchorState(this.state, newState) : newState,
     );
@@ -417,9 +421,12 @@ export abstract class BasePopupStore<
     const details = eventDetails as ChangeEventDetails;
 
     // A controlled popup can hold a request the `open` prop hasn't caught up with yet, so a close
-    // is dropped only when both are closed.
-    if (!nextOpen && !this.state.open && !popupStoreSelectors.open(this.state)) {
-      dispatchOpenChange(this.context, false, false, details);
+    // is dropped only when both are closed. A popup that isn't mounted may still have an open
+    // pending, such as a hover delay, so its interactions hear about the close to cancel it.
+    if (!nextOpen && !this.state.open && !this.state.openProp) {
+      if (!this.state.mounted) {
+        dispatchOpenChange(this.context, false, false, details);
+      }
       return;
     }
 
@@ -433,16 +440,17 @@ export abstract class BasePopupStore<
 
     let preventUnmountOnClose = false;
     details.preventUnmountOnClose = () => {
+      if (nextOpen) {
+        return;
+      }
       if (this.lastOpenChange !== details) {
         preventUnmountOnClose = true;
         return;
       }
       // A call made once the close is committed, such as after an `await` in `onOpenChange`, still
-      // applies while this close is the latest change and the popup hasn't unmounted. A controlled
-      // `open` prop may not have caught up with the close yet.
-      if (this.state.mounted) {
-        this.set('preventUnmountingOnClose', true);
-      }
+      // applies until the popup opens again or unmounts. A controlled `open` prop may not have
+      // caught up with the close yet.
+      this.set('preventUnmountingOnClose', true);
     };
 
     this.context.onOpenChange?.(nextOpen, details);

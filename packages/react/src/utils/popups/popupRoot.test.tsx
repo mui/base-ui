@@ -92,7 +92,7 @@ describe('useImplicitActiveTrigger', () => {
     );
 
     act(() => {
-      store.update(createPopupOpenState(store.state, true, undefined));
+      store.update(createPopupOpenState(store.state, true, undefined, false));
     });
 
     expect(store.state.triggerCount).toBe(1);
@@ -113,7 +113,7 @@ describe('useImplicitActiveTrigger', () => {
     );
 
     act(() => {
-      store.update(createPopupOpenState(store.state, true, undefined));
+      store.update(createPopupOpenState(store.state, true, undefined, false));
     });
     expect(store.state.activeTriggerId).toBe(null);
 
@@ -134,7 +134,7 @@ describe('useImplicitActiveTrigger', () => {
     const store = createTestPopupStore();
     const element = document.createElement('button');
     store.set('payload', 'programmatic');
-    store.update(createPopupOpenState(store.state, true, undefined));
+    store.update(createPopupOpenState(store.state, true, undefined, false));
 
     render(
       <TestForwardedTrigger id="trigger" store={store} element={element} payload="from trigger" />,

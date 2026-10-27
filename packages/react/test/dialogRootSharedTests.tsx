@@ -94,35 +94,6 @@ export function dialogRootSharedTests(config: DialogRootSharedTestsConfig) {
         .dialog-await-popup[data-ending-style] { animation: dialog-await-exit 200ms; }
       `;
 
-      it('keeps the popup mounted when onOpenChange prevents unmounting after an await', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-        const { user } = await render(
-          <div>
-            <style>{exitStyle}</style>
-            <Root
-              defaultOpen
-              onOpenChange={async (open, eventDetails) => {
-                if (!open) {
-                  await Promise.resolve();
-                  eventDetails.preventUnmountOnClose();
-                }
-              }}
-            >
-              <Portal>
-                <Popup data-testid="popup" className="dialog-await-popup" />
-              </Portal>
-            </Root>
-          </div>,
-        );
-        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
-
-        await user.keyboard('[Escape]');
-        await wait(400);
-
-        expect(screen.queryByTestId('popup')).not.toBe(null);
-        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
-      });
-
       it('keeps a controlled popup mounted when onOpenChange prevents unmounting after an await', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 

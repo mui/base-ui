@@ -195,7 +195,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
         expect(handleOpenChange).toHaveBeenNthCalledWith(
           2,
           false,
-          expect.objectContaining({ reason: REASONS.escapeKey }),
+          expect.objectContaining({ reason: REASONS.escapeKey, trigger: getTrigger() }),
         );
       });
 
@@ -278,11 +278,29 @@ export function popupConformanceTests(config: PopupTestConfig) {
           enterWithMouse(getTrigger());
           await act(async () => {
             actionsRef.current!.close();
+            await wait(200);
           });
-          await wait(200);
 
           expect(handleOpenChange).not.toHaveBeenCalled();
           expect(getPopup()).toBe(null);
+        });
+
+        it('opens once the hover delay ends without a `close` action', async () => {
+          const handleOpenChange = vi.fn();
+          await render(
+            prepareComponent({
+              root: { onOpenChange: handleOpenChange },
+              trigger: { delay: 100 },
+            }),
+          );
+
+          enterWithMouse(getTrigger());
+          await act(async () => {
+            await wait(200);
+          });
+
+          expect(handleOpenChange).toHaveBeenCalledWith(true, expect.anything());
+          expect(getPopup()).not.toBe(null);
         });
       }
 
@@ -500,6 +518,42 @@ export function popupConformanceTests(config: PopupTestConfig) {
           getPopup()!
             .getAnimations()
             .some((animation) => animation.playState === 'running');
+
+        it('is not called on close when onOpenChange prevents unmounting after an await', async () => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+          const onOpenChangeComplete = vi.fn();
+          const { user } = await render(
+            <div>
+              <style>
+                {`@keyframes ${animationName}-exit { to { opacity: 0; } }
+                  .${className}[data-ending-style] { animation: ${animationName}-exit 200ms; }`}
+              </style>
+              {prepareComponent({
+                root: {
+                  defaultOpen: true,
+                  onOpenChangeComplete,
+                  onOpenChange: async (nextOpen, eventDetails) => {
+                    if (!nextOpen) {
+                      await Promise.resolve();
+                      eventDetails.preventUnmountOnClose();
+                    }
+                  },
+                },
+                popup: { className },
+              })}
+            </div>,
+          );
+          expect(getPopup()).toBeVisible();
+
+          await user.keyboard('[Escape]');
+          await waitFor(() => {
+            expect(getPopup()).toHaveAttribute('data-ending-style');
+          });
+          await wait(400);
+
+          expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+          expect(getPopup()).not.toBe(null);
+        });
 
         it('is called on open once the enter animation finishes', async () => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

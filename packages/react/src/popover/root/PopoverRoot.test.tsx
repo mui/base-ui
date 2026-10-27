@@ -1403,6 +1403,8 @@ describe('<Popover.Root />', () => {
           );
 
           const outsideButton = shadowRoot.querySelector('[data-testid="outside"]') as HTMLElement;
+          const activeTrigger = shadowRoot.querySelector('[aria-expanded="true"]');
+          expect(activeTrigger).not.toBe(null);
 
           fireEvent.click(outsideButton);
 
@@ -1412,6 +1414,7 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(activeTrigger);
         } finally {
           await act(async () => {
             host.remove();
@@ -1435,6 +1438,8 @@ describe('<Popover.Root />', () => {
             />,
             { container },
           );
+          const activeTrigger = shadowRoot.querySelector('[aria-expanded="true"]');
+          expect(activeTrigger).not.toBe(null);
 
           fireEvent.click(document.body);
 
@@ -1444,6 +1449,7 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(activeTrigger);
         } finally {
           await act(async () => {
             host.remove();

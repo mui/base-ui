@@ -91,10 +91,13 @@ export class TooltipStore<Payload> extends BasePopupStore<
    * closing records the reason instead, so `Tooltip.Root` skips the rest of its exit transition.
    */
   closeForSibling = () => {
+    const eventDetails = createChangeEventDetails(REASONS.none);
     if (!this.select('open') && this.state.mounted) {
+      // The close isn't reported again, but the interactions still stop hover tracking.
       this.set('openChangeReason', REASONS.none);
+      dispatchOpenChange(this.context, false, false, eventDetails);
     }
-    this.setOpen(false, createChangeEventDetails(REASONS.none));
+    this.setOpen(false, eventDetails);
   };
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
