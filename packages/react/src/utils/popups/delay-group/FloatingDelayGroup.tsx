@@ -5,7 +5,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../interactions/useHoverShared';
 import type { PopupInteractionStore, Delay } from '../types';
-import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 
@@ -17,7 +16,7 @@ interface ContextValue {
   timeout: Timeout;
   currentIdRef: React.RefObject<string | null | undefined>;
   currentContextRef: React.RefObject<{
-    onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
+    closeForSibling: () => void;
     setIsInstantPhase: (value: boolean) => void;
   } | null>;
 }
@@ -109,6 +108,11 @@ interface UseDelayGroupOptions {
    * Whether the trigger this hook is used in has opened the tooltip.
    */
   open: boolean;
+  /**
+   * Closes the popup because another popup in the group opened. Defaults to a close request with
+   * the `none` reason.
+   */
+  closeForSibling?: (() => void) | undefined;
 }
 
 interface UseDelayGroupReturn {
@@ -140,7 +144,7 @@ export function useDelayGroup(
   store: PopupInteractionStore,
   options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
-  const { open } = options;
+  const { open, closeForSibling: closeForSiblingProp } = options;
 
   const defaultPopupId = store.useState('defaultPopupId');
 
@@ -224,7 +228,11 @@ export function useDelayGroup(
     // A new tooltip is opening, so cancel any pending timeout that would reset
     // the group's delay back to the initial value.
     timeout.clear();
-    currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
+    currentContextRef.current = {
+      closeForSibling:
+        closeForSiblingProp ?? (() => store.setOpen(false, createChangeEventDetails(REASONS.none))),
+      setIsInstantPhase,
+    };
     currentIdRef.current = defaultPopupId;
     delayRef.current = {
       open: 0,
@@ -234,7 +242,7 @@ export function useDelayGroup(
     if (prevId !== null && prevId !== defaultPopupId) {
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
-      prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));
+      prevContext?.closeForSibling();
     } else {
       setIsInstantPhase(false);
       prevContext?.setIsInstantPhase(false);
@@ -243,6 +251,7 @@ export function useDelayGroup(
     open,
     defaultPopupId,
     store,
+    closeForSiblingProp,
     currentIdRef,
     delayRef,
     initialDelayRef,

@@ -2,7 +2,13 @@ import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests, resetBrowserPointer } from '#test-utils';
+import {
+  createRenderer,
+  isJSDOM,
+  popupConformanceTests,
+  resetBrowserPointer,
+  wait,
+} from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../internals/reasons';
@@ -1636,7 +1642,7 @@ describe('<Tooltip.Root />', () => {
   });
 
   describe('close requests', () => {
-    it('reports leaving the trigger before the open delay ends as a hover close', async () => {
+    it('does not report leaving the trigger before the open delay ends', async () => {
       const onOpenChange = vi.fn();
       await render(
         <Tooltip.Root onOpenChange={onOpenChange}>
@@ -1654,12 +1660,10 @@ describe('<Tooltip.Root />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
       fireEvent.mouseLeave(trigger);
-      await flushMicrotasks();
+      await wait(300);
 
       expect(screen.queryByText('Content')).toBe(null);
-      expect(onOpenChange).toHaveBeenCalledTimes(1);
-      expect(onOpenChange.mock.calls[0][0]).toBe(false);
-      expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.triggerHover);
+      expect(onOpenChange).not.toHaveBeenCalled();
     });
 
     it('does not report a trigger for an Escape close', async () => {

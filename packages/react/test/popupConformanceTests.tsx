@@ -4,6 +4,7 @@ import { activeElement } from '@base-ui/utils/shadowDom';
 import type { UserEvent } from '@testing-library/user-event';
 import { expect, vi, describe, it, afterEach, beforeEach } from 'vitest';
 import {
+  act,
   fireEvent,
   flushMicrotasks,
   randomStringValue,
@@ -204,6 +205,18 @@ export function popupConformanceTests(config: PopupTestConfig) {
         );
         expectPopupClosed();
         expect(getTrigger()).not.toHaveAttribute('data-popup-open');
+      });
+
+      it('is not called when the `close` action is called while closed', async () => {
+        const handleOpenChange = vi.fn();
+        const actionsRef = React.createRef<{ close: () => void; unmount: () => void }>();
+        await render(prepareComponent({ root: { actionsRef, onOpenChange: handleOpenChange } }));
+
+        await act(async () => {
+          actionsRef.current!.close();
+        });
+
+        expect(handleOpenChange).not.toHaveBeenCalled();
       });
 
       it('closes normally after a canceled close that asked to keep the popup mounted', async () => {
@@ -589,6 +602,7 @@ interface OpenChangeEventDetails {
 }
 
 interface RootProps {
+  actionsRef?: React.RefObject<{ close: () => void; unmount: () => void } | null>;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean, eventDetails: OpenChangeEventDetails) => void;

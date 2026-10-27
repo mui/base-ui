@@ -317,13 +317,24 @@ describe('BasePopupStore', () => {
       expect(store.steps).toEqual([]);
     });
 
-    it('calls onOpenChange for a close request while closed', () => {
+    it('drops a close request while closed before anything is notified', () => {
       const onOpenChange = vi.fn();
       const store = new TestPopupStore(onOpenChange);
 
       store.setOpen(false, createDetails(REASONS.escapeKey));
 
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(store.steps).toEqual([]);
+    });
+
+    it('runs a close request while open', () => {
+      const onOpenChange = vi.fn();
+      const store = new TestPopupStore(onOpenChange, { open: true });
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+
       expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(store.steps).toEqual(['notify', 'prepare', 'commit']);
     });
 
     it('reports no trigger for a close request that carries none by default', () => {

@@ -255,12 +255,6 @@ export class MenuStore<Payload> extends BasePopupStore<
       return true;
     }
 
-    // Read the store directly, as relayed tree events and stale hover timers can request a close
-    // after the state changed but before the Root re-rendered.
-    if (!nextOpen && !this.select('open')) {
-      return true;
-    }
-
     // Some mobile browsers fire `focus` and then a delayed `click` for one tap. Without this guard,
     // a menu that opened on focus would close on the click right away.
     const nativeEvent = eventDetails.event as Event | undefined;

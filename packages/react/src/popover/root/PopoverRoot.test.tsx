@@ -2770,27 +2770,6 @@ describe('<Popover.Root />', () => {
     });
   });
   describe('close requests', () => {
-    it('reports an imperative close of a closed popover', async () => {
-      const onOpenChange = vi.fn();
-      const actionsRef = React.createRef<Popover.Root.Actions>();
-      await render(
-        <Popover.Root actionsRef={actionsRef} onOpenChange={onOpenChange}>
-          <Popover.Trigger>Trigger</Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Positioner>
-              <Popover.Popup>Content</Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      await act(async () => actionsRef.current!.close());
-
-      expect(onOpenChange).toHaveBeenCalledTimes(1);
-      expect(onOpenChange.mock.calls[0][0]).toBe(false);
-      expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.imperativeAction);
-    });
-
     it('marks a close without a reason as a dismissal', async () => {
       const handle = Popover.createHandle();
       await render(

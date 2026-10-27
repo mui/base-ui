@@ -701,16 +701,6 @@ describe('<Combobox.Root />', () => {
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(2);
     });
 
-    it('does not call `onOpenChange` when the `close` action is called while closed', async () => {
-      const actionsRef = React.createRef<Combobox.Root.Actions>();
-      const onOpenChange = vi.fn();
-      await render(<Popup actionsRef={actionsRef} onOpenChange={onOpenChange} />);
-
-      act(() => actionsRef.current!.close());
-      expect(onOpenChange).not.toHaveBeenCalled();
-      expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
-    });
-
     it('completes closing once when `unmount` is called twice in one batch', async () => {
       const actionsRef = React.createRef<Combobox.Root.Actions>();
       const onOpenChangeComplete = vi.fn();

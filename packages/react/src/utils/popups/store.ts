@@ -365,7 +365,8 @@ type PopupUnmountKey =
  * The store of a popup Root. It holds the state every popup shares and runs every open change in
  * the same order:
  *
- * 1. `isOpenChangeIgnored` can drop the change before anything is notified.
+ * 1. A close request while the popup is closed is dropped, and `isOpenChangeIgnored` can drop any
+ *    other change, before anything is notified.
  * 2. `getCloseTrigger` can name the trigger a close request without one reports.
  * 3. `preventUnmountOnClose()` is added to the event details.
  * 4. `onOpenChange` is called and can cancel the change.
@@ -374,6 +375,9 @@ type PopupUnmountKey =
  * 7. `prepareOpenChange` runs the store's own side effects and returns its extra state.
  * 8. One update commits the change, synchronously when `isCommittedSynchronously` says so. By
  *    default only hover changes are, and a store can turn that off, as Menu does.
+ *
+ * `onOpenChange` only hears about changes that can happen. A change the store would not commit
+ * belongs in step 1, so it is dropped before it is reported.
  *
  * Once the popup has finished closing and unmounts, `resetOnUnmount` clears what the open session
  * left behind, along with the store's own fields from `prepareUnmount`.
@@ -416,7 +420,10 @@ export abstract class BasePopupStore<
   ): void => {
     const details = eventDetails as ChangeEventDetails;
 
-    if (this.isOpenChangeIgnored(nextOpen, details)) {
+    if (
+      (!nextOpen && !popupStoreSelectors.open(this.state)) ||
+      this.isOpenChangeIgnored(nextOpen, details)
+    ) {
       return;
     }
 
