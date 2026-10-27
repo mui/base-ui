@@ -1466,17 +1466,34 @@ describe('<Drawer.SwipeArea />', () => {
   it.skipIf(isJSDOM)(
     'places a swipe-opened popup under the pointer in the commit that mounts it',
     async () => {
+      // Matches the documented transition styles, where the starting style's transform would
+      // override the swipe movement.
+      const style = `
+        .swipe-open-popup {
+          height: 200px;
+          transform: translateY(var(--drawer-swipe-movement-y));
+        }
+
+        .swipe-open-popup[data-starting-style] {
+          transform: translateY(100%);
+        }
+      `;
+
       await render(
-        <Drawer.Root>
-          <Drawer.SwipeArea data-testid="swipe-area" />
-          <Drawer.Portal>
-            <Drawer.Viewport>
-              <Drawer.Popup data-testid="popup" style={{ height: 200 }}>
-                <Drawer.Close>Close</Drawer.Close>
-              </Drawer.Popup>
-            </Drawer.Viewport>
-          </Drawer.Portal>
-        </Drawer.Root>,
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Drawer.Root>
+            <Drawer.SwipeArea data-testid="swipe-area" />
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup className="swipe-open-popup" data-testid="popup">
+                  <Drawer.Close>Close</Drawer.Close>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>
+        </div>,
       );
 
       const swipeArea = screen.getByTestId('swipe-area');
@@ -1495,7 +1512,8 @@ describe('<Drawer.SwipeArea />', () => {
           pointerType: 'mouse',
           timeStamp: 1,
         });
-        // A single move opens the drawer; no later move re-applies the movement.
+        // A single move opens the drawer; no later move re-applies the movement. Assert before
+        // yielding, while the popup is in the state of its first painted frame.
         firePointer.move(swipeArea, {
           pointerId: 1,
           clientX: 10,
@@ -1504,12 +1522,10 @@ describe('<Drawer.SwipeArea />', () => {
           pointerType: 'mouse',
           timeStamp: 17,
         });
-        // eslint-disable-next-line no-await-in-loop
-        await flushMicrotasks();
 
         const popup = screen.getByTestId('popup');
         expect(popup).toHaveAttribute('data-swiping');
-        expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('170px');
+        expect(getComputedStyle(popup).transform).toBe('matrix(1, 0, 0, 1, 0, 170)');
 
         firePointer.move(swipeArea, {
           pointerId: 1,

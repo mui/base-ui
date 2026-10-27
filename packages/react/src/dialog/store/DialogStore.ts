@@ -44,6 +44,7 @@ const selectors = {
   nestedOpenDrawerCount: (state: State<unknown>) => state.nestedOpenDrawerCount,
   disablePointerDismissal: (state: State<unknown>) => state.disablePointerDismissal,
   openMethod: (state: State<unknown>) => state.openMethod,
+  openChangeReason: (state: State<unknown>) => state.openChangeReason,
   descriptionElementId: (state: State<unknown>) => state.descriptionElementId,
   titleElementId: (state: State<unknown>) => state.titleElementId,
   viewportElement: (state: State<unknown>) => state.viewportElement,
