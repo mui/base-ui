@@ -277,7 +277,7 @@ describe('combobox store synchronization', () => {
 
       expect(store.select('anchorElement')).toBe(input);
 
-      // A trigger press points the anchor at the trigger until the open state changes.
+      // A trigger press opens the popup, and the anchor stays on the input.
       fireEvent.mouseDown(trigger);
       await screen.findByRole('listbox');
       await waitFor(() => {

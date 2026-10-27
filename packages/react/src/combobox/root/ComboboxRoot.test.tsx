@@ -9324,7 +9324,7 @@ describe('<Combobox.Root />', () => {
       await user.keyboard('a');
 
       const apple = await screen.findByRole('option', { name: 'apple' });
-      // The highlight used to be set and then cleared a frame later, as the list opened.
+      // The highlight must survive the list opening.
       await act(async () => {
         await new Promise((resolve) => {
           requestAnimationFrame(resolve);

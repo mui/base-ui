@@ -171,7 +171,7 @@ export class ComboboxStore extends ValuePopupStore<
   /**
    * The store the interaction hooks read. An inline list renders for as long as it's in the tree,
    * so the hooks see it as open (`interactionOpen`) even while the open state is `false`. They also
-   * see a kept-mounted positioner for as long as it's mounted. Everything else is the store itself.
+   * see the positioner element for as long as it's in the DOM. Everything else is the store itself.
    */
   readonly interactions: PositioningInteractionStore = createInteractionView(this);
 

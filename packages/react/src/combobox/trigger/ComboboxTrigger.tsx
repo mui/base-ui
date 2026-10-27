@@ -120,8 +120,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const { reference: triggerClickProps } = useClick(store.interactions, {
     enabled: !comboboxDisabled,
     event: 'mousedown',
-    // A Combobox never opens on hover or focus, so a press always toggles it, even when typing
-    // opened it.
+    // A Combobox never opens on hover or focus, so a press always toggles it, even when a key
+    // press, such as typing or an arrow key, opened it.
     stickIfOpen: false,
   });
 
