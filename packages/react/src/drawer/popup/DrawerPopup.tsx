@@ -19,6 +19,7 @@ import * as DrawerPopupDataAttributes from './DrawerPopupDataAttributes';
 import { useDialogPortalContext } from '../../dialog/portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
+import { REASONS } from '../../internals/reasons';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 import type { DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
@@ -141,6 +142,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const nested = store.useState('nested');
   const nestedOpenDrawerCount = store.useState('nestedOpenDrawerCount');
   const transitionStatus = store.useState('transitionStatus');
+  const openChangeReason = store.useState('openChangeReason');
   const open = store.useState('open');
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
@@ -309,7 +311,12 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const state: DrawerPopupState = {
     open,
     nested,
-    transitionStatus,
+    // A swipe-opened popup follows the pointer from its first frame, so it has no starting style
+    // to transition from; one would override the swipe movement until the next frame.
+    transitionStatus:
+      transitionStatus === 'starting' && openChangeReason === REASONS.swipe
+        ? undefined
+        : transitionStatus,
     expanded: activeSnapPoint === 1,
     nestedDrawerOpen,
     nestedDrawerSwiping: nestedSwiping,
