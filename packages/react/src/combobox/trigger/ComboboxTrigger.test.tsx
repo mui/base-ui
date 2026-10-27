@@ -374,7 +374,7 @@ describe('<Combobox.Trigger />', () => {
       });
     });
 
-    it('closes a popup opened by typing', async () => {
+    it('closes a popup opened with an arrow key', async () => {
       const { user } = await render(
         <Combobox.Root>
           <Combobox.Input />
@@ -396,7 +396,7 @@ describe('<Combobox.Trigger />', () => {
       await act(async () => {
         input.focus();
       });
-      await user.keyboard('a');
+      await user.keyboard('{ArrowDown}');
       expect(await screen.findByRole('listbox')).not.toBe(null);
 
       await user.click(screen.getByTestId('trigger'));

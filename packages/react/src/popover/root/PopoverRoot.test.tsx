@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Popover } from '@base-ui/react/popover';
@@ -28,6 +28,52 @@ describe('<Popover.Root />', () => {
   const { render, clock } = createRenderer();
 
   describe('closing before the popup attaches', () => {
+    it.skipIf(isJSDOM)('waits for the closing animation once the popup attaches', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        useIsoLayoutEffect(() => {
+          setOpen(false);
+        }, []);
+        return (
+          <React.Fragment>
+            <style>
+              {`@keyframes popover-test-exit { from { opacity: 1; } to { opacity: 0; } }
+                .popover-test-popup[data-ending-style] { animation: popover-test-exit 300ms; }`}
+            </style>
+            <Popover.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup className="popover-test-popup">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const popup = await screen.findByRole('dialog', { hidden: true });
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
+    });
+
     it('unmounts the popup when a layout effect closes it on mount', async () => {
       const onOpenChangeComplete = vi.fn();
 
@@ -1797,6 +1843,7 @@ describe('<Popover.Root />', () => {
 
       it('unmounts when `close` and `unmount` are called in one batch while controlled', async () => {
         const actionsRef = React.createRef<Popover.Root.Actions>();
+        const onOpenChangeComplete = vi.fn();
 
         function App() {
           const [open, setOpen] = React.useState(true);
@@ -1805,6 +1852,7 @@ describe('<Popover.Root />', () => {
               rootProps={{
                 open,
                 actionsRef,
+                onOpenChangeComplete,
                 onOpenChange: (nextOpen, details) => {
                   if (!nextOpen) {
                     details.preventUnmountOnClose();
@@ -1824,6 +1872,7 @@ describe('<Popover.Root />', () => {
         });
 
         expect(screen.queryByRole('dialog')).toBe(null);
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
       });
 
       it('still unmounts on a later close after `unmount` was called while open', async () => {
