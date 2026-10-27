@@ -5,6 +5,25 @@ import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-
 import { createRenderer, firePointer, isJSDOM } from '#test-utils';
 import { useDrawerVirtualKeyboardContext } from './DrawerVirtualKeyboardContext';
 
+const platformMock = vi.hoisted(() => ({ android: false }));
+
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+  return {
+    ...actual,
+    platform: {
+      ...actual.platform,
+      os: {
+        ...actual.platform.os,
+        get android() {
+          return platformMock.android;
+        },
+      },
+    },
+  };
+});
+
 describe('<Drawer.VirtualKeyboardProvider />', () => {
   const { render } = createRenderer();
 
@@ -1822,6 +1841,73 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
           focusSpy.mockRestore();
         }
       } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'preserves native taps on an already-focused keyboard input on Android when no keyboard is detected',
+    async () => {
+      // A keyboard that resizes the layout viewport (`interactive-widget=resizes-content`)
+      // shrinks `innerHeight` with the visual viewport, so it is never detected.
+      platformMock.android = true;
+      const restoreInnerHeight = mockWindowInnerHeight(500);
+      const visualViewport = mockVisualViewport(500);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup>
+                    <input data-testid="input" type="text" />
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        await act(async () => {
+          input.focus();
+        });
+
+        const focusSpy = vi.spyOn(input, 'focus');
+        const blurSpy = vi.spyOn(input, 'blur');
+        const originalElementFromPoint = document.elementFromPoint;
+        document.elementFromPoint = () => input;
+
+        try {
+          fireEvent.touchStart(input, {
+            touches: [createTouch(input, { clientX: 0, clientY: 0 })],
+          });
+
+          const touchEnd = createNativeTouchEnd(input, {
+            clientX: 0,
+            clientY: 0,
+          });
+
+          await act(async () => {
+            input.dispatchEvent(touchEnd);
+            await flushMicrotasks();
+          });
+
+          expect(touchEnd.defaultPrevented).toBe(false);
+          expect(blurSpy).not.toHaveBeenCalled();
+          expect(focusSpy).not.toHaveBeenCalled();
+          expect(input).toHaveFocus();
+        } finally {
+          document.elementFromPoint = originalElementFromPoint;
+          blurSpy.mockRestore();
+          focusSpy.mockRestore();
+        }
+      } finally {
+        platformMock.android = false;
         visualViewport.restore();
         restoreInnerHeight();
       }
