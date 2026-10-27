@@ -10,7 +10,6 @@ import { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { attachPreventUnmountOnClose } from './popupStoreUtils';
 
 /**
  * State common to all popup stores.
@@ -368,7 +367,7 @@ type PopupUnmountKey =
  *
  * 1. `isOpenChangeIgnored` can drop the change before anything is notified.
  * 2. `getCloseTrigger` can name the trigger a close request without one reports.
- * 3. `attachPreventUnmountOnClose` adds `preventUnmountOnClose()` to the event details.
+ * 3. `preventUnmountOnClose()` is added to the event details.
  * 4. `onOpenChange` is called and can cancel the change.
  * 5. A cancelled change goes no further.
  * 6. The interactions are notified.
@@ -387,6 +386,8 @@ export abstract class BasePopupStore<
   Selectors extends Record<string, (state: Readonly<State>, ...args: any[]) => any>,
   ChangeEventDetails extends PopupOpenChangeEventDetails,
 > extends ReactStore<Readonly<State>, Context, Selectors> {
+  private lastOpenChange: ChangeEventDetails | undefined = undefined;
+
   override setState(newState: Readonly<State>): void {
     super.setState(
       this.anchorsToActiveTrigger() ? syncAnchorState(this.state, newState) : newState,
@@ -423,7 +424,23 @@ export abstract class BasePopupStore<
       details.trigger = this.getCloseTrigger(details);
     }
 
-    const shouldPreventUnmountOnClose = this.attachPreventUnmountOnClose(details);
+    let preventUnmountOnClose = false;
+    let committed = false;
+    details.preventUnmountOnClose = () => {
+      if (!committed) {
+        preventUnmountOnClose = true;
+        return;
+      }
+      // A call made after the change is committed, such as after an `await` in `onOpenChange`,
+      // still applies while this close is the latest change and the popup is still closing.
+      if (
+        this.lastOpenChange === details &&
+        !popupStoreSelectors.open(this.state) &&
+        this.state.mounted
+      ) {
+        this.set('preventUnmountingOnClose', true);
+      }
+    };
 
     this.context.onOpenChange?.(nextOpen, details);
 
@@ -438,12 +455,7 @@ export abstract class BasePopupStore<
     const commit = () => {
       this.update({
         ...extraState,
-        ...createPopupOpenState(
-          this.state,
-          nextOpen,
-          details.trigger,
-          shouldPreventUnmountOnClose(),
-        ),
+        ...createPopupOpenState(this.state, nextOpen, details.trigger, preventUnmountOnClose),
         openChangeReason: details.reason,
       } as Pick<State, keyof State>);
     };
@@ -453,6 +465,9 @@ export abstract class BasePopupStore<
     } else {
       commit();
     }
+
+    committed = true;
+    this.lastOpenChange = details;
   };
 
   /**
@@ -467,13 +482,6 @@ export abstract class BasePopupStore<
    */
   protected getCloseTrigger(_eventDetails: ChangeEventDetails): Element | undefined {
     return undefined;
-  }
-
-  /**
-   * Adds `preventUnmountOnClose()` to the change event details and returns whether it was called.
-   */
-  protected attachPreventUnmountOnClose(eventDetails: ChangeEventDetails): () => boolean {
-    return attachPreventUnmountOnClose(eventDetails);
   }
 
   /**

@@ -82,14 +82,6 @@ export class DialogStore<Payload> extends BasePopupStore<
       ? (this.state.activeTriggerElement ?? undefined)
       : undefined;
   }
-
-  // The request is recorded as soon as it's made, so `onOpenChange` can make it after an `await`.
-  protected attachPreventUnmountOnClose(eventDetails: DialogRoot.ChangeEventDetails) {
-    eventDetails.preventUnmountOnClose = () => {
-      this.set('preventUnmountingOnClose', true);
-    };
-    return () => false;
-  }
 }
 
 /**

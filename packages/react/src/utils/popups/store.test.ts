@@ -382,6 +382,44 @@ describe('BasePopupStore', () => {
       expect(store.state.open).toBe(true);
       expect(store.state.preventUnmountingOnClose).toBe(false);
     });
+
+    it('keeps the popup mounted when the close asks for it after it is committed', () => {
+      let closeDetails: PopupOpenChangeEventDetails | undefined;
+      const store = new TestPopupStore(
+        (open, eventDetails) => {
+          if (!open) {
+            closeDetails = eventDetails;
+          }
+        },
+        { open: true, mounted: true },
+      );
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+      expect(store.state.preventUnmountingOnClose).toBe(false);
+      closeDetails!.preventUnmountOnClose();
+
+      expect(store.state.preventUnmountingOnClose).toBe(true);
+    });
+
+    it('ignores a late request to keep the popup mounted once a later change is committed', () => {
+      const closeDetails: PopupOpenChangeEventDetails[] = [];
+      const store = new TestPopupStore(
+        (open, eventDetails) => {
+          if (!open) {
+            closeDetails.push(eventDetails);
+          }
+        },
+        { open: true, mounted: true },
+      );
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+      store.setOpen(true, createDetails(REASONS.triggerPress));
+      store.setOpen(false, createDetails(REASONS.outsidePress));
+      expect(store.state.open).toBe(false);
+      closeDetails[0].preventUnmountOnClose();
+
+      expect(store.state.preventUnmountingOnClose).toBe(false);
+    });
   });
 
   describe('interaction notification', () => {

@@ -205,6 +205,32 @@ export function popupConformanceTests(config: PopupTestConfig) {
         expectPopupClosed();
         expect(getTrigger()).not.toHaveAttribute('data-popup-open');
       });
+
+      it('closes normally after a canceled close that asked to keep the popup mounted', async () => {
+        let closeCount = 0;
+        const handleOpenChange = vi.fn(
+          (nextOpen: boolean, eventDetails: OpenChangeEventDetails) => {
+            if (!nextOpen) {
+              closeCount += 1;
+              if (closeCount === 1) {
+                eventDetails.preventUnmountOnClose();
+                eventDetails.cancel();
+              }
+            }
+          },
+        );
+        const { user } = await render(
+          prepareComponent({ root: { defaultOpen: true, onOpenChange: handleOpenChange } }),
+        );
+
+        await user.keyboard('[Escape]');
+        await flushMicrotasks();
+        expect(getPopup()).toBeVisible();
+
+        await user.keyboard('[Escape]');
+        expect(closeCount).toBe(2);
+        await waitFor(expectPopupClosed);
+      });
     });
 
     if (expectedPopupRole || triggerMouseAction === 'click') {
@@ -559,6 +585,7 @@ export interface PopupTestConfig {
 interface OpenChangeEventDetails {
   reason: string;
   cancel: () => void;
+  preventUnmountOnClose: () => void;
 }
 
 interface RootProps {
