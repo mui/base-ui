@@ -1777,4 +1777,91 @@ describe('<Select.Popup />', () => {
       </Select.Root>
     ),
   });
+
+  describe('data-instant', () => {
+    function TestSelect() {
+      return (
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup data-testid="popup">
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      );
+    }
+
+    it('is "dismiss" when Escape closes the popup', async () => {
+      const { user } = await render(<TestSelect />);
+
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveFocus();
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+
+      await user.keyboard('{Escape}');
+
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+    });
+
+    it('is "click" when a keyboard press on the trigger opens the popup', async () => {
+      const { user } = await render(<TestSelect />);
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+    });
+
+    it('is "click" when a keyboard press on an item closes the popup', async () => {
+      const { user } = await render(<TestSelect />);
+
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveFocus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
+      });
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByTestId('trigger')).toHaveTextContent('a');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+    });
+
+    it('is removed when a pointer press opens the popup after a dismissal', async () => {
+      const { user } = await render(<TestSelect />);
+
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveFocus();
+      });
+      await user.keyboard('{Escape}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger')).toHaveFocus();
+      });
+
+      await user.click(screen.getByTestId('trigger'));
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+    });
+  });
 });

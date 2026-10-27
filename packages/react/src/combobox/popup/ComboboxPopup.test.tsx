@@ -194,4 +194,80 @@ describe('<Combobox.Popup />', () => {
       expect(screen.getByRole('button', { name: 'final focus' })).toHaveFocus();
     });
   });
+
+  describe('data-instant', () => {
+    function TestCombobox() {
+      return (
+        <Combobox.Root items={['Apple', 'Banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal keepMounted>
+            <Combobox.Positioner>
+              <Combobox.Popup data-testid="popup">
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    it('is "dismiss" when Escape closes the popup', async () => {
+      const { user } = await render(<TestCombobox />);
+
+      await user.click(screen.getByTestId('input'));
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+
+      await user.keyboard('{Escape}');
+
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+    });
+
+    it('is "click" when a keyboard press on the trigger opens the popup', async () => {
+      const { user } = await render(<TestCombobox />);
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+    });
+
+    it('is "click" when Enter selects the highlighted item', async () => {
+      const { user } = await render(<TestCombobox />);
+
+      await user.click(screen.getByTestId('input'));
+      await user.keyboard('{ArrowDown}');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByTestId('input')).toHaveValue('Apple');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'click');
+    });
+
+    it('is removed when a pointer press opens the popup after a dismissal', async () => {
+      const { user } = await render(<TestCombobox />);
+
+      await user.click(screen.getByTestId('input'));
+      await user.keyboard('{Escape}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+
+      await user.click(screen.getByTestId('trigger'));
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+    });
+  });
 });
