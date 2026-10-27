@@ -2598,14 +2598,22 @@ describe('<Menu.Root />', () => {
         expect(screen.getByTestId('second-popup')).not.toHaveAttribute('data-open');
         expect(screen.queryByTestId('first-popup')).toBe(null);
 
-        enterWithMouse(screen.getByRole('menuitem', { name: 'Second' }));
-        await act(async () => {
-          openFirstRef.current!();
-        });
-        expect(screen.getByTestId('first-popup')).not.toBe(null);
-        await act(async () => {
-          await wait(200);
-        });
+        // Fake timers keep the second submenu's open delay from ending before the first one opens.
+        vi.useFakeTimers();
+        try {
+          enterWithMouse(screen.getByRole('menuitem', { name: 'Second' }));
+          await act(async () => {
+            openFirstRef.current!();
+          });
+          expect(screen.getByTestId('first-popup')).not.toBe(null);
+          expect(handleSecondOpenChange).not.toHaveBeenCalled();
+
+          await act(async () => {
+            vi.advanceTimersByTime(200);
+          });
+        } finally {
+          vi.useRealTimers();
+        }
 
         expect(handleSecondOpenChange).toHaveBeenCalledWith(true, expect.anything());
         expect(screen.getByTestId('second-popup')).toHaveAttribute('data-open');
