@@ -132,13 +132,17 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
     defaultPopupId,
   );
 
-  const open = usePopupRootOpenState(store, props, disabled);
+  const transitionOpen = usePopupRootOpenState(store, props, disabled);
   store.useControlledProp('triggerIdProp', triggerIdProp);
+  // Root logic reads the open state from the store, in step with the active trigger and the other
+  // values it syncs there. Only the transitions read the controlled prop as soon as it changes.
+  const openState = store.useState('open');
+  const open = !disabled && openState;
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Store['state']['payload'];
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount });
-  const transitionStatus = usePopupRootTransitions(store, open, props, animateInitialOpen);
+  const transitionStatus = usePopupRootTransitions(store, transitionOpen, props, animateInitialOpen);
 
   return { store, open, mounted, payload, transitionStatus };
 }
