@@ -24,6 +24,57 @@ describe('<PreviewCard.Root />', () => {
 
   const { render, clock } = createRenderer();
 
+  it('keeps the payload while a controlled reopen moves to another trigger', async () => {
+    const handle = PreviewCard.createHandle<string>();
+    const payloads: Array<string | undefined> = [];
+    let setState!: (state: { open: boolean; triggerId: string | null }) => void;
+
+    function App() {
+      const [state, setStateInternal] = React.useState<{ open: boolean; triggerId: string | null }>(
+        {
+          open: true,
+          triggerId: 'first',
+        },
+      );
+      setState = setStateInternal;
+      return (
+        <React.Fragment>
+          <PreviewCard.Trigger handle={handle} id="first" payload="First">
+            First
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger handle={handle} id="second" payload="Second">
+            Second
+          </PreviewCard.Trigger>
+          <PreviewCard.Root handle={handle} open={state.open} triggerId={state.triggerId}>
+            {({ payload }) => {
+              payloads.push(payload);
+              return (
+                <PreviewCard.Portal>
+                  <PreviewCard.Positioner>
+                    <PreviewCard.Popup>{payload}</PreviewCard.Popup>
+                  </PreviewCard.Positioner>
+                </PreviewCard.Portal>
+              );
+            }}
+          </PreviewCard.Root>
+        </React.Fragment>
+      );
+    }
+
+    await render(<App />);
+    await act(async () => {
+      setState({ open: false, triggerId: null });
+    });
+
+    payloads.length = 0;
+    await act(async () => {
+      setState({ open: true, triggerId: 'second' });
+    });
+
+    expect(payloads).not.toContain(undefined);
+    expect(payloads.at(-1)).toBe('Second');
+  });
+
   async function tick(ms: number) {
     await advanceReactClock(clock, ms);
   }
@@ -43,6 +94,51 @@ describe('<PreviewCard.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
+  });
+
+  describe('data-instant', () => {
+    async function setupKeepMountedCard() {
+      await render(
+        <PreviewCard.Root>
+          <PreviewCard.Trigger href="#" delay={0}>
+            Link
+          </PreviewCard.Trigger>
+          <PreviewCard.Portal keepMounted>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup data-testid="popup">Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+      return screen.getByRole('link', { name: 'Link' });
+    }
+
+    it('is focus when the card opens from trigger focus', async () => {
+      const trigger = await setupKeepMountedCard();
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
+
+      await act(async () => trigger.focus());
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'focus');
+    });
+
+    it('is dismiss when Escape closes the card', async () => {
+      const trigger = await setupKeepMountedCard();
+      await act(async () => trigger.focus());
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+
+      fireEvent.keyDown(trigger, { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      });
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'dismiss');
+    });
   });
 
   describe.for([
@@ -782,6 +878,29 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId('child-popup')).toBe(null);
         expect(screen.queryByTestId('parent-popup')).toBe(null);
       });
+    });
+  });
+
+  describe('close requests', () => {
+    it('does not report a trigger for an Escape close', async () => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <PreviewCard.Root defaultOpen onOpenChange={onOpenChange}>
+          <PreviewCard.Trigger href="#">Trigger</PreviewCard.Trigger>
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await user.keyboard('[Escape]');
+
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.escapeKey);
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
     });
   });
 });

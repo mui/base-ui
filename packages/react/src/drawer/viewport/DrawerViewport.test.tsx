@@ -2794,6 +2794,107 @@ describe('<Drawer.Viewport />', () => {
     );
   });
 
+  it.each(['HTML scroller', 'SVG scroller', 'axis ignore marker'] as const)(
+    'expands a collapsed sheet when the first move from a %s leaves the popup',
+    async (kind) => {
+      const handleSnapPointChange = vi.fn();
+      await render(
+        <Drawer.Root
+          defaultOpen
+          swipeDirection="down"
+          snapPoints={['100px', '200px']}
+          defaultSnapPoint="100px"
+          onSnapPointChange={handleSnapPointChange}
+        >
+          <Drawer.Portal>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport data-testid="viewport" ref={(element) => setHeight(element, 400)}>
+              <Drawer.Popup data-testid="popup" ref={(element) => setHeight(element, 200)}>
+                <div
+                  data-testid="scroll"
+                  data-base-ui-swipe-ignore={kind === 'axis ignore marker' ? 'x' : undefined}
+                  style={kind === 'axis ignore marker' ? undefined : { overflowX: 'auto' }}
+                >
+                  {kind === 'SVG scroller' ? (
+                    <svg>
+                      <rect data-testid="target" width="120" height="40" />
+                    </svg>
+                  ) : (
+                    <div data-testid="target">Swipe here</div>
+                  )}
+                </div>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const popup = screen.getByTestId('popup');
+      const backdrop = screen.getByTestId('backdrop');
+      const viewport = screen.getByTestId('viewport');
+      const scroll = screen.getByTestId('scroll');
+      const target = screen.getByTestId('target');
+      if (kind !== 'axis ignore marker') {
+        Object.defineProperty(scroll, 'scrollWidth', { value: 120, configurable: true });
+        Object.defineProperty(scroll, 'clientWidth', { value: 40, configurable: true });
+      }
+
+      await waitFor(() =>
+        expect(popup.style.getPropertyValue('--drawer-snap-point-offset')).toBe('100px'),
+      );
+
+      const originalElementFromPoint = document.elementFromPoint;
+      // The popup starts at y=300. Touch events keep their original target after leaving it.
+      document.elementFromPoint = (_x, y) => (y >= 300 ? target : viewport);
+
+      try {
+        fireEvent.touchStart(target, {
+          touches: [createTouch(target, { clientX: 100, clientY: 305 })],
+        });
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+
+        fireEvent.touchMove(target, {
+          touches: [createTouch(target, { clientX: 100, clientY: 275 })],
+        });
+        expect(backdrop).toHaveAttribute('data-swiping');
+
+        fireEvent.touchMove(target, {
+          touches: [createTouch(target, { clientX: 100, clientY: 125 })],
+        });
+        expect(parseFloat(popup.style.getPropertyValue('--drawer-swipe-movement-y'))).toBeLessThan(
+          0,
+        );
+
+        fireEvent.touchEnd(target, {
+          changedTouches: [createTouch(target, { clientX: 100, clientY: 125 })],
+        });
+        await flushMicrotasks();
+
+        expect(handleSnapPointChange).toHaveBeenCalledWith(
+          '200px',
+          expect.objectContaining({ reason: 'swipe' }),
+        );
+
+        // The next touch starts and stays outside; it must not inherit the previous eligibility.
+        handleSnapPointChange.mockClear();
+        fireEvent.touchStart(viewport, {
+          touches: [createTouch(viewport, { clientX: 100, clientY: 275 })],
+        });
+        fireEvent.touchMove(viewport, {
+          touches: [createTouch(viewport, { clientX: 100, clientY: 125 })],
+        });
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+        fireEvent.touchEnd(viewport, {
+          changedTouches: [createTouch(viewport, { clientX: 100, clientY: 125 })],
+        });
+        await flushMicrotasks();
+        expect(handleSnapPointChange).not.toHaveBeenCalled();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+    },
+  );
+
   it('allows horizontal swipe dismiss from a vertical scroll container', async () => {
     await render(
       <Drawer.Root open swipeDirection="right">

@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import * as ReactDOM from 'react-dom';
 import { Select, SelectSeparatorDataAttributes } from '@base-ui/react/select';
 import { Popover } from '@base-ui/react/popover';
@@ -14,6 +15,7 @@ import {
 } from '@mui/internal-test-utils';
 import {
   createRenderer,
+  hiddenInputTypeTests,
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
@@ -25,6 +27,7 @@ import {
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { REASONS } from '../../internals/reasons';
+import { useSelectRootContext } from './SelectRootContext';
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -32,6 +35,87 @@ describe('<Select.Root />', () => {
   });
 
   const { render, renderToString } = createRenderer();
+
+  describe('closing before the popup attaches', () => {
+    it('finishes closing when a layout effect closes it on mount', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(true);
+        useIsoLayoutEffect(() => {
+          setOpen(false);
+        }, []);
+        return (
+          <Select.Root
+            open={open}
+            onOpenChange={setOpen}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">Apple</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      await render(<App />);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      // A closed select keeps its list mounted and hidden, as after any other close.
+      expect(screen.getByRole('listbox', { hidden: true })).not.toHaveAttribute(
+        'data-ending-style',
+      );
+    });
+
+    it('finishes closing when a layout effect closes it right after a press opens it', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        useIsoLayoutEffect(() => {
+          if (open) {
+            setOpen(false);
+          }
+        }, [open]);
+        return (
+          <Select.Root
+            open={open}
+            onOpenChange={setOpen}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">Apple</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      // React 18 commits the end of the transition after the callback runs.
+      await flushMicrotasks();
+      // The press mounts the list while closed so its items can register; it isn't left closing.
+      expect(screen.getByRole('listbox', { hidden: true })).not.toHaveAttribute(
+        'data-ending-style',
+      );
+    });
+  });
 
   it('exposes the orientation attribute rendered by Separator', async () => {
     await render(<Select.Separator orientation="vertical" />);
@@ -564,6 +648,196 @@ describe('<Select.Root />', () => {
       expect(screen.getByRole('option', { name: 'a', hidden: false })).not.toHaveAttribute(
         'data-selected',
       );
+    });
+
+    it.each([
+      { name: 'single', multiple: false, initialValue: 'dave', nextValue: 'bob' },
+      { name: 'multiple', multiple: true, initialValue: ['dave'], nextValue: ['bob'] },
+    ])(
+      'keeps a new controlled value and focus in $name mode when the previous item is removed in the same update',
+      async ({ multiple, initialValue, nextValue }) => {
+        const onValueChange = vi.fn();
+
+        function Test() {
+          const [options, setOptions] = React.useState(['alice', 'bob', 'carol', 'dave']);
+          const [value, setValue] = React.useState<string | string[] | null>(initialValue);
+
+          return (
+            <div>
+              <Select.Root<string, boolean>
+                multiple={multiple}
+                value={value}
+                onValueChange={(next, details) => {
+                  onValueChange(next, details);
+                  setValue(next);
+                }}
+                open
+                modal={false}
+              >
+                <Select.Trigger>
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.List>
+                        {options.map((option) => (
+                          <Select.Item key={option} value={option}>
+                            {option}
+                          </Select.Item>
+                        ))}
+                      </Select.List>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+              <button
+                type="button"
+                onClick={() => {
+                  setOptions(['alice', 'bob']);
+                  setValue(nextValue);
+                }}
+              >
+                Update options and value
+              </button>
+              <output data-testid="value">{JSON.stringify(value)}</output>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        expect(await screen.findByRole('option', { name: 'dave' })).toHaveAttribute(
+          'data-selected',
+        );
+        const alice = screen.getByRole('option', { name: 'alice' });
+        await act(async () => alice.focus());
+        expect(alice).toHaveFocus();
+        expect(alice).toHaveAttribute('data-highlighted');
+
+        // Simulate an external update without moving focus away from the surviving item.
+        fireEvent.click(screen.getByRole('button', { name: 'Update options and value' }));
+
+        expect(screen.getByTestId('value').textContent).toBe(JSON.stringify(nextValue));
+        expect(screen.getByRole('option', { name: 'bob' })).toHaveAttribute('data-selected');
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(alice).toHaveFocus();
+        expect(alice).toHaveAttribute('data-highlighted');
+
+        await user.keyboard('{ArrowDown}');
+        expect(screen.getByRole('option', { name: 'bob' })).toHaveFocus();
+      },
+    );
+
+    it('uses the current multiple setting when options and value change together', async () => {
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [multiple, setMultiple] = React.useState(false);
+        const [value, setValue] = React.useState<string | string[]>('alice');
+        const [options, setOptions] = React.useState(['alice', 'bob', 'carol']);
+
+        return (
+          <div>
+            <Select.Root<string, boolean>
+              multiple={multiple}
+              value={value}
+              onValueChange={onValueChange}
+              open
+              modal={false}
+            >
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {options.map((option) => (
+                      <Select.Item key={option} value={option}>
+                        {option}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setMultiple(true);
+                setValue(['alice']);
+                setOptions(['alice', 'bob']);
+              }}
+            >
+              Update selection
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      expect(screen.getByRole('listbox')).not.toHaveAttribute('aria-multiselectable');
+      expect(screen.getByRole('option', { name: 'carol' })).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Update selection' }));
+
+      expect(screen.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true');
+      expect(screen.queryByRole('option', { name: 'carol' })).not.toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'alice' })).toHaveAttribute('data-selected', '');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('uses the current comparator when options and value change together', async () => {
+      const onValueChange = vi.fn();
+      const alice = { id: 'alice' };
+      const bob = { id: 'bob' };
+      const carol = { id: 'carol' };
+
+      function Test() {
+        const [compareById, setCompareById] = React.useState(false);
+        const [value, setValue] = React.useState(alice);
+        const [options, setOptions] = React.useState([alice, bob, carol]);
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              isItemEqualToValue={
+                compareById ? (item, selected) => item.id === selected.id : Object.is
+              }
+              onValueChange={onValueChange}
+              open
+              modal={false}
+            >
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {options.map((option) => (
+                      <Select.Item key={option.id} value={option}>
+                        {option.id}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setCompareById(true);
+                setValue({ id: 'bob' });
+                setOptions([alice, bob]);
+              }}
+            >
+              Update selection
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      await user.click(screen.getByRole('button', { name: 'Update selection' }));
+
+      expect(screen.getByRole('option', { name: 'bob' })).toHaveAttribute('data-selected', '');
+      expect(onValueChange).not.toHaveBeenCalled();
     });
 
     it('should not update the internal value if the controlled value prop does not change', async () => {
@@ -3175,7 +3449,7 @@ describe('<Select.Root />', () => {
     });
 
     it('sets a hidden input id when name is not provided', async () => {
-      await render(
+      const { container } = await render(
         <Select.Root id="test-id">
           <Select.Trigger>
             <Select.Value />
@@ -3183,7 +3457,8 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
+      const hiddenInput = container.querySelector('input');
       expect(hiddenInput).toHaveAttribute('id', 'test-id-hidden-input');
       expect(hiddenInput).not.toHaveAttribute('name');
     });
@@ -3201,6 +3476,18 @@ describe('<Select.Root />', () => {
       expect(hiddenInput).toHaveAttribute('name', 'country');
       expect(hiddenInput).not.toHaveAttribute('id');
     });
+  });
+
+  hiddenInputTypeTests({
+    render,
+    createComponent: (props) => (
+      <Select.Root {...props}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+      </Select.Root>
+    ),
+    getFocusTarget: () => screen.getByTestId('trigger'),
   });
 
   describe('with Field.Root parent', () => {
@@ -7092,6 +7379,50 @@ describe('<Select.Root />', () => {
   });
 
   describe('closing', () => {
+    it('does not notify the interactions of a close that onOpenChange cancels', async () => {
+      const onOpenChange = vi.fn((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => {
+        if (!open) {
+          eventDetails.cancel();
+        }
+      });
+      const handleInteractionOpenChange = vi.fn();
+
+      function InteractionOpenChangeListener() {
+        const store = useSelectRootContext();
+        React.useEffect(() => {
+          store.context.events.on('openchange', handleInteractionOpenChange);
+          return () => {
+            store.context.events.off('openchange', handleInteractionOpenChange);
+          };
+        }, [store]);
+        return null;
+      }
+
+      const { user } = await render(
+        <Select.Root defaultOpen onOpenChange={onOpenChange}>
+          <InteractionOpenChangeListener />
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+
+      await user.keyboard('{Escape}');
+
+      expect(onOpenChange).toHaveBeenLastCalledWith(false, expect.anything());
+      expect(screen.getByRole('listbox')).not.toBe(null);
+      expect(handleInteractionOpenChange).not.toHaveBeenCalled();
+    });
+
     it.skipIf(isJSDOM)(
       'keeps the highlight on the item while the popup animates out',
       async ({ onTestFinished }) => {

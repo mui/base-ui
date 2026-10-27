@@ -7,8 +7,8 @@
   "dependencies": {
     "@base-ui/react": "workspace:*",
     "@base-ui/utils": "workspace:*",
-    "@mui/internal-bundle-size-checker": "1.1.1-canary.1",
-    "radix-ui": "^1.6.7"
+    "@mui/internal-bundle-size-checker": "1.1.1-canary.4",
+    "radix-ui": "^1.8.1"
   },
   "devDependencies": {
     "cross-env": "10.1.0"

@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/react",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "license": "MIT",
@@ -137,7 +137,7 @@
   "devDependencies": {
     "@date-fns/tz": "1.5.0",
     "@testing-library/react": "16.3.3",
-    "@testing-library/user-event": "14.6.7",
+    "@testing-library/user-event": "14.6.8",
     "@types/luxon": "3.7.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -145,9 +145,9 @@
     "clsx": "2.1.1",
     "date-fns": "4.4.0",
     "luxon": "3.7.2",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "react-router": "8.4.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-router": "8.5.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "vitest-browser-react": "2.3.0"
   },
@@ -173,8 +173,5 @@
   "publishConfig": {
     "access": "public",
     "directory": "build"
-  },
-  "engines": {
-    "node": ">=14.0.0"
   }
 }

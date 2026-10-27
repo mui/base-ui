@@ -2,9 +2,10 @@ import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, reactMajor, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { useToastProviderContext } from './ToastProviderContext';
+import type { ToastManager } from '../createToastManager';
 
 describe('<Toast.Provider />', () => {
   const { clock, render } = createRenderer();
@@ -166,5 +167,123 @@ describe('<Toast.Provider />', () => {
     clock.tick(4000);
     await flushMicrotasks();
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  describe.skipIf(reactMajor < 19)('React.Activity', () => {
+    const Activity = (
+      React as typeof React & {
+        Activity: React.ComponentType<{ mode: 'visible' | 'hidden'; children: React.ReactNode }>;
+      }
+    ).Activity;
+
+    function App(props: { visible: boolean; toastManager: ToastManager }) {
+      return (
+        <Activity mode={props.visible ? 'visible' : 'hidden'}>
+          <Toast.Provider toastManager={props.toastManager}>
+            <Toast.Viewport data-testid="viewport">
+              <ToastList />
+            </Toast.Viewport>
+          </Toast.Provider>
+        </Activity>
+      );
+    }
+
+    function ToastList() {
+      return Toast.useToastManager().toasts.map((toast) => (
+        <Toast.Root key={toast.id} toast={toast}>
+          <Toast.Title />
+        </Toast.Root>
+      ));
+    }
+
+    it('pauses the auto-dismiss timer while hidden and resumes it with the remaining time once revealed', async () => {
+      const onClose = vi.fn();
+      const toastManager = Toast.createToastManager();
+      const { setProps } = await render(<App visible toastManager={toastManager} />);
+
+      await act(async () => {
+        toastManager.add({ title: 'Toast', timeout: 1000, onClose });
+      });
+
+      clock.tick(400);
+      await setProps({ visible: false });
+
+      clock.tick(5000);
+      await flushMicrotasks();
+      expect(onClose).not.toHaveBeenCalled();
+
+      await setProps({ visible: true });
+
+      clock.tick(599);
+      await flushMicrotasks();
+      expect(onClose).not.toHaveBeenCalled();
+
+      clock.tick(2);
+      await flushMicrotasks();
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the timer paused after reveal while the viewport is still hovered', async () => {
+      const onClose = vi.fn();
+      const toastManager = Toast.createToastManager();
+      const { setProps } = await render(<App visible toastManager={toastManager} />);
+
+      await act(async () => {
+        toastManager.add({ title: 'Toast', timeout: 1000, onClose });
+      });
+
+      fireEvent.mouseEnter(screen.getByTestId('viewport'));
+      expect(screen.getByTestId('viewport')).toHaveAttribute('data-expanded');
+
+      await setProps({ visible: false });
+      await setProps({ visible: true });
+
+      clock.tick(2000);
+      await flushMicrotasks();
+      expect(onClose).not.toHaveBeenCalled();
+
+      fireEvent.mouseLeave(screen.getByTestId('viewport'));
+
+      clock.tick(1001);
+      await flushMicrotasks();
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not start the timer of a toast updated while hidden until it is revealed', async () => {
+      const onClose = vi.fn();
+      const toastManager = Toast.createToastManager();
+      const { setProps } = await render(<App visible toastManager={toastManager} />);
+
+      let resolvePromise: (value: string) => void = () => {};
+      await act(async () => {
+        toastManager.promise(
+          new Promise<string>((resolve) => {
+            resolvePromise = resolve;
+          }),
+          {
+            loading: 'loading',
+            success: { title: 'success', timeout: 1000, onClose },
+            error: 'error',
+          },
+        );
+      });
+
+      await setProps({ visible: false });
+
+      // The promise settles while hidden, which gives the toast a timer.
+      await act(async () => {
+        resolvePromise('done');
+      });
+
+      clock.tick(5000);
+      await flushMicrotasks();
+      expect(onClose).not.toHaveBeenCalled();
+
+      await setProps({ visible: true });
+
+      clock.tick(1001);
+      await flushMicrotasks();
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
   });
 });

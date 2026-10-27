@@ -7,7 +7,7 @@ import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { ComboboxChipContext } from './ComboboxChipContext';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
@@ -78,10 +78,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       stopEvent(event);
       // The input may mount when opening.
       ReactDOM.flushSync(() => {
-        store.context.setOpen(
-          true,
-          createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-        );
+        store.setOpen(true, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
       });
       nextIndex = undefined;
     } else if (

@@ -3,17 +3,18 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { contains } from '@base-ui/utils/shadowDom';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
-import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils';
+import { getFloatingFocusElement } from '../../utils/popups/element';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -70,8 +71,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
-  const value = store.useState('value');
-  const triggerProps = store.useState('triggerProps');
+  const value = store.useState('selectedValue');
+  const triggerProps = store.useState('triggerProps', true);
   const positionerElement = store.useState('positionerElement');
   const listElement = store.useState('listElement');
   const popupSideValue = store.useState('popupSide');
@@ -147,14 +148,14 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
         // The popup element shouldn't obscure the focused trigger.
         if (open && store.context.alignItemWithTriggerActiveRef.current) {
-          store.context.setOpen(false, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          store.setOpen(false, createChangeEventDetails(REASONS.none, event.nativeEvent));
         }
 
-        // Saves a re-render on initial click: `forceMount === true` mounts
+        // Saves a re-render on initial click: `forceMounted === true` mounts
         // the items before `open === true`. We could sync those cycles better
         // without a timeout, but this is enough for now.
         timeoutFocus.start(0, () => {
-          store.set('forceMount', true);
+          store.set('forceMounted', true);
         });
       },
       onBlur(event) {
@@ -197,7 +198,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          store.context.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
+          store.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
         }
 
         // Firefox can fire this upon mousedown
