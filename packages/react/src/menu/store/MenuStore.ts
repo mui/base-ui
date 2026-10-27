@@ -261,6 +261,19 @@ export class MenuStore<Payload> extends BasePopupStore<
       return true;
     }
 
+    // Some mobile browsers fire `focus` and then a delayed `click` for one tap. Without this guard,
+    // a menu that opened on focus would close on the click right away.
+    const nativeEvent = eventDetails.event as Event | undefined;
+    if (
+      !nextOpen &&
+      eventDetails.reason !== REASONS.itemPress &&
+      nativeEvent?.type === 'click' &&
+      (nativeEvent as PointerEvent).pointerType === 'touch' &&
+      !this.context.allowTouchToClose
+    ) {
+      return true;
+    }
+
     // Repeated requests are compared against what the Root last committed.
     const committed = getCommittedOpenState();
     return (
@@ -273,19 +286,6 @@ export class MenuStore<Payload> extends BasePopupStore<
   protected getCloseTrigger() {
     // Keep the previous trigger so exit animations play and focus is returned correctly.
     return this.context.getCommittedOpenState!().activeTriggerElement ?? undefined;
-  }
-
-  protected isOpenChangeDropped(nextOpen: boolean, eventDetails: MenuRoot.ChangeEventDetails) {
-    // Some mobile browsers fire `focus` and then a delayed `click` for one tap. Without this guard,
-    // a menu that opened on focus would close on the click right away.
-    const nativeEvent = eventDetails.event as Event | undefined;
-    return (
-      !nextOpen &&
-      eventDetails.reason !== REASONS.itemPress &&
-      nativeEvent?.type === 'click' &&
-      (nativeEvent as PointerEvent).pointerType === 'touch' &&
-      !this.context.allowTouchToClose
-    );
   }
 
   protected isCommittedSynchronously() {

@@ -227,8 +227,6 @@ class TestPopupStore extends BasePopupStore<
 
   ignoreOpenChange = false;
 
-  dropOpenChange = false;
-
   closeTrigger: Element | undefined = undefined;
 
   constructor(
@@ -255,10 +253,6 @@ class TestPopupStore extends BasePopupStore<
 
   protected getCloseTrigger() {
     return this.closeTrigger;
-  }
-
-  protected isOpenChangeDropped() {
-    return this.dropOpenChange;
   }
 
   protected prepareOpenChange() {
@@ -289,18 +283,6 @@ describe('BasePopupStore', () => {
       store.setOpen(true, createDetails(REASONS.triggerPress));
 
       expect(store.steps).toEqual(['onOpenChange', 'notify', 'prepare', 'commit', 'complete']);
-    });
-
-    it('notifies interactions about a dropped change without committing it', () => {
-      const onOpenChange = vi.fn();
-      const store = new TestPopupStore(onOpenChange);
-      store.dropOpenChange = true;
-
-      store.setOpen(true, createDetails(REASONS.triggerPress));
-
-      expect(onOpenChange).toHaveBeenCalledTimes(1);
-      expect(store.steps).toEqual(['notify']);
-      expect(store.state.open).toBe(false);
     });
 
     it('commits the open state, the reason and the extra state together', () => {

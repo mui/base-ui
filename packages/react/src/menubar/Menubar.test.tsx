@@ -1,6 +1,6 @@
 import { afterEach, expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import {
   createRenderer,
   describeConformance,
@@ -89,7 +89,7 @@ describe('<Menubar />', () => {
     });
   });
 
-  it('reports a delayed touch click it ignores to a controlled menu', async () => {
+  it('keeps a controlled menu open on a delayed touch click it ignores', async () => {
     const onEditOpenChange = vi.fn();
 
     function ControlledEditMenubar() {
@@ -151,11 +151,9 @@ describe('<Menubar />', () => {
       vi.useRealTimers();
     }
 
-    // The menu ignores the click only after reporting it, so a controlled menu follows the report.
-    expect(onEditOpenChange).toHaveBeenLastCalledWith(false, 'trigger-press');
-    await waitFor(() => {
-      expect(screen.queryByTestId('edit-menu')).toBe(null);
-    });
+    expect(onEditOpenChange).toHaveBeenLastCalledWith(true, 'trigger-focus');
+    await flushMicrotasks();
+    expect(screen.getByTestId('edit-menu')).not.toBe(null);
   });
 
   it('closes on a touch item click immediately after focus opens another menu', async () => {

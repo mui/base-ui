@@ -372,11 +372,10 @@ type PopupUnmountKey =
  * 4. `onOpenChange` is called and can cancel the change.
  * 5. A cancelled change goes no further.
  * 6. The interactions are notified.
- * 7. `isOpenChangeDropped` can drop the change before it is committed.
- * 8. `prepareOpenChange` runs the store's own side effects and returns its extra state.
- * 9. One update commits the change, synchronously when `isCommittedSynchronously` says so. By
+ * 7. `prepareOpenChange` runs the store's own side effects and returns its extra state.
+ * 8. One update commits the change, synchronously when `isCommittedSynchronously` says so. By
  *    default only hover changes are, and a store can turn that off, as Menu does.
- * 10. `completeOpenChange` runs once the change is committed.
+ * 9. `completeOpenChange` runs once the change is committed.
  *
  * Once the popup has finished closing and unmounts, `resetOnUnmount` clears what the open session
  * left behind, along with the store's own fields from `prepareUnmount`.
@@ -435,10 +434,6 @@ export abstract class BasePopupStore<
 
     dispatchOpenChange(this.context, popupStoreSelectors.open(this.state), nextOpen, details);
 
-    if (this.isOpenChangeDropped(nextOpen, details)) {
-      return;
-    }
-
     const extraState = this.prepareOpenChange(nextOpen, details);
 
     const commit = () => {
@@ -493,14 +488,6 @@ export abstract class BasePopupStore<
     _eventDetails: ChangeEventDetails,
   ): PopupOpenChangeState<State> {
     return {};
-  }
-
-  /**
-   * Returns whether to drop an accepted open change after the interactions have heard about it,
-   * without committing it.
-   */
-  protected isOpenChangeDropped(_nextOpen: boolean, _eventDetails: ChangeEventDetails): boolean {
-    return false;
   }
 
   /**
