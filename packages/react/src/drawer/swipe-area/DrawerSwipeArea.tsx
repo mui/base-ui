@@ -250,6 +250,9 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementX, `${movementX}px`);
     popupElement.style.setProperty(DrawerPopupCssVars.swipeMovementY, `${movementY}px`);
     popupElement.setAttribute(DrawerPopupDataAttributes.swiping, '');
+    // The popup follows the pointer instead of transitioning in, and a starting style would
+    // override the movement until the next frame.
+    popupElement.removeAttribute(DrawerPopupDataAttributes.startingStyle);
     swipePopupElementRef.current = popupElement;
     if (popupTransitionRef.current === null) {
       popupTransitionRef.current = popupElement.style.transition;
