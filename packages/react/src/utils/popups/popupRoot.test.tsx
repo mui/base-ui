@@ -212,7 +212,6 @@ describe('useSettleTriggerOwnership', () => {
       expect(store.setOpen).toHaveBeenCalledTimes(1);
     });
 
-    expect(store.state.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe(null);
     expect(store.state.activeTriggerElement).toBe(null);
     expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
@@ -280,9 +279,6 @@ describe('useSettleTriggerOwnership', () => {
 
     store.update({
       open: true,
-      // The `activeTriggerElement` selector resolves to null while unmounted, so reflect the
-      // real open-popup state for the element subscription to observe registration.
-      mounted: true,
       activeTriggerId: 'first',
       activeTriggerElement: first,
     });
@@ -304,8 +300,8 @@ describe('useSettleTriggerOwnership', () => {
     expect(store.state.open).toBe(true);
     expect(store.setOpen).not.toHaveBeenCalled();
 
-    // Swap "first" out and "second" in within one commit, so the trigger count nets out
-    // unchanged and only the forwarded active trigger element reruns the reconciliation.
+    // Swap "first" out and "second" in within one commit, so the number of triggers nets out
+    // unchanged. The registry version still moves on, so settling resolves "second".
     rerender(
       <React.Fragment>
         <TestForwardedTrigger key="second" id="second" store={store} element={second} />
@@ -428,7 +424,7 @@ describe('useSettleTriggerOwnership', () => {
     expect(store.state.activeTriggerId).toBe('registered-1');
 
     // A handoff to the second trigger updates the active id from its DOM id (as
-    // `getPopupOpenState` does), without changing `open` or `triggerCount`.
+    // `createPopupOpenState` does), without changing `open` or the registered triggers.
     act(() => {
       store.update({ activeTriggerId: 'dom-id-2', activeTriggerElement: second });
     });

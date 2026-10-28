@@ -551,7 +551,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
               expectActiveTrigger(1);
             });
 
-            it('leaves the popup without an active trigger when `triggerId` is controlled as null', async () => {
+            it('keeps the popup open and clears the trigger attributes when `triggerId` is controlled as null', async () => {
               const { setProps } = await render(
                 <Fixture
                   mode={mode}
@@ -619,8 +619,36 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
                 expect(onOpenChange).not.toHaveBeenCalled();
                 // The pending owner registered and forwarded its payload.
                 expect(screen.getByTestId('content').textContent).toBe('2');
+                expect(getTrigger(2)).toHaveAttribute('data-popup-open');
 
                 await setProps({ rootProps, triggerNumbers: [] });
+
+                await waitFor(() => {
+                  expect(onOpenChange).toHaveBeenCalled();
+                });
+                expect(onOpenChange.mock.calls[0][0]).toBe(false);
+              },
+            );
+
+            it.skipIf(!closesOnActiveTriggerUnmount)(
+              'closes when the owner unmounts in the same commit another trigger mounts',
+              async () => {
+                const onOpenChange = vi.fn();
+                const rootProps = { open: true, triggerId: 'trigger-1', onOpenChange };
+                const { setProps } = await render(
+                  <Fixture
+                    mode={mode}
+                    handle={getHandle()}
+                    triggerNumbers={[1]}
+                    rootProps={rootProps}
+                  />,
+                );
+
+                await waitForPopupOpen();
+                expectActiveTrigger(1, 1);
+
+                // The number of registered triggers stays the same.
+                await setProps({ rootProps, triggerNumbers: [2] });
 
                 await waitFor(() => {
                   expect(onOpenChange).toHaveBeenCalled();

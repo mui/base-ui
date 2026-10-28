@@ -60,6 +60,22 @@ describe('triggerOwnership', () => {
         ),
       ).toBe(null);
     });
+    it('follows a controlled owner id over the stored one', () => {
+      const element = createElement();
+
+      // Controlled to another trigger: an unowned store does not let this trigger claim.
+      expect(claimOnRegister(createState(), 'trigger', element, true, 'owner')).toBe(null);
+      // Controlled to this trigger: it refreshes its element although another one is stored.
+      expect(
+        claimOnRegister(
+          createState({ activeTriggerId: 'other' }),
+          'trigger',
+          element,
+          true,
+          'trigger',
+        ),
+      ).toEqual({ activeTriggerElement: element });
+    });
   });
 
   describe('settleTriggerOwnership', () => {
@@ -190,6 +206,33 @@ describe('triggerOwnership', () => {
 
       expect(lostTriggerId).toBe('owner');
       expect(changes.activeTriggerId).toBeUndefined();
+    });
+
+    it('follows a controlled owner id over the stored one', () => {
+      const owner = createElement();
+      const lone = createElement();
+
+      // A controlled owner that hasn't registered keeps a lone trigger from claiming the popup.
+      const [pendingChanges, pendingLost] = settleTriggerOwnership(
+        createState(),
+        createRegistry(['lone', lone]),
+        true,
+        'owner',
+      );
+      expect(pendingLost).toBe(null);
+      expect(pendingChanges.activeTriggerId).toBeUndefined();
+      expect(pendingChanges.resolvedTriggerId).toBe(null);
+
+      // A registered controlled owner resolves and provides the element; the stored id stays.
+      const [changes] = settleTriggerOwnership(
+        createState(),
+        createRegistry(['owner', owner]),
+        true,
+        'owner',
+      );
+      expect(changes.activeTriggerId).toBeUndefined();
+      expect(changes.activeTriggerElement).toBe(owner);
+      expect(changes.resolvedTriggerId).toBe('owner');
     });
   });
 });

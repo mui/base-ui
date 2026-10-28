@@ -154,6 +154,40 @@ describe('useTriggerRegistration', () => {
     expect(second.context.triggerElements.getById('trigger')).toBeUndefined();
   });
 
+  it('calls `onRegister` with the element on mount, id change and store change, but not on unmount', async () => {
+    const first = createTestPopupStore();
+    const second = createTestPopupStore();
+    const element = document.createElement('button');
+    const onRegister = vi.fn();
+
+    function Probe({ id, store }: { id: string; store: TestPopupStore }) {
+      const elementRef = React.useRef<Element | null>(element);
+      useTriggerRegistration(id, elementRef, store, onRegister);
+      return null;
+    }
+
+    const { rerender, unmount } = render(<Probe id="first" store={first} />);
+
+    expect(onRegister).toHaveBeenCalledTimes(1);
+    expect(onRegister).toHaveBeenLastCalledWith(element);
+
+    rerender(<Probe id="second" store={first} />);
+
+    expect(onRegister).toHaveBeenCalledTimes(2);
+    expect(onRegister).toHaveBeenLastCalledWith(element);
+
+    rerender(<Probe id="second" store={second} />);
+
+    expect(onRegister).toHaveBeenCalledTimes(3);
+    expect(onRegister).toHaveBeenLastCalledWith(element);
+    expect(second.context.triggerElements.getById('second')).toBe(element);
+
+    unmount();
+
+    expect(onRegister).toHaveBeenCalledTimes(3);
+    expect(second.context.triggerElements.getById('second')).toBeUndefined();
+  });
+
   describe('callers that pass the callback straight into a ref', () => {
     // Mirrors `Drawer.SwipeArea`: the callback is merged into the rendered element's ref, and the
     // migration effect is what re-registers it when the id changes.
