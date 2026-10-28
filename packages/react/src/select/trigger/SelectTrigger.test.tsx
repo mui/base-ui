@@ -102,9 +102,11 @@ describe('<Select.Trigger />', () => {
   });
 
   describe('releasing the opening press', () => {
-    async function pressTrigger() {
+    async function pressTrigger(
+      options: { onOpenChange?: Select.Root.Props<string>['onOpenChange']; release?: boolean } = {},
+    ) {
       await render(
-        <Select.Root>
+        <Select.Root onOpenChange={options.onOpenChange}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
@@ -124,15 +126,33 @@ describe('<Select.Trigger />', () => {
 
       fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
       fireEvent.mouseDown(trigger, { button: 0 });
+      if (options.release) {
+        fireEvent.mouseUp(trigger, { button: 0, clientX: 150, clientY: 120 });
+      }
       await waitFor(() => {
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
       });
-      // The press is held long enough for the trigger to start watching its release.
+      return trigger;
+    }
+
+    it('ignores a later release when the opening press was released immediately', async () => {
+      const onOpenChange = vi.fn();
+      const trigger = await pressTrigger({ onOpenChange, release: true });
       await act(async () => {
         await wait(20);
       });
-      return trigger;
-    }
+      onOpenChange.mockClear();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      // e.g. a press that started inside the popup and was dragged off it
+      fireEvent.mouseUp(document.body, { button: 0, clientX: 10, clientY: 10 });
+      await act(async () => {
+        await wait(20);
+      });
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
 
     it('keeps the popup open when the press slips up to 5px off the trigger', async () => {
       const trigger = await pressTrigger();
