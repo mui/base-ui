@@ -280,7 +280,7 @@ export class MenuStore<Payload> extends BasePopupStore<
   protected getCloseTrigger() {
     // Reports the trigger the Root last rendered, which repeated requests are compared against.
     // The store can already hold a newer trigger from a request that hasn't rendered yet.
-    return this.context.getCommittedOpenState!().activeTriggerElement ?? undefined;
+    return this.context.getCommittedOpenState!().activeTriggerElement;
   }
 
   protected isCommittedSynchronously() {

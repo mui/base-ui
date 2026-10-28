@@ -501,7 +501,7 @@ export abstract class BasePopupStore<
    * Returns the trigger to report for a close request that carries none: the trigger the popup is
    * open from.
    */
-  protected getCloseTrigger(): Element | undefined {
+  protected getCloseTrigger(): Element | null | undefined {
     const activeTriggerId = activeTriggerIdSelector(this.state);
     if (activeTriggerId == null) {
       return undefined;
@@ -509,8 +509,7 @@ export abstract class BasePopupStore<
 
     return (
       this.context.triggerElements.getById(activeTriggerId) ??
-      activeTriggerElementSelector(this.state) ??
-      undefined
+      activeTriggerElementSelector(this.state)
     );
   }
 
