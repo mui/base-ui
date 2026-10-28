@@ -3148,6 +3148,52 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('closes only a modal select inside a dialog on Escape and returns focus to its trigger', async () => {
+    const handleDialogOpenChange = vi.fn();
+    const { user } = await render(
+      <Dialog.Root defaultOpen onOpenChange={handleDialogOpenChange}>
+        <Dialog.Trigger>Open dialog</Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Popup data-testid="dialog-popup">
+            <Select.Root defaultValue="a">
+              <Select.Trigger data-testid="select-trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a">A</Select.Item>
+                    <Select.Item value="b">B</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    );
+
+    const selectTrigger = screen.getByTestId('select-trigger');
+    await user.click(selectTrigger);
+    await waitFor(() => {
+      expect(selectTrigger).toHaveAttribute('aria-expanded', 'true');
+    });
+    await waitFor(() => {
+      expect(document.activeElement).toHaveAttribute('role', 'option');
+    });
+
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(selectTrigger).toHaveAttribute('aria-expanded', 'false');
+    });
+    expect(handleDialogOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByTestId('dialog-popup')).toBeVisible();
+    await waitFor(() => {
+      expect(selectTrigger).toHaveFocus();
+    });
+  });
+
   describe('prop: disabled', () => {
     it('sets the disabled state', async () => {
       const handleOpenChange = vi.fn();
