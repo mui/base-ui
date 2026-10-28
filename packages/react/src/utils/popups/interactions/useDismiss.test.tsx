@@ -13,7 +13,7 @@ import {
   useFloatingParentNodeId,
 } from '../tree/FloatingTree';
 import { FloatingPortal } from '../portal/FloatingPortal';
-import { useDismiss, normalizeProp } from './useDismiss';
+import { useDismiss, normalizeProp, getModalOutsidePressEvent } from './useDismiss';
 import { useFocus } from './useFocus';
 import { useClick } from './useClick';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
@@ -1840,5 +1840,14 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     expect(screen.getByText('open 1')).toBeInTheDocument();
     expect(screen.getByText('open 2')).toBeInTheDocument();
     expect(screen.getByText('nested')).toBeInTheDocument();
+  });
+});
+
+describe('getModalOutsidePressEvent', () => {
+  test('dismisses on a mouse press start only when trapping focus without a backdrop', () => {
+    expect(getModalOutsidePressEvent('trap-focus')).toEqual({ mouse: 'sloppy', touch: 'sloppy' });
+    expect(getModalOutsidePressEvent(true)).toEqual({ mouse: 'intentional', touch: 'sloppy' });
+    expect(getModalOutsidePressEvent(false)).toEqual({ mouse: 'intentional', touch: 'sloppy' });
+    expect(getModalOutsidePressEvent('trap-focus', true)).toBe('intentional');
   });
 });

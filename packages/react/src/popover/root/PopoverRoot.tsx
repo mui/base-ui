@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { getModalOutsidePressEvent } from '../../utils/popups/interactions/popupDismissal';
+import { getModalOutsidePressEvent, useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';

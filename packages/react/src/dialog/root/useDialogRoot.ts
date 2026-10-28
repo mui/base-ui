@@ -4,8 +4,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { getModalOutsidePressEvent } from '../../utils/popups/interactions/popupDismissal';
+import { getModalOutsidePressEvent, useDismiss } from '../../utils/popups/interactions/useDismiss';
 import type { DialogStore } from '../store/DialogStore';
 import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
 

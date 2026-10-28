@@ -23,7 +23,6 @@ import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/popups/interactions/useOpenInteractionType';
-import { getPopupDismissal } from '../../utils/popups/interactions/popupDismissal';
 
 /**
  * A button that opens the popover.
@@ -58,7 +57,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
       'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
     );
   }
-  const dismissal = getPopupDismissal(store);
 
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
@@ -160,9 +158,12 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   if (hasFocusGuards) {
     return (
       <React.Fragment>
-        <FocusGuard ref={dismissal.beforeTriggerFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
+        <FocusGuard
+          ref={store.context.beforeTriggerFocusGuardRef}
+          onFocus={handlePreFocusGuardFocus}
+        />
         {keyedElement}
-        <FocusGuard ref={dismissal.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
+        <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }

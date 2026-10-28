@@ -25,7 +25,6 @@ import { useTriggerRegistration } from '../../utils/popups/popupStoreUtils';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { getPopupDismissal } from '../../utils/popups/interactions/popupDismissal';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -56,7 +55,6 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const submenuRootContext = useMenuSubmenuRootContext();
 
   const { store, parentVirtualFocus } = context;
-  const dismissal = getPopupDismissal(store);
   const parentMenuStore = context.parent.store;
 
   const listItem = useCompositeListItem({ guess: true, label });
@@ -113,7 +111,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
     }
 
     function handleGuardFocusOut(event: FocusEvent) {
-      if (getTarget(event) === dismissal.beforeContentFocusGuardRef.current) {
+      if (getTarget(event) === store.context.beforeContentFocusGuardRef.current) {
         focusReturnedThroughGuardRef.current = event.relatedTarget === triggerElementRef.current;
       }
     }
@@ -125,7 +123,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
       focusReturnedThroughGuardRef.current = false;
       positionerElement.removeEventListener('focusout', handleGuardFocusOut, true);
     };
-  }, [open, positionerElement, store, dismissal]);
+  }, [open, positionerElement, store]);
 
   store.useSyncedValue('closeDelay', closeDelay);
 

@@ -21,7 +21,6 @@ import {
   FOCUSABLE_POPUP_PROPS,
   createDefaultInitialFocus,
 } from '../../utils/popups/popupStoreUtils';
-import { getPopupDismissal } from '../../utils/popups/interactions/popupDismissal';
 
 /**
  * A container for the popover contents.
@@ -36,7 +35,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
 
   const store = usePopoverRootContext();
-  const dismissal = getPopupDismissal(store);
 
   const positioner = usePopoverPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -118,12 +116,12 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"
-      getInsideElements={() => [dismissal.beforeTriggerFocusGuardRef.current]}
+      getInsideElements={() => [store.context.beforeTriggerFocusGuardRef.current]}
       previousFocusableElement={
         isHTMLElement(activeTriggerElement) ? activeTriggerElement : undefined
       }
-      nextFocusableElement={dismissal.triggerFocusTargetRef}
-      beforeContentFocusGuardRef={dismissal.beforeContentFocusGuardRef}
+      nextFocusableElement={store.context.triggerFocusTargetRef}
+      beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
       <ClosePartContext.Provider value={closePartContext}>{element}</ClosePartContext.Provider>
     </FloatingFocusManager>
