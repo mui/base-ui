@@ -54,8 +54,6 @@ const selectors = {
   open: (state: FloatingRootState) => state.open,
   transitionStatus: (state: FloatingRootState) => state.transitionStatus,
   anchorElement: (state: FloatingRootState) => state.anchorElement,
-  // Without trigger ownership, the last trigger is the anchor element itself.
-  lastTriggerElement: (state: FloatingRootState) => state.anchorElement,
   anchor: (state: FloatingRootState) => state.anchorOverride ?? state.anchorElement,
   positionerElement: (state: FloatingRootState) => state.positionerElement,
   defaultPopupId: (state: FloatingRootState) => state.defaultPopupId,

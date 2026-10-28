@@ -7,19 +7,13 @@
  * to these fields goes through a function in this module. The functions are pure: they read the
  * current ownership state (and the trigger registry where a rule depends on it) and return what to
  * commit. Most return only the fields that change, or `null` when nothing does; `applyOpenRequest`
- * and `createTriggerOwnership` return a full ownership state, and `followAnchor` a full record.
+ * and `createTriggerOwnership` return a full ownership state.
  */
 
 /**
  * The bookkeeping the ownership rules need besides the owner itself.
  */
 export interface TriggerOwnershipRecord {
-  /**
-   * The last trigger the mounted popup was anchored to. Unlike `activeTriggerElement`, it is kept
-   * once the popup unmounts, so the interaction hooks still recognize the trigger the popup last
-   * belonged to.
-   */
-  readonly lastTriggerElement: Element | null;
   /**
    * Whether the popup is open because of a request that deliberately carried no trigger, such as a
    * handle's `open(null)` or `openWithPayload()`. While set, no trigger claims the popup
@@ -77,7 +71,6 @@ export interface TriggerRegistry {
 }
 
 const INITIAL_RECORD: TriggerOwnershipRecord = {
-  lastTriggerElement: null,
   openedWithoutTrigger: false,
   resolvedTriggerId: null,
   registryVersion: 0,
@@ -364,21 +357,6 @@ export function releaseOwner(): TriggerOwnershipChanges {
  */
 export function releaseUnmountedOwner(open: boolean): TriggerOwnershipChanges | null {
   return open ? null : releaseOwner();
-}
-
-/**
- * Anchor change: the trigger the mounted popup is anchored to changed. A new anchor becomes the
- * last trigger; the anchor being cleared (as a `keepMounted` positioner does while the popup is
- * unmounted) clears it.
- *
- * @param state The current ownership state.
- * @param anchor The new anchor element.
- */
-export function followAnchor(
-  state: TriggerOwnershipState,
-  anchor: Element | null,
-): TriggerOwnershipRecord {
-  return withRecord(state, { lastTriggerElement: anchor });
 }
 
 /**

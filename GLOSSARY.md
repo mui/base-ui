@@ -24,10 +24,6 @@ _In code_: the active trigger is `activeTriggerElement` in the popup store and `
 The trigger a popup currently belongs to: usually the one that opened it, or one that claimed it later. The popup's ARIA relationships, focus return and trigger payload follow it. In code it is the **active trigger** (`activeTriggerId` and `activeTriggerElement`), and only the trigger ownership module changes it.
 _Avoid_: current trigger, selected trigger
 
-**Last trigger**:
-The trigger the mounted popup was last anchored to. Unlike the owner, it is kept after the popup unmounts, so the interactions still recognize the trigger the popup last belonged to, until a `keepMounted` positioner clears it along with the anchor. In code it is `lastTriggerElement`.
-_Avoid_: last owner, DOM reference, previous trigger
-
 **Registry version**:
 A counter that moves on whenever a trigger registers or unregisters while the popup is open. The Root settles ownership after each change, including when one trigger replaces another and the number of triggers stays the same.
 _Avoid_: trigger count

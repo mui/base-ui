@@ -13,7 +13,6 @@ import { REASONS } from '../../internals/reasons';
 import {
   applyOpenRequest,
   createTriggerOwnership,
-  followAnchor,
   isLoneTriggerClaimable,
   releaseUnmountedOwner,
 } from './triggerOwnership';
@@ -257,7 +256,6 @@ export const popupStoreSelectors = {
   // Reads of the interaction hooks' store (`PopupInteractionStore`).
   defaultPopupId: (state: S) => state.defaultPopupId,
   anchorElement: (state: S) => state.anchorElement,
-  lastTriggerElement: (state: S) => state.triggerOwnership.lastTriggerElement,
   anchor: (state: S) => state.anchorOverride ?? activeTriggerElementSelector(state),
 };
 
@@ -282,19 +280,6 @@ function syncAnchorState<State extends S>(previous: State, next: State): State {
     anchorElement: nextAnchor ?? next.anchorElement,
     anchorOverride: followsAnchor ? nextAnchor : next.anchorOverride,
   };
-}
-
-/**
- * Remembers a new anchor element as the last trigger. An anchor element cleared from outside (as a
- * `keepMounted` positioner does while the popup is unmounted) clears the last trigger too.
- */
-function syncLastTriggerState<State extends S>(previous: State, next: State): State {
-  if (next.anchorElement === previous.anchorElement) {
-    return next;
-  }
-
-  const triggerOwnership = followAnchor(next, next.anchorElement);
-  return triggerOwnership === next.triggerOwnership ? next : { ...next, triggerOwnership };
 }
 
 export type PopupStoreSelectors = typeof popupStoreSelectors;
@@ -399,10 +384,9 @@ export abstract class BasePopupStore<
     if (!openSelector(this.state) && openSelector(newState)) {
       this.openSession = {};
     }
-    const anchoredState = this.anchorsToActiveTrigger()
-      ? syncAnchorState(this.state, newState)
-      : newState;
-    super.setState(syncLastTriggerState(this.state, anchoredState));
+    super.setState(
+      this.anchorsToActiveTrigger() ? syncAnchorState(this.state, newState) : newState,
+    );
   }
 
   /**

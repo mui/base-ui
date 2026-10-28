@@ -5,7 +5,6 @@ import {
   claimOnRegister,
   claimSubmenuOnRegister,
   createTriggerOwnership,
-  followAnchor,
   isLoneTriggerClaimable,
   isTriggerStillLost,
   releaseOwner,
@@ -48,7 +47,6 @@ describe('triggerOwnership', () => {
         activeTriggerId: null,
         activeTriggerElement: null,
         triggerOwnership: {
-          lastTriggerElement: null,
           openedWithoutTrigger: false,
           resolvedTriggerId: null,
           registryVersion: 0,
@@ -363,24 +361,6 @@ describe('triggerOwnership', () => {
         activeTriggerElement: null,
       });
       expect(releaseUnmountedOwner(true)).toBe(null);
-    });
-  });
-
-  describe('followAnchor', () => {
-    it('records the anchor as the last trigger, and clears it with the anchor', () => {
-      const anchor = createElement();
-      const state = createState();
-
-      const recorded = followAnchor(state, anchor);
-      expect(recorded.lastTriggerElement).toBe(anchor);
-
-      const cleared = followAnchor({ ...state, triggerOwnership: recorded }, null);
-      expect(cleared.lastTriggerElement).toBe(null);
-    });
-
-    it('returns the same record when the last trigger does not change', () => {
-      const state = createState();
-      expect(followAnchor(state, null)).toBe(state.triggerOwnership);
     });
   });
 
