@@ -154,6 +154,7 @@ export function useTriggerOwnership<
         store.select('activeTriggerId'),
       );
       if (changes) {
+        // `changes` may lack `activeTriggerId`; `update` only commits the fields that are present.
         store.update({
           ...changes,
           ...(open ? stateUpdates : null),

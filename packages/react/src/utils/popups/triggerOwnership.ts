@@ -7,6 +7,7 @@
  * trigger registry where a rule depends on it) and return what to commit.
  */
 import type { PopupStoreState } from './store';
+import type { PopupTriggerMap } from './popupTriggerMap';
 
 /**
  * The popup state the ownership rules read and write.
@@ -24,16 +25,7 @@ export type TriggerOwnershipState = Pick<
 /**
  * Ownership fields to commit. A field that is present is never `undefined`.
  */
-export type TriggerOwnershipChanges = Partial<TriggerOwnershipState>;
-
-/**
- * The registered triggers of a popup, keyed by their registered id.
- */
-export interface TriggerRegistry {
-  readonly size: number;
-  getById(id: string): Element | undefined;
-  entries(): IterableIterator<[string, Element]>;
-}
+type TriggerOwnershipChanges = Partial<TriggerOwnershipState>;
 
 /**
  * Claim rule of a trigger that registers.
@@ -91,7 +83,7 @@ export function claimOnRegister(
  */
 export function settleTriggerOwnership(
   state: TriggerOwnershipState,
-  registry: TriggerRegistry,
+  registry: PopupTriggerMap,
   open: boolean,
   ownerId: string | null,
 ): [changes: TriggerOwnershipChanges, lostTriggerId: string | null] {

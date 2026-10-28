@@ -361,7 +361,8 @@ export function useSettleTriggerOwnership<State extends PopupStoreState<unknown>
       store.select('activeTriggerId'),
     );
 
-    // Only the fields the rules set are present, so none of them is `undefined`.
+    // The cast lists every ownership field, but `update` only commits the fields `changes` has,
+    // and none of those is `undefined`.
     store.update(changes as Pick<Readonly<State>, keyof TriggerOwnershipState>);
 
     if (lostTriggerId && closeOnActiveTriggerUnmount) {
