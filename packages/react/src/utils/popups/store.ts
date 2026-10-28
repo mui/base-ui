@@ -395,8 +395,10 @@ export abstract class BasePopupStore<
   private openSession = {};
 
   override setState(newState: Readonly<State>): void {
-    // Opening through the `open` prop starts a new open session.
-    if (!this.state.openProp && newState.openProp) {
+    // A request or an `open` prop that opens the popup starts a new open session. An open request
+    // a controlled `open` prop hasn't applied doesn't, so a close waiting on the parent keeps its
+    // request.
+    if (!openSelector(this.state) && openSelector(newState)) {
       this.openSession = {};
     }
     super.setState(
@@ -479,10 +481,6 @@ export abstract class BasePopupStore<
 
     if (!nextOpen) {
       closeSession = this.openSession;
-    } else if (!popupStoreSelectors.open(this.state)) {
-      // An open request while a controlled `open` prop still shows the popup doesn't start a new
-      // session, so a close waiting on the parent keeps its request.
-      this.openSession = {};
     }
 
     if (this.isCommittedSynchronously(details)) {

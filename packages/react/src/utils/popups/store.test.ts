@@ -605,6 +605,27 @@ describe('BasePopupStore', () => {
       expect(store.state.preventUnmountingOnClose).toBe(true);
     });
 
+    it('keeps a late request from a close when an open request arrives that the prop does not apply', () => {
+      let closeDetails: PopupOpenChangeEventDetails | undefined;
+      const store = new TestPopupStore(
+        (open, eventDetails) => {
+          if (!open) {
+            closeDetails = eventDetails;
+          }
+        },
+        { open: true, openProp: true, mounted: true },
+      );
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+      store.update({ openProp: false });
+      // The parent declines the open without `cancel()`, so the popup keeps closing.
+      store.setOpen(true, createDetails(REASONS.triggerFocus));
+      expect(store.select('open')).toBe(false);
+      closeDetails!.preventUnmountOnClose();
+
+      expect(store.state.preventUnmountingOnClose).toBe(true);
+    });
+
     it('ignores a late request to keep the popup mounted from an open change', () => {
       let openDetails: PopupOpenChangeEventDetails | undefined;
       const store = new TestPopupStore(
