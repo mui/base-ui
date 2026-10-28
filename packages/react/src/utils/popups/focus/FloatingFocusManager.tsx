@@ -307,6 +307,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
   const parentModalElement = React.useContext(ModalFocusContext);
+  const parentModalElementRef = useValueAsRef(parentModalElement);
 
   const preventReturnFocusRef = React.useRef(false);
   const isPointerDownRef = React.useRef(false);
@@ -882,13 +883,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         : referenceReturnElement || previousReturnElement;
 
       if (!defaultReturnElement) {
-        defaultReturnElement = getPreviouslyFocusedElement(true) || null;
-      }
-
-      // Dialogs do not register floating tree nodes. Keep focus in the enclosing modal
-      // when its child's trigger and all eligible focus history entries have disappeared.
-      if (!defaultReturnElement && parentModalElement?.isConnected) {
-        defaultReturnElement = parentModalElement;
+        // Dialogs do not register floating tree nodes. Inside an open modal, skip the content
+        // it marks and fall back to the modal popup itself.
+        const parentModal = parentModalElementRef.current;
+        defaultReturnElement = parentModal?.isConnected
+          ? getPreviouslyFocusedElement(true) || parentModal
+          : getPreviouslyFocusedElement() || null;
       }
 
       if (typeof resolvedReturnFocusValue === 'boolean') {
@@ -929,7 +929,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         // otherwise `returnElement` itself (which may not be tabbable at all).
         // The enclosing modal fallback focuses the popup itself, like `restoreFocus="popup"`.
         let tabbableReturnElement =
-          returnElement === parentModalElement
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          returnElement === parentModalElementRef.current
             ? returnElement
             : getFirstTabbableElement(returnElement);
         // A hidden element, such as an item in a closed Select or `keepMounted` Menu, can't take
@@ -980,7 +981,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     domReference,
     getNodeId,
     getResolvedInsideElements,
-    parentModalElement,
+    parentModalElementRef,
   ]);
 
   // Safari may randomly scroll to the bottom of the page if an input inside a popup has focus

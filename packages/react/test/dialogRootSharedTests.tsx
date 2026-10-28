@@ -73,6 +73,84 @@ export function dialogRootSharedTests(config: DialogRootSharedTestsConfig) {
       expect(parentTrigger).not.toHaveFocus();
     });
 
+    it('returns focus to the previously focused element when a non-modal parent stays open', async () => {
+      function Test() {
+        const [showTrigger, setShowTrigger] = React.useState(true);
+        return (
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger>Open settings</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="parent-popup">
+                <Root>
+                  {showTrigger && <Trigger>Discard draft</Trigger>}
+                  <Portal>
+                    <Popup data-testid="child-popup">
+                      <Close onClick={() => setShowTrigger(false)}>Discard</Close>
+                    </Popup>
+                  </Portal>
+                </Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const parentTrigger = screen.getByRole('button', { name: 'Open settings' });
+      await user.click(parentTrigger);
+      await user.click(screen.getByRole('button', { name: 'Discard draft' }));
+      const close = screen.getByRole('button', { name: 'Discard' });
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
+
+      await user.click(close);
+
+      await waitFor(() => {
+        expect(parentTrigger).toHaveFocus();
+      });
+      expect(screen.queryByTestId('child-popup')).toBe(null);
+      expect(screen.getByTestId('parent-popup')).toBeVisible();
+    });
+
+    it('does not resolve the return target when the parent modality changes while open', async () => {
+      const finalFocus = vi.fn(() => true);
+
+      function Test({ modal }: { modal: boolean }) {
+        return (
+          <Dialog.Root modal={modal} defaultOpen>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <Root defaultOpen>
+                  <Portal>
+                    <Popup finalFocus={finalFocus}>
+                      <Close>Close</Close>
+                    </Popup>
+                  </Portal>
+                </Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { setProps } = await render(<Test modal />);
+      const close = screen.getByRole('button', { name: 'Close' });
+      await waitFor(() => {
+        expect(close).toHaveFocus();
+      });
+
+      await setProps({ modal: false });
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0);
+        });
+      });
+
+      expect(finalFocus).not.toHaveBeenCalled();
+      expect(close).toHaveFocus();
+    });
+
     describe('prop: onOpenChange', () => {
       it('reports the trigger and reason when opened by a trigger and closed by a close button', async () => {
         const handleOpenChange = vi.fn();
