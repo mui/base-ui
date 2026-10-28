@@ -52,27 +52,6 @@ export function normalizeProp(
   };
 }
 
-/**
- * The outside press timing of a popup that can trap focus. A trap-focus popup is dismissed as soon
- * as a mouse press starts outside it, so `aria-hidden` on the outside content is removed before
- * focus lands there. A backdrop catches the press instead, so a popup with one waits for the click.
- *
- * @param modal The popup's `modal` prop.
- * @param hasBackdrop Whether a backdrop is rendered behind the popup.
- */
-export function getModalOutsidePressEvent(
-  modal: boolean | 'trap-focus',
-  hasBackdrop = false,
-): PressType | { mouse: PressType; touch: PressType } {
-  if (hasBackdrop) {
-    return 'intentional';
-  }
-  return {
-    mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
-    touch: 'sloppy',
-  };
-}
-
 export interface UseDismissProps {
   /**
    * Whether the Hook is enabled, including all internal Effects and event
