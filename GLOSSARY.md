@@ -35,7 +35,7 @@ Moving focus back when a popup closes, usually to the trigger it last belonged t
 _Avoid_: final focus (that is the prop that customizes it), restore focus
 
 **Outside-press timing**:
-When a press outside a popup closes it. **Intentional** waits for the `click`, so a press that started before the popup opened, or a drag that starts inside and ends outside, doesn't close it. **Sloppy** closes as soon as a mouse press starts (`pointerdown`), so a popup that hides the rest of the page from assistive technology stops doing so before focus lands outside. For touch, sloppy closes on a tap's compatibility `mousedown`; a finger that moves a few pixels closes it on `touchend`, and one that moves further closes it while still moving.
+When a press outside a popup closes it. **Intentional** waits for the `click`, so a press that started before the popup opened, or a drag that starts inside and ends outside, doesn't close it. **Sloppy** closes as soon as a mouse press starts (`pointerdown`), so a popup that hides the rest of the page from assistive technology stops doing so before focus lands outside. For touch, sloppy closes on a tap's compatibility `mousedown`, or on `touchend` once the finger has moved a few pixels, as long as the touch ends within about a second; a finger that moves further closes it while still moving.
 _Avoid_: outside press event
 
 **Hover intent**:
