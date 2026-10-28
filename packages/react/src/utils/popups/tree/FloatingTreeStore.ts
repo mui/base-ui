@@ -67,20 +67,11 @@ export class FloatingTreeStore {
   }
 
   /**
-   * Whether any descendant of a node is open.
-   */
-  public hasOpenDescendant(id: string | undefined) {
-    return this.descendants(id).length > 0;
-  }
-
-  /**
    * Whether an open descendant of a node keeps the given dismissal from bubbling up to it.
    */
   public hasBlockingChild(id: string | undefined, dismissal: 'escapeKey' | 'outsidePress') {
     const bubbleKey = BUBBLE_KEYS[dismissal];
-    return this.descendants(id).some(
-      (child) => child.context?.open && !child.context.interaction[bubbleKey],
-    );
+    return this.descendants(id).some((child) => !child.context!.interaction[bubbleKey]);
   }
 
   /**

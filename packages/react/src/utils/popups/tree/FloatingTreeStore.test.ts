@@ -32,7 +32,6 @@ it('answers queries about the nodes it holds', () => {
   expect(tree.getNode('child')).toBe(child);
   expect(tree.descendants('root')).toEqual([child]);
   expect(tree.ancestors('child')).toEqual([root]);
-  expect(tree.hasOpenDescendant('root')).toBe(true);
   expect(tree.hasBlockingChild('root', 'escapeKey')).toBe(true);
   expect(tree.descendantContains('root', target)).toBe(true);
   expect(tree.contains(target)).toBe(true);
@@ -40,7 +39,7 @@ it('answers queries about the nodes it holds', () => {
   tree.removeNode(child);
 
   expect(tree.getNode('child')).toBeUndefined();
-  expect(tree.hasOpenDescendant('root')).toBe(false);
+  expect(tree.descendants('root')).toEqual([]);
   expect(tree.contains(target)).toBe(false);
 });
 
@@ -154,21 +153,6 @@ it('getNode returns the node with the given id', () => {
   expect(createTree(nodes).getNode('1')).toBe(nodes[1]);
   expect(createTree(nodes).getNode('missing')).toBeUndefined();
   expect(createTree(nodes).getNode(undefined)).toBeUndefined();
-});
-
-it('hasOpenDescendant finds open descendants behind closed and contextless nodes', () => {
-  const nodes = [
-    { id: '0', parentId: null, context: contextOpen },
-    { id: '1', parentId: '0', context: contextClosed },
-    { id: '2', parentId: '1' },
-    { id: '3', parentId: '2', context: contextOpen },
-    { id: '4', parentId: null, context: contextOpen },
-    { id: '5', parentId: '4', context: contextClosed },
-  ];
-
-  expect(createTree(nodes).hasOpenDescendant('0')).toBe(true);
-  expect(createTree(nodes).hasOpenDescendant('4')).toBe(false);
-  expect(createTree(nodes).hasOpenDescendant('3')).toBe(false);
 });
 
 it('hasBlockingChild is true for an open descendant that does not let the dismissal bubble', () => {

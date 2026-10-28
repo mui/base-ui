@@ -164,7 +164,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
       }
 
       function hasOpenChildNode() {
-        return Boolean(tree && tree.hasOpenDescendant(nodeId));
+        return Boolean(tree && tree.descendants(nodeId).length > 0);
       }
 
       function closeIfNoOpenChild() {
