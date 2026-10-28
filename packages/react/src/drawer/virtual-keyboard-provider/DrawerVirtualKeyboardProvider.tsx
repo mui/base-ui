@@ -200,6 +200,9 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     let keyboardScrollReissues = 0;
     // Visual viewport height last seen while the keyboard overlapped the layout viewport.
     let keyboardVisualHeight = -1;
+    // Android: tallest layout viewport height seen at the current width.
+    let tallestLayoutHeight = win.innerHeight;
+    let layoutWidth = win.innerWidth;
     let smallViewportProbe: HTMLElement | null = null;
 
     // New Chrome on iOS shrinks `svh` for the keyboard, then the layout viewport down to the
@@ -213,7 +216,21 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       const layoutHeight = win.innerHeight;
       const visualHeight = visualViewport.height;
 
-      if (layoutHeight - visualHeight > KEYBOARD_RESIZE_THRESHOLD) {
+      // A keyboard that resizes the layout viewport (`interactive-widget=resizes-content`,
+      // resizing WebViews) shrinks both heights together, so no overlap is ever seen; detect
+      // it as a drop from the tallest layout viewport instead. Android only: iOS Safari's
+      // toolbar changes the layout viewport height by about as much.
+      let layoutShrunk = false;
+      if (platform.os.android) {
+        if (win.innerWidth !== layoutWidth) {
+          layoutWidth = win.innerWidth;
+          tallestLayoutHeight = layoutHeight;
+        }
+        tallestLayoutHeight = Math.max(tallestLayoutHeight, layoutHeight);
+        layoutShrunk = tallestLayoutHeight - layoutHeight > KEYBOARD_RESIZE_THRESHOLD;
+      }
+
+      if (layoutHeight - visualHeight > KEYBOARD_RESIZE_THRESHOLD || layoutShrunk) {
         keyboardVisualHeight = visualHeight;
       } else if (Math.abs(visualHeight - keyboardVisualHeight) > KEYBOARD_RESIZE_THRESHOLD) {
         keyboardVisualHeight = -1;
@@ -722,9 +739,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       // Already focused with the keyboard up: let the native tap through so it can
       // reposition the caret, rather than blurring and re-focusing the same input.
-      // Android re-shows a dismissed keyboard on a native tap, and the keyboard can't be
-      // detected when it resizes the layout viewport (`interactive-widget=resizes-content`,
-      // resizing WebViews), so always let it through there.
+      // Android re-shows a dismissed keyboard on a native tap, so always let it through there.
       if (
         activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget &&
         (platform.os.android || !win.visualViewport || getKeyboardViewportRef.current?.() != null)
