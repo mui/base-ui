@@ -11,11 +11,12 @@ const visuallyHiddenBase: React.CSSProperties = {
   margin: -1,
 };
 
+// Just above the viewport: inside it, Chrome gives each 1px fixed box its own compositor layer.
 export const visuallyHidden: React.CSSProperties = {
   ...visuallyHiddenBase,
   position: 'fixed',
   margin: 0,
-  top: 0,
+  top: -1,
   left: 0,
 };
 

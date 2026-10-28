@@ -31,4 +31,9 @@ describe.skipIf(isJSDOM)('visuallyHidden', () => {
       expect(scroller.scrollWidth).toBe(scroller.clientWidth);
     },
   );
+
+  it('places the box just above the viewport', async () => {
+    await render(<span data-testid="hidden" style={visuallyHidden} />);
+    expect(screen.getByTestId('hidden').getBoundingClientRect().bottom).toBe(0);
+  });
 });
