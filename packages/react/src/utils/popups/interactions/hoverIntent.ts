@@ -97,7 +97,12 @@ export class HoverIntent {
   constructor(private readonly store: PopupInteractionStore) {}
 
   private isClickLikeOpen() {
-    return isClickLikeOpenEvent(this.store.context.openEvent?.type, this.interactedInside);
+    // A close through the `open` prop leaves the previous session's open event in place, so it
+    // only describes how the popup opened while the popup is open.
+    return (
+      this.store.select('open') &&
+      isClickLikeOpenEvent(this.store.context.openEvent?.type, this.interactedInside)
+    );
   }
 
   /**
@@ -556,6 +561,13 @@ export class HoverIntent {
 }
 
 const hoverIntents = new WeakMap<PopupInteractionContext, HoverIntent>();
+
+/**
+ * Cancels what the popup's `HoverIntent` has in flight, if the popup has one.
+ */
+export function cancelHoverIntent(context: PopupInteractionContext) {
+  hoverIntents.get(context)?.cancel();
+}
 
 /**
  * Returns the popup's `HoverIntent`, creating it on first use.
