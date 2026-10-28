@@ -79,7 +79,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     thisTriggerId,
     triggerElementRef,
     store,
-    'first-registrant',
     {
       payload,
       closeOnClick,

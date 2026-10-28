@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import type { ReactStore } from '@base-ui/utils/store';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './store';
 import { usePopupInteractionProps, useTriggerRegistration } from './popupStoreUtils';
 import { PopupTriggerMap } from './popupTriggerMap';
@@ -125,14 +124,8 @@ describe('useTriggerRegistration', () => {
     let registerRef: ((element: Element | null) => void) | null = null;
 
     function Probe({ store }: { store: TestPopupStore }) {
-      const register = useTriggerRegistration('trigger', store);
-      registerRef = register;
-
-      useIsoLayoutEffect(() => {
-        register(element);
-        return () => register(null);
-      }, [register, store]);
-
+      const elementRef = React.useRef<Element | null>(element);
+      registerRef = useTriggerRegistration('trigger', elementRef, store);
       return null;
     }
 
@@ -165,13 +158,8 @@ describe('useTriggerRegistration', () => {
     // Mirrors `Drawer.SwipeArea`: the callback is merged into the rendered element's ref, and the
     // migration effect is what re-registers it when the id changes.
     function RefOnlyTrigger({ id, store }: { id: string | undefined; store: TestPopupStore }) {
-      const register = useTriggerRegistration(id, store);
       const elementRef = React.useRef<HTMLButtonElement | null>(null);
-
-      useIsoLayoutEffect(() => {
-        register(elementRef.current);
-        return () => register(null);
-      }, [register, id, store]);
+      const register = useTriggerRegistration(id, elementRef, store);
 
       const handleRef = React.useCallback(
         (element: HTMLButtonElement | null) => {

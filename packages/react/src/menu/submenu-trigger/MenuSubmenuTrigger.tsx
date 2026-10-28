@@ -20,7 +20,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { useTriggerOwnership } from '../../utils/popups/popupStoreUtils';
+import { useTriggerRegistration } from '../../utils/popups/popupStoreUtils';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -67,15 +67,25 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
-  // The submenu trigger claims its submenu with its own rule; the latest `closeDelay` is applied
+  // A submenu trigger claims its open submenu when it already owns it or when the submenu has no
+  // owner, even if the submenu was opened without a trigger. The latest `closeDelay` is applied
   // along with the claim.
-  const { registerTrigger } = useTriggerOwnership(
+  const registerTrigger = useTriggerRegistration(
     thisTriggerId,
     triggerElementRef,
     store,
-    'submenu',
-    {
-      closeDelay,
+    (element: Element) => {
+      if (
+        store.select('open') &&
+        (store.select('activeTriggerElement') === element ||
+          store.select('activeTriggerId') == null)
+      ) {
+        store.update({
+          activeTriggerId: thisTriggerId ?? null,
+          activeTriggerElement: element,
+          closeDelay,
+        });
+      }
     },
   );
 

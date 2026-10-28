@@ -60,7 +60,6 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
     thisTriggerId,
     triggerElementRef,
     store,
-    'first-registrant',
     {
       payload,
       closeDelay: closeDelayWithDefault,

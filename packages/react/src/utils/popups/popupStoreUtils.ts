@@ -13,7 +13,7 @@ import type {
   popupStoreSelectors,
   PopupTriggerDataStore,
 } from './store';
-import { claimOnRegister, claimSubmenuOnRegister } from './triggerOwnership';
+import { claimOnRegister } from './triggerOwnership';
 import type { TriggerOwnershipState } from './triggerOwnership';
 
 export const FOCUSABLE_POPUP_PROPS = {
@@ -45,23 +45,29 @@ function syncTriggerRegistry(store: PopupTriggerDataStore<PopupStoreState<unknow
 }
 
 /**
- * Returns a stable callback ref that registers/unregisters the trigger element in the store.
+ * Registers the element a trigger renders with its popup. Returns a stable callback ref that
+ * registers/unregisters the element in the store.
  *
  * Stable so a downstream ref merger that retains the callback it was first given still reaches the
  * trigger's current store. The registration is tracked as a `(store, id, element)` triple, so
  * unregistering targets the store the element was actually registered in.
  *
- * Since the callback never changes, the caller must re-run it from a layout effect keyed on
- * `[store, id]` to migrate an already-registered element. That effect is also what registers the
- * element in the first place when `id` only resolves after the first commit (React 17's `useId`
- * fallback), because the register call made while the id is still `undefined` does nothing.
+ * Since the callback never changes, a layout effect keyed on `[store, id]` re-runs it to migrate
+ * the element in `elementRef`. That effect is also what registers the element in the first place
+ * when `id` only resolves after the first commit (React 17's `useId` fallback), because the
+ * register call made while the id is still `undefined` does nothing.
  *
  * @param id Id of the trigger.
+ * @param elementRef Ref for the trigger DOM element.
  * @param store The Store instance where the trigger should be registered.
+ * @param onRegister Called with the element every time the callback receives one, such as to let
+ *   the trigger claim the popup.
  */
 export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   id: string | undefined,
+  elementRef: React.RefObject<Element | null>,
   store: PopupTriggerDataStore<State>,
+  onRegister?: (element: Element) => void,
 ) {
   const registrationRef = React.useRef<{
     store: PopupTriggerDataStore<State>;
@@ -69,139 +75,101 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
     element: Element;
   } | null>(null);
 
-  return useStableCallback((element: Element | null) => {
+  const registerTrigger = useStableCallback((element: Element | null) => {
     const registration = registrationRef.current;
 
-    if (registration !== null) {
-      if (
-        registration.element === element &&
-        registration.store === store &&
-        registration.id === id
-      ) {
-        // Already registered where it belongs, so the caller's migration effect is free on mount.
-        return;
+    // An element already registered where it belongs stays put, so the migration effect is free
+    // on mount.
+    if (
+      registration === null ||
+      registration.element !== element ||
+      registration.store !== store ||
+      registration.id !== id
+    ) {
+      if (registration !== null) {
+        registrationRef.current = null;
+        const registeredStore = registration.store;
+        if (
+          registeredStore.context.triggerElements.getById(registration.id) === registration.element
+        ) {
+          registeredStore.context.triggerElements.delete(registration.id);
+          syncTriggerRegistry(registeredStore);
+        }
       }
 
-      registrationRef.current = null;
-      const registeredStore = registration.store;
-      if (
-        registeredStore.context.triggerElements.getById(registration.id) === registration.element
-      ) {
-        registeredStore.context.triggerElements.delete(registration.id);
-        syncTriggerRegistry(registeredStore);
+      if (element !== null && id !== undefined) {
+        registrationRef.current = { store, id, element };
+        store.context.triggerElements.add(id, element);
+        syncTriggerRegistry(store);
       }
     }
 
-    if (element !== null && id !== undefined) {
-      registrationRef.current = { store, id, element };
-      store.context.triggerElements.add(id, element);
-      syncTriggerRegistry(store);
+    if (element !== null) {
+      onRegister?.(element);
     }
   });
+
+  // A stable ref does not re-fire on a store or id change, so migrate here instead: unregister from
+  // the previous store, then register the element the trigger still renders into the current one.
+  useIsoLayoutEffect(() => {
+    registerTrigger(elementRef.current);
+    return () => registerTrigger(null);
+  }, [registerTrigger, elementRef, store, id]);
+
+  return registerTrigger;
 }
 
 /**
- * The claim rule a trigger applies when it registers.
- *
- * - `'first-registrant'`: the owner refreshes its element, and a trigger that registers into an
- *   open, unowned popup claims it. Used by regular triggers.
- * - `'submenu'`: a submenu trigger claims its open submenu when it owns it or it has no owner.
- * - `'none'`: the part only counts as a trigger, such as a drawer swipe area.
- */
-export type TriggerClaimRule = 'first-registrant' | 'submenu' | 'none';
-
-/**
- * Registers a trigger with its popup and applies the trigger's side of the ownership rules.
- *
- * It registers the element the trigger renders, migrating it when the store or id changes, claims
- * the popup according to `claim`, and forwards `stateUpdates` (such as the trigger's `payload`)
- * while the trigger owns the popup.
+ * Registers a trigger with its popup and applies the trigger's side of the ownership rules: it
+ * claims the popup when it registers (see `claimOnRegister`), and forwards `stateUpdates` (such as
+ * the trigger's `payload`) while it owns the popup.
  *
  * @param triggerId Id of the trigger.
  * @param triggerElementRef Ref for the trigger DOM element.
  * @param store The Store instance managing the popup state.
- * @param claim The claim rule the trigger applies when it registers.
- * @param stateUpdates State to apply while the trigger owns the popup. With the `'submenu'` rule,
- *   it is applied only when the trigger claims the popup.
+ * @param stateUpdates State to apply while the trigger owns the popup.
  */
 export function useTriggerOwnership<
   State extends PopupStoreState<unknown>,
-  const Key extends keyof Omit<State, keyof TriggerOwnershipState> = never,
+  const Key extends keyof Omit<State, keyof TriggerOwnershipState>,
 >(
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
   store: PopupTriggerDataStore<State>,
-  claim: TriggerClaimRule,
-  stateUpdates: Pick<State, Key> = EMPTY_OBJECT as Pick<State, Key>,
+  stateUpdates: Pick<State, Key>,
 ) {
-  // Only regular triggers react to owning the mounted popup, so other parts don't subscribe.
-  const isMountedByThisTrigger = store.useState(
-    'isMountedByTrigger',
-    claim === 'first-registrant' ? triggerId : undefined,
-  );
+  const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
 
-  const baseRegisterTrigger = useTriggerRegistration(triggerId, store);
-
-  // Applies the claim rule when the trigger registers. Stable so payload/`stateUpdates` changes do
-  // not change the ref identity (which would needlessly churn registration); it reads the latest
-  // closure values when invoked.
-  const applyClaim = useStableCallback((element: Element) => {
-    const open = store.select('open');
-    const ownerId = store.select('activeTriggerId');
-
-    if (claim === 'first-registrant') {
-      const result = claimOnRegister(store.state, triggerId, element, open, ownerId);
+  const registerTrigger = useTriggerRegistration(
+    triggerId,
+    triggerElementRef,
+    store,
+    (element: Element) => {
+      const result = claimOnRegister(
+        store.state,
+        triggerId,
+        element,
+        store.select('open'),
+        store.select('activeTriggerId'),
+      );
       if (result) {
         store.update({
           ...result.changes,
           ...(result.forwardState ? stateUpdates : null),
         } as Pick<Readonly<State>, Key | 'activeTriggerId' | 'activeTriggerElement'>);
       }
-    } else if (claim === 'submenu') {
-      const changes = claimSubmenuOnRegister(
-        triggerId,
-        element,
-        open,
-        ownerId,
-        store.select('activeTriggerElement'),
-      );
-      if (changes) {
-        store.update({ ...changes, ...stateUpdates } as Pick<
-          Readonly<State>,
-          Key | 'activeTriggerId' | 'activeTriggerElement'
-        >);
-      }
-    }
-  });
+    },
+  );
 
-  // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
-  // lifetime.
-  const registerTrigger = useStableCallback((element: Element | null) => {
-    baseRegisterTrigger(element);
-    if (element) {
-      applyClaim(element);
-    }
-  });
-
-  // A stable ref does not re-fire on a store or id change, so migrate here instead: unregister from
-  // the previous store, then register the element the trigger still renders into the current one.
-  // On React 17 the id also starts out `undefined`, so this is what registers the trigger at all.
   useIsoLayoutEffect(() => {
-    registerTrigger(triggerElementRef.current);
-    return () => registerTrigger(null);
-  }, [registerTrigger, triggerElementRef, store, triggerId]);
-
-  // Only regular triggers keep forwarding their state while they own the popup.
-  const forwardsWhileOwner = claim === 'first-registrant' && isMountedByThisTrigger;
-  useIsoLayoutEffect(() => {
-    if (forwardsWhileOwner) {
+    if (isMountedByThisTrigger) {
       store.update({
         activeTriggerElement: triggerElementRef.current,
         ...stateUpdates,
       } as Pick<Readonly<State>, Key | 'activeTriggerElement'>);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [forwardsWhileOwner, store, triggerElementRef, ...Object.values(stateUpdates)]);
+  }, [isMountedByThisTrigger, store, triggerElementRef, ...Object.values(stateUpdates)]);
 
   return { registerTrigger, isMountedByThisTrigger };
 }

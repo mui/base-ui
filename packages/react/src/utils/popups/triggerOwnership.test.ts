@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   applyOpenRequest,
   claimOnRegister,
-  claimSubmenuOnRegister,
   createTriggerOwnership,
   settleTriggerOwnership,
 } from './triggerOwnership';
@@ -115,28 +114,6 @@ describe('triggerOwnership', () => {
           null,
         ),
       ).toBe(null);
-    });
-  });
-
-  describe('claimSubmenuOnRegister', () => {
-    it('claims an open submenu it owns or that has no owner, even when opened without a trigger', () => {
-      const element = createElement();
-
-      expect(claimSubmenuOnRegister('trigger', element, true, null, null)).toEqual({
-        activeTriggerId: 'trigger',
-        activeTriggerElement: element,
-      });
-      expect(claimSubmenuOnRegister('trigger', element, true, 'other', element)).toEqual({
-        activeTriggerId: 'trigger',
-        activeTriggerElement: element,
-      });
-    });
-
-    it('does not claim a closed submenu or one another trigger owns', () => {
-      const element = createElement();
-
-      expect(claimSubmenuOnRegister('trigger', element, false, null, null)).toBe(null);
-      expect(claimSubmenuOnRegister('trigger', element, true, 'other', createElement())).toBe(null);
     });
   });
 

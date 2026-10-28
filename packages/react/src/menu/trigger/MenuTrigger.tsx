@@ -96,7 +96,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     thisTriggerId,
     triggerElementRef,
     store,
-    'first-registrant',
     {
       payload,
       closeDelay,

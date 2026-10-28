@@ -20,7 +20,7 @@ import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 import type { DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useTriggerOwnership } from '../../utils/popups/popupStoreUtils';
+import { useTriggerRegistration } from '../../utils/popups/popupStoreUtils';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { isVirtualClick } from '../../utils/popups/event';
 import * as DrawerSwipeAreaDataAttributes from './DrawerSwipeAreaDataAttributes';
@@ -111,7 +111,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const swipeAreaId = useBaseUiId(componentProps.id);
   // The swipe area counts as a trigger (for example toward the lone-trigger claim) but never
   // claims the drawer when it registers.
-  const { registerTrigger } = useTriggerOwnership(swipeAreaId, swipeAreaRef, store, 'none');
+  const registerTrigger = useTriggerRegistration(swipeAreaId, swipeAreaRef, store);
 
   const open = store.useState('open');
 

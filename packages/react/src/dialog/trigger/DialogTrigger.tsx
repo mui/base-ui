@@ -55,7 +55,6 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
     thisTriggerId,
     triggerElementRef,
     store,
-    'first-registrant',
     {
       payload,
     },

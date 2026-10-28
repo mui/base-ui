@@ -134,31 +134,6 @@ export function claimOnRegister(
 }
 
 /**
- * Claim rule of a submenu trigger that registers.
- *
- * A submenu trigger claims its open submenu when it already owns it or when the submenu has no
- * owner. Unlike `claimOnRegister`, it ignores whether the submenu was opened without a trigger.
- *
- * @param triggerId The registered id of the submenu trigger.
- * @param element The submenu trigger element.
- * @param open Whether the submenu is open.
- * @param ownerId The effective owner id.
- * @param ownerElement The owner element the submenu currently exposes.
- */
-export function claimSubmenuOnRegister(
-  triggerId: string | undefined,
-  element: Element,
-  open: boolean,
-  ownerId: string | null,
-  ownerElement: Element | null,
-): TriggerOwnershipChanges | null {
-  if (open && (ownerElement === element || ownerId == null)) {
-    return { activeTriggerId: triggerId ?? null, activeTriggerElement: element };
-  }
-  return null;
-}
-
-/**
  * Settle: what the Root runs after every commit that changed the open state, the owner or the
  * registry.
  *

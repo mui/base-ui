@@ -69,7 +69,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     thisTriggerId,
     triggerElementRef,
     store,
-    'first-registrant',
     {
       payload,
       disabled,
