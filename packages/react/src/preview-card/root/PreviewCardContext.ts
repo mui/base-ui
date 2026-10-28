@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import type { FloatingTreeType } from '../../utils/popups/types';
 import type { PreviewCardStore } from '../store/PreviewCardStore';
 
 export type PreviewCardRootContext<Payload = unknown> = PreviewCardStore<Payload>;
@@ -10,14 +9,10 @@ export const PreviewCardRootContext = React.createContext<PreviewCardRootContext
 );
 
 /**
- * The preview card's node in the popup tree: its id and the tree the Root registered it in. The Root
- * registers the node; the Positioner attaches its snapshot to the same tree and provides it as the
- * parent of popups nested inside the preview card.
+ * The id of the preview card's node in the popup tree. The Root registers the node; the Positioner
+ * provides it as the parent of popups nested inside the preview card.
  */
-export const PreviewCardTreeNodeContext = React.createContext<{
-  id: string | undefined;
-  tree: FloatingTreeType | null;
-} | null>(null);
+export const PreviewCardTreeNodeIdContext = React.createContext<string | undefined>(undefined);
 
 export function usePreviewCardRootContext(optional?: false): PreviewCardRootContext;
 export function usePreviewCardRootContext(optional: true): PreviewCardRootContext | undefined;

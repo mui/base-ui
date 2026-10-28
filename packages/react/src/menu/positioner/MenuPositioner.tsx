@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { FloatingNode, useFloatingNodeSnapshot } from '../../utils/popups/tree/FloatingTree';
+import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -109,7 +109,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     },
     state: { nested: parent.type === 'menu' },
   });
-  useFloatingNodeSnapshot(floatingNodeId, positioner.context, floatingTreeRoot);
 
   React.useEffect(() => {
     function onMenuOpenChange(details: MenuOpenEventDetails) {

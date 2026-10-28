@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { FloatingNode, useFloatingNodeSnapshot } from '../../utils/popups/tree/FloatingTree';
-import { PopoverTreeNodeContext, usePopoverRootContext } from '../root/PopoverRootContext';
+import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
+import { PopoverTreeNodeIdContext, usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import type {
   Side,
@@ -29,18 +29,14 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 ) {
   const store = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
-  // The Root registers the node; the Positioner attaches its snapshot to the same tree and scopes
-  // nested popups under it.
-  const treeNode = React.useContext(PopoverTreeNodeContext);
-  const nodeId = treeNode?.id;
+  // The Root registers the node; the Positioner scopes nested popups under it.
+  const nodeId = React.useContext(PopoverTreeNodeIdContext);
 
   const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
     keepMounted,
     positioning: { nodeId },
   });
-  // The Root keeps the node registered once the Positioner unmounts, so the snapshot is dropped then.
-  useFloatingNodeSnapshot(nodeId, positioning.context, treeNode?.tree, true);
 
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
@@ -70,7 +66,9 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       {mounted && trueModalNonHover && (
         <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />
       )}
-      <FloatingNode id={nodeId}>{element}</FloatingNode>
+      <FloatingNode id={nodeId} detachOnUnmount>
+        {element}
+      </FloatingNode>
     </PopoverPositionerContext.Provider>
   );
 });
