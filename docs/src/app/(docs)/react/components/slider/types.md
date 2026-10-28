@@ -119,8 +119,9 @@ type SliderRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /**
    * The element that triggered the event, if applicable.
-   * A popup that closes reports the trigger it was opened from, whatever closed it, as long as
-   * that trigger is still in the document.
+   * When a popup closes for a reason that names no element, such as Escape or an outside press,
+   * this is the trigger the popup was opened from, as long as it's still in the document.
+   * Navigation Menu leaves it unset.
    */
   trigger: Element | undefined;
   /** The index of the active thumb at the time of the change. */
