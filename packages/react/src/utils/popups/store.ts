@@ -51,11 +51,11 @@ export type PopupStoreState<Payload> = {
   payload: Payload | undefined;
 
   /**
-   * ID of the currently active trigger. Written only through the `triggerOwnership` module.
+   * ID of the currently active trigger.
    */
   activeTriggerId: string | null;
   /**
-   * The currently active trigger DOM element. Written only through the `triggerOwnership` module.
+   * The currently active trigger DOM element.
    */
   activeTriggerElement: Element | null;
   /**
@@ -82,8 +82,9 @@ export type PopupStoreState<Payload> = {
    */
   hasLoneTrigger: boolean;
   /**
-   * The element the popup is positioned against: the last trigger element the mounted popup was
-   * anchored to. It is kept once the popup unmounts, until a `keepMounted` positioner clears it.
+   * The last trigger element the popup was anchored to. Unlike `activeTriggerElement`, it is kept
+   * once the popup unmounts, so the interaction hooks still recognize the trigger that the popup
+   * last belonged to.
    */
   anchorElement: Element | null;
   /**

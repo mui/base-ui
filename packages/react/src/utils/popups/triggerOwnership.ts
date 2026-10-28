@@ -22,7 +22,7 @@ export type TriggerOwnershipState = Pick<
 >;
 
 /**
- * Ownership fields to commit. Only the fields that change are present.
+ * Ownership fields to commit. A field that is present is never `undefined`.
  */
 export type TriggerOwnershipChanges = Partial<TriggerOwnershipState>;
 

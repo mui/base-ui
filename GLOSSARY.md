@@ -21,12 +21,8 @@ _Avoid_: reference, reference element, DOM reference
 _In code_: the active trigger is `activeTriggerElement` in the popup store and `anchorElement` in `FloatingRootStore`.
 
 **Owner**:
-The trigger a popup currently belongs to: usually the one that opened it, or one that claimed it later. The popup's ARIA relationships, focus return and trigger payload follow it. In code it is the **active trigger** (`activeTriggerId` and `activeTriggerElement`), and only the trigger ownership module changes it.
+The trigger a popup currently belongs to: usually the one that opened it, or one that claimed it later. The popup's ARIA relationships, focus return and trigger payload follow it. In code it is the **active trigger** (`activeTriggerId` and `activeTriggerElement`).
 _Avoid_: current trigger, selected trigger
-
-**Registry version**:
-A counter that moves on whenever a trigger registers or unregisters while the popup is open. The Root settles ownership after each change, including when one trigger replaces another and the number of triggers stays the same.
-_Avoid_: trigger count
 
 **Lone-trigger claim**:
 When a popup is open without an owner and exactly one trigger is registered, that trigger becomes the owner, whether the popup has just opened or the other triggers have unmounted. It doesn't apply when the popup was opened deliberately without a trigger, such as with a handle's `open(null)`.
