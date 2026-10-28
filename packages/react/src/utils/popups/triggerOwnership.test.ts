@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   applyOpenRequest,
   claimOnRegister,
-  createTriggerOwnership,
   settleTriggerOwnership,
 } from './triggerOwnership';
 import type { TriggerOwnershipState } from './triggerOwnership';
+import { createInitialPopupStoreState } from './store';
 import { PopupTriggerMap } from './popupTriggerMap';
 
 function createElement(id = '') {
@@ -23,7 +23,7 @@ function createRegistry(...entries: Array<[string, Element]>) {
 }
 
 function createState(overrides: Partial<TriggerOwnershipState> = {}): TriggerOwnershipState {
-  return { ...createTriggerOwnership(), ...overrides };
+  return { ...createInitialPopupStoreState(), ...overrides };
 }
 
 describe('triggerOwnership', () => {

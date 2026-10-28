@@ -41,25 +41,6 @@ export interface TriggerRegistry {
 }
 
 /**
- * Returns the ownership state of a popup that has not been opened yet.
- *
- * @param activeTriggerId The id of the trigger that owns the popup from the start, such as the
- *   `defaultTriggerId` of a popup that is open by default.
- */
-export function createTriggerOwnership(
-  activeTriggerId: string | null = null,
-): TriggerOwnershipState {
-  return {
-    activeTriggerId,
-    activeTriggerElement: null,
-    openedWithoutTrigger: false,
-    resolvedTriggerId: null,
-    registryVersion: 0,
-    hasLoneTrigger: false,
-  };
-}
-
-/**
  * Open or close request.
  *
  * An open request makes its trigger the owner, or leaves the popup without one when it carries no

@@ -17,7 +17,7 @@ import type {
   popupStoreSelectors,
   PopupTriggerDataStore,
 } from './store';
-import { createTriggerOwnership, settleTriggerOwnership } from './triggerOwnership';
+import { settleTriggerOwnership } from './triggerOwnership';
 import type { TriggerOwnershipState } from './triggerOwnership';
 
 /**
@@ -43,9 +43,8 @@ export interface PopupRootActions {
  */
 export type PopupRootInitialState = Pick<
   PopupStoreState<unknown>,
-  'open' | 'openProp' | 'triggerIdProp'
-> &
-  TriggerOwnershipState;
+  'open' | 'openProp' | 'activeTriggerId' | 'triggerIdProp'
+>;
 
 export interface UsePopupRootOptions {
   /**
@@ -129,12 +128,7 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
   const store = usePopupRootStore(
     (initialPopupId) =>
       createStore(
-        {
-          open: defaultOpen,
-          openProp,
-          triggerIdProp,
-          ...createTriggerOwnership(defaultTriggerId),
-        },
+        { open: defaultOpen, openProp, activeTriggerId: defaultTriggerId, triggerIdProp },
         initialPopupId,
       ),
     defaultPopupId,
@@ -177,12 +171,7 @@ export function useSingleAnchorPopupRoot<Store extends PopupRootStore>(
   const store = usePopupRootStore(
     (initialPopupId) =>
       createStore(
-        {
-          open: defaultOpen,
-          openProp,
-          triggerIdProp: undefined,
-          ...createTriggerOwnership(),
-        },
+        { open: defaultOpen, openProp, activeTriggerId: null, triggerIdProp: undefined },
         initialPopupId,
       ),
     useId(),

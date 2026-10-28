@@ -10,7 +10,7 @@ import { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { applyOpenRequest, createTriggerOwnership } from './triggerOwnership';
+import { applyOpenRequest } from './triggerOwnership';
 
 /**
  * State common to all popup stores.
@@ -134,8 +134,13 @@ export function createInitialPopupStoreState<Payload>(
     defaultPopupId,
     preventUnmountingOnClose: false,
     payload: undefined,
-    ...createTriggerOwnership(),
+    activeTriggerId: null,
+    activeTriggerElement: null,
     anchorElement: null,
+    openedWithoutTrigger: false,
+    resolvedTriggerId: null,
+    registryVersion: 0,
+    hasLoneTrigger: false,
     openChangeReason: null,
     triggerIdProp: undefined,
     popupElement: null,
