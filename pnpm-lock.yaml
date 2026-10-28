@@ -348,8 +348,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.3.0)(react@19.3.1)
       '@mui/internal-docs-infra':
-        specifier: 0.13.1-canary.17
-        version: 0.13.1-canary.17(@types/react@19.3.0)(next@16.4.2(@babel/core@8.0.7)(@playwright/test@1.64.1)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)
+        specifier: 0.13.1-canary.21
+        version: 0.13.1-canary.21(@types/react@19.3.0)(next@16.4.2(@babel/core@8.0.7)(@playwright/test@1.64.1)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)
       '@next/mdx':
         specifier: ^16.4.2
         version: 16.4.2(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@22.20.5))(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.3.0)(react@19.3.1))
@@ -2394,8 +2394,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.13.1-canary.17':
-    resolution: {integrity: sha512-4y5QPjeW7nPCU71/DNI6kGI5NvQMB3tOWSj/v1DkB0tSA7rgmWx/SaoE/YNr38DtlSJlMb3Sr2mmFMBs83vI5A==}
+  '@mui/internal-docs-infra@0.13.1-canary.21':
+    resolution: {integrity: sha512-MCqsc7j8vjm3j6aAJh7kNn/CIrfQOpxO57HxJDaoTr6vbjpvM1+kl/KZpV0wYwRU/OR8tOYyHSzl233fKCvytA==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -11436,7 +11436,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.13.1-canary.17(@types/react@19.3.0)(next@16.4.2(@babel/core@8.0.7)(@playwright/test@1.64.1)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)':
+  '@mui/internal-docs-infra@0.13.1-canary.21(@types/react@19.3.0)(next@16.4.2(@babel/core@8.0.7)(@playwright/test@1.64.1)(@types/node@22.20.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(prettier@3.9.10)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@10.2.2)':
     dependencies:
       '@babel/runtime': 8.0.7
       '@csstools/postcss-light-dark-function': 3.0.7(postcss@8.5.31)
