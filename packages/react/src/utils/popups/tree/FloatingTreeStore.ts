@@ -2,11 +2,6 @@ import { contains } from '@base-ui/utils/shadowDom';
 import type { FloatingNodeType, FloatingTreeEvents } from '../types';
 import { createEventEmitter } from '../createEventEmitter';
 
-const BUBBLE_KEYS = {
-  escapeKey: 'escapeKeyBubbles',
-  outsidePress: 'outsidePressBubbles',
-} as const;
-
 /**
  * Stores and manages floating elements in a tree structure.
  * This is a backing store for the `FloatingTree` component.
@@ -67,10 +62,13 @@ export class FloatingTreeStore {
   }
 
   /**
-   * Whether an open descendant of a node keeps the given dismissal from bubbling up to it.
+   * Whether an open descendant of a node keeps the dismissal its `bubbleKey` names from bubbling up
+   * to it.
    */
-  public hasBlockingChild(id: string | undefined, dismissal: 'escapeKey' | 'outsidePress') {
-    const bubbleKey = BUBBLE_KEYS[dismissal];
+  public hasBlockingChild(
+    id: string | undefined,
+    bubbleKey: 'escapeKeyBubbles' | 'outsidePressBubbles',
+  ) {
     return this.descendants(id).some((child) => !child.context!.rootStore.context[bubbleKey]);
   }
 

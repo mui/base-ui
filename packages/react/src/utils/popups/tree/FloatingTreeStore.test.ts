@@ -32,7 +32,7 @@ it('answers queries about the nodes it holds', () => {
   expect(tree.getNode('child')).toBe(child);
   expect(tree.descendants('root')).toEqual([child]);
   expect(tree.ancestors('child')).toEqual([root]);
-  expect(tree.hasBlockingChild('root', 'escapeKey')).toBe(true);
+  expect(tree.hasBlockingChild('root', 'escapeKeyBubbles')).toBe(true);
   expect(tree.descendantContains('root', target)).toBe(true);
   expect(tree.contains(target)).toBe(true);
 
@@ -167,8 +167,8 @@ it('hasBlockingChild is true for an open descendant that does not let the dismis
     },
   ];
 
-  expect(createTree(nodes).hasBlockingChild('0', 'escapeKey')).toBe(true);
-  expect(createTree(nodes).hasBlockingChild('0', 'outsidePress')).toBe(false);
+  expect(createTree(nodes).hasBlockingChild('0', 'escapeKeyBubbles')).toBe(true);
+  expect(createTree(nodes).hasBlockingChild('0', 'outsidePressBubbles')).toBe(false);
 });
 
 it('hasBlockingChild ignores closed descendants and treats an unset flag as blocking', () => {
@@ -181,8 +181,8 @@ it('hasBlockingChild ignores closed descendants and treats an unset flag as bloc
     { id: '1', parentId: '0', context: createContext(true, { interaction: {} }) },
   ];
 
-  expect(createTree(closedBlocking).hasBlockingChild('0', 'escapeKey')).toBe(false);
-  expect(createTree(openUnset).hasBlockingChild('0', 'escapeKey')).toBe(true);
+  expect(createTree(closedBlocking).hasBlockingChild('0', 'escapeKeyBubbles')).toBe(false);
+  expect(createTree(openUnset).hasBlockingChild('0', 'escapeKeyBubbles')).toBe(true);
 });
 
 it('descendantContains checks open descendants, or all of them when onlyOpen is false', () => {

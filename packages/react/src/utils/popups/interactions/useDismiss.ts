@@ -181,10 +181,12 @@ export function useDismiss(
     storeContext.insideReactTree = false;
   });
 
-  const hasBlockingChild = useStableCallback((dismissal: 'escapeKey' | 'outsidePress') => {
-    const nodeId = storeContext.positioning?.nodeId;
-    return tree ? tree.hasBlockingChild(nodeId, dismissal) : false;
-  });
+  const hasBlockingChild = useStableCallback(
+    (bubbleKey: 'escapeKeyBubbles' | 'outsidePressBubbles') => {
+      const nodeId = storeContext.positioning?.nodeId;
+      return tree ? tree.hasBlockingChild(nodeId, bubbleKey) : false;
+    },
+  );
 
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
     return (
@@ -224,7 +226,7 @@ export function useDismiss(
         return;
       }
 
-      if (!escapeKeyBubbles && hasBlockingChild('escapeKey')) {
+      if (!escapeKeyBubbles && hasBlockingChild('escapeKeyBubbles')) {
         return;
       }
 
@@ -526,7 +528,7 @@ export function useDismiss(
         return;
       }
 
-      if (hasBlockingChild('outsidePress')) {
+      if (hasBlockingChild('outsidePressBubbles')) {
         return;
       }
 
