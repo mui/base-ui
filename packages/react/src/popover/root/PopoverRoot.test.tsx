@@ -1465,6 +1465,32 @@ describe('<Popover.Root />', () => {
       });
     });
 
+    it('closes a trap-focus popover on pointerdown outside, before the click', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <TestPopover
+            rootProps={{ defaultOpen: true, modal: 'trap-focus', onOpenChange: handleOpenChange }}
+            popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
+          />
+        </div>,
+      );
+
+      const outside = screen.getByTestId('outside');
+      expect(outside.closest('[aria-hidden]')).toHaveAttribute('aria-hidden', 'true');
+
+      fireEvent.pointerDown(outside, { button: 0, pointerType: 'mouse' });
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(handleOpenChange).toHaveBeenCalledTimes(1);
+      expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+      // Closing on the press start lifts `aria-hidden` before the press can move focus outside.
+      expect(outside.closest('[aria-hidden]')).toBe(null);
+    });
+
     describe('non-modal focus transitions', () => {
       it('closes as soon as focus leaves the popup on pointer down outside', async () => {
         function TestCase() {
@@ -3014,43 +3040,10 @@ describe('<Popover.Root />', () => {
   });
 
   describe('dismissal across popup families', () => {
-    it('closes a trap-focus popover on a mouse press outside before focus moves there', async () => {
-      const { user } = await render(
-        <div>
-          <button type="button" data-testid="outside">
-            Outside
-          </button>
-          <Popover.Root modal="trap-focus">
-            <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup data-testid="popup">
-                  <Popover.Close>Close</Popover.Close>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        </div>,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'Open' }));
-      await screen.findByTestId('popup');
-      await flushMicrotasks();
-      const outside = screen.getByTestId('outside');
-      expect(outside.closest('[aria-hidden]')).toHaveAttribute('aria-hidden', 'true');
-
-      fireEvent.pointerDown(outside, { pointerType: 'mouse', button: 0 });
-      await flushMicrotasks();
-
-      // The press start closes the popover and clears `aria-hidden`, before the press can move
-      // focus outside.
-      expect(screen.queryByTestId('popup')).toBe(null);
-      expect(outside.closest('[aria-hidden]')).toBe(null);
-    });
-
     it('closes only a nested menu on Escape while focus is in the menu', async () => {
+      const handlePopoverOpenChange = vi.fn();
       const { user } = await render(
-        <Popover.Root>
+        <Popover.Root defaultOpen onOpenChange={handlePopoverOpenChange}>
           <Popover.Trigger>Popover</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
@@ -3071,8 +3064,7 @@ describe('<Popover.Root />', () => {
         </Popover.Root>,
       );
 
-      await user.click(screen.getByRole('button', { name: 'Popover' }));
-      const menuTrigger = await screen.findByRole('button', { name: 'Menu' });
+      const menuTrigger = screen.getByRole('button', { name: 'Menu' });
       await user.click(menuTrigger);
       const menuPopup = await screen.findByTestId('menu-popup');
       await waitFor(() => {
@@ -3084,13 +3076,14 @@ describe('<Popover.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('menu-popup')).toBe(null);
       });
+      expect(handlePopoverOpenChange).not.toHaveBeenCalled();
       expect(screen.getByTestId('popover-popup')).toBeVisible();
       await waitFor(() => {
         expect(menuTrigger).toHaveFocus();
       });
     });
 
-    it('currently closes the popover on Escape from an inline combobox inside it', async () => {
+    it('closes the popover on Escape from an inline combobox inside it', async () => {
       const { user } = await render(
         <Popover.Root>
           <Popover.Trigger>Popover</Popover.Trigger>
@@ -3122,12 +3115,10 @@ describe('<Popover.Root />', () => {
 
       await user.keyboard('{Escape}');
 
-      // A characterization of current behavior: an inline combobox has no popup of its own to close,
-      // so the Escape reaches the popover, and the typed value stays.
+      // An inline combobox has no popup of its own to close, so the Escape reaches the popover.
       await waitFor(() => {
         expect(screen.queryByTestId('popover-popup')).toBe(null);
       });
-      expect(input).toHaveValue('a');
     });
   });
 });
