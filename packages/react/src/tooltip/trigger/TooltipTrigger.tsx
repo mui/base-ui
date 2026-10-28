@@ -89,7 +89,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const providerDelay = useTooltipProviderContext();
   const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(store, {
     open: isOpenedByThisTrigger,
-    closeForSibling: store.closeForSibling,
   });
   const hoverIntent = getHoverIntent(store);
 

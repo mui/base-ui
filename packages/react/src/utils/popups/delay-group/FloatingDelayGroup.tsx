@@ -106,10 +106,6 @@ interface UseDelayGroupOptions {
    * Whether the trigger this hook is used in has opened the tooltip.
    */
   open: boolean;
-  /**
-   * Closes the popup because another popup in the group opened.
-   */
-  closeForSibling: () => void;
 }
 
 interface UseDelayGroupReturn {
@@ -138,10 +134,15 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  store: PopupInteractionStore,
+  store: PopupInteractionStore & {
+    /**
+     * Closes the popup because another popup in the group opened.
+     */
+    closeForSibling(): void;
+  },
   options: UseDelayGroupOptions,
 ): UseDelayGroupReturn {
-  const { open, closeForSibling } = options;
+  const { open } = options;
 
   const defaultPopupId = store.useState('defaultPopupId');
 
@@ -225,7 +226,7 @@ export function useDelayGroup(
     // A new tooltip is opening, so cancel any pending timeout that would reset
     // the group's delay back to the initial value.
     timeout.clear();
-    currentContextRef.current = { closeForSibling, setIsInstantPhase };
+    currentContextRef.current = { closeForSibling: store.closeForSibling, setIsInstantPhase };
     currentIdRef.current = defaultPopupId;
     delayRef.current = {
       open: 0,
@@ -243,7 +244,7 @@ export function useDelayGroup(
   }, [
     open,
     defaultPopupId,
-    closeForSibling,
+    store,
     currentIdRef,
     delayRef,
     initialDelayRef,

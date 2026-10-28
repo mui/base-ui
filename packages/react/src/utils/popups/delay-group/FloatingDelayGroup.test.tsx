@@ -26,7 +26,10 @@ function Tooltip({ children, label }: Props) {
   });
 
   const closeForSibling = useStableCallback(() => setOpen(false));
-  const { delayRef, isInstantPhase } = useDelayGroup(context.rootStore, { open, closeForSibling });
+  const { delayRef, isInstantPhase } = useDelayGroup(
+    Object.assign(context.rootStore, { closeForSibling }),
+    { open },
+  );
   const hoverReferenceProps = useHoverTriggerInteraction(context.rootStore, {
     delay: () => delayRef.current,
     triggerElementRef: refs.domReference,
