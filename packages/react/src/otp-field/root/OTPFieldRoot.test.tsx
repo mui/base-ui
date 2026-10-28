@@ -7,7 +7,7 @@ import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
-import { createRenderer, describeConformance, pasteText } from '#test-utils';
+import { createRenderer, describeConformance, hiddenInputSizeTests, pasteText } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 describe('<OTPField.Root />', () => {
@@ -30,6 +30,11 @@ describe('<OTPField.Root />', () => {
       </OTPFieldBase.Root>
     );
   }
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => <OTPField {...props} />,
+  });
 
   function getValues() {
     return screen
