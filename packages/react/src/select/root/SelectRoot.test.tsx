@@ -7428,6 +7428,52 @@ describe('<Select.Root />', () => {
       expect(handleOpenChange).toHaveBeenLastCalledWith(false, REASONS.imperativeAction);
     });
 
+    it('does not report a close after the parent canceled an open', async () => {
+      const handleOpenChange = vi.fn();
+      const actionsRef = React.createRef<Select.Root.Actions>();
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <Select.Root
+            actionsRef={actionsRef}
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              handleOpenChange(nextOpen, eventDetails.reason);
+              if (nextOpen) {
+                eventDetails.cancel();
+              } else {
+                setOpen(false);
+              }
+            }}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(handleOpenChange).toHaveBeenLastCalledWith(true, REASONS.triggerPress);
+      });
+
+      await act(async () => {
+        actionsRef.current!.close();
+      });
+
+      expect(handleOpenChange.mock.calls).toEqual([[true, REASONS.triggerPress]]);
+    });
+
     it('does not notify the interactions of a close that onOpenChange cancels', async () => {
       const onOpenChange = vi.fn((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => {
         if (!open) {

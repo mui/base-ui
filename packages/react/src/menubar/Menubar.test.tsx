@@ -148,7 +148,7 @@ describe('<Menubar />', () => {
         new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
       );
       expect(onEditOpenChange).toHaveBeenLastCalledWith(true, 'trigger-focus');
-      expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+      expect(editTrigger).toHaveAttribute('data-popup-open');
 
       await act(async () => {
         vi.advanceTimersByTime(310);

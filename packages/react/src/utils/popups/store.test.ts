@@ -341,33 +341,28 @@ describe('BasePopupStore', () => {
       expect(onDroppedClose).toHaveBeenCalledTimes(1);
     });
 
-    it('runs a close request while a controlled popup is open but its last request closed it', () => {
+    it.each([
+      {
+        name: 'while a controlled popup is open but its last request closed it',
+        state: { open: false, openProp: true },
+      },
+      {
+        name: 'while a controlled popup has an open request its prop has not applied',
+        state: { open: true, openProp: false },
+      },
+      { name: 'while open', state: { open: true } },
+    ])('runs a close request $name', ({ state }) => {
       const onOpenChange = vi.fn();
-      const store = new TestPopupStore(onOpenChange, { open: false, openProp: true });
-
-      store.setOpen(false, createDetails(REASONS.escapeKey));
-
-      expect(onOpenChange).toHaveBeenCalledTimes(1);
-    });
-
-    it('runs a close request while a controlled popup has an open request its prop has not applied', () => {
-      const onOpenChange = vi.fn();
-      const store = new TestPopupStore(onOpenChange, { open: true, openProp: false });
-
-      store.setOpen(false, createDetails(REASONS.triggerHover));
-
-      expect(onOpenChange).toHaveBeenCalledTimes(1);
-      expect(store.state.open).toBe(false);
-    });
-
-    it('runs a close request while open', () => {
-      const onOpenChange = vi.fn();
-      const store = new TestPopupStore(onOpenChange, { open: true });
+      const onDroppedClose = vi.fn();
+      const store = new TestPopupStore(onOpenChange, state);
+      store.context.events.on('droppedclose', onDroppedClose);
 
       store.setOpen(false, createDetails(REASONS.escapeKey));
 
       expect(onOpenChange).toHaveBeenCalledTimes(1);
       expect(store.steps).toEqual(['notify', 'prepare', 'commit']);
+      expect(store.state.open).toBe(false);
+      expect(onDroppedClose).not.toHaveBeenCalled();
     });
 
     it('reports the active trigger for a close request that carries none by default', () => {
@@ -441,6 +436,16 @@ describe('BasePopupStore', () => {
       expect(onOpenChange.mock.calls[0][1].trigger).toBe(trigger);
     });
 
+    it('reports no trigger when the close trigger the store names has left the document', () => {
+      const onOpenChange = vi.fn();
+      const store = new TestPopupStore(onOpenChange, { open: true });
+      store.closeTrigger = document.createElement('button');
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+
+      expect(onOpenChange.mock.calls[0][1].trigger).toBe(undefined);
+    });
+
     it('keeps the popup mounted when onOpenChange prevents unmounting on close', () => {
       const store = new TestPopupStore(
         (_open, eventDetails) => {
@@ -466,6 +471,41 @@ describe('BasePopupStore', () => {
       store.setOpen(false, createDetails(REASONS.escapeKey));
 
       expect(store.state.open).toBe(true);
+      expect(store.state.preventUnmountingOnClose).toBe(false);
+    });
+
+    it('ignores a request to keep the popup mounted from an open change', () => {
+      const store = new TestPopupStore((open, eventDetails) => {
+        if (open) {
+          eventDetails.preventUnmountOnClose();
+        }
+      });
+
+      store.setOpen(true, createDetails(REASONS.triggerPress));
+
+      expect(store.state.open).toBe(true);
+      expect(store.state.preventUnmountingOnClose).toBe(false);
+    });
+
+    it('ignores a late request to keep the popup mounted from a cancelled close', () => {
+      const closeDetails: PopupOpenChangeEventDetails[] = [];
+      const store = new TestPopupStore(
+        (open, eventDetails) => {
+          if (!open) {
+            closeDetails.push(eventDetails);
+            if (closeDetails.length === 1) {
+              eventDetails.cancel();
+            }
+          }
+        },
+        { open: true, mounted: true },
+      );
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+      store.setOpen(false, createDetails(REASONS.outsidePress));
+      expect(store.state.open).toBe(false);
+      closeDetails[0].preventUnmountOnClose();
+
       expect(store.state.preventUnmountingOnClose).toBe(false);
     });
 

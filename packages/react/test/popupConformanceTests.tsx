@@ -450,6 +450,71 @@ export function popupConformanceTests(config: PopupTestConfig) {
           expect(handleOpenChangeComplete).toHaveBeenCalledWith(false);
         });
       });
+
+      it.each([
+        { name: 'one close', closes: 1, synchronous: false },
+        { name: 'a second close during the wait', closes: 2, synchronous: false },
+        {
+          name: 'a synchronous request and a second close during the wait',
+          closes: 2,
+          synchronous: true,
+        },
+      ])(
+        'keeps a controlled popup from finishing its close when it prevents unmounting after an await, with $name',
+        async ({ closes, synchronous }) => {
+          const onOpenChangeComplete = vi.fn();
+          const handleClose = vi.fn();
+
+          function App() {
+            const [open, setOpen] = React.useState(true);
+            const busyRef = React.useRef(false);
+            return prepareComponent({
+              root: {
+                open,
+                onOpenChangeComplete,
+                onOpenChange: async (nextOpen, eventDetails) => {
+                  if (nextOpen) {
+                    setOpen(true);
+                    return;
+                  }
+                  handleClose();
+                  // A close that arrives while the first one waits is ignored.
+                  if (busyRef.current) {
+                    return;
+                  }
+                  busyRef.current = true;
+                  if (synchronous) {
+                    eventDetails.preventUnmountOnClose();
+                  }
+                  await wait(50);
+                  if (!synchronous) {
+                    eventDetails.preventUnmountOnClose();
+                  }
+                  setOpen(false);
+                },
+              },
+            });
+          }
+
+          const { user } = await render(<App />, NON_STRICT);
+          expect(getPopup()).toBeVisible();
+
+          await user.keyboard('[Escape]');
+          if (closes === 2) {
+            await user.keyboard('[Escape]');
+          }
+          expect(handleClose).toHaveBeenCalledTimes(closes);
+          await waitFor(() => {
+            expect(getTrigger()).not.toHaveAttribute('data-popup-open');
+          });
+          await act(async () => {
+            await wait(100);
+          });
+
+          expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+          expect(getPopup()).not.toBe(null);
+        },
+      );
     });
 
     if (expectedPopupRole || triggerMouseAction === 'click') {
@@ -662,79 +727,6 @@ export function popupConformanceTests(config: PopupTestConfig) {
           expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
           expect(getPopup()).not.toBe(null);
         });
-
-        it.each([
-          { name: 'one close', closes: 1, synchronous: false },
-          { name: 'a second close during the wait', closes: 2, synchronous: false },
-          {
-            name: 'a synchronous request and a second close during the wait',
-            closes: 2,
-            synchronous: true,
-          },
-        ])(
-          'is not called on close when a controlled popup prevents unmounting after an await, with $name',
-          async ({ closes, synchronous }) => {
-            globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-            const onOpenChangeComplete = vi.fn();
-            const handleClose = vi.fn();
-
-            function App() {
-              const [open, setOpen] = React.useState(true);
-              const busyRef = React.useRef(false);
-              return prepareComponent({
-                root: {
-                  open,
-                  onOpenChangeComplete,
-                  onOpenChange: async (nextOpen, eventDetails) => {
-                    if (nextOpen) {
-                      setOpen(true);
-                      return;
-                    }
-                    handleClose();
-                    // A close that arrives while the first one waits is ignored.
-                    if (busyRef.current) {
-                      return;
-                    }
-                    busyRef.current = true;
-                    if (synchronous) {
-                      eventDetails.preventUnmountOnClose();
-                    }
-                    await wait(50);
-                    if (!synchronous) {
-                      eventDetails.preventUnmountOnClose();
-                    }
-                    setOpen(false);
-                  },
-                },
-                popup: { className },
-              });
-            }
-
-            const { user } = await render(
-              <div>
-                <style>
-                  {`@keyframes ${animationName}-exit { to { opacity: 0; } }
-                    .${className}[data-ending-style] { animation: ${animationName}-exit 200ms; }`}
-                </style>
-                <App />
-              </div>,
-            );
-            expect(getPopup()).toBeVisible();
-
-            await user.keyboard('[Escape]');
-            if (closes === 2) {
-              await user.keyboard('[Escape]');
-            }
-            expect(handleClose).toHaveBeenCalledTimes(closes);
-            await waitFor(() => {
-              expect(getPopup()).toHaveAttribute('data-ending-style');
-            });
-            await wait(400);
-
-            expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
-            expect(getPopup()).not.toBe(null);
-          },
-        );
 
         it('is called on open once the enter animation finishes', async () => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

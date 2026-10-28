@@ -14,7 +14,14 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, isScrollLocked, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  enterWithMouse,
+  isJSDOM,
+  isScrollLocked,
+  popupConformanceTests,
+  wait,
+} from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
@@ -2876,6 +2883,70 @@ describe('<Popover.Root />', () => {
       });
 
       expect(renders.find((entry) => entry.open)).toEqual({ open: true, instant: undefined });
+    });
+
+    it('renders the closing popup with the dismissal instant type from its first closed render', async () => {
+      const renders: { open: boolean; instant: string | undefined }[] = [];
+
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Portal keepMounted>
+            <Popover.Positioner>
+              <Popover.Popup
+                data-testid="popup"
+                className={(state) => {
+                  renders.push({ open: state.open, instant: state.instant });
+                  return undefined;
+                }}
+              >
+                Content
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+      renders.length = 0;
+
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+      });
+
+      expect(renders.find((entry) => !entry.open)).toEqual({ open: false, instant: 'dismiss' });
+    });
+
+    it('cancels a pending hover open when the `close` action is called', async () => {
+      const onOpenChange = vi.fn();
+      const actionsRef = React.createRef<Popover.Root.Actions>();
+      await render(
+        <Popover.Root actionsRef={actionsRef} onOpenChange={onOpenChange}>
+          <Popover.Trigger openOnHover delay={100}>
+            Trigger
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup">Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      enterWithMouse(screen.getByRole('button', { name: 'Trigger' }));
+      await act(async () => {
+        actionsRef.current!.close();
+      });
+      await act(async () => {
+        await wait(200);
+      });
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(screen.queryByTestId('popup')).toBe(null);
     });
   });
   describe('after a close from a trigger', () => {

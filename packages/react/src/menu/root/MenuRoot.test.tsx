@@ -4288,6 +4288,50 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    it('does not report a close after the parent canceled a hover open', async () => {
+      const handleOpenChange = vi.fn();
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <Menu.Root
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              handleOpenChange(nextOpen, eventDetails.reason);
+              if (eventDetails.reason === REASONS.triggerHover) {
+                eventDetails.cancel();
+              } else {
+                setOpen(nextOpen);
+              }
+            }}
+          >
+            <Menu.Trigger openOnHover delay={0}>
+              Toggle
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+      await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      enterWithMouse(trigger);
+      await waitFor(() => {
+        expect(handleOpenChange).toHaveBeenCalledWith(true, REASONS.triggerHover);
+      });
+      moveMouse(trigger, document.body);
+      await act(async () => {
+        await wait(100);
+      });
+
+      expect(handleOpenChange.mock.calls).toEqual([[true, REASONS.triggerHover]]);
+    });
+
     it('reports two identical requests made in one tick twice', async () => {
       const handle = Menu.createHandle();
       const onOpenChange = vi.fn();

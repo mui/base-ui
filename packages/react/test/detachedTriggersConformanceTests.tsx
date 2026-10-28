@@ -301,6 +301,26 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
             );
           });
 
+          it('reports no trigger for a close once the trigger the popup was opened from has unmounted', async () => {
+            const onOpenChange = vi.fn();
+            const handle = getHandle();
+            const { user, setProps } = await render(
+              <Fixture mode={mode} handle={handle} rootProps={{ onOpenChange }} />,
+            );
+
+            await openWith(primaryInteraction, user, getTrigger(2));
+            await waitForPopupOpen();
+            await setProps({ triggerCount: 1 });
+            // Some popups close as their active trigger unmounts; the others close on Escape.
+            await user.keyboard('[Escape]');
+            await waitForPopupClosed();
+
+            expect(onOpenChange).toHaveBeenLastCalledWith(
+              false,
+              expect.objectContaining({ trigger: undefined }),
+            );
+          });
+
           it('reuses the popup DOM nodes when switching triggers', async () => {
             const { user } = await render(<Fixture mode={mode} handle={getHandle()} />);
 
