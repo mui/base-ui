@@ -6,6 +6,7 @@ import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { getTarget } from '@base-ui/utils/shadowDom';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import {
@@ -23,10 +24,11 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { useButton } from '../../internals/use-button/useButton';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
+import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
-import { isPressReleasedInside, usePressReleaseListener } from '../../utils/popups/pressRelease';
+import { isPressReleasedInside } from '../../utils/popups/pressRelease';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from './useMixedToggleClickHandler';
@@ -124,7 +126,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerTimeout = useTimeout();
-  const listenForPressRelease = usePressReleaseListener();
 
   const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
     if (!triggerRef.current) {
@@ -134,12 +135,11 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     allowMouseUpTriggerTimeout.clear();
     store.context.allowMouseUpTriggerRef.current = false;
 
+    const mouseUpTarget = getTarget(mouseEvent) as Element | null;
+
     if (
-      isPressReleasedInside(mouseEvent, {
-        elements: [triggerRef.current, store.select('positionerElement')],
-        boundsElement: triggerRef.current,
-        rootId: store.select('rootId'),
-      })
+      isPressReleasedInside(mouseEvent, triggerRef.current, store.select('positionerElement')) ||
+      (mouseUpTarget != null && findRootOwnerId(mouseUpTarget) === store.select('rootId'))
     ) {
       return;
     }
@@ -151,11 +151,15 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     const doc = ownerDocument(triggerRef.current);
 
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
-      return listenForPressRelease(doc, handleDocumentMouseUp);
+      doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+
+      return () => {
+        doc.removeEventListener('mouseup', handleDocumentMouseUp);
+      };
     }
 
     return undefined;
-  }, [isOpenedByThisTrigger, handleDocumentMouseUp, listenForPressRelease, store]);
+  }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
   const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
@@ -236,7 +240,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
           store.context.allowMouseUpTriggerRef.current = true;
         });
 
-        void listenForPressRelease(ownerDocument(event.currentTarget), handleDocumentMouseUp);
+        const doc = ownerDocument(event.currentTarget);
+        doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
       },
     },
     filterTriggerProps,

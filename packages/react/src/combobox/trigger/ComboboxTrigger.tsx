@@ -12,7 +12,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { stopEvent } from '../../utils/popups/event';
-import { isPressReleasedInside, usePressReleaseListener } from '../../utils/popups/pressRelease';
+import { isPressReleasedInside } from '../../utils/popups/pressRelease';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -74,7 +74,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const inputValue = useComboboxInputValueContext();
 
   const focusTimeout = useTimeout();
-  const listenForPressRelease = usePressReleaseListener();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = useListEmpty();
@@ -220,14 +219,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             }
 
             if (
-              isPressReleasedInside(mouseEvent, {
-                elements: [
-                  currentTriggerElement,
-                  store.state.positionerElement,
-                  store.state.listElement,
-                ],
-                boundsElement: currentTriggerElement,
-              })
+              isPressReleasedInside(
+                mouseEvent,
+                currentTriggerElement,
+                store.state.positionerElement,
+                store.state.listElement,
+              )
             ) {
               return;
             }
@@ -236,7 +233,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           if (inputInsidePopup) {
-            void listenForPressRelease(doc, handleMouseUp);
+            doc.addEventListener('mouseup', handleMouseUp, { once: true });
           }
         },
         onKeyDown(event) {

@@ -111,6 +111,42 @@ describe('<Menu.Trigger />', () => {
     });
   });
 
+  it('removes the hover mouseup listener when unmounted before mouseup', async () => {
+    const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+    const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+
+    try {
+      const { user, unmount } = await render(
+        <Menu.Root>
+          <Menu.Trigger delay={0} openOnHover>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      addEventListenerSpy.mockClear();
+      await user.hover(trigger);
+      await screen.findByRole('menu', { hidden: false });
+
+      const mouseUpListener = addEventListenerSpy.mock.calls.find(
+        (call) => call[0] === 'mouseup',
+      )?.[1];
+      expect(mouseUpListener).toBeTypeOf('function');
+
+      unmount();
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('mouseup', mouseUpListener);
+    } finally {
+      addEventListenerSpy.mockRestore();
+      removeEventListenerSpy.mockRestore();
+    }
+  });
+
   it.each([
     { name: 'stays open when the mouseup lands inside the popup', insidePopup: true },
     { name: 'closes when the mouseup lands outside the popup', insidePopup: false },

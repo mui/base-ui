@@ -13,7 +13,7 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateM
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { isPressReleasedInside, usePressReleaseListener } from '../../utils/popups/pressRelease';
+import { isPressReleasedInside } from '../../utils/popups/pressRelease';
 import { getFloatingFocusElement } from '../../utils/popups/element';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button';
@@ -100,7 +100,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
-  const listenForPressRelease = usePressReleaseListener();
   const selectedDelayTimeout = useTimeout();
 
   React.useEffect(() => {
@@ -184,12 +183,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          if (
-            isPressReleasedInside(mouseEvent, {
-              elements: [triggerRef.current, positionerRef.current],
-              boundsElement: triggerRef.current,
-            })
-          ) {
+          if (isPressReleasedInside(mouseEvent, triggerRef.current, positionerRef.current)) {
             return;
           }
 
@@ -198,7 +192,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
         // Firefox can fire this upon mousedown
         timeoutMouseDown.start(0, () => {
-          void listenForPressRelease(doc, handleMouseUp);
+          doc.addEventListener('mouseup', handleMouseUp, { once: true });
         });
       },
     },
