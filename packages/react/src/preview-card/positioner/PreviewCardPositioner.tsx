@@ -1,12 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import {
-  PreviewCardTreeNodeIdContext,
-  usePreviewCardRootContext,
-} from '../root/PreviewCardContext';
+import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
+import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
 import type {
   Side,
   Align,
@@ -29,8 +26,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 ) {
   const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
-  // The Root registers the node; the Positioner scopes nested popups under it.
-  const nodeId = React.useContext(PreviewCardTreeNodeIdContext);
+  const nodeId = useFloatingNodeId();
 
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
@@ -52,9 +48,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   return (
     <PreviewCardPositionerContext.Provider value={positioning}>
-      <FloatingNode id={nodeId} detachOnUnmount>
-        {element}
-      </FloatingNode>
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PreviewCardPositionerContext.Provider>
   );
 });

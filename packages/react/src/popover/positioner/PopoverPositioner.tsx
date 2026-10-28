@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
-import { PopoverTreeNodeIdContext, usePopoverRootContext } from '../root/PopoverRootContext';
+import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
+import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import type {
   Side,
@@ -29,8 +29,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 ) {
   const store = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
-  // The Root registers the node; the Positioner scopes nested popups under it.
-  const nodeId = React.useContext(PopoverTreeNodeIdContext);
+  const nodeId = useFloatingNodeId();
 
   const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
     forwardedRef,
@@ -66,9 +65,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       {mounted && trueModalNonHover && (
         <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />
       )}
-      <FloatingNode id={nodeId} detachOnUnmount>
-        {element}
-      </FloatingNode>
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
   );
 });

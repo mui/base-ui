@@ -52,11 +52,6 @@ export function useFloatingNodeId(externalTree?: FloatingTreeStore): string | un
 export interface FloatingNodeProps {
   children?: React.ReactNode;
   id: string | undefined;
-  /**
-   * Whether the node's snapshot is dropped when this scope unmounts, so the node counts as absent
-   * again. For members whose Root keeps the node registered after their Positioner unmounts.
-   */
-  detachOnUnmount?: boolean | undefined;
 }
 
 /**
@@ -65,22 +60,9 @@ export interface FloatingNodeProps {
  * @internal
  */
 export function FloatingNode(props: FloatingNodeProps): React.JSX.Element {
-  const { children, id, detachOnUnmount = false } = props;
+  const { children, id } = props;
 
   const parentId = useFloatingParentNodeId();
-  const tree = useFloatingTree();
-
-  useIsoLayoutEffect(() => {
-    if (!detachOnUnmount) {
-      return undefined;
-    }
-    return () => {
-      const node = tree?.getNode(id);
-      if (node) {
-        node.context = undefined;
-      }
-    };
-  }, [detachOnUnmount, tree, id]);
 
   return (
     <FloatingNodeContext.Provider value={React.useMemo(() => ({ id, parentId }), [id, parentId])}>

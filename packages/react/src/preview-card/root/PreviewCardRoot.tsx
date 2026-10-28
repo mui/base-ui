@@ -3,12 +3,8 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { FloatingTree, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
-import {
-  PreviewCardRootContext,
-  PreviewCardTreeNodeIdContext,
-  usePreviewCardRootContext,
-} from './PreviewCardContext';
+import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
+import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
@@ -41,19 +37,15 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   // triggers.
   const shouldRenderInteractions = open || mounted || handle != null;
 
-  const treeNodeId = useFloatingNodeId();
-
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
-      <PreviewCardTreeNodeIdContext.Provider value={treeNodeId}>
-        {renderPopupRootChildren({
-          store,
-          handle,
-          interactions: shouldRenderInteractions && <PreviewCardInteractions store={store} />,
-          children,
-          payload,
-        })}
-      </PreviewCardTreeNodeIdContext.Provider>
+      {renderPopupRootChildren({
+        store,
+        handle,
+        interactions: shouldRenderInteractions && <PreviewCardInteractions store={store} />,
+        children,
+        payload,
+      })}
     </PreviewCardRootContext.Provider>
   );
 }
