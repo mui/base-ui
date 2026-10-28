@@ -11,16 +11,16 @@ import { platform } from '@base-ui/utils/platform';
 export function useImeComposition(
   onCommit: (value: string, event: React.CompositionEvent<HTMLInputElement>) => void,
 ) {
+  // Composition events are discrete, so React re-renders before the next event and the
+  // handlers below always see the current value.
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
-  const isComposingRef = React.useRef(false);
 
   return {
     /** The text to render while composing, or `null` when not composing. */
     composingValue,
-    isComposingRef,
     /** Buffers `value` when a composition is active, and returns whether it did. */
     bufferChange(value: string) {
-      if (!isComposingRef.current) {
+      if (composingValue == null) {
         return false;
       }
       setComposingValue(value);
@@ -31,14 +31,12 @@ export function useImeComposition(
         if (platform.os.android) {
           return;
         }
-        isComposingRef.current = true;
         setComposingValue(event.currentTarget.value);
       },
       onCompositionEnd(event: React.CompositionEvent<HTMLInputElement>) {
-        if (!isComposingRef.current) {
+        if (composingValue == null) {
           return;
         }
-        isComposingRef.current = false;
         setComposingValue(null);
         onCommit(event.currentTarget.value, event);
       },

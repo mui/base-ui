@@ -232,7 +232,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           const inputType = (nativeEvent as InputEvent).inputType;
           const autofillLikeInput = !inputType || inputType === 'insertReplacementText';
           // During composition the input is always considered typed into.
-          const shouldOpenOnInput = composition.isComposingRef.current || !autofillLikeInput;
+          const shouldOpenOnInput = composition.composingValue != null || !autofillLikeInput;
 
           function maybeOpenOnInput(trimmed: string) {
             if (readOnly || disabled || !trimmed || !shouldOpenOnInput) {

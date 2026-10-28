@@ -204,7 +204,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     onKeyDown(event) {
       // Browsers deliver real key names (such as `Backspace`) for keydowns inside a composition.
       // The IME owns editing until `compositionend`, so OTP commands must not run on them.
-      if (event.defaultPrevented || disabled || composition.isComposingRef.current) {
+      if (event.defaultPrevented || disabled || composition.composingValue != null) {
         return;
       }
 
