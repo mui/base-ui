@@ -897,6 +897,33 @@ describe('createPopupOpenState', () => {
     expect(nextState.activeTriggerElement).toBe(trigger);
   });
 
+  it('keeps the active trigger id when a close names the active trigger', () => {
+    // The Root matches the element to its registered id, which can differ from its own `id`.
+    const state = createInitialPopupStoreState();
+    const trigger = document.createElement('button');
+    trigger.id = 'element-id';
+    state.activeTriggerId = 'registered-id';
+    state.activeTriggerElement = trigger;
+
+    const nextState = createPopupOpenState(state, false, trigger, false);
+
+    expect(nextState.activeTriggerId).toBe('registered-id');
+    expect(nextState.activeTriggerElement).toBe(trigger);
+  });
+
+  it('makes a different trigger that a close names the active one', () => {
+    const state = createInitialPopupStoreState();
+    state.activeTriggerId = 'first';
+    state.activeTriggerElement = document.createElement('button');
+    const trigger = document.createElement('button');
+    trigger.id = 'second';
+
+    const nextState = createPopupOpenState(state, false, trigger, false);
+
+    expect(nextState.activeTriggerId).toBe('second');
+    expect(nextState.activeTriggerElement).toBe(trigger);
+  });
+
   it('records whether an open request carried a trigger', () => {
     const state = createInitialPopupStoreState();
     const trigger = document.createElement('button');

@@ -311,9 +311,10 @@ export function createPopupOpenState(
   let activeTriggerId = state.activeTriggerId;
   let activeTriggerElement = state.activeTriggerElement;
 
-  // If a popup is closing, the `trigger` may be undefined.
-  // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-  if (triggerId || open) {
+  // A close keeps the active trigger when it names no trigger or names the active one, so exit
+  // animations play and focus returns to it. The active id can differ from the element's own `id`
+  // once the Root matches the element to its registered trigger id.
+  if (open || (triggerId && trigger !== state.activeTriggerElement)) {
     activeTriggerId = triggerId;
     activeTriggerElement = trigger ?? null;
   }
