@@ -172,19 +172,14 @@ export function settleTriggerOwnership(
         }
       }
     }
+  } else if (hasLoneTrigger && !state.openedWithoutTrigger) {
+    // A lost owner still has an id, so only a popup that has no owner at all claims a lone trigger.
+    const [[loneTriggerId, loneTriggerElement]] = registry.entries();
+    changes.activeTriggerId = loneTriggerId;
+    changes.activeTriggerElement = loneTriggerElement;
+    resolvedTriggerId = loneTriggerId;
   } else {
     resolvedTriggerId = null;
-  }
-
-  // A lost owner still has an id, so `!ownerId` also rules out claiming after losing one.
-  if (!ownerId && hasLoneTrigger && !state.openedWithoutTrigger) {
-    const iteratorResult = registry.entries().next();
-    if (!iteratorResult.done) {
-      const [loneTriggerId, loneTriggerElement] = iteratorResult.value;
-      changes.activeTriggerId = loneTriggerId;
-      changes.activeTriggerElement = loneTriggerElement;
-      resolvedTriggerId = loneTriggerId;
-    }
   }
 
   changes.resolvedTriggerId = resolvedTriggerId;
