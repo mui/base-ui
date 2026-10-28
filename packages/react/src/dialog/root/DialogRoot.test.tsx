@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
+import { expect, vi, describe, beforeEach, it, afterEach, onTestFinished } from 'vitest';
 import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -2059,6 +2059,39 @@ describe('<Dialog.Root />', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
       await waitFor(() => {
         expect(hasOwnScrollLock(document)).toBe(false);
+      });
+    });
+
+    it('locks <body> when it scrolls the page while <html> clips the viewport', async () => {
+      // <html> hides the viewport overflow, so it doesn't propagate from <body>, which scrolls
+      // as its own container. This isn't an external lock: nothing will ever clear it.
+      const style = document.createElement('style');
+      style.textContent =
+        'html { height: 100dvh; overflow: hidden; } body { height: 100%; overflow-y: auto; }';
+      document.head.appendChild(style);
+      onTestFinished(() => style.remove());
+      expect(getComputedStyle(document.body).overflowY).toBe('auto');
+
+      await render(
+        <Dialog.Root defaultOpen>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close>Close dialog</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      // Flush the scroll locker's deferred lock, scheduled on a 0ms timeout.
+      await act(async () => {
+        await wait(0);
+      });
+
+      expect(getComputedStyle(document.body).overflowY).toBe('hidden');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
+      await waitFor(() => {
+        expect(getComputedStyle(document.body).overflowY).toBe('auto');
       });
     });
   });

@@ -13,8 +13,13 @@ let originalHtmlScrollBehavior = '';
 
 // The viewport's overflow comes from <html> when it establishes its own scroll container, and
 // propagates from <body> otherwise. An `overflow` style on the other element doesn't lock the page.
+// When <html> clips the viewport, a <body> with its own scroll container is what scrolls the page.
 function getViewportScroller(html: HTMLElement, body: HTMLElement) {
-  return isOverflowElement(html) ? html : body;
+  if (!isOverflowElement(html)) {
+    return body;
+  }
+  const htmlClipsViewport = /hidden|clip/.test(ownerWindow(html).getComputedStyle(html).overflowY);
+  return htmlClipsViewport && isOverflowElement(body) ? body : html;
 }
 
 function isPageScrollLocked(win: typeof window, html: HTMLElement, body: HTMLElement) {
