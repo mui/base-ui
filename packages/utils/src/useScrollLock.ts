@@ -79,7 +79,21 @@ function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   const originalElementToLockStyles = {
     overflowY: elementToLock.style.overflowY,
     overflowX: elementToLock.style.overflowX,
+    scrollbarGutter: elementToLock.style.scrollbarGutter,
   };
+
+  // A body-owned scrollbar isn't included in the viewport's inset measurement. Preserve its
+  // gutter without adding one on platforms with overlay scrollbars.
+  const bodyStyles = ownerWindow(body).getComputedStyle(body);
+  const bodyBorderWidth =
+    parseFloat(bodyStyles.borderLeftWidth) + parseFloat(bodyStyles.borderRightWidth);
+  const hasBodyScrollbar =
+    elementToLock === body && body.offsetWidth - body.clientWidth > bodyBorderWidth;
+  if (hasBodyScrollbar) {
+    body.style.scrollbarGutter = bodyStyles.scrollbarGutter.includes('both-edges')
+      ? 'stable both-edges'
+      : 'stable';
+  }
 
   Object.assign(elementToLock.style, {
     overflowY: 'hidden',

@@ -2062,6 +2062,52 @@ describe('<Dialog.Root />', () => {
       });
     });
 
+    it.skipIf(isJSDOM)(
+      'preserves body scroll position and content width while locked',
+      async () => {
+        const style = document.createElement('style');
+        style.textContent = `
+        html { height: 100dvh; overflow: hidden; }
+        body { margin: 0; height: 100%; overflow-y: auto; }
+        body::-webkit-scrollbar { width: 16px; height: 16px; }
+      `;
+        document.head.appendChild(style);
+        onTestFinished(() => style.remove());
+
+        const { setProps } = await render(
+          <Dialog.Root open={false}>
+            <div style={{ height: '200dvh' }} />
+            <Dialog.Portal>
+              <Dialog.Popup initialFocus={false} finalFocus={false}>
+                Dialog content
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
+        );
+
+        expect(document.body.scrollHeight).toBeGreaterThan(document.body.clientHeight);
+        document.body.scrollTop = 100;
+        expect(document.body.scrollTop).toBe(100);
+        const contentWidth = document.body.clientWidth;
+        const originalGutter = document.body.style.scrollbarGutter;
+
+        await setProps({ open: true });
+        await waitFor(() => {
+          expect(getComputedStyle(document.body).overflowY).toBe('hidden');
+        });
+        expect(document.body.clientWidth).toBe(contentWidth);
+        expect(document.body.scrollTop).toBe(100);
+
+        await setProps({ open: false });
+        await waitFor(() => {
+          expect(getComputedStyle(document.body).overflowY).toBe('auto');
+        });
+        expect(document.body.clientWidth).toBe(contentWidth);
+        expect(document.body.scrollTop).toBe(100);
+        expect(document.body.style.scrollbarGutter).toBe(originalGutter);
+      },
+    );
+
     it('locks <body> when it scrolls the page while <html> clips the viewport', async () => {
       // <html> hides the viewport overflow, so it doesn't propagate from <body>, which scrolls
       // as its own container. This isn't an external lock: nothing will ever clear it.
