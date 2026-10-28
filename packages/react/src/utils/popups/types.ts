@@ -8,6 +8,7 @@ import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import type { REASONS } from '../../internals/reasons';
+import type { MenuOpenEventDetails } from '../../menu/utils/types';
 
 import type { FloatingTreeStore } from './tree/FloatingTreeStore';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -67,16 +68,6 @@ export interface FloatingEventMap {
 }
 
 export type PopupEvents = FloatingEventEmitter<FloatingEventMap>;
-
-/**
- * The payload of `menuopenchange`. `reason` is the `Menu.Root` open change reason.
- */
-export interface MenuOpenEventDetails {
-  open: boolean;
-  reason: string | null;
-  nodeId: string | undefined;
-  parentNodeId: string | null;
-}
 
 /**
  * The events shared by the popups of one popup tree.

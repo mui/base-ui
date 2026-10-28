@@ -145,8 +145,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         return;
       }
 
-      // Only menus emit `menuopenchange`, so the parent reports a menu reason.
-      const reason = (details.reason ?? REASONS.siblingOpen) as MenuRoot.ChangeEventReason;
+      const reason: MenuRoot.ChangeEventReason = details.reason ?? REASONS.siblingOpen;
       store.setOpen(false, createChangeEventDetails(reason));
     }
 
