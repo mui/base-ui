@@ -7,14 +7,14 @@ import { isJSDOM } from '#test-utils';
 /**
  * The hidden input of a control without a `name` is zero-size, so Chrome doesn't give each one a
  * compositor layer. It grows to 1px when reported invalid, as Chrome doesn't show the native
- * validation message for a zero-size input.
+ * validation message for a zero-size or off-screen input.
  */
 export function hiddenInputSizeTests(config: HiddenInputSizeTestsConfig) {
   const { render, createComponent } = config;
 
   // Sizes need layout.
   describe.skipIf(isJSDOM)('hidden input size', () => {
-    it('grows from zero size to 1px when reported invalid', async () => {
+    it('grows from zero size to an on-screen 1px box when reported invalid', async () => {
       const { container } = await render(createComponent({ required: true }));
 
       // eslint-disable-next-line testing-library/no-container -- the hidden input is `aria-hidden`
@@ -22,20 +22,20 @@ export function hiddenInputSizeTests(config: HiddenInputSizeTestsConfig) {
       // Unnamed radios are never missing a value, so fail the way Field validation does.
       input.setCustomValidity('Invalid');
       expect(input.validity.valid).toBe(false);
-      expect(getSize(input)).toEqual({ width: 0, height: 0 });
+      expect(getRect(input)).toEqual({ top: 0, width: 0, height: 0 });
 
       await act(async () => {
         input.reportValidity();
       });
 
-      expect(getSize(input)).toEqual({ width: 1, height: 1 });
+      expect(getRect(input)).toEqual({ top: 0, width: 1, height: 1 });
     });
   });
 }
 
-function getSize(element: HTMLElement) {
-  const { width, height } = element.getBoundingClientRect();
-  return { width, height };
+function getRect(element: HTMLElement) {
+  const { top, width, height } = element.getBoundingClientRect();
+  return { top, width, height };
 }
 
 export interface HiddenInputSizeTestsConfig {

@@ -51,4 +51,9 @@ describe.skipIf(isJSDOM)('visuallyHidden', () => {
       expect(window.scrollY).toBe(1500);
     });
   });
+
+  it('places visuallyHidden just above the viewport', async () => {
+    await render(<span data-testid="hidden" style={visuallyHidden} />);
+    expect(screen.getByTestId('hidden').getBoundingClientRect().bottom).toBe(0);
+  });
 });

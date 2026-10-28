@@ -11,11 +11,13 @@ const visuallyHiddenBase: React.CSSProperties = {
   margin: -1,
 };
 
+// Just above the viewport: Chrome can drop frames of layout transitions when many 1px fixed
+// elements sit inside it. Overflow above the top edge isn't scrollable in LTR or RTL.
 export const visuallyHidden: React.CSSProperties = {
   ...visuallyHiddenBase,
   position: 'fixed',
   margin: 0,
-  top: 0,
+  top: -1,
   left: 0,
 };
 
@@ -28,11 +30,13 @@ export const visuallyHiddenInput: React.CSSProperties = {
 // gives every 1px `position: fixed` element its own compositor layer, which slows down every frame
 // when many controls render. At zero size it skips the layer. It stays `fixed` so focusing it
 // (label clicks, native validation) never scrolls the page. Chrome doesn't show the native
-// validation message for a zero-size input, so grow it to 1px on `invalid`.
+// validation message for a zero-size or off-screen input, so it sits at the viewport's top edge
+// and grows to 1px on `invalid`.
 // `visuallyHidden` stays 1px because screen readers can skip zero-size text. These inputs are
 // `aria-hidden`, so zero size is safe for them.
 export const visuallyHiddenInputPinned: React.CSSProperties = {
   ...visuallyHidden,
   width: 0,
   height: 0,
+  top: 0,
 };
