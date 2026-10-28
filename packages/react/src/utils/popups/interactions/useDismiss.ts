@@ -181,13 +181,6 @@ export function useDismiss(
     storeContext.insideReactTree = false;
   });
 
-  const hasBlockingChild = useStableCallback(
-    (bubbleKey: 'escapeKeyBubbles' | 'outsidePressBubbles') => {
-      const nodeId = storeContext.positioning?.nodeId;
-      return tree ? tree.hasBlockingChild(nodeId, bubbleKey) : false;
-    },
-  );
-
   const isEventWithinOwnElements = useStableCallback((event: Event) => {
     return (
       isEventTargetWithin(event, store.select('positionerElement')) ||
@@ -226,7 +219,10 @@ export function useDismiss(
         return;
       }
 
-      if (!escapeKeyBubbles && hasBlockingChild('escapeKeyBubbles')) {
+      if (
+        !escapeKeyBubbles &&
+        tree?.hasBlockingChild(storeContext.positioning?.nodeId, 'escapeKeyBubbles')
+      ) {
         return;
       }
 
@@ -528,7 +524,7 @@ export function useDismiss(
         return;
       }
 
-      if (hasBlockingChild('outsidePressBubbles')) {
+      if (tree?.hasBlockingChild(storeContext.positioning?.nodeId, 'outsidePressBubbles')) {
         return;
       }
 
@@ -795,7 +791,6 @@ export function useDismiss(
     layer,
     clearInsideReactTree,
     getOutsidePressEventProp,
-    hasBlockingChild,
     isEventWithinOwnElements,
     tree,
     store,
