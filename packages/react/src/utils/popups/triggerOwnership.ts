@@ -136,12 +136,9 @@ export function settleTriggerOwnership(
   registry: TriggerRegistry,
   open: boolean,
   ownerId: string | null,
-): { changes: TriggerOwnershipChanges; lostTriggerId: string | null } {
+): [changes: TriggerOwnershipChanges, lostTriggerId: string | null] {
   if (!open) {
-    return {
-      changes: { resolvedTriggerId: null, openedWithoutTrigger: false, hasLoneTrigger: false },
-      lostTriggerId: null,
-    };
+    return [{ resolvedTriggerId: null, openedWithoutTrigger: false, hasLoneTrigger: false }, null];
   }
 
   const hasLoneTrigger = registry.size === 1;
@@ -183,5 +180,5 @@ export function settleTriggerOwnership(
   }
 
   changes.resolvedTriggerId = resolvedTriggerId;
-  return { changes, lostTriggerId };
+  return [changes, lostTriggerId];
 }

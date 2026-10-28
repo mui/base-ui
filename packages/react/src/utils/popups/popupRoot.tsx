@@ -354,7 +354,7 @@ export function useSettleTriggerOwnership<State extends PopupStoreState<unknown>
 
   useIsoLayoutEffect(() => {
     const registry = store.context.triggerElements;
-    const { changes, lostTriggerId } = settleTriggerOwnership(
+    const [changes, lostTriggerId] = settleTriggerOwnership(
       store.state,
       registry,
       open,

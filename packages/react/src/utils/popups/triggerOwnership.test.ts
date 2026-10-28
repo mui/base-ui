@@ -119,7 +119,7 @@ describe('triggerOwnership', () => {
         hasLoneTrigger: true,
       });
 
-      const { changes, lostTriggerId } = settleTriggerOwnership(
+      const [changes, lostTriggerId] = settleTriggerOwnership(
         state,
         createRegistry(),
         false,
@@ -139,7 +139,7 @@ describe('triggerOwnership', () => {
       const current = createElement();
       const state = createState({ activeTriggerId: 'trigger', activeTriggerElement: stale });
 
-      const { changes } = settleTriggerOwnership(
+      const [changes] = settleTriggerOwnership(
         state,
         createRegistry(['trigger', current]),
         true,
@@ -154,7 +154,7 @@ describe('triggerOwnership', () => {
       const owner = createElement('dom-id');
       const state = createState({ activeTriggerId: 'dom-id', activeTriggerElement: owner });
 
-      const { changes, lostTriggerId } = settleTriggerOwnership(
+      const [changes, lostTriggerId] = settleTriggerOwnership(
         state,
         createRegistry(['registered-id', owner]),
         true,
@@ -170,7 +170,7 @@ describe('triggerOwnership', () => {
     it('reports a resolved owner that unregistered as lost', () => {
       const state = createState({ activeTriggerId: 'trigger', resolvedTriggerId: 'trigger' });
 
-      const { lostTriggerId } = settleTriggerOwnership(state, createRegistry(), true, 'trigger');
+      const [, lostTriggerId] = settleTriggerOwnership(state, createRegistry(), true, 'trigger');
 
       expect(lostTriggerId).toBe('trigger');
     });
@@ -178,7 +178,7 @@ describe('triggerOwnership', () => {
     it('keeps a pending owner that has not registered yet', () => {
       const state = createState({ activeTriggerId: 'pending', resolvedTriggerId: 'previous' });
 
-      const { changes, lostTriggerId } = settleTriggerOwnership(
+      const [changes, lostTriggerId] = settleTriggerOwnership(
         state,
         createRegistry(['other', createElement()]),
         true,
@@ -193,7 +193,7 @@ describe('triggerOwnership', () => {
     it('claims a lone registered trigger for an unowned popup', () => {
       const element = createElement();
 
-      const { changes } = settleTriggerOwnership(
+      const [changes] = settleTriggerOwnership(
         createState(),
         createRegistry(['trigger', element]),
         true,
@@ -215,7 +215,7 @@ describe('triggerOwnership', () => {
           createRegistry(['trigger', element]),
           true,
           null,
-        ).changes.activeTriggerId,
+        )[0].activeTriggerId,
       ).toBeUndefined();
       expect(
         settleTriggerOwnership(
@@ -223,14 +223,14 @@ describe('triggerOwnership', () => {
           createRegistry(['first', element], ['second', createElement()]),
           true,
           null,
-        ).changes.activeTriggerId,
+        )[0].activeTriggerId,
       ).toBeUndefined();
     });
 
     it('does not claim another trigger when the owner was lost', () => {
       const state = createState({ activeTriggerId: 'owner', resolvedTriggerId: 'owner' });
 
-      const { changes, lostTriggerId } = settleTriggerOwnership(
+      const [changes, lostTriggerId] = settleTriggerOwnership(
         state,
         createRegistry(['other', createElement()]),
         true,
