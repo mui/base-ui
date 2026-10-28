@@ -1,71 +1,92 @@
-import type * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
-import type { FloatingEvents, ContextData, PositioningRootContext, ReferenceType } from '../types';
+import type { PopupInteractionContext, PositioningInteractionStore, ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../createEventEmitter';
 import type { PopupTriggerMap } from '../popupTriggerMap';
 import { dispatchOpenChange } from './dispatchOpenChange';
 import type { TransitionStatus } from '../../../internals/useTransitionStatus';
 
+/**
+ * The state of a `FloatingRootStore`, synced from the component that owns it.
+ */
 export interface FloatingRootState {
-  open: boolean;
-  transitionStatus: TransitionStatus | undefined;
-  domReferenceElement: Element | null;
-  referenceElement: ReferenceType | null;
-  floatingElement: HTMLElement | null;
-  positionReference: ReferenceType | null;
   /**
-   * The ID of the floating element.
+   * Whether the popup is open.
    */
-  floatingId: string | undefined;
+  open: boolean;
+  /**
+   * The popup's open or close transition. Owners don't sync it, so it stays `undefined`.
+   */
+  transitionStatus: TransitionStatus | undefined;
+  /**
+   * The anchor element the owner passes, usually its trigger. Cleared while the popup isn't
+   * mounted.
+   */
+  anchorElement: Element | null;
+  /**
+   * The popup's positioner element, or the popup itself when it has no positioner.
+   */
+  positionerElement: HTMLElement | null;
+  /**
+   * An anchor set explicitly, such as the cursor position of a popup that follows it.
+   */
+  anchorOverride: ReferenceType | null;
+  /**
+   * The popup's id unless its element sets one.
+   */
+  defaultPopupId: string | undefined;
 }
 
-export interface FloatingRootStoreContext {
+/**
+ * The non-reactive context of a `FloatingRootStore`: what the interaction hooks share, plus the
+ * owner's open change callback.
+ */
+export interface FloatingRootStoreContext extends PopupInteractionContext {
+  /**
+   * Called after an open change is dispatched to the interaction hooks, so the owner can update
+   * its own open state.
+   */
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
-  readonly dataRef: React.RefObject<ContextData>;
-  readonly events: FloatingEvents;
-  nested: boolean;
-  readonly triggerElements: PopupTriggerMap;
 }
 
 const selectors = {
   open: (state: FloatingRootState) => state.open,
   transitionStatus: (state: FloatingRootState) => state.transitionStatus,
-  domReferenceElement: (state: FloatingRootState) => state.domReferenceElement,
-  referenceElement: (state: FloatingRootState) => state.positionReference ?? state.referenceElement,
-  floatingElement: (state: FloatingRootState) => state.floatingElement,
-  floatingId: (state: FloatingRootState) => state.floatingId,
+  anchorElement: (state: FloatingRootState) => state.anchorElement,
+  anchor: (state: FloatingRootState) => state.anchorOverride ?? state.anchorElement,
+  positionerElement: (state: FloatingRootState) => state.positionerElement,
+  defaultPopupId: (state: FloatingRootState) => state.defaultPopupId,
 };
 
 interface FloatingRootStoreOptions {
   open: boolean;
-  transitionStatus: TransitionStatus | undefined;
-  referenceElement: ReferenceType | null;
-  floatingElement: HTMLElement | null;
+  anchorElement: Element | null;
+  positionerElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;
-  floatingId: string | undefined;
+  defaultPopupId: string | undefined;
   nested: boolean;
   onOpenChange:
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
+/**
+ * An interaction store for components without a popup store: Navigation Menu and Toast. It holds
+ * a copy of the open state, anchor and elements that its owner syncs in from a layout effect
+ * whenever they change (see `useFloatingRootStore`), and reports open changes back through
+ * `onOpenChange`.
+ */
 export class FloatingRootStore
   extends ReactStore<Readonly<FloatingRootState>, FloatingRootStoreContext, typeof selectors>
-  implements PositioningRootContext
+  implements PositioningInteractionStore
 {
   constructor(options: FloatingRootStoreOptions) {
     const { nested, onOpenChange, triggerElements, ...initialState } = options;
 
     super(
-      {
-        ...initialState,
-        positionReference: initialState.referenceElement,
-        domReferenceElement: initialState.referenceElement as Element | null,
-      },
+      { ...initialState, transitionStatus: undefined, anchorOverride: null },
       {
         onOpenChange,
-        dataRef: { current: {} },
         events: createEventEmitter(),
         nested,
         triggerElements,
@@ -85,12 +106,15 @@ export class FloatingRootStore
     this.context.onOpenChange?.(newOpen, eventDetails);
   };
 
+  /**
+   * Forgets the anchor and elements positioning reads while the popup isn't mounted, so
+   * positioning doesn't run for a `keepMounted` popup that is closed.
+   */
   clearPositioning() {
     this.update({
-      referenceElement: null,
-      floatingElement: null,
-      domReferenceElement: null,
-      positionReference: null,
+      positionerElement: null,
+      anchorElement: null,
+      anchorOverride: null,
     });
   }
 }

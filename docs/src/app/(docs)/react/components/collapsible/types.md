@@ -88,9 +88,10 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute       | Type | Description                                 |
-| :-------------- | :--- | :------------------------------------------ |
-| data-panel-open | -    | Present when the collapsible panel is open. |
+| Attribute       | Type | Description                                              |
+| :-------------- | :--- | :------------------------------------------------------- |
+| data-panel-open | -    | Present when the collapsible panel is open.              |
+| data-disabled   | -    | Present when the trigger or the collapsible is disabled. |
 
 ### Trigger.Props
 
@@ -219,6 +220,8 @@ Data attributes of [Trigger](#trigger).
 declare namespace CollapsibleTriggerDataAttributes {
   /** Present when the collapsible panel is open. */
   const panelOpen: 'data-panel-open';
+  /** Present when the trigger or the collapsible is disabled. */
+  const disabled: 'data-disabled';
 }
 ```
 

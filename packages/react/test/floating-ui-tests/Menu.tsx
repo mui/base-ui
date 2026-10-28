@@ -7,7 +7,7 @@ import { autoUpdate, flip, offset, shift } from '@floating-ui/react-dom';
 import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
   FloatingNode,
@@ -19,12 +19,13 @@ import {
 import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
 import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from '../../src/utils/popups/interactions/useHoverTriggerInteraction';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
 import { useFocus } from '../../src/utils/popups/interactions/useFocus';
 import { useFloating } from './useFloating';
-import { useHover } from './useHover';
 import { gridNavigation } from '../../src/utils/popups/interactions/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './Menu.module.css';
@@ -107,13 +108,16 @@ export const MenuComponent = React.forwardRef<
     ],
     whileElementsMounted: autoUpdate,
   });
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
-  const hoverContext = isNested && allowHover ? context : fallbackContext;
+  const fallbackStore = React.useMemo(() => getEmptyRootStore(), []);
+  const hoverStore = isNested && allowHover ? context.rootStore : fallbackStore;
 
-  const hover = useHover(hoverContext, {
+  const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
+    triggerElementRef: hoverStore === fallbackStore ? undefined : refs.domReference,
   });
+  useHoverPopupInteraction(hoverStore);
+  const hover = React.useMemo(() => ({ reference: hoverReferenceProps }), [hoverReferenceProps]);
   const click = useClick(context.rootStore, {
     event: 'mousedown',
     toggle: !isNested || !allowHover,
@@ -212,7 +216,7 @@ export const MenuComponent = React.forwardRef<
         id={triggerId}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-controls={isOpen ? context.floatingId : undefined}
+        aria-controls={isOpen ? context.defaultPopupId : undefined}
         data-open={isOpen ? '' : undefined}
         // eslint-disable-next-line no-nested-ternary
         tabIndex={!isNested ? props.tabIndex : parent.activeIndex === item.index ? 0 : -1}
@@ -263,14 +267,14 @@ export const MenuComponent = React.forwardRef<
           {(keepMounted || isOpen) && (
             <FloatingPortal>
               <FloatingFocusManager
-                context={context.rootStore}
+                store={context.rootStore}
                 modal={false}
                 initialFocus={!isNested}
                 returnFocus={!isNested}
               >
                 <div
                   ref={refs.setFloating}
-                  id={context.floatingId}
+                  id={context.defaultPopupId}
                   role="menu"
                   aria-labelledby={triggerId}
                   className={c(

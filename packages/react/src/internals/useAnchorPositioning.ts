@@ -26,16 +26,21 @@ import type {
 import type {
   UseFloatingOptions,
   UseFloatingReturn,
-  PositioningRootContext,
-  FloatingContext,
+  PositioningInteractionStore,
+  PopupPositioningContext,
 } from '../utils/popups/types';
 import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
 import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../utils/popups/positioning/arrow';
-import { hide } from '../utils/hideMiddleware';
-import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
-import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
+import { hide } from '../utils/popups/positioning/hideMiddleware';
+import { DEFAULT_SIDES } from '../utils/popups/positioning/adaptiveOriginConstants';
+import * as CommonPositionerCssVars from '../utils/popups/positioning/CommonPositionerCssVars';
+
+export { useFloatingRootStore } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { UseFloatingRootStoreOptions } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
+export type { PositioningInteractionStore } from '../utils/popups/types';
 
 const AVAILABLE_WIDTH_VAR = CommonPositionerCssVars.availableWidth;
 const AVAILABLE_HEIGHT_VAR = CommonPositionerCssVars.availableHeight;
@@ -124,21 +129,12 @@ interface SideShiftMode {
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 
-type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
-
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: PositioningRootContext },
-): UseAnchorPositioningReturnValue {
-  return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
-}
-
-export function useAnchorPositioningWithHook(
   params: UseAnchorPositioningParameters,
-  useFloatingHook: UseFloatingHook,
 ): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
@@ -148,7 +144,7 @@ export function useAnchorPositioningWithHook(
     sideOffset = 0,
     align = 'center',
     alignOffset = 0,
-    collisionBoundary,
+    collisionBoundary = 'clipping-ancestors',
     collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
@@ -156,7 +152,7 @@ export function useAnchorPositioningWithHook(
     inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
-    floatingRootContext,
+    interactionStore,
     mounted,
     collisionAvoidance,
     shift,
@@ -245,10 +241,7 @@ export function useAnchorPositioningWithHook(
     padding: collisionPadding,
   } as const;
 
-  // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
-  // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
-  // presence.
-  const arrowRef = React.useRef<Element | null>(null);
+  const arrowElementRef = React.useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
   const sideOffsetRef = useValueAsRef(sideOffset);
@@ -290,23 +283,29 @@ export function useAnchorPositioningWithHook(
   const crossAxisShiftEnabled =
     !shiftDisabled && (sticky || shiftCrossAxis || collisionAvoidanceSide === 'shift');
 
+  const flipOptions = {
+    ...commonCollisionProps,
+    // Ensure the popup flips if it's been limited by its --available-height and it resizes.
+    // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
+    padding: {
+      top: collisionPadding.top + bias + biasTop,
+      right: collisionPadding.right + bias + biasRight,
+      bottom: collisionPadding.bottom + bias + biasBottom,
+      left: collisionPadding.left + bias + biasLeft,
+    },
+    mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
+    crossAxis: collisionAvoidanceAlign === 'flip' ? ('alignment' as const) : false,
+    fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
+  };
   const flipMiddleware =
     collisionAvoidanceSide === 'none'
       ? null
-      : flip({
-          ...commonCollisionProps,
-          // Ensure the popup flips if it's been limited by its --available-height and it resizes.
-          // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
-          padding: {
-            top: collisionPadding.top + bias + biasTop,
-            right: collisionPadding.right + bias + biasRight,
-            bottom: collisionPadding.bottom + bias + biasBottom,
-            left: collisionPadding.left + bias + biasLeft,
-          },
-          mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
-          crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
-          fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
-        });
+      : flip(
+          // Once size() has run in this pass (it may have raised the cap), accept its new cap.
+          ({ middlewareData }) =>
+            middlewareData.size ? { ...flipOptions, padding: collisionPadding } : flipOptions,
+          [flipOptions],
+        );
   const shiftMiddleware = shiftDisabled
     ? null
     : floatingShift(
@@ -320,10 +319,10 @@ export function useAnchorPositioningWithHook(
             sticky || shiftCrossAxis
               ? undefined
               : limitShift((limitData) => {
-                  if (!arrowRef.current) {
+                  if (!arrowElementRef.current) {
                     return {};
                   }
-                  const { width, height } = arrowRef.current.getBoundingClientRect();
+                  const { width, height } = arrowElementRef.current.getBoundingClientRect();
                   const sideAxis = getSideAxis(getSide(limitData.placement));
                   const arrowSize = sideAxis === 'y' ? width : height;
                   const offsetAmount =
@@ -384,9 +383,10 @@ export function useAnchorPositioningWithHook(
       (state) => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
-        element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
+        element:
+          arrowElementRef.current || ownerDocument(state.elements.floating).createElement('div'),
         // No padding for the fake arrow: it would displace aligned popups on narrow anchors.
-        padding: arrowRef.current ? arrowPadding : 0,
+        padding: arrowElementRef.current ? arrowPadding : 0,
       }),
       [arrowPadding],
     ),
@@ -405,7 +405,7 @@ export function useAnchorPositioningWithHook(
         const renderedSide = getSide(renderedPlacement);
         const renderedAlign = getAlignment(renderedPlacement);
         const isVertical = getSideAxis(renderedSide) === 'y';
-        const arrowEl = arrowRef.current;
+        const arrowEl = arrowElementRef.current;
 
         const sideOffsetValue =
           typeof sideOffset === 'function'
@@ -461,10 +461,10 @@ export function useAnchorPositioningWithHook(
   useIsoLayoutEffect(() => {
     // Ensure positioning doesn't run initially for `keepMounted` elements that
     // aren't initially open.
-    if (!mounted && floatingRootContext) {
-      floatingRootContext.clearPositioning();
+    if (!mounted) {
+      interactionStore.clearPositioning();
     }
-  }, [mounted, floatingRootContext]);
+  }, [mounted, interactionStore]);
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
@@ -486,8 +486,8 @@ export function useAnchorPositioningWithHook(
     context,
     isPositioned,
     floatingStyles: originalFloatingStyles,
-  } = useFloatingHook({
-    rootContext: floatingRootContext,
+  } = useBaseUIFloating({
+    rootStore: interactionStore,
     open: keepMounted ? mounted : undefined,
     placement,
     middleware,
@@ -497,6 +497,18 @@ export function useAnchorPositioningWithHook(
       : (...args) => autoUpdate(...args, autoUpdateOptions),
     nodeId,
     externalTree,
+  });
+
+  // An arrow that mounts or unmounts after the popup is positioned doesn't resize the positioner, so
+  // reposition explicitly. Deferred so an anchor that changed in the same commit is registered first.
+  // `update` closes over the middleware, so queue the latest one: a stale one resolving last would
+  // apply outdated options such as `arrowPadding`.
+  const refresh = useStableCallback(update);
+  const arrowRef = useStableCallback((element: Element | null) => {
+    arrowElementRef.current = element;
+    if (isPositioned) {
+      queueMicrotask(refresh);
+    }
   });
 
   const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
@@ -809,9 +821,12 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: PositioningRootContext | undefined;
+  /**
+   * The interaction store the popup is positioned with. Components without a popup store create
+   * one with `useFloatingRootStore`.
+   */
+  interactionStore: PositioningInteractionStore;
   mounted: boolean;
-  disableAnchorTracking: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
@@ -837,14 +852,14 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
 export interface UseAnchorPositioningReturnValue {
   positionerStyles: React.CSSProperties;
   arrowStyles: React.CSSProperties;
-  arrowRef: React.RefObject<Element | null>;
+  arrowRef: React.RefCallback<Element>;
   arrowUncentered: boolean;
   side: Side;
   align: Align;
   physicalSide: PhysicalSide;
   anchorHidden: boolean;
   refs: UseFloatingReturn['refs'];
-  context: FloatingContext;
+  context: PopupPositioningContext;
   isPositioned: boolean;
   update: () => void;
 }
