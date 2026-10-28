@@ -927,7 +927,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         const returnElement = getReturnElement(closeType);
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
-        let tabbableReturnElement = getFirstTabbableElement(returnElement);
+        // The enclosing modal fallback focuses the popup itself, like `restoreFocus="popup"`.
+        let tabbableReturnElement =
+          returnElement === parentModalElement
+            ? returnElement
+            : getFirstTabbableElement(returnElement);
         // A hidden element, such as an item in a closed Select or `keepMounted` Menu, can't take
         // focus. Use the newest visible element focused before it instead, unless the closing
         // commit already moved focus (e.g. `autoFocus`).
