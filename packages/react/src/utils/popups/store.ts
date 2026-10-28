@@ -303,8 +303,9 @@ export function createPopupOpenState(
   trigger: Element | undefined,
   preventUnmountOnClose: boolean,
 ): PopupOpenState {
-  // Each close decides on its own whether the popup stays mounted, and opening clears the request.
-  const preventUnmountingOnClose = !open && preventUnmountOnClose;
+  // A request to stay mounted lasts until the popup opens again, so a later close can't drop it.
+  const preventUnmountingOnClose =
+    !open && (state.preventUnmountingOnClose || preventUnmountOnClose);
 
   const triggerId = trigger?.id ?? null;
   let activeTriggerId = state.activeTriggerId;
@@ -375,7 +376,9 @@ type PopupUnmountKey =
  * `onOpenChange` only hears about changes that can happen. A change the store would not commit
  * belongs in step 1, so it is dropped before it is reported. A controlled popup's last request
  * counts as its state until the `open` prop changes, so a close after an open the parent declined
- * without `cancel()` is still reported.
+ * without `cancel()` is still reported. Two stores ignore more in step 1: Menu drops a request that
+ * repeats what its Root last rendered and reports the trigger it last rendered, and Combobox drops
+ * any change that matches its open state.
  *
  * Once the popup has finished closing and unmounts, `resetOnUnmount` clears what the open session
  * left behind, along with the store's own fields from `prepareUnmount`.
@@ -388,13 +391,13 @@ export abstract class BasePopupStore<
   Selectors extends Record<string, (state: Readonly<State>, ...args: any[]) => any>,
   ChangeEventDetails extends PopupOpenChangeEventDetails,
 > extends ReactStore<Readonly<State>, Context, Selectors> {
-  private lastOpenChange: ChangeEventDetails | undefined;
+  // Replaced on every open, so a close can tell whether the popup has opened again since.
+  private openSession = {};
 
   override setState(newState: Readonly<State>): void {
-    // Opening through the `open` prop ends what the last close could still request. An open
-    // through `setOpen` replaces `lastOpenChange` itself.
+    // An open through `setOpen` starts its session itself.
     if (!this.state.openProp && newState.openProp) {
-      this.lastOpenChange = undefined;
+      this.openSession = {};
     }
     super.setState(
       this.anchorsToActiveTrigger() ? syncAnchorState(this.state, newState) : newState,
@@ -440,19 +443,22 @@ export abstract class BasePopupStore<
     }
 
     let preventUnmountOnClose = false;
+    // The open session this close committed in. Unset until the close commits.
+    let closeSession: object | undefined;
     details.preventUnmountOnClose = () => {
       if (nextOpen) {
         return;
       }
-      if (this.lastOpenChange !== details) {
+      if (closeSession === undefined) {
         preventUnmountOnClose = true;
         return;
       }
       // A call made once the close is committed, such as after an `await` in `onOpenChange`, still
-      // applies until the popup opens again. A controlled `open` prop may not have caught up with
-      // the close yet. After the popup unmounts, the flag has no effect until the next open clears
-      // it.
-      this.set('preventUnmountingOnClose', true);
+      // applies until the popup opens again, even if more closes commit in the meantime. A
+      // controlled `open` prop may not have caught up with the close yet.
+      if (closeSession === this.openSession) {
+        this.set('preventUnmountingOnClose', true);
+      }
     };
 
     this.context.onOpenChange?.(nextOpen, details);
@@ -473,7 +479,11 @@ export abstract class BasePopupStore<
       } as Pick<State, keyof State>);
     };
 
-    this.lastOpenChange = details;
+    if (nextOpen) {
+      this.openSession = {};
+    } else {
+      closeSession = this.openSession;
+    }
 
     if (this.isCommittedSynchronously(details)) {
       ReactDOM.flushSync(commit);
@@ -494,16 +504,17 @@ export abstract class BasePopupStore<
    * open from.
    */
   protected getCloseTrigger(): Element | undefined {
-    const activeTriggerId = popupStoreSelectors.activeTriggerId(this.state);
+    const activeTriggerId = activeTriggerIdSelector(this.state);
     if (activeTriggerId == null) {
       return undefined;
     }
 
-    return (
+    const trigger =
       this.context.triggerElements.getById(activeTriggerId) ??
-      popupStoreSelectors.activeTriggerElement(this.state) ??
-      undefined
-    );
+      activeTriggerElementSelector(this.state);
+    // A trigger that has left the document, such as one whose unmount closes the popup, isn't
+    // reported.
+    return trigger?.isConnected ? trigger : undefined;
   }
 
   /**

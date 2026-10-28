@@ -123,17 +123,9 @@ export function useHoverTriggerInteraction(
       }
     }
 
-    // A close request while the popup is already closed isn't an open change, but it still
-    // cancels a pending open.
-    function onDroppedClose() {
-      intent.cancel();
-    }
-
     events.on('openchange', onOpenChangeLocal);
-    events.on('droppedclose', onDroppedClose);
     return () => {
       events.off('openchange', onOpenChangeLocal);
-      events.off('droppedclose', onDroppedClose);
     };
   }, [enabled, events, intent]);
 
