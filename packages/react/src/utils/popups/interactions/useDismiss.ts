@@ -253,7 +253,7 @@ export function useDismiss(
     },
   );
 
-  // This popup's open number for an Escape that reaches the document (see `openCount`).
+  // This popup's open number orders Escape and outside-press ownership (see `openCount`).
   const layer = React.useMemo(() => {
     if (!open) {
       return 0;

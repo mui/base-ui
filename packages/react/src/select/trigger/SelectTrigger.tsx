@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { contains } from '@base-ui/utils/shadowDom';
+import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -183,7 +183,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          const mouseUpTarget = mouseEvent.target as Element | null;
+          const mouseUpTarget = getTarget(mouseEvent) as Element | null;
 
           // Don't treat the release as an outside press when it lands on the trigger or inside
           // the popup positioner (or their children).

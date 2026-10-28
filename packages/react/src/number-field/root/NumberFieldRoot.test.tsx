@@ -4,7 +4,13 @@ import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField as NumberFieldBase } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { createRenderer, describeConformance, isJSDOM, pasteText } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  hiddenInputSizeTests,
+  isJSDOM,
+  pasteText,
+} from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 describe('<NumberField />', () => {
@@ -14,6 +20,15 @@ describe('<NumberField />', () => {
     refInstanceof: window.HTMLDivElement,
     render,
   }));
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <NumberFieldBase.Root {...props}>
+        <NumberFieldBase.Input />
+      </NumberFieldBase.Root>
+    ),
+  });
 
   function NumberField(props: NumberFieldBase.Root.Props) {
     return (

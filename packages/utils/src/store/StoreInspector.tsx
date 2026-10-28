@@ -6,6 +6,7 @@ import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { mergeCleanups } from '../mergeCleanups';
 import { ownerDocument, ownerWindow } from '../owner';
 import { addEventListener } from '../addEventListener';
+import { closest, getTarget } from '../shadowDom';
 import type { Store } from './Store';
 import { useForcedRerendering } from '../useForcedRerendering';
 import { useStableCallback } from '../useStableCallback';
@@ -116,14 +117,6 @@ const STYLES = `
   border-radius: 2px;
 }
 `;
-
-function getTarget(event: Event) {
-  if ('composedPath' in event) {
-    return event.composedPath()[0];
-  }
-
-  return (event as Event).target;
-}
 
 /**
  * Minimal shape of a store owner (such as a Base UI popup handle) that exposes a live store to
@@ -410,8 +403,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     if (!headerRef.current || !rootRef.current) {
       return;
     }
-    const target = getTarget(event.nativeEvent) as Element | null;
-    if (target && target.closest('button')) {
+    if (closest(getTarget(event.nativeEvent) as Node | null, 'button')) {
       return;
     }
     const currentPos = position ?? { left: 8, top: 8 };
