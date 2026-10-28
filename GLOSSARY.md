@@ -38,21 +38,14 @@ _Avoid_: floating tree
 A popup that registers a node in a popup tree: Popover, Preview Card, the Menu family, Menubar and Navigation Menu. Other popups, such as Tooltip, Dialog, Select and Combobox, may read the tree but don't register a node, so a member doesn't count them as its descendants. Tree membership is everything that follows from being a member: the tree queries and events, and the parent scope a member's Positioner gives the popups nested in it.
 _Avoid_: floating node
 
-**Node registration**:
-Adding a member's node to its popup tree, with the id of the popup it is nested in as the parent. Popover and Preview Card Roots register while they are mounted, open or not. Their node has a snapshot only while their Positioner is mounted: the Positioner attaches it and drops it again when it unmounts, so a member without a Positioner counts as no node.
-_Avoid_: node mounting
-
-**Node attachment**:
-Writing a member's snapshot onto its registered node, in the tree the member's Root registered it in. The member's Positioner does it after every render, once positioning has given it the values; Popover and Preview Card Positioners also remove it when they unmount.
-_Avoid_: node context update
-
 **Family tree**:
 Each popup family keeps its own popup tree. A member nested in a popup of another family records that popup's node as its parent, but it registers in its own family's tree, so the other family's tree doesn't see it. Detached Menu triggers rendered inside a Popover are the exception: outside their Menu Root, they register in the Popover's tree, and the Menu's tree events go out on it.
 _Avoid_: shared tree
 
 **Snapshot**:
-What a tree member publishes on its node for the other members: whether it is open, its floating and trigger elements, and its interaction data. It is written in a layout effect after the member renders, not read live from its store, so a node the member stops updating keeps its last snapshot. That snapshot can go stale: when a Menu switches triggers, the previous trigger's node keeps reporting the Menu as open, so a parent may still treat it as an open child (a known issue).
-_Avoid_: node context, floating context
+What a tree member publishes on its node for the other members: whether it is open, its floating and trigger elements, and its interaction data. Whether it is open and its elements are copied each time the member renders, so a node the member stops updating keeps the last ones. They can go stale: when a Menu switches triggers, the previous trigger's node keeps reporting the Menu as open, so a parent may still treat it as an open child (a known issue). The interaction data isn't copied: other members read the member's current values.
+_Avoid_: floating context
+_In code_: a node's `context` field.
 
 **Hover intent**:
 The logic that decides when hovering a trigger opens its popup and when leaving closes it. It covers the open and close delays, waiting for the pointer to rest, and the safe polygon that keeps the popup open while the pointer travels from the trigger to it. Each popup has one, shared by all its triggers.

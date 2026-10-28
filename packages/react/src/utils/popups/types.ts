@@ -232,9 +232,10 @@ export type FloatingNodeInteraction = Pick<
 
 /**
  * What a popup tree member publishes about itself for the other members: whether it is open, its
- * elements, and the interaction fields the other members read. It is a snapshot taken in a layout
- * effect after the member renders, not live state, so a node the member no longer updates keeps
- * its last snapshot.
+ * elements, and the interaction fields the other members read. `open` and `elements` are copied in
+ * a layout effect after the member renders, so a node the member no longer updates keeps the last
+ * ones. `interaction` is the member's own interaction context, which its interaction hooks update
+ * in place, so other members always read its current values.
  */
 export interface FloatingNodeSnapshot {
   open: boolean;
