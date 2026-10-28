@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  applyOpenRequest,
-  claimOnRegister,
-  settleTriggerOwnership,
-} from './triggerOwnership';
+import { applyOpenRequest, claimOnRegister, settleTriggerOwnership } from './triggerOwnership';
 import type { TriggerOwnershipState } from './triggerOwnership';
 import { createInitialPopupStoreState } from './store';
 import { PopupTriggerMap } from './popupTriggerMap';
@@ -77,17 +73,15 @@ describe('triggerOwnership', () => {
   });
 
   describe('claimOnRegister', () => {
-    it('lets the owner refresh its element and forward its state only while open', () => {
+    it('lets the owner refresh its element whether the popup is open or closed', () => {
       const element = createElement();
       const state = createState({ activeTriggerId: 'trigger' });
 
       expect(claimOnRegister(state, 'trigger', element, true, 'trigger')).toEqual({
-        changes: { activeTriggerElement: element },
-        forwardState: true,
+        activeTriggerElement: element,
       });
       expect(claimOnRegister(state, 'trigger', element, false, 'trigger')).toEqual({
-        changes: { activeTriggerElement: element },
-        forwardState: false,
+        activeTriggerElement: element,
       });
     });
 
@@ -95,8 +89,8 @@ describe('triggerOwnership', () => {
       const element = createElement();
 
       expect(claimOnRegister(createState(), 'trigger', element, true, null)).toEqual({
-        changes: { activeTriggerId: 'trigger', activeTriggerElement: element },
-        forwardState: true,
+        activeTriggerId: 'trigger',
+        activeTriggerElement: element,
       });
     });
 

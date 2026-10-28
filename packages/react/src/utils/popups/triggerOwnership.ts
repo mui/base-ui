@@ -89,7 +89,8 @@ export function applyOpenRequest(
  * @param element The trigger element.
  * @param open Whether the popup is open.
  * @param ownerId The effective owner id, which a controlled `triggerId` prop overrides.
- * @returns The ownership changes, and whether the trigger should forward its trigger-owned state.
+ * @returns The ownership changes, or `null` when the trigger doesn't claim the popup. A trigger
+ *   that claims an open popup forwards its trigger-owned state along with the changes.
  */
 export function claimOnRegister(
   state: TriggerOwnershipState,
@@ -97,18 +98,15 @@ export function claimOnRegister(
   element: Element,
   open: boolean,
   ownerId: string | null,
-): { changes: TriggerOwnershipChanges; forwardState: boolean } | null {
+): TriggerOwnershipChanges | null {
   if (ownerId === triggerId) {
-    return { changes: { activeTriggerElement: element }, forwardState: open };
+    return { activeTriggerElement: element };
   }
 
   if (ownerId == null && open && !state.openedWithoutTrigger) {
     // A detached trigger can mount into an open popup before any owner has been established.
     // Claiming it lets trigger-owned focus management and ARIA relationships work.
-    return {
-      changes: { activeTriggerId: triggerId ?? null, activeTriggerElement: element },
-      forwardState: true,
-    };
+    return { activeTriggerId: triggerId ?? null, activeTriggerElement: element };
   }
 
   return null;

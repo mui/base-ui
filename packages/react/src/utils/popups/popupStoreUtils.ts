@@ -145,17 +145,18 @@ export function useTriggerOwnership<
     triggerElementRef,
     store,
     (element: Element) => {
-      const result = claimOnRegister(
+      const open = store.select('open');
+      const changes = claimOnRegister(
         store.state,
         triggerId,
         element,
-        store.select('open'),
+        open,
         store.select('activeTriggerId'),
       );
-      if (result) {
+      if (changes) {
         store.update({
-          ...result.changes,
-          ...(result.forwardState ? stateUpdates : null),
+          ...changes,
+          ...(open ? stateUpdates : null),
         } as Pick<Readonly<State>, Key | 'activeTriggerId' | 'activeTriggerElement'>);
       }
     },
