@@ -2063,6 +2063,43 @@ describe('<Dialog.Root />', () => {
     });
 
     it.skipIf(isJSDOM)(
+      'waits for an external html lock when body only clips horizontally',
+      async () => {
+        document.body.style.overflowX = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        const { setProps } = await render(
+          <Dialog.Root open={false}>
+            <div style={{ height: '200dvh' }} />
+            <Dialog.Portal>
+              <Dialog.Popup initialFocus={false} finalFocus={false}>
+                Dialog content
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
+        );
+        expect(document.body.scrollHeight).toBe(document.body.clientHeight);
+        expect(getComputedStyle(document.body).overflowY).toBe('auto');
+
+        await setProps({ open: true });
+        await act(async () => {
+          await wait(0);
+        });
+        expect(document.body.style.overflowY).toBe('');
+
+        document.documentElement.style.removeProperty('overflow');
+        await waitFor(() => {
+          expect(getComputedStyle(document.body).overflowY).toBe('hidden');
+        });
+        await setProps({ open: false });
+        await waitFor(() => {
+          expect(getComputedStyle(document.body).overflowY).toBe('auto');
+        });
+        expect(document.body.style.overflowX).toBe('hidden');
+        expect(document.body.style.overflowY).toBe('');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
       'preserves body scroll position and content width while locked',
       async () => {
         const style = document.createElement('style');
@@ -2107,39 +2144,6 @@ describe('<Dialog.Root />', () => {
         expect(document.body.style.scrollbarGutter).toBe(originalGutter);
       },
     );
-
-    it('locks <body> when it scrolls the page while <html> clips the viewport', async () => {
-      // <html> hides the viewport overflow, so it doesn't propagate from <body>, which scrolls
-      // as its own container. This isn't an external lock: nothing will ever clear it.
-      const style = document.createElement('style');
-      style.textContent =
-        'html { height: 100dvh; overflow: hidden; } body { height: 100%; overflow-y: auto; }';
-      document.head.appendChild(style);
-      onTestFinished(() => style.remove());
-      expect(getComputedStyle(document.body).overflowY).toBe('auto');
-
-      await render(
-        <Dialog.Root defaultOpen>
-          <Dialog.Portal>
-            <Dialog.Popup>
-              <Dialog.Close>Close dialog</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
-      );
-
-      // Flush the scroll locker's deferred lock, scheduled on a 0ms timeout.
-      await act(async () => {
-        await wait(0);
-      });
-
-      expect(getComputedStyle(document.body).overflowY).toBe('hidden');
-
-      fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
-      await waitFor(() => {
-        expect(getComputedStyle(document.body).overflowY).toBe('auto');
-      });
-    });
   });
 
   it.skipIf(isJSDOM)(
