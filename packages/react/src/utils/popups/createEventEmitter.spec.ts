@@ -1,0 +1,37 @@
+import { REASONS } from '../../internals/reasons';
+import { createEventEmitter } from './createEventEmitter';
+import type { FloatingEventMap, FloatingTreeEventMap } from './types';
+
+const popupEvents = createEventEmitter<FloatingEventMap>();
+const treeEvents = createEventEmitter<FloatingTreeEventMap>();
+
+popupEvents.emit('droppedclose', undefined);
+// @ts-expect-error Every event takes a payload argument, even one without data.
+popupEvents.emit('droppedclose');
+// @ts-expect-error Only listed events can be emitted.
+popupEvents.emit('unknown', undefined);
+
+treeEvents.emit('menuopenchange', {
+  open: true,
+  reason: REASONS.triggerPress,
+  nodeId: undefined,
+  parentNodeId: null,
+});
+// @ts-expect-error The menuopenchange payload needs every field.
+treeEvents.emit('menuopenchange', { open: true });
+treeEvents.emit('menuopenchange', {
+  open: true,
+  // @ts-expect-error The reason must be a Menu.Root open change reason.
+  reason: REASONS.incrementPress,
+  nodeId: undefined,
+  parentNodeId: null,
+});
+
+treeEvents.emit('close', { domEvent: undefined, reason: REASONS.itemPress });
+// @ts-expect-error A close is only requested by an item press or a cancelled open.
+treeEvents.emit('close', { domEvent: undefined, reason: REASONS.escapeKey });
+
+// @ts-expect-error Only listed events can be listened to.
+treeEvents.on('unknown', () => {});
+// @ts-expect-error A listener receives the event's payload.
+treeEvents.on('itemhover', (event: MouseEvent) => event);
