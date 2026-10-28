@@ -376,9 +376,8 @@ type PopupUnmountKey =
  * `onOpenChange` only hears about changes that can happen. A change the store would not commit
  * belongs in step 1, so it is dropped before it is reported. A controlled popup's last request
  * counts as its state until the `open` prop changes, so a close after an open the parent declined
- * without `cancel()` is still reported. Two stores ignore more in step 1: Menu drops a request that
- * repeats what its Root last rendered and reports the trigger it last rendered, and Combobox drops
- * any change that matches its open state.
+ * without `cancel()` is still reported. A store can drop more in step 1 through
+ * `isOpenChangeIgnored`, as Menu and Combobox do.
  *
  * Once the popup has finished closing and unmounts, `resetOnUnmount` clears what the open session
  * left behind, along with the store's own fields from `prepareUnmount`.
@@ -395,7 +394,7 @@ export abstract class BasePopupStore<
   private openSession = {};
 
   override setState(newState: Readonly<State>): void {
-    // An open through `setOpen` starts its session itself.
+    // Opening through the `open` prop starts a new open session.
     if (!this.state.openProp && newState.openProp) {
       this.openSession = {};
     }
@@ -439,20 +438,18 @@ export abstract class BasePopupStore<
     }
 
     if (!nextOpen && details.trigger == null) {
-      details.trigger = this.getCloseTrigger();
+      const closeTrigger = this.getCloseTrigger();
+      // A trigger that has left the document, such as one whose unmount closes the popup, isn't
+      // reported.
+      details.trigger = closeTrigger?.isConnected ? closeTrigger : undefined;
     }
 
     let preventUnmountOnClose = false;
-    // The open session this close committed in. Unset until the close commits.
+    // The open session this close committed in. Unset until the close commits, and never set for
+    // an open or a canceled close.
     let closeSession: object | undefined;
     details.preventUnmountOnClose = () => {
-      if (nextOpen) {
-        return;
-      }
-      if (closeSession === undefined) {
-        preventUnmountOnClose = true;
-        return;
-      }
+      preventUnmountOnClose = true;
       // A call made once the close is committed, such as after an `await` in `onOpenChange`, still
       // applies until the popup opens again, even if more closes commit in the meantime. A
       // controlled `open` prop may not have caught up with the close yet.
@@ -479,10 +476,12 @@ export abstract class BasePopupStore<
       } as Pick<State, keyof State>);
     };
 
-    if (nextOpen) {
-      this.openSession = {};
-    } else {
+    if (!nextOpen) {
       closeSession = this.openSession;
+    } else if (!popupStoreSelectors.open(this.state)) {
+      // An open request while a controlled `open` prop still shows the popup doesn't start a new
+      // session, so a close waiting on the parent keeps its request.
+      this.openSession = {};
     }
 
     if (this.isCommittedSynchronously(details)) {
@@ -509,12 +508,11 @@ export abstract class BasePopupStore<
       return undefined;
     }
 
-    const trigger =
+    return (
       this.context.triggerElements.getById(activeTriggerId) ??
-      activeTriggerElementSelector(this.state);
-    // A trigger that has left the document, such as one whose unmount closes the popup, isn't
-    // reported.
-    return trigger?.isConnected ? trigger : undefined;
+      activeTriggerElementSelector(this.state) ??
+      undefined
+    );
   }
 
   /**

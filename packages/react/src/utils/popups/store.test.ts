@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, onTestFinished, vi } from 'vitest';
 import {
   BasePopupStore,
   createInitialPopupStoreState,
@@ -265,6 +265,14 @@ class TestPopupStore extends BasePopupStore<
   }
 }
 
+function createConnectedButton() {
+  const button = document.body.appendChild(document.createElement('button'));
+  onTestFinished(() => {
+    button.remove();
+  });
+  return button;
+}
+
 function createDetails(reason: string, trigger?: Element) {
   return createChangeEventDetails(reason, undefined, trigger);
 }
@@ -364,7 +372,7 @@ describe('BasePopupStore', () => {
 
     it('reports the active trigger for a close request that carries none by default', () => {
       const onOpenChange = vi.fn();
-      const trigger = document.body.appendChild(document.createElement('button'));
+      const trigger = createConnectedButton();
       trigger.id = 'trigger';
       const store = new TestPopupStore(onOpenChange, {
         open: true,
@@ -378,7 +386,6 @@ describe('BasePopupStore', () => {
 
       expect(onOpenChange.mock.calls[0][1].trigger).toBe(trigger);
       expect(store.state.activeTriggerElement).toBe(trigger);
-      trigger.remove();
     });
 
     it('reports no trigger when the active trigger has left the document', () => {
@@ -398,8 +405,8 @@ describe('BasePopupStore', () => {
 
     it('reports the registered element of the active trigger over a stale one', () => {
       const onOpenChange = vi.fn();
-      const staleTrigger = document.body.appendChild(document.createElement('button'));
-      const trigger = document.body.appendChild(document.createElement('button'));
+      const staleTrigger = createConnectedButton();
+      const trigger = createConnectedButton();
       const store = new TestPopupStore(onOpenChange, {
         open: true,
         mounted: true,
@@ -411,8 +418,6 @@ describe('BasePopupStore', () => {
       store.setOpen(false, createDetails(REASONS.escapeKey));
 
       expect(onOpenChange.mock.calls[0][1].trigger).toBe(trigger);
-      staleTrigger.remove();
-      trigger.remove();
     });
 
     it('reports no trigger for a close request that carries none while no trigger is active', () => {
@@ -428,7 +433,7 @@ describe('BasePopupStore', () => {
     it('reports the close trigger the store names for a close request that carries none', () => {
       const onOpenChange = vi.fn();
       const store = new TestPopupStore(onOpenChange, { open: true });
-      const trigger = document.createElement('button');
+      const trigger = createConnectedButton();
       store.closeTrigger = trigger;
 
       store.setOpen(false, createDetails(REASONS.escapeKey));
@@ -563,6 +568,24 @@ describe('BasePopupStore', () => {
       expect(store.state.preventUnmountingOnClose).toBe(false);
     });
 
+    it('keeps a late request from a close when an open request arrives while the prop still shows the popup', () => {
+      let closeDetails: PopupOpenChangeEventDetails | undefined;
+      const store = new TestPopupStore(
+        (open, eventDetails) => {
+          if (!open) {
+            closeDetails = eventDetails;
+          }
+        },
+        { open: true, openProp: true, mounted: true },
+      );
+
+      store.setOpen(false, createDetails(REASONS.escapeKey));
+      store.setOpen(true, createDetails(REASONS.triggerFocus));
+      closeDetails!.preventUnmountOnClose();
+
+      expect(store.state.preventUnmountingOnClose).toBe(true);
+    });
+
     it('keeps a late request from a close when a later close is dropped', () => {
       const closeDetails: PopupOpenChangeEventDetails[] = [];
       const store = new TestPopupStore(
@@ -644,7 +667,7 @@ describe('BasePopupStore', () => {
     it('reports the change, the trigger named for the close and whether the popup is nested', () => {
       const store = new TestPopupStore(() => {}, { open: true });
       store.context.nested = true;
-      store.closeTrigger = document.createElement('button');
+      store.closeTrigger = createConnectedButton();
       const onOpenChangeEvent = vi.fn();
       store.context.events.on('openchange', onOpenChangeEvent);
       const event = new KeyboardEvent('keydown');

@@ -4,6 +4,7 @@ import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import type { UserEvent } from '@testing-library/user-event';
 import type { createRenderer } from '#test-utils';
 import { isJSDOM } from '#test-utils';
+import { REASONS } from '../src/internals/reasons';
 
 /**
  * Behavior shared by every popup that supports multiple triggers and detached triggers
@@ -296,7 +297,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
 
             expect(onOpenChange).toHaveBeenLastCalledWith(
               false,
-              expect.objectContaining({ reason: 'escape-key', trigger: getTrigger(2) }),
+              expect.objectContaining({ reason: REASONS.escapeKey, trigger: getTrigger(2) }),
             );
           });
 

@@ -228,40 +228,44 @@ export function popupConformanceTests(config: PopupTestConfig) {
         expect(getTrigger()).not.toHaveAttribute('data-popup-open');
       });
 
-      it.each([
-        { name: 'uncontrolled', controlled: false },
-        { name: 'closed by the `open` prop', controlled: true },
-      ])(
-        'is not called when the `close` action is called while closed ($name)',
-        async ({ controlled }) => {
-          const handleOpenChange = vi.fn();
-          const actionsRef = React.createRef<{ close: () => void; unmount: () => void }>();
-          const { rerender } = await render(
-            prepareComponent({
-              root: {
-                actionsRef,
-                onOpenChange: handleOpenChange,
-                ...(controlled ? { open: true } : {}),
-              },
-            }),
-          );
-          if (controlled) {
-            await rerender(
-              prepareComponent({
-                root: { actionsRef, onOpenChange: handleOpenChange, open: false },
-              }),
-            );
-            await waitFor(expectPopupClosed);
-          }
+      it('is not called when the `close` action is called while closed', async () => {
+        const handleOpenChange = vi.fn();
+        const actionsRef = React.createRef<{ close: () => void; unmount: () => void }>();
+        await render(prepareComponent({ root: { actionsRef, onOpenChange: handleOpenChange } }));
 
-          await act(async () => {
-            actionsRef.current!.close();
-          });
+        await act(async () => {
+          actionsRef.current!.close();
+        });
 
-          expect(handleOpenChange).not.toHaveBeenCalled();
-          expect(getTrigger()).not.toHaveAttribute('data-popup-open');
-        },
-      );
+        expect(handleOpenChange).not.toHaveBeenCalled();
+        expect(getTrigger()).not.toHaveAttribute('data-popup-open');
+      });
+
+      it('is not called when the `close` action is called after the `open` prop opened and closed the popup', async () => {
+        const handleOpenChange = vi.fn();
+        const actionsRef = React.createRef<{ close: () => void; unmount: () => void }>();
+        const renderRoot = (open: boolean) =>
+          prepareComponent({ root: { actionsRef, onOpenChange: handleOpenChange, open } });
+        const { user, rerender } = await render(renderRoot(false));
+
+        // The parent ignores this open, so it stays recorded as a pending request until the prop
+        // opens and closes the popup.
+        await openWithTrigger(user);
+        await waitFor(() => {
+          expect(handleOpenChange).toHaveBeenCalledWith(true, expect.anything());
+        });
+        await rerender(renderRoot(true));
+        await rerender(renderRoot(false));
+        await waitFor(expectPopupClosed);
+        handleOpenChange.mockClear();
+
+        await act(async () => {
+          actionsRef.current!.close();
+        });
+
+        expect(handleOpenChange).not.toHaveBeenCalled();
+        expect(getTrigger()).not.toHaveAttribute('data-popup-open');
+      });
 
       it('is called when the `close` action is called while open', async () => {
         const handleOpenChange = vi.fn();
@@ -660,13 +664,19 @@ export function popupConformanceTests(config: PopupTestConfig) {
         });
 
         it.each([
-          { name: 'one close', closes: 1 },
-          { name: 'a second close during the wait', closes: 2 },
+          { name: 'one close', closes: 1, synchronous: false },
+          { name: 'a second close during the wait', closes: 2, synchronous: false },
+          {
+            name: 'a synchronous request and a second close during the wait',
+            closes: 2,
+            synchronous: true,
+          },
         ])(
           'is not called on close when a controlled popup prevents unmounting after an await, with $name',
-          async ({ closes }) => {
+          async ({ closes, synchronous }) => {
             globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
             const onOpenChangeComplete = vi.fn();
+            const handleClose = vi.fn();
 
             function App() {
               const [open, setOpen] = React.useState(true);
@@ -680,13 +690,19 @@ export function popupConformanceTests(config: PopupTestConfig) {
                       setOpen(true);
                       return;
                     }
+                    handleClose();
                     // A close that arrives while the first one waits is ignored.
                     if (busyRef.current) {
                       return;
                     }
                     busyRef.current = true;
+                    if (synchronous) {
+                      eventDetails.preventUnmountOnClose();
+                    }
                     await wait(50);
-                    eventDetails.preventUnmountOnClose();
+                    if (!synchronous) {
+                      eventDetails.preventUnmountOnClose();
+                    }
                     setOpen(false);
                   },
                 },
@@ -709,6 +725,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
             if (closes === 2) {
               await user.keyboard('[Escape]');
             }
+            expect(handleClose).toHaveBeenCalledTimes(closes);
             await waitFor(() => {
               expect(getPopup()).toHaveAttribute('data-ending-style');
             });

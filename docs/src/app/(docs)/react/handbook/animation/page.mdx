@@ -192,7 +192,7 @@ This ends the closing phase, and `onOpenChangeComplete(false)` fires. Whether th
 
 If you need to wait for something before closing, control `open` and keep it `true` while you wait.
 After the `await`, call `eventDetails.preventUnmountOnClose()` and then set `open` to `false`.
-The request holds until the popup opens again, even if more close requests arrive while you wait.
+The request holds until the popup opens again, even if more close requests arrive while you wait, but not if you `cancel()` the close it belongs to.
 Navigation Menu only accepts `preventUnmountOnClose()` synchronously, in `onValueChange`.
 
 ```jsx title="manual-unmount-after-await.tsx"
