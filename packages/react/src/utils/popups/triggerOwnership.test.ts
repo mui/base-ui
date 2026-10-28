@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyOpenRequest, claimOnRegister, settleTriggerOwnership } from './triggerOwnership';
+import { claimOnRegister, settleTriggerOwnership } from './triggerOwnership';
 import type { TriggerOwnershipState } from './triggerOwnership';
 import { createInitialPopupStoreState } from './store';
 import { PopupTriggerMap } from './popupTriggerMap';
@@ -23,55 +23,6 @@ function createState(overrides: Partial<TriggerOwnershipState> = {}): TriggerOwn
 }
 
 describe('triggerOwnership', () => {
-  describe('applyOpenRequest', () => {
-    it('makes the trigger of an open request the owner, identified by its DOM id', () => {
-      const trigger = createElement('dom-id');
-
-      const next = applyOpenRequest(createState(), true, trigger);
-
-      expect(next.activeTriggerId).toBe('dom-id');
-      expect(next.activeTriggerElement).toBe(trigger);
-      expect(next.openedWithoutTrigger).toBe(false);
-    });
-
-    it('leaves a popup opened without a trigger unowned and records it', () => {
-      const owner = createElement('owner');
-      const state = createState({ activeTriggerId: 'owner', activeTriggerElement: owner });
-
-      const next = applyOpenRequest(state, true, undefined);
-
-      expect(next.activeTriggerId).toBe(null);
-      expect(next.activeTriggerElement).toBe(null);
-      expect(next.openedWithoutTrigger).toBe(true);
-    });
-
-    it('keeps the owner and the trigger-less flag on a close request without a trigger', () => {
-      const owner = createElement('owner');
-      const state = createState({
-        activeTriggerId: 'owner',
-        activeTriggerElement: owner,
-        openedWithoutTrigger: true,
-      });
-
-      const next = applyOpenRequest(state, false, undefined);
-
-      expect(next.activeTriggerId).toBe('owner');
-      expect(next.activeTriggerElement).toBe(owner);
-      expect(next.openedWithoutTrigger).toBe(true);
-    });
-
-    it('moves ownership to the trigger a close request names', () => {
-      const owner = createElement('owner');
-      const other = createElement('other');
-      const state = createState({ activeTriggerId: 'owner', activeTriggerElement: owner });
-
-      const next = applyOpenRequest(state, false, other);
-
-      expect(next.activeTriggerId).toBe('other');
-      expect(next.activeTriggerElement).toBe(other);
-    });
-  });
-
   describe('claimOnRegister', () => {
     it('lets the owner refresh its element whether the popup is open or closed', () => {
       const element = createElement();

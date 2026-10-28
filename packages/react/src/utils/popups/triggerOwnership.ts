@@ -26,11 +26,6 @@ export type TriggerOwnershipState = Pick<
  */
 export type TriggerOwnershipChanges = Partial<TriggerOwnershipState>;
 
-type OpenRequestState = Pick<
-  TriggerOwnershipState,
-  'activeTriggerId' | 'activeTriggerElement' | 'openedWithoutTrigger'
->;
-
 /**
  * The registered triggers of a popup, keyed by their registered id.
  */
@@ -38,43 +33,6 @@ export interface TriggerRegistry {
   readonly size: number;
   getById(id: string): Element | undefined;
   entries(): IterableIterator<[string, Element]>;
-}
-
-/**
- * Open or close request.
- *
- * An open request makes its trigger the owner, or leaves the popup without one when it carries no
- * trigger. A close request keeps the owner unless it names a different trigger, so exit animations
- * play and focus returns to the trigger that opened the popup. The trigger is identified by its DOM id here;
- * settling hands the owner over to the trigger's registered id when the two differ.
- *
- * @param state The current ownership state.
- * @param open Whether the request opens the popup.
- * @param trigger The trigger the request came from, if any.
- */
-export function applyOpenRequest(
-  state: OpenRequestState,
-  open: boolean,
-  trigger: Element | undefined,
-): OpenRequestState {
-  const triggerId = trigger?.id ?? null;
-
-  let { activeTriggerId, activeTriggerElement } = state;
-  // The active id can differ from the element's own `id` once the Root matches the element to its
-  // registered trigger id, so a close naming the active trigger keeps it.
-  if (open || (triggerId && trigger !== state.activeTriggerElement)) {
-    activeTriggerId = triggerId;
-    activeTriggerElement = trigger ?? null;
-  }
-
-  return {
-    activeTriggerId,
-    activeTriggerElement,
-    // Controlled and default opens never pass through here, so they keep claiming a lone trigger.
-    // A close request keeps the flag: a controlled root may decline it and stay open, so the flag
-    // is cleared only once the popup is effectively closed (see `settleTriggerOwnership`).
-    openedWithoutTrigger: open ? trigger == null : state.openedWithoutTrigger,
-  };
 }
 
 /**

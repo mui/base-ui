@@ -10,7 +10,6 @@ import { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { applyOpenRequest } from './triggerOwnership';
 
 /**
  * State common to all popup stores.
@@ -312,6 +311,14 @@ type PopupOpenState = Pick<
   | 'openedWithoutTrigger'
 >;
 
+/**
+ * Returns the open state an accepted open or close request commits.
+ *
+ * An open request makes its trigger the owner, or leaves the popup without one when it carries no
+ * trigger. A close request keeps the owner unless it names a different trigger. The trigger is
+ * identified by its DOM id here; settling hands the owner over to the trigger's registered id when
+ * the two differ.
+ */
 export function createPopupOpenState(
   state: S,
   open: boolean,
@@ -322,12 +329,31 @@ export function createPopupOpenState(
   const preventUnmountingOnClose =
     !open && (state.preventUnmountingOnClose || preventUnmountOnClose);
 
+  const triggerId = trigger?.id ?? null;
+  // A controlled `triggerId` can move the popup to another trigger without updating the stored id,
+  // so the kept id is the one the popup currently resolves.
+  let activeTriggerId = activeTriggerIdSelector(state);
+  let activeTriggerElement = state.activeTriggerElement;
+
+  // A close keeps the active trigger when it names no trigger or names the active one, so exit
+  // animations play and focus returns to it. The active id can differ from the element's own `id`
+  // once the Root matches the element to its registered trigger id.
+  if (open || (triggerId && trigger !== state.activeTriggerElement)) {
+    activeTriggerId = triggerId;
+    activeTriggerElement = trigger ?? null;
+  }
+
   return {
     open,
     preventUnmountingOnClose,
-    // A controlled `triggerId` can move the popup to another trigger without updating the stored id,
-    // so the kept id is the one the popup currently resolves.
-    ...applyOpenRequest({ ...state, activeTriggerId: activeTriggerIdSelector(state) }, open, trigger),
+    activeTriggerId,
+    activeTriggerElement,
+    // An open request without a trigger (a handle's `open(null)` or `openWithPayload()`) must not
+    // be reassociated with a lone registered trigger later on. Controlled and default opens never
+    // pass through here, so they keep claiming a lone trigger. A close request keeps the flag: a
+    // controlled root may decline it and stay open, so the Root clears the flag only once the
+    // popup is effectively closed.
+    openedWithoutTrigger: open ? trigger == null : state.openedWithoutTrigger,
   };
 }
 
