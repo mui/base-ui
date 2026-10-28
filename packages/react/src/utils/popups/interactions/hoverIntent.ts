@@ -430,8 +430,7 @@ export class HoverIntent {
 
     const doc = ownerDocument(positionerElement);
 
-    const parentFloating = tree?.getNode(parentId)?.context?.elements
-      .floating as HTMLElement | null;
+    const parentFloating = tree?.getNode(parentId)?.context?.elements.floating;
 
     if (parentFloating) {
       parentFloating.style.pointerEvents = '';

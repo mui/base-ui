@@ -216,7 +216,7 @@ export type PopupPositioningContext = Omit<
 /**
  * What a popup tree member shares with the other members about its interactions.
  */
-export type FloatingNodeInteraction = Pick<
+type FloatingNodeInteraction = Pick<
   PopupInteractionContext,
   'orientation' | 'escapeKeyBubbles' | 'outsidePressBubbles'
 >;

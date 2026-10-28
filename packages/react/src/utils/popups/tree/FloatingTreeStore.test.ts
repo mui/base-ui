@@ -1,10 +1,13 @@
 import { expect, it } from 'vitest';
-import type { FloatingNodeInteraction, FloatingNodeSnapshot, FloatingNodeType } from '../types';
+import type { FloatingNodeSnapshot, FloatingNodeType } from '../types';
 import { FloatingTreeStore } from './FloatingTreeStore';
 
 function createContext(
   open: boolean,
-  options: { floating?: HTMLElement; interaction?: FloatingNodeInteraction } = {},
+  options: {
+    floating?: HTMLElement;
+    interaction?: FloatingNodeSnapshot['rootStore']['context'];
+  } = {},
 ) {
   return {
     open,
