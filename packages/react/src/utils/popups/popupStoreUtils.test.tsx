@@ -80,13 +80,13 @@ describe('useTriggerRegistration', () => {
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
     expect(store.context.triggerElements.hasElement(element)).toBe(true);
-    expect(store.state.triggerOwnership.registryVersion).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
-    expect(store.state.triggerOwnership.registryVersion).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -101,20 +101,20 @@ describe('useTriggerRegistration', () => {
     );
 
     expect(store.context.triggerElements.getById('first')).toBe(element);
-    expect(store.state.triggerOwnership.registryVersion).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     rerender(<TestTrigger id="second" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('first')).toBeUndefined();
     expect(store.context.triggerElements.getById('second')).toBe(element);
-    expect(store.state.triggerOwnership.registryVersion).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('second')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
-    expect(store.state.triggerOwnership.registryVersion).toBe(0);
+    expect(store.state.registryVersion).toBe(0);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -227,11 +227,11 @@ describe('useTriggerRegistration', () => {
     const { unmount } = render(<TestTrigger id="trigger" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
+    expect(store.state.hasLoneTrigger).toBe(true);
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
+    expect(store.state.hasLoneTrigger).toBe(false);
   });
 });
 
@@ -273,14 +273,11 @@ describe('popupId selector', () => {
     store.update({
       open: true,
       defaultPopupId: 'popup-id',
-      triggerOwnership: { ...store.state.triggerOwnership, hasLoneTrigger: true },
+      hasLoneTrigger: true,
     });
     expect(store.select('triggerPopupId', 'trigger')).toBe('popup-id');
 
-    store.set('triggerOwnership', {
-      ...store.state.triggerOwnership,
-      openedWithoutTrigger: true,
-    });
+    store.set('openedWithoutTrigger', true);
     expect(store.select('triggerPopupId', 'trigger')).toBeUndefined();
   });
 });

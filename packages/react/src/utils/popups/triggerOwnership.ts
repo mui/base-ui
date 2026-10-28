@@ -3,63 +3,33 @@
  *
  * A popup is owned by at most one registered trigger at a time: the trigger that opened it, or
  * one that claimed it later. The owner's id and element are kept in `activeTriggerId` and
- * `activeTriggerElement`; the rest of the bookkeeping lives under `triggerOwnership`. Every write
- * to these fields goes through a function in this module. The functions are pure: they read the
- * current ownership state (and the trigger registry where a rule depends on it) and return what to
- * commit. Most return only the fields that change, or `null` when nothing does; `applyOpenRequest`
- * and `createTriggerOwnership` return a full ownership state.
+ * `activeTriggerElement`. The functions are pure: they read the current ownership state (and the
+ * trigger registry where a rule depends on it) and return what to commit.
  */
-
-/**
- * The bookkeeping the ownership rules need besides the owner itself.
- */
-export interface TriggerOwnershipRecord {
-  /**
-   * Whether the popup is open because of a request that deliberately carried no trigger, such as a
-   * handle's `open(null)` or `openWithPayload()`. While set, no trigger claims the popup
-   * implicitly, so its trigger-owned state (such as `payload`) is not forwarded. Cleared once the
-   * popup is effectively closed.
-   */
-  readonly openedWithoutTrigger: boolean;
-  /**
-   * The owner id once it has matched a registered trigger during this open session, or `null`
-   * while the owner is still pending (it has not registered yet). Only a resolved owner that
-   * unregisters counts as lost.
-   */
-  readonly resolvedTriggerId: string | null;
-  /**
-   * Changes whenever a trigger registers or unregisters while the popup is open. The Root
-   * subscribes to it to settle ownership after every registry change, including a commit where
-   * one trigger replaces another and the number of triggers nets out unchanged.
-   */
-  readonly registryVersion: number;
-  /**
-   * Whether exactly one trigger was registered when the open popup last synced with the registry.
-   */
-  readonly hasLoneTrigger: boolean;
-}
+import type { PopupStoreState } from './store';
 
 /**
  * The popup state the ownership rules read and write.
  */
-export interface TriggerOwnershipState {
-  /**
-   * Registered id of the trigger that owns the popup.
-   */
-  readonly activeTriggerId: string | null;
-  /**
-   * Element of the trigger that owns the popup.
-   */
-  readonly activeTriggerElement: Element | null;
-  readonly triggerOwnership: TriggerOwnershipRecord;
-}
+export type TriggerOwnershipState = Pick<
+  PopupStoreState<unknown>,
+  | 'activeTriggerId'
+  | 'activeTriggerElement'
+  | 'openedWithoutTrigger'
+  | 'resolvedTriggerId'
+  | 'registryVersion'
+  | 'hasLoneTrigger'
+>;
 
 /**
  * Ownership fields to commit. Only the fields that change are present.
  */
-export type TriggerOwnershipChanges = {
-  -readonly [Key in keyof TriggerOwnershipState]?: TriggerOwnershipState[Key];
-};
+export type TriggerOwnershipChanges = Partial<TriggerOwnershipState>;
+
+type OpenRequestState = Pick<
+  TriggerOwnershipState,
+  'activeTriggerId' | 'activeTriggerElement' | 'openedWithoutTrigger'
+>;
 
 /**
  * The registered triggers of a popup, keyed by their registered id.
@@ -70,13 +40,6 @@ export interface TriggerRegistry {
   entries(): IterableIterator<[string, Element]>;
 }
 
-const INITIAL_RECORD: TriggerOwnershipRecord = {
-  openedWithoutTrigger: false,
-  resolvedTriggerId: null,
-  registryVersion: 0,
-  hasLoneTrigger: false,
-};
-
 /**
  * Returns the ownership state of a popup that has not been opened yet.
  *
@@ -86,20 +49,14 @@ const INITIAL_RECORD: TriggerOwnershipRecord = {
 export function createTriggerOwnership(
   activeTriggerId: string | null = null,
 ): TriggerOwnershipState {
-  return { activeTriggerId, activeTriggerElement: null, triggerOwnership: INITIAL_RECORD };
-}
-
-function withRecord(
-  state: TriggerOwnershipState,
-  changes: Partial<TriggerOwnershipRecord>,
-): TriggerOwnershipRecord {
-  const record = state.triggerOwnership;
-  for (const key of Object.keys(changes) as Array<keyof TriggerOwnershipRecord>) {
-    if (record[key] !== changes[key]) {
-      return { ...record, ...changes };
-    }
-  }
-  return record;
+  return {
+    activeTriggerId,
+    activeTriggerElement: null,
+    openedWithoutTrigger: false,
+    resolvedTriggerId: null,
+    registryVersion: 0,
+    hasLoneTrigger: false,
+  };
 }
 
 /**
@@ -115,10 +72,10 @@ function withRecord(
  * @param trigger The trigger the request came from, if any.
  */
 export function applyOpenRequest(
-  state: TriggerOwnershipState,
+  state: OpenRequestState,
   open: boolean,
   trigger: Element | undefined,
-): TriggerOwnershipState {
+): OpenRequestState {
   const triggerId = trigger?.id ?? null;
 
   let { activeTriggerId, activeTriggerElement } = state;
@@ -135,38 +92,7 @@ export function applyOpenRequest(
     // Controlled and default opens never pass through here, so they keep claiming a lone trigger.
     // A close request keeps the flag: a controlled root may decline it and stay open, so the flag
     // is cleared only once the popup is effectively closed (see `settleTriggerOwnership`).
-    triggerOwnership: withRecord(state, {
-      openedWithoutTrigger: open ? trigger == null : state.triggerOwnership.openedWithoutTrigger,
-    }),
-  };
-}
-
-/**
- * Registry change: a trigger registered or unregistered.
- *
- * Nothing changes while the popup is closed, so registering closed triggers notifies nobody. While
- * the popup is open, the registry version moves on so the Root settles ownership again.
- *
- * Call it after the registry itself has changed.
- *
- * @param state The current ownership state.
- * @param registry The registered triggers, including the change.
- * @param open Whether the popup is open.
- */
-export function changeTriggerRegistry(
-  state: TriggerOwnershipState,
-  registry: TriggerRegistry,
-  open: boolean,
-): TriggerOwnershipChanges | null {
-  if (!open) {
-    return null;
-  }
-
-  return {
-    triggerOwnership: withRecord(state, {
-      registryVersion: state.triggerOwnership.registryVersion + 1,
-      hasLoneTrigger: registry.size === 1,
-    }),
+    openedWithoutTrigger: open ? trigger == null : state.openedWithoutTrigger,
   };
 }
 
@@ -195,7 +121,7 @@ export function claimOnRegister(
     return { changes: { activeTriggerElement: element }, forwardState: open };
   }
 
-  if (ownerId == null && open && !state.triggerOwnership.openedWithoutTrigger) {
+  if (ownerId == null && open && !state.openedWithoutTrigger) {
     // A detached trigger can mount into an open popup before any owner has been established.
     // Claiming it lets trigger-owned focus management and ARIA relationships work.
     return {
@@ -248,39 +174,32 @@ export function claimSubmenuOnRegister(
  * @param registry The registered triggers.
  * @param open Whether the popup is open.
  * @param ownerId The effective owner id, which a controlled `triggerId` prop overrides.
- * @returns The ownership changes, and the id of the owner that was lost, if any.
+ * @returns The ownership fields to commit, and the id of the owner that was lost, if any. Fields
+ *   that keep their value may be included.
  */
 export function settleTriggerOwnership(
   state: TriggerOwnershipState,
   registry: TriggerRegistry,
   open: boolean,
   ownerId: string | null,
-): { changes: TriggerOwnershipChanges | null; lostTriggerId: string | null } {
-  const record = state.triggerOwnership;
-
+): { changes: TriggerOwnershipChanges; lostTriggerId: string | null } {
   if (!open) {
-    const triggerOwnership = withRecord(state, {
-      resolvedTriggerId: null,
-      openedWithoutTrigger: false,
-      hasLoneTrigger: false,
-    });
     return {
-      changes: triggerOwnership === record ? null : { triggerOwnership },
+      changes: { resolvedTriggerId: null, openedWithoutTrigger: false, hasLoneTrigger: false },
       lostTriggerId: null,
     };
   }
 
-  const changes: TriggerOwnershipChanges = {};
-  let resolvedTriggerId = record.resolvedTriggerId;
+  const hasLoneTrigger = registry.size === 1;
+  const changes: TriggerOwnershipChanges = { hasLoneTrigger };
+  let resolvedTriggerId = state.resolvedTriggerId;
   let lostTriggerId: string | null = null;
 
   if (ownerId) {
     const ownerElement = registry.getById(ownerId);
     if (ownerElement) {
       resolvedTriggerId = ownerId;
-      if (ownerElement !== state.activeTriggerElement) {
-        changes.activeTriggerElement = ownerElement;
-      }
+      changes.activeTriggerElement = ownerElement;
     } else {
       for (const [registeredId, registeredElement] of registry.entries()) {
         if (registeredElement === state.activeTriggerElement) {
@@ -304,7 +223,7 @@ export function settleTriggerOwnership(
   }
 
   // A lost owner still has an id, so `!ownerId` also rules out claiming after losing one.
-  if (!ownerId && isLoneTriggerClaimable(state, registry.size === 1)) {
+  if (!ownerId && hasLoneTrigger && !state.openedWithoutTrigger) {
     const iteratorResult = registry.entries().next();
     if (!iteratorResult.done) {
       const [loneTriggerId, loneTriggerElement] = iteratorResult.value;
@@ -314,60 +233,6 @@ export function settleTriggerOwnership(
     }
   }
 
-  const triggerOwnership = withRecord(state, {
-    resolvedTriggerId,
-    hasLoneTrigger: registry.size === 1,
-  });
-  if (triggerOwnership !== record) {
-    changes.triggerOwnership = triggerOwnership;
-  }
-
-  return {
-    changes: Object.keys(changes).length > 0 ? changes : null,
-    lostTriggerId,
-  };
-}
-
-/**
- * Whether a lost owner is still lost once the deferred check runs: the popup is open, the owner
- * hasn't changed, and no trigger has registered under its id in the meantime.
- */
-export function isTriggerStillLost(
-  lostTriggerId: string,
-  registry: TriggerRegistry,
-  open: boolean,
-  ownerId: string | null,
-) {
-  return open && ownerId === lostTriggerId && !registry.getById(lostTriggerId);
-}
-
-/**
- * Lost owner: the popup closed because its owner unmounted.
- */
-export function releaseOwner(): TriggerOwnershipChanges {
-  return { activeTriggerId: null, activeTriggerElement: null };
-}
-
-/**
- * Unmounted: the popup finished closing and unmounted. The owner is released, unless a request
- * reopened the popup during its exit: that request's trigger stays the owner. The last trigger is
- * kept either way.
- *
- * @param open Whether the popup is open, meaning a request reopened it during the exit.
- */
-export function releaseUnmountedOwner(open: boolean): TriggerOwnershipChanges | null {
-  return open ? null : releaseOwner();
-}
-
-/**
- * Lone-trigger rule: whether a lone registered trigger may claim the popup, which it may unless the
- * popup was deliberately opened without a trigger. Callers check that the popup is open and has no
- * owner. Until the claim lands, the lone trigger is already associated with the popup (for example
- * through `aria-controls`).
- *
- * @param state The current ownership state.
- * @param hasLoneTrigger Whether exactly one trigger is registered.
- */
-export function isLoneTriggerClaimable(state: TriggerOwnershipState, hasLoneTrigger: boolean) {
-  return !state.triggerOwnership.openedWithoutTrigger && hasLoneTrigger;
+  changes.resolvedTriggerId = resolvedTriggerId;
+  return { changes, lostTriggerId };
 }

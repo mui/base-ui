@@ -20,7 +20,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { updateTriggerOwnership, useTriggerOwnership } from '../../utils/popups/popupStoreUtils';
+import { useTriggerOwnership } from '../../utils/popups/popupStoreUtils';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -82,7 +82,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTriggerPlai
   const handleTriggerElementRef = React.useCallback(
     (el: HTMLElement | null) => {
       triggerElementRef.current = el;
-      updateTriggerOwnership(store, { activeTriggerElement: el });
+      store.set('activeTriggerElement', el);
     },
     [store],
   );

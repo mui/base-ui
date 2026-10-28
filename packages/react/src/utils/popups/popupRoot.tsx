@@ -17,13 +17,7 @@ import type {
   popupStoreSelectors,
   PopupTriggerDataStore,
 } from './store';
-import { updateTriggerOwnership } from './popupStoreUtils';
-import {
-  createTriggerOwnership,
-  isTriggerStillLost,
-  releaseOwner,
-  settleTriggerOwnership,
-} from './triggerOwnership';
+import { createTriggerOwnership, settleTriggerOwnership } from './triggerOwnership';
 import type { TriggerOwnershipState } from './triggerOwnership';
 
 /**
@@ -378,27 +372,23 @@ export function useSettleTriggerOwnership<State extends PopupStoreState<unknown>
       store.select('activeTriggerId'),
     );
 
-    if (changes) {
-      updateTriggerOwnership(store, changes);
-    }
+    // Only the fields the rules set are present, so none of them is `undefined`.
+    store.update(changes as Pick<Readonly<State>, keyof TriggerOwnershipState>);
 
     if (lostTriggerId && closeOnActiveTriggerUnmount) {
       // Defer so a same-tick replacement trigger with the same id can register first.
       queueMicrotask(() => {
         if (
-          isTriggerStillLost(
-            lostTriggerId,
-            registry,
-            store.select('open'),
-            store.select('activeTriggerId'),
-          )
+          store.select('open') &&
+          store.select('activeTriggerId') === lostTriggerId &&
+          !registry.getById(lostTriggerId)
         ) {
           const eventDetails = createChangeEventDetails(REASONS.none);
           store.setOpen(false, eventDetails);
           // If closing is canceled, keep the previous active trigger ownership for the
           // still-open popup instead of claiming another trigger implicitly.
           if (!eventDetails.isCanceled) {
-            updateTriggerOwnership(store, releaseOwner());
+            store.update({ activeTriggerId: null, activeTriggerElement: null });
           }
         }
       });

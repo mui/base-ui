@@ -13,8 +13,8 @@ import type {
   popupStoreSelectors,
   PopupTriggerDataStore,
 } from './store';
-import { changeTriggerRegistry, claimOnRegister, claimSubmenuOnRegister } from './triggerOwnership';
-import type { TriggerOwnershipChanges, TriggerOwnershipState } from './triggerOwnership';
+import { claimOnRegister, claimSubmenuOnRegister } from './triggerOwnership';
+import type { TriggerOwnershipState } from './triggerOwnership';
 
 export const FOCUSABLE_POPUP_PROPS = {
   tabIndex: -1,
@@ -32,28 +32,15 @@ export function createDefaultInitialFocus(popupRef: React.RefObject<HTMLElement 
 }
 
 /**
- * Commits ownership changes returned by the `triggerOwnership` module.
+ * Moves the registry version on after a trigger registered or unregistered, so the Root settles
+ * ownership again. Registering triggers of a closed popup notifies nobody.
  */
-export function updateTriggerOwnership(
-  store: Pick<ReactStore<PopupStoreState<unknown>, any, any>, 'update'>,
-  changes: TriggerOwnershipChanges,
-  stateUpdates?: object | null,
-) {
-  // The module only returns the fields that change, so none of them is `undefined`.
-  store.update({ ...changes, ...stateUpdates } as Pick<
-    PopupStoreState<unknown>,
-    keyof TriggerOwnershipState
-  >);
-}
-
 function syncTriggerRegistry(store: PopupTriggerDataStore<PopupStoreState<unknown>>) {
-  const changes = changeTriggerRegistry(
-    store.state,
-    store.context.triggerElements,
-    store.select('open'),
-  );
-  if (changes) {
-    updateTriggerOwnership(store, changes);
+  if (store.select('open')) {
+    store.update({
+      registryVersion: store.state.registryVersion + 1,
+      hasLoneTrigger: store.context.triggerElements.size === 1,
+    });
   }
 }
 
@@ -139,10 +126,7 @@ export type TriggerClaimRule = 'first-registrant' | 'submenu' | 'none';
  */
 export function useTriggerOwnership<
   State extends PopupStoreState<unknown>,
-  const Key extends keyof Omit<
-    State,
-    'activeTriggerId' | 'activeTriggerElement' | 'triggerOwnership'
-  > = never,
+  const Key extends keyof Omit<State, keyof TriggerOwnershipState> = never,
 >(
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
@@ -168,7 +152,10 @@ export function useTriggerOwnership<
     if (claim === 'first-registrant') {
       const result = claimOnRegister(store.state, triggerId, element, open, ownerId);
       if (result) {
-        updateTriggerOwnership(store, result.changes, result.forwardState ? stateUpdates : null);
+        store.update({
+          ...result.changes,
+          ...(result.forwardState ? stateUpdates : null),
+        } as Pick<Readonly<State>, Key | 'activeTriggerId' | 'activeTriggerElement'>);
       }
     } else if (claim === 'submenu') {
       const changes = claimSubmenuOnRegister(
@@ -179,7 +166,10 @@ export function useTriggerOwnership<
         store.select('activeTriggerElement'),
       );
       if (changes) {
-        updateTriggerOwnership(store, changes, stateUpdates);
+        store.update({ ...changes, ...stateUpdates } as Pick<
+          Readonly<State>,
+          Key | 'activeTriggerId' | 'activeTriggerElement'
+        >);
       }
     }
   });
@@ -205,11 +195,10 @@ export function useTriggerOwnership<
   const forwardsWhileOwner = claim === 'first-registrant' && isMountedByThisTrigger;
   useIsoLayoutEffect(() => {
     if (forwardsWhileOwner) {
-      updateTriggerOwnership(
-        store,
-        { activeTriggerElement: triggerElementRef.current },
-        stateUpdates,
-      );
+      store.update({
+        activeTriggerElement: triggerElementRef.current,
+        ...stateUpdates,
+      } as Pick<Readonly<State>, Key | 'activeTriggerElement'>);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forwardsWhileOwner, store, triggerElementRef, ...Object.values(stateUpdates)]);

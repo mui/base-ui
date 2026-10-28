@@ -68,14 +68,14 @@ describe('useSettleTriggerOwnership', () => {
     );
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
+    expect(store.state.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe(null);
 
     act(() => {
       store.set('open', true);
     });
 
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
+    expect(store.state.hasLoneTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe('trigger');
     expect(store.state.activeTriggerElement).toBe(element);
   });
@@ -95,8 +95,8 @@ describe('useSettleTriggerOwnership', () => {
       store.update(createPopupOpenState(store.state, true, undefined, false));
     });
 
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
-    expect(store.state.triggerOwnership.openedWithoutTrigger).toBe(true);
+    expect(store.state.hasLoneTrigger).toBe(true);
+    expect(store.state.openedWithoutTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe(null);
     expect(store.state.activeTriggerElement).toBe(null);
   });
@@ -121,7 +121,7 @@ describe('useSettleTriggerOwnership', () => {
     act(() => {
       store.set('open', false);
     });
-    expect(store.state.triggerOwnership.openedWithoutTrigger).toBe(false);
+    expect(store.state.openedWithoutTrigger).toBe(false);
 
     act(() => {
       store.set('open', true);
@@ -197,7 +197,7 @@ describe('useSettleTriggerOwnership', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
+    expect(store.state.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
 
@@ -212,7 +212,7 @@ describe('useSettleTriggerOwnership', () => {
       expect(store.setOpen).toHaveBeenCalledTimes(1);
     });
 
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
+    expect(store.state.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe(null);
     expect(store.state.activeTriggerElement).toBe(null);
     expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
@@ -353,7 +353,7 @@ describe('useSettleTriggerOwnership', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
+    expect(store.state.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
 
@@ -369,7 +369,7 @@ describe('useSettleTriggerOwnership', () => {
 
     expect(store.context.triggerElements.getById('first')).toBe(replacement);
     expect(store.context.triggerElements.getById('second')).toBe(second);
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
+    expect(store.state.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(replacement);
     expect(store.state.open).toBe(true);
@@ -396,7 +396,7 @@ describe('useSettleTriggerOwnership', () => {
 
     await flushMicrotasks();
 
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
+    expect(store.state.hasLoneTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe('registered-id');
     expect(store.state.activeTriggerElement).toBe(element);
     expect(store.state.open).toBe(true);
@@ -460,7 +460,7 @@ describe('useSettleTriggerOwnership', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
+    expect(store.state.hasLoneTrigger).toBe(false);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
 
@@ -478,7 +478,7 @@ describe('useSettleTriggerOwnership', () => {
     expect(store.state.open).toBe(true);
     expect(store.context.triggerElements.getById('first')).toBeUndefined();
     expect(store.context.triggerElements.getById('second')).toBe(second);
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
+    expect(store.state.hasLoneTrigger).toBe(true);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(first);
   });
@@ -496,12 +496,12 @@ describe('useSettleTriggerOwnership', () => {
       </React.Fragment>,
     );
 
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(true);
+    expect(store.state.hasLoneTrigger).toBe(true);
 
     act(() => {
       store.set('open', false);
     });
 
-    expect(store.state.triggerOwnership.hasLoneTrigger).toBe(false);
+    expect(store.state.hasLoneTrigger).toBe(false);
   });
 });
