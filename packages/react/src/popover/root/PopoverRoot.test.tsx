@@ -3222,7 +3222,7 @@ describe('<Popover.Root />', () => {
   });
 
   describe('popup tree membership', () => {
-    it('closes on Escape and on an outside press while a popover nested in it is closed', async () => {
+    it('closes on Escape and on an outside press while a kept-mounted popover nested in it is closed', async () => {
       const { user } = await render(
         <div>
           <button type="button">Outside</button>
@@ -3233,7 +3233,7 @@ describe('<Popover.Root />', () => {
                 <Popover.Popup data-testid="parent">
                   <Popover.Root>
                     <Popover.Trigger>Child</Popover.Trigger>
-                    <Popover.Portal>
+                    <Popover.Portal keepMounted>
                       <Popover.Positioner>
                         <Popover.Popup data-testid="child">Child</Popover.Popup>
                       </Popover.Positioner>
@@ -3249,7 +3249,7 @@ describe('<Popover.Root />', () => {
       const parentTrigger = screen.getByRole('button', { name: 'Parent' });
       await user.click(parentTrigger);
       await screen.findByTestId('parent');
-      expect(screen.queryByTestId('child')).toBe(null);
+      expect(screen.getByTestId('child')).not.toBeVisible();
 
       await user.keyboard('{Escape}');
       await waitFor(() => {
@@ -3342,6 +3342,99 @@ describe('<Popover.Root />', () => {
 
       fireEvent.mouseLeave(positioner, { relatedTarget: document.body });
 
+      await waitFor(() => {
+        expect(screen.queryByTestId('parent')).toBe(null);
+      });
+    });
+
+    it('keeps a hover-opened popover open when the pointer leaves it for an open popover nested in it', async () => {
+      await render(
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={0} closeDelay={0}>
+            Parent
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="parent-positioner">
+              <Popover.Popup data-testid="parent">
+                <Popover.Root>
+                  <Popover.Trigger openOnHover delay={0} closeDelay={0}>
+                    Child
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Positioner data-testid="child-positioner">
+                      <Popover.Popup data-testid="child">Child</Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Parent' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      const positioner = screen.getByTestId('parent-positioner');
+      fireEvent.mouseLeave(trigger, { relatedTarget: positioner });
+      fireEvent.mouseEnter(positioner);
+      const childTrigger = screen.getByRole('button', { name: 'Child' });
+      fireEvent.mouseEnter(childTrigger);
+      fireEvent.mouseMove(childTrigger);
+      await screen.findByTestId('child');
+      expect(screen.getByTestId('parent')).toBeVisible();
+
+      const childPositioner = screen.getByTestId('child-positioner');
+      fireEvent.mouseLeave(childTrigger, { relatedTarget: childPositioner });
+      fireEvent.mouseLeave(positioner, { relatedTarget: childPositioner });
+      fireEvent.mouseEnter(childPositioner);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('parent')).toBeVisible();
+      expect(screen.getByTestId('child')).toBeVisible();
+    });
+
+    it('closes only a kept-mounted nested popover on Escape from the parent while it is open, then the parent', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Parent</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="parent">
+                <button type="button">Inside parent</button>
+                <Popover.Root>
+                  <Popover.Trigger>Child</Popover.Trigger>
+                  <Popover.Portal keepMounted>
+                    <Popover.Positioner>
+                      <Popover.Popup data-testid="child">Child</Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Parent' }));
+      await screen.findByTestId('parent');
+      expect(screen.getByTestId('child')).not.toBeVisible();
+
+      await user.click(screen.getByRole('button', { name: 'Child' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('child')).toBeVisible();
+      });
+      const insideParent = screen.getByRole('button', { name: 'Inside parent' });
+      await act(async () => insideParent.focus());
+      expect(screen.getByTestId('child')).toBeVisible();
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.getByTestId('child')).not.toBeVisible();
+      });
+      expect(screen.getByTestId('parent')).toBeVisible();
+
+      await user.keyboard('{Escape}');
       await waitFor(() => {
         expect(screen.queryByTestId('parent')).toBe(null);
       });
